@@ -18,7 +18,16 @@ const { houseTypography } = require('./_etl-voice-law.js');
 const web = require('./_gc-web.js');
 const when = require('./_gc-when.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
-const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
+const { getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
+/* PER-COMPANION CREDITS, added 2026-08-28. A built/owned companion's
+   credits now live in their own row (gc_companion_credits, keyed on
+   access_token + friend_id), not the old pooled ah_credits table -- see
+   _gc-companion-credits.js's own header for the full reasoning. Only
+   getCreditRowByRef/deductCreditsByRef stay imported from _ah-credits.js
+   above: the shared-room guest path (credit_ref) has not been migrated to
+   per-companion credits yet, a real gap, not an oversight -- see the note
+   further down where creditRef is actually used. */
+const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-companion-credits.js');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
 const { ownerUser } = require('./_owner-auth.js');
@@ -850,10 +859,22 @@ exports.handler = async function (event) {
   const creditRef = (!accessToken && CREDIT_REF.test(rawRef)) ? rawRef : null;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  /* PER-COMPANION, NOT POOLED, changed 2026-08-28, Dr. O direct: each
+     companion is its own $9.99/mo subscription with its own 300 credits.
+     A demo (is_demo true, nobody has made it theirs yet) is not a product
+     anyone has bought, so credits never apply to one any more -- only the
+     free daily cap below does, even for a visitor who is subscribed to
+     other companions. A built/owned friend checks ITS OWN row, keyed on
+     activeFriend.id. The shared-room guest path (creditRef) still reads
+     the old pooled ah_credits table -- not yet migrated, a real follow-up
+     gap, not an oversight. */
   let creditsRow = null;
   if (!isOwner && serviceKey) {
-    if (accessToken) creditsRow = await getCreditRow(accessToken, serviceKey);
-    else if (creditRef) creditsRow = await getCreditRowByRef(creditRef, serviceKey);
+    if (!isDemo && accessToken && activeFriend.id) {
+      creditsRow = await readCompanionCreditRow(accessToken, activeFriend.id, serviceKey);
+    } else if (creditRef) {
+      creditsRow = await getCreditRowByRef(creditRef, serviceKey);
+    }
   }
   const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= TEXT_MESSAGE_COST);
 
@@ -1081,8 +1102,8 @@ exports.handler = async function (event) {
      this ends up taking (quiet, idle-declined, or a real reply): all three
      spent the same real API call. */
   if (!isOwner) {
-    if (hasCredits && serviceKey && accessToken) {
-      await deductCredits(accessToken, TEXT_MESSAGE_COST, serviceKey);
+    if (hasCredits && serviceKey && !isDemo && accessToken && activeFriend.id) {
+      await deductCompanionCredits(accessToken, activeFriend.id, TEXT_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && creditRef) {
       await deductCreditsByRef(creditRef, TEXT_MESSAGE_COST, serviceKey);
     } else if (usingFreeDailyCap && dayKey) {

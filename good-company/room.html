@@ -2220,7 +2220,14 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
     ? "An owner key came through with that message but was not recognized. Check it against " +
       "the OWNER_KEY value in Netlify."
     : isDailyCap
-    ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or get monthly credits."
+    /* REWRITTEN 2026-08-28: credits do not apply to a demo nobody has made
+       theirs yet, per-companion subscriptions changed that -- "come back
+       tomorrow, or get monthly credits" used to offer a subscribe button
+       with nothing yet to subscribe TO. The real next step here is making
+       the demo a real, owned companion, which is what actually unlocks a
+       subscription for it. */
+    ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or make " +
+      FRIEND.name + " yours for unlimited, credit-backed conversation."
     : "Out of credits for " + FRIEND.name + " right now.";
   box.appendChild(say);
 
@@ -2245,38 +2252,48 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
     var actions = document.createElement('div');
     actions.style.cssText = 'margin-top:.5rem; display:flex; gap:.5rem; flex-wrap:wrap;';
 
-    var subBtn = document.createElement('button');
-    subBtn.type = 'button'; subBtn.className = 'btn go';
-    subBtn.textContent = '$9.99/mo, 300 credits';
-    subBtn.addEventListener('click', function () { startCreditsCheckout('/.netlify/functions/create-checkout-ah', {}); });
-    actions.appendChild(subBtn);
+    if (isDailyCap) {
+      /* A DEMO HAS NO SUBSCRIPTION TO TOP UP, changed 2026-08-28: per-
+         companion credits mean there is nothing here to subscribe to or
+         add credits toward until this demo is actually owned. Reuses the
+         real claimBtn already on the page (see the Make a demo yours
+         handler) rather than duplicating its logic. */
+      var claimNowBtn = document.createElement('button');
+      claimNowBtn.type = 'button'; claimNowBtn.className = 'btn go';
+      claimNowBtn.textContent = '❤ Make ' + FRIEND.name + ' yours';
+      claimNowBtn.addEventListener('click', function () {
+        var real = $('claimBtn');
+        if (real) real.click();
+      });
+      actions.appendChild(claimNowBtn);
+    } else {
+      /* PER-COMPANION, changed 2026-08-28: subscribing and topping up both
+         have to name THIS companion now, not a pooled balance -- see
+         gc-companion-checkout.js and gc-companion-addon.js. */
+      var subBtn = document.createElement('button');
+      subBtn.type = 'button'; subBtn.className = 'btn go';
+      subBtn.textContent = '$9.99/mo, 300 credits';
+      subBtn.addEventListener('click', function () {
+        startCompanionCheckout('/.netlify/functions/gc-companion-checkout', {});
+      });
+      actions.appendChild(subBtn);
 
-    /* ALWAYS OFFERED NOW, not just to somebody who already has a token.
-       create-checkout-ah-addon.js mints a fresh one on success if this visitor
-       has none yet, added 2026-08-18: "we need to let them buy credits. the
-       demos may end up being the star of the app." A first sit-down with
-       Reggie or Tansy should not have to end at "subscribe monthly or stop." */
-    var existingToken = GC_accessToken();
-    var addonBtn = document.createElement('button');
-    addonBtn.type = 'button'; addonBtn.className = 'btn';
-    addonBtn.textContent = '+150 credits, $4.99';
-    addonBtn.addEventListener('click', function () {
-      startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken || '' });
-    });
-    actions.appendChild(addonBtn);
+      var addonBtn = document.createElement('button');
+      addonBtn.type = 'button'; addonBtn.className = 'btn';
+      addonBtn.textContent = '+150 credits, $4.99';
+      addonBtn.addEventListener('click', function () {
+        startCompanionCheckout('/.netlify/functions/gc-companion-addon', { size: 'small' });
+      });
+      actions.appendChild(addonBtn);
 
-    /* THE XL PACK, added 2026-08-26 for someone using this at Pookie's actual
-       volume (real GA data: ~10 hours/week) rather than an occasional top-up
-       -- see create-checkout-ah-addon-xl.js and XL_ADDON_CREDITS's own
-       comment in _ah-credits.js for the reasoning behind 2,000 credits at
-       $60. */
-    var xlBtn = document.createElement('button');
-    xlBtn.type = 'button'; xlBtn.className = 'btn';
-    xlBtn.textContent = '+2,000 credits, $60';
-    xlBtn.addEventListener('click', function () {
-      startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon-xl', { access_token: existingToken || '' });
-    });
-    actions.appendChild(xlBtn);
+      var xlBtn = document.createElement('button');
+      xlBtn.type = 'button'; xlBtn.className = 'btn';
+      xlBtn.textContent = '+2,000 credits, $60';
+      xlBtn.addEventListener('click', function () {
+        startCompanionCheckout('/.netlify/functions/gc-companion-addon', { size: 'xl' });
+      });
+      actions.appendChild(xlBtn);
+    }
 
     box.appendChild(actions);
   }
@@ -2298,6 +2315,68 @@ function startCreditsCheckout(url, extra) {
     })
     .catch(function () { post('Not wired yet', 'Could not start that just now. Try again in a moment.'); });
 }
+
+/* PER-COMPANION CHECKOUT, added 2026-08-28: same shape as
+   startCreditsCheckout above, but always names THIS companion
+   (friend_id/friend_name), since gc-companion-checkout.js and
+   gc-companion-addon.js both write to that companion's own row, not a
+   pooled balance. */
+function startCompanionCheckout(url, extra) {
+  var returnTo = location.pathname + location.search;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({
+      return_to: returnTo,
+      friend_id: FRIEND.id || '',
+      friend_name: FRIEND.name || '',
+      access_token: GC_accessToken(),
+    }, extra))
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data && data.url) { location.href = data.url; }
+      else { post('Not wired yet', 'Could not start that just now. Try again in a moment.'); }
+    })
+    .catch(function () { post('Not wired yet', 'Could not start that just now. Try again in a moment.'); });
+}
+
+/* COMING BACK FROM A PER-COMPANION PAYMENT, added 2026-08-28. Same
+   "ask Stripe, never trust the URL" reasoning as build.html's old
+   ?friend-paid= handler (now removed there, since opening a room is free)
+   -- this is its replacement, just for a real money event (subscribe or
+   top up) instead of a one-time unlock. */
+(function () {
+  var q = null;
+  try { q = new URLSearchParams(location.search); } catch (e) {}
+  var subSession = q && q.get('companion-paid');
+  var addonSession = q && q.get('companion-addon-paid');
+  var sessionId = subSession || addonSession;
+  if (!sessionId) return;
+
+  var endpoint = subSession
+    ? '/.netlify/functions/gc-companion-checkout'
+    : '/.netlify/functions/gc-companion-addon';
+
+  try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&](companion-paid|companion-addon-paid)=[^&]*/, '').replace(/^&/, '?')); } catch (e) {}
+
+  fetch(endpoint + '?session_id=' + encodeURIComponent(sessionId))
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data || !data.paid) return;
+      if (data.access_token) { try { localStorage.setItem('ah_access_token', data.access_token); } catch (e) {} }
+      if (typeof gtag === 'function') {
+        gtag('event', subSession ? 'companion_subscribed' : 'companion_addon', { value: subSession ? 9.99 : null, currency: 'USD' });
+      }
+      creditsUpsellShown = false;
+      var old = document.getElementById('creditsUpsell');
+      if (old) old.remove();
+      post('You’re set', data.balance != null
+        ? 'Credits with ' + FRIEND.name + ': ' + data.balance + '.'
+        : 'That went through.');
+    })
+    .catch(function () {});
+})();
 
 /* ── SHOWING THEM SOMETHING ──────────────────────────────────────────────────
    Dr. O: the friend should be able to receive images and see webpages, the way
@@ -3668,7 +3747,12 @@ function speak(text, voiceId, onDone, bubble) {
       access_token: GC_accessToken(), credit_ref: ROOM_CREDIT_REF, owner_key: GC_ownerKey(),
       /* Same currentDemoId() fix as the ask() call above, same date, same
          reason: this used to be FRIEND === GC_DEMO, true only for Arch. */
-      is_demo: !!currentDemoId(), visitor_id: GC_visitorId()
+      is_demo: !!currentDemoId(), visitor_id: GC_visitorId(),
+      /* friend_id, added 2026-08-28: gc-voice.js now checks THIS companion's
+         own credit row (per-companion subscriptions), not a pooled balance,
+         same reason gc-chat.js's own ask() call needs it. Undefined for a
+         demo, which has no per-companion row to check. */
+      friend_id: (!currentDemoId() && FRIEND && FRIEND.id) || undefined
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     if (j && j.daily_capped) {

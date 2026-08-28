@@ -82,7 +82,12 @@ const json = (code, body) => ({
   statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
 
-const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
+const { getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
+/* PER-COMPANION CREDITS, added 2026-08-28 -- see gc-chat.js's own identical
+   import comment and _gc-companion-credits.js's header for the full
+   reasoning. The shared-room guest path (credit_ref) still reads the old
+   pooled ah_credits table, a real follow-up gap, not an oversight. */
+const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-companion-credits.js');
 const { ownerUser } = require('./_owner-auth.js');
 const { connectLambda, getStore } = require('@netlify/blobs');
 
@@ -142,14 +147,25 @@ exports.handler = async function (event) {
   const isDemo = body.is_demo === true;
   const visitorId = safeVisitorId(body.visitor_id);
   const accessToken = safeToken(body.access_token);
+  /* friend_id, added 2026-08-28: which companion's own credit row to check,
+     same reasoning as gc-chat.js's activeFriend.id. Not validated against a
+     format here since it is only ever used as an opaque key into
+     gc_companion_credits, same trust level as accessToken/creditRef below. */
+  const friendId = String(body.friend_id || '').trim() || null;
   const rawRef = String(body.credit_ref || '').trim();
   const creditRef = (!accessToken && CREDIT_REF.test(rawRef)) ? rawRef : null;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  /* PER-COMPANION, NOT POOLED, changed 2026-08-28 -- see gc-chat.js's own
+     identical comment for the full reasoning. A demo has no per-companion
+     row, so credits never apply to one, only the free daily cap below. */
   let creditsRow = null;
   if (!isOwner && serviceKey) {
-    if (accessToken) creditsRow = await getCreditRow(accessToken, serviceKey);
-    else if (creditRef) creditsRow = await getCreditRowByRef(creditRef, serviceKey);
+    if (!isDemo && accessToken && friendId) {
+      creditsRow = await readCompanionCreditRow(accessToken, friendId, serviceKey);
+    } else if (creditRef) {
+      creditsRow = await getCreditRowByRef(creditRef, serviceKey);
+    }
   }
   const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= AUDIO_MESSAGE_COST);
 
@@ -214,8 +230,8 @@ exports.handler = async function (event) {
      blocked check above, and never on a failed/unreachable call, which
      returned before this point. */
   if (!isOwner) {
-    if (hasCredits && serviceKey && accessToken) {
-      await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
+    if (hasCredits && serviceKey && !isDemo && accessToken && friendId) {
+      await deductCompanionCredits(accessToken, friendId, AUDIO_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && creditRef) {
       await deductCreditsByRef(creditRef, AUDIO_MESSAGE_COST, serviceKey);
     } else if (usingFreeDailyCap && dayKey) {
