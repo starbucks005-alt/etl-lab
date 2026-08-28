@@ -11,6 +11,18 @@
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- NEVER RESUME A FROZEN COPY OF THIS PAGE, added 2026-08-28. Chrome now
+     allows a no-store page into the back/forward cache (that used to opt a
+     page out entirely), so backgrounding this tab and coming back can
+     silently resume whatever was loaded before the last deploy -- no
+     request happens at all, so /good-company/*'s own no-store header never
+     gets the chance to matter. persisted is the flag a bfcache restore
+     carries; a real first load never has it. Found the hard way: a
+     companion "disappearing" and a CSS fix "not working" were both this,
+     not lost data and not a bad fix -- a frozen tab nobody knew to
+     distrust. Duplicated across every page here rather than left in one
+     shared file, same choice as the owner-key planter above. -->
+<script>window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });</script>
 <link rel="manifest" href="/good-company/gc-manifest.json">
 <title>Good Company</title>
 <meta name="description" content="Finding real friends is hard. So here, you make one.">
