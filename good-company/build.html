@@ -1372,6 +1372,24 @@ $('makeBtn').addEventListener('click', function () {
     editingId = null; // fell out of storage somehow -- fall through and build fresh
   }
 
+  /* SAME NAME, ALREADY BUILT: ask instead of silently minting a duplicate.
+     Nothing here caught this before -- every press of Create with no
+     editingId set made a fresh id no matter what already existed, which is
+     how five Isabelles happened. */
+  var dupName = (typeof GC_ALL_BUILT !== 'undefined' ? GC_ALL_BUILT : []).filter(function (f) {
+    return f && f.name && answers.name &&
+      f.name.trim().toLowerCase() === answers.name.trim().toLowerCase();
+  })[0];
+  if (dupName) {
+    var openExisting = confirm('You already have a companion named ' + dupName.name + '. ' +
+      'OK opens the one you already made. Cancel builds a new, separate one with the same name.');
+    if (openExisting) {
+      GC_touchFriend(dupName.id);
+      location.href = 'build.html';
+      return;
+    }
+  }
+
   friend = answers;
   /* A STABLE ID, MINTED ONCE, HERE. Every write from here on saves this friend
      into the array by id rather than overwriting a single slot, which is what
