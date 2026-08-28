@@ -1567,7 +1567,17 @@ function askForScene() {
        GENERATE something (a photo for Veo to animate, or a written
        description) still costs real compute and stays behind the paid
        order queue below -- that branch is untouched. */
-    if (mode === 'own' && vimeoMatch && !photoInput.files.length) {
+    /* A REAL VIMEO VIDEO IS ALWAYS FREE, no condition on what else is in the
+       form. This used to also require the "photo to work from" field be
+       empty, which meant filling in that unrelated optional field -- a
+       reasonable thing to do, nothing told anyone not to -- silently
+       dropped an already-hosted video into the same $4.99 queue Veo
+       renders use, with the fallback below never checking mode at all
+       before showing "Pay $4.99." Found 2026-08-28 after Dr. O hit it
+       uploading Isabelle's second scene. A video that already exists costs
+       nothing to attach either way; the photo field only ever mattered for
+       Veo, and Veo is not involved here. */
+    if (mode === 'own' && vimeoMatch) {
       readAsBase64(thumbInput).then(function (thumbDataUrl) {
         var label = w || 'A new scene';
         var key = 'added-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
