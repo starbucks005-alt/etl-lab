@@ -334,6 +334,18 @@ figure{ margin:0; }
   color:rgba(255,255,255,.72); text-shadow:0 1px 12px rgba(0,0,0,.6);
 }
 .hero.no-art .hero-credit{ display:none; }
+/* REACHES PAST .hero-words' OWN 34rem COLUMN, added 2026-08-28, Dr. O
+   direct: "it is on the photo, just too far to the left." Right-aligned
+   inside .hero-words alone puts it at the edge of the narrow text column,
+   nowhere near the person in the photo, which sits further right. Still a
+   normal-flow child (nothing about WHEN it appears changes, only how far
+   right its own box reaches), so it still cannot land on top of the three
+   things above it -- that guarantee never depended on its width. Left off
+   mobile, where .hero-words already spans nearly the full photo and this
+   was never the complaint. */
+@media (min-width:761px){
+  .hero-credit{ width:calc(100vw - 2 * clamp(1.25rem, 4vw, 3.5rem)); max-width:none; }
+}
 
 /* ── three ──────────────────────────────────────────────────────────────── */
 .three{
