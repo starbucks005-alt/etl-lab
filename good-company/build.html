@@ -1149,7 +1149,36 @@ function openFriendRoomInner(f) {
    repaint this list right after a save -- otherwise "You already made
    Isabelle" would go on describing whoever she was before the edit until the
    page was reloaded. */
+/* ONE-TIME CLEANUP FOR DUPLICATES MADE BEFORE THE FIX, added 2026-08-28.
+   catalogSourceId/claimedDemoId stop a NEW duplicate from being minted (see
+   catalog.html's startWith() and room.html's claimBtn handler), but neither
+   can rewrite data already sitting in someone's browser from before that
+   fix shipped -- five Isabelles from testing the catalog button live, in
+   Dr. O's own case. Groups GC_ALL_BUILT by whichever source id a friend
+   has, keeps the one most recently opened (or most recently made, if
+   neither has ever been opened), and forgets the rest. Runs every time
+   renderAlready() does, which costs nothing once there is nothing left to
+   merge -- each group collapses to one and stays that way. */
+function dedupeCatalogCopies() {
+  var groups = {};
+  GC_ALL_BUILT.forEach(function (f) {
+    if (!f) return;
+    var key = f.catalogSourceId ? 'cat:' + f.catalogSourceId : (f.claimedDemoId ? 'demo:' + f.claimedDemoId : null);
+    if (!key) return;
+    (groups[key] = groups[key] || []).push(f);
+  });
+  Object.keys(groups).forEach(function (key) {
+    var dupes = groups[key];
+    if (dupes.length < 2) return;
+    dupes.sort(function (a, b) {
+      return String(b.lastOpenedAt || b.createdAt || '').localeCompare(String(a.lastOpenedAt || a.createdAt || ''));
+    });
+    dupes.slice(1).forEach(function (f) { GC_deleteFriend(f.id); });
+  });
+}
+
 function renderAlready() {
+  dedupeCatalogCopies();
   var list = document.getElementById('alreadyList');
   list.innerHTML = '';
   if (!GC_ALL_BUILT.length) {
