@@ -346,7 +346,13 @@
 <section id="splash" class="screen active">
   <div class="splash-video-wrap" id="splashVideoWrap">
     <div class="splash-video-box">
-      <iframe id="splashVideo" src="https://player.vimeo.com/video/1206980983?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="ALMOST HUMAN"></iframe>
+      <!-- FIXED 2026-08-28: autoplay=1 with no mute parameter at all. Chrome
+           (and every major browser) blocks autoplay WITH sound outright, so
+           this was very likely never actually playing for a real visitor,
+           just sitting frozen/black on the splash screen. muted=1 added,
+           matching the exact same Vimeo embed pattern already used correctly
+           elsewhere on this campus (Good Company's own scene embeds). -->
+      <iframe id="splashVideo" src="https://player.vimeo.com/video/1206980983?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;muted=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="ALMOST HUMAN"></iframe>
     </div>
   </div>
   <div class="splash-inner" id="splashInner">
