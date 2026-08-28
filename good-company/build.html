@@ -630,7 +630,7 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   </section>
 
   <div class="end">
-    <button class="btn go" id="makeBtn" type="button">Meet the faces</button>
+    <button class="btn go" id="makeBtn" type="button">Create their portraits</button>
     <p id="endNote">Bring them to life by creating four portraits and choose the one that best represents your companion.</p>
   </div>
 
@@ -1189,7 +1189,7 @@ function renderAlready() {
        repaints the summary each time rather than only once, because with a
        list there can be several friends to choose faces for in one visit. */
     var facesBtn = document.createElement('button');
-    facesBtn.type = 'button'; facesBtn.className = 'btn go'; facesBtn.textContent = 'Generate new faces';
+    facesBtn.type = 'button'; facesBtn.className = 'btn go'; facesBtn.textContent = 'Generate new portraits';
     facesBtn.addEventListener('click', function () {
       friend = built;
       var dl = $('sumList'); dl.innerHTML = '';
@@ -1335,7 +1335,7 @@ $('makeBtn').addEventListener('click', function () {
       Object.keys(answers).forEach(function (k) { existing[k] = answers[k]; });
       try { GC_saveFriend(existing); } catch (e) {}
       editingId = null;
-      $('makeBtn').textContent = 'Meet the faces';
+      $('makeBtn').textContent = 'Create their portraits';
       $('endNote').textContent = 'Saved. ' + existing.name + ' knows this the next time you talk.';
       renderAlready();
       return;
@@ -1464,7 +1464,7 @@ function drawFaces() {
   if (setsDrawn() >= FACE_SETS) {
     /* Named plainly, with the way forward, rather than a dead button. */
     $('faceNote').textContent =
-      'That is all the faces for this one. Pick the closest of these, or start ' +
+      'That is all the portraits for this one. Pick the closest of these, or start ' +
       'over at the top of the page to begin again.';
     paintRedraw();
     return;
@@ -1473,7 +1473,7 @@ function drawFaces() {
   drawing = true;
   noteSetDrawn();
   $('redrawBtn').disabled = true;
-  $('faceNote').textContent = 'Drawing four faces from your answers. They arrive one at a time.';
+  $('faceNote').textContent = 'Creating four portraits from your answers. They arrive one at a time.';
 
   var grid = $('faceGrid');
   grid.innerHTML = '';
@@ -1519,8 +1519,8 @@ function drawFaces() {
         drawing = false; paintRedraw();
         if (!drawn) {
           $('faceNote').textContent = (firstProblem === 'no_image_key')
-            ? 'Faces are not connected to a drawing key yet. Everything else you built is saved.'
-            : 'Could not draw the faces: ' + firstProblem + '. Your answers are saved.';
+            ? 'Portraits are not connected to a drawing key yet. Everything else you built is saved.'
+            : 'Could not create the portraits: ' + firstProblem + '. Your answers are saved.';
         } else if (drawn < FACE_COUNT) {
           $('faceNote').textContent = 'Choose the one that best represents your companion. ' +
             (FACE_COUNT - drawn) + ' did not draw; make four more.';
@@ -1539,7 +1539,7 @@ function faceButton(src) {
   b.type = 'button'; b.className = 'face';
   var im = document.createElement('img');
   im.src = src;
-  im.alt = 'One of four faces for ' + friend.name;
+  im.alt = 'One of four portraits for ' + friend.name;
   b.appendChild(im);
   var tick = document.createElement('span');
   tick.className = 'tick'; tick.hidden = true; tick.textContent = 'Chosen';
@@ -1607,12 +1607,12 @@ $('copyBtn').addEventListener('click', function () {
            whatever you actually talk to, same table as index.html's own
            pricing section. -->
       <div class="a9-row"><span>Answering the questions</span><span>Free</span></div>
-      <div class="a9-row"><span>Meeting the faces</span><span>Free</span></div>
+      <div class="a9-row"><span>Creating their portraits</span><span>Free</span></div>
       <div class="a9-row"><span>Opening their room</span><span>Free</span></div>
       <div class="a9-row"><span>Actually talking</span><span>$9.99/mo, or buy credits</span></div>
     </div>
     <div id="a9-panel-how" class="a9-panel">
-      <p class="a9-outcome">Answer what you feel like answering, about them and about you. Pick the face that looks like them out of four. Open their room. That is the whole thing.</p>
+      <p class="a9-outcome">Answer what you feel like answering, about them and about you. Pick the portrait that looks like them out of four. Open their room. That is the whole thing.</p>
       <p class="a9-outcome" style="margin-top:.6rem">You can build more than one, each their own room, free to open. Arch and Sophia are two you can already talk to, free once a day: house demos, always there to try. Building makes somebody new, shaped by your own answers, not theirs.</p>
     </div>
     <div id="a9-panel-help" class="a9-panel">
@@ -1639,8 +1639,8 @@ $('copyBtn').addEventListener('click', function () {
   var VOICE     = 'weA4Q36twV5kwSaTEL0Q';
 
   var LINES = {
-    cost: 'Answering the questions, picking a face, and opening a companion’s room all cost nothing. Talking to them costs credits: nine dollars and ninety nine cents a month for three hundred, spendable on any companion, or buy credits any time.',
-    how:  'Answer what you feel like answering, pick the face that looks like them, open their room. You can build more than one, all free to open. Arch and Sophia are free to try once a day, but they are house companions, not something you keep.'
+    cost: 'Answering the questions, creating their portraits, and opening a companion’s room all cost nothing. Talking to them costs credits: nine dollars and ninety nine cents a month for three hundred, spendable on any companion, or buy credits any time.',
+    how:  'Answer what you feel like answering, pick the portrait that looks like them, open their room. You can build more than one, all free to open. Arch and Sophia are free to try once a day, but they are house companions, not something you keep.'
   };
 
   function speak(text) {

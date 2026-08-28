@@ -1533,7 +1533,7 @@ function askForScene() {
   var note = document.createElement('p');
   note.className = 'gate-say';
   note.textContent = 'Sending this is the one time ' + FRIEND.name + "'s picture leaves this " +
-    'device. It goes so the scene can be made from the face you picked, and nothing else.';
+    'device. It goes so the scene can be made from the portrait you picked, and nothing else.';
   host.appendChild(note);
 
   var send = document.createElement('button');
@@ -2815,7 +2815,7 @@ $('claimBtn').addEventListener('click', function () {
   var demoId = currentDemoId();
   if (!demoId || typeof GC_DEMOS === 'undefined' || !GC_DEMOS[demoId]) return;
   var demo = GC_DEMOS[demoId];
-  var ok = confirm('Make your own copy of ' + demo.name + '? Same face, same scenes, same ' +
+  var ok = confirm('Make your own copy of ' + demo.name + '? Same portrait, same scenes, same ' +
     'personality, yours to keep, edit, and talk with any time.');
   if (!ok) return;
   var mine;
