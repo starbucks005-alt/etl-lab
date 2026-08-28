@@ -2724,6 +2724,13 @@ function inviteLink(token) {
 
 function showInvite(token) {
   var url = inviteLink(token);
+  /* INSTRUMENTED 2026-08-28, per the distribution question raised about this
+     exact loop: invites sent per active user, and guest-to-return rate,
+     needed real numbers before either could be answered. This is the send
+     side; gc_guest_joined below (joinThenSit) is the arrival side. Return
+     rate is NOT covered by either of these two events alone -- see that
+     event's own comment for what it would actually take to measure. */
+  if (typeof gtag === 'function') gtag('event', 'gc_invite_shown');
   /* SAYS IT IS SINGLE USE, because it is, and nothing said so. One link lets in
      one person and is then spent, so testing your own link burns it and two
      people sent the same one means the second is turned away. That was being
@@ -2989,6 +2996,17 @@ function joinThenSit() {
     }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
     ROOM_CREDIT_REF = j.host_credit_ref || null;
+    /* INSTRUMENTED 2026-08-28, arrival side of gc_invite_shown above. Fired
+       once, on a genuinely successful join (past the invite_not_found /
+       room_full / expired branch just above), not on every attempt.
+
+       RETURN RATE STILL NEEDS MORE THAN THIS. A guest is anonymous, no
+       account, and this event alone cannot tell "a guest came back later"
+       from "a different guest joined a different room" -- that needs a
+       persistent id planted in this browser at join time (localStorage,
+       same no-account shape as everything else here) and checked against
+       on any later visit, a real follow-up, not built tonight. */
+    if (typeof gtag === 'function') gtag('event', 'gc_guest_joined');
     if (j.friend) { FRIEND = j.friend; nameEverything(); renderScenes(); earLabel(); }
     if (j.scene_key) {
       var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
