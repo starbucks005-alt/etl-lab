@@ -68,6 +68,25 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
 }
 .flip-facts span{ border:1px solid var(--line); border-radius:999px; padding:.25rem .7rem; }
 
+.flip-scenes-label{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-dim); margin:0 0 .5rem;
+}
+.flip-scenes{
+  display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.3rem; margin:0 0 1.1rem;
+}
+.flip-scene{
+  flex:0 0 auto; width:6.5rem;
+}
+.flip-scene video, .flip-scene img{
+  display:block; width:100%; aspect-ratio:3/4; object-fit:cover;
+  border-radius:6px; background:var(--panel-2, var(--panel));
+}
+.flip-scene span{
+  display:block; margin-top:.3rem; font-size:.68rem; color:var(--ink-dim);
+  line-height:1.25; text-align:center;
+}
+
 /* TURNING, NOT SWAPPING. A plain content swap reads as a reload; a short
    fade-and-lift on the incoming card is the smallest amount of motion that
    still reads as one page settling in after the last one left, which is
@@ -165,6 +184,37 @@ function factList(item) {
   return facts;
 }
 
+/* WHAT A SCENE LOOKS LIKE HERE, added 2026-08-27 per Dr. O direct: "they
+   probably want to see the scenes/images that come with it, not just a
+   vague summary." A name and a one-line bio is not what somebody is
+   actually choosing between; the rooms are. Same preview convention
+   room.html's own scene picker already uses (see its renderScenes()) --
+   a real muted, looping <video> for a local clip, a still image for a
+   Vimeo-hosted one, so this reads consistent with the rest of the
+   product rather than inventing a second visual language. Not
+   clickable: there is no room to open yet for a companion nobody has
+   started, this is only ever a preview of what comes with them. */
+function sceneChipHtml(scene) {
+  var label = escapeHtml(scene.label || '');
+  if (scene.src) {
+    return '<div class="flip-scene"><video src="' + escapeAttr(scene.src) + '" muted loop ' +
+      'playsinline autoplay></video><span>' + label + '</span></div>';
+  }
+  var thumb = scene.thumb || (scene.vimeoId ? ('https://vumbnail.com/' + encodeURIComponent(scene.vimeoId) + '.jpg') : '');
+  if (thumb) {
+    return '<div class="flip-scene"><img src="' + escapeAttr(thumb) + '" alt="" ' +
+      'onerror="this.style.display=\'none\'"><span>' + label + '</span></div>';
+  }
+  return '';
+}
+
+function scenesHtml(item) {
+  var scenes = Array.isArray(item.scenes) ? item.scenes.filter(function (s) { return s && (s.src || s.vimeoId); }) : [];
+  if (!scenes.length) return '';
+  return '<div class="flip-scenes-label">Their rooms</div>' +
+    '<div class="flip-scenes">' + scenes.map(sceneChipHtml).join('') + '</div>';
+}
+
 function cardHtml(item) {
   var img = item.portraitWide || item.portrait || '';
   var facts = factList(item);
@@ -176,6 +226,7 @@ function cardHtml(item) {
       (facts.length ? '<div class="flip-facts">' + facts.map(function (f) {
         return '<span>' + escapeHtml(f) + '</span>';
       }).join('') + '</div>' : '') +
+      scenesHtml(item) +
       '<button class="btn go" type="button" id="startBtn">Start with ' + escapeHtml(item.name || 'them') + '</button>' +
     '</div>'
   );
