@@ -227,7 +227,7 @@ function cardHtml(item) {
         return '<span>' + escapeHtml(f) + '</span>';
       }).join('') + '</div>' : '') +
       scenesHtml(item) +
-      '<button class="btn go" type="button" id="startBtn">Start with ' + escapeHtml(item.name || 'them') + '</button>' +
+      '<button class="btn go" type="button" id="startBtn">Meet ' + escapeHtml(item.name || 'them') + '</button>' +
     '</div>'
   );
 }
@@ -267,13 +267,11 @@ function turn(dir) {
 }
 
 /* ── picking one starts a real copy, same shape build.html itself makes ───
-   SAME THREE LINES build.html's own makeBtn handler uses for a brand-new
-   friend (id, createdAt, paid:false) -- see its own comment there. Getting
-   this right matters: paid:false is what sends them through the SAME
-   $9.99-to-open-the-room gate every other built friend goes through
-   (room.html checks paid === false specifically), so a catalog copy is
-   not a free room by accident. user is left blank on purpose -- it
-   describes the ORIGINAL builder (their own name/pronouns/about), never
+   No paid field set, changed 2026-08-27, Dr. O direct: "there is never an
+   unlock everywhere." Opening the copy's room is free, same as every
+   companion now; talking to it still costs real credits, checked live the
+   same way it already is everywhere else. user is left blank on purpose,
+   it describes the ORIGINAL builder (their own name/pronouns/about), never
    the person picking a copy now. */
 function startWith(item) {
   var friend = {};
@@ -281,7 +279,6 @@ function startWith(item) {
     .forEach(function (k) { if (item[k] !== undefined) friend[k] = item[k]; });
   friend.id = GC_newFriendId();
   friend.createdAt = new Date().toISOString();
-  friend.paid = false;
   friend.user = { call: '', want: [], about: '' };
   try { GC_saveFriend(friend); } catch (e) {}
   location.href = 'build.html';

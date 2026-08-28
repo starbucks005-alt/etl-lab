@@ -424,24 +424,16 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
     <img src="images/after-work-fun.png" alt="The Good Company atelier, after hours">
   </div>
 
-  <!-- THE PRICE, ON THE PAGE ITSELF, added 2026-08-19. Dr. O: it should be
-       in the text too, on the page -- not only inside the Astra-9 widget,
-       which somebody has to think to open. Same corrected facts as that
-       widget's own Cost tab and system prompt (see both further down):
-       the $9.99 is real and one-time, it includes a spendable credit
-       balance rather than unlocking anything forever, and what happens
-       once those run out is said plainly here too, not left for someone
-       to discover mid-conversation.
-
-       100 -> 200, same day, after Dr. O asked for the real cost numbers
-       behind Pookie's "17 credits felt ridiculous" -- see STARTER_CREDITS's
-       own comment in _ah-credits.js for the worst-case math that justified
-       it. One number, one source of truth: STARTER_CREDITS itself, so this
-       stays the only place in the copy that has to be re-typed if it moves
-       again. -->
-  <p class="lede price-note">Free to build. $9.99, once, to open their room, which includes
-    200 credits to start talking with them. $9.99/mo keeps a fresh 300 coming every month, or
-    top up any time.</p>
+  <!-- THE PRICE, ON THE PAGE ITSELF, added 2026-08-19. REWRITTEN 2026-08-27,
+       Dr. O direct: "there is never an unlock everywhere." Opening a room
+       used to cost a one-time $9.99 on top of everything else; that gate
+       is gone. Free to build AND free to open. The only real cost is the
+       same subscription or credit packs already on index.html's own
+       pricing table, spent on whatever you actually talk to. Same
+       corrected facts as the Astra-9 widget's own Cost tab and system
+       prompt further down. -->
+  <p class="lede price-note">Free to build, free to open. $9.99/mo for 300 credits a
+    month, spendable on any companion, or buy credits any time.</p>
 
   <!-- ── WHO THEY ARE ────────────────────────────────────────────────────── -->
   <section>
@@ -665,7 +657,6 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
       <button class="btn go" type="button" id="roomBtn">Open the room &rarr;</button>
       <button class="btn" type="button" id="copyBtn">Copy as JSON</button>
     </p>
-    <p class="q-note" id="roomPriceNote" style="margin-top:.5rem"></p>
   </div>
 
   <footer>If you like Good Company, there is more of it.
@@ -1102,18 +1093,20 @@ var friend = null;
    startEdit() below. */
 var editingId = null;
 
-/* ── PAYING FOR A FRIEND ──────────────────────────────────────────────────────
-   Dr. O: "we need to set the price per 'friend'." One gate, used everywhere a
-   friend's room gets opened: the "Open the room" button after building, and
-   "Open their room" in the list above for anyone made earlier.
-
-   GATED ON paid === false, SPECIFICALLY, NOT ON paid BEING FALSY. Every
-   friend built from today gets paid:false the moment they are made, so the
-   gate is real for them. Everyone already on this device has friends with no
-   paid field at all, and undefined !== false, so they pass straight through.
-   The alternative, gating on "not paid", would have charged Pookie and Terry
-   for friends they already made for free; that is not a bill this feature
-   gets to send retroactively. */
+/* ── OPENING A FRIEND'S ROOM ─────────────────────────────────────────────────
+   NO PER-FRIEND CHARGE ANY MORE, changed 2026-08-27, Dr. O direct: "there is
+   never an unlock everywhere." Opening a room used to gate on a one-time
+   $9.99 (see git history / gc-friend-checkout.js for the old flow), a
+   separate charge layered in front of the room before the credit system
+   ever got involved. Companions are subscriptions now, per Dr. O's own
+   read on the pricing: $9.99/mo for 300 credits, or a $60 lump sum, either
+   way spendable on ANY companion. gc-chat.js already checks the visitor's
+   real, live credit balance on every single message to a built friend, so
+   that is the only gate that needs to exist, and it already did. This
+   function's only job now is the policy gate below; opening the room
+   itself is free and immediate. gc-friend-checkout.js is left in place,
+   unused, rather than deleted -- deleting a live payment function is a
+   bigger, harder-to-reverse move than leaving dead code alone. */
 /* THE POLICY GATE, added 2026-08-19. Dr. O: "put this into a
    policy/something that people agree to before they get a companion" --
    so we cannot get sued. Shown once, ever, per browser (GC_POLICY_KEY),
@@ -1137,61 +1130,9 @@ function openFriendRoom(f) {
 }
 
 function openFriendRoomInner(f) {
-  if (f.paid !== false) {
-    GC_touchFriend(f.id);
-    location.href = 'room.html?who=' + encodeURIComponent(f.id);
-    return;
-  }
-  fetch('/.netlify/functions/gc-friend-checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    /* THE EXISTING TOKEN TRAVELS WITH THE PAYMENT, if there is one (already
-       an Almost Human subscriber, or a second friend bought here), so the
-       starter credits this purchase grants top up that same row instead of
-       minting an orphan one nothing else will ever read. */
-    body: JSON.stringify({ friend_id: f.id, friend_name: f.name, access_token: GC_accessToken() }),
-  })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (data && data.url) { location.href = data.url; }
-      else { alert('Could not start payment just now. Try again in a moment.'); }
-    })
-    .catch(function () { alert('Could not start payment just now. Try again in a moment.'); });
+  GC_touchFriend(f.id);
+  location.href = 'room.html?who=' + encodeURIComponent(f.id);
 }
-
-/* COMING BACK FROM STRIPE. success_url sends them back here with the session
-   id in ?friend-paid=; Stripe is asked whether it actually paid, never the
-   URL itself, the same way gc-scene-checkout's return trip works. */
-(function () {
-  var q = null;
-  try { q = new URLSearchParams(location.search); } catch (e) {}
-  var sessionId = q && q.get('friend-paid');
-  if (!sessionId) return;
-
-  try { history.replaceState(null, '', location.pathname); } catch (e) {}
-
-  fetch('/.netlify/functions/gc-friend-checkout?session_id=' + encodeURIComponent(sessionId))
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      var f = data && data.paid && data.friend_id ? GC_findBuilt(data.friend_id) : null;
-      if (!f) return;
-      f.paid = true;
-      GC_saveFriend(f);
-      GC_touchFriend(f.id);
-      /* The one real revenue event this page has. Value/currency included
-         so GA's own revenue reporting works without a second lookup --
-         same $9.99 gc-friend-checkout.js actually charges, not a guess
-         duplicated here to rot later; if that price ever changes, this
-         line has to change with it, same as the checkout function itself. */
-      if (typeof gtag === 'function') gtag('event', 'friend_paid', { value: 9.99, currency: 'USD' });
-      /* The starter credits gc-friend-checkout.js just granted (or topped
-         up), same shared key Almost Human's own welcome page writes, so
-         either product already sees the same balance from here on. */
-      if (data.access_token) { try { localStorage.setItem('ah_access_token', data.access_token); } catch (e) {} }
-      location.href = 'room.html?who=' + encodeURIComponent(f.id);
-    })
-    .catch(function () {});
-})();
 
 /* ── SOMEBODY IS ALREADY HERE ────────────────────────────────────────────────
    A friend already on this device is named at the top of the page, with the way
@@ -1237,7 +1178,7 @@ function renderAlready() {
 
     var openBtn = document.createElement('button');
     openBtn.type = 'button'; openBtn.className = 'btn';
-    openBtn.textContent = (built.paid === false) ? 'Pay & open their room' : 'Open their room';
+    openBtn.textContent = 'Open their room';
     openBtn.addEventListener('click', function () { openFriendRoom(built); });
     actions.appendChild(openBtn);
 
@@ -1263,7 +1204,6 @@ function renderAlready() {
       $('faces').classList.add('on');
       $('faces').scrollIntoView({ behavior: 'smooth', block: 'start' });
       drawFaces();
-      if (typeof paintRoomPrice === 'function') paintRoomPrice();
     });
     actions.appendChild(facesBtn);
 
@@ -1409,7 +1349,6 @@ $('makeBtn').addEventListener('click', function () {
      makes more than one friend on a device possible at all. */
   friend.id = GC_newFriendId();
   friend.createdAt = new Date().toISOString();
-  friend.paid = false;
   /* ONE SCENE, AND IT IS CALLED THE ORIGINAL. See assemble()'s own comment:
      this used to live inside that function and reset itself on every edit.
      A genuinely new friend has no scene yet, which is the truth, and the
@@ -1425,7 +1364,6 @@ $('makeBtn').addEventListener('click', function () {
      No PII in any of them -- never the friend's name, never anything
      typed into the form itself. */
   if (typeof gtag === 'function') gtag('event', 'friend_built');
-  if (typeof paintRoomPrice === 'function') paintRoomPrice();
 
   var dl = $('sumList'); dl.innerHTML = '';
   [['Name', friend.name],
@@ -1638,22 +1576,10 @@ function chooseFace(btn, src) {
 
 $('redrawBtn').addEventListener('click', drawFaces);
 
-/* Same gate as the list above: pay first if this friend has not been paid
-   for, open straight through if they have (or if they predate the paywall
-   entirely, per openFriendRoom's own comment on that). */
 $('roomBtn').addEventListener('click', function () {
   if (!friend || !friend.id) { location.href = 'room.html?who=mine'; return; }
   openFriendRoom(friend);
 });
-
-function paintRoomPrice() {
-  var note = $('roomPriceNote');
-  if (!note) return;
-  note.textContent = (friend && friend.paid === false)
-    ? 'Opening the room the first time is $9.99. Everything up to here is free.'
-    : '';
-}
-paintRoomPrice();
 
 $('copyBtn').addEventListener('click', function () {
   var t = JSON.stringify(friend, null, 2);
@@ -1674,19 +1600,20 @@ $('copyBtn').addEventListener('click', function () {
       <button class="a9-tab" data-tab="help">Ask</button>
     </div>
     <div id="a9-panel-cost" class="a9-panel">
-      <!-- "Coming back after that: Free" REMOVED 2026-08-19. It was
-           false: the $9.99 grants STARTER_CREDITS (see _ah-credits.js),
-           a real, spendable balance that runs out, not a permanent
-           unlock. Fixed to say what actually happens once it does,
-           instead of implying nothing ever costs again. -->
+      <!-- REWRITTEN 2026-08-27, Dr. O direct: "there is never an unlock
+           everywhere." The one-time $9.99-to-open charge is gone; a room
+           opens free and immediate, same as everything before it. The only
+           real cost is the subscription or credit packs, spent on
+           whatever you actually talk to, same table as index.html's own
+           pricing section. -->
       <div class="a9-row"><span>Answering the questions</span><span>Free</span></div>
       <div class="a9-row"><span>Meeting the faces</span><span>Free</span></div>
-      <div class="a9-row"><span>Opening their room, once</span><span>$9.99 + 200 credits</span></div>
-      <div class="a9-row"><span>After those run out</span><span>$9.99/mo, or top up</span></div>
+      <div class="a9-row"><span>Opening their room</span><span>Free</span></div>
+      <div class="a9-row"><span>Actually talking</span><span>$9.99/mo, or buy credits</span></div>
     </div>
     <div id="a9-panel-how" class="a9-panel">
       <p class="a9-outcome">Answer what you feel like answering, about them and about you. Pick the face that looks like them out of four. Open their room. That is the whole thing.</p>
-      <p class="a9-outcome" style="margin-top:.6rem">You can build more than one, each their own room, each its own nine ninety-nine to open. Arch and Sophia are the two you can already talk to, free: house demos, always there to try, but not something you keep. Building makes somebody new, shaped by your own answers, not theirs.</p>
+      <p class="a9-outcome" style="margin-top:.6rem">You can build more than one, each their own room, free to open. Arch and Sophia are two you can already talk to, free once a day: house demos, always there to try. Building makes somebody new, shaped by your own answers, not theirs.</p>
     </div>
     <div id="a9-panel-help" class="a9-panel">
       <textarea id="a9-helpinput" rows="3" placeholder="Ask me anything about how this works..."></textarea>
@@ -1712,8 +1639,8 @@ $('copyBtn').addEventListener('click', function () {
   var VOICE     = 'weA4Q36twV5kwSaTEL0Q';
 
   var LINES = {
-    cost: 'Answering the questions and picking a face cost nothing. Opening a companion’s room for the first time is nine dollars and ninety nine cents, once, per companion. After that, coming back is free.',
-    how:  'Answer what you feel like answering, pick the face that looks like them, open their room. You can build more than one, each their own nine ninety nine. Arch and Sophia are free to try, but they are house companions, not something you keep.'
+    cost: 'Answering the questions, picking a face, and opening a companion’s room all cost nothing. Talking to them costs credits: nine dollars and ninety nine cents a month for three hundred, spendable on any companion, or buy credits any time.',
+    how:  'Answer what you feel like answering, pick the face that looks like them, open their room. You can build more than one, all free to open. Arch and Sophia are free to try once a day, but they are house companions, not something you keep.'
   };
 
   function speak(text) {
@@ -1759,27 +1686,22 @@ $('copyBtn').addEventListener('click', function () {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 150,
-        /* FIXED 2026-08-19: this used to tell a real visitor "coming back
-           after that is free," full stop, which is not true and was not
-           just static copy -- it was instructions a live model could act
-           on and repeat with confidence if asked directly. The $9.99
-           includes STARTER_CREDITS (200, see _ah-credits.js, raised from
-           100 the same day once the real worst-case cost was known), a
-           real balance that is spent down by talking, same as every other
-           credit-gated conversation on this campus, not a one-time
-           unlock. */
+        /* REWRITTEN 2026-08-27, Dr. O direct: "there is never an unlock
+           everywhere." The old text told this live model there was a
+           one-time $9.99-per-companion charge to open a room -- there
+           is not, any more. Opening a room is free. The only real cost
+           is the subscription or credit packs, spent on whatever you
+           actually talk to, same as everywhere else on this campus. */
         system: 'You are Astra-9, a guide at the Emerging Technologies Laboratory helping ' +
           'someone build a companion on Good Company. Good Company: answer questions about ' +
           'who the companion is and about yourself, pick their face from four options, open ' +
-          'their room. Answering and picking a face are free. Opening a companion’s room the ' +
-          'first time is $9.99, once per companion, and that includes 200 starter credits for ' +
-          'talking with them once the room is open. Credits are spent by talking, same as ' +
-          'everywhere else on this campus, so once the 200 run out, staying in touch costs ' +
-          'something: $9.99 a month for a fresh monthly allowance, or a smaller one-time ' +
-          'top-up if a subscription is not wanted. Someone can build more than one companion, ' +
-          'each its own $9.99 to open. Arch and Sophia are the two house companions, free to ' +
-          'try, but not something you keep or convert into your own; building makes somebody ' +
-          'new. Answer in under 60 words. No em dashes. First person.',
+          'their room. Answering, picking a face, and opening the room are all free, for as ' +
+          'many companions as someone wants to build. Talking to them costs credits, same as ' +
+          'everywhere else on this campus: $9.99 a month for 300 credits, spendable on any ' +
+          'companion, or a smaller one-time top-up if a subscription is not wanted. Arch and ' +
+          'Sophia are the two house companions, free to try once a day, but not something you ' +
+          'keep or convert into your own; building makes somebody new. Answer in under 60 ' +
+          'words. No em dashes. First person.',
         messages: [{ role: 'user', content: q }]
       })
     })

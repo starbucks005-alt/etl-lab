@@ -512,10 +512,11 @@ html{ zoom:90%; }
         <!-- ONLY A HOUSE DEMO, hidden by default (see the display:none toggle
              near nameEverything()), added 2026-08-27 per Dr. O direct: a
              way to actually own one of the demo cast rather than only ever
-             sampling them free-then-credits. Makes a full copy, same $9.99
-             paid gate every other built or catalog-started friend goes
-             through -- see the click handler below and currentDemoId()'s
-             own comment on why that gate resolves correctly now. -->
+             sampling them free-then-credits. Makes a full copy, free to
+             open like every other built or catalog-started friend -- see
+             the click handler below and currentDemoId()'s own comment on
+             why the name-collision it would otherwise cause resolves
+             correctly. -->
         <button class="btn" id="claimBtn" style="display:none"></button>
         <!-- ONLY YOUR OWN BUILT FRIEND, hidden by default (see the display:none
              toggle near nameEverything()) since a house demo has nothing to
@@ -569,17 +570,13 @@ var FRIEND = GC_FRIEND;
    as though it were the answer. */
 var ARRIVING_ON_INVITE = !!(new URLSearchParams(location.search).get('join'));
 
-/* AN UNPAID FRIEND DOES NOT OPEN HERE, even reached directly by a bookmarked
-   or shared link that skips build.html's own gate entirely. Same paid ===
-   false check as build.html, for the same reason: undefined (everyone who
-   built a friend before this feature existed) passes straight through, only
-   an explicit false, set on friends made from today, sends them back to pay.
-   This is friction, not a real lock, the same honest limit the rest of this
-   product already lives with: nothing here has an account behind it. */
-if (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT && GC_BUILT.paid === false) {
-  location.href = 'build.html';
-  throw new Error('gc: unpaid friend, redirecting to build.html');
-}
+/* NO PAID GATE HERE ANY MORE, removed 2026-08-27, Dr. O direct: "there is
+   never an unlock everywhere." A room used to redirect back to build.html
+   for anyone with paid === false; it does not any more. Opening a room is
+   free for everyone, whether reached from build.html, a shared link, or
+   anywhere else. Actually talking still costs real credits, checked live
+   by gc-chat.js on every message, same as it always was, just without a
+   separate charge in front of the room itself. */
 
 /* "MINE" MEANS "WHOEVER WAS LAST SAT WITH", so it has to be stamped
    somewhere, and here, when a built friend's room actually opens, is the one
@@ -2720,28 +2717,26 @@ $("bringBtn").addEventListener("click", function () {
    Added 2026-08-27 per Dr. O direct: a house demo was free-to-sample and
    then credits-metered forever, never actually ownable the way a built or
    catalog-started companion is. This makes a full copy of the demo's whole
-   canon, deep-cloned so the shared GC_DEMOS object itself is never mutated,
-   and sends it through the identical id/createdAt/paid/user setup build.html's
-   own makeBtn handler uses for a brand-new friend -- paid:false is what
-   sends it through the same $9.99-to-open-the-room gate every other built
-   friend goes through, no free bypass for a demo-turned-owned copy. user is
-   cleared, same reasoning as catalog.html's startWith(): it describes the
-   person who built the ORIGINAL, never the person claiming a copy now, and
-   a demo has no user field in the first place. */
+   canon, deep-cloned so the shared GC_DEMOS object itself is never mutated.
+   No paid field set any more (Dr. O, same day, second instruction: "there
+   is never an unlock everywhere") -- opening the copy's room is free, same
+   as every other companion; talking to it costs real credits the same way
+   it already does everywhere else. user is cleared, same reasoning as
+   catalog.html's startWith(): it describes the person who built the
+   ORIGINAL, never the person claiming a copy now, and a demo has no user
+   field in the first place. */
 $('claimBtn').addEventListener('click', function () {
   var demoId = currentDemoId();
   if (!demoId || typeof GC_DEMOS === 'undefined' || !GC_DEMOS[demoId]) return;
   var demo = GC_DEMOS[demoId];
   var ok = confirm('Make your own copy of ' + demo.name + '? Same face, same scenes, same ' +
-    'personality, yours to keep, edit, and talk with any time. $9.99 to open their room, same ' +
-    'as building one from scratch.');
+    'personality, yours to keep, edit, and talk with any time.');
   if (!ok) return;
   var mine;
   try { mine = JSON.parse(JSON.stringify(demo)); } catch (e) { mine = null; }
   if (!mine) return;
   mine.id = GC_newFriendId();
   mine.createdAt = new Date().toISOString();
-  mine.paid = false;
   mine.user = { call: '', want: [], about: '' };
   try { GC_saveFriend(mine); } catch (e) {}
   location.href = 'build.html';
