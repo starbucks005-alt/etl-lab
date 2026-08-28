@@ -272,11 +272,29 @@ function turn(dir) {
    companion now; talking to it still costs real credits, checked live the
    same way it already is everywhere else. user is left blank on purpose,
    it describes the ORIGINAL builder (their own name/pronouns/about), never
-   the person picking a copy now. */
+   the person picking a copy now.
+
+   ONE COPY PER CATALOG ENTRY PER BROWSER, added 2026-08-28: found live,
+   five separate Isabelles piled up in one person's already-built list from
+   pressing this more than once while testing. catalogSourceId is the
+   catalog entry's own id (item.id, e.g. cat-xxxxx), stamped onto the copy
+   so a second press can recognize "I already have this one" instead of
+   minting another. Checked against GC_ALL_BUILT, the same array
+   build.html's own list renders from. */
 function startWith(item) {
+  var already = (typeof GC_ALL_BUILT !== 'undefined' ? GC_ALL_BUILT : []).filter(function (f) {
+    return f && f.catalogSourceId === item.id;
+  })[0];
+  if (already) {
+    GC_touchFriend(already.id);
+    location.href = 'build.html';
+    return;
+  }
+
   var friend = {};
   ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes']
     .forEach(function (k) { if (item[k] !== undefined) friend[k] = item[k]; });
+  friend.catalogSourceId = item.id;
   friend.id = GC_newFriendId();
   friend.createdAt = new Date().toISOString();
   friend.user = { call: '', want: [], about: '' };

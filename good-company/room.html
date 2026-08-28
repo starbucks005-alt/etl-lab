@@ -2815,12 +2815,26 @@ $('claimBtn').addEventListener('click', function () {
   var demoId = currentDemoId();
   if (!demoId || typeof GC_DEMOS === 'undefined' || !GC_DEMOS[demoId]) return;
   var demo = GC_DEMOS[demoId];
+  /* ONE COPY PER DEMO PER BROWSER, added 2026-08-28, same fix and same
+     reason as catalog.html's own startWith() -- five Isabelles piled up
+     from pressing a start button more than once with no way to recognize
+     an existing copy. claimedDemoId, the demo's own id (e.g. "arch"),
+     plays the same role catalogSourceId does there. */
+  var already = (typeof GC_ALL_BUILT !== 'undefined' ? GC_ALL_BUILT : []).filter(function (f) {
+    return f && f.claimedDemoId === demoId;
+  })[0];
+  if (already) {
+    GC_touchFriend(already.id);
+    location.href = 'build.html';
+    return;
+  }
   var ok = confirm('Make your own copy of ' + demo.name + '? Same portrait, same scenes, same ' +
     'personality, yours to keep, edit, and talk with any time.');
   if (!ok) return;
   var mine;
   try { mine = JSON.parse(JSON.stringify(demo)); } catch (e) { mine = null; }
   if (!mine) return;
+  mine.claimedDemoId = demoId;
   mine.id = GC_newFriendId();
   mine.createdAt = new Date().toISOString();
   mine.user = { call: '', want: [], about: '' };
