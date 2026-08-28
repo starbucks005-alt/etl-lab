@@ -1540,7 +1540,8 @@ function drawFaces() {
       /* A FRESH NONCE EVERY PRESS. Without it the request is identical each
          time and so is what comes back: Pookie pressed "draw four more" and
          met the same four people again. */
-      body: JSON.stringify({ friend: friend, variation: i, nonce: nonce })
+      body: JSON.stringify({ friend: friend, variation: i, nonce: nonce,
+        visitor_id: (typeof GC_visitorId === 'function' ? GC_visitorId() : null) })
     }).then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
       .then(function (res) {
         var j = res.j || {};
@@ -1548,8 +1549,8 @@ function drawFaces() {
           /* A GAP IS SHOWN AS A GAP. Three faces out of four is still a
              choice, and quietly rendering three is how somebody ends up
              wondering what they missed. */
-          if (!firstProblem) firstProblem = (j.error === 'no_image_key')
-            ? 'no_image_key' : ((j && j.detail) || (j && j.error) || 'unknown');
+          if (!firstProblem) firstProblem = (j.error === 'no_image_key' || j.error === 'draw_limit')
+            ? j.error : ((j && j.detail) || (j && j.error) || 'unknown');
           swap(card, faceCard('This one<br>did not draw', 'failed'));
           return;
         }
@@ -1567,6 +1568,8 @@ function drawFaces() {
         if (!drawn) {
           $('faceNote').textContent = (firstProblem === 'no_image_key')
             ? 'Portraits are not connected to a drawing key yet. Everything else you built is saved.'
+            : (firstProblem === 'draw_limit')
+            ? 'That is all the portraits for this one. Whatever you last chose for them is still saved.'
             : 'Could not create the portraits: ' + firstProblem + '. Your answers are saved.';
         } else if (drawn < FACE_COUNT) {
           $('faceNote').textContent = 'Choose the one that best represents your companion. ' +

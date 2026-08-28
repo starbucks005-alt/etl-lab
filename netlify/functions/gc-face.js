@@ -40,6 +40,36 @@
 */
 
 const gemini = require('./_gemini-image.js');
+const { getStore, connectLambda } = require('@netlify/blobs');
+
+/* ── THE DRAW CAP, SERVER SIDE ────────────────────────────────────────────
+   Added 2026-08-28. The only enforcement of "three sets per friend" used to
+   live in the browser's own localStorage, and it had two separate holes:
+   clearing storage (or a private window) reset it to zero, and worse, the
+   client's own counter reset itself every time ANY face was picked on ANY
+   friend -- draw three sets, pick one you do not even want, the counter
+   clears, draw three more. Neither hole needed clearing storage at all.
+
+   This is the real ceiling: twelve images (three sets of four, the same
+   number build.html has always advertised) per visitor per friend, counted
+   here, never reset by picking a face. A visitor with no id at all and a
+   friend with no id at all cannot be told apart from any other such
+   request, so they share one bucket rather than getting a free pass --
+   the honest path always has both ids by the time this fires.
+
+   Not perfectly atomic: four draws in one set really do arrive as four
+   concurrent calls (see the comment below on why), and a plain blob
+   get-then-set can under rare concurrent overlap let a couple of those
+   through under the wire. That is a rounding error against the real
+   failure mode this closes, which was unlimited. */
+const PORTRAIT_LIMIT = 12;
+
+async function drawsSoFar(store, key) {
+  try {
+    const v = await store.get(key);
+    return parseInt(v, 10) || 0;
+  } catch (e) { return 0; }
+}
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -319,6 +349,17 @@ exports.handler = async (event) => {
     return json(400, { error: 'nothing_to_draw', detail: 'Answer the questions first.' });
   }
 
+  connectLambda(event);
+  const store = getStore('gc_portrait_draws');
+  const visitorId = String(body.visitor_id || 'no-visitor').trim() || 'no-visitor';
+  const friendId = String(f.id || 'no-friend').trim() || 'no-friend';
+  const drawKey = visitorId + '::' + friendId;
+
+  const already = await drawsSoFar(store, drawKey);
+  if (already >= PORTRAIT_LIMIT) {
+    return json(429, { error: 'draw_limit', detail: 'That is all the portraits for this one.' });
+  }
+
   /* Which of the four this call is drawing. Out of range wraps rather than
      refuses: asking for a fifth face is a reasonable thing to want and there
      is no reason to make it an error. */
@@ -338,10 +379,13 @@ exports.handler = async (event) => {
     face = await gemini.generate(prompt);   // no aspect, see facePrompt/creaturePrompt
   } catch (err) {
     /* Reported with the reason the model actually gave. One card fails, the
-       other three still land, and the page says which. */
+       other three still land, and the page says which. A failed draw is not
+       billed against the cap -- nothing was actually spent. */
     return json(502, { error: 'not_drawn', variation: idx,
                        detail: String((err && err.message) || 'unknown').slice(0, 300) });
   }
+
+  try { await store.set(drawKey, String(already + 1)); } catch (e) {}
 
   return json(200, { face, variation: idx, of: HOW_MANY });
 };
