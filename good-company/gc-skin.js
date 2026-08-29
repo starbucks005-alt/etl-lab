@@ -23,7 +23,26 @@ var GC_SKINS = [
   { key:'seaside',  label:'Seaside',  swatch:['#2F6B62','#9A4630','#E1EFF1'] },
   { key:'snowline', label:'Snowline', swatch:['#3A6355','#8B97A6','#EAEEF3'] },
   { key:'fireside', label:'Fireside', swatch:['#E08A4E','#8FA86A','#221C17'] },
-  { key:'grove',    label:'Grove',    swatch:['#D4A72C','#5C8A4A','#17281A'] }
+  { key:'grove',    label:'Grove',    swatch:['#D4A72C','#5C8A4A','#17281A'] },
+  { key:'bramble', label:'Bramble', swatch:['#0A385F','#2B6397','#F3F5F7'] },
+  { key:'tidepool', label:'Tidepool', swatch:['#A33E70','#06B8BC','#F7F3F5'] },
+  { key:'confetti', label:'Confetti', swatch:['#F8A49E','#7E7244','#F7F3F3'] },
+  { key:'blueprint', label:'Blueprint', swatch:['#BE8F55','#35658D','#F7F6F3'] },
+  { key:'umber', label:'Umber', swatch:['#825831','#7E5F44','#F7F5F3'] },
+  { key:'blaze', label:'Blaze', swatch:['#FDB13F','#EF394F','#1C1312'] },
+  { key:'understory', label:'Understory', swatch:['#BBCA72','#A4B474','#1A1C12'] },
+  { key:'wildflower', label:'Wildflower', swatch:['#FEB641','#447E56','#F7F6F3'] },
+  { key:'twilight', label:'Twilight', swatch:['#9D3C81','#453C85','#F7F3F7'] },
+  { key:'alpine', label:'Alpine', swatch:['#405265','#445F7E','#F3F7F7'] },
+  { key:'canopy', label:'Canopy', swatch:['#72CA89','#A8B474','#181616'] },
+  { key:'amethyst', label:'Amethyst', swatch:['#5740A8','#444A7E','#F5F4F5'] },
+  { key:'driftwood', label:'Driftwood', swatch:['#D7AE96','#7E7E44','#F5F5F5'] },
+  { key:'orchard', label:'Orchard', swatch:['#6642AE','#538939','#F7F3F5'] },
+  { key:'terrarium', label:'Terrarium', swatch:['#72CAB5','#53D5B4','#12171C'] },
+  { key:'bordeaux', label:'Bordeaux', swatch:['#8E201A','#69BF6E','#1C1C12'] },
+  { key:'copper', label:'Copper', swatch:['#522C1F','#74B4A5','#1C1812'] },
+  { key:'tide', label:'Tide', swatch:['#B08EB7','#3A6787','#F7F3F6'] },
+  { key:'slate', label:'Slate', swatch:['#3E4A4B','#506672','#F5F5F5'] }
 ];
 
 /* Which skin the page opens on:
