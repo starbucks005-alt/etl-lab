@@ -70,6 +70,16 @@ const CAMEO_MARK = '###CAMEO:';
 const TEXT_MESSAGE_COST = 1;   // credits per reply, matching Almost Human's own 1:1 message cost
 const DAILY_FREE_LIMIT  = 15;  // free messages/day with a house demo, matching Almost Human's own cap
 
+/* KNOWN BETA TESTERS, HARDCODED RATHER THAN A NEW NETLIFY ENV VAR, added
+   2026-08-29 -- Dr. O direct: "I don't think we can add another EV, I had
+   to delete some bc netlify was not letting us deploy." This is a short,
+   rarely-changing list with nothing sensitive behind it (worst case of a
+   leaked value is free chatting, not an account or a payment), so source
+   is a perfectly good place for it -- add a name here, push, done, no
+   Netlify config step and no risk of tripping the same env var ceiling
+   again. See isTester's own comment below for what this actually bypasses. */
+const GC_TESTER_KEYS = ['pookie-test-2026'];
+
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
@@ -869,6 +879,25 @@ exports.handler = async function (event) {
      identical from the outside. Never echoes the key itself back, only
      whether one arrived and whether it was recognized. */
   const ownerKeySentButRejected = !isOwner && !!rawOwnerKey;
+  /* A TESTER KEY, NOT AN OWNER KEY, added 2026-08-29. Pookie hit the free
+     daily cap on three different house demos AND got credits_exhausted on
+     Cal, a companion she has actually built and paid for, all in one
+     sitting -- Dr. O direct: "she has credits so she can test ALL of
+     them," the whole point of being the beta tester. The 2026-08-28
+     per-companion credit change (see hasCredits below) means her balance
+     only ever draws against the one friend_id it was minted for, which
+     works for an ordinary buyer but not for someone meant to range freely
+     across the entire cast. Reusing isOwner/GC_OWNER_KEY was the wrong
+     fix regardless: that would make a beta tester a full owner on every
+     studio on this domain, not just exempt her from Good Company's own
+     cost gates. This is its own, narrower door: isTester skips the same
+     gate isOwner does, below, so a tester never hits credits_exhausted OR
+     daily_capped on anything, but is otherwise a completely normal
+     visitor everywhere else on the campus. */
+  const rawTesterKey = String(body.tester_key || '').trim();
+  const gcTesterKeys = String(process.env.GC_TESTER_KEYS || '')
+    .split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  const isTester = !isOwner && !!rawTesterKey && gcTesterKeys.indexOf(rawTesterKey) > -1;
   const accessToken = safeToken(body.access_token);
   /* THE SHARED-ROOM PATH, ADDED 2026-08-17. gc-room-say.js proxies here on
      behalf of whoever actually spoke, and no guest's browser holds the
@@ -902,7 +931,7 @@ exports.handler = async function (event) {
   let usingFreeDailyCap = false;
   let dayKey = null;
 
-  if (!isOwner && !hasCredits) {
+  if (!isOwner && !isTester && !hasCredits) {
     if (!isDemo) {
       /* A built, owned friend with no funded credits: no free fallback, ever,
          that rung is the paid one. An idle check (the friend deciding

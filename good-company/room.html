@@ -962,17 +962,32 @@ function showStill(scene) {
   var n = document.createElement('div');
   n.className = 'still';
 
+  /* WHO THIS STILL IS ACTUALLY OF, added 2026-08-29 for a companion with no
+     video of their own (Eli's puppet family: Nell, Jem, Wren each have a
+     real photo but no clip yet). Without this, a solo scene with no source
+     fell back to FRIEND.portrait/name unconditionally -- correct for the
+     host friend, wrong for a companion's own scene, where it would show
+     the host's face and name during someone else's turn. scene.speaker
+     names who this scene is actually of (same key ask() already reads,
+     see nextTurnSpeaker()/current.speaker), looked up against
+     FRIEND.companions for their own name and, now, their own still. */
+  var who = (scene.speaker && FRIEND.companions && FRIEND.companions[scene.speaker]) || FRIEND;
+
   /* portraitWide, added 2026-08-26. This box is 16/9 (see .portrait above)
      and object-fit:cover on a tall portrait crops in tight, throwing away
      whatever else was in the shot -- fine for a plain headshot, a real loss
      for a scene-rich image (a window, a skyline, a piano). Optional and
      read first on purpose: most friends only have the one portrait and
-     that stays exactly as it worked before. */
-  var stillImg = FRIEND.portraitWide || FRIEND.portrait;
+     that stays exactly as it worked before.
+
+     scene.still, added the same day as scene.speaker just above: a
+     companion's own photo for THIS scene specifically, read before falling
+     back to the host's portrait at all. */
+  var stillImg = scene.still || who.portraitWide || who.portrait || FRIEND.portraitWide || FRIEND.portrait;
   if (stillImg) {
     var im = document.createElement('img');
     im.src = stillImg;
-    im.alt = FRIEND.name;
+    im.alt = who.name;
     n.appendChild(im);
   }
 
@@ -984,11 +999,11 @@ function showStill(scene) {
 
      With one scene, "no film of the original yet" reads like a fault. It is
      not one: a still picture is what this friend comes with. */
-  line.textContent = !FRIEND.portrait
-    ? 'No picture of ' + FRIEND.name + ' yet'
+  line.textContent = !stillImg
+    ? 'No picture of ' + who.name + ' yet'
     : (FRIEND.scenes.length > 1
         ? 'No film of ' + scene.label.toLowerCase() + ' yet'
-        : 'A still picture of ' + FRIEND.name);
+        : 'A still picture of ' + who.name);
   n.appendChild(line);
 
   portrait.appendChild(n);
@@ -2171,7 +2186,12 @@ function ask(payload) {
       is_demo: !!currentDemoId(),
       visitor_id: GC_visitorId(),
       access_token: GC_accessToken(),
-      owner_key: GC_ownerKey()
+      owner_key: GC_ownerKey(),
+      /* tester_key, added 2026-08-29 -- see GC_testerKey()'s own comment in
+         gc-friend.js. A separate, narrower door than owner_key: gc-chat.js
+         checks it against GC_TESTER_KEYS and skips both the free daily-cap
+         wall and credits_exhausted, nothing else about the visit changes. */
+      tester_key: GC_testerKey()
     }, payload))
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
