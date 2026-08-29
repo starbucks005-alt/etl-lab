@@ -60,36 +60,20 @@ function catalogEntryFrom(friend) {
   return entry;
 }
 
+/* CAP, added 2026-08-29 after the incident this same night that took the
+   whole catalog offline: one entry's uncompressed 4.5MB base64 portrait,
+   duplicated three times by a retry loop, pushed gc-catalog-list.js's own
+   response past Netlify's 6MB function payload limit -- for every visitor,
+   not just that one entry. gc-scene-order.js already caps a portrait at
+   3MB for the same reason; this is stricter, because every catalog entry
+   is read into ONE combined response, so the whole catalog is only ever
+   as safe as its worst single portrait. 2MB is generous for a properly
+   compressed photo and still leaves real room to grow past today's four
+   entries before the ceiling is anywhere close again. */
+const MAX_CATALOG_PORTRAIT = 2 * 1024 * 1024;
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
-
-  /* TEMPORARY DIAGNOSTIC, added 2026-08-29 during the catalog-payload
-     incident, TO BE REMOVED once the owner-key mismatch is actually
-     understood. Never returns the real value, only whether the runtime
-     sees GC_OWNER_KEY at all and its exact length -- enough to catch
-     hidden whitespace or a scoping problem without risking another
-     accidental write while diagnosing one. GET only, no side effects. */
-  if (event.httpMethod === 'GET' && event.queryStringParameters && event.queryStringParameters.diag === '1') {
-    const v = process.env.GC_OWNER_KEY || '';
-    return json(200, { present: !!process.env.GC_OWNER_KEY, length: v.length,
-      trimmedLength: v.trim().length, firstChar: v.slice(0, 1), lastChar: v.slice(-1) });
-  }
-
-  /* TEMPORARY DIAGNOSTIC, added 2026-08-29, same incident, same removal
-     plan. Portrait-free listing -- id, name, and portrait length only --
-     so the catalog can actually be inspected while gc-catalog-list.js's
-     own full response is too large to serve at all. Owner-gated since it
-     is the one read here that is not already public. */
-  if (event.httpMethod === 'GET' && event.queryStringParameters && event.queryStringParameters.diag === 'list') {
-    const key = event.queryStringParameters.owner_key || '';
-    if (!process.env.GC_OWNER_KEY || key !== process.env.GC_OWNER_KEY) return json(403, { error: 'owner_only' });
-    try { connectLambda(event); } catch (_) {}
-    const store = getStore('gc_catalog');
-    let list = [];
-    try { list = (await store.get('index', { type: 'json' })) || []; } catch (_) {}
-    return json(200, { count: list.length,
-      items: list.map((e) => ({ id: e && e.id, name: e && e.name, portraitLen: (e && e.portrait || '').length })) });
-  }
 
   if (event.httpMethod !== 'POST') return json(405, { error: 'POST only' });
 
@@ -102,6 +86,9 @@ exports.handler = async (event) => {
   const friend = body.friend;
   if (!friend || !friend.name || !friend.portrait || !Array.isArray(friend.scenes) || !friend.scenes.length) {
     return json(400, { error: 'incomplete_friend' });
+  }
+  if (friend.portrait.length > MAX_CATALOG_PORTRAIT) {
+    return json(413, { error: 'portrait_too_big', detail: 'Compress the portrait before publishing.' });
   }
 
   /* NEEDED FOR getStore() TO WORK AT ALL, found 2026-08-27 debugging why
