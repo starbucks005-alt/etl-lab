@@ -91,6 +91,32 @@ exports.handler = async (event) => {
   try { list = (await catalogStore.get('index', { type: 'json' })) || []; } catch (_) {}
   if (!Array.isArray(list)) list = [];
 
+  /* UPDATE, OWNER ONLY, added 2026-08-29. The only way to fix an entry
+     already in the catalog used to be publishing a duplicate -- Marion's
+     own first publish went out with vimeoId-only scenes, no thumb, before
+     the real chosen stills existed, and there was no way to correct that
+     in place. Gated on OWNER_KEY, same pattern gc-scene-order.js already
+     uses, since this can overwrite anyone's donated entry. */
+  const isOwner = !!process.env.OWNER_KEY && String(body.owner_key || '') === process.env.OWNER_KEY;
+  if (isOwner && body.update_id) {
+    const i = list.findIndex((e) => e && e.id === body.update_id);
+    if (i === -1) return json(404, { error: 'catalog_entry_not_found' });
+    const updated = catalogEntryFrom(friend);
+    updated.id = list[i].id;
+    updated.addedAt = list[i].addedAt;
+    const creditName = String(body.credit_name || '').trim().slice(0, 60);
+    if (creditName) updated.creditName = creditName;
+    else if (list[i].creditName) updated.creditName = list[i].creditName;
+    list[i] = updated;
+    try {
+      await catalogStore.setJSON('index', list);
+    } catch (err) {
+      console.error('gc-catalog-add: update write failed:', err.message);
+      return json(502, { error: 'write_failed' });
+    }
+    return json(200, { ok: true, catalog_id: updated.id, updated: true });
+  }
+
   const entry = catalogEntryFrom(friend);
   entry.id = 'cat-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   entry.addedAt = new Date().toISOString();
