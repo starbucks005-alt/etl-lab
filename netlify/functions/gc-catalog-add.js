@@ -62,6 +62,19 @@ function catalogEntryFrom(friend) {
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
+
+  /* TEMPORARY DIAGNOSTIC, added 2026-08-29 during the catalog-payload
+     incident, TO BE REMOVED once the owner-key mismatch is actually
+     understood. Never returns the real value, only whether the runtime
+     sees GC_OWNER_KEY at all and its exact length -- enough to catch
+     hidden whitespace or a scoping problem without risking another
+     accidental write while diagnosing one. GET only, no side effects. */
+  if (event.httpMethod === 'GET' && event.queryStringParameters && event.queryStringParameters.diag === '1') {
+    const v = process.env.GC_OWNER_KEY || '';
+    return json(200, { present: !!process.env.GC_OWNER_KEY, length: v.length,
+      trimmedLength: v.trim().length, firstChar: v.slice(0, 1), lastChar: v.slice(-1) });
+  }
+
   if (event.httpMethod !== 'POST') return json(405, { error: 'POST only' });
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
