@@ -191,7 +191,13 @@ function factList(item) {
   var facts = [];
   if (item.work) facts.push(item.work);
   if (item.from) facts.push(item.from);
-  if (item.into) facts.push(item.into);
+  /* into CAN BE AN ARRAY (Marion, Aaron, etc. all use it that way) --
+     pushing the whole array here let it fall through to Array.toString()
+     wherever it got rendered, joining with a bare comma and no space
+     ("...the day,EXPLAINING OCD..."). Each item is its own real fact and
+     reads better as its own pill anyway. */
+  if (Array.isArray(item.into)) facts = facts.concat(item.into);
+  else if (item.into) facts.push(item.into);
   return facts;
 }
 
