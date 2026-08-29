@@ -1268,15 +1268,27 @@ function renderAlready() {
       catalogBtn.addEventListener('click', function () {
         if (!confirm(
           'Add ' + built.name + ' to the catalog so other people can meet them too? ' +
-          'Their picture, scenes, and personality go with them; nothing about you does, ' +
-          'and nothing you two have talked about does either. See faq.html for the full ' +
-          'answer. You get 200 credits the first time you do this.'
+          'Their picture, scenes, and personality go with them; nothing about you does by ' +
+          'default, and nothing you two have talked about does either. See faq.html for the ' +
+          'full answer. You get 200 credits the first time you do this.'
         )) return;
+        /* CREDIT, OPTIONAL, ADDED 2026-08-29 per Dr. O direct: someone might
+           build a companion purely to donate it and would like to be known
+           for it. A second, separate ask -- the confirm above already
+           promises nothing about the builder goes along by default, so
+           this has to read as a deliberate opt-in exception to that, not a
+           contradiction of it. Blank or cancelled means anonymous, exactly
+           like today. */
+        var credit = prompt(
+          'Want to be credited for making them? Type a name to show on their catalog card, ' +
+          'or leave this blank to stay anonymous.', ''
+        );
+        credit = (credit || '').trim().slice(0, 60);
         catalogBtn.disabled = true; catalogBtn.textContent = 'Adding…';
         fetch('/.netlify/functions/gc-catalog-add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ friend: built, access_token: (typeof GC_accessToken === 'function' ? GC_accessToken() : '') || '' })
+          body: JSON.stringify({ friend: built, credit_name: credit, access_token: (typeof GC_accessToken === 'function' ? GC_accessToken() : '') || '' })
         })
           .then(function (r) { return r.json(); })
           .then(function (j) {

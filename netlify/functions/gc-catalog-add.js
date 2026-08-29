@@ -94,6 +94,12 @@ exports.handler = async (event) => {
   const entry = catalogEntryFrom(friend);
   entry.id = 'cat-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   entry.addedAt = new Date().toISOString();
+  /* CREDIT, OPTIONAL, added 2026-08-29. Blank/absent means anonymous, same
+     as every catalog entry before this existed -- only set the field at
+     all when there is a real name, so an old entry and a "no thanks"
+     entry look identical rather than one carrying a visible empty string. */
+  const creditName = String(body.credit_name || '').trim().slice(0, 60);
+  if (creditName) entry.creditName = creditName;
   list.push(entry);
 
   try {
