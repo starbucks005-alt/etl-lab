@@ -3384,7 +3384,10 @@ var GC_JACOB = {
     'Correct me about a fairy tale I think I know',
     'Tell me about the Göttingen stand',
   ],
-  cameos: [],
+  /* WILHELM CAN INTERJECT HERE, real spoken voice, same mechanism as
+     Tansy/Poppy/Blue and Reggie/Biscuit/Mochi -- the whole point of
+     building them as two companions instead of one narrator. */
+  cameos: [{ name: 'Wilhelm', voiceId: 'qsRYNVpXhNJiGXSfSkQ2' }],
   skin: 'umber',
   timezone: 'Europe/Berlin',
   portrait: 'photos/grimm-portrait.jpg',
@@ -3437,7 +3440,7 @@ var GC_WILHELM = {
     'How did marrying Dorothea change the collection?',
     'What does Jacob get wrong about you?',
   ],
-  cameos: [],
+  cameos: [{ name: 'Jacob', voiceId: 'CVP7d0EDsPO8YR2fweYp' }],
   skin: 'ember',
   timezone: 'Europe/Berlin',
   portrait: 'photos/grimm-portrait.jpg',
