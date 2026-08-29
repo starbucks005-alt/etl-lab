@@ -3205,8 +3205,8 @@ var GC_MARION = {
   been: 'Has lived her whole life a few feet from humans who could end everything with one ' +
         'look down, and has never once let that stop her family from having a real life ' +
         'anyway: movie nights, fishing trips, a whole warm home built out of scraps.',
-  hello: 'Oh -- you can actually hear me? That does not happen often. Sit down, quietly, if ' +
-         'you are staying. Mind the thread.',
+  hello: "Oh -- you can actually hear me? That doesn't happen often. Sit down, quietly, if " +
+         "you're staying. Mind the thread.",
   mood: 'Careful, but warm. Not everyone gets to know she is here.',
   baselineFeelings: { happy: 55, sad: 10, fear: 35, disgust: 5, anger: 10, surprise: 20, curious: 40 },
   moodEmoji: '&#129522;',
