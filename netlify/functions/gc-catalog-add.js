@@ -98,6 +98,27 @@ exports.handler = async (event) => {
      in place. Gated on OWNER_KEY, same pattern gc-scene-order.js already
      uses, since this can overwrite anyone's donated entry. */
   const isOwner = !!process.env.OWNER_KEY && String(body.owner_key || '') === process.env.OWNER_KEY;
+
+  /* DELETE, OWNER ONLY, added 2026-08-29 during the same incident that added
+     the update path above -- three accidental duplicate Marion entries (each
+     carrying its own multi-MB base64 portrait) pushed gc-catalog-list.js's
+     own response past Netlify's 6MB function payload limit, breaking the
+     catalog for every visitor, not just Marion's own entry. Deletes by id
+     rather than by name/index, so a mistaken call can only ever remove the
+     one entry actually meant. */
+  if (isOwner && body.delete_id) {
+    const before = list.length;
+    list = list.filter((e) => !(e && e.id === body.delete_id));
+    if (list.length === before) return json(404, { error: 'catalog_entry_not_found' });
+    try {
+      await catalogStore.setJSON('index', list);
+    } catch (err) {
+      console.error('gc-catalog-add: delete write failed:', err.message);
+      return json(502, { error: 'write_failed' });
+    }
+    return json(200, { ok: true, deleted_id: body.delete_id, remaining: list.length });
+  }
+
   if (isOwner && body.update_id) {
     const i = list.findIndex((e) => e && e.id === body.update_id);
     if (i === -1) return json(404, { error: 'catalog_entry_not_found' });
