@@ -3238,20 +3238,29 @@ var GC_MARION = {
      null is the honest, thin-on-purpose state Reggie's own unfinished
      scenes already use: a real place, not yet a real clip. */
   scenes: [
+    /* THUMBS -- Dr. O's own chosen stills, added 2026-08-29, same reasoning
+       as Reggie's spa scene: real and chosen beats the vumbnail.com proxy
+       auto-fetched from the vimeoId. 'meet' has no matching still in this
+       batch and stays on the auto-fetch fallback. */
     { key: 'meet', label: 'Meet the Littles', src: null, vimeoId: '1222250190',
       where: 'The whole family together, inside the walls, meeting whoever is visiting.' },
     { key: 'kitchen', label: 'The Kitchen', src: null, vimeoId: '1222249477',
+      thumb: 'photos/marion-thumb-kitchen.jpg',
       where: 'The family kitchen, built from a cigar box: matchboxes, spools of thread, ' +
              'buttons, all doing the job of real furniture.' },
     { key: 'kitchen-marion', label: 'Marion in the Kitchen', src: null, vimeoId: '1222249478',
+      thumb: 'photos/marion-thumb-kitchen-marion.png',
       where: 'The same kitchen, Marion herself at work in it.' },
     { key: 'fishing', label: 'Fishing Tadpoles', src: null, vimeoId: '1222250192',
+      thumb: 'photos/marion-thumb-fishing.jpeg',
       where: 'A stream near the house, Henry and Sam fishing for tadpoles off the rocks, the ' +
              'closest thing to a real fish either of them will ever land.' },
     { key: 'movie', label: 'Movie Time', src: null, vimeoId: '1222249479',
+      thumb: 'photos/marion-thumb-movie.png',
       where: 'Bedtime, a film thrown onto a scrap of cloth from a projector built out of ' +
              'spools and a lantern, the whole family piled into two beds to watch it.' },
     { key: 'story', label: 'Story Time', src: null, vimeoId: '1222250191',
+      thumb: 'photos/marion-thumb-story.png',
       where: 'The evening, Walter reading aloud while Edith and Marion both knit and Sam and ' +
              'Daisy play on the floor with dominoes and an old doll.' },
   ],
