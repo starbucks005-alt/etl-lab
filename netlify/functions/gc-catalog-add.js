@@ -75,6 +75,22 @@ exports.handler = async (event) => {
       trimmedLength: v.trim().length, firstChar: v.slice(0, 1), lastChar: v.slice(-1) });
   }
 
+  /* TEMPORARY DIAGNOSTIC, added 2026-08-29, same incident, same removal
+     plan. Portrait-free listing -- id, name, and portrait length only --
+     so the catalog can actually be inspected while gc-catalog-list.js's
+     own full response is too large to serve at all. Owner-gated since it
+     is the one read here that is not already public. */
+  if (event.httpMethod === 'GET' && event.queryStringParameters && event.queryStringParameters.diag === 'list') {
+    const key = event.queryStringParameters.owner_key || '';
+    if (!process.env.GC_OWNER_KEY || key !== process.env.GC_OWNER_KEY) return json(403, { error: 'owner_only' });
+    try { connectLambda(event); } catch (_) {}
+    const store = getStore('gc_catalog');
+    let list = [];
+    try { list = (await store.get('index', { type: 'json' })) || []; } catch (_) {}
+    return json(200, { count: list.length,
+      items: list.map((e) => ({ id: e && e.id, name: e && e.name, portraitLen: (e && e.portrait || '').length })) });
+  }
+
   if (event.httpMethod !== 'POST') return json(405, { error: 'POST only' });
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
