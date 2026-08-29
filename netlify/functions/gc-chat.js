@@ -503,6 +503,16 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
   if (Array.isArray(f.cameos) && f.cameos.length) {
     const all = f.cameos.filter(c => c && c.name);
     const names = all.map(c => c.name);
+    /* f.cameoRate, added 2026-08-29 for Jacob/Wilhelm. The one-in-seven-or-
+       eight rate above was deliberately tuned low on purpose (see the
+       comment on it) to avoid a variable-surprise stickiness mechanic --
+       real reasoning that still holds for every other friend's cameo list.
+       Jacob and Wilhelm are a different case entirely: Dr. O wants them to
+       read as a real back-and-forth between equals, not an occasional
+       delightful surprise guest, so their frequency needs to be genuinely
+       different, not just "a bit more." A per-friend override keeps the
+       carefully-tuned default untouched for literally everyone else. */
+    const cameoRate = f.cameoRate || 'OCCASIONALLY, unprompted, roughly one reply in every seven or eight,';
     const narratedNames = all.filter(c => !c.voiceId).map(c => c.name);
     if (names.length) {
       const namesList = names.join(names.length > 1 ? ' or ' : '');
@@ -531,7 +541,7 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
                 `THERE TOO, and this is the last thing in these notes on purpose because it matters. ` +
                 `${namesList} ${names.length > 1 ? 'are' : 'is'} close to you and turn up with you ` +
                 `sometimes.${blurbLines}\n` +
-                `OCCASIONALLY, unprompted, roughly one reply in every seven or eight, when it ` +
+                `${cameoRate} when it ` +
                 `genuinely fits the moment, ${names.length > 1 ? 'one of them (never more than one at once)' : namesList} ` +
                 (anyBlurbs
                   ? `has a real moment of ${names.length > 1 ? 'their' : 'their'} own -- a full line or two, ` +

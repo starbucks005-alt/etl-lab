@@ -3388,6 +3388,12 @@ var GC_JACOB = {
      Tansy/Poppy/Blue and Reggie/Biscuit/Mochi -- the whole point of
      building them as two companions instead of one narrator. */
   cameos: [{ name: 'Wilhelm', voiceId: 'qsRYNVpXhNJiGXSfSkQ2' }],
+  /* MUCH more frequent than the default rate every other friend's cameo
+     list uses (see gc-chat.js's own comment on why that default is kept
+     deliberately low) -- Dr. O wants these two to read as an actual
+     back-and-forth between equals, not an occasional surprise guest. */
+  cameoRate: 'OFTEN, close to every other reply, since this is meant to feel like a real ' +
+             'back-and-forth between the two of them, not a rare surprise,',
   skin: 'umber',
   timezone: 'Europe/Berlin',
   portrait: 'photos/grimm-portrait.jpg',
@@ -3441,6 +3447,8 @@ var GC_WILHELM = {
     'What does Jacob get wrong about you?',
   ],
   cameos: [{ name: 'Jacob', voiceId: 'CVP7d0EDsPO8YR2fweYp' }],
+  cameoRate: 'OFTEN, close to every other reply, since this is meant to feel like a real ' +
+             'back-and-forth between the two of them, not a rare surprise,',
   skin: 'ember',
   timezone: 'Europe/Berlin',
   portrait: 'photos/grimm-portrait.jpg',
