@@ -350,7 +350,11 @@ function startWith(item) {
      notTheTherapist's own comment already flagged for Aaron -- a field
      nobody remembers to add until the one catalog entry that needs it
      goes in broken. */
-  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes','notTheTherapist','turnOrder','companions']
+  /* premise, added the same day -- the doorstep blurb room.html shows
+     before anyone sits down. Without it a catalog-started copy opened to a
+     blank doorstep instead of the scene-setting text a direct ?who= link
+     already carries. */
+  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes','notTheTherapist','turnOrder','companions','premise']
     .forEach(function (k) { if (item[k] !== undefined) friend[k] = item[k]; });
   friend.catalogSourceId = item.id;
   friend.id = GC_newFriendId();

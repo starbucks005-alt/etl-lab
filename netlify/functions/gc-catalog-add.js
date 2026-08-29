@@ -67,6 +67,12 @@ const CATALOG_FIELDS = [
      .turnOrder, so stripping these here would silently produce a catalog
      entry with no working voice at all. */
   'turnOrder', 'companions',
+  /* premise, added the same day for the same two entries -- the doorstep
+     blurb room.html shows before anyone sits down (FRIEND.premise). Not a
+     functional gap the way turnOrder/companions was, just a real one: a
+     catalog-started copy would open to a blank doorstep instead of the
+     scene-setting text every direct ?who= link already gets. */
+  'premise',
 ];
 
 function catalogEntryFrom(friend) {
