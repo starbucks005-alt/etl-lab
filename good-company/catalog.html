@@ -342,7 +342,15 @@ function startWith(item) {
   }
 
   var friend = {};
-  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes','notTheTherapist']
+  /* turnOrder, companions, added 2026-08-29 for the Grimms/puppet-family
+     catalog entries: a shared multi-companion room (see gc-friend.js's
+     GC_GRIMMS/GC_PUPPETS) has no single voiceId of its own to fall back
+     on, everything real lives inside .companions, addressed by
+     .turnOrder. Missing them here is the exact class of silent gap
+     notTheTherapist's own comment already flagged for Aaron -- a field
+     nobody remembers to add until the one catalog entry that needs it
+     goes in broken. */
+  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes','notTheTherapist','turnOrder','companions']
     .forEach(function (k) { if (item[k] !== undefined) friend[k] = item[k]; });
   friend.catalogSourceId = item.id;
   friend.id = GC_newFriendId();

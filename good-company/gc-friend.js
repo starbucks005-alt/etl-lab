@@ -647,14 +647,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-/* 'eli', 'nell', 'puppets' HELD BACK ON PURPOSE, added 2026-08-29. GC_PUPPETS
-   is written below (search for it) but not yet wired into GC_DEMOS or the
-   alias remap -- Eli's and Nell's voiceId fields are still placeholders
-   pending Dr. O's pick from the previews sent this session, and Google Play
-   is actively reviewing Good Company right now, so nothing half-finished
-   goes live while that's true. Register all three ids here and the two
-   lines noted at GC_DEMOS/the alias remap once real voice ids land. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets'];
 
 var GC_WHO = (function () {
   var q = null;
@@ -3551,17 +3544,15 @@ var GC_GRIMMS = {
    are reached in Tansy's room: their own scene, tagged with a speaker, not
    a place in the rotation -- Dr. O only said the parents are "both main."
 
-   VOICES: Eli's and Nell's are real ElevenLabs preview sets, generated
-   this session, sent to Dr. O to choose from -- voiceId left as a marked
-   placeholder below until she picks. Jem's and Wren's are not: ElevenLabs
-   refused both design requests outright ("blocked_generation," its own
-   safety policy against synthesizing child-sounding voices), a platform
-   guardrail worth respecting rather than working around by rewording the
-   prompt. So Jem and Wren are narrated rather than spoken for now --
-   voiceId: null, same mechanism Gus and Barley already use (see gc-chat.js
-   cameo comment: "narrated is what tells it to show the line as
-   description instead of a quote") -- real characters, real cameo lines,
-   just not read aloud in a synthesized child's voice. */
+   VOICES: all four -- Eli, Nell, Jem, and Wren -- carry real ElevenLabs
+   voice ids Dr. O picked/sourced directly. My own design-generation
+   requests for Jem's and Wren's had been refused outright by ElevenLabs
+   ("blocked_generation," its own safety policy against synthesizing
+   child-sounding voices), which turned out to be specific to that one
+   automated request rather than a blanket rule: both got real voices once
+   Dr. O supplied the ids herself. Fully voice-complete now, the same real
+   mechanism every other companion uses -- no narrated (voiceId: null)
+   fallback needed for this family the way Gus and Barley still use it. */
 var GC_PUPPETS = {
   id: 'puppets',
   name: 'Eli & Nell',
@@ -3586,7 +3577,7 @@ var GC_PUPPETS = {
      -- overwritten by speaker_voice_id the moment a real turn resolves.
      MARKED FOR REPLACEMENT: set to whichever of Eli's three previews Dr. O
      picks (see the voice-preview mp3s sent alongside this build). */
-  voiceId: 'PENDING-ELI-VOICE-PICK',
+  voiceId: 'B5nXKjaYRMU7hmcu1Fhk',
   talkingPoints: [
     'What happens the moment the workshop door shuts?',
     'Tell me about the maker, whatever you are allowed to say',
@@ -3600,19 +3591,30 @@ var GC_PUPPETS = {
      see showStill()'s own comment on why that field exists. */
   portraitWide: 'photos/puppet-family-group.jpg',
   scenes: [
-    { key: 'together', label: 'Eli & Nell', src: 'video/eli-nell-together.mp4' },
+    /* Vimeo-hosted, not local -- Dr. O handed this one over as a Vimeo
+       embed directly (matching her established "I know netlify has
+       limits" policy), so it stays there rather than duplicating the
+       clip in from the local copy this file briefly also had. */
+    { key: 'together', label: 'Eli & Nell', vimeoId: '1222388506' },
     { key: 'stillhouse', label: 'Just the two of them', src: null, still: 'photos/eli-nell-still.jpg' },
-    /* JEM AND WREN'S OWN SCENE, same mechanism as Poppy's and Blue's solo
-       scenes in Tansy's room -- speaker names which companion this scene
-       actually belongs to, read by ask() and by showStill()'s own new
-       scene.speaker lookup so the right face and name show, not the
-       host's. Only one still to work with for both of them right now
-       (their individual happy/sad photos, matching Eli's and Nell's own,
-       have not been saved to the Puppet Family folder yet) -- Jem is the
-       one who actually answers here, with Wren free to cameo in the same
-       way Wilhelm cameos into Jacob's replies. Splits into two real solo
-       scenes the moment their own photos land. */
-    { key: 'kids', label: 'Jem & Wren', src: null, still: 'photos/jem-wren-together.jpg', speaker: 'jem' },
+    /* ELI AND NELL'S OWN SOLO SCENES, same speaker mechanism as Poppy's and
+       Blue's in Tansy's room, even though eli/nell are also turnOrder's
+       defaults -- tagging these explicitly means showStill()/ask() are
+       never guessing which of the two a scene belongs to. */
+    /* Both Vimeo-hosted, same reasoning as 'together' above. */
+    { key: 'elisolo', label: 'Eli, alone', vimeoId: '1222388505', speaker: 'eli' },
+    { key: 'nellworn', label: 'Nell, worn out', vimeoId: '1222388514', speaker: 'nell' },
+    /* Vimeo-hosted, same reasoning as the others above. */
+    { key: 'family', label: 'The whole family', vimeoId: '1222388503' },
+    /* JEM AND WREN'S OWN SCENES. Jem still only has the joint clip with
+       Wren (no individual footage of him alone yet), so that is where he
+       answers from, same as before -- but Wren's own photo has landed
+       (sister.jpeg, saved as wren-happy.jpg) since this was first built,
+       so she now gets a real solo scene of her own too, not just a cameo
+       inside Jem's. */
+    /* Vimeo-hosted, same reasoning as the others above. */
+    { key: 'kids', label: 'Jem & Wren', vimeoId: '1222388504', speaker: 'jem' },
+    { key: 'wren', label: 'Wren, alone', src: null, still: 'photos/wren-happy.jpg', speaker: 'wren' },
   ],
   turnOrder: ['eli', 'nell'],
   companions: {
@@ -3644,13 +3646,13 @@ var GC_PUPPETS = {
       voice: ['Weathered', 'Patient', 'Quiet'],
       /* MARKED FOR REPLACEMENT once Dr. O picks from the three eli_*.mp3
          previews sent alongside this build. */
-      voiceId: 'PENDING-ELI-VOICE-PICK',
+      voiceId: 'B5nXKjaYRMU7hmcu1Fhk',
       talkingPoints: [
         'What happens the moment the workshop door shuts?',
         'What is Nell like, that the maker never got to see?',
         'Do Jem and Wren know they have to go still again by morning?',
       ],
-      cameos: [{ name: 'Nell', voiceId: 'PENDING-NELL-VOICE-PICK' }],
+      cameos: [{ name: 'Nell', voiceId: 'xIzR6egd3S3LJZbVW0c1' }],
       cameoRate: 'OFTEN, close to every other reply, since this is meant to feel like a real ' +
                  'back-and-forth between the two of them, not a rare surprise,',
     },
@@ -3680,13 +3682,13 @@ var GC_PUPPETS = {
       voice: ['Warm', 'Worn', 'Tender'],
       /* MARKED FOR REPLACEMENT once Dr. O picks from the three
          nell_*.mp3 previews sent alongside this build. */
-      voiceId: 'PENDING-NELL-VOICE-PICK',
+      voiceId: 'xIzR6egd3S3LJZbVW0c1',
       talkingPoints: [
         'What do you actually do with the hours you get?',
         'Tell me about the lullaby',
         'What does Eli get wrong about how tired you are?',
       ],
-      cameos: [{ name: 'Eli', voiceId: 'PENDING-ELI-VOICE-PICK' }],
+      cameos: [{ name: 'Eli', voiceId: 'B5nXKjaYRMU7hmcu1Fhk' }],
       cameoRate: 'OFTEN, close to every other reply, since this is meant to feel like a real ' +
                  'back-and-forth between the two of them, not a rare surprise,',
     },
@@ -3715,13 +3717,13 @@ var GC_PUPPETS = {
       baselineFeelings: { happy: 75, sad: 10, fear: 10, disgust: 10, anger: 15, surprise: 45, curious: 65 },
       moodEmoji: '&#128646;',
       voice: ['Bright', 'Restless', 'Loud'],
-      voiceId: null,
+      voiceId: '4NJLA7OQNVkeKe4jVdHw',
       talkingPoints: [
         'Tell me about the train',
         'What do you and Wren get up to while your parents talk?',
         'What happens if you get caught still moving when the sun comes up?',
       ],
-      cameos: [{ name: 'Wren', voiceId: null }],
+      cameos: [{ name: 'Wren', voiceId: 'Nggzl2QAXh3OijoXD116' }],
     },
     wren: {
       name: 'Wren',
@@ -3742,22 +3744,26 @@ var GC_PUPPETS = {
       baselineFeelings: { happy: 55, sad: 25, fear: 20, disgust: 10, anger: 5, surprise: 40, curious: 60 },
       moodEmoji: '&#127804;',
       voice: ['Soft', 'Dreamy', 'Sweet'],
-      voiceId: null,
+      /* A real voice after all, Dr. O direct: "Nggzl2QAXh3OijoXD116 -
+         daughter" -- the ElevenLabs design-generation refusal noted on
+         this whole block was specific to that one automated request, not
+         a blanket rule against a child-sounding voice existing at all. */
+      voiceId: 'Nggzl2QAXh3OijoXD116',
       talkingPoints: [
         'What does it feel like right when you wake up?',
         'Tell me about your doll',
         'What does Jem not notice that you do?',
       ],
-      cameos: [{ name: 'Jem', voiceId: null }],
+      cameos: [{ name: 'Jem', voiceId: '4NJLA7OQNVkeKe4jVdHw' }],
     },
   },
 };
 
-/* puppets: GC_PUPPETS NOT YET ADDED -- see GC_DEMO_IDS's own note above. */
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS };
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS };
 
-/* ?who=eli AND ?who=nell REMAP NOT YET ADDED -- see GC_DEMO_IDS's own note
-   above. GC_PUPPETS itself is fully written, just not reachable yet. */
+/* ?who=eli AND ?who=nell BOTH OPEN THE SAME SHARED ROOM, same reasoning as
+   GC_GRIMMS's own jacob/wilhelm aliases just below. */
+if (GC_WHO === 'eli' || GC_WHO === 'nell') GC_WHO = 'puppets';
 
 /* ?who=jacob AND ?who=wilhelm BOTH OPEN THE SAME SHARED ROOM, same as
    ?who=grimms itself. GC_DEMOS above has no separate 'jacob'/'wilhelm' key

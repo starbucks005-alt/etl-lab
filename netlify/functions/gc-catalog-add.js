@@ -60,6 +60,13 @@ const CATALOG_FIELDS = [
      others here since none of today's other catalog entries carry one;
      flagging the general gap rather than fixing it everywhere blind. */
   'notTheTherapist',
+  /* turnOrder, companions, added 2026-08-29 for the Grimms/puppet-family
+     entries -- same reasoning as catalog.html's own startWith() copy-list,
+     which needed the identical fix: a shared multi-companion room has
+     nothing real at the top level, only inside .companions, addressed by
+     .turnOrder, so stripping these here would silently produce a catalog
+     entry with no working voice at all. */
+  'turnOrder', 'companions',
 ];
 
 function catalogEntryFrom(friend) {
