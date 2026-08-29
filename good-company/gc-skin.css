@@ -118,10 +118,10 @@
 
 /* ── TIDEPOOL. Tidepool teal and dusty rose. ── */
 [data-skin="tidepool"]{
-  --paper:#EAD7E0; --panel:#E2C1D1; --chrome:rgba(234,215,224,.93);
-  --ink:#06100E; --ink-dim:#285C52; --line:#D6A4BC;
+  --paper:#D2EEEE; --panel:#BAE7E8; --chrome:rgba(210,238,238,.93);
+  --ink:#0B1D19; --ink-dim:#2B6559; --line:#9ADEDF;
   --accent:#A33E70; --accent-hover:#823159; --accent-ink:#F8F7F7;
-  --moss:#06B8BC;
+  --moss:#9D2448;
 }
 
 /* ── CONFETTI. Blush and cream, party pastels. ── */
@@ -145,16 +145,19 @@
 
 /* ── UMBER. Fallen oak leaves, warm browns. ── */
 [data-skin="umber"]{
-  --paper:#EAE0D7; --panel:#E2D0C1; --chrome:rgba(234,224,215,.93);
-  --ink:#191411; --ink-dim:#71533D; --line:#D6BBA4;
-  --accent:#825831; --accent-hover:#614124; --accent-ink:#F8F7F7;
-  --moss:#7E5F44;
+  --paper:#241B14; --panel:#37271B; --chrome:rgba(36,27,20,.93);
+  --ink:#EEEBE7; --ink-dim:#C2AB8E; --line:#533A27;
+  --accent:#7D5430; --accent-hover:#9A683B; --accent-ink:#F3F2F1;
+  --moss:#B49174;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
 /* ── BLAZE. Wildfire orange against char black. ── */
 [data-skin="blaze"]{
-  --paper:#291F0F; --panel:#3D2D14; --chrome:rgba(41,31,15,.93);
-  --ink:#F3F1EE; --ink-dim:#C2AD8E; --line:#5D431D;
+  --paper:#290F12; --panel:#3D1419; --chrome:rgba(41,15,18,.93);
+  --ink:#EEEBE7; --ink-dim:#C2AD8E; --line:#5D1D25;
   --accent:#FDA829; --accent-hover:#FDBD5C; --accent-ink:#1C1817;
   --moss:#EF394F;
 
@@ -164,8 +167,8 @@
 
 /* ── UNDERSTORY. Foggy forest floor, dark and green. ── */
 [data-skin="understory"]{
-  --paper:#232711; --panel:#343A18; --chrome:rgba(35,39,17,.93);
-  --ink:#F6F7F6; --ink-dim:#A1B39E; --line:#4E5823;
+  --paper:#222711; --panel:#323A18; --chrome:rgba(34,39,17,.93);
+  --ink:#F6F7F6; --ink-dim:#A1B39E; --line:#4C5823;
   --accent:#A2B645; --accent-hover:#B5C668; --accent-ink:#1B1C17;
   --moss:#A4B474;
 
@@ -173,34 +176,43 @@
   --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
-/* ── WILDFLOWER. Wildflower gold against deep green. ── */
+/* ── WILDFLOWER. Wildflower gold, mauve dusk. ── */
 [data-skin="wildflower"]{
-  --paper:#EEE4D2; --panel:#E8D7BA; --chrome:rgba(238,228,210,.93);
-  --ink:#131A16; --ink-dim:#3A6146; --line:#DFC59A;
-  --accent:#FEB641; --accent-hover:#FEC974; --accent-ink:#1A231D;
-  --moss:#447E56;
+  --paper:#251319; --panel:#371B24; --chrome:rgba(37,19,25,.93);
+  --ink:#EEECE7; --ink-dim:#C2B68E; --line:#532736;
+  --accent:#FEB641; --accent-hover:#FEC974; --accent-ink:#171C19;
+  --moss:#74B488;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
 /* ── TWILIGHT. Purple dusk over still water. ── */
 [data-skin="twilight"]{
-  --paper:#ECD4E5; --panel:#E6BCDA; --chrome:rgba(236,212,229,.93);
-  --ink:#0A0920; --ink-dim:#413D8F; --line:#DC9DCA;
-  --accent:#9D3C81; --accent-hover:#7C2F66; --accent-ink:#F8F7F8;
-  --moss:#453C85;
+  --paper:#1B0F29; --panel:#27153D; --chrome:rgba(27,15,41,.93);
+  --ink:#EEE7EE; --ink-dim:#C28EC2; --line:#3A1E5C;
+  --accent:#993A7D; --accent-hover:#B74595; --accent-ink:#F3F1F3;
+  --moss:#756CBC;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
 /* ── ALPINE. Misty slate peaks, cold blue light. ── */
 [data-skin="alpine"]{
-  --paper:#D2E0EE; --panel:#BAD0E8; --chrome:rgba(210,224,238,.93);
-  --ink:#0B1219; --ink-dim:#345A7A; --line:#9ABBDF;
-  --accent:#405265; --accent-hover:#2E3B49; --accent-ink:#F7F8F8;
-  --moss:#445F7E;
+  --paper:#0F1D29; --panel:#152A3C; --chrome:rgba(15,29,41,.93);
+  --ink:#E7EEEE; --ink-dim:#8EC2C2; --line:#1F405B;
+  --accent:#405265; --accent-hover:#50667E; --accent-ink:#F1F3F3;
+  --moss:#7492B4;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
 /* ── CANOPY. Deep jungle canopy, black to green. ── */
 [data-skin="canopy"]{
-  --paper:#142418; --panel:#1B3722; --chrome:rgba(20,36,24,.93);
-  --ink:#F0F1EA; --ink-dim:#B9C28E; --line:#275332;
+  --paper:#1F1919; --panel:#2E2424; --chrome:rgba(31,25,25,.93);
+  --ink:#EDEEE7; --ink-dim:#B9C28E; --line:#463535;
   --accent:#3FA75A; --accent-hover:#59C074; --accent-ink:#1C1717;
   --moss:#A8B474;
 
@@ -210,7 +222,7 @@
 
 /* ── AMETHYST. Amethyst violet, deep and cool. ── */
 [data-skin="amethyst"]{
-  --paper:#DBD7EA; --panel:#C8C1E2; --chrome:rgba(219,215,234,.93);
+  --paper:#DBD7EA; --panel:#C7C1E2; --chrome:rgba(219,215,234,.93);
   --ink:#0B0A0E; --ink-dim:#574D7F; --line:#AEA4D6;
   --accent:#5740A8; --accent-hover:#463387; --accent-ink:#F8F7F8;
   --moss:#444A7E;
@@ -218,24 +230,24 @@
 
 /* ── DRIFTWOOD. Sun-bleached shells, warm neutral sand. ── */
 [data-skin="driftwood"]{
-  --paper:#EADED7; --panel:#E2CDC1; --chrome:rgba(234,222,215,.93);
-  --ink:#121211; --ink-dim:#5A5A48; --line:#D6B6A4;
+  --paper:#E4E4DD; --panel:#D7D7CB; --chrome:rgba(228,228,221,.93);
+  --ink:#151514; --ink-dim:#5A5A48; --line:#C7C7B3;
   --accent:#D7AE96; --accent-hover:#E5CABB; --accent-ink:#1F1F1E;
-  --moss:#7E7E44;
+  --moss:#44577E;
 }
 
-/* ── ORCHARD. Spring garden, green and lavender. ── */
+/* ── ORCHARD. Spring garden, navy and lavender. ── */
 [data-skin="orchard"]{
-  --paper:#DDD7EA; --panel:#CCC1E2; --chrome:rgba(221,215,234,.93);
-  --ink:#060B04; --ink-dim:#395C28; --line:#B4A4D6;
+  --paper:#D6DCEB; --panel:#BECAE4; --chrome:rgba(214,220,235,.93);
+  --ink:#090F06; --ink-dim:#395C28; --line:#A1B2D9;
   --accent:#6642AE; --accent-hover:#52358D; --accent-ink:#F8F7F7;
   --moss:#538939;
 }
 
 /* ── TERRARIUM. Succulent teal-greens, glasshouse light. ── */
 [data-skin="terrarium"]{
-  --paper:#142421; --panel:#1B3730; --chrome:rgba(20,36,33,.93);
-  --ink:#ECF1EA; --ink-dim:#9DC28E; --line:#275349;
+  --paper:#0F2629; --panel:#14393D; --chrome:rgba(15,38,41,.93);
+  --ink:#EFF3EE; --ink-dim:#9DC28E; --line:#1D565D;
   --accent:#41AA92; --accent-hover:#5DC1AA; --accent-ink:#17191C;
   --moss:#53D5B4;
 
@@ -245,8 +257,8 @@
 
 /* ── BORDEAUX. Deep rose red, garden at dusk. ── */
 [data-skin="bordeaux"]{
-  --paper:#241514; --panel:#371C1B; --chrome:rgba(36,21,20,.93);
-  --ink:#EEE7E7; --ink-dim:#C2918E; --line:#532927;
+  --paper:#290F13; --panel:#3D141A; --chrome:rgba(41,15,19,.93);
+  --ink:#EEE7E7; --ink-dim:#C2918E; --line:#5D1D27;
   --accent:#8E201A; --accent-hover:#B02820; --accent-ink:#F3F1F1;
   --moss:#FF2948;
 
@@ -256,8 +268,8 @@
 
 /* ── COPPER. Weathered copper, verdigris and rust. ── */
 [data-skin="copper"]{
-  --paper:#241814; --panel:#37221B; --chrome:rgba(36,24,20,.93);
-  --ink:#EEE9E7; --ink-dim:#C29F8E; --line:#533227;
+  --paper:#29160F; --panel:#3D1F14; --chrome:rgba(41,22,15,.93);
+  --ink:#EEE9E7; --ink-dim:#C29F8E; --line:#5D2E1D;
   --accent:#522C1F; --accent-hover:#703C2A; --accent-ink:#F3F2F1;
   --moss:#74B4A5;
 
@@ -267,8 +279,8 @@
 
 /* ── TIDE. Beach pastels, pink sand and sea glass. ── */
 [data-skin="tide"]{
-  --paper:#EAD2EE; --panel:#E0BAE8; --chrome:rgba(234,210,238,.93);
-  --ink:#090B0C; --ink-dim:#415867; --line:#D49ADF;
+  --paper:#EED2E6; --panel:#E8BADA; --chrome:rgba(238,210,230,.93);
+  --ink:#090B0C; --ink-dim:#415867; --line:#DF9ACB;
   --accent:#B08EB7; --accent-hover:#C6ADCB; --accent-ink:#1B1F22;
   --moss:#3A6787;
 }
@@ -357,13 +369,17 @@ body{
 [data-skin="understory"] .mark .logo-dark-ink, [data-skin="canopy"] .mark .logo-dark-ink,
 [data-skin="terrarium"] .mark .logo-dark-ink, [data-skin="bordeaux"] .mark .logo-dark-ink,
 [data-skin="copper"] .mark .logo-dark-ink, [data-skin="black"] .mark .logo-dark-ink,
-[data-skin="ember"] .mark .logo-dark-ink{ display:none; }
+[data-skin="ember"] .mark .logo-dark-ink, [data-skin="umber"] .mark .logo-dark-ink,
+[data-skin="wildflower"] .mark .logo-dark-ink, [data-skin="twilight"] .mark .logo-dark-ink,
+[data-skin="alpine"] .mark .logo-dark-ink{ display:none; }
 [data-skin="fireside"] .mark .logo-light-ink, [data-skin="grove"] .mark .logo-light-ink,
 [data-skin="blueprint"] .mark .logo-light-ink, [data-skin="blaze"] .mark .logo-light-ink,
 [data-skin="understory"] .mark .logo-light-ink, [data-skin="canopy"] .mark .logo-light-ink,
 [data-skin="terrarium"] .mark .logo-light-ink, [data-skin="bordeaux"] .mark .logo-light-ink,
 [data-skin="copper"] .mark .logo-light-ink, [data-skin="black"] .mark .logo-light-ink,
-[data-skin="ember"] .mark .logo-light-ink{ display:block; }
+[data-skin="ember"] .mark .logo-light-ink, [data-skin="umber"] .mark .logo-light-ink,
+[data-skin="wildflower"] .mark .logo-light-ink, [data-skin="twilight"] .mark .logo-light-ink,
+[data-skin="alpine"] .mark .logo-light-ink{ display:block; }
 
 .sec-head{
   font-family:var(--mono); font-size:11px; letter-spacing:.16em;
