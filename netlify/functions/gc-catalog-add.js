@@ -95,9 +95,12 @@ exports.handler = async (event) => {
      already in the catalog used to be publishing a duplicate -- Marion's
      own first publish went out with vimeoId-only scenes, no thumb, before
      the real chosen stills existed, and there was no way to correct that
-     in place. Gated on OWNER_KEY, same pattern gc-scene-order.js already
-     uses, since this can overwrite anyone's donated entry. */
-  const isOwner = !!process.env.OWNER_KEY && String(body.owner_key || '') === process.env.OWNER_KEY;
+     in place. Gated on GC_OWNER_KEY, Good Company's own dedicated owner
+     secret -- NOT the campus-wide OWNER_KEY gc-scene-order.js checks,
+     which is a real, separate variable and cost real time to find: this
+     was first written against OWNER_KEY by copying that file's pattern
+     without checking whether Good Company had its own. It does. */
+  const isOwner = !!process.env.GC_OWNER_KEY && String(body.owner_key || '') === process.env.GC_OWNER_KEY;
 
   /* DELETE, OWNER ONLY, added 2026-08-29 during the same incident that added
      the update path above -- three accidental duplicate Marion entries (each
