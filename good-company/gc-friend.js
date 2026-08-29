@@ -3240,9 +3240,9 @@ var GC_MARION = {
   scenes: [
     /* THUMBS -- Dr. O's own chosen stills, added 2026-08-29, same reasoning
        as Reggie's spa scene: real and chosen beats the vumbnail.com proxy
-       auto-fetched from the vimeoId. 'meet' has no matching still in this
-       batch and stays on the auto-fetch fallback. */
+       auto-fetched from the vimeoId. */
     { key: 'meet', label: 'Meet the Littles', src: null, vimeoId: '1222250190',
+      thumb: 'photos/marion-thumb-meet.jpeg',
       where: 'The whole family together, inside the walls, meeting whoever is visiting.' },
     { key: 'kitchen', label: 'The Kitchen', src: null, vimeoId: '1222249477',
       thumb: 'photos/marion-thumb-kitchen.jpg',
