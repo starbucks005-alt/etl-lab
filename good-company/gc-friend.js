@@ -629,7 +629,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion'];
 
 var GC_WHO = (function () {
   var q = null;
@@ -3183,14 +3183,8 @@ var GC_VIV = {
 /* MARION LITTLE, added 2026-08-28. A Borrower, same idea Dr. O loved as a
    kid and had forgotten the name of: a few inches tall, living inside the
    walls of a house that belongs to "bigs" who have no idea her family is
-   there. Built, deliberately, NOT YET WIRED INTO GC_DEMOS/GC_DEMO_IDS below
-   -- she is missing two things nothing here can substitute for: a real
-   voiceId (Dr. O is choosing one by ear, same as every other primary
-   companion) and an actual solo portrait (every photo so far is a group
-   shot of the whole family; badly cropping one and shipping it as hers
-   without her seeing it first is exactly the kind of silent-fallback
-   moved warned against). Add both, then add her to the two lists below --
-   see Winston and Viv's own entries just above for the exact pattern. */
+   there. Real voiceId and real solo portrait both landed the same day --
+   live in GC_DEMOS/GC_DEMO_IDS below alongside Winston and Viv. */
 var GC_MARION = {
   premise: 'Marion is a Borrower: a few inches tall, living secretly in the walls of a house ' +
            'that belongs to ordinary-sized humans. She keeps her family fed, clothed, and ' +
@@ -3238,12 +3232,7 @@ var GC_MARION = {
   ],
   skin: 'harvest',
   timezone: 'America/New_York',
-  /* PORTRAIT -- every real photo so far is the whole family together
-     (Kitchen.jpg, story time.png, Movie.png, Fishing tadpoles.jpeg). None
-     is a clean solo shot of Marion alone. Needs either a real solo
-     portrait or Dr. O's go-ahead to crop one of the group photos before
-     this can point anywhere real. */
-  portrait: null,
+  portrait: 'photos/marion-portrait.png',
   /* SCENES -- real activities, no vimeoId yet (the five MP4s are still
      local files, same as Winston's and Viv's were before upload). src:
      null is the honest, thin-on-purpose state Reggie's own unfinished
@@ -3266,7 +3255,7 @@ var GC_MARION = {
   ],
 };
 
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV };
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION };
 
 /* The id in ?who=, if it names a demo we actually have. */
 /* WHICH DEMO, taken from the answer GC_WHO already worked out rather than
