@@ -2098,6 +2098,27 @@ function guestCameoLookup(name) {
   return null;
 }
 
+/* ALTERNATING CO-EQUAL SPEAKERS, added 2026-08-29 for Jacob & Wilhelm (see
+   gc-friend.js's GC_GRIMMS for the full reasoning), built generic on
+   purpose: it reads FRIEND.turnOrder + FRIEND.companions, nothing Grimms-
+   specific, so the next shared-room duo just needs its own data, not a new
+   mechanism -- Dr. O direct: "creating this one for the brothers will let
+   us explore other duos."
+
+   DIFFERENT FROM current.speaker BELOW ON PURPOSE. That is a fixed speaker
+   for as long as one SOLO SCENE is on screen (Poppy's scene, Blue's
+   scene). A shared room like Jacob & Wilhelm's has no solo scene at all --
+   every scene already shows both of them -- so what has to rotate is the
+   SPEAKER, every message, not the scene. sessionStorage rather than a
+   plain variable so the rotation survives a reload mid-conversation
+   instead of silently resetting to whoever goes first. */
+function nextTurnSpeaker(friend) {
+  var order = friend.turnOrder, key = 'gc-turn-' + friend.id, i = 0;
+  try { i = parseInt(sessionStorage.getItem(key), 10) || 0; } catch (e) {}
+  try { sessionStorage.setItem(key, String(i + 1)); } catch (e) {}
+  return order[i % order.length];
+}
+
 function ask(payload) {
   thinking = true;
   $("sendBtn").disabled = true;
@@ -2110,8 +2131,15 @@ function ask(payload) {
      each of them. Sent alongside friend, not instead of it: friend still
      does the billing, is_demo, and credit gating (see gc-chat.js's own
      activeFriend note) because Poppy and Blue are not separately built or
-     paid for, they are borrowing Tansy's room. */
-  var speakerObj = (current && current.speaker && FRIEND.companions) ? FRIEND.companions[current.speaker] : null;
+     paid for, they are borrowing Tansy's room.
+
+     FALLS THROUGH TO nextTurnSpeaker() when the scene names no fixed
+     speaker but the friend has a turnOrder -- a shared room like Jacob &
+     Wilhelm's, where every scene is shared and who answers rotates by
+     message instead of by scene. */
+  var speakerKey = (current && current.speaker) ? current.speaker
+                  : (FRIEND.companions && FRIEND.turnOrder) ? nextTurnSpeaker(FRIEND) : null;
+  var speakerObj = (speakerKey && FRIEND.companions) ? FRIEND.companions[speakerKey] : null;
   return fetch(CHAT_URL, {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.assign({
@@ -2537,8 +2565,11 @@ function sayInRoom(text) {
   thinking = true; $("sendBtn").disabled = true;
   /* Same solo-scene guard ask() uses, computed fresh here rather than
      shared, since sayInRoom() and ask() are different functions reached
-     from different branches of send(). */
-  var roomSpeakerObj = (current && current.speaker && FRIEND.companions) ? FRIEND.companions[current.speaker] : null;
+     from different branches of send(). Same nextTurnSpeaker() fallback too,
+     for a shared human room whose resident friend is a turnOrder duo. */
+  var roomSpeakerKey = (current && current.speaker) ? current.speaker
+                      : (FRIEND.companions && FRIEND.turnOrder) ? nextTurnSpeaker(FRIEND) : null;
+  var roomSpeakerObj = (roomSpeakerKey && FRIEND.companions) ? FRIEND.companions[roomSpeakerKey] : null;
   fetch("/.netlify/functions/gc-room-say", {
     method: "POST", headers: { "Content-Type": "application/json" },
     /* owner_key/access_token, ADDED 2026-08-18. Dr. O, capped in her own

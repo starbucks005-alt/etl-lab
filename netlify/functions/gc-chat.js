@@ -1185,13 +1185,24 @@ exports.handler = async function (event) {
      dropped rather than spoken in a voice nobody chose for it. */
   let cameo = null;
   if (Array.isArray(activeFriend.cameos) && activeFriend.cameos.length) {
-    const cCut = raw.indexOf(CAMEO_MARK);
-    if (cCut > -1) {
-      const afterMark = raw.slice(cCut + CAMEO_MARK.length);
-      const closeAt = afterMark.indexOf('###');
-      if (closeAt > -1) {
-        const spokenName = afterMark.slice(0, closeAt).trim();
-        let cameoText = afterMark.slice(closeAt + 3).split('\n')[0].trim();
+    /* FORGIVING MATCH, added 2026-08-29 after a live miss: at Jacob/
+       Wilhelm's much higher cameoRate, the model dropped the "CAMEO:"
+       segment and wrote a bare "###WILHELM###" instead of
+       "###CAMEO:Wilhelm###". The old exact-string indexOf(CAMEO_MARK)
+       found nothing, so the whole malformed marker leaked straight into
+       the visible reply instead of being parsed at all. A regex that
+       accepts the "CAMEO:" prefix as optional catches both the correct
+       form every other friend already uses and this shorthand slip,
+       rather than trusting the model to hit the exact string every time
+       now that this fires close to every other turn instead of rarely. */
+    const markerRe = /###(?:CAMEO:)?\s*([^#]+?)###/;
+    const markerMatch = raw.match(markerRe);
+    if (markerMatch) {
+      const cCut = markerMatch.index;
+      const afterMark = raw.slice(cCut + markerMatch[0].length);
+      const spokenName = markerMatch[1].trim();
+      {
+        let cameoText = afterMark.split('\n')[0].trim();
         raw = raw.slice(0, cCut).trim();
         cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim();
         /* WORD-BOUNDARY TRIM, NOT A HARD CHARACTER CUT, fixed 2026-08-18
