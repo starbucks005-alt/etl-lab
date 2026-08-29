@@ -629,7 +629,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms'];
 
 var GC_WHO = (function () {
   var q = null;
@@ -3461,6 +3461,27 @@ var GC_WILHELM = {
 };
 
 var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, jacob: GC_JACOB, wilhelm: GC_WILHELM };
+
+/* ?who=grimms -- ONE SHARED LINK, NO OWNER, added 2026-08-29. Dr. O direct:
+   "put them in the same room." Jacob and Wilhelm already talk to each
+   other constantly (see cameoRate above), but ?who=jacob and ?who=wilhelm
+   are still two different URLs, each nominally "his" room. This is the
+   fix: a shared alias that picks one of them as the technical primary AT
+   RANDOM, once per session (never re-rolled mid-conversation, which would
+   be jarring), so the room itself does not consistently belong to either
+   one. Whichever a given visit lands on, the near-50% cameoRate means the
+   other is right there almost immediately anyway. sessionStorage, not
+   localStorage: a fresh session should get a fresh coin flip, not be
+   stuck with whichever brother a much earlier visit happened to roll. */
+if (GC_WHO === 'grimms') {
+  var rolled = null;
+  try { rolled = sessionStorage.getItem('gc-grimms-roll'); } catch (e) {}
+  if (rolled !== 'jacob' && rolled !== 'wilhelm') {
+    rolled = Math.random() < 0.5 ? 'jacob' : 'wilhelm';
+    try { sessionStorage.setItem('gc-grimms-roll', rolled); } catch (e) {}
+  }
+  GC_WHO = rolled;
+}
 
 /* The id in ?who=, if it names a demo we actually have. */
 /* WHICH DEMO, taken from the answer GC_WHO already worked out rather than
