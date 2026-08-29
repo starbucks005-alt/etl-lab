@@ -93,6 +93,13 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
   display:block; width:100%; aspect-ratio:3/4; object-fit:cover;
   border-radius:6px; background:var(--panel-2, var(--panel));
 }
+/* Same crop as the video/img siblings above -- object-fit works on an
+   iframe in every current browser this product targets, so the Vimeo
+   background embed sizes and crops identically to a local <video>. */
+.flip-scene-vimeo{
+  display:block; width:100%; aspect-ratio:3/4; object-fit:cover;
+  border-radius:6px; background:var(--panel-2, var(--panel)); border:0;
+}
 .flip-scene span{
   display:block; margin-top:.3rem; font-size:.68rem; color:var(--ink-dim);
   line-height:1.25; text-align:center;
@@ -227,7 +234,22 @@ function sceneChipHtml(scene) {
     return '<div class="flip-scene"><video src="' + escapeAttr(scene.src) + '" muted loop ' +
       'playsinline autoplay></video><span>' + label + '</span></div>';
   }
-  var thumb = scene.thumb || (scene.vimeoId ? ('https://vumbnail.com/' + encodeURIComponent(scene.vimeoId) + '.jpg') : '');
+  /* VIMEO BACKGROUND MODE, added 2026-08-29 per Dr. O direct: "I prefer the
+     video previews for the catalog, not the stills." A Vimeo-hosted scene
+     used to fall straight to a static thumbnail here, because the plain
+     <img>/<video src> this chip used could not play a Vimeo-hosted clip at
+     all -- Vimeo does not expose a raw file to hotlink. background=1 is
+     Vimeo's own mode for exactly this: chromeless, forced-muted, autoplay,
+     loop, built for a small decorative embed like this chip rather than a
+     real player. Lets every scene stay off git (Vimeo, not a committed
+     mp4) without losing the moving preview. */
+  if (scene.vimeoId) {
+    return '<div class="flip-scene"><iframe class="flip-scene-vimeo" ' +
+      'src="https://player.vimeo.com/video/' + encodeURIComponent(scene.vimeoId) +
+      '?background=1&autoplay=1&muted=1&loop=1" frameborder="0" ' +
+      'allow="autoplay; fullscreen"></iframe><span>' + label + '</span></div>';
+  }
+  var thumb = scene.thumb || '';
   if (thumb) {
     return '<div class="flip-scene"><img src="' + escapeAttr(thumb) + '" alt="" ' +
       'onerror="this.style.display=\'none\'"><span>' + label + '</span></div>';
