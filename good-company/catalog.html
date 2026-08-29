@@ -180,6 +180,16 @@ fetch('/.netlify/functions/gc-catalog-list')
         '<a href="build.html">Build one</a> and be the first.</div>';
       return;
     }
+    /* DIRECT LINK TO ONE ENTRY, added 2026-08-29 per Dr. O: "a link so I
+       can visit him." Without this the only way in was paging through the
+       whole book one card at a time -- catalog.html?id=cat-xxxxx opens
+       straight to that entry instead. Falls back to the first card (idx
+       already 0) if the id is missing or does not match anything. */
+    var wantId = new URLSearchParams(location.search).get('id');
+    if (wantId) {
+      var found = ITEMS.findIndex(function (it) { return it && it.id === wantId; });
+      if (found !== -1) idx = found;
+    }
     render();
   })
   .catch(function () {
@@ -310,7 +320,7 @@ function startWith(item) {
   }
 
   var friend = {};
-  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes']
+  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes','notTheTherapist']
     .forEach(function (k) { if (item[k] !== undefined) friend[k] = item[k]; });
   friend.catalogSourceId = item.id;
   friend.id = GC_newFriendId();

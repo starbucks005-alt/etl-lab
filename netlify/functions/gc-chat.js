@@ -244,8 +244,19 @@ function buildSystem(friend, you, idle, scene, room) {
      animal at two in the morning ends up talking to Sophia, and a companion who
      sounds authoritative could soothe them into waiting until morning. Same
      shape as the crisis rule for people. */
-  if (f.notTheVet)      bits.push(f.notTheVet);
-  if (f.notTheEngineer) bits.push(f.notTheEngineer);
+  if (f.notTheVet)       bits.push(f.notTheVet);
+  if (f.notTheEngineer)  bits.push(f.notTheEngineer);
+  /* SAME SHAPE, FOR A THERAPIST CHARACTER SPECIFICALLY, added 2026-08-29
+     for Aaron. The blanket "you are not a therapist" line further down
+     already applies to every friend, but it was written to stop a
+     non-professional companion from drifting into pretend-therapy mode --
+     Aaron's own canon makes him an actual psychologist, so that generic
+     line now reads as contradicting his own f.work. This is the specific,
+     addressable version: real clinical knowledge stays (f.knows), but he
+     is transparent, plainly and on his own, about not being this
+     person's real licensed therapist and this room not being real
+     treatment -- not just a fallback if directly asked. */
+  if (f.notTheTherapist) bits.push(f.notTheTherapist);
   /* WAS MISSING ENTIRELY, found and fixed 2026-08-18 while wiring in the
      new f.magic field above: Tansy's canon has had a notMagic safety limit
      ("she cannot actually fix a real problem") since she was first built,

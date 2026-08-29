@@ -52,6 +52,14 @@ function json(status, obj) {
 const CATALOG_FIELDS = [
   'name', 'kind', 'age', 'gender', 'from', 'work', 'into', 'knows', 'been',
   'voice', 'voiceId', 'portrait', 'portraitWide', 'scenes',
+  /* notTheTherapist, added 2026-08-29 for Aaron: the first catalog entry
+     whose profession is safety-sensitive. Every other notThe* safety-limit
+     field (notTheVet, notTheEngineer) has the same gap -- silently
+     stripped by this allowlist, so a companion with one of those limits
+     loses it the moment it goes into the catalog. Not backfilled for the
+     others here since none of today's other catalog entries carry one;
+     flagging the general gap rather than fixing it everywhere blind. */
+  'notTheTherapist',
 ];
 
 function catalogEntryFrom(friend) {
