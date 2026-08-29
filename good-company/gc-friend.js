@@ -3217,9 +3217,7 @@ var GC_MARION = {
   baselineFeelings: { happy: 55, sad: 10, fear: 35, disgust: 5, anger: 10, surprise: 20, curious: 40 },
   moodEmoji: '&#129522;',
   voice: ['Warm', 'Patient', 'Blunt'],
-  /* VOICE ID -- Dr. O is choosing this by ear, same as every other primary
-     companion. Do not fill in a guess; leave unset until she sends it. */
-  voiceId: null,
+  voiceId: 'Rm14i2uPTqCL0k0wW7KI',
   talkingPoints: [
     'How do you keep the family hidden?',
     'Teach me to fix something with what I already have',
@@ -3232,11 +3230,11 @@ var GC_MARION = {
      description, not a spoken quote. Any of them can get a real voice
      later without touching this shape. */
   cameos: [
-    { name: 'Walter', voiceId: null },
-    { name: 'Edith', voiceId: null },
-    { name: 'Henry', voiceId: null },
-    { name: 'Sam', voiceId: null },
-    { name: 'Daisy', voiceId: null },
+    { name: 'Walter', voiceId: 'MKlLqCItoCkvdhrxgtLv' },
+    { name: 'Edith', voiceId: 'YHcCpa6SBWnKDaCPZJQR' },
+    { name: 'Henry', voiceId: 'Nov35cZOAeYofDhYHMnI' },
+    { name: 'Sam', voiceId: 'wcIrsZmi758yTtAxuW4l' },
+    { name: 'Daisy', voiceId: 'pPdl9cQBQq4p6mRkZy2Z' },
   ],
   skin: 'harvest',
   timezone: 'America/New_York',
