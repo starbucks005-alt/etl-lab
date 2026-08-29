@@ -110,49 +110,52 @@
 
 /* ── BRAMBLE. Blueberries, denim blues, cool and crisp. ── */
 [data-skin="bramble"]{
-  --paper:#E9EEF2; --panel:#D4DFE8; --chrome:rgba(233,238,242,.93);
-  --ink:#191E23; --ink-dim:#476279; --line:#BCCDDC;
+  --paper:#D2E2EE; --panel:#BAD3E8; --chrome:rgba(210,226,238,.93);
+  --ink:#0F1215; --ink-dim:#40596D; --line:#9AC0DF;
   --accent:#0A385F; --accent-hover:#062035; --accent-ink:#F7F7F8;
   --moss:#2B6397;
 }
 
 /* ── TIDEPOOL. Tidepool teal and dusty rose. ── */
 [data-skin="tidepool"]{
-  --paper:#F1E9ED; --panel:#E7D5DE; --chrome:rgba(241,233,237,.93);
-  --ink:#0D211D; --ink-dim:#2D695D; --line:#DBBDCC;
+  --paper:#EAD7E0; --panel:#E2C1D1; --chrome:rgba(234,215,224,.93);
+  --ink:#06100E; --ink-dim:#285C52; --line:#D6A4BC;
   --accent:#A33E70; --accent-hover:#823159; --accent-ink:#F8F7F7;
   --moss:#06B8BC;
 }
 
 /* ── CONFETTI. Blush and cream, party pastels. ── */
 [data-skin="confetti"]{
-  --paper:#F2E9E9; --panel:#E8D5D4; --chrome:rgba(242,233,233,.93);
-  --ink:#1F1D17; --ink-dim:#645D3D; --line:#DCBEBC;
+  --paper:#EED4D2; --panel:#E8BDBA; --chrome:rgba(238,212,210,.93);
+  --ink:#080806; --ink-dim:#5C5539; --line:#DF9F9A;
   --accent:#F8A49E; --accent-hover:#FBD1CE; --accent-ink:#23211A;
   --moss:#7E7244;
 }
 
 /* ── BLUEPRINT. Navy blueprint lines, antique gold. ── */
 [data-skin="blueprint"]{
-  --paper:#F2EEE9; --panel:#E8DFD4; --chrome:rgba(242,238,233,.93);
-  --ink:#0D202E; --ink-dim:#3A6686; --line:#DCCEBC;
-  --accent:#BE8F55; --accent-hover:#CCA77A; --accent-ink:#12202B;
-  --moss:#35658D;
+  --paper:#0F1E29; --panel:#142C3D; --chrome:rgba(15,30,41,.93);
+  --ink:#EEECE7; --ink-dim:#C2B38E; --line:#1D425D;
+  --accent:#BB894C; --accent-hover:#C9A171; --accent-ink:#171A1C;
+  --moss:#6498C4;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
 /* ── UMBER. Fallen oak leaves, warm browns. ── */
 [data-skin="umber"]{
-  --paper:#F2EDE9; --panel:#E8DDD4; --chrome:rgba(242,237,233,.93);
-  --ink:#241D18; --ink-dim:#795941; --line:#DCCBBC;
+  --paper:#EAE0D7; --panel:#E2D0C1; --chrome:rgba(234,224,215,.93);
+  --ink:#191411; --ink-dim:#71533D; --line:#D6BBA4;
   --accent:#825831; --accent-hover:#614124; --accent-ink:#F8F7F7;
   --moss:#7E5F44;
 }
 
 /* ── BLAZE. Wildfire orange against char black. ── */
 [data-skin="blaze"]{
-  --paper:#1D1811; --panel:#2E261A; --chrome:rgba(29,24,17,.93);
-  --ink:#EEEBE7; --ink-dim:#C2AD8E; --line:#433623;
-  --accent:#FDB13F; --accent-hover:#FEC671; --accent-ink:#1C1817;
+  --paper:#291F0F; --panel:#3D2D14; --chrome:rgba(41,31,15,.93);
+  --ink:#F3F1EE; --ink-dim:#C2AD8E; --line:#5D431D;
+  --accent:#FDA829; --accent-hover:#FDBD5C; --accent-ink:#1C1817;
   --moss:#EF394F;
 
   --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
@@ -161,9 +164,9 @@
 
 /* ── UNDERSTORY. Foggy forest floor, dark and green. ── */
 [data-skin="understory"]{
-  --paper:#1B1D11; --panel:#2A2E1A; --chrome:rgba(27,29,17,.93);
-  --ink:#EAEBEA; --ink-dim:#A1B39E; --line:#3E4323;
-  --accent:#BBCA72; --accent-hover:#CDD897; --accent-ink:#1B1C17;
+  --paper:#232711; --panel:#343A18; --chrome:rgba(35,39,17,.93);
+  --ink:#F6F7F6; --ink-dim:#A1B39E; --line:#4E5823;
+  --accent:#A2B645; --accent-hover:#B5C668; --accent-ink:#1B1C17;
   --moss:#A4B474;
 
   --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
@@ -172,33 +175,33 @@
 
 /* ── WILDFLOWER. Wildflower gold against deep green. ── */
 [data-skin="wildflower"]{
-  --paper:#F2EEE9; --panel:#E8E0D4; --chrome:rgba(242,238,233,.93);
-  --ink:#19211B; --ink-dim:#3E694B; --line:#DCD0BC;
+  --paper:#EEE4D2; --panel:#E8D7BA; --chrome:rgba(238,228,210,.93);
+  --ink:#131A16; --ink-dim:#3A6146; --line:#DFC59A;
   --accent:#FEB641; --accent-hover:#FEC974; --accent-ink:#1A231D;
   --moss:#447E56;
 }
 
 /* ── TWILIGHT. Purple dusk over still water. ── */
 [data-skin="twilight"]{
-  --paper:#F2E9EF; --panel:#E8D4E2; --chrome:rgba(242,233,239,.93);
-  --ink:#121037; --ink-dim:#413D8F; --line:#DCBCD3;
+  --paper:#ECD4E5; --panel:#E6BCDA; --chrome:rgba(236,212,229,.93);
+  --ink:#0A0920; --ink-dim:#413D8F; --line:#DC9DCA;
   --accent:#9D3C81; --accent-hover:#7C2F66; --accent-ink:#F8F7F8;
   --moss:#453C85;
 }
 
 /* ── ALPINE. Misty slate peaks, cold blue light. ── */
 [data-skin="alpine"]{
-  --paper:#E9EDF2; --panel:#D4DDE8; --chrome:rgba(233,237,242,.93);
-  --ink:#121F2A; --ink-dim:#3A6386; --line:#BCCBDC;
+  --paper:#D2E0EE; --panel:#BAD0E8; --chrome:rgba(210,224,238,.93);
+  --ink:#0B1219; --ink-dim:#345A7A; --line:#9ABBDF;
   --accent:#405265; --accent-hover:#2E3B49; --accent-ink:#F7F8F8;
   --moss:#445F7E;
 }
 
 /* ── CANOPY. Deep jungle canopy, black to green. ── */
 [data-skin="canopy"]{
-  --paper:#131B15; --panel:#1D2B20; --chrome:rgba(19,27,21,.93);
-  --ink:#EDEEE7; --ink-dim:#B9C28E; --line:#283E2D;
-  --accent:#72CA89; --accent-hover:#97D8A8; --accent-ink:#1C1717;
+  --paper:#142418; --panel:#1B3722; --chrome:rgba(20,36,24,.93);
+  --ink:#F0F1EA; --ink-dim:#B9C28E; --line:#275332;
+  --accent:#3FA75A; --accent-hover:#59C074; --accent-ink:#1C1717;
   --moss:#A8B474;
 
   --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
@@ -207,33 +210,33 @@
 
 /* ── AMETHYST. Amethyst violet, deep and cool. ── */
 [data-skin="amethyst"]{
-  --paper:#ECEBF0; --panel:#DAD8E4; --chrome:rgba(236,235,240,.93);
-  --ink:#1E1C26; --ink-dim:#574D7F; --line:#C6C2D6;
+  --paper:#DBD7EA; --panel:#C8C1E2; --chrome:rgba(219,215,234,.93);
+  --ink:#0B0A0E; --ink-dim:#574D7F; --line:#AEA4D6;
   --accent:#5740A8; --accent-hover:#463387; --accent-ink:#F8F7F8;
   --moss:#444A7E;
 }
 
 /* ── DRIFTWOOD. Sun-bleached shells, warm neutral sand. ── */
 [data-skin="driftwood"]{
-  --paper:#F0EDEB; --panel:#E4DCD8; --chrome:rgba(240,237,235,.93);
-  --ink:#1E1E1D; --ink-dim:#60604E; --line:#D6C9C2;
+  --paper:#EADED7; --panel:#E2CDC1; --chrome:rgba(234,222,215,.93);
+  --ink:#121211; --ink-dim:#5A5A48; --line:#D6B6A4;
   --accent:#D7AE96; --accent-hover:#E5CABB; --accent-ink:#1F1F1E;
   --moss:#7E7E44;
 }
 
 /* ── ORCHARD. Spring garden, green and lavender. ── */
 [data-skin="orchard"]{
-  --paper:#ECE9F1; --panel:#DBD6E6; --chrome:rgba(236,233,241,.93);
-  --ink:#121E0C; --ink-dim:#41692D; --line:#C7BEDA;
+  --paper:#DDD7EA; --panel:#CCC1E2; --chrome:rgba(221,215,234,.93);
+  --ink:#060B04; --ink-dim:#395C28; --line:#B4A4D6;
   --accent:#6642AE; --accent-hover:#52358D; --accent-ink:#F8F7F7;
   --moss:#538939;
 }
 
 /* ── TERRARIUM. Succulent teal-greens, glasshouse light. ── */
 [data-skin="terrarium"]{
-  --paper:#111D1A; --panel:#1A2E29; --chrome:rgba(17,29,26,.93);
-  --ink:#E9EEE7; --ink-dim:#9DC28E; --line:#24423B;
-  --accent:#72CAB5; --accent-hover:#97D8C8; --accent-ink:#17191C;
+  --paper:#142421; --panel:#1B3730; --chrome:rgba(20,36,33,.93);
+  --ink:#ECF1EA; --ink-dim:#9DC28E; --line:#275349;
+  --accent:#41AA92; --accent-hover:#5DC1AA; --accent-ink:#17191C;
   --moss:#53D5B4;
 
   --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
@@ -242,10 +245,10 @@
 
 /* ── BORDEAUX. Deep rose red, garden at dusk. ── */
 [data-skin="bordeaux"]{
-  --paper:#1D1211; --panel:#2D1B1A; --chrome:rgba(29,18,17,.93);
-  --ink:#EEE7E7; --ink-dim:#C2918E; --line:#422624;
+  --paper:#241514; --panel:#371C1B; --chrome:rgba(36,21,20,.93);
+  --ink:#EEE7E7; --ink-dim:#C2918E; --line:#532927;
   --accent:#8E201A; --accent-hover:#B02820; --accent-ink:#F3F1F1;
-  --moss:#69BF6E;
+  --moss:#FF2948;
 
   --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
   --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
@@ -253,8 +256,8 @@
 
 /* ── COPPER. Weathered copper, verdigris and rust. ── */
 [data-skin="copper"]{
-  --paper:#1D1411; --panel:#2E1F1A; --chrome:rgba(29,20,17,.93);
-  --ink:#EEE9E7; --ink-dim:#C29F8E; --line:#432B23;
+  --paper:#241814; --panel:#37221B; --chrome:rgba(36,24,20,.93);
+  --ink:#EEE9E7; --ink-dim:#C29F8E; --line:#533227;
   --accent:#522C1F; --accent-hover:#703C2A; --accent-ink:#F3F2F1;
   --moss:#74B4A5;
 
@@ -264,18 +267,40 @@
 
 /* ── TIDE. Beach pastels, pink sand and sea glass. ── */
 [data-skin="tide"]{
-  --paper:#F0E9F2; --panel:#E4D4E8; --chrome:rgba(240,233,242,.93);
-  --ink:#1A1E21; --ink-dim:#486172; --line:#D7BCDC;
+  --paper:#EAD2EE; --panel:#E0BAE8; --chrome:rgba(234,210,238,.93);
+  --ink:#090B0C; --ink-dim:#415867; --line:#D49ADF;
   --accent:#B08EB7; --accent-hover:#C6ADCB; --accent-ink:#1B1F22;
   --moss:#3A6787;
 }
 
 /* ── SLATE. True neutral gray, misty and quiet. ── */
 [data-skin="slate"]{
-  --paper:#EDEDED; --panel:#DFDDDD; --chrome:rgba(237,237,237,.93);
-  --ink:#1C1F1E; --ink-dim:#596160; --line:#CECACA;
+  --paper:#E0E0E0; --panel:#D2D0D0; --chrome:rgba(224,224,224,.93);
+  --ink:#101211; --ink-dim:#535A5A; --line:#BFBBBB;
   --accent:#3E4A4B; --accent-hover:#293132; --accent-ink:#F8F7F7;
   --moss:#506672;
+}
+
+/* ── BLACK. True black, brushed silver. ── */
+[data-skin="black"]{
+  --paper:#1C1C1C; --panel:#292828; --chrome:rgba(28,28,28,.93);
+  --ink:#EBEBEB; --ink-dim:#A8A8A8; --line:#3E3C3C;
+  --accent:#D8D8D8; --accent-hover:#F2F2F2; --accent-ink:#1C1717;
+  --moss:#949494;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
+}
+
+/* ── EMBER. Rust and maroon, gold ember glow. ── */
+[data-skin="ember"]{
+  --paper:#29110F; --panel:#3D1814; --chrome:rgba(41,17,15,.93);
+  --ink:#EEECE7; --ink-dim:#C2B08E; --line:#5D221D;
+  --accent:#DB930E; --accent-hover:#F1AC2B; --accent-ink:#1C1A17;
+  --moss:#F64032;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
 /* ── shared primitives ───────────────────────────────────────────────────── */
@@ -318,12 +343,27 @@ body{
    GROVE ADDED HERE TOO, 2026-08-19: this used to name only "fireside," and
    a second dark skin left out of this selector would show the dark-ink mark
    on its own dark background -- illegible, not just mismatched. Anywhere a
-   skin is dark, both rules below need it. */
+   skin is dark, both rules below need it.
+
+   NINE MORE DARK SKINS ADDED HERE, 2026-08-29, same reason: every isDark:true
+   skin from the new batch (blueprint, blaze, understory, canopy, terrarium,
+   bordeaux, copper, black, ember) needs the same swap or its mark is
+   unreadable on its own background. */
 .mark{ display:inline-flex; align-items:center; text-decoration:none; }
 .mark .logo{ height:34px; width:auto; display:block; }
 .mark .logo-light-ink{ display:none; }
-[data-skin="fireside"] .mark .logo-dark-ink, [data-skin="grove"] .mark .logo-dark-ink{ display:none; }
-[data-skin="fireside"] .mark .logo-light-ink, [data-skin="grove"] .mark .logo-light-ink{ display:block; }
+[data-skin="fireside"] .mark .logo-dark-ink, [data-skin="grove"] .mark .logo-dark-ink,
+[data-skin="blueprint"] .mark .logo-dark-ink, [data-skin="blaze"] .mark .logo-dark-ink,
+[data-skin="understory"] .mark .logo-dark-ink, [data-skin="canopy"] .mark .logo-dark-ink,
+[data-skin="terrarium"] .mark .logo-dark-ink, [data-skin="bordeaux"] .mark .logo-dark-ink,
+[data-skin="copper"] .mark .logo-dark-ink, [data-skin="black"] .mark .logo-dark-ink,
+[data-skin="ember"] .mark .logo-dark-ink{ display:none; }
+[data-skin="fireside"] .mark .logo-light-ink, [data-skin="grove"] .mark .logo-light-ink,
+[data-skin="blueprint"] .mark .logo-light-ink, [data-skin="blaze"] .mark .logo-light-ink,
+[data-skin="understory"] .mark .logo-light-ink, [data-skin="canopy"] .mark .logo-light-ink,
+[data-skin="terrarium"] .mark .logo-light-ink, [data-skin="bordeaux"] .mark .logo-light-ink,
+[data-skin="copper"] .mark .logo-light-ink, [data-skin="black"] .mark .logo-light-ink,
+[data-skin="ember"] .mark .logo-light-ink{ display:block; }
 
 .sec-head{
   font-family:var(--mono); font-size:11px; letter-spacing:.16em;
