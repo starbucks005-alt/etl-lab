@@ -94,6 +94,13 @@ exports.handler = async (event) => {
     const where = String(body.where || '').trim().slice(0, 400);
     if (mode === 'generate' && !where) return json(400, { error: 'where_required' });
 
+    /* LANDSCAPE OR PORTRAIT, added 2026-08-30, Dr. O direct: "there has to
+       be an option for landscape or portrait image/scene." Same two-value
+       shape as gc-scene.js's own aspect handling; anything else collapses
+       to null so gc-scene.js's own default (16:9) applies rather than
+       storing something it would not recognize. */
+    const aspect = /^9:16$/.test(String(body.aspect || '')) ? '9:16' : null;
+
     let ownVimeoId = null, ownPhoto = null, ownThumb = null;
     if (mode === 'own') {
       const rawVimeo = String(body.own_vimeo_id || '').trim();
@@ -124,6 +131,7 @@ exports.handler = async (event) => {
       friend_name: String(friend.name || '').slice(0, 60) || 'their friend',
       gender: String(friend.gender || '').slice(0, 40),
       where,
+      aspect,
       mode,
       own_vimeo_id: ownVimeoId,
       own_photo_key: ownPhoto ? orderId + '.ownphoto' : null,

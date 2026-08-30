@@ -347,6 +347,15 @@ exports.handler = async (event) => {
 
     let where = String(body.where || '').trim();
     let gender = body.gender;
+    /* LANDSCAPE OR PORTRAIT, added 2026-08-30, Dr. O direct: "there has to
+       be an option for landscape or portrait image/scene" -- until now
+       every scene was forced to 16:9 regardless of what the source
+       portrait actually was, cropping a genuinely tall portrait down to a
+       thin strip (see cropTo169's own note above on exactly that problem).
+       Only two real values: '16:9' (the room's own default stage) or
+       '9:16'. Anything else collapses to the default rather than sending
+       something unrecognized to Veo. */
+    let aspect = /^9:16$/.test(String(body.aspect || '')) ? '9:16' : null;
     let order = null;
 
     /* FULFILLING AN ORDER, WITHOUT MOVING THE PICTURE BY HAND. Somebody asked
@@ -408,6 +417,7 @@ exports.handler = async (event) => {
       }
       if (!where) where = order.where || 'sitting quietly, present';
       if (!gender) gender = order.gender;
+      if (!aspect) aspect = order.aspect;
     }
 
     if (!portrait) return json(400, { error: 'portrait_required' });
@@ -429,22 +439,29 @@ exports.handler = async (event) => {
 
     const prompt = scenePrompt({ where, gender, clothes: body.clothes });
 
-    /* SIXTEEN BY NINE, BECAUSE THAT IS THE SHAPE OF THE ROOM. The video area
-       is aspect-ratio 16/9 and every clip Arch already has is that shape. I
-       had this as 9:16 first, reasoning from the still, which is vertical:
-       the still is vertical and gets cropped by object-fit, but a scene
-       fills the frame and a vertical one would sit in the middle with bars
-       either side. */
-    const aspect = body.aspect || '16:9';
+    /* SIXTEEN BY NINE IS THE ROOM'S OWN DEFAULT SHAPE, not the only one any
+       more. I had this as 9:16 first, reasoning from the still, which is
+       vertical: the still is vertical and gets cropped by object-fit, but a
+       scene fills the frame and a vertical one would sit in the middle with
+       bars either side -- true for the room's own default 16:9 stage, and
+       exactly why 9:16 needs the stage itself to change shape too (see
+       room.html's own play() note on that). */
+    aspect = aspect || '16:9';
     const resolution = body.resolution || '720p';
 
-    /* CROPPED HERE, ONCE, BEFORE ANYTHING ELSE TOUCHES IT -- see cropTo169's
-       own note above for why. portrait is reassigned rather than kept
+    /* CROPPED TO 16:9 ONLY WHEN THAT IS ACTUALLY WHAT WAS ASKED FOR -- see
+       cropTo169's own note above for why the crop exists at all. A 9:16
+       request skips it entirely: a built friend's portrait is already tall,
+       close to 9:16 on its own, and Veo inherits the input frame's own
+       shape for image-driven generation regardless of what aspect says (see
+       veo.start's own note on that), so forcing it through a landscape crop
+       first would have thrown away the one thing a portrait request is
+       actually asking to keep. portrait is reassigned rather than kept
        alongside the original so everything downstream (the stored
        '.portrait' blob a retry reads back, the lastFrame below) uses the
        same already-correct image, with nothing left that could
        accidentally send the uncropped one instead. */
-    portrait = await cropTo169(portrait);
+    if (aspect === '16:9') portrait = await cropTo169(portrait);
 
     let started;
     try {
@@ -676,7 +693,8 @@ exports.handler = async (event) => {
               if (order && order.status !== 'made') {
                 const link = 'https://emerging-tech-lab.com/good-company/room.html' +
                   '?add-scene=' + encodeURIComponent('/.netlify/functions/gc-scene?job_id=' + jobId + '&file=1') +
-                  '&label=' + encodeURIComponent('A new scene');
+                  '&label=' + encodeURIComponent('A new scene') +
+                  '&aspect=' + encodeURIComponent(job.aspect || '16:9');
                 const told = await notify.sceneReady(order, link);
                 order.status = 'made';
                 order.job_id = jobId;
@@ -711,6 +729,10 @@ exports.handler = async (event) => {
     prompt: job.prompt || null,
     bytes: job.bytes,
     error: job.error,
+    /* SO THE CALLER KNOWS WHICH SHAPE STAGE TO BUILD, added 2026-08-30
+       alongside the landscape/portrait option -- see room.html's own
+       pollScene() and play() for the two places this actually gets read. */
+    aspect: job.aspect || '16:9',
     url: job.status === 'ready' ? ('/.netlify/functions/gc-scene?job_id=' + jobId + '&file=1') : null,
   });
 };

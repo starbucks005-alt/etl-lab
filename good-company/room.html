@@ -911,6 +911,14 @@ document.addEventListener('fullscreenchange', function () {
    A MISSING CLIP SAYS WHICH CLIP IS MISSING. No poster, no still, no stand-in.
    A placeholder that looks deliberate is how a broken asset reaches production. */
 var bar = $('sceneBar'), video = $('loop'), portrait = $('portrait'), current = null;
+/* THE STAGE'S OWN SHAPE, added 2026-08-30 alongside the landscape/portrait
+   scene option (see gc-scene.js's own note on why forcing every scene
+   into 16:9 was the bug in the first place). .stage's width formula and
+   .portrait's aspect-ratio are both fixed to 16:9 in CSS; play() below
+   overrides both inline for a 9:16 scene and clears the override for
+   everything else, so a scene with no aspect at all -- every one made
+   before today -- renders exactly as it always has. */
+var stageEl = document.querySelector('.stage');
 var watchBar = $('watchBar'), watchViewer = $('watchViewer'), watchVideo = $('watchVideo');
 
 /* Declared here, not down with the button: play() reads it, and relying on var
@@ -1141,6 +1149,25 @@ function play(scene) {
   if (old) old.remove();
   var oldStill = portrait.querySelector('.still');
   if (oldStill) oldStill.remove();
+
+  /* THE STAGE CHANGES SHAPE FOR A PORTRAIT SCENE, added 2026-08-30. See
+     stageEl's own declaration above for why this only ever touches inline
+     style, never the CSS class: every scene without scene.aspect (which
+     is every scene made before today) clears both overrides and falls
+     straight back to the room's own normal 16:9 look. */
+  if (scene.aspect === '9:16' && stageEl) {
+    /* NOT ON A PHONE, added the same day: the room's own @media (max-width:
+       820px) rule already sets .stage to width:100% there, a single
+       narrow column, and an inline min(30vw, ...) would override that
+       media query (inline always beats it) and squeeze a portrait scene
+       down to a sliver on the one layout where 100% width is already the
+       right, natural shape for something tall. */
+    if (window.innerWidth > 820) stageEl.style.width = 'min(30vw, calc(72vh * 9 / 16))';
+    portrait.style.aspectRatio = '9/16';
+  } else if (stageEl) {
+    stageEl.style.width = '';
+    portrait.style.aspectRatio = '';
+  }
 
   if (scene.vimeoId) {
     video.removeAttribute('src');
@@ -1539,7 +1566,8 @@ if (!ARRIVING_ON_INVITE) renderScenes();
                email link or by staying on this page. */
             var link = '/.netlify/functions/gc-scene?job_id=' + encodeURIComponent(jobId) + '&file=1';
             location.href = location.pathname + '?add-scene=' + encodeURIComponent(link) +
-              '&label=' + encodeURIComponent('A new scene') + '&who=mine';
+              '&label=' + encodeURIComponent('A new scene') +
+              '&aspect=' + encodeURIComponent(j.aspect || '16:9') + '&who=mine';
             return;
           }
           if (j.status === 'error') {
@@ -1655,6 +1683,32 @@ function askForScene() {
   where.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
                         'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
   whereRow.appendChild(where);
+
+  /* LANDSCAPE OR PORTRAIT, added 2026-08-30, Dr. O direct: "there has to be
+     an option for landscape or portrait image/scene." Every scene used to
+     be forced into the room's own 16:9 stage regardless of what shape the
+     portrait actually was. Two buttons, same visual language as the
+     Describe-it/I-already-have-one toggle above, defaulting to landscape
+     since that still matches the room's own stage and every existing
+     scene. */
+  var aspectRow = rowIn(generateFields, 'Shape');
+  var sceneAspect = '16:9';
+  var aspectPickRow = document.createElement('div');
+  aspectPickRow.style.cssText = 'display:flex; gap:.5rem;';
+  var aspectLandscape = document.createElement('button');
+  aspectLandscape.type = 'button'; aspectLandscape.className = 'btn go'; aspectLandscape.textContent = 'Landscape';
+  var aspectPortrait = document.createElement('button');
+  aspectPortrait.type = 'button'; aspectPortrait.className = 'btn'; aspectPortrait.textContent = 'Portrait';
+  aspectLandscape.addEventListener('click', function () {
+    sceneAspect = '16:9';
+    aspectLandscape.className = 'btn go'; aspectPortrait.className = 'btn';
+  });
+  aspectPortrait.addEventListener('click', function () {
+    sceneAspect = '9:16';
+    aspectPortrait.className = 'btn go'; aspectLandscape.className = 'btn';
+  });
+  aspectPickRow.appendChild(aspectLandscape); aspectPickRow.appendChild(aspectPortrait);
+  aspectRow.appendChild(aspectPickRow);
 
   var ownFields = document.createElement('div');
   ownFields.style.display = 'none';
@@ -1778,6 +1832,7 @@ function askForScene() {
     };
     if (mode === 'generate') {
       body.where = w;
+      body.aspect = sceneAspect;
     } else {
       body.mode = 'own';
       body.where = w;
@@ -1908,9 +1963,15 @@ function askForScene() {
 
   var label = (q.get('label') || '').trim().slice(0, 40) || 'A new scene';
   var key = 'added-' + src.replace(/[^a-z0-9]+/gi, '-').slice(-40);
+  /* aspect, added 2026-08-30 alongside the landscape/portrait option --
+     see gc-scene.js's own note on why the delivery link now carries this.
+     Only '9:16' is ever worth storing; '16:9' is play()'s own default, so
+     leaving it off a landscape scene keeps every scene from before this
+     existed reading exactly the way it always has. */
+  var aspect = q.get('aspect') === '9:16' ? '9:16' : null;
   var newScene = vimeoMatch
     ? { key: key, label: label, vimeoId: vimeoMatch[1], thumb: thumb || undefined }
-    : { key: key, label: label, src: src };
+    : { key: key, label: label, src: src, aspect: aspect || undefined };
 
   var already = (GC_BUILT.scenes || []).some(function (s) {
     return s && (vimeoMatch ? s.vimeoId === vimeoMatch[1] : s.src === src);
