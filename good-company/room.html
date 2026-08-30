@@ -2430,15 +2430,19 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
       /* BUY CTAS BELONG HERE TOO, changed 2026-08-30, Dr. O direct: "the CTA
          links to top off/buy in the chat rooms are not there unless you
          make them yours, but should be there if you do not have funds."
-         The 2026-08-28 reasoning (a demo has no subscription to top up
-         until it is owned) was true but led to the wrong screen: somebody
-         out of free messages RIGHT NOW does not want a two-step "claim,
-         then find the buy button on a different page" -- they want to pay
-         and keep talking. getOrClaimDemoCopy(true) makes the same owned
-         copy claimBtn always has, silently, no confirm dialog: clicking
-         "$9.99/mo" is already the explicit yes a confirm would only repeat.
-         The free claimNowBtn stays too, for someone who wants their own
-         copy without paying today. */
+         Somebody out of free messages on a DEMO wants to keep sampling
+         demos, not commit to owning this one specifically -- David: "he
+         didn't buy the 4.99 for a companion, he bought it for talking to
+         demos." The first version of this claimed the demo into an owned
+         copy first and billed THAT companion's own row, which is exactly
+         backwards for what someone hits this wall wanting. These buttons
+         now buy into the shared pooled ah_credits balance instead
+         (startCreditsCheckout, create-checkout-ah/-addon, already built
+         to return straight into a Good Company room), same balance every
+         demo can draw from -- see gc-chat.js's own pooled-fallback note
+         on the daily-cap gate for the other half of this fix. The free
+         claimNowBtn stays for someone who actually does want their own
+         copy of THIS one. */
       var claimNowBtn = document.createElement('button');
       claimNowBtn.type = 'button'; claimNowBtn.className = 'btn';
       claimNowBtn.textContent = '⭐ Make ' + FRIEND.name + ' yours';
@@ -2452,9 +2456,7 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
       capSubBtn.type = 'button'; capSubBtn.className = 'btn go';
       capSubBtn.textContent = '$9.99/mo, 300 credits';
       capSubBtn.addEventListener('click', function () {
-        var mine = getOrClaimDemoCopy(true);
-        if (!mine) return;
-        startCompanionCheckout('/.netlify/functions/gc-companion-checkout', {}, mine);
+        startCreditsCheckout('/.netlify/functions/create-checkout-ah', {});
       });
       actions.appendChild(capSubBtn);
 
@@ -2462,9 +2464,7 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
       capAddonBtn.type = 'button'; capAddonBtn.className = 'btn';
       capAddonBtn.textContent = '+150 credits, $4.99';
       capAddonBtn.addEventListener('click', function () {
-        var mine = getOrClaimDemoCopy(true);
-        if (!mine) return;
-        startCompanionCheckout('/.netlify/functions/gc-companion-addon', { size: 'small' }, mine);
+        startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', {});
       });
       actions.appendChild(capAddonBtn);
     } else {
@@ -2503,11 +2503,20 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
 }
 
 function startCreditsCheckout(url, extra) {
-  var returnTo = location.pathname + location.search;
+  /* return_to BUILT EXPLICITLY, same fix and same reasoning as
+     startCompanionCheckout's own note below: location.search is not
+     guaranteed to carry ?who= just because a real demo is on screen (see
+     GC_WHO's own rule 3, the remembered-tab fallback). access_token added
+     2026-08-30: without it this always minted a brand new pooled row
+     instead of topping up whatever this visitor already had, so someone
+     buying credits twice for demos in general would silently split across
+     two different balances. */
+  var demoId = currentDemoId();
+  var returnTo = '/good-company/room.html?who=' + encodeURIComponent(demoId || (FRIEND && FRIEND.id) || '');
   fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ return_to: returnTo }, extra))
+    body: JSON.stringify(Object.assign({ return_to: returnTo, access_token: GC_accessToken() }, extra))
   })
     .then(function (r) { return r.json(); })
     .then(function (data) {

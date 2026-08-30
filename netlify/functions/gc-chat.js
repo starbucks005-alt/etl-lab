@@ -17,7 +17,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
 const web = require('./_gc-web.js');
 const when = require('./_gc-when.js');
-const { getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
+const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
 /* PER-COMPANION CREDITS, added 2026-08-28. A built/owned companion's
    credits now live in their own row (gc_companion_credits, keyed on
    access_token + friend_id), not the old pooled ah_credits table -- see
@@ -991,10 +991,27 @@ exports.handler = async function (event) {
      activeFriend.id. The shared-room guest path (creditRef) still reads
      the old pooled ah_credits table -- not yet migrated, a real follow-up
      gap, not an oversight. */
+  /* usingPooledCredits, added 2026-08-30 alongside the demo path below:
+     which of the three credit sources actually paid for this reply,
+     needed at the deduct step further down since each draws from a
+     different table. */
+  let usingPooledCredits = false;
   let creditsRow = null;
   if (!isOwner && serviceKey) {
     if (!isDemo && accessToken && activeFriend.id) {
       creditsRow = await readCompanionCreditRow(accessToken, activeFriend.id, serviceKey);
+    } else if (isDemo && accessToken) {
+      /* POOLED CREDITS FOR A DEMO, added 2026-08-30, David direct (via
+         Dr. O): "he didn't buy the 4.99 for a companion, he bought it for
+         talking to demos." Per-companion credits (2026-08-28) stopped this
+         path reading ah_credits at all, so a real pooled top-up bought
+         specifically to keep sampling demos was silently invisible to
+         every demo's own gate -- paid, and still hit the daily cap wall a
+         moment later. This is the read half of putting that back for
+         demos specifically; readCompanionCreditRow just above is untouched
+         and still the only thing an owned/claimed companion ever checks. */
+      creditsRow = await getCreditRow(accessToken, serviceKey);
+      if (creditsRow) usingPooledCredits = true;
     } else if (creditRef) {
       creditsRow = await getCreditRowByRef(creditRef, serviceKey);
     }
@@ -1251,7 +1268,9 @@ exports.handler = async function (event) {
      this ends up taking (quiet, idle-declined, or a real reply): all three
      spent the same real API call. */
   if (!isOwner) {
-    if (hasCredits && serviceKey && !isDemo && accessToken && activeFriend.id) {
+    if (hasCredits && serviceKey && usingPooledCredits && accessToken) {
+      await deductCredits(accessToken, TEXT_MESSAGE_COST, serviceKey);
+    } else if (hasCredits && serviceKey && !isDemo && accessToken && activeFriend.id) {
       await deductCompanionCredits(accessToken, activeFriend.id, TEXT_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && creditRef) {
       await deductCreditsByRef(creditRef, TEXT_MESSAGE_COST, serviceKey);

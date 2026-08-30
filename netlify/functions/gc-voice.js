@@ -82,7 +82,7 @@ const json = (code, body) => ({
   statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
 
-const { getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
+const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
 /* PER-COMPANION CREDITS, added 2026-08-28 -- see gc-chat.js's own identical
    import comment and _gc-companion-credits.js's header for the full
    reasoning. The shared-room guest path (credit_ref) still reads the old
@@ -158,13 +158,18 @@ exports.handler = async function (event) {
   const creditRef = (!accessToken && CREDIT_REF.test(rawRef)) ? rawRef : null;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  /* PER-COMPANION, NOT POOLED, changed 2026-08-28 -- see gc-chat.js's own
-     identical comment for the full reasoning. A demo has no per-companion
-     row, so credits never apply to one, only the free daily cap below. */
+  /* PER-COMPANION FOR AN OWNED FRIEND, POOLED FOR A DEMO -- see gc-chat.js's
+     own identical comment on usingPooledCredits for the full reasoning
+     (David: paid for a top-up expecting it to work across demos in
+     general, per-companion-only credits made that invisible here too). */
+  let usingPooledCredits = false;
   let creditsRow = null;
   if (!isOwner && serviceKey) {
     if (!isDemo && accessToken && friendId) {
       creditsRow = await readCompanionCreditRow(accessToken, friendId, serviceKey);
+    } else if (isDemo && accessToken) {
+      creditsRow = await getCreditRow(accessToken, serviceKey);
+      if (creditsRow) usingPooledCredits = true;
     } else if (creditRef) {
       creditsRow = await getCreditRowByRef(creditRef, serviceKey);
     }
@@ -227,7 +232,9 @@ exports.handler = async function (event) {
      blocked check above, and never on a failed/unreachable call, which
      returned before this point. */
   if (!isOwner) {
-    if (hasCredits && serviceKey && !isDemo && accessToken && friendId) {
+    if (hasCredits && serviceKey && usingPooledCredits && accessToken) {
+      await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
+    } else if (hasCredits && serviceKey && !isDemo && accessToken && friendId) {
       await deductCompanionCredits(accessToken, friendId, AUDIO_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && creditRef) {
       await deductCreditsByRef(creditRef, AUDIO_MESSAGE_COST, serviceKey);
