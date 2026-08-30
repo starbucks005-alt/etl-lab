@@ -15,7 +15,7 @@
      of this comment for the full reasoning. Duplicated per page on
      purpose, same choice as the owner-key planter. -->
 <script>window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });</script>
-<title>Good Company — Questions</title>
+<title>Good Company: Questions</title>
 <meta name="description" content="Answers to the real questions people ask before building a companion.">
 
 <!-- The friend resolves the opening skin, then the shared palette paints. -->
@@ -34,6 +34,17 @@ header{ display:flex; align-items:center; justify-content:space-between;
   gap:1rem; padding:1.1rem clamp(.9rem,2.2vw,1.75rem); }
 h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-height:1.12;
   font-size:clamp(1.7rem,4.4vw,2.5rem); margin:1.6rem 0 .5rem; }
+
+/* HERO, added 2026-08-29, same shape as catalog.html's own hero-band --
+   full-bleed, the image already carries the wordmark and page title, H1
+   stays in the markup but visually hidden so a screen reader and search
+   engines still get a real page title. */
+.hero-band{ width:100%; overflow:hidden; }
+.hero-band img{ display:block; width:100%; height:auto; }
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
 
 /* ── one question at a time ──────────────────────────────────────────────
    ONE ENTRY TO START, ON PURPOSE. Dr. O pulled the "why not just use a
@@ -65,16 +76,19 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
     <a href="index.html#demos">Companions</a>
     <a href="index.html#pricing">Cost</a>
     <a href="build.html">Build</a>
-    <a href="catalog.html">Catalog</a>
     <a href="index.html#bring">Friends</a>
     <a href="faq.html">Questions</a>
   </nav>
   <span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></span>
 </header>
 
+<div class="hero-band">
+  <img src="photos/faq-hero.jpg" alt="Good Company Questions">
+</div>
+
 <main class="wrap">
 
-  <h1>Questions</h1>
+  <h1 class="sr-only">Questions</h1>
 
   <dl>
     <div class="qa">
@@ -98,21 +112,13 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
         like them to be, and it gets made for you: a real moving scene, built from the
         picture you chose when you built them, for $4.99. Or, if you already have
         something, a video you made elsewhere, or a different photo you would rather they
-        were animated from, bring your own instead — that one is free, wired in right
+        were animated from, bring your own instead, that one is free, wired in right
         away, no charge at all. Asking costs nothing either way.</dd>
     </div>
-    <div class="qa" id="catalog">
-      <dt>What does it mean to add my companion to the catalog?</dt>
-      <dd>Other people who want a companion but do not want to build one from scratch can
-        browse a catalog of premade companions. Adding yours puts them there. Whoever picks
-        them gets their own copy to start from: the same images, the same scenes, the same
-        personality, and they can rename them and edit any of it from there. What does not
-        come along is any of it that happened between the two of you — no memories, no
-        history, no conversations. They start fresh, the way meeting somebody new always
-        does, just with a face and a personality already in place. You get 200 credits the
-        first time you add a companion to the catalog. <a href="catalog.html">Browse the
-        catalog</a> to see who is in it.</dd>
-    </div>
+    <!-- CATALOG Q&A REMOVED 2026-08-30, same day and same reason as build.html's
+         Add to catalog button: the catalog nav went away campus-wide the day
+         before, and an answer describing a feature nobody can navigate to
+         is not an answer, it is a dead end with extra steps. -->
     <div class="qa">
       <dt>What if I build a companion and do not like them?</dt>
       <dd>They start as a companion, with the hope of developing a friendship, but that

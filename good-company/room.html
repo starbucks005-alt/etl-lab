@@ -2371,7 +2371,7 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
        the demo a real, owned companion, which is what actually unlocks a
        subscription for it. */
     ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or make " +
-      FRIEND.name + " yours for unlimited, credit-backed conversation."
+      FRIEND.name + " yours to keep talking, credit-backed conversation, no daily cap."
     : "Out of credits for " + FRIEND.name + " right now.";
   box.appendChild(say);
 
@@ -2978,9 +2978,26 @@ $('claimBtn').addEventListener('click', function () {
   var already = (typeof GC_ALL_BUILT !== 'undefined' ? GC_ALL_BUILT : []).filter(function (f) {
     return f && f.claimedDemoId === demoId;
   })[0];
+  /* STRAIGHT BACK INTO THE ROOM, not build.html, changed 2026-08-30. David
+     claimed Dario, landed on build.html's generic already-here list (every
+     built friend on the device, four buttons each: Open their room,
+     Generate new portraits, Edit answers, Add to catalog), and neither he
+     nor Dr. O watching could tell whether anything had actually happened --
+     "it says you made Dario yours when he didn't, he was just sent to the
+     builder page." The same silent-then-confusing shape as five Isabelles
+     piling up from the catalog button, same root cause: a real, permanent
+     save with no clear before/after. Landing straight back in a live
+     conversation with the copy that is now actually theirs is the
+     confirmation -- and it is also the fix for "no link to top off": their
+     own copy has its own credit balance, so the moment it runs dry
+     showCreditsUpsell's real credits_exhausted branch (subscribe, top up)
+     is what they see, not the daily-cap dead end that only offers claiming
+     again. Editing the answers or the portrait is still one click away
+     from here (see the swap menu), just no longer the very first thing
+     shown after what most people experience as "keep talking." */
   if (already) {
     GC_touchFriend(already.id);
-    location.href = 'build.html';
+    location.href = 'room.html?who=' + encodeURIComponent(already.id);
     return;
   }
   var ok = confirm('Make your own copy of ' + demo.name + '? Same portrait, same scenes, same ' +
@@ -2994,7 +3011,8 @@ $('claimBtn').addEventListener('click', function () {
   mine.createdAt = new Date().toISOString();
   mine.user = { call: '', want: [], about: '' };
   try { GC_saveFriend(mine); } catch (e) {}
-  location.href = 'build.html';
+  GC_touchFriend(mine.id);
+  location.href = 'room.html?who=' + encodeURIComponent(mine.id);
 });
 
 /* ── THE SAME COMPANION, ON A SECOND DEVICE ──────────────────────────────────
