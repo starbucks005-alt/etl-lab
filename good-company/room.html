@@ -349,6 +349,22 @@ html{ zoom:90%; }
   border:1px solid var(--accent); border-radius:3px; padding:.35rem .6rem; cursor:pointer;
 }
 .intro-tip-close:hover{ color:var(--accent-ink); background:var(--accent); }
+/* THE AUDIO TOGGLE ITSELF GETS THE SAME TREATMENT, added 2026-08-30. The
+   words alone ("tap Text below") ask somebody to find one button among
+   eight in a row that wraps; a glow on the actual button removes the
+   search. Same --accent as the rest of this intro, same reduced-motion
+   guard as the arrow above. */
+#replyBtn.intro-highlight{
+  border-color:var(--accent); color:var(--accent);
+  animation:intro-tip-glow 1.4s ease-in-out infinite;
+}
+@keyframes intro-tip-glow{
+  0%, 100%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  50%{ box-shadow:0 0 0 5px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce){
+  #replyBtn.intro-highlight{ animation:none; box-shadow:0 0 0 2px var(--accent); }
+}
 
 /* The doorstep. Scrolls on its own so a long panel never traps the button. */
 .gate{ padding:1rem 1rem 1.4rem; overflow-y:auto; }
@@ -551,7 +567,7 @@ html{ zoom:90%; }
            figured it out on their own does not need to be told twice. -->
       <div class="intro-tip" id="introTip" style="display:none">
         <span class="intro-tip-arrow">&#8593;</span>
-        <span class="intro-tip-text">Type here and hit Send to talk with them, or tap &#127908; to speak out loud instead.</span>
+        <span class="intro-tip-text">Type here and hit Send, or tap &#127908; to speak out loud. To hear them talk back, tap &#127911; Hear them talk below.</span>
         <button type="button" class="intro-tip-close" id="introTipClose">Got it</button>
       </div>
 
@@ -573,7 +589,7 @@ html{ zoom:90%; }
              carry and a guest sitting with someone else's friend should not be
              offered a copy of it. -->
         <button class="btn" id="syncBtn" style="display:none">&#128241; Other device</button>
-        <button class="btn" id="replyBtn">&#127911; Text</button>
+        <button class="btn" id="replyBtn">&#127911; Hear them talk</button>
         <button class="btn" id="earBtn">&#128066; Listen</button>
         <button class="btn" id="albumBtn">&#128247; Photos</button>
         <button class="btn" id="memBtn">&#128206; Memory</button>
@@ -754,7 +770,7 @@ function nameEverything() {
     (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT) ? '' : 'none';
   var claimDemoId = currentDemoId();
   $('claimBtn').style.display = claimDemoId ? '' : 'none';
-  if (claimDemoId) $('claimBtn').innerHTML = '&#10084; Make ' + FRIEND.name + ' yours';
+  if (claimDemoId) $('claimBtn').innerHTML = '&#11088; Make ' + FRIEND.name + ' yours';
   /* THE PREMISE, so a first-time visitor has it before her first line lands. */
   if (FRIEND.premise) { $('gatePremise').textContent = FRIEND.premise; $('gatePremise').style.display = ''; }
   else { $('gatePremise').style.display = 'none'; }
@@ -2037,6 +2053,8 @@ function gcDismissComposerIntro() {
   try { localStorage.setItem('gc_seen_composer_intro', '1'); } catch (e) {}
   var tip = $('introTip');
   if (tip) tip.style.display = 'none';
+  var reply = $('replyBtn');
+  if (reply) reply.classList.remove('intro-highlight');
 }
 var introTipCloseBtn = $('introTipClose');
 if (introTipCloseBtn) introTipCloseBtn.addEventListener('click', gcDismissComposerIntro);
@@ -2047,7 +2065,10 @@ if (introTipCloseBtn) introTipCloseBtn.addEventListener('click', gcDismissCompos
 function sitDown() {
   $("gate").style.display = "none";
   $("chat").style.display = "flex";
-  if (!gcSeenComposerIntro()) { var tip = $('introTip'); if (tip) tip.style.display = ''; }
+  if (!gcSeenComposerIntro()) {
+    var tip = $('introTip'); if (tip) tip.style.display = '';
+    var reply = $('replyBtn'); if (reply) reply.classList.add('intro-highlight');
+  }
   /* His opening line is for somebody arriving alone. A guest joining a room
      already has a conversation coming down the poll, and greeting them over
      the top of it would be him talking to himself. */
@@ -2397,19 +2418,46 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
     actions.style.cssText = 'margin-top:.5rem; display:flex; gap:.5rem; flex-wrap:wrap;';
 
     if (isDailyCap) {
-      /* A DEMO HAS NO SUBSCRIPTION TO TOP UP, changed 2026-08-28: per-
-         companion credits mean there is nothing here to subscribe to or
-         add credits toward until this demo is actually owned. Reuses the
-         real claimBtn already on the page (see the Make a demo yours
-         handler) rather than duplicating its logic. */
+      /* BUY CTAS BELONG HERE TOO, changed 2026-08-30, Dr. O direct: "the CTA
+         links to top off/buy in the chat rooms are not there unless you
+         make them yours, but should be there if you do not have funds."
+         The 2026-08-28 reasoning (a demo has no subscription to top up
+         until it is owned) was true but led to the wrong screen: somebody
+         out of free messages RIGHT NOW does not want a two-step "claim,
+         then find the buy button on a different page" -- they want to pay
+         and keep talking. getOrClaimDemoCopy(true) makes the same owned
+         copy claimBtn always has, silently, no confirm dialog: clicking
+         "$9.99/mo" is already the explicit yes a confirm would only repeat.
+         The free claimNowBtn stays too, for someone who wants their own
+         copy without paying today. */
       var claimNowBtn = document.createElement('button');
-      claimNowBtn.type = 'button'; claimNowBtn.className = 'btn go';
-      claimNowBtn.textContent = '❤ Make ' + FRIEND.name + ' yours';
+      claimNowBtn.type = 'button'; claimNowBtn.className = 'btn';
+      claimNowBtn.textContent = '⭐ Make ' + FRIEND.name + ' yours';
       claimNowBtn.addEventListener('click', function () {
         var real = $('claimBtn');
         if (real) real.click();
       });
       actions.appendChild(claimNowBtn);
+
+      var capSubBtn = document.createElement('button');
+      capSubBtn.type = 'button'; capSubBtn.className = 'btn go';
+      capSubBtn.textContent = '$9.99/mo, 300 credits';
+      capSubBtn.addEventListener('click', function () {
+        var mine = getOrClaimDemoCopy(true);
+        if (!mine) return;
+        startCompanionCheckout('/.netlify/functions/gc-companion-checkout', {}, mine);
+      });
+      actions.appendChild(capSubBtn);
+
+      var capAddonBtn = document.createElement('button');
+      capAddonBtn.type = 'button'; capAddonBtn.className = 'btn';
+      capAddonBtn.textContent = '+150 credits, $4.99';
+      capAddonBtn.addEventListener('click', function () {
+        var mine = getOrClaimDemoCopy(true);
+        if (!mine) return;
+        startCompanionCheckout('/.netlify/functions/gc-companion-addon', { size: 'small' }, mine);
+      });
+      actions.appendChild(capAddonBtn);
     } else {
       /* PER-COMPANION, changed 2026-08-28: subscribing and topping up both
          have to name THIS companion now, not a pooled balance -- see
@@ -2464,9 +2512,23 @@ function startCreditsCheckout(url, extra) {
    startCreditsCheckout above, but always names THIS companion
    (friend_id/friend_name), since gc-companion-checkout.js and
    gc-companion-addon.js both write to that companion's own row, not a
-   pooled balance. */
+   pooled balance.
+
+   return_to BUILT EXPLICITLY FROM FRIEND.id, not read off the address
+   bar, fixed 2026-08-30. David subscribed on his own newly-claimed Dario,
+   came back from Stripe, and landed on Arch's room instead -- the same
+   "make Arch yours" gate Dr. O then saw, on a companion nobody had asked
+   for. Root cause: GC_WHO can resolve the current room from remembered
+   session state alone (see its own rule 3), so location.search is not
+   guaranteed to contain ?who=<id> just because a real, specific FRIEND is
+   on screen. If it did not, the round trip through Stripe came back to a
+   bare /room.html, and whatever GC_WHO fell through to next (Arch, same
+   as this whole function's default demo) is where Stripe returned him --
+   this button had never actually promised to come back to THIS
+   companion, only to whatever the URL happened to say at that exact
+   moment. Naming FRIEND.id directly removes the guess. */
 function startCompanionCheckout(url, extra) {
-  var returnTo = location.pathname + location.search;
+  var returnTo = '/good-company/room.html?who=' + encodeURIComponent(FRIEND.id || '');
   fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2965,10 +3027,19 @@ $("bringBtn").addEventListener("click", function () {
    it already does everywhere else. user is cleared, same reasoning as
    catalog.html's startWith(): it describes the person who built the
    ORIGINAL, never the person claiming a copy now, and a demo has no user
-   field in the first place. */
-$('claimBtn').addEventListener('click', function () {
+   field in the first place.
+
+   PULLED OUT INTO ITS OWN FUNCTION, 2026-08-30, so the buy buttons on the
+   daily-cap gate (see showCreditsUpsell above) can get an owned copy the
+   same way claimBtn always has, rather than requiring a person to claim
+   first and find the real buy button on a second screen after that. `silent`
+   skips the confirm dialog: clicking claimBtn is the only explicit yes
+   needed there, but clicking "$9.99/mo" is already just as explicit, and
+   asking again on top of it would be a second, redundant confirmation for
+   the same decision. */
+function getOrClaimDemoCopy(silent) {
   var demoId = currentDemoId();
-  if (!demoId || typeof GC_DEMOS === 'undefined' || !GC_DEMOS[demoId]) return;
+  if (!demoId || typeof GC_DEMOS === 'undefined' || !GC_DEMOS[demoId]) return null;
   var demo = GC_DEMOS[demoId];
   /* ONE COPY PER DEMO PER BROWSER, added 2026-08-28, same fix and same
      reason as catalog.html's own startWith() -- five Isabelles piled up
@@ -2978,6 +3049,23 @@ $('claimBtn').addEventListener('click', function () {
   var already = (typeof GC_ALL_BUILT !== 'undefined' ? GC_ALL_BUILT : []).filter(function (f) {
     return f && f.claimedDemoId === demoId;
   })[0];
+  if (already) return already;
+  if (!silent) {
+    var ok = confirm('Make your own copy of ' + demo.name + '? Same portrait, same scenes, same ' +
+      'personality, yours to keep, edit, and talk with any time.');
+    if (!ok) return null;
+  }
+  var mine;
+  try { mine = JSON.parse(JSON.stringify(demo)); } catch (e) { mine = null; }
+  if (!mine) return null;
+  mine.claimedDemoId = demoId;
+  mine.id = GC_newFriendId();
+  mine.createdAt = new Date().toISOString();
+  mine.user = { call: '', want: [], about: '' };
+  try { GC_saveFriend(mine); } catch (e) {}
+  return mine;
+}
+$('claimBtn').addEventListener('click', function () {
   /* STRAIGHT BACK INTO THE ROOM, not build.html, changed 2026-08-30. David
      claimed Dario, landed on build.html's generic already-here list (every
      built friend on the device, four buttons each: Open their room,
@@ -2995,22 +3083,8 @@ $('claimBtn').addEventListener('click', function () {
      again. Editing the answers or the portrait is still one click away
      from here (see the swap menu), just no longer the very first thing
      shown after what most people experience as "keep talking." */
-  if (already) {
-    GC_touchFriend(already.id);
-    location.href = 'room.html?who=' + encodeURIComponent(already.id);
-    return;
-  }
-  var ok = confirm('Make your own copy of ' + demo.name + '? Same portrait, same scenes, same ' +
-    'personality, yours to keep, edit, and talk with any time.');
-  if (!ok) return;
-  var mine;
-  try { mine = JSON.parse(JSON.stringify(demo)); } catch (e) { mine = null; }
+  var mine = getOrClaimDemoCopy(false);
   if (!mine) return;
-  mine.claimedDemoId = demoId;
-  mine.id = GC_newFriendId();
-  mine.createdAt = new Date().toISOString();
-  mine.user = { call: '', want: [], about: '' };
-  try { GC_saveFriend(mine); } catch (e) {}
   GC_touchFriend(mine.id);
   location.href = 'room.html?who=' + encodeURIComponent(mine.id);
 });
@@ -3997,8 +4071,9 @@ function speak(text, voiceId, onDone, bubble) {
 
 var asAudio = false;
 $('replyBtn').addEventListener('click', function () {
+  if (!gcSeenComposerIntro()) gcDismissComposerIntro();
   asAudio = !asAudio;
-  this.innerHTML = asAudio ? '&#127911; Audio' : '&#127911; Text';
+  this.innerHTML = asAudio ? '&#127911; Text only' : '&#127911; Hear them talk';
   if (!asAudio) hush();
 });
 /* BUILT FOR REAL, 2026-08-18. Used to set a flag no code ever read while
