@@ -3488,6 +3488,7 @@ var GC_THEO = {
     { key: 'closet', label: 'The Closet', src: null, vimeoId: '1222401930' },
     { key: 'study', label: 'The Home Study', src: null, vimeoId: '1222401932' },
     { key: 'chesterfield', label: 'The Chesterfield', src: null, vimeoId: '1222401933' },
+    { key: 'bar', label: 'At the Bar', src: null, vimeoId: '1222401931' },
   ],
 };
 
