@@ -49,6 +49,42 @@ exports.handler = async (event) => {
 
   const headers = { 'xi-api-key': key, 'Content-Type': 'application/json' };
 
+  /* ── PLAIN TEXT-TO-SPEECH, A SAVED VOICE READING GIVEN TEXT ──────────────
+     Added 2026-08-30 for the homepage's bio clips (the same file every
+     .demo-card-play button already points at, see index.html). Deliberately
+     NOT routed through gc-voice.js: that file's whole cost-gating shape
+     (daily pool, credits, is_demo) exists for a live visitor's own spoken
+     reply mid-conversation, not a one-time admin job recording a fixed
+     bio line for a real, already-owned voice_id. Same no-owner-gate
+     reasoning as design/create above -- a bio clip is a few hundred
+     characters, on the order of a couple of cents each, recorded once and
+     replayed free forever after, the same "free is whatever costs no API
+     call" rule every other cached clip on this campus already follows. */
+  if (body.action === 'speak') {
+    const voiceId = String(body.voice_id || '').trim();
+    const text = String(body.text || '').trim().slice(0, 1000);
+    if (!voiceId) return json(400, { error: 'voice_id_required' });
+    if (!text) return json(400, { error: 'text_required' });
+
+    let r, buf;
+    try {
+      r = await fetch(ELEVEN + '/v1/text-to-speech/' + encodeURIComponent(voiceId), {
+        method: 'POST', headers,
+        body: JSON.stringify({ text, model_id: 'eleven_turbo_v2_5' }),
+      });
+      if (!r.ok) {
+        let detail = null;
+        try { detail = await r.json(); } catch (_) {}
+        return json(r.status, { error: 'eleven_refused', detail });
+      }
+      buf = Buffer.from(await r.arrayBuffer());
+    } catch (e) {
+      return json(502, { error: 'eleven_unreachable', detail: String(e && e.message || e).slice(0, 300) });
+    }
+
+    return json(200, { audio_b64: buf.toString('base64') });
+  }
+
   /* ── PROMOTE A PREVIEW TO A REAL, SAVED VOICE ────────────────────────── */
   if (body.action === 'create') {
     const generatedVoiceId = String(body.generated_voice_id || '').trim();

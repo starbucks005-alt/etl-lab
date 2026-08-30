@@ -800,6 +800,21 @@ function nameEverything() {
    once gc-room-join.js answers. */
 if (!ARRIVING_ON_INVITE) nameEverything();
 
+/* room_view, added 2026-08-30, Dr. O direct: "can you set up on GA so we
+   can see which rooms are visited most often." A plain pageview already
+   logs page_location with the ?who= query string, but that is not a
+   report GA surfaces cleanly on its own, and it goes empty the moment a
+   visit is session-remembered rather than a fresh ?who= link. This fires
+   a real, explicit event instead: GC_WHO is the resolved room id
+   (survives a remembered session, a built friend, an alias like
+   ?who=jacob resolving to grimms), FRIEND.name is there for a
+   human-readable label in the same report. Skipped on an invite arrival,
+   same reasoning as nameEverything() just above -- the real friend is not
+   known yet, and joinThenSit() logs its own once it is. */
+if (!ARRIVING_ON_INVITE && typeof gtag === 'function') {
+  gtag('event', 'room_view', { room_id: GC_WHO, room_name: FRIEND.name });
+}
+
 /* Skins: resolution and the picker both live in gc-skin.js, shared with every
    other page, so these four surfaces cannot drift apart. */
 gcMountSkinPicker(document.getElementById("picker"), document.getElementById("skinBtn"));
@@ -3091,7 +3106,13 @@ function joinThenSit() {
        same no-account shape as everything else here) and checked against
        on any later visit, a real follow-up, not built tonight. */
     if (typeof gtag === 'function') gtag('event', 'gc_guest_joined');
-    if (j.friend) { FRIEND = j.friend; nameEverything(); renderScenes(); earLabel(); }
+    if (j.friend) {
+      FRIEND = j.friend; nameEverything(); renderScenes(); earLabel();
+      /* room_view, same event nameEverything()'s own call site fires for a
+         direct ?who= visit -- this is the invite-arrival equivalent, the
+         real friend was not known until just now. */
+      if (typeof gtag === 'function') gtag('event', 'room_view', { room_id: FRIEND.id || FRIEND.name, room_name: FRIEND.name });
+    }
     if (j.scene_key) {
       var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
       if (sc) play(sc);
