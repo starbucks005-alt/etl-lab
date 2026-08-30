@@ -3693,7 +3693,7 @@ var GC_DARIO = {
   scenes: [
     { key: 'terrace', label: 'Golden Hour', src: null, vimeoId: '1222461794' },
     { key: 'rome', label: 'In Rome', src: null, vimeoId: '1222491552' },
-    { key: 'tokyo', label: 'Tokyo Cafe', src: null, vimeoId: '1222491550' },
+    { key: 'tokyo', label: 'Tokyo Cafe', src: null, vimeoId: '1222491550', thumb: 'photos/dario-tokyo-cafe.jpg' },
   ],
   /* IT WAS MEANT TO BE A SCENE AND COULD NOT BE ONE, same reasoning as
      Arch's own album entry and Meera's just above. Local file, not
