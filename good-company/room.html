@@ -2536,15 +2536,24 @@ function startCreditsCheckout(url, extra) {
    this button had never actually promised to come back to THIS
    companion, only to whatever the URL happened to say at that exact
    moment. Naming FRIEND.id directly removes the guess. */
-function startCompanionCheckout(url, extra) {
-  var returnTo = '/good-company/room.html?who=' + encodeURIComponent(FRIEND.id || '');
+function startCompanionCheckout(url, extra, friendOverride) {
+  /* friendOverride, added 2026-08-30 for the daily-cap buy buttons (see
+     showCreditsUpsell above): those silently claim a demo into an owned
+     copy first, then need checkout to bill THAT new friend, not the demo
+     still sitting in the global FRIEND. Without this the function always
+     read FRIEND regardless of what was passed, which meant every claim-
+     then-buy click on a demo sent the demo's own id (or none) to
+     gc-companion-checkout.js, got rejected, and showed "Not wired yet"
+     for what was actually a real, correctly-claimed friend. */
+  var f = friendOverride || FRIEND;
+  var returnTo = '/good-company/room.html?who=' + encodeURIComponent(f.id || '');
   fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(Object.assign({
       return_to: returnTo,
-      friend_id: FRIEND.id || '',
-      friend_name: FRIEND.name || '',
+      friend_id: f.id || '',
+      friend_name: f.name || '',
       access_token: GC_accessToken(),
     }, extra))
   })
