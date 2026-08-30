@@ -3559,6 +3559,7 @@ var GC_CRESSIDA = {
   scenes: [
     { key: 'windowsill', label: 'The Windowsill', src: null, vimeoId: '1222399314' },
     { key: 'fireplace', label: 'The Fireplace Room', src: null, vimeoId: '1222399312' },
+    { key: 'gallery', label: 'The Gallery', src: null, vimeoId: '1222399313' },
   ],
 };
 
