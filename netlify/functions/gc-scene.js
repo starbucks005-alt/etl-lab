@@ -176,7 +176,35 @@ const MAX_VEO_ATTEMPTS = 3;
    THE ENDING MATCHING THE STARTING FRAME is the loop said twice, from both
    ends. The room plays these on loop and the seam is the whole risk. */
 
+/* STRIPS AN ECHO OF THIS FILE'S OWN FIXED TEMPLATE OUT OF SOMEBODY'S PLAIN
+   ANSWER, added 2026-08-30. Found live on Bud's order: David's "where" was
+   already a full Veo-style prompt (loop/camera/lighting instructions), so
+   scenePrompt below wrapped its own identical instructions AROUND his,
+   doubling "a seamless infinite loop" and the camera/lighting line. The
+   render that shipped from the doubled prompt lost his face entirely by
+   the last second, despite "do not change his looks" appearing twice --
+   confirmed by watching the clip, not just its status.
+
+   THIS MATTERED MORE THE MOMENT GENERATION BECAME AUTOMATIC (see
+   gc-scene-checkout.js's own auto-start note): nobody reads a "where"
+   answer before it renders any more, so a doubled prompt like this one
+   used to get caught by whoever ran the order by hand and now would not
+   be caught by anyone. Drops any sentence that echoes this file's own
+   fixed language rather than trying to rewrite it, and falls back to the
+   same generic default gc-scene.js already uses for a blank where if
+   stripping empties it out entirely. */
+function stripTemplateEcho(where) {
+  const ECHO = /seamless infinite loop|static camera|fixed framing|active listening|no talking|do not change|minimal body movement|no jump cuts|soft lighting/i;
+  const kept = String(where || '')
+    .split(/(?<=[.!?])\s+/)
+    .filter((sentence) => sentence.trim() && !ECHO.test(sentence))
+    .join(' ')
+    .trim();
+  return kept || 'sitting quietly, present';
+}
+
 function scenePrompt({ where, gender, clothes }) {
+  where = stripTemplateEcho(where);
   /* "this man" is hers because Arch is one. The friend carries a gender and
      the prompt has to follow it, or every woman somebody builds is described
      to the model as a man. */
