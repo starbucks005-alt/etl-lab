@@ -337,28 +337,6 @@ figcaption{
 }
 figure{ margin:0; }
 
-/* ON THE PHOTOGRAPH, FLOWING RATHER THAN PINNED, 2026-08-27, Dr. O direct:
-   the look stays (light, small, over the picture), but no fixed bottom
-   offset -- see the HTML comment where this element lives now for why. */
-.hero-credit{
-  margin:.7rem 0 0; text-align:right;
-  font-family:var(--mono); font-size:.7rem; letter-spacing:.08em;
-  color:rgba(255,255,255,.72); text-shadow:0 1px 12px rgba(0,0,0,.6);
-}
-.hero.no-art .hero-credit{ display:none; }
-/* REACHES PAST .hero-words' OWN 34rem COLUMN, added 2026-08-28, Dr. O
-   direct: "it is on the photo, just too far to the left." Right-aligned
-   inside .hero-words alone puts it at the edge of the narrow text column,
-   nowhere near the person in the photo, which sits further right. Still a
-   normal-flow child (nothing about WHEN it appears changes, only how far
-   right its own box reaches), so it still cannot land on top of the three
-   things above it -- that guarantee never depended on its width. Left off
-   mobile, where .hero-words already spans nearly the full photo and this
-   was never the complaint. */
-@media (min-width:761px){
-  .hero-credit{ width:calc(100vw - 2 * clamp(1.25rem, 4vw, 3.5rem)); max-width:none; }
-}
-
 /* ── three ──────────────────────────────────────────────────────────────── */
 .three{
   display:grid; gap:clamp(1.5rem,3vw,2.5rem);
@@ -653,15 +631,6 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            linked below, where somebody who actually has that question can
            go looking for it rather than tripping over it on the way in. -->
       <a class="faq-link" href="faq.html">Questions? →</a>
-      <!-- LIVES INSIDE .hero-words, NOT AS A SIBLING OF IT, 2026-08-27, Dr. O
-           direct ("without it fighting for space with the three CTAs"). It
-           still sits over the photo -- .hero-art covers the whole .hero
-           section regardless of how tall .hero-words gets -- but flowing
-           here, after both buttons and the Questions link, means it can
-           never land on top of any of the three. A fixed absolute position
-           (tried earlier today) could not make that same guarantee, because
-           it does not know how many buttons ended up above it. -->
-      <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
     </div>
   </section>
 
@@ -878,6 +847,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=winston">Estate manager Winston</a>
+        <button class="demo-card-play" type="button" data-audio="audio/winston-bio.mp3" aria-label="Hear Winston">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -886,6 +856,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=viv">Schoolteacher Viv</a>
+        <button class="demo-card-play" type="button" data-audio="audio/viv-bio.mp3" aria-label="Hear Viv">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -894,6 +865,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=marion">Marion, a Borrower</a>
+        <button class="demo-card-play" type="button" data-audio="audio/marion-bio.mp3" aria-label="Hear Marion">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -902,6 +874,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=aaron">Psychologist Aaron</a>
+        <button class="demo-card-play" type="button" data-audio="audio/aaron-bio.mp3" aria-label="Hear Aaron">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -910,6 +883,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=grimms">Jacob &amp; Wilhelm Grimm</a>
+        <button class="demo-card-play" type="button" data-audio="audio/grimms-bio.mp3" aria-label="Hear Jacob &amp; Wilhelm">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -918,6 +892,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=puppets">The Puppet Family</a>
+        <button class="demo-card-play" type="button" data-audio="audio/puppets-bio.mp3" aria-label="Hear Eli &amp; Nell">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -926,6 +901,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=marcus">Marcus Reyes, on deadline</a>
+        <button class="demo-card-play" type="button" data-audio="audio/marcus-bio.mp3" aria-label="Hear Marcus">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -934,6 +910,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=theo">Stylist Theo</a>
+        <button class="demo-card-play" type="button" data-audio="audio/theo-bio.mp3" aria-label="Hear Theo">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -942,6 +919,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=cressida">Lady Cressida Thornfield</a>
+        <button class="demo-card-play" type="button" data-audio="audio/cressida-bio.mp3" aria-label="Hear Cressida">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -950,6 +928,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=meera">Yoga teacher Meera</a>
+        <button class="demo-card-play" type="button" data-audio="audio/meera-bio.mp3" aria-label="Hear Meera">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -958,6 +937,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=dario">Pilot Dario</a>
+        <button class="demo-card-play" type="button" data-audio="audio/dario-bio.mp3" aria-label="Hear Dario">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -966,6 +946,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=nora">Conservator Nora</a>
+        <button class="demo-card-play" type="button" data-audio="audio/nora-bio.mp3" aria-label="Hear Nora">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -974,6 +955,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=zoe">Influencer Zoe</a>
+        <button class="demo-card-play" type="button" data-audio="audio/zoe-bio.mp3" aria-label="Hear Zoe">&#128264;</button>
       </div>
     </div>
   </section>
