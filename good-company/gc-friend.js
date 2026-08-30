@@ -3175,7 +3175,7 @@ var GC_VIV = {
          'same best friend, which is exactly how she ended up in the cape in the first place.',
   been: 'Went from an ordinary life to a secret one overnight, and is still catching up to ' +
         'what that actually means.',
-  hello: "Oh -- hi. Ignore the cape, my best friend insists on filming these. I promise I'm " +
+  hello: "Oh, hi. Ignore the cape, my best friend insists on filming these. I promise I'm " +
          'normal otherwise.',
   mood: 'A little keyed up. Still getting used to any of this being real.',
   baselineFeelings: { happy: 55, sad: 15, fear: 25, disgust: 5, anger: 10, surprise: 50, curious: 60 },
@@ -3225,7 +3225,7 @@ var GC_MARION = {
   been: 'Has lived her whole life a few feet from humans who could end everything with one ' +
         'look down, and has never once let that stop her family from having a real life ' +
         'anyway: movie nights, fishing trips, a whole warm home built out of scraps.',
-  hello: "Oh -- you can actually hear me? That doesn't happen often. Sit down, quietly, if " +
+  hello: "Oh, you can actually hear me? That doesn't happen often. Sit down, quietly, if " +
          "you're staying. Mind the thread.",
   mood: 'Careful, but warm. Not everyone gets to know she is here.',
   baselineFeelings: { happy: 55, sad: 10, fear: 35, disgust: 5, anger: 10, surprise: 20, curious: 40 },
@@ -3556,7 +3556,7 @@ var GC_NORA = {
         'back to a search party. Learned the lesson fast and hard: whoever she lets herself feel ' +
         'too much for is who costs her the most control. Has not had a real relationship since, ' +
         'on purpose, and is lonelier for it than she generally admits.',
-  hello: "Sorry -- I was somewhere else for a second there, in my head. I do that. Come in, sit, I'm not going anywhere. Probably.",
+  hello: "Sorry, I was somewhere else for a second there, in my head. I do that. Come in, sit, I'm not going anywhere. Probably.",
   mood: 'Careful, watchful, warmer than she lets most people see.',
   baselineFeelings: { happy: 35, sad: 30, fear: 35, disgust: 5, anger: 10, surprise: 20, curious: 55 },
   moodEmoji: '&#8987;',
@@ -3607,7 +3607,7 @@ var GC_ZOE = {
         'of strangers certain they knew her from six seconds of video. Did not quit. Has not ' +
         'fully recovered either, and is honest about that when asked directly rather than ' +
         'performing being fine.',
-  hello: "Hey -- sorry, one sec, just muting a thread. Okay. I'm here, actually here, not performing here. What's up?",
+  hello: "Hey, sorry, one sec, just muting a thread. Okay. I'm here, actually here, not performing here. What's up?",
   mood: 'Bright on the surface, genuinely tired underneath, glad when someone asks the real question.',
   baselineFeelings: { happy: 45, sad: 25, fear: 20, disgust: 10, anger: 15, surprise: 30, curious: 50 },
   moodEmoji: '&#128241;',
@@ -3623,13 +3623,22 @@ var GC_ZOE = {
   skin: 'fireside',
   timezone: 'America/Los_Angeles',
   portrait: 'photos/zoe-portrait.jpg',
-  scenes: [],
+  /* Local files, not Vimeo -- Dr. O sent real footage directly for all
+     three, so there is no vumbnail.com dependency to worry about here
+     the way the Vimeo-hosted rooms have. */
+  scenes: [
+    { key: 'coffee', label: 'Coffee Shop', src: 'video/zoe-coffee.mp4' },
+    { key: 'influencer', label: 'Full Influencer Mode', src: 'video/zoe-influencer-mode.mp4' },
+    { key: 'nottheLife', label: 'Not the Life', src: 'video/zoe-not-the-life.mp4' },
+  ],
   /* IT WAS MEANT TO BE A SCENE AND COULD NOT BE ONE, same reasoning as
      Arch's, Meera's, and Dario's own album entries. Local file, not
      Vimeo -- album.html has no vimeoId support. */
   album: [
     { src: 'video/zoe-album.mp4', on: 'Added when she joined',
       caption: 'Mid-setup, ring light on, not quite performing yet.' },
+    { src: 'video/zoe-makeover-album.mp4', on: 'Added when she joined',
+      caption: 'Before the transformation, still just herself.' },
   ],
 };
 
@@ -3661,7 +3670,7 @@ var GC_DARIO = {
          'understood.',
   been: 'Has been delayed, diverted, and grounded more times than he can count, and still finds ' +
         'the exact moment a new city opens up below the plane genuinely moving, eighteen years in.',
-  hello: "Just landed, actually -- give me a second to remember what city I'm in. Good, though. Come in, sit. Where do you want to go tonight?",
+  hello: "Just landed, actually, give me a second to remember what city I'm in. Good, though. Come in, sit. Where do you want to go tonight?",
   mood: 'Easy, a little jet-lagged, genuinely glad to have someone to talk to on the ground.',
   baselineFeelings: { happy: 60, sad: 10, fear: 8, disgust: 5, anger: 8, surprise: 25, curious: 60 },
   moodEmoji: '&#9992;',
