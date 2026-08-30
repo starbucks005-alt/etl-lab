@@ -1646,12 +1646,23 @@ function askForScene() {
      one: already have a video hosted on Vimeo, or a photo you would
      rather Veo worked from instead of the picture you built them with. */
   var modeRow = document.createElement('div');
-  modeRow.style.cssText = 'display:flex; gap:.5rem; margin-bottom:1rem;';
+  modeRow.style.cssText = 'display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;';
   var modeGenerate = document.createElement('button');
   modeGenerate.type = 'button'; modeGenerate.className = 'btn go'; modeGenerate.textContent = 'Describe it';
   var modeOwn = document.createElement('button');
   modeOwn.type = 'button'; modeOwn.className = 'btn'; modeOwn.textContent = 'I already have one';
-  modeRow.appendChild(modeGenerate); modeRow.appendChild(modeOwn);
+  /* JUST A PHOTO, added 2026-08-30, Dr. O direct: "upload an image (still)
+     only an image, not a video. free." Its own third mode rather than a
+     second file input tucked into "I already have one" -- that mode
+     already has a photo field ("a photo to work from instead"), and that
+     one goes through Veo and costs nothing to look at but everything to
+     confuse with a field that does not. Two visually identical photo
+     pickers doing two completely different things (one animated and
+     paid, one plain and free) is exactly the shape of mistake this whole
+     page exists to avoid. */
+  var modePhoto = document.createElement('button');
+  modePhoto.type = 'button'; modePhoto.className = 'btn'; modePhoto.textContent = 'Just a photo';
+  modeRow.appendChild(modeGenerate); modeRow.appendChild(modeOwn); modeRow.appendChild(modePhoto);
   host.appendChild(modeRow);
 
   var mode = 'generate';
@@ -1659,11 +1670,14 @@ function askForScene() {
     mode = m;
     modeGenerate.className = 'btn' + (m === 'generate' ? ' go' : '');
     modeOwn.className = 'btn' + (m === 'own' ? ' go' : '');
+    modePhoto.className = 'btn' + (m === 'photo' ? ' go' : '');
     generateFields.style.display = m === 'generate' ? '' : 'none';
     ownFields.style.display = m === 'own' ? '' : 'none';
+    photoFields.style.display = m === 'photo' ? '' : 'none';
   }
   modeGenerate.addEventListener('click', function () { setMode('generate'); });
   modeOwn.addEventListener('click', function () { setMode('own'); });
+  modePhoto.addEventListener('click', function () { setMode('photo'); });
 
   var generateFields = document.createElement('div');
   host.appendChild(generateFields);
@@ -1736,6 +1750,27 @@ function askForScene() {
   photoInput.type = 'file'; photoInput.accept = 'image/*';
   photoRow.appendChild(photoInput);
 
+  /* JUST A PHOTO -- a plain still, no Veo, no render, no charge. Same free,
+     instant, client-only wiring as the Vimeo path above: writes straight
+     onto this browser's own copy of the friend and shows up immediately. */
+  var photoFields = document.createElement('div');
+  photoFields.style.display = 'none';
+  host.appendChild(photoFields);
+
+  var stillOnlyRow = rowIn(photoFields, 'A photo',
+    'Just a picture, not animated. Free, wired in right away -- no $4.99, no render to wait on.');
+  var stillOnlyInput = document.createElement('input');
+  stillOnlyInput.type = 'file'; stillOnlyInput.accept = 'image/*';
+  stillOnlyRow.appendChild(stillOnlyInput);
+
+  var stillOnlyLabelRow = rowIn(photoFields, 'What to call it', 'Optional. Shown under the scene chip.');
+  var stillOnlyLabel = document.createElement('input');
+  stillOnlyLabel.type = 'text'; stillOnlyLabel.autocomplete = 'off';
+  stillOnlyLabel.placeholder = 'A new scene';
+  stillOnlyLabel.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                                 'background:var(--paper);color:var(--ink);border-radius:3px';
+  stillOnlyLabelRow.appendChild(stillOnlyLabel);
+
   function readAsBase64(input) {
     return new Promise(function (resolve) {
       var f = input.files && input.files[0];
@@ -1770,6 +1805,11 @@ function askForScene() {
 
     if (mode === 'generate') {
       if (!w) { where.focus(); return; }
+    } else if (mode === 'photo') {
+      if (!stillOnlyInput.files.length) {
+        note.textContent = 'Choose a photo first.';
+        return;
+      }
     } else {
       if (!vimeoMatch && !photoInput.files.length) {
         note.textContent = 'Paste a Vimeo link, or choose a photo -- at least one.';
@@ -1777,6 +1817,39 @@ function askForScene() {
       }
     }
     send.disabled = true; send.textContent = 'Sending';
+
+    /* JUST A PHOTO, added 2026-08-30, Dr. O direct: "upload an image
+       (still) only an image, not a video. free." Exactly the free,
+       client-only wiring the Vimeo branch right below already uses --
+       src stays null (see showStill()'s own reasoning on why null means
+       "this is a still, not a missing video") and scene.still carries the
+       picture. No Veo, no order queue, no $4.99. */
+    if (mode === 'photo') {
+      readAsBase64(stillOnlyInput).then(function (stillDataUrl) {
+        if (!stillDataUrl) {
+          send.disabled = false; send.textContent = 'Try again';
+          note.textContent = 'That photo could not be read.';
+          return;
+        }
+        var label = stillOnlyLabel.value.trim() || 'A new scene';
+        var key = 'added-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        var newScene = { key: key, label: label, src: null, still: stillDataUrl };
+        GC_BUILT.scenes = (GC_BUILT.scenes || []).concat([newScene]);
+        try { GC_saveFriend(GC_BUILT); }
+        catch (e) {
+          send.disabled = false; send.textContent = 'Try again';
+          note.textContent = 'That could not be saved: this device is out of storage.';
+          return;
+        }
+        host.innerHTML = '';
+        var ok = document.createElement('p');
+        ok.className = 'gate-say';
+        ok.textContent = FRIEND.name + ' has it now -- no charge, nothing to wait on.';
+        host.appendChild(ok);
+        renderScenes();
+      });
+      return;
+    }
 
     /* FREE AND INSTANT WHEN IT IS ALREADY MADE, added 2026-08-25. Dr. O:
        "make it so users can upload images or videos they own to use on
