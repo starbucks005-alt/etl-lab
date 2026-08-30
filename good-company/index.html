@@ -156,7 +156,7 @@ header{
 
 /* ── image slots ────────────────────────────────────────────────────────────
    Every picture on this page is one of these. The <img> carries the real path,
-   so the moment a file lands in images/ it simply appears with no code change.
+   so the moment a file lands in photos/ it simply appears with no code change.
 
    A MISSING FILE IS LOUD, never silent and never quietly replaced by something
    that looks fine. The label shows the exact path that failed, so a typo is
@@ -414,6 +414,17 @@ figure{ margin:0; }
 }
 .demo-card-label:hover{ color:var(--accent); }
 
+/* ASK ABOUT, added 2026-08-30, Dr. O direct: "sample questions to ask
+   them." One real question per card, not all three -- a card is already
+   tight in a four-up grid, and one honest example does the job a whole
+   list would only crowd. Same italic voice as the room doorstep's own
+   premise line, quieter than the name so the face and the label still
+   read first. */
+.demo-card-ask{
+  display:block; font-style:italic; font-size:.72rem; line-height:1.35;
+  color:var(--ink-dim); margin-top:.3rem;
+}
+
 /* Same small pill shape as room.html's own sound-on button over the
    video, deliberately reused rather than invented fresh: one visual
    language for "there is sound here" everywhere on this product. */
@@ -570,8 +581,8 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
   <!-- Not .wrap: this section manages its own insets so the photograph can
        bleed while the words stay clear of the edge. -->
   <section class="hero" id="hero">
-    <div class="slot hero-art" data-label="images/hero.jpg">
-      <img src="images/hero.jpg" alt="">
+    <div class="slot hero-art" data-label="photos/hero.jpg">
+      <img src="photos/hero.jpg" alt="">
     </div>
 
     <div class="hero-words">
@@ -623,7 +634,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            example further down; this says it plainly rather than leaving
            a visitor to infer it from the cast. -->
       <p class="how">Build as many as you want, each their own person, or their own
-         dog, or something else entirely. Nothing here says you get one.</p>
+         dog, or something else entirely.</p>
       <!-- ENTER YOUR ROOM, inserted here by script when one exists (see the
            script block near the closing body tag) -- ALWAYS RIGHT BEFORE
            THIS BUTTON, so the two sit side by side in source order too, not
@@ -663,7 +674,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
        section on the page; now the first thing after the hero. -->
   <section class="bring wrap" id="bring">
     <figure>
-      <div class="slot" data-label="images/bring.jpg"><img src="images/bring.jpg" alt=""></div>
+      <div class="slot" data-label="photos/bring.jpg"><img src="photos/bring.jpg" alt=""></div>
       <!-- The caption is load-bearing on this one. Three people on a sofa reads
            as a family photograph until it tells you which of them is the
            friend. -->
@@ -672,6 +683,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     <div>
       <h2>Bring someone with you.</h2>
       <p>Send a link. They tap it once and they are in the room with you. No sign in, no account.</p>
+      <p>Two of you talking to a companion together, like Reggie, can be even more fun than one.</p>
     </div>
   </section>
 
@@ -754,6 +766,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=arch">General contractor Arch</a>
         <button class="demo-card-play" type="button" data-audio="audio/arch-bio.mp3" aria-label="Hear Arch">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What are you working on right now?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=sofia">
@@ -763,6 +776,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=sofia">Vet nurse Sophia</a>
         <button class="demo-card-play" type="button" data-audio="audio/sofia-bio.mp3" aria-label="Hear Sophia">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What was the strangest case you saw this week?&rdquo;</span>
     </div>
     <!-- NINA AND KIOKO, added 2026-08-26. Real portraits now exist for both
          (photos/nina.jpg, photos/kioko.jpg) so they belong in this grid the
@@ -780,6 +794,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=cora">Retired teacher Nina</a>
         <button class="demo-card-play" type="button" data-audio="audio/nina-bio.mp3" aria-label="Hear Nina">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Did the mango tree finally fruit?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=kioko">
@@ -789,6 +804,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=kioko">Paramedic Kioko</a>
         <button class="demo-card-play" type="button" data-audio="audio/kioko-bio.mp3" aria-label="Hear Kioko">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;How was your shift last night?&rdquo;</span>
     </div>
     <!-- THE MYTHICAL/ANIMAL ONES, ROW TWO, on purpose, same reasoning as the
          comment above the humans. Reggie is a dog himself ("a people
@@ -802,6 +818,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=reggie">Reggie, with friends</a>
         <button class="demo-card-play" type="button" data-audio="audio/reggie-bio.mp3" aria-label="Hear Reggie">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Find anything good in the trash today?&rdquo;</span>
     </div>
     <!-- No chosen still exists for all three fairies together (the scene
          picker in room.html hits this same gap and falls back the same
@@ -814,7 +831,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
          own. -->
     <div class="demo-card">
       <a href="room.html?who=tansy">
-        <div class="slot" data-label="https://vumbnail.com/1219352357.jpg"><img src="https://vumbnail.com/1219352357.jpg" alt=""></div>
+        <div class="slot" data-label="photos/tansy-poppy-blue.jpg"><img src="photos/tansy-poppy-blue.jpg" alt=""></div>
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=tansy">Tansy, Poppy &amp; Blue</a>
@@ -975,19 +992,19 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
   <section class="three wrap">
     <h2 class="three-heading">What building your own looks like.</h2>
     <figure>
-      <div class="slot" data-label="images/yours.jpg"><img src="images/yours.jpg" alt=""></div>
+      <div class="slot" data-label="photos/yours.jpg"><img src="photos/yours.jpg" alt=""></div>
       <figcaption>&ldquo;The best friend to watch scary movies with&rdquo; companion</figcaption>
       <h3>Yours.</h3>
       <p>You decide who they are. Their name, their age, their history, the way they talk.</p>
     </figure>
     <figure>
-      <div class="slot" data-label="images/remember.jpg"><img src="images/remember.jpg" alt=""></div>
+      <div class="slot" data-label="photos/remember.jpg"><img src="photos/remember.jpg" alt=""></div>
       <figcaption>&ldquo;The friend who remembers what I said last week&rdquo; companion</figcaption>
       <h3>They remember.</h3>
       <p>Every conversation picks up where the last one stopped. You never start over.</p>
     </figure>
     <figure>
-      <div class="slot" data-label="images/life.jpg"><img src="images/life.jpg" alt=""></div>
+      <div class="slot" data-label="photos/life.jpg"><img src="photos/life.jpg" alt=""></div>
       <figcaption>&ldquo;A joiner. He turns up with sawdust on him&rdquo; companion</figcaption>
       <h3>They have a life.</h3>
       <p>A job, other people, plans this weekend. A companion with somewhere to be is a companion.</p>
@@ -1008,7 +1025,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <p>Yours asks about the people in your life, and notices when you have not seen them.</p>
     </div>
     <figure class="band-art">
-      <div class="slot" data-label="images/out.jpg"><img src="images/out.jpg" alt=""></div>
+      <div class="slot" data-label="photos/out.jpg"><img src="photos/out.jpg" alt=""></div>
       <figcaption>&ldquo;The big brother that makes me feel like I can do anything&rdquo; companion</figcaption>
     </figure>
   </section>
@@ -1023,23 +1040,23 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     <figcaption class="strip-cap">&ldquo;The grandma that puts me first&rdquo; companion. Her five rooms.</figcaption>
     <div class="room-strip">
       <div class="room">
-        <div class="slot" data-label="images/room-kitchen.jpg"><img src="images/room-kitchen.jpg" alt=""></div>
+        <div class="slot" data-label="photos/room-kitchen.jpg"><img src="photos/room-kitchen.jpg" alt=""></div>
         <span>Kitchen table</span>
       </div>
       <div class="room">
-        <div class="slot" data-label="images/room-porch.jpg"><img src="images/room-porch.jpg" alt=""></div>
+        <div class="slot" data-label="photos/room-porch.jpg"><img src="photos/room-porch.jpg" alt=""></div>
         <span>Porch</span>
       </div>
       <div class="room">
-        <div class="slot" data-label="images/room-coffee.jpg"><img src="images/room-coffee.jpg" alt=""></div>
+        <div class="slot" data-label="photos/room-coffee.jpg"><img src="photos/room-coffee.jpg" alt=""></div>
         <span>Coffee</span>
       </div>
       <div class="room">
-        <div class="slot" data-label="images/room-game.jpg"><img src="images/room-game.jpg" alt=""></div>
+        <div class="slot" data-label="photos/room-game.jpg"><img src="photos/room-game.jpg" alt=""></div>
         <span>Game night</span>
       </div>
       <div class="room">
-        <div class="slot" data-label="images/room-walk.jpg"><img src="images/room-walk.jpg" alt=""></div>
+        <div class="slot" data-label="photos/room-walk.jpg"><img src="photos/room-walk.jpg" alt=""></div>
         <span>The walk</span>
       </div>
     </div>

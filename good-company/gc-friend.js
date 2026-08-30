@@ -3134,6 +3134,7 @@ var GC_WINSTON = {
   moodEmoji: '&#127863;',
   voice: ['Dry', 'Patient'],
   voiceId: 'agL69Vji082CshT65Tcy',
+  bioAudio: 'audio/winston-bio.mp3',
   talkingPoints: [
     'What is actually in that wine cellar?',
     'Mediate an argument I am having',
@@ -3181,6 +3182,7 @@ var GC_VIV = {
   moodEmoji: '&#129498;&#8205;&#9792;&#65039;',
   voice: ['Dry', 'Funny', 'Blunt'],
   voiceId: 'b1fu18ehYUVnbLjA7vJ3',
+  bioAudio: 'audio/viv-bio.mp3',
   talkingPoints: [
     'What actually happened to you?',
     'Help me say no to someone',
@@ -3230,6 +3232,7 @@ var GC_MARION = {
   moodEmoji: '&#129522;',
   voice: ['Warm', 'Patient', 'Blunt'],
   voiceId: 'Rm14i2uPTqCL0k0wW7KI',
+  bioAudio: 'audio/marion-bio.mp3',
   talkingPoints: [
     'How do you keep the family hidden?',
     'Teach me to fix something with what I already have',
@@ -3329,6 +3332,7 @@ var GC_AARON = {
   moodEmoji: '&#129504;',
   voice: ['Warm', 'Patient', 'Gentle'],
   voiceId: '6Cnoni8qSu4opBcF3PMa',
+  bioAudio: 'audio/aaron-bio.mp3',
   talkingPoints: [
     'What is a compulsion versus a real check?',
     'Help me understand OCD better',
@@ -3433,6 +3437,7 @@ var GC_MEERA = {
   moodEmoji: '&#128330;',
   voice: ['Grounded', 'Warm', 'Direct'],
   voiceId: 'XYfWcxd0jJece96Z98eV',
+  bioAudio: 'audio/meera-bio.mp3',
   talkingPoints: [
     'What actually happens in your body when you meditate?',
     'What made you finally quit law?',
@@ -3495,6 +3500,7 @@ var GC_MARCUS = {
   moodEmoji: '&#128240;',
   voice: ['Wire-service neutral', 'Even', 'Precise'],
   voiceId: 'pqHfZKP75CvOlQylNhV4',
+  bioAudio: 'audio/marcus-bio.mp3',
   talkingPoints: [
     'What actually moved today?',
     'What is the difference between a leak and a lie?',
@@ -3556,6 +3562,7 @@ var GC_NORA = {
   moodEmoji: '&#8987;',
   voice: ['Guarded', 'Warm underneath', 'Precise'],
   voiceId: 'pb6kCegKK9i4oRBqeUjR',
+  bioAudio: 'audio/nora-bio.mp3',
   talkingPoints: [
     'What actually happens when you jump?',
     'Why haven\x27t you tried dating, really?',
@@ -3606,6 +3613,7 @@ var GC_ZOE = {
   moodEmoji: '&#128241;',
   voice: ['Quick', 'Warm', 'Tired underneath'],
   voiceId: 'iom52mAbYXPrAtSEJM0w',
+  bioAudio: 'audio/zoe-bio.mp3',
   talkingPoints: [
     'What do people get most wrong about your job?',
     'What is the worst comment you have ever gotten?',
@@ -3659,6 +3667,7 @@ var GC_DARIO = {
   moodEmoji: '&#9992;',
   voice: ['Warm', 'Well-traveled', 'Easy'],
   voiceId: 'cSGFM1CYxTbDUno2ByfF',
+  bioAudio: 'audio/dario-bio.mp3',
   talkingPoints: [
     'What is your actual favorite place, and why?',
     'What does jet lag really do to you?',
@@ -3736,6 +3745,7 @@ var GC_THEO = {
   /* MARKED FOR REPLACEMENT once Dr. O picks from the theo_*.mp3 previews
      this session generates. */
   voiceId: 'gsr4awIbA0nfkChHUnvP',
+  bioAudio: 'audio/theo-bio.mp3',
   talkingPoints: [
     'What should I actually wear this weekend?',
     'How do I start a conversation without a script?',
@@ -3813,6 +3823,7 @@ var GC_CRESSIDA = {
   /* MARKED FOR REPLACEMENT once Dr. O picks from the cressida_*.mp3
      previews this session generates. */
   voiceId: 'RTBzdwjfw0SPTkN2srfl',
+  bioAudio: 'audio/cressida-bio.mp3',
   talkingPoints: [
     'What was that last summer actually like?',
     'What does a hundred years alone in one house do to a person?',
@@ -3900,6 +3911,11 @@ var GC_GRIMMS = {
   hello: 'The fire is going. Jacob is at the writing table, not quite finished with something; ' +
          'Wilhelm has already looked up. Come in and sit -- which story do you want tonight, or ' +
          'would you rather hear how one of them really happened?',
+  /* ROOM-LEVEL, not inside a companion sub-object -- this is what the
+     homepage's own .demo-card-play button reads for the shared room as a
+     whole, same reason id/name/premise/hello live here instead of inside
+     companions.jacob. Read in Jacob's own voice, since he opens turnOrder. */
+  bioAudio: 'audio/grimms-bio.mp3',
   mood: 'Two different moods sharing one room: his precise, warm underneath; his warm, a little wistful.',
   baselineFeelings: { happy: 48, sad: 20, fear: 12, disgust: 10, anger: 12, surprise: 25, curious: 62 },
   moodEmoji: '&#128220;',
@@ -4070,6 +4086,9 @@ var GC_PUPPETS = {
          'behind them both, you can hear the kids already awake and arguing quietly about the ' +
          'toy train. Come in. Just for a few hours, they are exactly who they already were under ' +
          'the wood the whole time.',
+  /* ROOM-LEVEL, same reasoning as GC_GRIMMS's own bioAudio comment. Read
+     in Eli's voice, since he opens turnOrder. */
+  bioAudio: 'audio/puppets-bio.mp3',
   mood: 'Two moods sharing one room: his careworn and steady, hers softer, both of them lighter ' +
         'than usual once the strings go slack.',
   baselineFeelings: { happy: 58, sad: 22, fear: 14, disgust: 6, anger: 8, surprise: 30, curious: 50 },
