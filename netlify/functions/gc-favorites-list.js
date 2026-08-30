@@ -43,8 +43,13 @@ exports.handler = async (event) => {
   let tallies = {};
   try { tallies = (await getStore('gc_favorites').get('index', { type: 'json' })) || {}; } catch (_) {}
 
+  /* ZERO-COUNT ENTRIES DROPPED, added 2026-08-30. Unfavoriting sets a
+     count to 0, it never removes the key -- a spam-tested id (or a real
+     one everyone later unstarred) stayed listed forever, just reading
+     "0", since nothing here ever filtered it back out. */
   const favorites = Object.keys(tallies)
     .map((id) => ({ id, count: tallies[id] || 0 }))
+    .filter((f) => f.count > 0)
     .sort((a, b) => b.count - a.count);
 
   return json(200, { ok: true, favorites });
