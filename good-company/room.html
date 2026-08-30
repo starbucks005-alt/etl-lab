@@ -752,6 +752,14 @@ function updateFriendClock() {
 setInterval(updateFriendClock, 60000);
 
 function nameEverything() {
+  /* THE PAGE TITLE, added 2026-08-30. Every room shared the same static
+     "Good Company" title, so GA's own Views-by-page-title report, the
+     first thing anyone checks, could not tell Arch's room from Dario's
+     room from any of the other nineteen -- all 21 rooms plus build.html
+     folded into one 530-view bucket. The room_view custom event (below,
+     unchanged) already gave per-room numbers a different way, but this is
+     the report people actually open first. */
+  document.title = 'Good Company: ' + FRIEND.name;
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
   /* THE GAUGE'S STARTING POINT, added 2026-08-26 per Dr. O direct ("did you
