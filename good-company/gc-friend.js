@@ -4370,7 +4370,8 @@ var GC_RIN = {
   baselineFeelings: { happy: 55, sad: 10, fear: 8, disgust: 8, anger: 8, surprise: 20, curious: 60 },
   moodEmoji: '&#128272;',
   voice: ['Quick', 'Patient', 'Plain-spoken', 'Uses contractions'],
-  voiceId: null,
+  voiceId: '6G7epTsSEzxw727Ue7js',
+  bioAudio: 'audio/rin-bio.mp3',
   talkingPoints: [
     'I got a weird email, can you tell me if it is real?',
     'How do I actually know if I have been hacked?',
