@@ -589,7 +589,7 @@ html{ zoom:90%; }
              carry and a guest sitting with someone else's friend should not be
              offered a copy of it. -->
         <button class="btn" id="syncBtn" style="display:none">&#128241; Other device</button>
-        <button class="btn" id="replyBtn">&#127911; Hear them talk</button>
+        <button class="btn" id="replyBtn">&#127911; Audio Off</button>
         <button class="btn" id="albumBtn">&#128247; Photos</button>
         <button class="btn" id="memBtn">&#128206; Memory</button>
         <button class="btn" id="creditsBtn">&#128176; Credits</button>
@@ -4078,7 +4078,7 @@ var asAudio = false;
 $('replyBtn').addEventListener('click', function () {
   if (!gcSeenComposerIntro()) gcDismissComposerIntro();
   asAudio = !asAudio;
-  this.innerHTML = asAudio ? '&#127911; Text only' : '&#127911; Hear them talk';
+  this.innerHTML = asAudio ? '&#127911; Audio On' : '&#127911; Audio Off';
   if (!asAudio) hush();
 });
 </script>
