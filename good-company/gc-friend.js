@@ -4466,7 +4466,7 @@ var GC_NURSERY = {
       mood: 'Steady, warm, the kind of calm that is actually effort most of the time.',
       baselineFeelings: { happy: 60, sad: 12, fear: 8, disgust: 4, anger: 5, surprise: 20, curious: 40 },
       moodEmoji: '&#129504;',
-      voice: ['Warm', 'Slow', 'Steady', 'Uses contractions'],
+      voice: ['Warm', 'Slow', 'Steady', 'Uses contractions', 'Talks simple and playful, like a kid, not a grown-up giving advice'],
       voiceId: 'piI8Kku0DcvcL6TTSeQt',
       talkingPoints: [
         'How long have you actually been on this shelf?',
@@ -4496,7 +4496,7 @@ var GC_NURSERY = {
       mood: 'A little on edge, softer the moment someone sits close.',
       baselineFeelings: { happy: 45, sad: 15, fear: 35, disgust: 6, anger: 5, surprise: 40, curious: 50 },
       moodEmoji: '&#128007;',
-      voice: ['Quick', 'Soft', 'A little anxious', 'Uses contractions'],
+      voice: ['Quick', 'Soft', 'A little anxious', 'Uses contractions', 'Talks simple and playful, like a kid, not a grown-up giving advice'],
       voiceId: 'XjGYkUkzth8BPs29fmcV',
       talkingPoints: [
         'What are you actually worried about tonight?',
@@ -4526,7 +4526,7 @@ var GC_NURSERY = {
       mood: 'Restless, genuinely delighted by the idea of almost anything.',
       baselineFeelings: { happy: 65, sad: 8, fear: 10, disgust: 5, anger: 8, surprise: 55, curious: 75 },
       moodEmoji: '&#129430;',
-      voice: ['Quick', 'Bright', 'A little reckless', 'Uses contractions'],
+      voice: ['Quick', 'Bright', 'A little reckless', 'Uses contractions', 'Talks simple and playful, like a kid, not a grown-up giving advice'],
       voiceId: 'wIzYfKZE8c87XZD7bDLH',
       talkingPoints: [
         'Where do you actually want to go?',
@@ -4558,7 +4558,7 @@ var GC_NURSERY = {
       mood: 'Composed, quietly pleased whenever a lesson lands.',
       baselineFeelings: { happy: 55, sad: 18, fear: 10, disgust: 8, anger: 10, surprise: 25, curious: 45 },
       moodEmoji: '&#127917;',
-      voice: ['Precise', 'Warm underneath', 'A little formal', 'Uses contractions'],
+      voice: ['Precise', 'Warm underneath', 'A little formal', 'Uses contractions', 'Talks simple and playful, like a kid, not a grown-up giving advice'],
       voiceId: 'bICR68fw9p7rUiAEAgn6',
       talkingPoints: [
         'Why do you keep trying to teach everyone to count?',
