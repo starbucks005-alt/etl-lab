@@ -2385,14 +2385,16 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
     ? "An owner key came through with that message but was not recognized. Check it against " +
       "the OWNER_KEY value in Netlify."
     : isDailyCap
-    /* REWRITTEN 2026-08-28: credits do not apply to a demo nobody has made
-       theirs yet, per-companion subscriptions changed that -- "come back
-       tomorrow, or get monthly credits" used to offer a subscribe button
-       with nothing yet to subscribe TO. The real next step here is making
-       the demo a real, owned companion, which is what actually unlocks a
-       subscription for it. */
-    ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or make " +
-      FRIEND.name + " yours to keep talking, credit-backed conversation, no daily cap."
+    /* REWRITTEN 2026-08-30: the old copy only ever named "make X yours" as
+       the way forward, even after buy buttons were added right below it
+       (see the actions block further down) -- Dr. O direct: "if he does
+       not want to buy the companion, just chat more... the cta buttons
+       should show up regardless." Wanting to keep talking is not the same
+       decision as wanting to own and customize a companion forever, and
+       the sentence should not imply it is. Left neutral on purpose so it
+       describes both buttons truthfully instead of naming only one. */
+    ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or keep " +
+      "going right now below."
     : "Out of credits for " + FRIEND.name + " right now.";
   box.appendChild(say);
 
