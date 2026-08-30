@@ -3445,6 +3445,7 @@ var GC_MEERA = {
   scenes: [
     { key: 'yoga', label: 'Morning Practice', src: null, vimeoId: '1222457854' },
     { key: 'tea', label: 'Tea on the Porch', src: null, vimeoId: '1222457850' },
+    { key: 'meditation', label: 'In Meditation', src: null, vimeoId: '1222457848' },
   ],
 };
 
