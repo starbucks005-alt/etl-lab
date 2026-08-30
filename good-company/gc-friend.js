@@ -647,7 +647,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe'];
 
 var GC_WHO = (function () {
   var q = null;
@@ -3442,6 +3442,7 @@ var GC_MEERA = {
   skin: 'harvest',
   timezone: 'America/Chicago',
   portrait: 'photos/meera-portrait.jpg',
+  portraitWide: 'photos/meera-wide.jpg',
   scenes: [
     { key: 'yoga', label: 'Morning Practice', src: null, vimeoId: '1222457854' },
     { key: 'tea', label: 'Tea on the Porch', src: null, vimeoId: '1222457850' },
@@ -3554,7 +3555,6 @@ var GC_NORA = {
   baselineFeelings: { happy: 35, sad: 30, fear: 35, disgust: 5, anger: 10, surprise: 20, curious: 55 },
   moodEmoji: '&#8987;',
   voice: ['Guarded', 'Warm underneath', 'Precise'],
-  /* MARKED FOR REPLACEMENT once Dr. O picks from generated previews. */
   voiceId: 'pb6kCegKK9i4oRBqeUjR',
   talkingPoints: [
     'What actually happens when you jump?',
@@ -3564,9 +3564,10 @@ var GC_NORA = {
   cameos: [],
   skin: 'seaside',
   timezone: 'America/New_York',
-  /* MARKED FOR REPLACEMENT -- no photo supplied yet. */
-  portrait: null,
-  scenes: [],
+  portrait: 'photos/nora-portrait.jpg',
+  scenes: [
+    { key: 'work', label: 'At Work', src: 'video/nora-work.mp4' },
+  ],
 };
 
 /* ZOE, added 2026-08-30. Catalog companion #12, Dr. O direct: "a social
@@ -3604,7 +3605,6 @@ var GC_ZOE = {
   baselineFeelings: { happy: 45, sad: 25, fear: 20, disgust: 10, anger: 15, surprise: 30, curious: 50 },
   moodEmoji: '&#128241;',
   voice: ['Quick', 'Warm', 'Tired underneath'],
-  /* MARKED FOR REPLACEMENT once Dr. O picks from generated previews. */
   voiceId: 'iom52mAbYXPrAtSEJM0w',
   talkingPoints: [
     'What do people get most wrong about your job?',
@@ -3614,9 +3614,15 @@ var GC_ZOE = {
   cameos: [],
   skin: 'fireside',
   timezone: 'America/Los_Angeles',
-  /* MARKED FOR REPLACEMENT -- no photo supplied yet. */
-  portrait: null,
+  portrait: 'photos/zoe-portrait.jpg',
   scenes: [],
+  /* IT WAS MEANT TO BE A SCENE AND COULD NOT BE ONE, same reasoning as
+     Arch's, Meera's, and Dario's own album entries. Local file, not
+     Vimeo -- album.html has no vimeoId support. */
+  album: [
+    { src: 'video/zoe-album.mp4', on: 'Added when she joined',
+      caption: 'Mid-setup, ring light on, not quite performing yet.' },
+  ],
 };
 
 /* DARIO, added 2026-08-30. Catalog companion #13, Dr. O direct: "pilot,
@@ -3652,7 +3658,6 @@ var GC_DARIO = {
   baselineFeelings: { happy: 60, sad: 10, fear: 8, disgust: 5, anger: 8, surprise: 25, curious: 60 },
   moodEmoji: '&#9992;',
   voice: ['Warm', 'Well-traveled', 'Easy'],
-  /* MARKED FOR REPLACEMENT once Dr. O picks from generated previews. */
   voiceId: 'cSGFM1CYxTbDUno2ByfF',
   talkingPoints: [
     'What is your actual favorite place, and why?',
@@ -3662,9 +3667,18 @@ var GC_DARIO = {
   cameos: [],
   skin: 'harvest',
   timezone: 'Europe/Rome',
-  /* MARKED FOR REPLACEMENT -- no photo supplied yet. */
-  portrait: null,
-  scenes: [],
+  portrait: 'photos/dario-portrait.jpg',
+  portraitWide: 'photos/dario-wide.jpg',
+  scenes: [
+    { key: 'terrace', label: 'Golden Hour', src: null, vimeoId: '1222461794' },
+  ],
+  /* IT WAS MEANT TO BE A SCENE AND COULD NOT BE ONE, same reasoning as
+     Arch's own album entry and Meera's just above. Local file, not
+     Vimeo -- album.html has no vimeoId support. */
+  album: [
+    { src: 'video/dario-album.mp4', on: 'Added when he joined',
+      caption: 'On a layover, same terrace, looking out at the city.' },
+  ],
 };
 
 /* THEO, added 2026-08-29, Dr. O direct: "a male companion that will help
@@ -4278,7 +4292,7 @@ var GC_PUPPETS = {
   },
 };
 
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA };
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE };
 
 /* ?who=eli AND ?who=nell BOTH OPEN THE SAME SHARED ROOM, same reasoning as
    GC_GRIMMS's own jacob/wilhelm aliases just below. */
