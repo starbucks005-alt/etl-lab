@@ -159,6 +159,21 @@ exports.handler = async (event) => {
 
   const room = 'https://emerging-tech-lab.com/good-company/room.html';
 
+  /* A RECEIPT, IF THEY GAVE US SOMEWHERE TO SEND IT, added 2026-08-30, Dr. O
+     direct: "if they give us an email address we need to give them a
+     receipt." order.from is the same "How to reach you about it" field
+     that (when filled in) already lets notify.sceneReady email the
+     finished link -- Stripe's own receipt is a separate, second thing:
+     proof of the charge itself, sent the moment payment succeeds, not
+     when the scene is. payment_intent_data.receipt_email forces Stripe to
+     send its own official receipt to this address specifically, rather
+     than depending on the account-wide "email successful payments"
+     setting in the Stripe dashboard, which this code has no way to see or
+     rely on. A loose shape check, not full validation -- Stripe itself
+     will refuse a truly malformed address rather than silently eating it. */
+  const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const receiptEmail = EMAIL_SHAPE.test(order.from) ? order.from : null;
+
   let session;
   try {
     session = await stripe.checkout.sessions.create({
@@ -178,6 +193,7 @@ exports.handler = async (event) => {
       /* The order id travels with the payment, so coming back means something
          even if they finish on a different device. */
       metadata: { gc_order_id: orderId, source: 'good_company_scene' },
+      ...(receiptEmail ? { payment_intent_data: { receipt_email: receiptEmail } } : {}),
     });
   } catch (err) {
     console.error('gc-scene-checkout stripe error:', err.message);

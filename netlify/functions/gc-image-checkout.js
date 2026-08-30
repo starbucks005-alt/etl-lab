@@ -140,6 +140,14 @@ exports.handler = async (event) => {
 
   const room = 'https://emerging-tech-lab.com/good-company/room.html';
 
+  /* A RECEIPT, IF THEY GAVE US SOMEWHERE TO SEND IT -- same reasoning and
+     same shape as gc-scene-checkout.js's own identical note: Stripe's own
+     receipt, forced to this specific address via payment_intent_data
+     regardless of the account-wide dashboard setting, separate from
+     notify.sceneReady's delivery email. */
+  const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const receiptEmail = EMAIL_SHAPE.test(order.from) ? order.from : null;
+
   let session;
   try {
     session = await stripe.checkout.sessions.create({
@@ -155,6 +163,7 @@ exports.handler = async (event) => {
       success_url: room + '?image-paid={CHECKOUT_SESSION_ID}&who=mine',
       cancel_url: room + '?who=mine',
       metadata: { gi_order_id: orderId, source: 'good_company_image' },
+      ...(receiptEmail ? { payment_intent_data: { receipt_email: receiptEmail } } : {}),
     });
   } catch (err) {
     console.error('gc-image-checkout stripe error:', err.message);
