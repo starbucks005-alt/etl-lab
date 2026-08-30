@@ -789,15 +789,10 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </div>
       <span class="demo-card-ask">&ldquo;Find anything good in the trash today?&rdquo;</span>
     </div>
-    <!-- No chosen still exists for all three fairies together (the scene
-         picker in room.html hits this same gap and falls back the same
-         way), so this uses Vimeo's own public thumbnail proxy for the
-         "together" scene's video rather than a solo Tansy portrait that
-         would not match what the label promises. The play button hears
-         Tansy specifically; Poppy and Blue got their own clips generated
-         too (audio/poppy-bio.mp3, audio/blue-bio.mp3) for whenever their
-         own solo scenes get a place to surface a play button of their
-         own. -->
+    <!-- The play button hears Tansy specifically; Poppy and Blue got their
+         own clips generated too (audio/poppy-bio.mp3, audio/blue-bio.mp3)
+         for whenever their own solo scenes get a place to surface a play
+         button of their own. -->
     <div class="demo-card">
       <a href="room.html?who=tansy">
         <div class="slot" data-label="photos/tansy-poppy-blue.jpg"><img src="photos/tansy-poppy-blue.jpg" alt=""></div>
@@ -806,6 +801,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=tansy">Tansy, Poppy &amp; Blue</a>
         <button class="demo-card-play" type="button" data-audio="audio/tansy-bio.mp3" aria-label="Hear Tansy">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What did you find in the garden today?&rdquo;</span>
     </div>
     <!-- A.L.I.C.E. AND JULIAN, added 2026-08-26, completing "4 humans, 4
          creatures" per Dr. O. Real portraits, voiceIds, and now real bio
@@ -822,6 +818,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=alice">A.L.I.C.E.</a>
         <button class="demo-card-play" type="button" data-audio="audio/alice-bio.mp3" aria-label="Hear A.L.I.C.E.">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Do you ever wonder what you actually are?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=julian">
@@ -831,16 +828,13 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=julian">Julian, at the piano</a>
         <button class="demo-card-play" type="button" data-audio="audio/julian-bio.mp3" aria-label="Hear Julian">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What are you playing right now?&rdquo;</span>
     </div>
     <!-- THE REST OF THE CAST, added 2026-08-30. Dr. O direct: "lets move all
          of the companions to the main page for everyone to see and choose,
          and give up the catalog idea" -- the catalog was meant for
          user-shared companions, not the house's own, and using it that way
-         made a growing cast look hidden instead of showcased. None of these
-         thirteen have a recorded bio clip yet, so no .demo-card-play button
-         on any of them -- same rule as everywhere else on this campus, a
-         silent button that looks like it should do something is worse than
-         no button at all. -->
+         made a growing cast look hidden instead of showcased. -->
     <div class="demo-card">
       <a href="room.html?who=winston">
         <div class="slot" data-label="photos/winston-portrait.jpg"><img src="photos/winston-portrait.jpg" alt=""></div>
@@ -849,6 +843,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=winston">Estate manager Winston</a>
         <button class="demo-card-play" type="button" data-audio="audio/winston-bio.mp3" aria-label="Hear Winston">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Anything need fixing around here today?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=viv">
@@ -858,6 +853,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=viv">Schoolteacher Viv</a>
         <button class="demo-card-play" type="button" data-audio="audio/viv-bio.mp3" aria-label="Hear Viv">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;How did class go today?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=marion">
@@ -867,6 +863,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=marion">Marion, a Borrower</a>
         <button class="demo-card-play" type="button" data-audio="audio/marion-bio.mp3" aria-label="Hear Marion">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What did you borrow today?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=aaron">
@@ -876,6 +873,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=aaron">Psychologist Aaron</a>
         <button class="demo-card-play" type="button" data-audio="audio/aaron-bio.mp3" aria-label="Hear Aaron">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What's the hardest part of your job?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=grimms">
@@ -885,6 +883,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=grimms">Jacob &amp; Wilhelm Grimm</a>
         <button class="demo-card-play" type="button" data-audio="audio/grimms-bio.mp3" aria-label="Hear Jacob &amp; Wilhelm">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Tell me a story you haven't finished collecting.&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=puppets">
@@ -894,6 +893,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=puppets">The Puppet Family</a>
         <button class="demo-card-play" type="button" data-audio="audio/puppets-bio.mp3" aria-label="Hear Eli &amp; Nell">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What's it like being made of wood?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=marcus">
@@ -903,6 +903,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=marcus">Marcus Reyes, on deadline</a>
         <button class="demo-card-play" type="button" data-audio="audio/marcus-bio.mp3" aria-label="Hear Marcus">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What's the story you're chasing right now?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=theo">
@@ -912,6 +913,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=theo">Stylist Theo</a>
         <button class="demo-card-play" type="button" data-audio="audio/theo-bio.mp3" aria-label="Hear Theo">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What should I actually change about my look?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=cressida">
@@ -921,6 +923,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=cressida">Lady Cressida Thornfield</a>
         <button class="demo-card-play" type="button" data-audio="audio/cressida-bio.mp3" aria-label="Hear Cressida">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;How long have you been haunting this house?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=meera">
@@ -930,6 +933,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=meera">Yoga teacher Meera</a>
         <button class="demo-card-play" type="button" data-audio="audio/meera-bio.mp3" aria-label="Hear Meera">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Can you walk me through a breathing exercise?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=dario">
@@ -939,6 +943,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=dario">Pilot Dario</a>
         <button class="demo-card-play" type="button" data-audio="audio/dario-bio.mp3" aria-label="Hear Dario">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Where did you fly today?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=nora">
@@ -948,6 +953,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=nora">Conservator Nora</a>
         <button class="demo-card-play" type="button" data-audio="audio/nora-bio.mp3" aria-label="Hear Nora">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;Where did you disappear to this time?&rdquo;</span>
     </div>
     <div class="demo-card">
       <a href="room.html?who=zoe">
@@ -957,6 +963,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <a class="demo-card-label" href="room.html?who=zoe">Influencer Zoe</a>
         <button class="demo-card-play" type="button" data-audio="audio/zoe-bio.mp3" aria-label="Hear Zoe">&#128264;</button>
       </div>
+      <span class="demo-card-ask">&ldquo;What's it really like behind the filter?&rdquo;</span>
     </div>
   </section>
 
