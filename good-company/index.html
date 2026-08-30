@@ -421,19 +421,6 @@ figure{ margin:0; }
 .fav-star:hover{ transform:scale(1.1); border-color:var(--accent); }
 .fav-star.on{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
 
-/* THE OWNER-ONLY TALLY, shown above the cast grid, only when this browser
-   already carries the owner key (see the planter at the top of this file).
-   No new page: one more thing to navigate to for a number Dr. O checks
-   occasionally, not daily. */
-#favTally{ display:none; margin:2rem auto 0; max-width:640px; padding:0 var(--pad); }
-#favTally h3{ font-size:1.1rem; margin:0 0 .6rem; }
-#favTally ol{ list-style:none; margin:0; padding:0; font-family:var(--mono); font-size:13px; }
-#favTally li{
-  display:flex; justify-content:space-between; padding:.3rem 0;
-  border-bottom:1px solid var(--line); color:var(--ink-dim);
-}
-#favTally li span:last-child{ color:var(--ink); font-variant-numeric:tabular-nums; }
-
 /* ── the band ───────────────────────────────────────────────────────────── */
 .band{
   background:var(--panel);
@@ -704,14 +691,6 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
        product. Visible copy only -- the CSS classes (.demos, .demo-card)
        and gc-friend.js's GC_DEMOS/GC_DEMO_IDS stay as they are, internal
        plumbing nobody visiting the page ever sees. -->
-  <!-- OWNER-ONLY FAVORITE TALLY, added 2026-08-30. Populated and shown by
-       the script at the bottom of this file, only when this browser
-       already carries the owner key. -->
-  <div id="favTally">
-    <h3>Favorited</h3>
-    <ol id="favTallyList"></ol>
-  </div>
-
   <section class="demos wrap" id="demos">
     <h2>Meet Good Company's Companions</h2>
     <!-- ADDED 2026-08-19 per Dr. O directly: trying Tansy or Reggie is not
@@ -1338,32 +1317,6 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
   });
 })();
 
-/* THE TALLY ITSELF, owner-only. Same etl_owner_key this page already
-   plants from a ?key= link (see the top of this file) -- reused here
-   rather than a second door, since seeing the tally is exactly as
-   privileged as everything else that key already unlocks. */
-(function () {
-  var key = null;
-  try { key = localStorage.getItem('etl_owner_key'); } catch (e) {}
-  if (!key) return;
-  fetch('/.netlify/functions/gc-favorites-list', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ owner_key: key })
-  }).then(function (r) { return r.json(); }).then(function (j) {
-    if (!j || !j.ok || !j.favorites || !j.favorites.length) return;
-    var list = document.getElementById('favTallyList');
-    j.favorites.forEach(function (f) {
-      var li = document.createElement('li');
-      var name = document.createElement('span');
-      name.textContent = f.id.charAt(0).toUpperCase() + f.id.slice(1);
-      var count = document.createElement('span');
-      count.textContent = f.count;
-      li.appendChild(name); li.appendChild(count);
-      list.appendChild(li);
-    });
-    document.getElementById('favTally').style.display = 'block';
-  }).catch(function () {});
-})();
 </script>
 
 </body>
