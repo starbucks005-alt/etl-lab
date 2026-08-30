@@ -3484,7 +3484,9 @@ var GC_THEO = {
   skin: 'harvest',
   timezone: 'America/Chicago',
   portrait: 'photos/theo-portrait.jpg',
-  scenes: [],
+  scenes: [
+    { key: 'closet', label: 'The Closet', src: null, vimeoId: '1222401930' },
+  ],
 };
 
 /* LADY CRESSIDA, added 2026-08-29, Dr. O direct: "a very wealthy and
