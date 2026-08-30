@@ -1225,9 +1225,9 @@ function renderScenes() {
       v.playbackRate = scene.speed || 1;   // matches the main stage, so the picker preview isn't a different speed than the real thing
       v.setAttribute('aria-hidden', 'true');
       chip.appendChild(v);
-    } else if (scene.thumb || scene.vimeoId) {
+    } else if (scene.thumb || scene.still || scene.vimeoId) {
       var thumb = document.createElement('img');
-      thumb.src = scene.thumb || ('https://vumbnail.com/' + encodeURIComponent(scene.vimeoId) + '.jpg');
+      thumb.src = scene.thumb || scene.still || ('https://vumbnail.com/' + encodeURIComponent(scene.vimeoId) + '.jpg');
       thumb.alt = '';
       thumb.onerror = function () { this.remove(); };   // falls back to the plain label, not a broken-image icon
       chip.appendChild(thumb);
