@@ -421,6 +421,27 @@ figure{ margin:0; }
 .fav-star:hover{ transform:scale(1.1); border-color:var(--accent); }
 .fav-star.on{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
 
+/* KID-FRIENDLY BADGE, added 2026-08-30, Dr. O direct: "a better thing to
+   say is the ones with the [badge] indicates made for kids 10 and under,"
+   then named the four herself: "reggie, nursery borrowers puppets."
+   Opposite corner from the favorite star so the two never collide.
+
+   NOTE: only the Nursery and Reggie actually have the kidTalk prompt
+   restriction wired in everywhere (see gc-friend.js). Marion (Borrowers)
+   and the puppet family's own default speakers, Eli and Nell, do not --
+   Eli and Nell are written as adults on purpose and Wren was deliberately
+   spared the same flattening (see gc-friend.js's own note on that). This
+   badge is Dr. O's own curation call about which ROOMS suit a child, not
+   a claim that every word said in them is prompt-restricted the way the
+   Nursery's is -- flagged here rather than silently assumed to match. */
+.kid-badge{
+  position:absolute; top:.5rem; left:.5rem; z-index:2;
+  padding:.25rem .55rem; border-radius:999px;
+  background:rgba(20,16,12,.55); border:1px solid rgba(255,255,255,.4);
+  color:rgba(255,255,255,.9); font-family:var(--mono); font-size:.62rem;
+  letter-spacing:.06em; text-transform:uppercase; line-height:1;
+}
+
 /* ── the band ───────────────────────────────────────────────────────────── */
 .band{
   background:var(--panel);
@@ -708,7 +729,8 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
          this describes the feature instead of enumerating who currently
          has it. -->
     <p class="demos-note">Some come with family or friends of their own, other voices you'll
-       meet along the way.</p>
+       meet along the way. The ones marked <span class="kid-badge" style="position:static">Kids 10
+       &amp; under</span> are made to be simple and safe for a child to talk to on their own.</p>
     <!-- EACH CARD HOLDS TWO SEPARATE INTERACTIVE THINGS: the picture (goes
          to the room) and a play button (hears their voice, right here, no
          click-through). A <button> nested inside an <a> is invalid HTML
@@ -788,7 +810,8 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
          -- he belongs in this row, not the one above. -->
     <div class="demo-card">
       <a href="room.html?who=reggie">
-        <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt=""></div>
+        <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt="">
+          <span class="kid-badge">Kids 10 &amp; under</span></div>
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=reggie">Reggie, with friends</a>
@@ -864,7 +887,8 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     </div>
     <div class="demo-card">
       <a href="room.html?who=marion">
-        <div class="slot" data-label="photos/marion-portrait.png"><img src="photos/marion-portrait.png" alt=""></div>
+        <div class="slot" data-label="photos/marion-portrait.png"><img src="photos/marion-portrait.png" alt="">
+          <span class="kid-badge">Kids 10 &amp; under</span></div>
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=marion">Marion, a Borrower</a>
@@ -894,7 +918,8 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     </div>
     <div class="demo-card">
       <a href="room.html?who=puppets">
-        <div class="slot" data-label="photos/eli-happy.jpg"><img src="photos/eli-happy.jpg" alt=""></div>
+        <div class="slot" data-label="photos/eli-happy.jpg"><img src="photos/eli-happy.jpg" alt="">
+          <span class="kid-badge">Kids 10 &amp; under</span></div>
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=puppets">The Puppet Family</a>
@@ -984,7 +1009,8 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     </div>
     <div class="demo-card">
       <a href="room.html?who=nursery">
-        <div class="slot" data-label="photos/nursery-together.jpg"><img src="photos/nursery-together.jpg" alt=""></div>
+        <div class="slot" data-label="photos/nursery-together.jpg"><img src="photos/nursery-together.jpg" alt="">
+          <span class="kid-badge">Kids 10 &amp; under</span></div>
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=nursery">The Nursery</a>
