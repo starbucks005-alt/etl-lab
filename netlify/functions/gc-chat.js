@@ -1207,6 +1207,21 @@ exports.handler = async function (event) {
     'The five words are what somebody would see if they looked at you. Lower case, no full stop.',
   ].join('\n');
 
+  /* REAL LOOKUP, NOT JUST THE 10-HEADLINE DIGEST, added 2026-08-30, Dr. O
+     direct: "Marcus needs to be able to LOOK it up and respond, not ask
+     the user" (David asked about the Ohio governor's race; Marcus, with
+     nothing about it in his headlines digest, misread "race" as horses),
+     then widened the same turn: "truthfully, all of them can search" --
+     every companion, not Marcus alone. Same server-side tool
+     newswire-write-background.js already uses to research real articles.
+     Available every reply, but the MODEL decides per-turn whether a given
+     question actually needs it -- most replies are a conversation, not a
+     lookup, and never touch the tool at all, which is what keeps this
+     bounded rather than a flat per-reply cost multiplier. max_uses kept
+     well below the article-writing job's own 5: a conversational reply
+     needs one good search, not a research pass. */
+  const MAX_CHAT_WEB_SEARCHES = 3;
+
   let out;
   try {
     out = await client.messages.create({
@@ -1217,6 +1232,7 @@ exports.handler = async function (event) {
         { type: 'text', text: dynamicSystem },
       ],
       messages: turns,
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_CHAT_WEB_SEARCHES }],
     });
   } catch (err) {
     return json(502, { error: 'model_unreachable', detail: String(err && err.message || err).slice(0, 300) });
@@ -1238,7 +1254,13 @@ exports.handler = async function (event) {
     }
   }
 
-  let raw = (out.content?.[0]?.text || '').trim();
+  /* NOT content[0] ANY MORE. That was safe when every reply was a single
+     text block; a web_search turn (see wantsLookup above) puts
+     server_tool_use/web_search_tool_result blocks before the model's own
+     final text, so content[0] would grab a tool block with no .text and
+     raw would come back empty. Same fix, same reasoning, as
+     newswire-write-background.js's own identical extraction. */
+  let raw = (out.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
   let feelings = null, feltMood = null;
 
   const cut = raw.indexOf(FEEL_MARK);
