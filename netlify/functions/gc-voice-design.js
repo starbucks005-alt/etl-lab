@@ -65,12 +65,22 @@ exports.handler = async (event) => {
     const text = String(body.text || '').trim().slice(0, 1000);
     if (!voiceId) return json(400, { error: 'voice_id_required' });
     if (!text) return json(400, { error: 'text_required' });
+    /* speed, added 2026-08-30 for Meera's bio: "she speaks too slow."
+       ElevenLabs' own voice_settings.speed, 1.0 is the API default and
+       what every call here got before this, so omitting it (or passing
+       exactly 1) changes nothing for any other caller. Clamped to
+       ElevenLabs' own documented safe range. */
+    const rawSpeed = Number(body.speed);
+    const speed = (rawSpeed >= 0.7 && rawSpeed <= 1.2) ? rawSpeed : 1;
 
     let r, buf;
     try {
       r = await fetch(ELEVEN + '/v1/text-to-speech/' + encodeURIComponent(voiceId), {
         method: 'POST', headers,
-        body: JSON.stringify({ text, model_id: 'eleven_turbo_v2_5' }),
+        body: JSON.stringify({
+          text, model_id: 'eleven_turbo_v2_5',
+          voice_settings: { speed },
+        }),
       });
       if (!r.ok) {
         let detail = null;

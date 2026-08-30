@@ -89,16 +89,18 @@ const { getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-cred
    pooled ah_credits table, a real follow-up gap, not an oversight. */
 const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-companion-credits.js');
 const { ownerUser } = require('./_owner-auth.js');
-const { connectLambda, getStore } = require('@netlify/blobs');
+/* DUAL VISITOR+ADDRESS CAP, added 2026-08-30 -- same fix, same reasoning,
+   same shared ah_daily_usage pool as gc-chat.js's own identical comment.
+   A visitorId-only cap on the voice pool had the identical hole a
+   text-only one did: clear storage, get a fresh visitor id, the audio
+   pool looks untouched too. */
+const sherlockCap = require('./_sherlock-cap.js');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
 
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
-}
-function todayKey(visitorId) {
-  return `${visitorId}:${new Date().toISOString().slice(0, 10)}`;
 }
 
 exports.handler = async function (event) {
@@ -170,7 +172,7 @@ exports.handler = async function (event) {
   const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= AUDIO_MESSAGE_COST);
 
   let usingFreeDailyCap = false;
-  let dayKey = null;
+  let dailyCapResult = null;
 
   /* LOGGED, added 2026-08-19, same reasoning as gc-chat.js's own fix from
      the same day: a rejection here used to leave no trace at all, which is
@@ -185,20 +187,15 @@ exports.handler = async function (event) {
        See the file-level note above: this is not a second free allowance,
        it is audio spending down the same daily units text already does. */
     usingFreeDailyCap = true;
-    if (visitorId && serviceKey) {
-      try { connectLambda(event); } catch (_) {}
-      dayKey = todayKey(visitorId);
-      let usage = null;
-      try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
-      const countSoFar = (usage && usage.count) || 0;
-      if (countSoFar + AUDIO_MESSAGE_COST > DAILY_FREE_LIMIT) {
-        console.log(`[gc-voice] REJECTED daily_capped voice=${voiceId || '?'} count=${countSoFar} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
-        return json(200, { error: 'daily_capped', daily_capped: true, owner_key_rejected: ownerKeySentButRejected });
-      }
-    } else {
-      // No visitor id to meter against — cannot verify a free allowance exists, so no free audio.
-      console.log(`[gc-voice] REJECTED credits_exhausted (no visitor id) voice=${voiceId || '?'} owner_key_rejected=${ownerKeySentButRejected}`);
-      return json(200, { error: 'credits_exhausted', credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected });
+    dailyCapResult = await sherlockCap.check(event, 'ah_daily_usage', {
+      visitorId, perVisitor: DAILY_FREE_LIMIT, perAddress: DAILY_FREE_LIMIT * 4,
+    });
+    /* NEITHER A VISITOR ID NOR AN ADDRESS TO METER AGAINST -- keys.length
+       is 0 -- keeps the original behaviour: cannot verify a free allowance
+       exists, so no free audio, same as before this fix. */
+    if (!dailyCapResult.allowed || !dailyCapResult.keys.length) {
+      console.log(`[gc-voice] REJECTED daily_capped (${dailyCapResult.reason || 'no visitor id'}) voice=${voiceId || '?'} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
+      return json(200, { error: 'daily_capped', daily_capped: true, owner_key_rejected: ownerKeySentButRejected });
     }
   }
 
@@ -234,13 +231,8 @@ exports.handler = async function (event) {
       await deductCompanionCredits(accessToken, friendId, AUDIO_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && creditRef) {
       await deductCreditsByRef(creditRef, AUDIO_MESSAGE_COST, serviceKey);
-    } else if (usingFreeDailyCap && dayKey) {
-      try {
-        const usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' });
-        await getStore('ah_daily_usage').setJSON(dayKey, { count: ((usage && usage.count) || 0) + AUDIO_MESSAGE_COST });
-      } catch (err) {
-        console.error('gc-voice: daily usage increment failed (non-fatal):', err.message);
-      }
+    } else if (usingFreeDailyCap && dailyCapResult) {
+      await sherlockCap.bump(dailyCapResult, AUDIO_MESSAGE_COST);
     }
   }
 

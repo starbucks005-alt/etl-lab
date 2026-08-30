@@ -17,7 +17,6 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
 const web = require('./_gc-web.js');
 const when = require('./_gc-when.js');
-const { getStore, connectLambda } = require('@netlify/blobs');
 const { getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
 /* PER-COMPANION CREDITS, added 2026-08-28. A built/owned companion's
    credits now live in their own row (gc_companion_credits, keyed on
@@ -28,6 +27,19 @@ const { getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-cred
    per-companion credits yet, a real gap, not an oversight -- see the note
    further down where creditRef is actually used. */
 const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-companion-credits.js');
+/* DUAL VISITOR+ADDRESS CAP, added 2026-08-30. The free daily cap was keyed
+   on visitorId alone (localStorage), and David found the obvious hole:
+   clear site data, get a fresh random visitorId, the server sees a brand
+   new visitor with zero messages today. Already solved once on this
+   campus for the identical problem (Solve It With Sherlock, an
+   installs-we-do-not-control situation with the same "one device resets
+   itself in a loop" risk) -- reusing that module rather than writing a
+   second version of the same two-counter idea. perAddress stays well
+   above perVisitor so a shared campus or classroom connection is never
+   the thing that trips it during ordinary use; it only catches someone
+   actually cycling their own storage past what one real day of use looks
+   like. */
+const sherlockCap = require('./_sherlock-cap.js');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
 const { ownerUser } = require('./_owner-auth.js');
@@ -83,9 +95,6 @@ const GC_TESTER_KEYS = ['pookie-test-2026'];
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
-}
-function todayKey(visitorId) {
-  return `${visitorId}:${new Date().toISOString().slice(0, 10)}`;
 }
 
 /* REAL, LIVE HEADLINES FOR A FRIEND WHOSE JOB IS ACTUALLY KNOWING THE NEWS,
@@ -987,7 +996,7 @@ exports.handler = async function (event) {
   const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= TEXT_MESSAGE_COST);
 
   let usingFreeDailyCap = false;
-  let dayKey = null;
+  let dailyCapResult = null;
 
   if (!isOwner && !isTester && !hasCredits) {
     if (!isDemo) {
@@ -1008,17 +1017,19 @@ exports.handler = async function (event) {
       return json(200, { reply: null, credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected, mood: activeFriend.mood || null });
     }
     usingFreeDailyCap = true;
-    if (visitorId && serviceKey) {
-      try { connectLambda(event); } catch (_) {}
-      dayKey = todayKey(visitorId);
-      let usage = null;
-      try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
-      const countSoFar = (usage && usage.count) || 0;
-      if (countSoFar >= DAILY_FREE_LIMIT) {
-        if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
-        console.log(`[gc-chat] REJECTED daily_capped friend=${activeFriend.name || '?'} count=${countSoFar} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
-        return json(200, { reply: null, daily_capped: true, owner_key_rejected: ownerKeySentButRejected, mood: activeFriend.mood || null });
-      }
+    /* ah_daily_usage, NOT A NEW STORE: text and voice have shared this one
+       pool since gc-voice.js existed (AUDIO_MESSAGE_COST costs more of it
+       per reply, same budget) -- a different store name here would have
+       silently doubled everyone's real free allowance, one pool for text
+       and a second, separate one for voice. gc-voice.js gets the same
+       sherlock-cap fix so both keep sharing it. */
+    dailyCapResult = await sherlockCap.check(event, 'ah_daily_usage', {
+      visitorId, perVisitor: DAILY_FREE_LIMIT, perAddress: DAILY_FREE_LIMIT * 4,
+    });
+    if (!dailyCapResult.allowed) {
+      if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
+      console.log(`[gc-chat] REJECTED daily_capped (${dailyCapResult.reason}) friend=${activeFriend.name || '?'} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
+      return json(200, { reply: null, daily_capped: true, owner_key_rejected: ownerKeySentButRejected, mood: activeFriend.mood || null });
     }
   }
 
@@ -1222,13 +1233,8 @@ exports.handler = async function (event) {
       await deductCompanionCredits(accessToken, activeFriend.id, TEXT_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && creditRef) {
       await deductCreditsByRef(creditRef, TEXT_MESSAGE_COST, serviceKey);
-    } else if (usingFreeDailyCap && dayKey) {
-      try {
-        const usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' });
-        await getStore('ah_daily_usage').setJSON(dayKey, { count: ((usage && usage.count) || 0) + 1 });
-      } catch (err) {
-        console.error('gc-chat: daily usage increment failed (non-fatal):', err.message);
-      }
+    } else if (usingFreeDailyCap && dailyCapResult) {
+      await sherlockCap.bump(dailyCapResult);
     }
   }
 

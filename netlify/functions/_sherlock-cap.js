@@ -70,13 +70,17 @@ async function check(event, storeName, opts) {
   return { allowed: true, keys, store };
 }
 
-/* Increments after the work succeeded. Never throws into the caller. */
-async function bump(result) {
+/* Increments after the work succeeded. Never throws into the caller. amount,
+   added for Good Company's own voice replies (weighted heavier than a text
+   message, same pool), defaults to 1 so every existing caller here is
+   unaffected. */
+async function bump(result, amount) {
   if (!result || !result.store || !result.keys || !result.keys.length) return;
+  const n = amount || 1;
   for (const k of result.keys) {
     try {
       const row = await result.store.get(k.key, { type: 'json' });
-      await result.store.setJSON(k.key, { count: ((row && row.count) || 0) + 1 });
+      await result.store.setJSON(k.key, { count: ((row && row.count) || 0) + n });
     } catch (err) {
       console.error('[sherlock-cap] increment failed (non-fatal):', err.message);
     }
