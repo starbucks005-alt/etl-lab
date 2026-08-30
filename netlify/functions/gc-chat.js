@@ -37,14 +37,14 @@ const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-compan
    second version of the same two-counter idea.
 
    perAddress STARTED AT 4x perVisitor, TIGHTENED TO 2x THE SAME DAY.
-   David reset twice (2 x 15 = 30) and was still under the original 60-
-   unit ceiling -- not the fix failing, the fix working exactly as
-   configured, just with room to reset once before the backstop caught
-   him. Confirmed real abuse, not a hypothetical, so the buffer shrank.
-   2x still leaves a shared campus or classroom connection room for one
-   real reset (a shift change, a new class) without tripping during
-   ordinary use; it no longer leaves room for a second run at the free
-   cap on purpose. */
+   David (at home, not on a shared connection) reset twice (2 x 15 = 30)
+   and was still under the original 60-unit ceiling -- not the fix
+   failing, the fix working exactly as configured, just with room to
+   reset once before the backstop caught him. Confirmed real abuse, not a
+   hypothetical, so the buffer shrank. 2x still leaves genuinely shared
+   connections (a household, an office, a classroom) room for one real
+   reset without tripping during ordinary use; it no longer leaves room
+   for a second run at the free cap on purpose. */
 const sherlockCap = require('./_sherlock-cap.js');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;

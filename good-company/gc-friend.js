@@ -3436,7 +3436,7 @@ var GC_MEERA = {
   baselineFeelings: { happy: 55, sad: 15, fear: 10, disgust: 5, anger: 10, surprise: 20, curious: 55 },
   moodEmoji: '&#128330;',
   voice: ['Grounded', 'Warm', 'Direct'],
-  voiceId: 'XYfWcxd0jJece96Z98eV',
+  voiceId: 'oQeBs2hQbwq5LlUV8TtR',
   bioAudio: 'audio/meera-bio.mp3',
   talkingPoints: [
     'What actually happens in your body when you meditate?',
