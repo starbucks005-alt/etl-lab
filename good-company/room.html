@@ -2569,7 +2569,13 @@ function startCompanionCheckout(url, extra, friendOverride) {
    "ask Stripe, never trust the URL" reasoning as build.html's old
    ?friend-paid= handler (now removed there, since opening a room is free)
    -- this is its replacement, just for a real money event (subscribe or
-   top up) instead of a one-time unlock. */
+   top up) instead of a one-time unlock.
+
+   confirmingPayment, added 2026-08-30: a real global, not scoped inside
+   the IIFE below, so send() itself (Enter key, not just a click on the
+   now-disabled sendBtn) can see it too. Disabling sendBtn alone left the
+   Enter-key path wide open the whole time this fetch was in flight. */
+var confirmingPayment = false;
 (function () {
   var q = null;
   try { q = new URLSearchParams(location.search); } catch (e) {}
@@ -2583,6 +2589,18 @@ function startCompanionCheckout(url, extra, friendOverride) {
     : '/.netlify/functions/gc-companion-addon';
 
   try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&](companion-paid|companion-addon-paid)=[^&]*/, '').replace(/^&/, '?')); } catch (e) {}
+
+  /* SEND DISABLED UNTIL THIS RESOLVES, added 2026-08-30. David paid,
+     landed back in the room, and typed a message before this fetch had
+     saved his new access_token to localStorage -- GC_accessToken() still
+     read empty, gc-chat.js's credit check found no row to check against,
+     and it looked exactly like the payment had not registered even
+     though it had, a few hundred milliseconds too late. This confirmation
+     is the only place that token gets written for a first-time buyer, so
+     nothing should be able to talk to the room until it lands. */
+  confirmingPayment = true;
+  var sendBtn = $('sendBtn');
+  if (sendBtn) sendBtn.disabled = true;
 
   fetch(endpoint + '?session_id=' + encodeURIComponent(sessionId))
     .then(function (r) { return r.json(); })
@@ -2599,7 +2617,8 @@ function startCompanionCheckout(url, extra, friendOverride) {
         ? 'Credits with ' + FRIEND.name + ': ' + data.balance + '.'
         : 'That went through.');
     })
-    .catch(function () {});
+    .catch(function () {})
+    .then(function () { confirmingPayment = false; if (sendBtn) sendBtn.disabled = false; });
 })();
 
 /* ── SHOWING THEM SOMETHING ──────────────────────────────────────────────────
@@ -2706,6 +2725,12 @@ function send() {
      saying anything is a normal thing to do, so an empty box with something
      queued still sends. */
   if ((!v && !pending.length) || thinking) return;
+  /* confirmingPayment, see its own declaration above: David paid, sent a
+     message before the return trip had saved his new access_token, and
+     the room told him he had no credits for money it had already taken.
+     A few hundred milliseconds, blocked here so it can never happen
+     again regardless of which path (click or Enter) tried to send. */
+  if (confirmingPayment) return;
   /* Sending anything at all proves the composer intro already did its job,
      whether or not it was ever dismissed by hand. */
   if (!gcSeenComposerIntro()) gcDismissComposerIntro();
