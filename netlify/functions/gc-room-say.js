@@ -66,6 +66,13 @@ exports.handler = async function (event) {
      safeToken()/ownerUser(), same as every other caller of it. */
   const senderOwnerKey = String(body.owner_key || '').trim();
   const senderAccessToken = String(body.access_token || '').trim();
+  /* tester_key, added 2026-08-29 -- same real gap as senderOwnerKey/
+     senderAccessToken had before 2026-08-18: this function never passed a
+     tester key through to gc-chat.js at all, so gc-chat.js's isTester
+     bypass (added earlier tonight) only ever worked in a solo 1:1 chat,
+     never inside a shared room. Same trust boundary as the other two,
+     validated downstream by gc-chat.js's own GC_TESTER_KEYS check. */
+  const senderTesterKey = String(body.tester_key || '').trim();
 
   /* guest_cameo, ADDED 2026-08-19: "let's wire it into shared rooms too."
      Passed through raw, same trust boundary as owner_key/access_token
@@ -201,6 +208,7 @@ exports.handler = async function (event) {
            way past them. */
         owner_key: senderOwnerKey || undefined,
         access_token: senderAccessToken || undefined,
+        tester_key: senderTesterKey || undefined,
         guest_cameo: senderGuestCameo || undefined,
       }),
     });

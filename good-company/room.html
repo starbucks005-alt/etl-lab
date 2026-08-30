@@ -2609,6 +2609,11 @@ function sayInRoom(text) {
        speaker's. */
     body: JSON.stringify({
       seat_token: SEAT, message: text, owner_key: GC_ownerKey(), access_token: GC_accessToken(),
+      /* tester_key, added 2026-08-29 -- this was the real gap: gc-room-say.js
+         never received a tester key from any caller, solo chat's own fix
+         earlier tonight only ever reached ask(), never sayInRoom(). Same
+         reasoning as owner_key/access_token right above it. */
+      tester_key: GC_testerKey(),
       guest_cameo: roomSpeakerObj ? null : guestCameoCandidateFor(text || ''),
       /* friend_refresh, added 2026-08-25. Dr. O: Cal had a voice in Pookie's
          own solo chat with him but never spoke in this shared room. Root
