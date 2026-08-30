@@ -1008,6 +1008,26 @@ exports.handler = async function (event) {
   if (!isOwner && serviceKey) {
     if (!isDemo && accessToken && activeFriend.id) {
       creditsRow = await readCompanionCreditRow(accessToken, activeFriend.id, serviceKey);
+      /* POOLED FALLBACK FOR A BUILT COMPANION, added 2026-08-30, Dr. O
+         direct: "he cannot use his credits with Bud, his companion."
+         David had real pooled ah_credits (bought while sampling demos,
+         see the isDemo branch below) and a freshly built companion, Bud,
+         with no subscription of its own -- this companion's own row came
+         back empty, and until now that was simply the end of it, pooled
+         credits never even being checked for a non-demo friend. If the
+         companion's own balance cannot cover this reply, a real pooled
+         balance is allowed to instead, same as it already does for a
+         demo. THIS COMPANION'S OWN ROW IS TRIED FIRST, never skipped:
+         someone who has actually subscribed to a companion spends that
+         subscription down before ever touching their separate pooled
+         balance. */
+      if ((!creditsRow || creditsRow.balance < TEXT_MESSAGE_COST) && accessToken) {
+        const pooled = await getCreditRow(accessToken, serviceKey);
+        if (pooled && pooled.balance >= TEXT_MESSAGE_COST) {
+          creditsRow = pooled;
+          usingPooledCredits = true;
+        }
+      }
     } else if (isDemo && accessToken) {
       /* POOLED CREDITS FOR A DEMO, added 2026-08-30, David direct (via
          Dr. O): "he didn't buy the 4.99 for a companion, he bought it for

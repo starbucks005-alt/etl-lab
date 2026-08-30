@@ -167,6 +167,18 @@ exports.handler = async function (event) {
   if (!isOwner && serviceKey) {
     if (!isDemo && accessToken && friendId) {
       creditsRow = await readCompanionCreditRow(accessToken, friendId, serviceKey);
+      /* POOLED FALLBACK FOR A BUILT COMPANION -- see gc-chat.js's own
+         identical comment for the full reasoning (Bud, David's companion,
+         had no subscription of its own but David did have real pooled
+         credits). This companion's own row is tried first and only
+         skipped if it cannot cover this reply. */
+      if ((!creditsRow || creditsRow.balance < AUDIO_MESSAGE_COST) && accessToken) {
+        const pooled = await getCreditRow(accessToken, serviceKey);
+        if (pooled && pooled.balance >= AUDIO_MESSAGE_COST) {
+          creditsRow = pooled;
+          usingPooledCredits = true;
+        }
+      }
     } else if (isDemo && accessToken) {
       creditsRow = await getCreditRow(accessToken, serviceKey);
       if (creditsRow) usingPooledCredits = true;
