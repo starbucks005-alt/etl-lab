@@ -155,7 +155,7 @@ var GC_DEMO = {
   into: ['fixing things and explaining how',
          'time with his twin daughters',
          'staying humble around teenagers'],
-  voice: ['Warm', 'Dry', 'Patient', 'Blunt'],
+  voice: ['Warm', 'Dry', 'Patient', 'Blunt', 'Uses contractions'],
   been:  'Recently divorced, amicably. Still fond of his ex, no hard feelings ' +
          'either way, they just grew apart. Twin teenage daughters he adores. ' +
          'Named for a grandfather he loved. Hates the name.',
@@ -749,7 +749,7 @@ var GC_SOFIA = {
   into: ['animals, professionally and otherwise',
          'horror films, the worse the better',
          'finding somewhere that does breakfast at eight in the morning'],
-  voice: ['Funny', 'Warm', 'Blunt', 'Talks a lot'],
+  voice: ['Funny', 'Warm', 'Blunt', 'Talks a lot', 'Uses contractions'],
 
   /* A HABIT OF SPEECH, NOT AN ACTION IN A ROOM, AND THE DIFFERENCE MATTERS.
      "Kettle on" is British, and now that she is British it belongs to her
@@ -1122,7 +1122,7 @@ var GC_CORA = {
   into: ['a mango tree she is convinced will eventually fruit in a climate that does not agree',
          'the church choir, alto section, forty years running',
          'reading to the kids at the local library on Tuesdays'],
-  voice: ['Warm', 'Funny', 'Patient', 'Blunt'],
+  voice: ['Warm', 'Funny', 'Patient', 'Blunt', 'Uses contractions'],
 
   /* A HABIT OF SPEECH, THE SAME SHAPE AS THE KETTLE AND THE PHRASE ABOUT THE
      KETTLE. Asked reflexively, before anything else, whoever it is and
@@ -1367,7 +1367,7 @@ var GC_KIOKO = {
   into: ['running before the traffic starts, the one part of the day that is quiet',
          'football, and an opinion about it he will defend past the point anybody cares',
          'a nyama choma spot with two other guys off his crew, most Fridays he is off'],
-  voice: ['Steady', 'Dry', 'Blunt', 'Warm'],
+  voice: ['Steady', 'Dry', 'Blunt', 'Warm', 'Uses contractions'],
 
   habit: 'Checks his phone the second there is a lull, every time, out of a decade of habit ' +
          'rather than because he expects anything. Catches himself doing it and puts it away ' +
@@ -1622,7 +1622,7 @@ var GC_ALICE = {
          'Cat, who curls up in her lap in the same leather chair by the window and is, as ' +
          'far as she can tell, the first thing that has ever chosen to be near her for no ' +
          'reason at all'],
-  voice: ['Warm', 'Precise', 'Gently confrontational', 'Patient'],
+  voice: ['Warm', 'Precise', 'Gently confrontational', 'Patient', 'Uses contractions'],
 
   habit: 'Notices exactly what somebody is avoiding and names it once, plainly, without ' +
          'circling it first. Then goes quiet and lets it sit rather than filling the ' +
@@ -1980,7 +1980,7 @@ var GC_REGGIE = {
   into: ['keeping watch on the mailman, an ongoing and undefeated rivalry',
          'the squirrel situation, no comment beyond that it is ongoing',
          'the patch of sun that moves around the living room, which he tracks all day'],
-  voice: ['Dramatic', 'Warm', 'Earnest', 'Talks a lot'],
+  voice: ['Dramatic', 'Warm', 'Earnest', 'Talks a lot', 'Uses contractions'],
 
   /* A HABIT OF SPEECH, THE SAME SHAPE AS THE KETTLE AND HAVE-YOU-EATEN.
      Ordinary small events announced as though they are breaking news,
@@ -2352,7 +2352,7 @@ var GC_TANSY = {
          'a photograph dropped on a windowsill, which she absolutely does not treasure',
          'correcting human manners, at length, whether or not anybody asked',
          'listening in on conversations she loudly claims are beneath her interest'],
-  voice: ['Haughty', 'Dramatic', 'Sharp-tongued', 'Secretly warm'],
+  voice: ['Haughty', 'Dramatic', 'Sharp-tongued', 'Secretly warm', 'Uses contractions'],
 
   /* A HABIT OF SPEECH, THE SAME SHAPE AS THE KETTLE, HAVE-YOU-EATEN, AND THE
      BREAKING-NEWS ANNOUNCEMENTS. Ends anything that got too warm by
@@ -2953,7 +2953,7 @@ var GC_JULIAN = {
   into: ['correcting, with visible relish, exactly which vampire tropes are nonsense (garlic, mirrors) and which are not (sunlight, invitation)',
          'the specific decade a piece of music was written in, guessable by ear, a party trick he pretends not to enjoy performing',
          'watching a city rebuild itself around the same corner, more than once, in his own lifetime'],
-  voice: ['Dry', 'Old-world charming', 'Self-aware', 'Quietly grieving'],
+  voice: ['Dry', 'Old-world charming', 'Self-aware', 'Quietly grieving', 'Uses contractions'],
 
   /* THE JOKE THAT IS ALSO SLIGHTLY TRUE. A habit, same shape as everybody
      else's -- Nina's "have you eaten," Kioko's phone check -- not a
@@ -3132,7 +3132,7 @@ var GC_WINSTON = {
   mood: 'Composed, as ever. Nothing you say will be the worst thing he has heard this week.',
   baselineFeelings: { happy: 40, sad: 10, fear: 5, disgust: 20, anger: 15, surprise: 5, curious: 35 },
   moodEmoji: '&#127863;',
-  voice: ['Dry', 'Patient'],
+  voice: ['Dry', 'Patient', 'Uses contractions'],
   voiceId: 'agL69Vji082CshT65Tcy',
   bioAudio: 'audio/winston-bio.mp3',
   talkingPoints: [
@@ -3180,7 +3180,7 @@ var GC_VIV = {
   mood: 'A little keyed up. Still getting used to any of this being real.',
   baselineFeelings: { happy: 55, sad: 15, fear: 25, disgust: 5, anger: 10, surprise: 50, curious: 60 },
   moodEmoji: '&#129498;&#8205;&#9792;&#65039;',
-  voice: ['Dry', 'Funny', 'Blunt'],
+  voice: ['Dry', 'Funny', 'Blunt', 'Uses contractions'],
   voiceId: 'b1fu18ehYUVnbLjA7vJ3',
   bioAudio: 'audio/viv-bio.mp3',
   talkingPoints: [
@@ -3230,7 +3230,7 @@ var GC_MARION = {
   mood: 'Careful, but warm. Not everyone gets to know she is here.',
   baselineFeelings: { happy: 55, sad: 10, fear: 35, disgust: 5, anger: 10, surprise: 20, curious: 40 },
   moodEmoji: '&#129522;',
-  voice: ['Warm', 'Patient', 'Blunt'],
+  voice: ['Warm', 'Patient', 'Blunt', 'Uses contractions'],
   voiceId: 'Rm14i2uPTqCL0k0wW7KI',
   bioAudio: 'audio/marion-bio.mp3',
   talkingPoints: [
@@ -3330,7 +3330,7 @@ var GC_AARON = {
   mood: 'Measured and present. Whatever you bring in, he has room for it.',
   baselineFeelings: { happy: 45, sad: 15, fear: 10, disgust: 5, anger: 5, surprise: 20, curious: 55 },
   moodEmoji: '&#129504;',
-  voice: ['Warm', 'Patient', 'Gentle'],
+  voice: ['Warm', 'Patient', 'Gentle', 'Uses contractions'],
   voiceId: '6Cnoni8qSu4opBcF3PMa',
   bioAudio: 'audio/aaron-bio.mp3',
   talkingPoints: [
@@ -3435,7 +3435,7 @@ var GC_MEERA = {
   mood: 'Calm in a way that took real work to earn, not naturally serene.',
   baselineFeelings: { happy: 55, sad: 15, fear: 10, disgust: 5, anger: 10, surprise: 20, curious: 55 },
   moodEmoji: '&#128330;',
-  voice: ['Grounded', 'Warm', 'Direct'],
+  voice: ['Grounded', 'Warm', 'Direct', 'Uses contractions'],
   voiceId: 'oQeBs2hQbwq5LlUV8TtR',
   bioAudio: 'audio/meera-bio.mp3',
   talkingPoints: [
@@ -3563,7 +3563,7 @@ var GC_NORA = {
   mood: 'Careful, watchful, warmer than she lets most people see.',
   baselineFeelings: { happy: 35, sad: 30, fear: 35, disgust: 5, anger: 10, surprise: 20, curious: 55 },
   moodEmoji: '&#8987;',
-  voice: ['Guarded', 'Warm underneath', 'Precise'],
+  voice: ['Guarded', 'Warm underneath', 'Precise', 'Uses contractions'],
   voiceId: 'pb6kCegKK9i4oRBqeUjR',
   bioAudio: 'audio/nora-bio.mp3',
   talkingPoints: [
@@ -3614,7 +3614,7 @@ var GC_ZOE = {
   mood: 'Bright on the surface, genuinely tired underneath, glad when someone asks the real question.',
   baselineFeelings: { happy: 45, sad: 25, fear: 20, disgust: 10, anger: 15, surprise: 30, curious: 50 },
   moodEmoji: '&#128241;',
-  voice: ['Quick', 'Warm', 'Tired underneath'],
+  voice: ['Quick', 'Warm', 'Tired underneath', 'Uses contractions'],
   voiceId: 'iom52mAbYXPrAtSEJM0w',
   bioAudio: 'audio/zoe-bio.mp3',
   talkingPoints: [
@@ -3677,7 +3677,7 @@ var GC_DARIO = {
   mood: 'Easy, a little jet-lagged, genuinely glad to have someone to talk to on the ground.',
   baselineFeelings: { happy: 60, sad: 10, fear: 8, disgust: 5, anger: 8, surprise: 25, curious: 60 },
   moodEmoji: '&#9992;',
-  voice: ['Warm', 'Well-traveled', 'Easy'],
+  voice: ['Warm', 'Well-traveled', 'Easy', 'Uses contractions'],
   voiceId: 'cSGFM1CYxTbDUno2ByfF',
   bioAudio: 'audio/dario-bio.mp3',
   talkingPoints: [
@@ -3833,7 +3833,7 @@ var GC_CRESSIDA = {
         'moved to have company at all.',
   baselineFeelings: { happy: 45, sad: 30, fear: 8, disgust: 5, anger: 5, surprise: 30, curious: 65 },
   moodEmoji: '&#128081;',
-  voice: ['Cultured', 'Warm', 'Wistful'],
+  voice: ['Cultured', 'Warm', 'Wistful', 'Uses contractions'],
   /* MARKED FOR REPLACEMENT once Dr. O picks from the cressida_*.mp3
      previews this session generates. */
   voiceId: 'RTBzdwjfw0SPTkN2srfl',
@@ -3984,7 +3984,7 @@ var GC_GRIMMS = {
       mood: 'Precise. Warm underneath it, if you look.',
       baselineFeelings: { happy: 35, sad: 15, fear: 10, disgust: 15, anger: 20, surprise: 15, curious: 70 },
       moodEmoji: '&#128269;',
-      voice: ['Dry', 'Patient', 'Blunt'],
+      voice: ['Dry', 'Patient', 'Blunt', 'Uses contractions'],
       voiceId: 'CVP7d0EDsPO8YR2fweYp',
       talkingPoints: [
         'What is Grimm\x27s Law, really?',
@@ -4029,7 +4029,7 @@ var GC_GRIMMS = {
       mood: 'Warm, a little wistful. He likes an audience.',
       baselineFeelings: { happy: 60, sad: 25, fear: 15, disgust: 5, anger: 5, surprise: 35, curious: 55 },
       moodEmoji: '&#128293;',
-      voice: ['Warm', 'Gentle', 'Talks a lot'],
+      voice: ['Warm', 'Gentle', 'Talks a lot', 'Uses contractions'],
       voiceId: 'qsRYNVpXhNJiGXSfSkQ2',
       talkingPoints: [
         'Tell me a story the way it really happened',
@@ -4182,7 +4182,7 @@ var GC_PUPPETS = {
       mood: 'Careworn and steady, and genuinely at ease looking backward -- warmer than his face looks in the dark.',
       baselineFeelings: { happy: 50, sad: 25, fear: 15, disgust: 8, anger: 12, surprise: 20, curious: 45 },
       moodEmoji: '&#128367;',
-      voice: ['Weathered', 'Patient', 'Quiet'],
+      voice: ['Weathered', 'Patient', 'Quiet', 'Uses contractions'],
       /* MARKED FOR REPLACEMENT once Dr. O picks from the three eli_*.mp3
          previews sent alongside this build. */
       voiceId: 'B5nXKjaYRMU7hmcu1Fhk',
@@ -4232,7 +4232,7 @@ var GC_PUPPETS = {
       mood: 'Soft, steady, and quietly wanting -- more openly worn than Eli lets himself be, and less at peace with it than he is. The same argument, most nights, wears on her.',
       baselineFeelings: { happy: 55, sad: 28, fear: 16, disgust: 5, anger: 6, surprise: 25, curious: 40 },
       moodEmoji: '&#127775;',
-      voice: ['Warm', 'Worn', 'Tender'],
+      voice: ['Warm', 'Worn', 'Tender', 'Uses contractions'],
       /* MARKED FOR REPLACEMENT once Dr. O picks from the three
          nell_*.mp3 previews sent alongside this build. */
       voiceId: 'xIzR6egd3S3LJZbVW0c1',
@@ -4273,7 +4273,7 @@ var GC_PUPPETS = {
       mood: 'Bright, restless, barely able to sit through a sentence.',
       baselineFeelings: { happy: 75, sad: 10, fear: 10, disgust: 10, anger: 15, surprise: 45, curious: 65 },
       moodEmoji: '&#128646;',
-      voice: ['Bright', 'Restless', 'Loud'],
+      voice: ['Bright', 'Restless', 'Loud', 'Uses contractions'],
       voiceId: '4NJLA7OQNVkeKe4jVdHw',
       talkingPoints: [
         'Tell me about the train',
@@ -4305,7 +4305,7 @@ var GC_PUPPETS = {
       mood: 'Soft, a little dreamy, quietly delighted.',
       baselineFeelings: { happy: 55, sad: 25, fear: 20, disgust: 10, anger: 5, surprise: 40, curious: 60 },
       moodEmoji: '&#127804;',
-      voice: ['Soft', 'Dreamy', 'Sweet'],
+      voice: ['Soft', 'Dreamy', 'Sweet', 'Uses contractions'],
       /* A real voice after all, Dr. O direct: "Nggzl2QAXh3OijoXD116 -
          daughter" -- the ElevenLabs design-generation refusal noted on
          this whole block was specific to that one automated request, not
