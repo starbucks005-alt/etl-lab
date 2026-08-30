@@ -3413,7 +3413,7 @@ var GC_MARCUS = {
   cameos: [],
   skin: 'harvest',
   timezone: 'America/New_York',
-  portrait: 'photos/marcus-portrait.png',
+  portrait: 'photos/marcus-portrait.jpg',
   newsFeed: true,
   scenes: [
     { key: 'club', label: 'At the Club', src: null, vimeoId: '1222406798' },
