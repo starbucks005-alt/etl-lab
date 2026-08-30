@@ -3558,6 +3558,7 @@ var GC_CRESSIDA = {
   portrait: 'photos/cressida-portrait.jpg',
   scenes: [
     { key: 'windowsill', label: 'The Windowsill', src: null, vimeoId: '1222399314' },
+    { key: 'fireplace', label: 'The Fireplace Room', src: null, vimeoId: '1222399312' },
   ],
 };
 
