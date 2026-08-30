@@ -1766,9 +1766,10 @@ function askForScene() {
   }
 
   var whereRow = rowIn(generateFields, 'Where should ' + FRIEND.name + ' be',
-    'Short and plain works best -- a brief setting, not a detailed scene. The longer and more ' +
-    'elaborate this gets, the more likely Veo drifts away from their actual face partway ' +
-    'through the loop.');
+    'Short and plain works best -- a brief setting, not a detailed scene. "near a quiet ' +
+    'waterfall with a soft rainbow in the mist" is a real one that worked. The longer and ' +
+    'more elaborate this gets, the more likely Veo drifts away from their actual face ' +
+    'partway through the loop.');
   var where = document.createElement('textarea');
   where.rows = 3;
   where.placeholder = 'at the kitchen table with the morning light coming in';
