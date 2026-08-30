@@ -3692,7 +3692,7 @@ var GC_DARIO = {
   portraitWide: 'photos/dario-wide.jpg',
   scenes: [
     { key: 'terrace', label: 'Golden Hour', src: null, vimeoId: '1222461794' },
-    { key: 'rome', label: 'In Rome', src: null, vimeoId: '1222491552' },
+    { key: 'rome', label: 'In Rome', src: null, vimeoId: '1222491552', thumb: 'photos/dario-rome.jpg' },
     { key: 'tokyo', label: 'Tokyo Cafe', src: null, vimeoId: '1222491550', thumb: 'photos/dario-tokyo-cafe.jpg' },
   ],
   /* IT WAS MEANT TO BE A SCENE AND COULD NOT BE ONE, same reasoning as

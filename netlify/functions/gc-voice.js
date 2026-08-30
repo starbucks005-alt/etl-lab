@@ -188,7 +188,7 @@ exports.handler = async function (event) {
        it is audio spending down the same daily units text already does. */
     usingFreeDailyCap = true;
     dailyCapResult = await sherlockCap.check(event, 'ah_daily_usage', {
-      visitorId, perVisitor: DAILY_FREE_LIMIT, perAddress: DAILY_FREE_LIMIT * 4,
+      visitorId, perVisitor: DAILY_FREE_LIMIT, perAddress: DAILY_FREE_LIMIT * 2,
     });
     /* NEITHER A VISITOR ID NOR AN ADDRESS TO METER AGAINST -- keys.length
        is 0 -- keeps the original behaviour: cannot verify a free allowance

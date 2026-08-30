@@ -34,11 +34,17 @@ const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-compan
    campus for the identical problem (Solve It With Sherlock, an
    installs-we-do-not-control situation with the same "one device resets
    itself in a loop" risk) -- reusing that module rather than writing a
-   second version of the same two-counter idea. perAddress stays well
-   above perVisitor so a shared campus or classroom connection is never
-   the thing that trips it during ordinary use; it only catches someone
-   actually cycling their own storage past what one real day of use looks
-   like. */
+   second version of the same two-counter idea.
+
+   perAddress STARTED AT 4x perVisitor, TIGHTENED TO 2x THE SAME DAY.
+   David reset twice (2 x 15 = 30) and was still under the original 60-
+   unit ceiling -- not the fix failing, the fix working exactly as
+   configured, just with room to reset once before the backstop caught
+   him. Confirmed real abuse, not a hypothetical, so the buffer shrank.
+   2x still leaves a shared campus or classroom connection room for one
+   real reset (a shift change, a new class) without tripping during
+   ordinary use; it no longer leaves room for a second run at the free
+   cap on purpose. */
 const sherlockCap = require('./_sherlock-cap.js');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
@@ -1024,7 +1030,7 @@ exports.handler = async function (event) {
        and a second, separate one for voice. gc-voice.js gets the same
        sherlock-cap fix so both keep sharing it. */
     dailyCapResult = await sherlockCap.check(event, 'ah_daily_usage', {
-      visitorId, perVisitor: DAILY_FREE_LIMIT, perAddress: DAILY_FREE_LIMIT * 4,
+      visitorId, perVisitor: DAILY_FREE_LIMIT, perAddress: DAILY_FREE_LIMIT * 2,
     });
     if (!dailyCapResult.allowed) {
       if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
