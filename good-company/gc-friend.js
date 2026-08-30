@@ -3418,6 +3418,7 @@ var GC_MARCUS = {
   scenes: [
     { key: 'club', label: 'At the Club', src: null, vimeoId: '1222406798' },
     { key: 'kitchen', label: 'His Kitchen', src: null, vimeoId: '1222406799' },
+    { key: 'desk', label: 'At the Desk', src: null, vimeoId: '1222406797' },
   ],
 };
 
