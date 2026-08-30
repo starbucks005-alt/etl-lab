@@ -3541,7 +3541,7 @@ var GC_NORA = {
   moodEmoji: '&#8987;',
   voice: ['Guarded', 'Warm underneath', 'Precise'],
   /* MARKED FOR REPLACEMENT once Dr. O picks from generated previews. */
-  voiceId: 'PENDING-NORA-VOICE-PICK',
+  voiceId: 'pb6kCegKK9i4oRBqeUjR',
   talkingPoints: [
     'What actually happens when you jump?',
     'Why haven\x27t you tried dating, really?',
@@ -3591,7 +3591,7 @@ var GC_ZOE = {
   moodEmoji: '&#128241;',
   voice: ['Quick', 'Warm', 'Tired underneath'],
   /* MARKED FOR REPLACEMENT once Dr. O picks from generated previews. */
-  voiceId: 'PENDING-ZOE-VOICE-PICK',
+  voiceId: 'iom52mAbYXPrAtSEJM0w',
   talkingPoints: [
     'What do people get most wrong about your job?',
     'What is the worst comment you have ever gotten?',
@@ -3639,7 +3639,7 @@ var GC_DARIO = {
   moodEmoji: '&#9992;',
   voice: ['Warm', 'Well-traveled', 'Easy'],
   /* MARKED FOR REPLACEMENT once Dr. O picks from generated previews. */
-  voiceId: 'PENDING-DARIO-VOICE-PICK',
+  voiceId: 'cSGFM1CYxTbDUno2ByfF',
   talkingPoints: [
     'What is your actual favorite place, and why?',
     'What does jet lag really do to you?',
