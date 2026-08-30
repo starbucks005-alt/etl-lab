@@ -647,7 +647,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera'];
 
 var GC_WHO = (function () {
   var q = null;
@@ -3432,8 +3432,7 @@ var GC_MEERA = {
   baselineFeelings: { happy: 55, sad: 15, fear: 10, disgust: 5, anger: 10, surprise: 20, curious: 55 },
   moodEmoji: '&#128330;',
   voice: ['Grounded', 'Warm', 'Direct'],
-  /* MARKED FOR REPLACEMENT once Dr. O picks from generated previews. */
-  voiceId: 'PENDING-MEERA-VOICE-PICK',
+  voiceId: 'XYfWcxd0jJece96Z98eV',
   talkingPoints: [
     'What actually happens in your body when you meditate?',
     'What made you finally quit law?',
@@ -3442,8 +3441,7 @@ var GC_MEERA = {
   cameos: [],
   skin: 'harvest',
   timezone: 'America/Chicago',
-  /* MARKED FOR REPLACEMENT -- no photo supplied yet. */
-  portrait: null,
+  portrait: 'photos/meera-portrait.jpg',
   scenes: [],
 };
 
@@ -4264,7 +4262,7 @@ var GC_PUPPETS = {
   },
 };
 
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA };
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA };
 
 /* ?who=eli AND ?who=nell BOTH OPEN THE SAME SHARED ROOM, same reasoning as
    GC_GRIMMS's own jacob/wilhelm aliases just below. */
