@@ -1818,34 +1818,59 @@ function askForScene() {
   thumbInput.type = 'file'; thumbInput.accept = 'image/*';
   thumbRow.appendChild(thumbInput);
 
-  var photoRow = rowIn(ownFields, 'Or a photo to work from instead',
-    'Optional. Veo will animate THIS photo instead of the one ' + FRIEND.name + ' was built with -- ' +
-    'a different pose, a different room, whatever you would rather it started from.');
+  /* SOURCE PHOTO, MOVED HERE 2026-08-30 FROM THE VIMEO ROW, Dr. O direct:
+     "when you generate the scene there is no way to point to the still
+     and also say the text box 'loop'." Two real gaps in one sentence --
+     this capability belonged under Generate, not tucked inside Insert
+     Vimeo ID where it read like an unrelated bonus field, AND it could
+     only ever take a fresh upload, never one of the stills already sitting
+     in this same companion's own scene bar (an Images > Generate result,
+     or a free Just-a-photo upload) -- David wanted exactly that: point at
+     a still he already has, describe the loop, pay $4.99. where above
+     already asks the loop question for every Generate order now, photo or
+     not, so nothing extra is needed there -- just a source. */
+  var sourceRow = rowIn(generateFields, 'Starting from (optional)',
+    'Defaults to ' + FRIEND.name + "'s own picture. Pick one of the stills already added below, " +
+    'or upload a different photo -- Veo animates whichever one this points to.');
+  var sourceSelect = document.createElement('select');
+  sourceSelect.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                               'background:var(--paper);color:var(--ink);border-radius:3px;margin-bottom:.5rem';
+  var sourceDefaultOpt = document.createElement('option');
+  sourceDefaultOpt.value = ''; sourceDefaultOpt.textContent = FRIEND.name + "'s own picture";
+  sourceSelect.appendChild(sourceDefaultOpt);
+  (GC_BUILT.scenes || []).forEach(function (s, i) {
+    if (!s || !s.still) return;
+    var opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = s.label || 'A picture';
+    sourceSelect.appendChild(opt);
+  });
+  sourceRow.appendChild(sourceSelect);
   var photoInput = document.createElement('input');
   photoInput.type = 'file'; photoInput.accept = 'image/*';
-  photoRow.appendChild(photoInput);
+  sourceRow.appendChild(photoInput);
+  /* Choosing one clears the other -- picking an existing still while a
+     fresh file still sits in the upload input (or the reverse) would
+     leave it ambiguous which one actually gets sent. */
+  sourceSelect.addEventListener('change', function () { if (sourceSelect.value) photoInput.value = ''; });
+  photoInput.addEventListener('change', function () { if (photoInput.files.length) sourceSelect.value = ''; });
 
-  /* WHAT SHOULD HAPPEN IN IT, added 2026-08-30, Dr. O direct: "when you
-     upload the still image and want to turn it into a scene you do not
-     have the opportunity to say 'endless loop' etc." Real gap: the ONLY
-     description field on this whole panel lived in generateFields, hidden
-     the moment "I already have one" was picked, so a photo-to-animate
-     order went to gc-scene.js with nothing describing the loop at all --
-     silently failing there (where_required) rather than ever surfacing
-     the problem here. Its own field rather than un-hiding the generate
-     one: that field's placeholder and label ask "where should FRIEND be,"
-     which is the wrong question for a photo somebody already has -- this
-     one asks what to describe about it instead. */
-  var ownWhereRow = rowIn(ownFields, 'What should happen in it',
-    'Only needed if you gave a photo above. Just the setting, plain -- the loop, the camera, ' +
-    'and everything else is already handled for you, the same as when you describe a scene ' +
-    'from scratch.');
-  var ownWhere = document.createElement('textarea');
-  ownWhere.rows = 3;
-  ownWhere.placeholder = 'near a cascading waterfall with a rainbow in the mist';
-  ownWhere.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
-                           'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
-  ownWhereRow.appendChild(ownWhere);
+  /* A STILL ALREADY ON THIS DEVICE, TURNED BACK INTO BASE64. scene.still
+     is either a data: URL (a free upload or an Images > Generate result
+     wired in locally) or, for an Images > Generate delivery, the live
+     gc-image.js URL it was delivered from -- either way this is the one
+     place that has to tell those two shapes apart before Veo can use it. */
+  function stillToBase64(dataUrlOrUrl) {
+    if (/^data:/.test(dataUrlOrUrl)) return Promise.resolve(dataUrlOrUrl);
+    return fetch(dataUrlOrUrl).then(function (r) { return r.blob(); }).then(function (blob) {
+      return new Promise(function (resolve, reject) {
+        var r = new FileReader();
+        r.onload = function () { resolve(String(r.result || '')); };
+        r.onerror = function () { reject(new Error('could not read that picture')); };
+        r.readAsDataURL(blob);
+      });
+    });
+  }
 
   /* JUST A PHOTO -- a plain still, no Veo, no render, no charge. Same free,
      instant, client-only wiring as the Vimeo path above: writes straight
@@ -1981,6 +2006,10 @@ function askForScene() {
     }
 
     if (mode === 'generate') {
+      /* w covers both a from-scratch description AND the loop description
+         for an existing/uploaded source photo now that the source picker
+         lives in this same section -- one field, one question, answered
+         once, whichever way the still gets there. */
       if (!w) { where.focus(); return; }
     } else if (mode === 'photo') {
       if (!stillOnlyInput.files.length) {
@@ -1988,19 +2017,8 @@ function askForScene() {
         return;
       }
     } else {
-      if (!vimeoMatch && !photoInput.files.length) {
-        note.textContent = 'Paste a Vimeo link, or choose a photo -- at least one.';
-        return;
-      }
-      /* CAUGHT HERE, NOT DISCOVERED AT FULFILLMENT, added 2026-08-30
-         alongside ownWhere above. A photo with nothing describing what
-         happens to it used to reach gc-scene.js as a paid order with an
-         empty where, which it has always rejected (where_required) -- so
-         the order sat there, taken and unmade, exactly the failure mode
-         the whole automation this same day was built to close. */
-      if (photoInput.files.length && !ownWhere.value.trim()) {
-        ownWhere.focus();
-        note.textContent = 'Say what should happen in it -- Veo needs a description to work from.';
+      if (!vimeoMatch) {
+        note.textContent = 'Paste a Vimeo link or id.';
         return;
       }
     }
@@ -2085,27 +2103,25 @@ function askForScene() {
       return;
     }
 
-    Promise.all([readAsBase64(photoInput), readAsBase64(thumbInput)]).then(function (files) {
+    /* THE SOURCE, RESOLVED ONCE, added 2026-08-30 alongside sourceSelect
+       above -- a picked existing still (possibly a live gc-image.js URL,
+       see stillToBase64's own note) or a freshly uploaded file, either
+       one turned into the same base64 shape gc-scene-order.js has always
+       taken as own_photo. Neither picked: falls through to plain
+       from-scratch generation, exactly as before this existed. */
+    var sourcePromise = sourceSelect.value
+      ? stillToBase64(GC_BUILT.scenes[Number(sourceSelect.value)].still)
+      : readAsBase64(photoInput);
+
+    sourcePromise.then(function (sourceDataUrl) {
     var body = {
       portrait: FRIEND.portrait,
       friend: { name: FRIEND.name, gender: FRIEND.gender },
       from: from.value.trim(),
+      where: w,
+      aspect: sceneAspect,
     };
-    if (mode === 'generate') {
-      body.where = w;
-      body.aspect = sceneAspect;
-    } else {
-      body.mode = 'own';
-      /* ownWhere, NOT w, added 2026-08-30 -- see ownWhere's own note above.
-         w comes from generateFields' hidden textarea, which is never shown
-         in 'own' mode and was quietly sending whatever it happened to
-         still hold (usually nothing) as the description Veo needed to
-         actually animate an uploaded photo. */
-      body.where = ownWhere.value.trim();
-      if (vimeoMatch) body.own_vimeo_id = vimeoMatch[1];
-      if (files[0]) body.own_photo = files[0];
-      if (files[1]) body.own_thumb = files[1];
-    }
+    if (sourceDataUrl) { body.mode = 'own'; body.own_photo = sourceDataUrl; }
 
     fetch('/.netlify/functions/gc-scene-order', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -2156,6 +2172,9 @@ function askForScene() {
       send.disabled = false; send.textContent = 'Try again';
       note.textContent = 'Could not reach it. ' + err.message;
     });
+    }).catch(function (err) {
+      send.disabled = false; send.textContent = 'Try again';
+      note.textContent = 'Could not read that picture. ' + err.message;
     });
   });
   host.appendChild(send);
