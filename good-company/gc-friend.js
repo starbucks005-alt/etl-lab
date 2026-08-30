@@ -3415,9 +3415,10 @@ var GC_MARCUS = {
   timezone: 'America/New_York',
   portrait: 'photos/marcus-portrait.png',
   newsFeed: true,
-  /* MARKED FOR REPLACEMENT -- no scenes shot for him yet. He can go live
-     with just the portrait; scenes are a pure add-on whenever they exist. */
-  scenes: [],
+  scenes: [
+    { key: 'club', label: 'At the Club', src: null, vimeoId: '1222406798' },
+    { key: 'kitchen', label: 'His Kitchen', src: null, vimeoId: '1222406799' },
+  ],
 };
 
 /* THEO, added 2026-08-29, Dr. O direct: "a male companion that will help
