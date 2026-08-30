@@ -370,6 +370,14 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
   if (f.voice && f.voice.length) {
     bits.push(`How you talk: ${Array.isArray(f.voice) ? f.voice.join(', ').toLowerCase() : f.voice}.`);
   }
+  /* A CHILD'S TOY, TALKING LIKE ONE, added 2026-08-30 for the Nursery. The
+     "short simple sentences" voice line alone was not enough on its own --
+     live testing had Bramble and Pearl asking Dr. O whether her real
+     grandchildren "live close by, or is it more of a visit situation" and
+     how often she sees them, a curious-adult social question no toy would
+     think to ask. This is content, not style, so it needs its own line,
+     placed right after voice for the same reason: last is what survives. */
+  if (f.kidTalk) bits.push(f.kidTalk);
 
   /* WHO THEY ARE TALKING TO, and the pronouns were asked for, never guessed. */
   /* USE THEIR NAME. Dr. O, 2026-08-16, and it is worth more than it looks.
