@@ -3251,15 +3251,21 @@ var GC_MARION = {
     "What's the scariest close call you've ever had?",
   ],
   /* THE REST OF THE FAMILY, cameos, narrated rather than voiced for now --
-     five real ElevenLabs picks in one sitting is how Marion herself never
+     four real ElevenLabs picks in one sitting is how Marion herself never
      gets talked to at all. Same shape Gus (Reggie's dog) already uses:
      voiceId: null tells gc-chat.js/room.html to show the line as
      description, not a spoken quote. Any of them can get a real voice
-     later without touching this shape. */
+     later without touching this shape.
+
+     FAMILY SIZE CORRECTED 2026-08-30, Dr. O direct: "the borrowers only
+     has two kids and a husband/wife granddad/grandma." Walter and Edith
+     are that grandparent couple (reading aloud and knitting, both
+     grandparently activities in the story-time scene below); Sam and
+     Daisy are the two kids. Henry, a third kid-coded name that only ever
+     showed up in the fishing scene, was the extra one and is removed. */
   cameos: [
     { name: 'Walter', voiceId: 'MKlLqCItoCkvdhrxgtLv' },
     { name: 'Edith', voiceId: 'YHcCpa6SBWnKDaCPZJQR' },
-    { name: 'Henry', voiceId: 'Nov35cZOAeYofDhYHMnI' },
     { name: 'Sam', voiceId: 'wcIrsZmi758yTtAxuW4l' },
     { name: 'Daisy', voiceId: 'pPdl9cQBQq4p6mRkZy2Z' },
   ],
@@ -3286,7 +3292,7 @@ var GC_MARION = {
       where: 'The same kitchen, Marion herself at work in it.' },
     { key: 'fishing', label: 'Fishing Tadpoles', src: null, vimeoId: '1222250192',
       thumb: 'photos/marion-thumb-fishing.jpeg',
-      where: 'A stream near the house, Henry and Sam fishing for tadpoles off the rocks, the ' +
+      where: 'A stream near the house, Sam and Daisy fishing for tadpoles off the rocks, the ' +
              'closest thing to a real fish either of them will ever land.' },
     { key: 'movie', label: 'Movie Time', src: null, vimeoId: '1222249479',
       thumb: 'photos/marion-thumb-movie.png',
