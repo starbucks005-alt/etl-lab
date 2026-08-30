@@ -3556,7 +3556,9 @@ var GC_CRESSIDA = {
   skin: 'seaside',
   timezone: 'Europe/London',
   portrait: 'photos/cressida-portrait.jpg',
-  scenes: [],
+  scenes: [
+    { key: 'windowsill', label: 'The Windowsill', src: null, vimeoId: '1222399314' },
+  ],
 };
 
 /* JACOB & WILHELM GRIMM, added 2026-08-29, Dr. O direct: "a riff off the
