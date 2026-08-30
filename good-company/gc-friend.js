@@ -647,7 +647,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida'];
 
 var GC_WHO = (function () {
   var q = null;
@@ -3425,10 +3425,10 @@ var GC_MARCUS = {
    Aaron was: real, lived credibility rather than natural gift -- he was
    genuinely invisible in his twenties, learned menswear on a retail floor
    because it paid, and only slowly figured out that the actual fix was
-   never the clothes. HELD BACK ON PURPOSE, same as GC_PUPPETS was before
-   its voices landed: no portrait, no voiceId, no scenes yet. Not
-   registered in GC_DEMOS/GC_DEMO_IDS below until Dr. O supplies a photo
-   and picks a voice from the previews this session generates.
+   never the clothes. Real portrait (photos/theo-portrait.jpg) and real,
+   permanent ElevenLabs voice (gsr4awIbA0nfkChHUnvP, her pick from three
+   generated previews) both landed the same session; no scenes shot for
+   him yet, which is fine, he can go live on the portrait alone.
 
    THE ONE GUARDRAIL BUILT IN AS CONTENT, NOT AS A BOLTED-ON CAVEAT: his
    actual expertise is fit, color, and genuine presence, never lines or
@@ -3474,7 +3474,7 @@ var GC_THEO = {
   voice: ['Warm', 'Direct', 'Grounded'],
   /* MARKED FOR REPLACEMENT once Dr. O picks from the theo_*.mp3 previews
      this session generates. */
-  voiceId: 'PENDING-THEO-VOICE-PICK',
+  voiceId: 'gsr4awIbA0nfkChHUnvP',
   talkingPoints: [
     'What should I actually wear this weekend?',
     'How do I start a conversation without a script?',
@@ -3483,8 +3483,7 @@ var GC_THEO = {
   cameos: [],
   skin: 'harvest',
   timezone: 'America/Chicago',
-  /* MARKED FOR REPLACEMENT -- no photo supplied yet. */
-  portrait: null,
+  portrait: 'photos/theo-portrait.jpg',
   scenes: [],
 };
 
@@ -3504,9 +3503,11 @@ var GC_THEO = {
    reminiscing, she is the last lady of her family's house, still there a
    century after her own death, same emotional register as GC_PUPPETS --
    company as the antidote to a very long loneliness, just measured in a
-   hundred years instead of a single night. HELD BACK ON PURPOSE, same as
-   Theo above: no portrait, no voiceId, no scenes yet, not registered
-   until both land. */
+   hundred years instead of a single night. Real portrait
+   (photos/cressida-portrait.jpg) and real, permanent ElevenLabs voice
+   (RTBzdwjfw0SPTkN2srfl, the hollower of two picks -- fitting, given what
+   she actually is) both landed the same session; no scenes shot for her
+   yet, which is fine, she can go live on the portrait alone. */
 var GC_CRESSIDA = {
   premise: 'Cressida was the last lady of Thornfield Grange, wealthy and celebrated in the ' +
            'final golden summer before the First World War changed everything -- and she never ' +
@@ -3545,7 +3546,7 @@ var GC_CRESSIDA = {
   voice: ['Cultured', 'Warm', 'Wistful'],
   /* MARKED FOR REPLACEMENT once Dr. O picks from the cressida_*.mp3
      previews this session generates. */
-  voiceId: 'PENDING-CRESSIDA-VOICE-PICK',
+  voiceId: 'RTBzdwjfw0SPTkN2srfl',
   talkingPoints: [
     'What was that last summer actually like?',
     'What does a hundred years alone in one house do to a person?',
@@ -3554,8 +3555,7 @@ var GC_CRESSIDA = {
   cameos: [],
   skin: 'seaside',
   timezone: 'Europe/London',
-  /* MARKED FOR REPLACEMENT -- no photo supplied yet. */
-  portrait: null,
+  portrait: 'photos/cressida-portrait.jpg',
   scenes: [],
 };
 
@@ -4022,7 +4022,7 @@ var GC_PUPPETS = {
   },
 };
 
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS };
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA };
 
 /* ?who=eli AND ?who=nell BOTH OPEN THE SAME SHARED ROOM, same reasoning as
    GC_GRIMMS's own jacob/wilhelm aliases just below. */
