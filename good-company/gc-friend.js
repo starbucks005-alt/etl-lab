@@ -3447,6 +3447,18 @@ var GC_MEERA = {
     { key: 'tea', label: 'Tea on the Porch', src: null, vimeoId: '1222457850' },
     { key: 'meditation', label: 'In Meditation', src: null, vimeoId: '1222457848' },
   ],
+  /* IT WAS MEANT TO BE A SCENE AND COULD NOT BE ONE, same reasoning as
+     Arch's own album entry that first established this pattern: Dr. O
+     sent these two rendered as video when she meant to get stills, and
+     did not want them wasted rather than reshot. Local files, not Vimeo
+     -- album.html only ever reads a local src, no vimeoId support there
+     at all, unlike scenes. */
+  album: [
+    { src: 'video/meera-tea-album.mp4', on: 'Added when she joined',
+      caption: 'On the porch with a cup of tea, looking out at the valley.' },
+    { src: 'video/meera-yoga-album.mp4', on: 'Added when she joined',
+      caption: 'Mid-practice, same porch.' },
+  ],
 };
 
 var GC_MARCUS = {
