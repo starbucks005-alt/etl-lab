@@ -354,7 +354,10 @@ function startWith(item) {
      before anyone sits down. Without it a catalog-started copy opened to a
      blank doorstep instead of the scene-setting text a direct ?who= link
      already carries. */
-  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes','notTheTherapist','turnOrder','companions','premise']
+  /* newsFeed, added the same day for Marcus Reyes -- without it a
+     catalog-started copy silently loses the real, live ETL Newswire
+     wiring and goes back to bluffing about current events. */
+  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes','notTheTherapist','turnOrder','companions','premise','newsFeed']
     .forEach(function (k) { if (item[k] !== undefined) friend[k] = item[k]; });
   friend.catalogSourceId = item.id;
   friend.id = GC_newFriendId();

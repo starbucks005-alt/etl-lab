@@ -73,6 +73,13 @@ const CATALOG_FIELDS = [
      catalog-started copy would open to a blank doorstep instead of the
      scene-setting text every direct ?who= link already gets. */
   'premise',
+  /* newsFeed, added 2026-08-29 for Marcus Reyes -- a catalog-started copy
+     would silently lose the flag that wires him into real, live ETL
+     Newswire headlines (see fetchLiveHeadlines()/headlinesNote() in
+     gc-chat.js), and go back to being just another companion bluffing
+     about current events. Same functional-gap class as turnOrder and
+     companions, not a cosmetic miss like premise. */
+  'newsFeed',
 ];
 
 function catalogEntryFrom(friend) {
