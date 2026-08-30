@@ -1046,8 +1046,14 @@ function playVimeo(id) {
      regardless of what is asked for, so it always starts muted and the
      Sound button (via vimeoPlayer.setMuted) is what can actually turn it
      on afterward, a real user gesture having already happened by then. */
+  /* controls=0, added 2026-08-30: Vimeo's own player chrome (including its
+     own "Unmute" button) was rendering on top of this site's own Sound
+     button -- two different systems both prompting for the same thing,
+     stacked on the same video. David saw both and had no way to know they
+     did the same thing. This is the site's own video now, controls come
+     from the site's own buttons only. */
   vimeoFrame.src = 'https://player.vimeo.com/video/' + encodeURIComponent(id) +
-    '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1';
+    '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&controls=0';
   /* RECONSTRUCTED ON EVERY LOAD rather than reused across scene changes:
      reassigning an iframe's src out from under an existing Vimeo.Player
      does not reliably keep that player bound to the new video, and there
