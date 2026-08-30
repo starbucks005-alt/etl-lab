@@ -104,7 +104,49 @@ exports.handler = async (event) => {
          mail goes and the save does not, an order is paid for and invisible. */
       await notify.orderPaid(order);
     }
-    return json(200, { ok: true, paid: true, order_id: orderId, friend_name: order.friend_name });
+
+    /* AUTO-START THE RENDER, added 2026-08-30. Dr. O direct: "the app must
+       run it" -- until now, a paid order just sat here, an email telling
+       HER to go run gc-scene by hand being the only thing that happened
+       next. That is not a product a stranger can buy from; it worked only
+       because every order so far has been someone she could walk over to
+       personally, and it fell over the moment that stopped being true
+       (David's own order, paid and unmade, with no way to even reach him
+       through the notification email he left blank).
+
+       CALLS gc-scene.js THE SAME WAY THE MANUAL PROCESS ALWAYS DID -- same
+       endpoint, same order_id fulfillment path, same OWNER_KEY, just fired
+       by this server instead of typed by a person. Nothing about the
+       prompt, the crop, the retry ladder, or the cost ceiling changes:
+       this only automates noticing the order exists and pressing go.
+
+       GUARDED ON order.job_id SO A RELOAD CANNOT DOUBLE-RENDER. gc-scene.js
+       writes job_id back onto the order the moment a job starts (see its
+       own order_id branch); once that is set here, every later visit to
+       this same session_id skips straight past this block. */
+    if (order.status === 'paid' && !order.job_id && process.env.OWNER_KEY) {
+      try {
+        const startRes = await fetch('https://emerging-tech-lab.com/.netlify/functions/gc-scene', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: orderId, owner_key: process.env.OWNER_KEY }),
+        });
+        const startJson = await startRes.json();
+        if (startJson && startJson.job_id) {
+          order.job_id = startJson.job_id;
+          await store.setJSON(orderId, order);
+        } else {
+          console.error('gc-scene-checkout: auto-start did not return a job_id:', JSON.stringify(startJson).slice(0, 300));
+        }
+      } catch (err) {
+        console.error('gc-scene-checkout: auto-start failed (non-fatal, order still fulfillable by hand):', err.message);
+      }
+    }
+
+    return json(200, {
+      ok: true, paid: true, order_id: orderId, friend_name: order.friend_name,
+      job_id: order.job_id || null,
+    });
   }
 
   /* ── starting a payment ────────────────────────────────────────────────── */

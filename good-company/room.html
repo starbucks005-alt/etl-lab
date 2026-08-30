@@ -1488,9 +1488,15 @@ if (!ARRIVING_ON_INVITE) renderScenes();
            gc-scene-checkout.js's own SCENE_CENTS, not a guess kept in sync
            by hand elsewhere. */
         if (typeof gtag === 'function') gtag('event', 'scene_ordered', { value: 4.99, currency: 'USD' });
-        post('Your scene', 'Paid, thank you. It gets made by hand rather than by a machine ' +
-             'the moment you press a button, so it will not be instant. When it is ready you ' +
-             'will get a link that puts it straight into this room.');
+        if (j.job_id) { pollScene(j.job_id); }
+        else {
+          /* THE AUTO-START ITSELF FAILED SERVER-SIDE (see gc-scene-checkout.js's
+             own non-fatal catch around this) -- rare, but honest is better
+             than a poll loop with nothing to poll. The order is still paid
+             and still sitting there; it just needs the old by-hand path. */
+          post('Your scene', 'Paid, thank you. It could not be started automatically just now, ' +
+               'but nothing is lost: the order is saved and will still be made.');
+        }
       } else {
         post('Your scene', 'That did not come back as paid. If you were charged, nothing is ' +
              'lost: the request is still here and can be picked up.');
@@ -1498,6 +1504,62 @@ if (!ARRIVING_ON_INVITE) renderScenes();
     }).catch(function () {
       post('Your scene', 'Could not check that payment just now. The request is still here.');
     });
+
+  /* POLLING, added 2026-08-30 alongside the auto-start in gc-scene-checkout.js
+     -- Dr. O direct: "the app must run it." gc-scene.js was always built to
+     be polled (see its own header note on why there is no background
+     function: Veo answers in under a second, but rendering takes a few
+     minutes, so something has to keep checking). Before now the ONLY thing
+     that ever polled it was Dr. O, running a GET by hand. This is that same
+     poll, just running here instead, while whoever paid is still sitting on
+     this exact page having just come back from Stripe.
+
+     BOUNDED, NOT FOREVER: 45 tries, 8 seconds apart, six minutes -- generous
+     against "This takes a few minutes" plus gc-scene.js's own up-to-3-attempt
+     retry-on-filter, without leaving a tab polling into the night if
+     something is genuinely stuck. If it is not done by then, the standing
+     fallback still holds: gc-scene.js emails the add-scene link the moment
+     it finishes either way (see notify.sceneReady), so nothing is lost, it
+     just is not delivered onto the screen still open. */
+  function pollScene(jobId) {
+    var tries = 0;
+    var MAX_TRIES = 45;
+    var box = post('Your scene', 'Paid, thank you. Making it now -- this takes a few minutes, ' +
+                    'and it will drop straight into the room the moment it is ready.');
+    (function check() {
+      tries++;
+      fetch('/.netlify/functions/gc-scene?job_id=' + encodeURIComponent(jobId))
+        .then(function (r) { return r.json(); }).then(function (j) {
+          if (!j || !j.ok) { scheduleNext(); return; }
+          if (j.status === 'ready') {
+            /* REUSES THE EXISTING DELIVERY LINK MECHANISM, same shape the
+               email already sends (see gc-scene.js's own order.status ===
+               'made' block) and the same one ?add-scene= already knows how
+               to accept -- one real path for a scene to arrive, whether by
+               email link or by staying on this page. */
+            var link = '/.netlify/functions/gc-scene?job_id=' + encodeURIComponent(jobId) + '&file=1';
+            location.href = location.pathname + '?add-scene=' + encodeURIComponent(link) +
+              '&label=' + encodeURIComponent('A new scene') + '&who=mine';
+            return;
+          }
+          if (j.status === 'error') {
+            post('Your scene', 'It could not be made: ' + (j.note || 'something went wrong') +
+                 '. Nothing is owed -- a failed render is refunded automatically.');
+            return;
+          }
+          scheduleNext();
+        }).catch(function () { scheduleNext(); });
+    })();
+    function scheduleNext() {
+      if (tries >= MAX_TRIES) {
+        post('Your scene', 'Still making it after a few minutes. Leave this tab open a bit ' +
+             'longer, or check back -- it will also arrive as a link if you left an email, ' +
+             'and nothing is lost either way.');
+        return;
+      }
+      setTimeout(check, 8000);
+    }
+  }
 })();
 
 /* ── ASKING FOR A SCENE ──────────────────────────────────────────────────────
