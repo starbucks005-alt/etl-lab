@@ -1765,13 +1765,38 @@ function askForScene() {
     return d;
   }
 
-  var whereRow = rowIn(generateFields, 'Where should ' + FRIEND.name + ' be');
+  var whereRow = rowIn(generateFields, 'Where should ' + FRIEND.name + ' be',
+    'Short and plain works best -- a brief setting, not a detailed scene. The longer and more ' +
+    'elaborate this gets, the more likely Veo drifts away from their actual face partway ' +
+    'through the loop.');
   var where = document.createElement('textarea');
   where.rows = 3;
   where.placeholder = 'at the kitchen table with the morning light coming in';
   where.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
                         'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
   whereRow.appendChild(where);
+
+  /* THE SHORT-DESCRIPTION GUARDRAIL, added 2026-08-30. Dr. O: "people will
+     be upset if the scene they pay for is bad." Two real renders of the
+     same companion, same portrait, same clean single-wrapped prompt
+     (stripTemplateEcho already ruled out duplication as the cause) --
+     short where kept the face intact both times, long/elaborate where
+     lost it entirely by the last second both times. Not proof of exactly
+     why, but a real, repeated pattern worth warning against before
+     somebody pays $4.99 to find out the hard way. A WARNING, not a block:
+     two data points is a real pattern, not certainty enough to refuse
+     someone's own words outright. */
+  var whereWarn = document.createElement('div');
+  whereWarn.className = 'gate-say';
+  whereWarn.style.cssText = 'display:none; color:var(--accent); margin-top:.3rem;';
+  whereWarn.textContent = 'That is fairly long for a scene description -- consider trimming to ' +
+    'just the setting. A shorter description has kept the face intact every time so far; a ' +
+    'longer one has lost it every time.';
+  whereRow.appendChild(whereWarn);
+  var WHERE_WARN_LENGTH = 90;
+  where.addEventListener('input', function () {
+    whereWarn.style.display = where.value.trim().length > WHERE_WARN_LENGTH ? '' : 'none';
+  });
 
   /* LANDSCAPE OR PORTRAIT, added 2026-08-30, Dr. O direct: "there has to be
      an option for landscape or portrait image/scene." Every scene used to
