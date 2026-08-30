@@ -88,6 +88,58 @@ function todayKey(visitorId) {
   return `${visitorId}:${new Date().toISOString().slice(0, 10)}`;
 }
 
+/* REAL, LIVE HEADLINES FOR A FRIEND WHOSE JOB IS ACTUALLY KNOWING THE NEWS,
+   added 2026-08-29 for Marcus Reyes. A companion cannot honestly claim to
+   know "what's happening right now" from training data alone -- same
+   principle as every notThe* transparency field on this campus, just for
+   current-events knowledge instead of a professional license. Rather than
+   have him fake it or hedge on everything, he gets the real thing: ETL
+   Newswire already publishes real, live-updating coverage this domain
+   generates, and newswire-latest.js is ETL's own trusted, same-origin
+   endpoint -- no SSRF surface to check the way _gc-web.js has to for a
+   visitor-supplied URL, no new infrastructure, the one engine most of this
+   campus already shares. FAIL-SOFT, same reasoning as _gc-web.js: a friend
+   who could not reach it says so rather than breaking the turn, and a
+   short timeout keeps this from eating into the ten-second budget the rest
+   of the handler still needs. Gated on f.newsFeed rather than hardcoded to
+   Marcus by name, so any future companion whose real job is current events
+   can opt into the same real feed. */
+async function fetchLiveHeadlines() {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 3000);
+  try {
+    const r = await fetch('https://emerging-tech-lab.com/.netlify/functions/newswire-latest?limit=10', { signal: ac.signal });
+    if (!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j.items) ? j.items : [];
+  } catch (err) {
+    console.error('[gc-chat] fetchLiveHeadlines failed:', err && err.message);
+    return [];
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+/* KEPT OUT OF buildSystem()/staticSystem ON PURPOSE. That block is the
+   prompt-caching breakpoint (see the comment right above where dynamicSystem
+   is assembled) -- fine for memories, which barely change turn to turn, but
+   headlines are the one thing here that is supposed to be fresh EVERY turn.
+   Baking them into the cached half would mean Marcus quoting the same
+   "latest" headlines for the whole cache window, defeating the entire
+   point of wiring this in. Same reasoning as nowNote/web.pageNote, which
+   already live in dynamicSystem for exactly this reason -- this joins them. */
+function headlinesNote(items) {
+  if (!Array.isArray(items) || !items.length) return '';
+  const lines = items.slice(0, 10).map(it =>
+    '- [' + (it.desk || 'news') + '] ' + it.title + (it.dek ? ' -- ' + it.dek : '') +
+    (it.byline_kind === 'reporter' && it.reporter_id ? ' (' + it.reporter_id.replace('_', ' ') + ')' : '')
+  );
+  return '\n\nREAL, LIVE ETL NEWSWIRE HEADLINES, fetched fresh this turn -- this is what you ' +
+    'actually know about current events, not training data:\n' + lines.join('\n') +
+    '\nIf asked about news outside this list, say plainly you have not seen that story rather ' +
+    'than guessing or inventing one.';
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -974,6 +1026,14 @@ exports.handler = async function (event) {
     visitorMemories = await fetchVisitorMemories(memoryAgentKey, memoryIdentity, serviceKey);
   }
 
+  /* LIVE HEADLINES, same fetched-after-gating placement as visitorMemories
+     just above -- see fetchLiveHeadlines()'s own comment for why this
+     exists at all. */
+  let liveHeadlines = [];
+  if (activeFriend.newsFeed === true) {
+    liveHeadlines = await fetchLiveHeadlines();
+  }
+
   /* WHOSE TURN IT ACTUALLY IS, NAMED, THE SAME FIX AS THE ROOM ROSTER ABOVE.
 
      gc-room-say has always computed the real speaker's name per message
@@ -1116,7 +1176,7 @@ exports.handler = async function (event) {
     ? Object.assign({}, activeFriend, { memories: (activeFriend.memories || []).concat(visitorMemories) })
     : activeFriend;
   const staticSystem = buildSystem(friendForPrompt, you, idle, body.scene, body.room);
-  const dynamicSystem = when.nowNote(activeFriend, new Date()) + web.pageNote(pages) + [
+  const dynamicSystem = when.nowNote(activeFriend, new Date()) + web.pageNote(pages) + headlinesNote(liveHeadlines) + [
     '',
     'AFTER your reply, on its own last line, write:',
     /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read
