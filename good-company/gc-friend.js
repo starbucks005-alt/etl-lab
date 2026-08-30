@@ -3486,6 +3486,7 @@ var GC_THEO = {
   portrait: 'photos/theo-portrait.jpg',
   scenes: [
     { key: 'closet', label: 'The Closet', src: null, vimeoId: '1222401930' },
+    { key: 'study', label: 'The Home Study', src: null, vimeoId: '1222401932' },
   ],
 };
 
