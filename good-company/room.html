@@ -320,6 +320,36 @@ html{ zoom:90%; }
 .row.tools{ flex-wrap:wrap; padding-top:0; }
 .row.tools .btn{ flex:0 0 auto; font-size:10.5px; padding:.45rem .6rem; }
 
+/* FIRST-VISIT INTRO, added 2026-08-30, see its own HTML comment for why.
+   Sits directly under the composer row it is pointing at, using --accent
+   (the one color already reserved for "the thing to press" on this page,
+   see .btn.go) rather than a new color, so it reads as an instruction and
+   not a warning or an error. */
+.intro-tip{
+  display:flex; align-items:center; gap:.5rem;
+  margin:0 1rem .6rem; padding:.5rem .7rem;
+  background:color-mix(in srgb, var(--accent) 12%, transparent);
+  border:1px solid var(--accent); border-radius:5px;
+}
+.intro-tip-arrow{
+  color:var(--accent); font-size:1.1rem; line-height:1; flex:0 0 auto;
+  transform:translateY(-.5rem); animation:intro-tip-bob 1.4s ease-in-out infinite;
+}
+@keyframes intro-tip-bob{
+  0%, 100%{ transform:translateY(-.5rem); }
+  50%{ transform:translateY(-.1rem); }
+}
+@media (prefers-reduced-motion: reduce){
+  .intro-tip-arrow{ animation:none; }
+}
+.intro-tip-text{ flex:1; font-size:13px; color:var(--ink); line-height:1.4; }
+.intro-tip-close{
+  flex:0 0 auto; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--accent); background:transparent;
+  border:1px solid var(--accent); border-radius:3px; padding:.35rem .6rem; cursor:pointer;
+}
+.intro-tip-close:hover{ color:var(--accent-ink); background:var(--accent); }
+
 /* The doorstep. Scrolls on its own so a long panel never traps the button. */
 .gate{ padding:1rem 1rem 1.4rem; overflow-y:auto; }
 .gate h3{ font-family:Georgia,serif; font-weight:400; font-size:1.6rem; margin:0 0 .4rem; }
@@ -507,6 +537,22 @@ html{ zoom:90%; }
         <input type="text" id="say" placeholder="Say whatever's on your mind&hellip;" autocomplete="off">
         <button class="btn" id="stopBtn" type="button" style="display:none" title="Stop him talking">&#9209;</button>
         <button class="btn go" id="sendBtn">Send</button>
+      </div>
+
+      <!-- FIRST-VISIT INTRO, added 2026-08-30. David sat down, saw the video's
+           own Sound/Cast buttons at the top of the screen, and clicked those
+           looking for a way to talk -- there was nothing pointing at the
+           actual composer right here. Shown once, ever, across every
+           companion (gcSeenComposerIntro() below), not once per room: the
+           thing being taught is "there is a text box, type in it," which is
+           equally true the first time somebody sits down with anybody. Goes
+           away the moment they dismiss it OR the moment they actually send a
+           first message, whichever comes first -- someone who already
+           figured it out on their own does not need to be told twice. -->
+      <div class="intro-tip" id="introTip" style="display:none">
+        <span class="intro-tip-arrow">&#8593;</span>
+        <span class="intro-tip-text">Type here and hit Send to talk with them, or tap &#127908; to speak out loud instead.</span>
+        <button type="button" class="intro-tip-close" id="introTipClose">Got it</button>
       </div>
 
       <!-- ONE ROW, SMALL, WRAPPING. These are reached for occasionally; the
@@ -1981,12 +2027,27 @@ gcMountYou($("youPanel"), function (saved) {
   if (PENDING_INVITE) joinThenSit(); else sitDown();
 });
 
+/* FIRST-VISIT INTRO, see the HTML comment above #introTip for why this
+   exists. One flag, campus-wide, not per-room: sitting down with a second
+   companion does not need the same "there is a text box" lesson repeated. */
+function gcSeenComposerIntro() {
+  try { return !!localStorage.getItem('gc_seen_composer_intro'); } catch (e) { return true; }
+}
+function gcDismissComposerIntro() {
+  try { localStorage.setItem('gc_seen_composer_intro', '1'); } catch (e) {}
+  var tip = $('introTip');
+  if (tip) tip.style.display = 'none';
+}
+var introTipCloseBtn = $('introTipClose');
+if (introTipCloseBtn) introTipCloseBtn.addEventListener('click', gcDismissComposerIntro);
+
 /* Leaving the doorstep. The gate goes, the conversation arrives, and the friend
    speaks first. Coming back to it from the room shows the same panel rather
    than a second copy of it, and the conversation is still there afterwards. */
 function sitDown() {
   $("gate").style.display = "none";
   $("chat").style.display = "flex";
+  if (!gcSeenComposerIntro()) { var tip = $('introTip'); if (tip) tip.style.display = ''; }
   /* His opening line is for somebody arriving alone. A guest joining a room
      already has a conversation coming down the poll, and greeting them over
      the top of it would be him talking to himself. */
@@ -2565,6 +2626,9 @@ function send() {
      saying anything is a normal thing to do, so an empty box with something
      queued still sends. */
   if ((!v && !pending.length) || thinking) return;
+  /* Sending anything at all proves the composer intro already did its job,
+     whether or not it was ever dismissed by hand. */
+  if (!gcSeenComposerIntro()) gcDismissComposerIntro();
 
   /* THE SAME WORDS TWICE IN A MOMENT ARE A BUG, NOT A PERSON.
 
@@ -3764,6 +3828,7 @@ function stopListening() {
 }
 
 $('micBtn').addEventListener('click', function () {
+  if (!gcSeenComposerIntro()) gcDismissComposerIntro();
   micManual = !micManual;
   if (micManual) { awaitingWake = false; ensureRec(); }
   else { if (wakeMode) awaitingWake = true; stopRecIfIdle(); }
