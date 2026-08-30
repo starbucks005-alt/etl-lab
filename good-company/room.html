@@ -1590,6 +1590,41 @@ if (!ARRIVING_ON_INVITE) renderScenes();
   }
 })();
 
+/* ── COMING BACK FROM PAYING FOR AN IMAGE ────────────────────────────────────
+   Same "ask Stripe, never trust the URL" shape as the scene handler just
+   above, much shorter: gc-image-checkout.js's own GET does the entire
+   generation synchronously (a still edit fits in one request where a Veo
+   render never could, see that file's own header note), so there is no
+   job to poll -- paid and ready arrive in the same response, and this
+   goes straight to the same ?add-scene= delivery every other scene
+   already uses, just carrying a still instead of a video. */
+(function () {
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  var sid = q.get('image-paid');
+  if (!sid) return;
+
+  history.replaceState({}, '', location.pathname + '?who=mine');
+
+  fetch('/.netlify/functions/gc-image-checkout?session_id=' + encodeURIComponent(sid))
+    .then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.paid && j.ready && j.image_url) {
+        if (typeof gtag === 'function') gtag('event', 'image_ordered', { value: 4.99, currency: 'USD' });
+        location.href = location.pathname + '?add-scene=' + encodeURIComponent(j.image_url) +
+          '&label=' + encodeURIComponent('A new image') + '&image=1&who=mine';
+        return;
+      }
+      if (j && j.paid && !j.ready) {
+        post('Your image', 'Paid, thank you. ' + (j.error || 'It could not be made just now, but nothing is lost.'));
+        return;
+      }
+      post('Your image', 'That did not come back as paid. If you were charged, nothing is ' +
+           'lost: the request is still here and can be picked up.');
+    }).catch(function () {
+      post('Your image', 'Could not check that payment just now. The request is still here.');
+    });
+})();
+
 /* ── ASKING FOR A SCENE ──────────────────────────────────────────────────────
    The half that was missing. A scene is made from the picture they chose, that
    picture lives in this browser and nowhere else, and nothing ever sent it
@@ -1620,9 +1655,9 @@ function askForScene() {
      no server round-trip and no charge at all. The old text told every
      visitor both options cost money right before showing them a free one. */
   showGate('mem', 'Somewhere else to sit',
-    'Say where you would like ' + FRIEND.name + ' to be, and it gets made for you: moving, ' +
-    'rather than a still, for $4.99. Or bring your own, already made -- that one is free, ' +
-    'wired in right away, no charge at all.');
+    'A picture or a moving scene of ' + FRIEND.name + ' somewhere new. Bring your own and it is ' +
+    'free, wired in right away. Ask for one to be made and it is $4.99 either way -- a still in ' +
+    'seconds, a moving scene in a few minutes.');
   $('startBtn').textContent = 'Back to ' + FRIEND.name;
 
   var host = $('memPanel');
@@ -1638,6 +1673,24 @@ function askForScene() {
     return d;
   }
 
+  /* IMAGES AND SCENES, SEPARATED, added 2026-08-30. Dr. O direct, thinking
+     it through live: "images and scenes are separated. simple." A still
+     and a moving clip are different products with different prices, and
+     the old single mode row (Describe it / I already have one / Just a
+     photo) put a still (free upload) next to two video paths with no line
+     between what is a picture and what moves. Two top-level categories
+     now, each with exactly two ways in -- upload your own, or pay to
+     generate -- same shape on both sides, which is the whole point of
+     calling it simple. */
+  var categoryRow = document.createElement('div');
+  categoryRow.style.cssText = 'display:flex; gap:.5rem; margin-bottom:1rem;';
+  var categoryImages = document.createElement('button');
+  categoryImages.type = 'button'; categoryImages.className = 'btn'; categoryImages.textContent = 'Images';
+  var categoryScenes = document.createElement('button');
+  categoryScenes.type = 'button'; categoryScenes.className = 'btn go'; categoryScenes.textContent = 'Scenes';
+  categoryRow.appendChild(categoryImages); categoryRow.appendChild(categoryScenes);
+  host.appendChild(categoryRow);
+
   /* TWO WAYS IN, added 2026-08-20. Dr. O, after uploading her own
      already-made video by hand for Isabelle three times in one day, each
      time requiring me to do it for her: "did you make the change where
@@ -1648,36 +1701,58 @@ function askForScene() {
   var modeRow = document.createElement('div');
   modeRow.style.cssText = 'display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;';
   var modeGenerate = document.createElement('button');
-  modeGenerate.type = 'button'; modeGenerate.className = 'btn go'; modeGenerate.textContent = 'Describe it';
+  modeGenerate.type = 'button'; modeGenerate.className = 'btn go'; modeGenerate.textContent = 'Generate';
   var modeOwn = document.createElement('button');
-  modeOwn.type = 'button'; modeOwn.className = 'btn'; modeOwn.textContent = 'I already have one';
-  /* JUST A PHOTO, added 2026-08-30, Dr. O direct: "upload an image (still)
-     only an image, not a video. free." Its own third mode rather than a
-     second file input tucked into "I already have one" -- that mode
-     already has a photo field ("a photo to work from instead"), and that
-     one goes through Veo and costs nothing to look at but everything to
-     confuse with a field that does not. Two visually identical photo
-     pickers doing two completely different things (one animated and
-     paid, one plain and free) is exactly the shape of mistake this whole
-     page exists to avoid. */
-  var modePhoto = document.createElement('button');
-  modePhoto.type = 'button'; modePhoto.className = 'btn'; modePhoto.textContent = 'Just a photo';
-  modeRow.appendChild(modeGenerate); modeRow.appendChild(modeOwn); modeRow.appendChild(modePhoto);
+  modeOwn.type = 'button'; modeOwn.className = 'btn'; modeOwn.textContent = 'Insert Vimeo ID';
+  modeRow.appendChild(modeGenerate); modeRow.appendChild(modeOwn);
   host.appendChild(modeRow);
 
+  /* JUST A PHOTO, added 2026-08-30, Dr. O direct: "upload an image (still)
+     only an image, not a video. free." Its own mode rather than a second
+     file input tucked into the Vimeo/animate row -- that row already has
+     a photo field ("a photo to work from instead"), and that one goes
+     through Veo and costs nothing to look at but everything to confuse
+     with a field that does not. Two visually identical photo pickers
+     doing two completely different things (one animated and paid, one
+     plain and free) is exactly the shape of mistake this whole page
+     exists to avoid -- separating Images from Scenes is the same fix at
+     the category level. */
+  var imageModeRow = document.createElement('div');
+  imageModeRow.style.cssText = 'display:none; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;';
+  var modePhoto = document.createElement('button');
+  modePhoto.type = 'button'; modePhoto.className = 'btn go'; modePhoto.textContent = 'Upload your own';
+  var modeImageGenerate = document.createElement('button');
+  modeImageGenerate.type = 'button'; modeImageGenerate.className = 'btn'; modeImageGenerate.textContent = 'Generate';
+  imageModeRow.appendChild(modePhoto); imageModeRow.appendChild(modeImageGenerate);
+  host.appendChild(imageModeRow);
+
+  var category = 'scenes';
   var mode = 'generate';
+  function setCategory(c) {
+    category = c;
+    categoryImages.className = 'btn' + (c === 'images' ? ' go' : '');
+    categoryScenes.className = 'btn' + (c === 'scenes' ? ' go' : '');
+    modeRow.style.display = c === 'scenes' ? '' : 'none';
+    imageModeRow.style.display = c === 'images' ? '' : 'none';
+    setMode(c === 'images' ? 'photo' : 'generate');
+  }
   function setMode(m) {
     mode = m;
-    modeGenerate.className = 'btn' + (m === 'generate' ? ' go' : '');
+    modeGenerate.className = 'btn' + (m === 'generate' && category === 'scenes' ? ' go' : '');
     modeOwn.className = 'btn' + (m === 'own' ? ' go' : '');
     modePhoto.className = 'btn' + (m === 'photo' ? ' go' : '');
-    generateFields.style.display = m === 'generate' ? '' : 'none';
+    modeImageGenerate.className = 'btn' + (m === 'generate' && category === 'images' ? ' go' : '');
+    generateFields.style.display = (m === 'generate' && category === 'scenes') ? '' : 'none';
     ownFields.style.display = m === 'own' ? '' : 'none';
     photoFields.style.display = m === 'photo' ? '' : 'none';
+    imageGenerateFields.style.display = (m === 'generate' && category === 'images') ? '' : 'none';
   }
+  categoryImages.addEventListener('click', function () { setCategory('images'); });
+  categoryScenes.addEventListener('click', function () { setCategory('scenes'); });
   modeGenerate.addEventListener('click', function () { setMode('generate'); });
   modeOwn.addEventListener('click', function () { setMode('own'); });
   modePhoto.addEventListener('click', function () { setMode('photo'); });
+  modeImageGenerate.addEventListener('click', function () { setMode('generate'); });
 
   var generateFields = document.createElement('div');
   host.appendChild(generateFields);
@@ -1793,6 +1868,29 @@ function askForScene() {
                                  'background:var(--paper);color:var(--ink);border-radius:3px';
   stillOnlyLabelRow.appendChild(stillOnlyLabel);
 
+  /* IMAGES > GENERATE, $4.99, added 2026-08-30. Dr. O direct: "images and
+     scenes are separated," then, on hitting gc-face.js's own free-draw
+     ceiling: "what if after they are made you want to change them?" --
+     "not replace their portrait, takes the spot of a scene." A new still
+     of the same companion, made the same identity-preserving way Scenes
+     already does (see gc-image-checkout.js's own imagePrompt, the still
+     twin of gc-scene.js's scenePrompt), landing as a scene-slot picture
+     rather than swapping FRIEND.portrait itself. No photo upload here on
+     purpose: it always edits FRIEND's own stored portrait, same as
+     Describe It always has for a video. */
+  var imageGenerateFields = document.createElement('div');
+  imageGenerateFields.style.display = 'none';
+  host.appendChild(imageGenerateFields);
+
+  var imageWhereRow = rowIn(imageGenerateFields, 'Where should ' + FRIEND.name + ' be',
+    'A real still photo of ' + FRIEND.name + ' there, $4.99, ready in seconds -- no render to wait on.');
+  var imageWhere = document.createElement('textarea');
+  imageWhere.rows = 3;
+  imageWhere.placeholder = 'at the kitchen table with the morning light coming in';
+  imageWhere.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                             'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
+  imageWhereRow.appendChild(imageWhere);
+
   function readAsBase64(input) {
     return new Promise(function (resolve) {
       var f = input.files && input.files[0];
@@ -1824,6 +1922,63 @@ function askForScene() {
     var w = where.value.trim();
     var vimeoRaw = vimeoInput.value.trim();
     var vimeoMatch = /(\d{4,12})/.exec(vimeoRaw);
+
+    /* IMAGES > GENERATE, its own branch, checked first: an entirely
+       different order/checkout pair (gc-image-order.js, gc-image-
+       checkout.js) from everything below, which all still talks to
+       gc-scene-order.js/gc-scene-checkout.js. */
+    if (category === 'images' && mode === 'generate') {
+      var iw = imageWhere.value.trim();
+      if (!iw) { imageWhere.focus(); return; }
+      send.disabled = true; send.textContent = 'Sending';
+      fetch('/.netlify/functions/gc-image-order', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          portrait: FRIEND.portrait,
+          friend: { name: FRIEND.name, gender: FRIEND.gender },
+          where: iw,
+          from: from.value.trim(),
+        }),
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!j || !j.order_id) {
+          send.disabled = false; send.textContent = 'Try again';
+          note.textContent = 'That did not send: ' + ((j && j.error) || 'unknown') + '.';
+          return;
+        }
+        /* SAME "ASKED, NOW PAY FOR IT" PAUSE AS SCENES, added so nothing
+           charges on the same click that describes it -- consistency with
+           the Scenes flow below, not a shortcut around it. */
+        host.innerHTML = '';
+        var iok = document.createElement('p');
+        iok.className = 'gate-say';
+        iok.textContent = 'That is noted, and nothing has been charged yet. ' +
+          FRIEND.name + ' is not being made into anything until you say so.';
+        host.appendChild(iok);
+
+        var ipay = document.createElement('button');
+        ipay.type = 'button'; ipay.className = 'btn go'; ipay.textContent = 'Pay $4.99 for it';
+        ipay.addEventListener('click', function () {
+          ipay.disabled = true; ipay.textContent = 'Opening';
+          fetch('/.netlify/functions/gc-image-checkout', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: j.order_id }),
+          }).then(function (r) { return r.json(); }).then(function (c) {
+            if (c && c.url) { location.href = c.url; return; }
+            ipay.disabled = false; ipay.textContent = 'Try again';
+            iok.textContent = 'Could not open the payment page: ' + ((c && c.error) || 'unknown') +
+              '. Nothing has been charged.';
+          }).catch(function (err) {
+            ipay.disabled = false; ipay.textContent = 'Try again';
+            iok.textContent = 'Could not reach the payment page. ' + err.message;
+          });
+        });
+        host.appendChild(ipay);
+      }).catch(function (err) {
+        send.disabled = false; send.textContent = 'Try again';
+        note.textContent = 'Could not reach it. ' + err.message;
+      });
+      return;
+    }
 
     if (mode === 'generate') {
       if (!w) { where.focus(); return; }
@@ -2052,8 +2207,12 @@ function askForScene() {
     /^\/\.netlify\/functions\/gc-scene-order\?order_id=gco-[0-9a-f]+&thumb=1$/.test(thumb);
 
   /* Same origin only. An arbitrary URL here would let any link play any video
-     (or show any image) inside somebody's room, under their friend's name. */
-  if (!vimeoMatch &&
+     (or show any image) inside somebody's room, under their friend's name.
+     gc-image.js, added 2026-08-30 alongside Images/Generate -- see
+     gc-image-checkout.js's own header note on why an image needs no
+     job_id/poll shape the way gcs- does. */
+  var imageMatch = /^\/\.netlify\/functions\/gc-image\?order_id=gci-[0-9a-f]+&file=1$/.test(src);
+  if (!vimeoMatch && !imageMatch &&
       !/^video\/[A-Za-z0-9._-]+\.mp4$/.test(src) &&
       !/^\/\.netlify\/functions\/gc-scene\?job_id=gcs-[0-9a-f]+&file=1$/.test(src)) {
     post('Not wired yet', 'That scene link does not look right, so nothing was added.');
@@ -2080,12 +2239,18 @@ function askForScene() {
      leaving it off a landscape scene keeps every scene from before this
      existed reading exactly the way it always has. */
   var aspect = q.get('aspect') === '9:16' ? '9:16' : null;
+  /* A STILL, NOT A VIDEO -- src stays null (see showStill()'s own reasoning
+     on why null means "this is a still," not a missing/broken video) and
+     the picture lives in scene.still instead, same shape the free
+     Just-a-photo upload already uses. */
   var newScene = vimeoMatch
     ? { key: key, label: label, vimeoId: vimeoMatch[1], thumb: thumb || undefined }
+    : imageMatch
+    ? { key: key, label: label, src: null, still: src }
     : { key: key, label: label, src: src, aspect: aspect || undefined };
 
   var already = (GC_BUILT.scenes || []).some(function (s) {
-    return s && (vimeoMatch ? s.vimeoId === vimeoMatch[1] : s.src === src);
+    return s && (vimeoMatch ? s.vimeoId === vimeoMatch[1] : imageMatch ? s.still === src : s.src === src);
   });
   if (!already) {
     GC_BUILT.scenes = (GC_BUILT.scenes || []).concat([newScene]);
