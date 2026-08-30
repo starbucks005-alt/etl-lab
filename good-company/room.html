@@ -1750,6 +1750,28 @@ function askForScene() {
   photoInput.type = 'file'; photoInput.accept = 'image/*';
   photoRow.appendChild(photoInput);
 
+  /* WHAT SHOULD HAPPEN IN IT, added 2026-08-30, Dr. O direct: "when you
+     upload the still image and want to turn it into a scene you do not
+     have the opportunity to say 'endless loop' etc." Real gap: the ONLY
+     description field on this whole panel lived in generateFields, hidden
+     the moment "I already have one" was picked, so a photo-to-animate
+     order went to gc-scene.js with nothing describing the loop at all --
+     silently failing there (where_required) rather than ever surfacing
+     the problem here. Its own field rather than un-hiding the generate
+     one: that field's placeholder and label ask "where should FRIEND be,"
+     which is the wrong question for a photo somebody already has -- this
+     one asks what to describe about it instead. */
+  var ownWhereRow = rowIn(ownFields, 'What should happen in it',
+    'Only needed if you gave a photo above. Just the setting, plain -- the loop, the camera, ' +
+    'and everything else is already handled for you, the same as when you describe a scene ' +
+    'from scratch.');
+  var ownWhere = document.createElement('textarea');
+  ownWhere.rows = 3;
+  ownWhere.placeholder = 'near a cascading waterfall with a rainbow in the mist';
+  ownWhere.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                           'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
+  ownWhereRow.appendChild(ownWhere);
+
   /* JUST A PHOTO -- a plain still, no Veo, no render, no charge. Same free,
      instant, client-only wiring as the Vimeo path above: writes straight
      onto this browser's own copy of the friend and shows up immediately. */
@@ -1813,6 +1835,17 @@ function askForScene() {
     } else {
       if (!vimeoMatch && !photoInput.files.length) {
         note.textContent = 'Paste a Vimeo link, or choose a photo -- at least one.';
+        return;
+      }
+      /* CAUGHT HERE, NOT DISCOVERED AT FULFILLMENT, added 2026-08-30
+         alongside ownWhere above. A photo with nothing describing what
+         happens to it used to reach gc-scene.js as a paid order with an
+         empty where, which it has always rejected (where_required) -- so
+         the order sat there, taken and unmade, exactly the failure mode
+         the whole automation this same day was built to close. */
+      if (photoInput.files.length && !ownWhere.value.trim()) {
+        ownWhere.focus();
+        note.textContent = 'Say what should happen in it -- Veo needs a description to work from.';
         return;
       }
     }
@@ -1908,7 +1941,12 @@ function askForScene() {
       body.aspect = sceneAspect;
     } else {
       body.mode = 'own';
-      body.where = w;
+      /* ownWhere, NOT w, added 2026-08-30 -- see ownWhere's own note above.
+         w comes from generateFields' hidden textarea, which is never shown
+         in 'own' mode and was quietly sending whatever it happened to
+         still hold (usually nothing) as the description Veo needed to
+         actually animate an uploaded photo. */
+      body.where = ownWhere.value.trim();
       if (vimeoMatch) body.own_vimeo_id = vimeoMatch[1];
       if (files[0]) body.own_photo = files[0];
       if (files[1]) body.own_thumb = files[1];
