@@ -3442,7 +3442,10 @@ var GC_MEERA = {
   skin: 'harvest',
   timezone: 'America/Chicago',
   portrait: 'photos/meera-portrait.jpg',
-  scenes: [],
+  scenes: [
+    { key: 'yoga', label: 'Morning Practice', src: null, vimeoId: '1222457854' },
+    { key: 'tea', label: 'Tea on the Porch', src: null, vimeoId: '1222457850' },
+  ],
 };
 
 var GC_MARCUS = {
