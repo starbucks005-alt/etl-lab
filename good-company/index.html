@@ -298,19 +298,6 @@ header{
    onto the same baseline with no gap of its own between them. */
 .cta + .cta{ margin-left:.85rem; }
 
-/* Deliberately quiet, the same instinct as the removed .cta-quiet above: one
-   loud button on this screen, everything else a step down from it. Light on
-   the photograph like the .how paragraphs, never a skin token, since this
-   still sits over the hero image on every skin. */
-.faq-link{
-  display:inline-block; margin-top:.9rem; margin-left:1.1rem;
-  color:rgba(255,255,255,.8); text-decoration:none;
-  font-family:var(--mono); font-size:.8rem; letter-spacing:.04em;
-}
-.faq-link:hover{ color:#fff; text-decoration:underline; }
-.hero.no-art .faq-link{ color:var(--ink-dim); }
-.hero.no-art .faq-link:hover{ color:var(--ink); }
-
 /* The second way in, deliberately quieter: one primary button on this screen.
    Light on the photograph like everything else in the hero, never skin tokens. */
 /* .cta-quiet REMOVED 2026-08-18: was the old text-link CTA ("or try one of
@@ -622,15 +609,10 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            people on a first visit. Arch is the house friend; meeting him costs
            nothing and asks for nothing. Without this link he was unreachable
            from the front door unless you knew the URL. -->
-      <!-- REMOVED 2026-08-19, one page load after it shipped: Dr. O, "remove
-           this, it reads sooooo awkwardly, we just need an FAQ page." The
-           real answer it tried to give -- why not just use a free general
-           assistant -- was correct, it just did not belong sitting in the
-           hero next to warm copy about making a friend; a comparison
-           argument read as defensive there. Moved to faq.html instead,
-           linked below, where somebody who actually has that question can
-           go looking for it rather than tripping over it on the way in. -->
-      <a class="faq-link" href="faq.html">Questions? →</a>
+      <!-- The hero's own Questions link (added 2026-08-19, removed same day,
+           re-added since) was removed again 2026-08-30, Dr. O direct: the
+           top nav already carries a Questions link (line ~527), so this was
+           the same destination twice on one page. -->
     </div>
   </section>
 
