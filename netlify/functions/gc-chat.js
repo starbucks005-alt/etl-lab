@@ -946,10 +946,16 @@ exports.handler = async function (event) {
      gate isOwner does, below, so a tester never hits credits_exhausted OR
      daily_capped on anything, but is otherwise a completely normal
      visitor everywhere else on the campus. */
+  /* BUG, FOUND LIVE 2026-08-29: this used to re-derive its own gcTesterKeys
+     from process.env.GC_TESTER_KEYS, a leftover from before the env-var
+     approach was dropped for the EV-limit reason GC_TESTER_KEYS's own
+     top-of-file comment explains. That env var was never set, so this
+     always evaluated to an empty array and isTester could never be true --
+     Pookie's link plants the key correctly (confirmed directly) and this
+     silently ignored it every time. Now reads the one real, hardcoded list
+     instead of a second, dead one. */
   const rawTesterKey = String(body.tester_key || '').trim();
-  const gcTesterKeys = String(process.env.GC_TESTER_KEYS || '')
-    .split(',').map(function (s) { return s.trim(); }).filter(Boolean);
-  const isTester = !isOwner && !!rawTesterKey && gcTesterKeys.indexOf(rawTesterKey) > -1;
+  const isTester = !isOwner && !!rawTesterKey && GC_TESTER_KEYS.indexOf(rawTesterKey) > -1;
   const accessToken = safeToken(body.access_token);
   /* THE SHARED-ROOM PATH, ADDED 2026-08-17. gc-room-say.js proxies here on
      behalf of whoever actually spoke, and no guest's browser holds the
