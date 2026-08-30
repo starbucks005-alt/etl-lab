@@ -487,7 +487,7 @@ html{ zoom:90%; }
 
     <div class="portrait" id="portrait">
       <video id="loop" muted loop playsinline autoplay preload="auto"></video>
-      <button class="sound-on" id="soundBtn" type="button">&#128264; Turn sound on</button>
+      <button class="sound-on" id="soundBtn" type="button">&#128264; Video sound on</button>
       <button class="cast-btn" id="castBtn" type="button">&#128250; Cast to TV</button>
     </div>
 
@@ -1228,7 +1228,7 @@ $('soundBtn').addEventListener('click', function () {
   video.muted = !wantSound;
   if (wantSound) video.play().catch(function () {});
   if (vimeoPlayer) { try { vimeoPlayer.setMuted(!wantSound); } catch (e) {} }
-  this.innerHTML = wantSound ? '&#128263; Turn sound off' : '&#128264; Turn sound on';
+  this.innerHTML = wantSound ? '&#128263; Video sound off' : '&#128264; Video sound on';
 });
 
 /* CAST TO A TV, added 2026-08-21 (the ask from earlier in this same session
