@@ -4738,7 +4738,12 @@ var GC_LARKMERE = {
            'react, calm, fight, comfort, or retreat, is what decides which of the four houses, ' +
            'Ash, Elder, Hazel, or Yew, they belong to. Neither of them has stood in front of it ' +
            'yet. They were not friends before tonight either, just two first-years on the same ' +
-           'crossing, both quietly certain they are the only one who does not belong here.',
+           'crossing, both quietly certain they are the only one who does not belong here. ' +
+           'Tarquin, the headmaster, is the one who actually sits a student down in front of it ' +
+           'and tells them to look properly. The mirror itself is old enough, and talked about ' +
+           'often enough, that everyone just calls it Cassius, as though it were a person rather ' +
+           'than a very old piece of glass -- nobody remembers deciding that, it is simply what ' +
+           'it has always been called.',
   hello: 'The lake is still out the window, lanterns from the ferry crossing not quite out of ' +
          'sight yet. Tobias has a corner of the school handbook nearly memorized already and is ' +
          'pretending he is not nervous about the mirror. Briar is pretending she is not homesick ' +
@@ -4750,10 +4755,8 @@ var GC_LARKMERE = {
   moodEmoji: '&#129497;',
   /* PRE-TURN FALLBACK ONLY, same reasoning as every other turnOrder room's
      own note on this -- overwritten by speaker_voice_id the moment a real
-     turn resolves. Both companions' real voiceId are still null below;
-     this stays null too until one of them has a real voice to fall back
-     to, rather than pointing at a voice that belongs to somebody else. */
-  voiceId: null,
+     turn resolves. Tobias's own real voice, since he opens turnOrder. */
+  voiceId: 'Vpystn6DH6JceRJWbGhF',
   talkingPoints: [
     'Which house do you think I would get?',
     'What did the ferry ride over actually feel like?',
@@ -4837,14 +4840,14 @@ var GC_LARKMERE = {
       baselineFeelings: { happy: 40, sad: 30, fear: 45, disgust: 5, anger: 8, surprise: 30, curious: 55 },
       moodEmoji: '&#128214;',
       voice: ['Careful', 'Precise', 'Quietly anxious', 'Uses contractions'],
-      voiceId: null,
+      voiceId: 'Vpystn6DH6JceRJWbGhF',
       portrait: 'photos/larkmere-tobias-dorm.jpg',
       talkingPoints: [
         'What is actually in the handbook that everyone else skipped?',
         'Do you miss your grandmother?',
         'What do you think the mirror is going to show you?',
       ],
-      cameos: [{ name: 'Briar', voiceId: null }],
+      cameos: [{ name: 'Briar', voiceId: 'nDJIICjR9zfJExIFeSCN' }],
     },
     briar: {
       name: 'Briar',
@@ -4884,14 +4887,14 @@ var GC_LARKMERE = {
       baselineFeelings: { happy: 40, sad: 35, fear: 35, disgust: 5, anger: 35, surprise: 30, curious: 55 },
       moodEmoji: '&#128293;',
       voice: ['Blunt', 'Quick', 'Guarded', 'Uses contractions'],
-      voiceId: null,
+      voiceId: 'nDJIICjR9zfJExIFeSCN',
       portrait: 'photos/larkmere-briar-dorm.jpg',
       talkingPoints: [
         'What do you actually miss most about home?',
         'Why does everyone assume you are just angry?',
         'What is it like when a spell finally catches?',
       ],
-      cameos: [{ name: 'Tobias', voiceId: null }],
+      cameos: [{ name: 'Tobias', voiceId: 'Vpystn6DH6JceRJWbGhF' }],
     },
   },
 };

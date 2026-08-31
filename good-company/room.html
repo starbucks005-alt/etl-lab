@@ -1181,6 +1181,12 @@ function playVimeo(id) {
 function hushVimeo() { if (vimeoFrame) vimeoFrame.style.display = 'none'; }
 
 function play(scene) {
+  /* CAPTURED BEFORE current MOVES, added 2026-08-31 for the mirror
+     encounter below -- the only way to tell "just arrived at this scene"
+     from "still sitting on it" is comparing against what current was a
+     moment ago, so this has to happen before the reassignment on the
+     next line touches it. */
+  var enteringMirror = scene && scene.special === 'mirror' && (!current || current.key !== scene.key);
   current = scene;
   var old = portrait.querySelector('.missing');
   if (old) old.remove();
@@ -1264,7 +1270,94 @@ function play(scene) {
   $('gaugeEmoji').innerHTML = scene.moodEmoji || FRIEND.moodEmoji || '&#128522;';
 
   updateCastVisibility();
+  /* THE ENCOUNTER ITSELF, added 2026-08-31, Dr. O direct: "when this scene
+     is up we need something to happen for the user... a commanding voice
+     to let the user be faced with a fear and be sorted to a house." Fires
+     once per arrival at the mirror scene (enteringMirror, captured before
+     current moved at the top of this function), not on every call to
+     play() -- re-selecting the same scene should not re-trigger it. */
+  if (enteringMirror && typeof mirrorEncounter === 'function') mirrorEncounter();
 }
+/* THE MIRROR ENCOUNTER, added 2026-08-31. Dr. O direct: "when this scene
+   is up we need something to happen for the user, like a commanding
+   voice to let the user be faced with a fear and be sorted to a house."
+   Two named voices, both hers: Tarquin (the headmaster, sets up the
+   ritual) and Cassius (the mirror itself, speaks the fear and the
+   verdict). Reaction maps to house using real tree fact/folklore, not
+   arbitrary color-coding -- see LARKMERE_HOUSES' own notes on each. */
+var LARKMERE_HOUSES = {
+  calm: { name: 'Ash', color: '#AEC9B8',
+    line: 'You did not flinch. That is rarer than it sounds, and the glass remembers it.' },
+  /* Yew is the tree English longbows were made from -- a real fact, not
+     invented lore, which is why FIGHT maps here rather than to anything
+     more generically "fierce." */
+  fight: { name: 'Yew', color: '#C9483D',
+    line: 'You did not run. Yew does not either. It is the oldest tree in most ' +
+          'English churchyards, and the only wood anyone ever trusted for a longbow.' },
+  comfort: { name: 'Elder', color: '#8B6FB3',
+    line: 'You reached outward instead of in. Elder has always been the tree people ' +
+          'left something for, the one that is said to look after you back.' },
+  retreat: { name: 'Hazel', color: '#D19A4B',
+    line: 'You stepped back to think first. Hazel is the diviner\x27s wood. Looking ' +
+          'away is not the same thing as looking at nothing.' },
+};
+function addStaticPlayButton(bubble, src) {
+  if (!bubble) return;
+  var btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'replay-btn';
+  btn.innerHTML = '&#128266; Play';
+  var audio = null;
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (audio && !audio.paused) { audio.pause(); btn.innerHTML = '&#128266; Play'; return; }
+    audio = new Audio(src);
+    audio.addEventListener('ended', function () { btn.innerHTML = '&#128266; Play'; });
+    audio.play().catch(function () {});
+    btn.innerHTML = '&#9209; Stop';
+  });
+  bubble.appendChild(btn);
+}
+function mirrorEncounter() {
+  addStaticPlayButton(
+    post('Tarquin', "Go on then. Sit. And do look at it properly, mind. It hasn't the patience for a glance."),
+    'audio/larkmere-tarquin-intro.mp3'
+  );
+  addStaticPlayButton(
+    post('Cassius', 'In a moment, you shall see the thing you have not spoken aloud in rather a ' +
+      'long time. The one that still catches when the room falls quiet. When you do, you will ' +
+      'do one of four things. Stand your ground. Push back. Reach for someone. Or look away. ' +
+      'There is no wrong answer. Only the true one.'),
+    'audio/larkmere-cassius-mirror.mp3'
+  );
+
+  var chooser = document.createElement('div');
+  chooser.className = 'mirror-choice';
+  chooser.style.cssText = 'display:flex; flex-wrap:wrap; gap:.5rem; margin:.6rem 0 1rem;';
+  [
+    { key: 'calm', label: 'Stand still and face it' },
+    { key: 'fight', label: 'Push back at it' },
+    { key: 'comfort', label: 'Reach for someone' },
+    { key: 'retreat', label: 'Look away' },
+  ].forEach(function (c) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'btn';
+    btn.textContent = c.label;
+    btn.addEventListener('click', function () {
+      Array.prototype.forEach.call(chooser.children, function (b) { b.disabled = true; });
+      post(YOU.name || 'You', c.label, true);
+      var house = LARKMERE_HOUSES[c.key];
+      setTimeout(function () {
+        var verdict = post('Cassius', 'The glass answers. ' + house.name + '. ' + house.line);
+        var who = verdict.querySelector('.who');
+        if (who) who.style.color = house.color;
+      }, 650);
+    });
+    chooser.appendChild(btn);
+  });
+  $('log').appendChild(chooser);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
 /* Only where a source was actually asked for. Emptying the element to get it
    out of the way fires this too, and a scene with no film is not a failure. */
 video.addEventListener('error', function () { if (current && current.src) showMissing(current.src); });
