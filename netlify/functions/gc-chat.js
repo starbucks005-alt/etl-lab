@@ -14,7 +14,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const Anthropic = require('@anthropic-ai/sdk');
-const { houseTypography } = require('./_etl-voice-law.js');
+const { VOICE_LAW_CHAT, houseTypography } = require('./_etl-voice-law.js');
 const web = require('./_gc-web.js');
 const when = require('./_gc-when.js');
 const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
@@ -698,7 +698,19 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
     ].join('\n'));
   }
 
-  return bits.join('\n');
+  /* THE HOUSE VOICE LAW, added 2026-08-30, only now -- gc-chat.js has
+     always imported houseTypography (the dash-cleanup function) from this
+     same file, but never the actual VOICE_LAW_CHAT content every other
+     agent on this campus already carries. David: "the Claude tells came
+     through too much talking to the companions. he lost interest. it was
+     like talking to claude in different accents." This is precisely the
+     gap that line describes -- the one house rule written specifically to
+     stop every agent converging on the same model tics ("that isn't
+     nothing," "I hear you," never sounding distinct from each other) was
+     simply never wired into Good Company at all. LAST, same as every
+     other agent that carries it (see gym-chat.js), because recency is
+     what actually survives in a long system prompt. */
+  return bits.join('\n') + VOICE_LAW_CHAT;
 }
 
 /* ── SERVER-SIDE VISITOR MEMORY ──────────────────────────────────────────────
