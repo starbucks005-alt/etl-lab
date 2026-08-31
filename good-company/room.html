@@ -265,15 +265,25 @@ html{ zoom:90%; }
 /* ── the sound ───────────────────────────────────────────────────────────────
    The room has a fire in it, and birds, and a kettle. None of it was audible
    because the clip is muted, and it is muted because no browser will autoplay
-   a video with sound. So it starts silent and one tap turns the room on.
-   Sits on the video, bottom centre, out of the way of his face. */
+   a video with sound. So it starts silent and one tap turns the room on. */
+/* ICON-ONLY, changed 2026-08-30, Dr. O direct: "change this to a mic and
+   if mic is crossed out then muted, if not it is on," then "no text,"
+   then "make the mic bigger and in the right corner." Small circle, same
+   visual language as .fav-star elsewhere on this campus, rather than the
+   wide text pill this used to be -- a crossed-out mic already says the
+   state, a label next to it would be saying the same thing twice.
+   TOP-right rather than bottom-right on purpose: .cast-btn already owns
+   bottom-right (see its own comment on staying clear of this button),
+   and moving here instead of on top of it is what "right corner" means
+   without colliding with something already there. */
 .sound-on{
-  position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:3;
-  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  position:absolute; top:14px; right:14px; z-index:3;
+  width:2.6rem; height:2.6rem; display:flex; align-items:center; justify-content:center;
   color:#F4ECE0; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.28);
-  border-radius:999px; padding:.5rem 1rem; cursor:pointer; backdrop-filter:blur(2px);
+  border-radius:999px; padding:0; cursor:pointer; backdrop-filter:blur(2px);
 }
 .sound-on:hover{ background:rgba(0,0,0,.72); border-color:rgba(255,255,255,.5); }
+.sound-on svg{ width:22px; height:22px; }
 /* ── casting to a TV ─────────────────────────────────────────────────────────
    Standards-based Remote Playback API (video.remote), not a Cast SDK or a
    receiver app -- works with Chromecast and most smart TVs' built-in cast
@@ -487,7 +497,7 @@ html{ zoom:90%; }
 
     <div class="portrait" id="portrait">
       <video id="loop" muted loop playsinline autoplay preload="auto"></video>
-      <button class="sound-on" id="soundBtn" type="button">&#128264; Video sound on</button>
+      <button class="sound-on" id="soundBtn" type="button" aria-label="Video sound off"></button>
       <button class="cast-btn" id="castBtn" type="button">&#128250; Cast to TV</button>
     </div>
 
@@ -1222,13 +1232,35 @@ video.addEventListener('error', function () { if (current && current.src) showMi
 
 /* SOUND. Starts off because no browser will autoplay audio, and stays off
    until somebody asks for it. Once on it stays on across scene changes, so
-   walking from the fire to the porch does not silence the room. */
+   walking from the fire to the porch does not silence the room.
+
+   A MIC, CROSSED OUT WHEN MUTED, added 2026-08-30, Dr. O direct: "change
+   this to a mic and if mic is crossed out then muted, if not it is on,"
+   then "no text." Two small inline SVGs (the standard Feather-style mic
+   and mic-off glyphs) rather than an emoji: there is no crossed-out
+   microphone in the emoji set the way &#128264;/&#128263; exist for a
+   speaker, so this is drawn rather than found. Icon alone says the state;
+   aria-label carries the same words for anyone not seeing it. */
+  var MIC_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" ' +
+    'rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="17" x2="12" ' +
+    'y2="21"></line><line x1="8" y1="21" x2="16" y2="21"></line></svg>';
+  var MIC_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23">' +
+    '</line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>' +
+    '<path d="M17 16.95A7 7 0 0 1 5 12v-2"></path><line x1="12" y1="19" x2="12" y2="23">' +
+    '</line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
+  function paintSoundBtn() {
+    $('soundBtn').innerHTML = wantSound ? MIC_ON : MIC_OFF;
+    $('soundBtn').setAttribute('aria-label', wantSound ? 'Video sound on' : 'Video sound off');
+  }
+  paintSoundBtn();
 $('soundBtn').addEventListener('click', function () {
   wantSound = !wantSound;
   video.muted = !wantSound;
   if (wantSound) video.play().catch(function () {});
   if (vimeoPlayer) { try { vimeoPlayer.setMuted(!wantSound); } catch (e) {} }
-  this.innerHTML = wantSound ? '&#128263; Video sound off' : '&#128264; Video sound on';
+  paintSoundBtn();
 });
 
 /* CAST TO A TV, added 2026-08-21 (the ask from earlier in this same session
