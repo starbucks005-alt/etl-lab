@@ -129,15 +129,17 @@ html{ zoom:90%; }
 
 /* THE MIRROR'S OWN MOMENT, added 2026-08-31 -- see play()'s own note on
    why this is the one scene on this campus that gets a special effect.
-   A slow, breathing glow ring in the mirror's own blue, plus the still
-   image itself given a faint answering pulse rather than sitting dead
-   still like every other scene -- reads as something quietly alive
+   A slow, breathing glow ring in the mirror's own blue, plus whatever is
+   actually showing (still image or, now that a real clip exists, the
+   Vimeo iframe itself) given a faint answering pulse rather than sitting
+   dead still like every other scene -- reads as something quietly alive
    rather than a decoration slapped on top. Respects reduced motion. */
 .portrait.mirror-active{
   box-shadow: 0 0 0 2px rgba(120,170,255,.55), 0 0 55px 14px rgba(90,140,255,.4);
   animation: mirrorBreathe 3.6s ease-in-out infinite;
 }
-.portrait.mirror-active .still img{ animation: mirrorPulse 3.6s ease-in-out infinite; }
+.portrait.mirror-active .still img,
+.portrait.mirror-active iframe{ animation: mirrorPulse 3.6s ease-in-out infinite; }
 @keyframes mirrorBreathe{
   0%, 100%{ box-shadow: 0 0 0 2px rgba(120,170,255,.4), 0 0 40px 8px rgba(90,140,255,.28); }
   50%{ box-shadow: 0 0 0 3px rgba(150,190,255,.75), 0 0 70px 20px rgba(90,140,255,.55); }
@@ -148,7 +150,8 @@ html{ zoom:90%; }
 }
 @media (prefers-reduced-motion: reduce){
   .portrait.mirror-active{ animation:none; box-shadow: 0 0 0 2px rgba(120,170,255,.55), 0 0 55px 14px rgba(90,140,255,.4); }
-  .portrait.mirror-active .still img{ animation:none; }
+  .portrait.mirror-active .still img,
+  .portrait.mirror-active iframe{ animation:none; }
 }
 .portrait .still-say{
   position:absolute; left:0; right:0; bottom:0; padding:.45rem .6rem;

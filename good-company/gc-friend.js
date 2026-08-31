@@ -4768,7 +4768,12 @@ var GC_LARKMERE = {
   portrait: 'photos/larkmere-ferry.jpg',
   portraitWide: 'photos/larkmere-hall.jpg',
   scenes: [
-    { key: 'ferry', label: 'The Ferry Crossing', src: null, still: 'photos/larkmere-ferry.jpg' },
+    /* REAL VIDEO, added 2026-08-31 -- Dr. O made moving versions of every
+       still above and handed over the Vimeo embeds directly. thumb kept
+       pointing at the same local still each vimeoId replaces, same
+       reasoning as every other Vimeo scene on this campus (Tansy's spa
+       scene onward): a real chosen frame beats vumbnail.com's own guess. */
+    { key: 'ferry', label: 'The Ferry Crossing', vimeoId: '1222801361', thumb: 'photos/larkmere-ferry.jpg' },
     /* THE MIRROR, GIVEN ITS OWN MOMENT, added 2026-08-31, Dr. O direct:
        "it should be special, like specifically when it is on something
        should change for the UX." scene.special === 'mirror' is read by
@@ -4777,13 +4782,20 @@ var GC_LARKMERE = {
        is up -- gone the instant any other scene is picked. Nothing else
        on this campus gets this treatment; it stays this way on purpose,
        since it is specifically the mirror that is supposed to feel like
-       something else is looking back. */
-    { key: 'mirror', label: 'The Mirror', src: null, still: 'photos/larkmere-mirror.jpg', special: 'mirror' },
-    { key: 'hall', label: 'Larkmere Hall', src: null, still: 'photos/larkmere-hall.jpg' },
-    { key: 'library', label: 'The Library', src: null, still: 'photos/larkmere-library.jpg' },
-    { key: 'cafeteria', label: 'The Cafeteria', src: null, still: 'photos/larkmere-cafeteria.jpg' },
+       something else is looking back. Still works now that this is a
+       real video, not a still -- see room.html's own mirror-active CSS,
+       updated the same day to also pulse a playing iframe. */
+    { key: 'mirror', label: 'The Mirror', vimeoId: '1222801383', thumb: 'photos/larkmere-mirror.jpg', special: 'mirror' },
+    { key: 'hall', label: 'Larkmere Hall', vimeoId: '1222801358', thumb: 'photos/larkmere-hall.jpg' },
+    { key: 'library', label: 'The Library', vimeoId: '1222801625', thumb: 'photos/larkmere-library.jpg' },
+    { key: 'cafeteria', label: 'The Cafeteria', vimeoId: '1222801359', thumb: 'photos/larkmere-cafeteria.jpg' },
+    /* STILL A STILL, ON PURPOSE, added 2026-08-31: Dr. O caught the real
+       video's own handbook prop reading "Larkwood Academy" (an earlier
+       draft name) and is remaking it -- "I will remake the video." Left
+       as the photo until the replacement lands rather than shipping a
+       clip with the wrong school name visible on it. */
     { key: 'tobias-dorm', label: 'Tobias\x27s Dorm', src: null, still: 'photos/larkmere-tobias-dorm.jpg', speaker: 'tobias' },
-    { key: 'briar-dorm', label: 'Briar\x27s Dorm', src: null, still: 'photos/larkmere-briar-dorm.jpg', speaker: 'briar' },
+    { key: 'briar-dorm', label: 'Briar\x27s Dorm', vimeoId: '1222801360', thumb: 'photos/larkmere-briar-dorm.jpg', speaker: 'briar' },
   ],
   turnOrder: ['tobias', 'briar'],
   companions: {
