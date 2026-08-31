@@ -4721,12 +4721,10 @@ var GC_NURSERY = {
    askable directly -- there may never be a clean answer, which is the
    point, not a placeholder to eventually resolve.
 
-   PORTRAITS AND STILLS LANDED 2026-08-31 -- Dr. O's own real photo set
-   (ferry, mirror, Hall, library, cafeteria, both dorms), wired into
-   scenes below and each companion's own portrait. STILL NEEDS: real
-   voices. voiceId left null on both companions on purpose -- same shape
-   Clover's build briefly had before her real voice arrived, not an
-   oversight. */
+   FULLY LANDED 2026-08-31 -- Dr. O's own real photo set (portrait, ferry,
+   mirror, Hall, library, cafeteria, both dorms) and both real voices, so
+   this went onto the homepage the same day it was first drafted, same
+   card grid as everything else once a real portrait existed. */
 var GC_LARKMERE = {
   id: 'larkmere',
   name: 'Tobias & Briar',
@@ -4764,11 +4762,13 @@ var GC_LARKMERE = {
   ],
   skin: 'seaside',
   timezone: 'America/New_York',
-  /* REAL STILLS, added 2026-08-31, Dr. O's own photo set. portrait is the
-     ferry crossing (both of them, the establishing "who this is" shot,
-     same role Eli's own photo plays for the Puppets); portraitWide is the
-     Hall itself, lake and lanterns and all. */
-  portrait: 'photos/larkmere-ferry.jpg',
+  /* REAL STILLS, added 2026-08-31, Dr. O's own photo set. portrait is a
+     real daytime shot of both of them together in front of the four
+     house trees (the white/silver one is Ash, purple Elder, gold Hazel,
+     the red-and-green one Yew -- matches the colors already wired into
+     the mirror encounter below, unplanned but exactly right); portraitWide
+     is the Hall itself at night, lake and lanterns and all. */
+  portrait: 'photos/larkmere-portrait.jpg',
   portraitWide: 'photos/larkmere-hall.jpg',
   scenes: [
     /* REAL VIDEO, added 2026-08-31 -- Dr. O made moving versions of every
