@@ -4789,12 +4789,12 @@ var GC_LARKMERE = {
     { key: 'hall', label: 'Larkmere Hall', vimeoId: '1222801358', thumb: 'photos/larkmere-hall.jpg' },
     { key: 'library', label: 'The Library', vimeoId: '1222801625', thumb: 'photos/larkmere-library.jpg' },
     { key: 'cafeteria', label: 'The Cafeteria', vimeoId: '1222801359', thumb: 'photos/larkmere-cafeteria.jpg' },
-    /* STILL A STILL, ON PURPOSE, added 2026-08-31: Dr. O caught the real
-       video's own handbook prop reading "Larkwood Academy" (an earlier
-       draft name) and is remaking it -- "I will remake the video." Left
-       as the photo until the replacement lands rather than shipping a
-       clip with the wrong school name visible on it. */
-    { key: 'tobias-dorm', label: 'Tobias\x27s Dorm', src: null, still: 'photos/larkmere-tobias-dorm.jpg', speaker: 'tobias' },
+    /* WIRED IN DESPITE THE "LARKWOOD ACADEMY" HANDBOOK PROP, added
+       2026-08-31, Dr. O direct: "add it, I will just make the revision on
+       Vimeo, changes nothing on your end." The fix lands as a replacement
+       upload to this same vimeoId on Vimeo's own side, not a new id here
+       -- nothing in this file needs to change when that happens. */
+    { key: 'tobias-dorm', label: 'Tobias\x27s Dorm', vimeoId: '1222801384', thumb: 'photos/larkmere-tobias-dorm.jpg', speaker: 'tobias' },
     { key: 'briar-dorm', label: 'Briar\x27s Dorm', vimeoId: '1222801360', thumb: 'photos/larkmere-briar-dorm.jpg', speaker: 'briar' },
   ],
   turnOrder: ['tobias', 'briar'],
