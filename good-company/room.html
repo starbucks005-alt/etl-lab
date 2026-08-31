@@ -1180,6 +1180,23 @@ function playVimeo(id) {
 }
 function hushVimeo() { if (vimeoFrame) vimeoFrame.style.display = 'none'; }
 
+/* NOT ACTUALLY A LOOP BUG, added 2026-08-31 -- Dr. O: "the mirror is not
+   looping." Checked the live player directly: loop was already true, it
+   was still mid-playback, nothing was broken. What actually happened is
+   that Vimeo pauses its own iframe whenever the TAB goes hidden (switch
+   tabs, minimize, phone screen locks) to save bandwidth, and never
+   resumes on its own -- confirmed live, document.visibilityState flips
+   to "hidden" and the player's getPaused() flips to true soon after, with
+   nothing here ever telling it to resume. Any visit long enough to look
+   away and back would come home to a frozen frame that reads exactly
+   like "stopped looping," because it did stop, just not by reaching its
+   own end. */
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible' && vimeoPlayer) {
+    try { vimeoPlayer.play().catch(function () {}); } catch (e) {}
+  }
+});
+
 function play(scene) {
   /* CAPTURED BEFORE current MOVES, added 2026-08-31 for the mirror
      encounter below -- the only way to tell "just arrived at this scene"
