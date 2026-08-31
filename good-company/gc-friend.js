@@ -4800,6 +4800,17 @@ var GC_LARKMERE = {
     { key: 'tobias-dorm', label: 'Tobias\x27s Dorm', vimeoId: '1222801384', thumb: 'photos/larkmere-tobias-dorm.jpg', speaker: 'tobias' },
     { key: 'briar-dorm', label: 'Briar\x27s Dorm', vimeoId: '1222801360', thumb: 'photos/larkmere-briar-dorm.jpg', speaker: 'briar' },
   ],
+  /* FIRST VIMEO-HOSTED ALBUM ENTRY ON THE CAMPUS, added 2026-08-31. Dr. O
+     sent a clip of Briar unpacking with "not a scene just happy unpacking
+     ... for her photo album" -- album.html previously only played local
+     mp4 files (see Zoe's/Dario's/Meera's own album arrays), so this is
+     paired with the album.html change that added vimeoId support there,
+     same {vimeoId, thumb} shape scenes above already use. thumb reuses
+     her real dorm photo rather than trusting vumbnail.com's auto-guess. */
+  album: [
+    { vimeoId: '1222822975', thumb: 'photos/larkmere-briar-dorm.jpg', on: 'The first night, unpacking',
+      caption: 'Briar, mid-unpack, happier about it than she would ever admit out loud.' },
+  ],
   turnOrder: ['tobias', 'briar'],
   companions: {
     tobias: {

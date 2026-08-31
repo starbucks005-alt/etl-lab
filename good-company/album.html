@@ -83,6 +83,7 @@ figcaption .when{ display:block; font-family:var(--mono); font-size:10px;
 }
 .big.on{ display:grid; }
 .big img, .big video{ width:100%; height:100%; object-fit:contain; min-height:0; }
+.big iframe{ width:100%; height:100%; min-height:0; border:0; }
 .big figcaption{ color:#EFE7DC; text-align:center; margin:0; }
 .big .when{ color:#A99A88; }
 .big-close{ position:fixed; top:16px; right:16px; z-index:61; }
@@ -124,6 +125,11 @@ footer{ padding:1.5rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
 <div class="big" id="big" role="dialog" aria-modal="true" aria-label="Photo">
   <img id="bigImg" alt="">
   <video id="bigVid" muted loop playsinline style="display:none"></video>
+  <!-- A REAL VIMEO EMBED, NOT A LOOPING MUTED CLIP LIKE bigVid ABOVE. Nothing
+       else on this page has a sound button, so unlike room.html's scenes this
+       leaves Vimeo's own player chrome in place: it is the only way to unmute
+       here. -->
+  <iframe id="bigVimeo" style="display:none" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
   <figcaption><span id="bigCap"></span><span class="when" id="bigWhen"></span></figcaption>
 </div>
 <button class="btn big-close" id="bigClose" type="button" style="display:none">&times; Close</button>
@@ -141,9 +147,15 @@ $('emptyHead').textContent = 'No pictures of ' + F.name + ' yet.';
 
 if (!shots.length) { $('empty').style.display = 'block'; }
 
+/* VIMEO ALBUM ENTRIES, added 2026-08-31 alongside Larkmere's Briar-unpacking
+   clip, {vimeoId, thumb} same shape scenes already use in room.html. A shot
+   is "moving" if it is EITHER an mp4 or a Vimeo id -- src and vimeoId are
+   mutually exclusive per shot, same rule scene.src/scene.vimeoId follow. */
+function shotMoving(shot) { return !!shot.vimeoId || /.mp4$/i.test(shot.src || ''); }
+
 shots.forEach(function (shot, i) {
   var fig = document.createElement('figure');
-  if (/.mp4$/i.test(shot.src)) fig.className = 'moving';
+  if (shotMoving(shot)) fig.className = 'moving';
 
   var btn = document.createElement('button');
   btn.type = 'button'; btn.className = 'shot';
@@ -156,17 +168,34 @@ shots.forEach(function (shot, i) {
      The no-image-under-video rule is untouched. That rule is about a still
      standing in FOR a video and hiding its failure. Nothing here stands in for
      anything. */
-  var moving = /.mp4$/i.test(shot.src);
-  var img = document.createElement(moving ? 'video' : 'img');
-  if (moving) { img.muted = true; img.loop = true; img.autoplay = true; img.playsInline = true; }
-  else { img.alt = shot.caption || (F.name + ', photo ' + (i + 1)); }
-  img.src = shot.src;
+  var vimeo = !!shot.vimeoId;
+  var moving = shotMoving(shot);
+  var img;
+  if (vimeo) {
+    /* THE GRID TILE IS ALWAYS A STILL, NEVER AN IFRAME. A page of dozens of
+       autoplaying embeds is not a photo grid, it is a wall of players -- the
+       real Vimeo clip only ever plays once opened, in the lightbox below.
+       thumb wins when there is one (same reasoning as room.html's scene
+       chips); vumbnail.com is the same longstanding public fallback used
+       there, not a new dependency. */
+    img = document.createElement('img');
+    img.alt = shot.caption || (F.name + ', photo ' + (i + 1));
+    img.src = shot.thumb || ('https://vumbnail.com/' + encodeURIComponent(shot.vimeoId) + '.jpg');
+  } else if (moving) {
+    img = document.createElement('video');
+    img.muted = true; img.loop = true; img.autoplay = true; img.playsInline = true;
+    img.src = shot.src;
+  } else {
+    img = document.createElement('img');
+    img.alt = shot.caption || (F.name + ', photo ' + (i + 1));
+    img.src = shot.src;
+  }
   img.addEventListener('error', function () {
     var g = document.createElement('div');
-    g.className = 'gone'; g.textContent = 'missing: ' + shot.src;
+    g.className = 'gone'; g.textContent = 'missing: ' + (vimeo ? ('vimeo ' + shot.vimeoId) : shot.src);
     btn.appendChild(g);
     img.style.display = 'none';
-    console.warn('[good-company] photo not found: ' + shot.src);
+    console.warn('[good-company] photo not found: ' + (vimeo ? ('vimeo ' + shot.vimeoId) : shot.src));
   });
   btn.appendChild(img);
 
@@ -185,11 +214,22 @@ shots.forEach(function (shot, i) {
 
 /* ── the big view ────────────────────────────────────────────────────────── */
 function open(shot) {
-  var moving = /.mp4$/i.test(shot.src);
-  $('bigImg').style.display = moving ? 'none' : 'block';
-  $('bigVid').style.display = moving ? 'block' : 'none';
-  if (moving) { $('bigVid').src = shot.src; $('bigVid').play().catch(function(){}); }
-  else { $('bigImg').src = shot.src; }
+  var vimeo = !!shot.vimeoId;
+  var mp4 = !vimeo && /.mp4$/i.test(shot.src || '');
+  $('bigImg').style.display = (vimeo || mp4) ? 'none' : 'block';
+  $('bigVid').style.display = mp4 ? 'block' : 'none';
+  $('bigVimeo').style.display = vimeo ? 'block' : 'none';
+  if (vimeo) {
+    /* Same query string as room.html's playVimeo, minus controls=0: this
+       page has no competing Sound button, so Vimeo's own chrome stays and
+       is the only way to unmute. */
+    $('bigVimeo').src = 'https://player.vimeo.com/video/' + encodeURIComponent(shot.vimeoId) +
+      '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1';
+  } else if (mp4) {
+    $('bigVid').src = shot.src; $('bigVid').play().catch(function(){});
+  } else {
+    $('bigImg').src = shot.src;
+  }
   $('bigImg').alt = shot.caption || '';
   $('bigCap').textContent = shot.caption || '';
   $('bigWhen').textContent = shot.on || '';
@@ -201,6 +241,7 @@ function shut() {
   $('bigClose').style.display = 'none';
   $('bigImg').removeAttribute('src');
   $('bigVid').removeAttribute('src');
+  $('bigVimeo').removeAttribute('src');
 }
 $('big').addEventListener('click', shut);
 $('bigClose').addEventListener('click', shut);
