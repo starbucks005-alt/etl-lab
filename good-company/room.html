@@ -126,6 +126,30 @@ html{ zoom:90%; }
    emptied and taken out of the layout before this goes in. See showStill. */
 .portrait .still{ position:absolute; inset:0; }
 .portrait .still img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* THE MIRROR'S OWN MOMENT, added 2026-08-31 -- see play()'s own note on
+   why this is the one scene on this campus that gets a special effect.
+   A slow, breathing glow ring in the mirror's own blue, plus the still
+   image itself given a faint answering pulse rather than sitting dead
+   still like every other scene -- reads as something quietly alive
+   rather than a decoration slapped on top. Respects reduced motion. */
+.portrait.mirror-active{
+  box-shadow: 0 0 0 2px rgba(120,170,255,.55), 0 0 55px 14px rgba(90,140,255,.4);
+  animation: mirrorBreathe 3.6s ease-in-out infinite;
+}
+.portrait.mirror-active .still img{ animation: mirrorPulse 3.6s ease-in-out infinite; }
+@keyframes mirrorBreathe{
+  0%, 100%{ box-shadow: 0 0 0 2px rgba(120,170,255,.4), 0 0 40px 8px rgba(90,140,255,.28); }
+  50%{ box-shadow: 0 0 0 3px rgba(150,190,255,.75), 0 0 70px 20px rgba(90,140,255,.55); }
+}
+@keyframes mirrorPulse{
+  0%, 100%{ filter: brightness(1) saturate(1); }
+  50%{ filter: brightness(1.08) saturate(1.15); }
+}
+@media (prefers-reduced-motion: reduce){
+  .portrait.mirror-active{ animation:none; box-shadow: 0 0 0 2px rgba(120,170,255,.55), 0 0 55px 14px rgba(90,140,255,.4); }
+  .portrait.mirror-active .still img{ animation:none; }
+}
 .portrait .still-say{
   position:absolute; left:0; right:0; bottom:0; padding:.45rem .6rem;
   background:rgba(0,0,0,.62); color:#F0E7DA;
@@ -1178,6 +1202,18 @@ function play(scene) {
     stageEl.style.width = '';
     portrait.style.aspectRatio = '';
   }
+
+  /* THE MIRROR'S OWN MOMENT, added 2026-08-31, Dr. O direct on Larkmere's
+     mirror scene specifically: "it should be special, like specifically
+     when it is on something should change for the UX." Nothing else on
+     this campus sets scene.special, and nothing else should -- a glowing,
+     slowly breathing ring belongs to the one scene that is actually
+     supposed to feel like something is looking back, not a general-
+     purpose effect any future scene could opt into by accident. Toggled
+     on .portrait itself so it never has to be cleared anywhere but here:
+     every scene change passes through play(), so leaving this scene
+     always removes it, same as the aspect override just above. */
+  portrait.classList.toggle('mirror-active', scene.special === 'mirror');
 
   if (scene.vimeoId) {
     video.removeAttribute('src');

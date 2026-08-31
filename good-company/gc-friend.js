@@ -4721,11 +4721,12 @@ var GC_NURSERY = {
    askable directly -- there may never be a clean answer, which is the
    point, not a placeholder to eventually resolve.
 
-   STILL NEEDS, per her own brief's own "Status" section: portraits, real
-   voices, and scene footage (the ferry arrival, the mirror-sorting
-   moment, everyday school life once sorted) all still to come. voiceId
-   left null on both companions on purpose -- same shape Clover's build
-   briefly had before her real voice arrived, not an oversight. */
+   PORTRAITS AND STILLS LANDED 2026-08-31 -- Dr. O's own real photo set
+   (ferry, mirror, Hall, library, cafeteria, both dorms), wired into
+   scenes below and each companion's own portrait. STILL NEEDS: real
+   voices. voiceId left null on both companions on purpose -- same shape
+   Clover's build briefly had before her real voice arrived, not an
+   oversight. */
 var GC_LARKMERE = {
   id: 'larkmere',
   name: 'Tobias & Briar',
@@ -4760,14 +4761,30 @@ var GC_LARKMERE = {
   ],
   skin: 'seaside',
   timezone: 'America/New_York',
-  /* NOT YET, SAID PLAINLY RATHER THAN INVENTED -- same shape Reggie's own
-     unfinished scenes and Marion's own src:null entries already use on
-     this campus. No portrait exists for either companion yet, so there is
-     nothing honest to point portrait/portraitWide at until real ones
-     arrive; leaving the fields off entirely rather than guessing keeps
-     showStill()'s own "No picture of X yet" message accurate instead of
-     silently broken. */
-  scenes: [],
+  /* REAL STILLS, added 2026-08-31, Dr. O's own photo set. portrait is the
+     ferry crossing (both of them, the establishing "who this is" shot,
+     same role Eli's own photo plays for the Puppets); portraitWide is the
+     Hall itself, lake and lanterns and all. */
+  portrait: 'photos/larkmere-ferry.jpg',
+  portraitWide: 'photos/larkmere-hall.jpg',
+  scenes: [
+    { key: 'ferry', label: 'The Ferry Crossing', src: null, still: 'photos/larkmere-ferry.jpg' },
+    /* THE MIRROR, GIVEN ITS OWN MOMENT, added 2026-08-31, Dr. O direct:
+       "it should be special, like specifically when it is on something
+       should change for the UX." scene.special === 'mirror' is read by
+       room.html's play(), which adds a glowing, slowly breathing ring
+       around the stage in the mirror's own blue for as long as this scene
+       is up -- gone the instant any other scene is picked. Nothing else
+       on this campus gets this treatment; it stays this way on purpose,
+       since it is specifically the mirror that is supposed to feel like
+       something else is looking back. */
+    { key: 'mirror', label: 'The Mirror', src: null, still: 'photos/larkmere-mirror.jpg', special: 'mirror' },
+    { key: 'hall', label: 'Larkmere Hall', src: null, still: 'photos/larkmere-hall.jpg' },
+    { key: 'library', label: 'The Library', src: null, still: 'photos/larkmere-library.jpg' },
+    { key: 'cafeteria', label: 'The Cafeteria', src: null, still: 'photos/larkmere-cafeteria.jpg' },
+    { key: 'tobias-dorm', label: 'Tobias\x27s Dorm', src: null, still: 'photos/larkmere-tobias-dorm.jpg', speaker: 'tobias' },
+    { key: 'briar-dorm', label: 'Briar\x27s Dorm', src: null, still: 'photos/larkmere-briar-dorm.jpg', speaker: 'briar' },
+  ],
   turnOrder: ['tobias', 'briar'],
   companions: {
     tobias: {
@@ -4809,6 +4826,7 @@ var GC_LARKMERE = {
       moodEmoji: '&#128214;',
       voice: ['Careful', 'Precise', 'Quietly anxious', 'Uses contractions'],
       voiceId: null,
+      portrait: 'photos/larkmere-tobias-dorm.jpg',
       talkingPoints: [
         'What is actually in the handbook that everyone else skipped?',
         'Do you miss your grandmother?',
@@ -4855,6 +4873,7 @@ var GC_LARKMERE = {
       moodEmoji: '&#128293;',
       voice: ['Blunt', 'Quick', 'Guarded', 'Uses contractions'],
       voiceId: null,
+      portrait: 'photos/larkmere-briar-dorm.jpg',
       talkingPoints: [
         'What do you actually miss most about home?',
         'Why does everyone assume you are just angry?',
