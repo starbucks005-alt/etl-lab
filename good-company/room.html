@@ -1304,19 +1304,23 @@ function play(scene) {
    arbitrary color-coding -- see LARKMERE_HOUSES' own notes on each. */
 var LARKMERE_HOUSES = {
   calm: { name: 'Ash', color: '#AEC9B8',
-    line: 'You did not flinch. That is rarer than it sounds, and the glass remembers it.' },
+    line: 'You did not flinch. That is rarer than it sounds, and the glass remembers it.',
+    audio: 'audio/larkmere-cassius-ash.mp3' },
   /* Yew is the tree English longbows were made from -- a real fact, not
      invented lore, which is why FIGHT maps here rather than to anything
      more generically "fierce." */
   fight: { name: 'Yew', color: '#C9483D',
     line: 'You did not run. Yew does not either. It is the oldest tree in most ' +
-          'English churchyards, and the only wood anyone ever trusted for a longbow.' },
+          'English churchyards, and the only wood anyone ever trusted for a longbow.',
+    audio: 'audio/larkmere-cassius-yew.mp3' },
   comfort: { name: 'Elder', color: '#8B6FB3',
     line: 'You reached outward instead of in. Elder has always been the tree people ' +
-          'left something for, the one that is said to look after you back.' },
+          'left something for, the one that is said to look after you back.',
+    audio: 'audio/larkmere-cassius-elder.mp3' },
   retreat: { name: 'Hazel', color: '#D19A4B',
     line: 'You stepped back to think first. Hazel is the diviner\x27s wood. Looking ' +
-          'away is not the same thing as looking at nothing.' },
+          'away is not the same thing as looking at nothing.',
+    audio: 'audio/larkmere-cassius-hazel.mp3' },
 };
 function addStaticPlayButton(bubble, src) {
   if (!bubble) return;
@@ -1367,6 +1371,12 @@ function mirrorEncounter() {
         var verdict = post('Cassius', 'The glass answers. ' + house.name + '. ' + house.line);
         var who = verdict.querySelector('.who');
         if (who) who.style.color = house.color;
+        /* MISSING UNTIL 2026-08-31, Dr. O: "some things are audio and some
+           are not." Tarquin's line and Cassius's own fear-prompt both got a
+           real Play button when this was built; the payoff line, the one
+           actually naming the house, never did -- a plain gap, not a
+           playback bug. */
+        if (house.audio) addStaticPlayButton(verdict, house.audio);
       }, 650);
     });
     chooser.appendChild(btn);
