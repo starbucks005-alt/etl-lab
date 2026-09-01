@@ -88,12 +88,19 @@ html{ zoom:90%; }
 .gauge-wrap{ flex:1; min-width:0; }
 
 /* ── the feeling scale ───────────────────────────────────────────────────── */
+/* ink-dim, not accent, added 2026-09-01 -- Viv's room on the Copper skin:
+   Copper's own --accent (#522C1F) sits almost on top of its --panel
+   (#3D1F14), a 1.24 contrast ratio, effectively invisible text. --ink-dim
+   is what .gauge-sub right below already uses successfully on every skin
+   including this one, so this borrows a token already proven legible here
+   rather than touching --accent itself, which still has to work as a
+   button fill elsewhere. */
 .gauge-title{ font-family:var(--mono); font-size:12px; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--accent); margin-bottom:.45rem; }
+  text-transform:uppercase; color:var(--ink-dim); margin-bottom:.45rem; }
 .gauge-head{ display:flex; align-items:center; gap:.5rem; }
 .gauge-emoji{ font-size:19px; }
 .gauge-label{ font-family:var(--mono); font-size:12px; letter-spacing:.1em;
-  text-transform:uppercase; color:var(--accent); }
+  text-transform:uppercase; color:var(--ink-dim); }
 .gauge-sub{ font-size:12px; color:var(--ink-dim); margin:.2rem 0 .5rem; }
 .gauge-clock{ font-family:var(--mono); font-size:11px; letter-spacing:.04em;
   color:var(--ink-dim); margin:-.2rem 0 .5rem; }
