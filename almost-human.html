@@ -578,6 +578,25 @@ function accessToken() {
 function ownerKey() {
   try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; }
 }
+/* THE PLANTER, added 2026-08-31 -- this page could read etl_owner_key but had
+   no way to ever WRITE it, the same gap gc-friend.js's own comment describes
+   already having bitten Dr. O once on Good Company: a device that never
+   visited Studio or Good Company first had nothing in localStorage for
+   ownerKey() to find, so the table's own server-side check (host_is_owner,
+   set from THIS value at open time) came back false and she hit the real
+   $9.99 paywall on her own product. Same one-time-plant-then-remember shape,
+   same localStorage slot, so a key already planted via any other page on
+   this domain already unlocks this one too. */
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var k = q.get('key');
+    if (k) {
+      localStorage.setItem('etl_owner_key', k);
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  } catch (e) {}
+})();
 
 function startUpgradeCheckout() {
   fetch('/.netlify/functions/create-checkout-ah', {
