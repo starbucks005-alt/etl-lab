@@ -1,0 +1,83 @@
+name: iOS - Good Company
+
+# Manual for now, on purpose: this uploads a real build to App Store Connect
+# every time it runs, so it should not fire on every push while the pipeline
+# is still being proven out. Switch to a push trigger once a first build has
+# gone through cleanly.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: good-company-ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install JS deps
+        run: npm ci
+
+      - name: Sync Capacitor config into the Xcode project
+        run: npx cap sync ios
+
+      - name: Install CocoaPods
+        working-directory: good-company-ios/ios/App
+        run: pod install
+
+      # The App Store Connect API key never touches disk in plain text outside
+      # this one step -- written from a secret, used, and nothing else reads
+      # it. Same trust boundary as the Android keystore file already in this
+      # repo, just Apple's own equivalent.
+      - name: Write App Store Connect API key
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.ASC_API_KEY_P8 }}" > ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+
+      - name: Archive
+        working-directory: good-company-ios/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/App.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
+            archive
+
+      - name: Export IPA
+        working-directory: good-company-ios/ios/App
+        run: |
+          cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/App.xcarchive \
+            -exportPath $RUNNER_TEMP/export \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+
+      - name: Upload to App Store Connect
+        run: |
+          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
+            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
+            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}

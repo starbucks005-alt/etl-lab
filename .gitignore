@@ -2,6 +2,8 @@
 .netlify/
 node_modules/
 almost-human-android/
+good-company-android/
+everly-castle-android/
 
 # Full-size sources for the country faces. Kept on disk so a face can be
 # remade, never deployed: they are 44MB of 2752px images whose only use on

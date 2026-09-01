@@ -1,0 +1,14 @@
+{
+  "appId": "com.emergingtechlab.almosthuman",
+  "appName": "Almost Human",
+  "webDir": "www",
+  "server": {
+    "url": "https://emerging-tech-lab.com/almost-human.html",
+    "cleartext": false
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#0A0A0F"
+  },
+  "backgroundColor": "#0A0A0F"
+}

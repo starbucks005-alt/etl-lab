@@ -1,0 +1,14 @@
+{
+  "appId": "com.emergingtechlab.everlycastle",
+  "appName": "Everly Castle",
+  "webDir": "www",
+  "server": {
+    "url": "https://emerging-tech-lab.com/everly-castle.html",
+    "cleartext": false
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#16202B"
+  },
+  "backgroundColor": "#16202B"
+}
