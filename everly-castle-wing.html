@@ -1778,12 +1778,21 @@ function photoFile(name){
    must never be looking at an empty box while a file downloads. No
    photograph is not a fault, it is simply one she has not made yet. */
 function photoFor(host, name){
+  /* A generation token per host, added 2026-09-01: real photos load async and
+     nothing enforced call order, so a slow older photo could finish loading
+     AFTER a newer one and land on top of it, two pictures visibly stacked at
+     once. Same staleness-guard shape settleWindow()/aboutWanted already uses
+     for the exact same reason. A late arrival checks it is still the most
+     recent call for this host before touching the DOM; if not, it drops
+     itself silently instead of overwriting whatever actually belongs there. */
+  const myGen = (host._photoGen = (host._photoGen || 0) + 1);
   photoReady.then(() => {
     const url = photoFile(name);
     if (!url) return;
     const img = new Image();
     img.alt = '';
     img.onload = () => {
+      if (host._photoGen !== myGen) return;
       host.textContent = '';
       host.classList.remove('drawn');
       host.appendChild(img);
