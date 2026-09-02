@@ -98,12 +98,20 @@ jobs:
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
 
       - name: Upload to App Store Connect via fastlane pilot
+        # fastlane pilot's CLI has no --api_key_id/--api_issuer_id flags:
+        # see ios-good-company.yml's own comment on this step.
         run: |
           gem install fastlane --no-document
+          cat > $RUNNER_TEMP/asc_api_key.json <<JSON
+          {
+            "key_id": "${{ secrets.ASC_API_KEY_ID }}",
+            "issuer_id": "${{ secrets.ASC_API_KEY_ISSUER_ID }}",
+            "key_filepath": "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8",
+            "in_house": false
+          }
+          JSON
           fastlane pilot upload \
-            --api_key_path "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
-            --api_key_id "${{ secrets.ASC_API_KEY_ID }}" \
-            --api_issuer_id "${{ secrets.ASC_API_KEY_ISSUER_ID }}" \
+            --api_key_path "$RUNNER_TEMP/asc_api_key.json" \
             --ipa "$RUNNER_TEMP/export/App.ipa" \
             --app_identifier "com.emergingtechlab.almosthuman" \
             --skip_waiting_for_build_processing true
