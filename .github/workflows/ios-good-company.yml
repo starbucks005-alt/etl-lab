@@ -155,11 +155,22 @@ jobs:
         # was still getting tagged with an encoding JSON.generate won't
         # trust. Reading as UTF-8 explicitly and scrubbing any stray
         # bytes removes that ambiguity.
+        #
+        # openssl ec conversion added 2026-09-02: the JSON built fine, but
+        # OpenSSL::PKey::EC#initialize itself then errored "string contains
+        # null byte" -- a known Ruby/OpenSSL quirk where OpenSSL::PKey::EC
+        # (which fastlane's spaceship code calls directly, not the
+        # format-detecting OpenSSL::PKey.read) doesn't reliably parse
+        # Apple's PKCS8-wrapped "BEGIN PRIVATE KEY" .p8 format and needs
+        # the older SEC1 "BEGIN EC PRIVATE KEY" form instead.
         run: |
           gem install fastlane --no-document
+          openssl ec \
+            -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
+            -out "$RUNNER_TEMP/AuthKey_traditional.pem"
           KEY_ID='${{ secrets.ASC_API_KEY_ID }}' \
           ISSUER_ID='${{ secrets.ASC_API_KEY_ISSUER_ID }}' \
-          KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
+          KEY_PATH="$RUNNER_TEMP/AuthKey_traditional.pem" \
           OUT_PATH="$RUNNER_TEMP/asc_api_key.json" \
           ruby -rjson -e '
             File.write(ENV["OUT_PATH"], JSON.generate({
