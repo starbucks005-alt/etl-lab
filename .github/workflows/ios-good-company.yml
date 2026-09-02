@@ -41,6 +41,11 @@ jobs:
         run: |
           mkdir -p $HOME/private_keys
           echo "${{ secrets.ASC_API_KEY_P8_BASE64 }}" | base64 --decode > $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+          echo "--- one-time diagnostic ---"
+          wc -c $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+          head -c 40 $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8; echo
+          tail -c 40 $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8; echo
+          ls -la $HOME/private_keys/
 
       # MANUAL SIGNING, added 2026-09-02, replacing -allowProvisioningUpdates.
       # Automatic signing kept insisting on an iOS App Development profile
