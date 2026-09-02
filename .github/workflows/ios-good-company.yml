@@ -44,20 +44,19 @@ jobs:
 
       - name: Archive
         working-directory: good-company-ios/ios/App
-        # CODE_SIGN_IDENTITY forced explicitly -- see ios-almost-human.yml's
-        # own comment for why: automatic signing's first request on a brand
-        # new App ID defaulted to a development profile instead of the App
-        # Store distribution one this archive actually needs.
+        # -destination generic/platform=iOS -- see ios-almost-human.yml's
+        # own comment for why, replacing an earlier attempt that forced
+        # CODE_SIGN_IDENTITY directly and conflicted outright instead.
         run: |
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
+            -destination 'generic/platform=iOS' \
             -archivePath $RUNNER_TEMP/App.xcarchive \
             -allowProvisioningUpdates \
             -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
             archive
 
       - name: Export IPA

@@ -39,22 +39,25 @@ jobs:
 
       - name: Archive
         working-directory: almost-human-ios/ios/App
-        # CODE_SIGN_IDENTITY forced explicitly, added 2026-09-02: on a brand
-        # new App ID with zero signing history, automatic signing's first
-        # profile request defaulted to an iOS App Development profile (which
-        # needs a registered test device, "-configuration Release" alone did
-        # not stop it) instead of the App Store distribution profile this
-        # archive actually needs. Forcing the identity removes the ambiguity.
+        # -destination generic/platform=iOS, added 2026-09-02, replacing an
+        # earlier attempt that forced CODE_SIGN_IDENTITY directly: that
+        # conflicted outright ("App is automatically signed for development,
+        # but a conflicting code signing identity Apple Distribution has
+        # been manually specified"), because something else had already
+        # locked in "development" as the profile type. Without an explicit
+        # destination, xcodebuild's automatic-signing bootstrap for a brand
+        # new App ID resolved toward a specific development device instead
+        # of "any iOS device," which is what an App Store archive needs.
         run: |
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
+            -destination 'generic/platform=iOS' \
             -archivePath $RUNNER_TEMP/App.xcarchive \
             -allowProvisioningUpdates \
             -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
             archive
 
       - name: Export IPA
