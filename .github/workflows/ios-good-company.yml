@@ -94,27 +94,14 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export and upload to App Store Connect
+      - name: Export IPA
         working-directory: good-company-ios/ios/App
-        # destination=upload retried 2026-09-02: everything tried since
-        # switching to fastlane (JSON format, encoding, key format,
-        # openssl variant) turned out to be chasing symptoms of one real
-        # root cause discovered only now -- the ASC_API_KEY_P8_BASE64
-        # secret held the wrong (certificate) data the entire time this
-        # session, confirmed by a diagnostic showing the decoded .p8 as
-        # binary garbage. It's since been corrected (confirmed via a
-        # clean openssl pkey -text parse: real P-256 key material). That
-        # means destination=upload's earlier "Failed to Use Accounts"
-        # failures, and -authenticationKeyPath's "keyPathInvalid" failures,
-        # were likely ALSO just symptoms of the same bad secret and were
-        # never genuinely tested against valid key data. altool itself
-        # (both directly and via fastlane's pilot, which turned out to
-        # still shell out to the same altool binary) has separately proven
-        # unreliable even with the now-confirmed-valid key ("does not
-        # contain a valid authentication key", -39) -- a real, known
-        # altool quirk independent of file correctness. destination=upload
-        # is the one xcodebuild path that doesn't go through altool at
-        # all, so it's worth a clean retry now that the key is verified.
+        # No destination=upload, reverted again 2026-09-02: retried it now
+        # that ASC_API_KEY_P8_BASE64 is confirmed to hold a genuinely
+        # valid key (see below), and it failed identically, "Failed to Use
+        # Accounts" -- so that path really does need a signed-in Xcode
+        # Accounts session regardless of key correctness, not a symptom of
+        # the earlier bad secret. Plain export has always been reliable.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -123,8 +110,6 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
-            <key>destination</key>
-            <string>upload</string>
             <key>teamID</key>
             <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
@@ -143,3 +128,21 @@ jobs:
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+
+      - name: Upload to App Store Connect
+        # Back to plain altool, 2026-09-02: the original "isn't in the
+        # correct format" altool failure, hours ago, happened before the
+        # ASC_API_KEY_P8_BASE64 secret's corruption was discovered and
+        # fixed -- it was likely reading that same garbage data the whole
+        # time and never genuinely tested with a valid key. fastlane's own
+        # pilot upload, tested moments ago WITH the now-confirmed-valid
+        # key, still shells out to this identical altool binary and got a
+        # different, more specific rejection (-39, does not contain a
+        # valid authentication key) from its own regenerated temp copy of
+        # the file -- worth seeing whether altool behaves differently
+        # against our own original file, written directly from the fixed
+        # secret, rather than fastlane's re-serialized copy.
+        run: |
+          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
+            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
+            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}
