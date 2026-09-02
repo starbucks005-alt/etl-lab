@@ -94,7 +94,7 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export and upload to App Store Connect
+      - name: Export IPA
         working-directory: good-company-ios/ios/App
         # No -authenticationKeyPath, added 2026-09-02: xcodebuild kept
         # rejecting it as "keyPathInvalid" even though the path resolved
@@ -104,20 +104,16 @@ jobs:
         # dropping the explicit path lets that auto-discovery do the work
         # instead of whatever validation the explicit flag was failing.
         #
-        # destination=upload added 2026-09-02, replacing a separate `xcrun
-        # altool --upload-app` step: Export IPA itself succeeded using this
-        # same authenticationKeyID/IssuerID pair, but altool then refused
-        # the exact file that export had just produced ("isn't in the
-        # correct format"). destination=upload has xcodebuild hand the
-        # build straight to App Store Connect over the same, already-
-        # working auth path instead of a second tool re-reading the file
-        # from disk.
-        #
-        # teamID added 2026-09-02: destination=upload then failed with
-        # "exportArchive Failed to Use Accounts" -- that's xcodebuild
-        # trying to resolve the team via a signed-in Xcode Accounts
-        # session, which a CI runner never has. An explicit teamID in the
-        # export options skips that lookup entirely.
+        # No destination=upload, reverted 2026-09-02: tried it as a way to
+        # skip a separate altool upload step, but it failed 3-for-3 across
+        # all three apps with "exportArchive Failed to Use Accounts", even
+        # with an explicit teamID and -allowProvisioningUpdates added.
+        # Neither budged the error, meaning the upload leg of destination=
+        # upload wants a signed-in Xcode Accounts session regardless of the
+        # API key -- something a CI runner never has. Plain export (no
+        # destination key) has succeeded twice already with a real file on
+        # disk, so that's the known-working half; the upload step below is
+        # separate again.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -126,8 +122,6 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
-            <key>destination</key>
-            <string>upload</string>
             <key>teamID</key>
             <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
@@ -145,5 +139,22 @@ jobs:
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
-            -allowProvisioningUpdates
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+
+      # Diagnostic, added 2026-09-02: altool previously rejected this exact
+      # file with "isn't in the correct format" and no further detail.
+      # Rather than guess again, this uploads the real .ipa as a GitHub
+      # Actions artifact so it can be downloaded and opened directly --
+      # `file`, `unzip -l` -- instead of reading tea leaves from a log.
+      - name: Upload IPA as build artifact for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: good-company-ipa
+          path: ${{ runner.temp }}/export/App.ipa
+          retention-days: 3
+
+      - name: Upload to App Store Connect
+        run: |
+          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
+            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
+            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}
