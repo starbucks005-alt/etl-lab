@@ -178,11 +178,26 @@ jobs:
         # OpenSSL 3.x is available there too.
         run: |
           gem install fastlane --no-document
+          echo "--- one-time diagnostic ---"
           OPENSSL_BIN="/opt/homebrew/opt/openssl@3/bin/openssl"
-          if [ ! -x "$OPENSSL_BIN" ]; then OPENSSL_BIN="openssl"; fi
+          if [ ! -x "$OPENSSL_BIN" ]; then
+            echo "Homebrew openssl not found at $OPENSSL_BIN, falling back"
+            OPENSSL_BIN="openssl"
+          fi
+          echo "Using: $OPENSSL_BIN"
+          "$OPENSSL_BIN" version
+          which openssl
+          openssl version
+          echo "--- key file ---"
+          wc -c "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8"
+          head -c 40 "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8"; echo
+          tail -c 40 "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8"; echo
+          echo "--- pkey dry parse ---"
+          "$OPENSSL_BIN" pkey -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" -noout -text < /dev/null || true
+          echo "--- end diagnostic ---"
           "$OPENSSL_BIN" pkey -traditional \
             -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
-            -out "$RUNNER_TEMP/AuthKey_traditional.pem"
+            -out "$RUNNER_TEMP/AuthKey_traditional.pem" < /dev/null
           KEY_ID='${{ secrets.ASC_API_KEY_ID }}' \
           ISSUER_ID='${{ secrets.ASC_API_KEY_ISSUER_ID }}' \
           KEY_PATH="$RUNNER_TEMP/AuthKey_traditional.pem" \
