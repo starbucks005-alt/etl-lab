@@ -156,16 +156,21 @@ jobs:
         # trust. Reading as UTF-8 explicitly and scrubbing any stray
         # bytes removes that ambiguity.
         #
-        # openssl ec conversion added 2026-09-02: the JSON built fine, but
-        # OpenSSL::PKey::EC#initialize itself then errored "string contains
-        # null byte" -- a known Ruby/OpenSSL quirk where OpenSSL::PKey::EC
-        # (which fastlane's spaceship code calls directly, not the
-        # format-detecting OpenSSL::PKey.read) doesn't reliably parse
-        # Apple's PKCS8-wrapped "BEGIN PRIVATE KEY" .p8 format and needs
-        # the older SEC1 "BEGIN EC PRIVATE KEY" form instead.
+        # openssl pkey conversion added 2026-09-02: the JSON built fine,
+        # but OpenSSL::PKey::EC#initialize itself then errored "string
+        # contains null byte" -- a known Ruby/OpenSSL quirk where
+        # OpenSSL::PKey::EC (which fastlane's spaceship code calls
+        # directly, not the format-detecting OpenSSL::PKey.read) doesn't
+        # reliably parse Apple's PKCS8-wrapped "BEGIN PRIVATE KEY" .p8
+        # format and needs the older SEC1 "BEGIN EC PRIVATE KEY" form
+        # instead. `openssl ec` itself turned out to be the wrong tool for
+        # that conversion -- it expects its INPUT to already be SEC1, not
+        # PKCS8, so it failed with "unable to load Key" on the real .p8.
+        # `openssl pkey` is the PKCS8-aware command; -traditional makes it
+        # write SEC1 output.
         run: |
           gem install fastlane --no-document
-          openssl ec \
+          openssl pkey -traditional \
             -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
             -out "$RUNNER_TEMP/AuthKey_traditional.pem"
           KEY_ID='${{ secrets.ASC_API_KEY_ID }}' \
