@@ -100,4 +100,5 @@ jobs:
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
+            -allowProvisioningUpdates
