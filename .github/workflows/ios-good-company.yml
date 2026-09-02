@@ -94,24 +94,20 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export and upload to App Store Connect
+      - name: Export IPA
         working-directory: good-company-ios/ios/App
-        # destination=upload + explicit -authenticationKeyPath, added
-        # 2026-09-02. Two things are now both true for the first time:
-        # altool has been ruled out as a reliable upload path -- it kept
-        # failing with "isn't in the correct format" on a file that's
-        # provably a valid, well-formed .ipa (downloaded and opened the
-        # actual artifact: real Payload/App.app bundle, real code signing;
-        # even stripping the one non-standard Signatures/ folder inside it
-        # made zero difference to the error). And destination=upload, which
-        # got further before (real Archive/Export success, failing only on
-        # "Failed to Use Accounts" for the upload leg specifically), was
-        # never tried with an explicit -authenticationKeyPath -- earlier in
-        # this same session that flag caused a *different* error
-        # (keyPathInvalid), but that was traced to the ASC_API_KEY_P8_BASE64
-        # secret holding the wrong file's contents at the time, not to the
-        # flag itself. That's since been corrected, so this combination is
-        # genuinely untested with valid key data.
+        # No destination=upload, no -authenticationKeyPath: both of
+        # Xcode's own upload mechanisms are broken on this Xcode 26.6
+        # image. destination=upload fails with "Failed to Use Accounts"
+        # regardless of teamID/-allowProvisioningUpdates; an explicit
+        # -authenticationKeyPath fails with keyPathInvalid even with
+        # confirmed-correct key content -- that flag itself is the bug,
+        # not anything about the file. Plain export + ID/IssuerID-only
+        # auto-discovery is the one combination that has reliably worked
+        # every time. Upload now goes through fastlane's `pilot` below
+        # instead of xcodebuild or altool, added 2026-09-02: fastlane
+        # reads the API key itself in Ruby rather than going through the
+        # DVTFoundation.JWT validation that's been failing.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -120,8 +116,6 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
-            <key>destination</key>
-            <string>upload</string>
             <key>teamID</key>
             <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
@@ -139,5 +133,15 @@ jobs:
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
-            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+
+      - name: Upload to App Store Connect via fastlane pilot
+        run: |
+          gem install fastlane --no-document
+          fastlane pilot upload \
+            --api_key_path "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
+            --api_key_id "${{ secrets.ASC_API_KEY_ID }}" \
+            --api_issuer_id "${{ secrets.ASC_API_KEY_ISSUER_ID }}" \
+            --ipa "$RUNNER_TEMP/export/App.ipa" \
+            --app_identifier "com.emergingtechlab.goodcompany" \
+            --skip_waiting_for_build_processing true

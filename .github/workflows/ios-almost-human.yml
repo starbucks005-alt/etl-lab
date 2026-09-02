@@ -66,10 +66,10 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export and upload to App Store Connect
+      - name: Export IPA
         working-directory: almost-human-ios/ios/App
-        # destination=upload + explicit -authenticationKeyPath, added
-        # 2026-09-02: see ios-good-company.yml's own comment on this step.
+        # No destination=upload, no -authenticationKeyPath: see
+        # ios-good-company.yml's own comment on this step.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -78,8 +78,6 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
-            <key>destination</key>
-            <string>upload</string>
             <key>teamID</key>
             <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
@@ -97,5 +95,15 @@ jobs:
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
-            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+
+      - name: Upload to App Store Connect via fastlane pilot
+        run: |
+          gem install fastlane --no-document
+          fastlane pilot upload \
+            --api_key_path "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
+            --api_key_id "${{ secrets.ASC_API_KEY_ID }}" \
+            --api_issuer_id "${{ secrets.ASC_API_KEY_ISSUER_ID }}" \
+            --ipa "$RUNNER_TEMP/export/App.ipa" \
+            --app_identifier "com.emergingtechlab.almosthuman" \
+            --skip_waiting_for_build_processing true
