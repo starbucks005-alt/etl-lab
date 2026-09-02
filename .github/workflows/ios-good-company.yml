@@ -94,26 +94,24 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export IPA
+      - name: Export and upload to App Store Connect
         working-directory: good-company-ios/ios/App
-        # No -authenticationKeyPath, added 2026-09-02: xcodebuild kept
-        # rejecting it as "keyPathInvalid" even though the path resolved
-        # correctly and the same file had just been written successfully
-        # -- $HOME/private_keys is one of the handful of directories
-        # Apple's own tooling auto-discovers a key from by ID alone, so
-        # dropping the explicit path lets that auto-discovery do the work
-        # instead of whatever validation the explicit flag was failing.
-        #
-        # No destination=upload, reverted 2026-09-02: tried it as a way to
-        # skip a separate altool upload step, but it failed 3-for-3 across
-        # all three apps with "exportArchive Failed to Use Accounts", even
-        # with an explicit teamID and -allowProvisioningUpdates added.
-        # Neither budged the error, meaning the upload leg of destination=
-        # upload wants a signed-in Xcode Accounts session regardless of the
-        # API key -- something a CI runner never has. Plain export (no
-        # destination key) has succeeded twice already with a real file on
-        # disk, so that's the known-working half; the upload step below is
-        # separate again.
+        # destination=upload + explicit -authenticationKeyPath, added
+        # 2026-09-02. Two things are now both true for the first time:
+        # altool has been ruled out as a reliable upload path -- it kept
+        # failing with "isn't in the correct format" on a file that's
+        # provably a valid, well-formed .ipa (downloaded and opened the
+        # actual artifact: real Payload/App.app bundle, real code signing;
+        # even stripping the one non-standard Signatures/ folder inside it
+        # made zero difference to the error). And destination=upload, which
+        # got further before (real Archive/Export success, failing only on
+        # "Failed to Use Accounts" for the upload leg specifically), was
+        # never tried with an explicit -authenticationKeyPath -- earlier in
+        # this same session that flag caused a *different* error
+        # (keyPathInvalid), but that was traced to the ASC_API_KEY_P8_BASE64
+        # secret holding the wrong file's contents at the time, not to the
+        # flag itself. That's since been corrected, so this combination is
+        # genuinely untested with valid key data.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -122,6 +120,8 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
             <key>teamID</key>
             <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
@@ -139,37 +139,5 @@ jobs:
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
-
-      # Diagnostic, added 2026-09-02: altool previously rejected this exact
-      # file with "isn't in the correct format" and no further detail.
-      # Rather than guess again, this uploads the real .ipa as a GitHub
-      # Actions artifact so it can be downloaded and opened directly --
-      # `file`, `unzip -l` -- instead of reading tea leaves from a log.
-      - name: Upload IPA as build artifact for inspection
-        uses: actions/upload-artifact@v4
-        with:
-          name: good-company-ipa
-          path: ${{ runner.temp }}/export/App.ipa
-          retention-days: 3
-
-      # Strip Signatures/, added 2026-09-02: inspecting the artifact above
-      # showed a real, valid Payload/App.app/ bundle with proper code
-      # signing -- but also a top-level Signatures/ folder (XCFramework
-      # provenance signatures Xcode 15+ writes for CocoaPods-vendored
-      # xcframeworks like Capacitor's and Cordova's). That folder isn't
-      # part of the actual .ipa spec, which only ever expects Payload/,
-      # SwiftSupport/, Symbols/, WatchKitSupport/ -- altool's older
-      # ContentDelivery framework doesn't know what to do with it and
-      # throws the generic "isn't in the correct format" error instead of
-      # naming the real problem.
-      - name: Strip non-standard Signatures folder from IPA
-        working-directory: good-company-ios/ios/App
-        run: |
-          zip -d "$RUNNER_TEMP/export/App.ipa" "Signatures/*"
-
-      - name: Upload to App Store Connect
-        run: |
-          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
-            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
-            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
+            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8

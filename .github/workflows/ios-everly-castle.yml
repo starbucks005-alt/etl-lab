@@ -66,13 +66,10 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export IPA
+      - name: Export and upload to App Store Connect
         working-directory: everly-castle-ios/ios/App
-        # No destination=upload, reverted 2026-09-02: see ios-good-company.yml's
-        # own comment on this step -- it failed 3-for-3 across all three apps
-        # with "exportArchive Failed to Use Accounts", unmoved by an explicit
-        # teamID or -allowProvisioningUpdates. Plain export has succeeded
-        # before with a real file on disk; upload is a separate step again.
+        # destination=upload + explicit -authenticationKeyPath, added
+        # 2026-09-02: see ios-good-company.yml's own comment on this step.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -81,6 +78,8 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
             <key>teamID</key>
             <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
@@ -98,32 +97,5 @@ jobs:
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
-
-      # Diagnostic, added 2026-09-02: see ios-good-company.yml's own comment
-      # -- altool previously rejected this exact file with "isn't in the
-      # correct format" and no further detail. This uploads the real .ipa
-      # as a GitHub Actions artifact so it can be opened directly.
-      - name: Upload IPA as build artifact for inspection
-        uses: actions/upload-artifact@v4
-        with:
-          name: everly-castle-ipa
-          path: ${{ runner.temp }}/export/App.ipa
-          retention-days: 3
-
-      # Strip Signatures/, added 2026-09-02: see ios-good-company.yml's own
-      # comment -- the real exported .ipa is valid but carries a top-level
-      # Signatures/ folder (XCFramework provenance signatures Xcode 15+
-      # writes for CocoaPods-vendored xcframeworks) that isn't part of the
-      # actual .ipa spec and that altool's older ContentDelivery framework
-      # can't parse, hence the generic "isn't in the correct format" error.
-      - name: Strip non-standard Signatures folder from IPA
-        working-directory: everly-castle-ios/ios/App
-        run: |
-          zip -d "$RUNNER_TEMP/export/App.ipa" "Signatures/*"
-
-      - name: Upload to App Store Connect
-        run: |
-          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
-            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
-            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+            -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
+            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
