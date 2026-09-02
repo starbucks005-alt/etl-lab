@@ -41,11 +41,6 @@ jobs:
         run: |
           mkdir -p $HOME/private_keys
           echo "${{ secrets.ASC_API_KEY_P8_BASE64 }}" | base64 --decode > $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
-          echo "--- one-time diagnostic ---"
-          wc -c $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
-          head -c 40 $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8; echo
-          tail -c 40 $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8; echo
-          ls -la $HOME/private_keys/
 
       # MANUAL SIGNING, added 2026-09-02, replacing -allowProvisioningUpdates.
       # Automatic signing kept insisting on an iOS App Development profile
@@ -99,7 +94,7 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export IPA
+      - name: Export and upload to App Store Connect
         working-directory: good-company-ios/ios/App
         # No -authenticationKeyPath, added 2026-09-02: xcodebuild kept
         # rejecting it as "keyPathInvalid" even though the path resolved
@@ -108,6 +103,15 @@ jobs:
         # Apple's own tooling auto-discovers a key from by ID alone, so
         # dropping the explicit path lets that auto-discovery do the work
         # instead of whatever validation the explicit flag was failing.
+        #
+        # destination=upload added 2026-09-02, replacing a separate `xcrun
+        # altool --upload-app` step: Export IPA itself succeeded using this
+        # same authenticationKeyID/IssuerID pair, but altool then refused
+        # the exact file that export had just produced ("isn't in the
+        # correct format"). destination=upload has xcodebuild hand the
+        # build straight to App Store Connect over the same, already-
+        # working auth path instead of a second tool re-reading the file
+        # from disk.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -116,6 +120,8 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
             <key>signingStyle</key>
             <string>manual</string>
             <key>provisioningProfiles</key>
@@ -132,9 +138,3 @@ jobs:
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
-
-      - name: Upload to App Store Connect
-        run: |
-          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
-            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
-            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}

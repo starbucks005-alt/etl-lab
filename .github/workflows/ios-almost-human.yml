@@ -66,8 +66,13 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export IPA
+      - name: Export and upload to App Store Connect
         working-directory: almost-human-ios/ios/App
+        # destination=upload, added 2026-09-02: see ios-good-company.yml's
+        # own comment on this step -- a separate `xcrun altool --upload-app`
+        # step rejected the exact file Export IPA had just produced with
+        # the same auth. Having xcodebuild upload directly reuses the
+        # already-working auth path instead of a second tool re-reading it.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -76,6 +81,8 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
             <key>signingStyle</key>
             <string>manual</string>
             <key>provisioningProfiles</key>
@@ -92,9 +99,3 @@ jobs:
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
-
-      - name: Upload to App Store Connect
-        run: |
-          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
-            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
-            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}
