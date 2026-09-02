@@ -96,6 +96,13 @@ jobs:
 
       - name: Export IPA
         working-directory: good-company-ios/ios/App
+        # No -authenticationKeyPath, added 2026-09-02: xcodebuild kept
+        # rejecting it as "keyPathInvalid" even though the path resolved
+        # correctly and the same file had just been written successfully
+        # -- $HOME/private_keys is one of the handful of directories
+        # Apple's own tooling auto-discovers a key from by ID alone, so
+        # dropping the explicit path lets that auto-discovery do the work
+        # instead of whatever validation the explicit flag was failing.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -118,7 +125,6 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
-            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
 
