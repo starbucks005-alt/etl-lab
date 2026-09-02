@@ -111,7 +111,7 @@ jobs:
             File.write(ENV["OUT_PATH"], JSON.generate({
               key_id: ENV["KEY_ID"],
               issuer_id: ENV["ISSUER_ID"],
-              key: File.read(ENV["KEY_PATH"]),
+              key: File.read(ENV["KEY_PATH"], encoding: "UTF-8").scrub,
               in_house: false
             }))
           '
