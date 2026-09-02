@@ -39,8 +39,8 @@ jobs:
         # for why: a raw PEM secret can survive copy-paste into GitHub's UI
         # looking identical on screen with its line endings quietly changed.
         run: |
-          mkdir -p ~/private_keys
-          echo "${{ secrets.ASC_API_KEY_P8_BASE64 }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+          mkdir -p $HOME/private_keys
+          echo "${{ secrets.ASC_API_KEY_P8_BASE64 }}" | base64 --decode > $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
 
       # MANUAL SIGNING, added 2026-09-02, replacing -allowProvisioningUpdates.
       # Automatic signing kept insisting on an iOS App Development profile
@@ -118,7 +118,7 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             -exportPath $RUNNER_TEMP/export \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
-            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
+            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
 
