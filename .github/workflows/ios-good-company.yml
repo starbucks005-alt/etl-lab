@@ -35,9 +35,12 @@ jobs:
       # it. Same trust boundary as the Android keystore file already in this
       # repo, just Apple's own equivalent.
       - name: Write App Store Connect API key
+        # base64 in, decoded here -- see ios-almost-human.yml's own comment
+        # for why: a raw PEM secret can survive copy-paste into GitHub's UI
+        # looking identical on screen with its line endings quietly changed.
         run: |
           mkdir -p ~/private_keys
-          echo "${{ secrets.ASC_API_KEY_P8 }}" > ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+          echo "${{ secrets.ASC_API_KEY_P8_BASE64 }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
 
       - name: Archive
         working-directory: good-company-ios/ios/App

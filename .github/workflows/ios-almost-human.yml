@@ -29,9 +29,13 @@ jobs:
         run: pod install
 
       - name: Write App Store Connect API key
+        # base64 in, decoded here -- a raw multi-line PEM secret survived
+        # copy-paste into GitHub's UI looking identical on screen but with
+        # its line endings quietly changed, and xcodebuild's ASN1 parser is
+        # strict enough to reject that. Base64 has no line endings to mangle.
         run: |
           mkdir -p ~/private_keys
-          echo "${{ secrets.ASC_API_KEY_P8 }}" > ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
+          echo "${{ secrets.ASC_API_KEY_P8_BASE64 }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8
 
       - name: Archive
         working-directory: almost-human-ios/ios/App
