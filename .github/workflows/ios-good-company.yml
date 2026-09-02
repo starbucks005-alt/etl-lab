@@ -94,20 +94,27 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             archive
 
-      - name: Export IPA
+      - name: Export and upload to App Store Connect
         working-directory: good-company-ios/ios/App
-        # No destination=upload, no -authenticationKeyPath: both of
-        # Xcode's own upload mechanisms are broken on this Xcode 26.6
-        # image. destination=upload fails with "Failed to Use Accounts"
-        # regardless of teamID/-allowProvisioningUpdates; an explicit
-        # -authenticationKeyPath fails with keyPathInvalid even with
-        # confirmed-correct key content -- that flag itself is the bug,
-        # not anything about the file. Plain export + ID/IssuerID-only
-        # auto-discovery is the one combination that has reliably worked
-        # every time. Upload now goes through fastlane's `pilot` below
-        # instead of xcodebuild or altool, added 2026-09-02: fastlane
-        # reads the API key itself in Ruby rather than going through the
-        # DVTFoundation.JWT validation that's been failing.
+        # destination=upload retried 2026-09-02: everything tried since
+        # switching to fastlane (JSON format, encoding, key format,
+        # openssl variant) turned out to be chasing symptoms of one real
+        # root cause discovered only now -- the ASC_API_KEY_P8_BASE64
+        # secret held the wrong (certificate) data the entire time this
+        # session, confirmed by a diagnostic showing the decoded .p8 as
+        # binary garbage. It's since been corrected (confirmed via a
+        # clean openssl pkey -text parse: real P-256 key material). That
+        # means destination=upload's earlier "Failed to Use Accounts"
+        # failures, and -authenticationKeyPath's "keyPathInvalid" failures,
+        # were likely ALSO just symptoms of the same bad secret and were
+        # never genuinely tested against valid key data. altool itself
+        # (both directly and via fastlane's pilot, which turned out to
+        # still shell out to the same altool binary) has separately proven
+        # unreliable even with the now-confirmed-valid key ("does not
+        # contain a valid authentication key", -39) -- a real, known
+        # altool quirk independent of file correctness. destination=upload
+        # is the one xcodebuild path that doesn't go through altool at
+        # all, so it's worth a clean retry now that the key is verified.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -116,6 +123,8 @@ jobs:
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
             <key>teamID</key>
             <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
@@ -134,84 +143,3 @@ jobs:
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
-
-      - name: Upload to App Store Connect via fastlane pilot
-        # fastlane pilot's CLI has no --api_key_id/--api_issuer_id flags
-        # (that was a wrong guess at its syntax) -- it wants one
-        # --api_key_path pointing to a JSON file in fastlane's own
-        # App Store Connect API key format instead.
-        #
-        # key_filepath rejected 2026-09-02: fastlane's own JSON loader
-        # (Spaceship::ConnectAPI::Token.from_json_file) errored "missing
-        # field(s): key" -- this fastlane version only accepts the actual
-        # key content under "key", not a path to it. A Ruby one-liner
-        # builds the JSON so the multi-line PEM content gets escaped
-        # correctly, which a hand-written heredoc can't safely do.
-        #
-        # explicit UTF-8 + scrub added 2026-09-02: File.read with no
-        # encoding given errored "source sequence is illegal/malformed
-        # utf-8" out of JSON.generate -- the runner's default external
-        # encoding isn't UTF-8 (no LANG set), so a plain-ASCII PEM file
-        # was still getting tagged with an encoding JSON.generate won't
-        # trust. Reading as UTF-8 explicitly and scrubbing any stray
-        # bytes removes that ambiguity.
-        #
-        # openssl pkey conversion added 2026-09-02: the JSON built fine,
-        # but OpenSSL::PKey::EC#initialize itself then errored "string
-        # contains null byte" -- a known Ruby/OpenSSL quirk where
-        # OpenSSL::PKey::EC (which fastlane's spaceship code calls
-        # directly, not the format-detecting OpenSSL::PKey.read) doesn't
-        # reliably parse Apple's PKCS8-wrapped "BEGIN PRIVATE KEY" .p8
-        # format and needs the older SEC1 "BEGIN EC PRIVATE KEY" form
-        # instead. `openssl ec` itself turned out to be the wrong tool for
-        # that conversion -- it expects its INPUT to already be SEC1, not
-        # PKCS8, so it failed with "unable to load Key" on the real .p8.
-        # `openssl pkey` is the PKCS8-aware command; -traditional makes it
-        # write SEC1 output.
-        #
-        # Homebrew openssl added 2026-09-02: `openssl pkey` then prompted
-        # "Enter pass phrase for PKCS12 import pass phrase" and failed --
-        # macOS's system /usr/bin/openssl is actually Apple's LibreSSL,
-        # not real OpenSSL, and mishandles this plain unencrypted PKCS8
-        # key as if it needed a PKCS12 passphrase. fastlane's own Ruby
-        # toolchain is already Homebrew-based on this runner, so real
-        # OpenSSL 3.x is available there too.
-        run: |
-          gem install fastlane --no-document
-          echo "--- one-time diagnostic ---"
-          OPENSSL_BIN="/opt/homebrew/opt/openssl@3/bin/openssl"
-          if [ ! -x "$OPENSSL_BIN" ]; then
-            echo "Homebrew openssl not found at $OPENSSL_BIN, falling back"
-            OPENSSL_BIN="openssl"
-          fi
-          echo "Using: $OPENSSL_BIN"
-          "$OPENSSL_BIN" version
-          which openssl
-          openssl version
-          echo "--- key file ---"
-          wc -c "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8"
-          head -c 40 "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8"; echo
-          tail -c 40 "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8"; echo
-          echo "--- pkey dry parse ---"
-          "$OPENSSL_BIN" pkey -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" -noout -text < /dev/null || true
-          echo "--- end diagnostic ---"
-          "$OPENSSL_BIN" pkey -traditional \
-            -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
-            -out "$RUNNER_TEMP/AuthKey_traditional.pem" < /dev/null
-          KEY_ID='${{ secrets.ASC_API_KEY_ID }}' \
-          ISSUER_ID='${{ secrets.ASC_API_KEY_ISSUER_ID }}' \
-          KEY_PATH="$RUNNER_TEMP/AuthKey_traditional.pem" \
-          OUT_PATH="$RUNNER_TEMP/asc_api_key.json" \
-          ruby -rjson -e '
-            File.write(ENV["OUT_PATH"], JSON.generate({
-              key_id: ENV["KEY_ID"],
-              issuer_id: ENV["ISSUER_ID"],
-              key: File.read(ENV["KEY_PATH"], encoding: "UTF-8").scrub,
-              in_house: false
-            }))
-          '
-          fastlane pilot upload \
-            --api_key_path "$RUNNER_TEMP/asc_api_key.json" \
-            --ipa "$RUNNER_TEMP/export/App.ipa" \
-            --app_identifier "com.emergingtechlab.goodcompany" \
-            --skip_waiting_for_build_processing true
