@@ -97,35 +97,13 @@ jobs:
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }}
 
-      - name: Upload to App Store Connect via fastlane pilot
-        # fastlane pilot's CLI has no --api_key_id/--api_issuer_id flags,
-        # key_filepath is rejected, and the raw .p8 fails OpenSSL parsing
-        # with "string contains null byte": see ios-good-company.yml's own
-        # comment on this step. openssl pkey (not openssl ec, which needs
-        # SEC1 input already) is the PKCS8-aware conversion command, and
-        # it has to be Homebrew's real openssl, not macOS's LibreSSL-based
-        # system one -- see ios-good-company.yml's own comment.
+      - name: Upload to App Store Connect
+        # Back to plain altool, 2026-09-02: fastlane's pilot got as far as
+        # a genuine upload attempt but altool (which it still shells out
+        # to) rejected its own regenerated temp copy of the key. Good
+        # Company's identical plain-altool step succeeded once the
+        # ASC_API_KEY_P8_BASE64 secret was fixed -- see its own comment.
         run: |
-          gem install fastlane --no-document
-          OPENSSL_BIN="/opt/homebrew/opt/openssl@3/bin/openssl"
-          if [ ! -x "$OPENSSL_BIN" ]; then OPENSSL_BIN="openssl"; fi
-          "$OPENSSL_BIN" pkey -traditional \
-            -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
-            -out "$RUNNER_TEMP/AuthKey_traditional.pem"
-          KEY_ID='${{ secrets.ASC_API_KEY_ID }}' \
-          ISSUER_ID='${{ secrets.ASC_API_KEY_ISSUER_ID }}' \
-          KEY_PATH="$RUNNER_TEMP/AuthKey_traditional.pem" \
-          OUT_PATH="$RUNNER_TEMP/asc_api_key.json" \
-          ruby -rjson -e '
-            File.write(ENV["OUT_PATH"], JSON.generate({
-              key_id: ENV["KEY_ID"],
-              issuer_id: ENV["ISSUER_ID"],
-              key: File.read(ENV["KEY_PATH"], encoding: "UTF-8").scrub,
-              in_house: false
-            }))
-          '
-          fastlane pilot upload \
-            --api_key_path "$RUNNER_TEMP/asc_api_key.json" \
-            --ipa "$RUNNER_TEMP/export/App.ipa" \
-            --app_identifier "com.emergingtechlab.everlycastle" \
-            --skip_waiting_for_build_processing true
+          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
+            --apiKey ${{ secrets.ASC_API_KEY_ID }} \
+            --apiIssuer ${{ secrets.ASC_API_KEY_ISSUER_ID }}
