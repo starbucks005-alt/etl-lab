@@ -111,6 +111,17 @@ jobs:
           path: ${{ runner.temp }}/export/App.ipa
           retention-days: 3
 
+      # Strip Signatures/, added 2026-09-02: see ios-good-company.yml's own
+      # comment -- the real exported .ipa is valid but carries a top-level
+      # Signatures/ folder (XCFramework provenance signatures Xcode 15+
+      # writes for CocoaPods-vendored xcframeworks) that isn't part of the
+      # actual .ipa spec and that altool's older ContentDelivery framework
+      # can't parse, hence the generic "isn't in the correct format" error.
+      - name: Strip non-standard Signatures folder from IPA
+        working-directory: almost-human-ios/ios/App
+        run: |
+          zip -d "$RUNNER_TEMP/export/App.ipa" "Signatures/*"
+
       - name: Upload to App Store Connect
         run: |
           xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \

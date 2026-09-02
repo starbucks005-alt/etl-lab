@@ -153,6 +153,21 @@ jobs:
           path: ${{ runner.temp }}/export/App.ipa
           retention-days: 3
 
+      # Strip Signatures/, added 2026-09-02: inspecting the artifact above
+      # showed a real, valid Payload/App.app/ bundle with proper code
+      # signing -- but also a top-level Signatures/ folder (XCFramework
+      # provenance signatures Xcode 15+ writes for CocoaPods-vendored
+      # xcframeworks like Capacitor's and Cordova's). That folder isn't
+      # part of the actual .ipa spec, which only ever expects Payload/,
+      # SwiftSupport/, Symbols/, WatchKitSupport/ -- altool's older
+      # ContentDelivery framework doesn't know what to do with it and
+      # throws the generic "isn't in the correct format" error instead of
+      # naming the real problem.
+      - name: Strip non-standard Signatures folder from IPA
+        working-directory: good-company-ios/ios/App
+        run: |
+          zip -d "$RUNNER_TEMP/export/App.ipa" "Signatures/*"
+
       - name: Upload to App Store Connect
         run: |
           xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
