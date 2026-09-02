@@ -83,6 +83,8 @@ jobs:
             <string>app-store-connect</string>
             <key>destination</key>
             <string>upload</string>
+            <key>teamID</key>
+            <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
             <string>manual</string>
             <key>provisioningProfiles</key>

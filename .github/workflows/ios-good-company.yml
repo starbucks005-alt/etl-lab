@@ -112,6 +112,12 @@ jobs:
         # build straight to App Store Connect over the same, already-
         # working auth path instead of a second tool re-reading the file
         # from disk.
+        #
+        # teamID added 2026-09-02: destination=upload then failed with
+        # "exportArchive Failed to Use Accounts" -- that's xcodebuild
+        # trying to resolve the team via a signed-in Xcode Accounts
+        # session, which a CI runner never has. An explicit teamID in the
+        # export options skips that lookup entirely.
         run: |
           cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -122,6 +128,8 @@ jobs:
             <string>app-store-connect</string>
             <key>destination</key>
             <string>upload</string>
+            <key>teamID</key>
+            <string>9HPF7YA3P3</string>
             <key>signingStyle</key>
             <string>manual</string>
             <key>provisioningProfiles</key>
