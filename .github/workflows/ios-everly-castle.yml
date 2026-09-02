@@ -38,6 +38,10 @@ jobs:
 
       - name: Archive
         working-directory: everly-castle-ios/ios/App
+        # CODE_SIGN_IDENTITY forced explicitly -- see ios-almost-human.yml's
+        # own comment for why: automatic signing's first request on a brand
+        # new App ID defaulted to a development profile instead of the App
+        # Store distribution one this archive actually needs.
         run: |
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
@@ -47,6 +51,7 @@ jobs:
             -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             archive
 
       - name: Export IPA

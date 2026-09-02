@@ -39,6 +39,12 @@ jobs:
 
       - name: Archive
         working-directory: almost-human-ios/ios/App
+        # CODE_SIGN_IDENTITY forced explicitly, added 2026-09-02: on a brand
+        # new App ID with zero signing history, automatic signing's first
+        # profile request defaulted to an iOS App Development profile (which
+        # needs a registered test device, "-configuration Release" alone did
+        # not stop it) instead of the App Store distribution profile this
+        # archive actually needs. Forcing the identity removes the ambiguity.
         run: |
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
@@ -48,6 +54,7 @@ jobs:
             -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8 \
             -authenticationKeyID ${{ secrets.ASC_API_KEY_ID }} \
             -authenticationKeyIssuerID ${{ secrets.ASC_API_KEY_ISSUER_ID }} \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             archive
 
       - name: Export IPA
