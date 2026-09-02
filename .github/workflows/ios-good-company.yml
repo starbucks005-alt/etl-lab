@@ -168,9 +168,19 @@ jobs:
         # PKCS8, so it failed with "unable to load Key" on the real .p8.
         # `openssl pkey` is the PKCS8-aware command; -traditional makes it
         # write SEC1 output.
+        #
+        # Homebrew openssl added 2026-09-02: `openssl pkey` then prompted
+        # "Enter pass phrase for PKCS12 import pass phrase" and failed --
+        # macOS's system /usr/bin/openssl is actually Apple's LibreSSL,
+        # not real OpenSSL, and mishandles this plain unencrypted PKCS8
+        # key as if it needed a PKCS12 passphrase. fastlane's own Ruby
+        # toolchain is already Homebrew-based on this runner, so real
+        # OpenSSL 3.x is available there too.
         run: |
           gem install fastlane --no-document
-          openssl pkey -traditional \
+          OPENSSL_BIN="/opt/homebrew/opt/openssl@3/bin/openssl"
+          if [ ! -x "$OPENSSL_BIN" ]; then OPENSSL_BIN="openssl"; fi
+          "$OPENSSL_BIN" pkey -traditional \
             -in "$HOME/private_keys/AuthKey_${{ secrets.ASC_API_KEY_ID }}.p8" \
             -out "$RUNNER_TEMP/AuthKey_traditional.pem"
           KEY_ID='${{ secrets.ASC_API_KEY_ID }}' \
