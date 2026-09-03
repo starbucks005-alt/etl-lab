@@ -1365,22 +1365,48 @@ function addStaticPlayButton(bubble, src) {
   });
   bubble.appendChild(btn);
 }
+/* SPELLED OUT, 2026-09-03, Dr. O direct: "this scene confuses people. They
+   do not know what to do. It needs to be spelled out. It is where the user
+   can be sorted into a house. 1. headmaster speaks 2. Mirror speaks 3. User
+   chooses 4. Mirror tells them their house." The sequence was already that;
+   what was missing was saying so. Every step is now named on screen, the
+   four buttons are introduced as the person's turn, the composer's own
+   placeholder points at them until one is pressed, and the verdict names
+   the house in so many words before Cassius's line. */
+function mirrorAside(html) {
+  var d = document.createElement('div');
+  d.className = 'aside mirror-step';
+  d.style.cssText = 'font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; ' +
+                    'color:var(--ink-dim); margin:.9rem 0 .35rem; line-height:1.6;';
+  d.innerHTML = html;
+  $('log').appendChild(d);
+  return d;
+}
 function mirrorEncounter() {
+  mirrorAside('<b>The Mirror sorts you into a house.</b> Four steps: the headmaster speaks, ' +
+              'the mirror speaks, you choose, the mirror names your house. Play buttons read each part aloud.');
+  mirrorAside('Step 1 of 4 &middot; the headmaster speaks');
   addStaticPlayButton(
-    post('Tarquin', "Go on then. Sit. And do look at it properly, mind. It hasn't the patience for a glance."),
+    post('Tarquin, the headmaster', "Go on then. Sit. And do look at it properly, mind. It hasn't the patience for a glance."),
     'audio/larkmere-tarquin-intro.mp3'
   );
+  mirrorAside('Step 2 of 4 &middot; the mirror speaks');
   addStaticPlayButton(
-    post('Cassius', 'In a moment, you shall see the thing you have not spoken aloud in rather a ' +
+    post('Cassius, the mirror', 'In a moment, you shall see the thing you have not spoken aloud in rather a ' +
       'long time. The one that still catches when the room falls quiet. When you do, you will ' +
       'do one of four things. Stand your ground. Push back. Reach for someone. Or look away. ' +
       'There is no wrong answer. Only the true one.'),
     'audio/larkmere-cassius-mirror.mp3'
   );
+  mirrorAside('Step 3 of 4 &middot; <b>your turn.</b> The glass shows you the thing. What do you do? Press one:');
+
+  var say = $('say');
+  var placeholderBefore = say ? say.placeholder : '';
+  if (say) say.placeholder = 'Press one of the four choices above to be sorted…';
 
   var chooser = document.createElement('div');
-  chooser.className = 'mirror-choice';
-  chooser.style.cssText = 'display:flex; flex-wrap:wrap; gap:.5rem; margin:.6rem 0 1rem;';
+  chooser.className = 'aside mirror-choice';
+  chooser.style.cssText = 'display:flex; flex-wrap:wrap; gap:.5rem; margin:.2rem 0 1rem;';
   [
     { key: 'calm', label: 'Stand still and face it' },
     { key: 'fight', label: 'Push back at it' },
@@ -1388,14 +1414,17 @@ function mirrorEncounter() {
     { key: 'retreat', label: 'Look away' },
   ].forEach(function (c) {
     var btn = document.createElement('button');
-    btn.type = 'button'; btn.className = 'btn';
+    btn.type = 'button'; btn.className = 'btn go';
     btn.textContent = c.label;
     btn.addEventListener('click', function () {
       Array.prototype.forEach.call(chooser.children, function (b) { b.disabled = true; });
+      btn.style.outline = '2px solid var(--accent)';
+      if (say) say.placeholder = placeholderBefore;
       post(YOU.name || 'You', c.label, true);
       var house = LARKMERE_HOUSES[c.key];
+      mirrorAside('Step 4 of 4 &middot; the mirror names your house');
       setTimeout(function () {
-        var verdict = post('Cassius', 'The glass answers. ' + house.name + '. ' + house.line);
+        var verdict = post('Cassius, the mirror', 'The glass answers. Your house is ' + house.name + '. ' + house.line);
         var who = verdict.querySelector('.who');
         if (who) who.style.color = house.color;
         /* MISSING UNTIL 2026-08-31, Dr. O: "some things are audio and some
@@ -1404,6 +1433,9 @@ function mirrorEncounter() {
            actually naming the house, never did -- a plain gap, not a
            playback bug. */
         if (house.audio) addStaticPlayButton(verdict, house.audio);
+        mirrorAside('<b>Sorted: House ' + house.name + '.</b> Say anything to talk to Tobias and Briar about it, ' +
+                    'or pick another scene below the picture.');
+        $('log').scrollTop = $('log').scrollHeight;
       }, 650);
     });
     chooser.appendChild(btn);
@@ -2802,6 +2834,11 @@ function setFeelings(f) {
 
 function transcript() {
   return Array.prototype.map.call($("log").children, function (el) {
+    /* NOT A MESSAGE. The mirror's step markers and its four choice buttons
+       sit in the log so they scroll with it, but nobody said them, and
+       before 2026-09-03 the chooser's four labels were read into history
+       as one run-together line the model then saw as its own. */
+    if (el.classList.contains('aside')) return null;
     var w = el.querySelector(".who");
     var who = w ? w.textContent.trim() : "";
     /* READ ONLY .msg-text, NEVER THE WHOLE BUBBLE. el.textContent used to
@@ -2815,7 +2852,7 @@ function transcript() {
     var t = el.querySelector(".msg-text");
     var text = t ? t.textContent.trim() : el.textContent.slice(who.length).trim();
     return { who: who, text: text, mine: el.classList.contains("mine") };
-  });
+  }).filter(Boolean);
 }
 
 /* A VISITOR'S OWN BUILT FRIEND, OFFERED TO WHOEVER'S ROOM THIS IS.
