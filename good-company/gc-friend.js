@@ -2045,6 +2045,12 @@ var GC_REGGIE = {
      excited." Same real voice id as her own room. */
   /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Arch's own
      identical comment above for why. */
+  /* SPECTATOR MODE, added 2026-09-03, Dr. O naming the rooms it belongs in:
+     "Reggie, Biscuit, Mochi." Who Reggie talks to when the people go quiet
+     and watch (room.html's spectatePartnersFor). His cameo list below runs
+     to the whole house cast, so the two who are actually his are named
+     rather than taken from the top of it. */
+  spectateWith: ['Biscuit', 'Mochi'],
   cameos: [
     { name: 'Biscuit', voiceId: 'MgqVq3OCTPeVHCEDr4HU' },
     { name: 'Mochi', voiceId: 'I8ERYU9lOxALy2vtIvHd' },
@@ -3287,6 +3293,14 @@ var GC_MARION = {
      grandparently activities in the story-time scene below); Sam and
      Daisy are the two kids. Henry, a third kid-coded name that only ever
      showed up in the fishing scene, was the extra one and is removed. */
+  /* SPECTATOR MODE, added 2026-09-03, Dr. O: "borrowers... Marion and
+     husband and two children and granddad/grandma." The household in her
+     walls is who Marion talks to when the people go quiet and watch: the
+     grandparents and the two kids, who are the four cameos below. HER
+     HUSBAND IS NOT HERE YET. He has no cameo entry, which means no name and
+     no voice, and a partner has to be on the cameo list to answer. When Dr.
+     O gives him both, he goes on the cameos list and on this one. */
+  spectateWith: ['Walter', 'Edith', 'Sam', 'Daisy'],
   cameos: [
     { name: 'Walter', voiceId: 'MKlLqCItoCkvdhrxgtLv' },
     { name: 'Edith', voiceId: 'YHcCpa6SBWnKDaCPZJQR' },

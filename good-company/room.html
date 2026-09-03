@@ -634,6 +634,13 @@ html{ zoom:90%; }
              offered a copy of it. -->
         <button class="btn" id="syncBtn" style="display:none">&#128241; Other device</button>
         <button class="btn" id="replyBtn">&#127911; Audio Off</button>
+        <!-- SPECTATOR MODE, added 2026-09-03, named by Dr. O. Only where there is
+             somebody in the room to talk to (a turnOrder room, a friend with
+             companions, or one with spectateWith): the people go quiet and the
+             companions carry on between themselves, a beat at a time, until
+             somebody types or presses it again. Hidden everywhere else and in
+             a shared room, where turns go through the room, not this button. -->
+        <button class="btn" id="spectateBtn" style="display:none">&#128065; Spectate</button>
         <button class="btn" id="albumBtn">&#128247; Photos</button>
         <button class="btn" id="memBtn">&#128206; Memory</button>
         <button class="btn" id="creditsBtn">&#128176; Credits</button>
@@ -2711,6 +2718,7 @@ if (introTipCloseBtn) introTipCloseBtn.addEventListener('click', gcDismissCompos
    speaks first. Coming back to it from the room shows the same panel rather
    than a second copy of it, and the conversation is still there afterwards. */
 function sitDown() {
+  if (typeof paintSpectate === 'function') paintSpectate();
   $("gate").style.display = "none";
   $("chat").style.display = "flex";
   if (!gcSeenComposerIntro()) {
@@ -2947,6 +2955,15 @@ function ask(payload) {
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
     lastSpoke = Date.now();
+    /* WHEN THE WHOLE TURN IS OVER, added 2026-09-03 for Spectator Mode: the
+       reply shown and said, the cameo shown and said, or nothing to show.
+       payload.onSettled(spoke, j) fires exactly once, audio on or off, so a
+       caller can chain the next beat without caring which path this took. */
+    var settledOnce = false;
+    function settled(spoke) {
+      if (settledOnce) return; settledOnce = true;
+      if (payload && typeof payload.onSettled === 'function') payload.onSettled(spoke, j);
+    }
     /* A NULL REPLY IS A REAL ANSWER, not a failure. Nothing is rendered: no
        bubble, no apology, no dots. If silence cannot be produced the room
        always feels like a demo.
@@ -2988,23 +3005,117 @@ function ask(payload) {
              speak in Arch's voice, which is exactly the thing "narrated,
              non-speaking" rules out. Skipped outright rather than passed
              through. */
-          if (j.cameo.voice_id) speak(j.cameo.text, j.cameo.voice_id, undefined, cameoBubble);
+          /* settled() rides the cameo's own onDone, so a spectate run waits for the
+             partner's answer to finish being said before asking for the next beat. */
+          if (j.cameo.voice_id) speak(j.cameo.text, j.cameo.voice_id, function () { settled(true); }, cameoBubble);
+          else settled(true);
           rememberCameoElsewhere(j.cameo.name, j.cameo.text);
-        }
+        } else settled(true);
       }
       if (j.reply) speak(j.reply, talkerVoice, showCameo, replyBubble);
       else showCameo();
     }
-    else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped, j.owner_key_rejected); }
-    else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
+    else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped, j.owner_key_rejected); settled(false); }
+    else if (j && j.error) { post("Not wired yet", "The chat function said: " + j.error); settled(false); }
+    else settled(false);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
     if (j && j.feelings) setFeelings(j.feelings);
     return j;
   }).catch(function (err) {
     thinking = false; $("sendBtn").disabled = false;
     post("Not wired yet", "Could not reach " + FRIEND.name + ". " + err.message);
+    if (payload && typeof payload.onSettled === 'function') payload.onSettled(false, null);
   });
 }
+
+/* ── SPECTATOR MODE ──────────────────────────────────────────────────────────
+   Added 2026-09-03, named by Dr. O: "the characters with 2+ [get] the chance
+   to play out their own conversations while the humans watch... a button
+   that lets the characters autoplay." Ported from My Echo the same day.
+
+   One press asks for a beat: a turn where nobody said anything, sent with
+   spectate:true and the names of who is in the room to talk to. gc-chat
+   has the speaker say something to a partner and the partner answer on the
+   cameo line. When that beat has been shown and said (ask's onSettled), the
+   next is asked for, until six, or the person types, or the button again.
+   A ceiling rather than forever: each beat is a model turn (Haiku, see
+   gc-chat's SPECTATE_MODEL) and a conversation nobody is in should wind
+   down on its own.
+
+   WHO THERE IS TO TALK TO. A turnOrder room (the Grimms, Tobias & Briar,
+   the puppets, the nursery): the other companions in the order, which are
+   exactly this speaker's cameos. A friend with a spectateWith list (Reggie:
+   Biscuit and Mochi; Marion: the household in her walls). A friend with
+   companions (Tansy: Poppy and Blue). Anybody else has nobody in the room
+   with them and never sees the button. NOT in a shared room: there the
+   turns go through gc-room-say, and this is a different feature. */
+var spectating = false, spectateBeats = 0, spectateTimer = null;
+var SPECTATE_MAX_BEATS = 6;
+var SPECTATE_PAUSE_MS = 1600;
+function spectatePartnersFor(speakerKey) {
+  var names = [];
+  if (FRIEND.turnOrder && FRIEND.companions) {
+    FRIEND.turnOrder.forEach(function (k) {
+      if (k !== speakerKey && FRIEND.companions[k] && FRIEND.companions[k].name) names.push(FRIEND.companions[k].name);
+    });
+  } else if (Array.isArray(FRIEND.spectateWith) && FRIEND.spectateWith.length) {
+    names = FRIEND.spectateWith.slice();
+  } else if (FRIEND.companions) {
+    Object.keys(FRIEND.companions).forEach(function (k) {
+      if (FRIEND.companions[k] && FRIEND.companions[k].name) names.push(FRIEND.companions[k].name);
+    });
+  }
+  return names.slice(0, 4);
+}
+function roomCanSpectate() {
+  if (SEAT || !FRIEND) return false;
+  return spectatePartnersFor(null).length > 0;
+}
+function paintSpectate() {
+  var b = document.getElementById('spectateBtn');
+  if (!b) return;
+  b.style.display = roomCanSpectate() ? '' : 'none';
+  b.innerHTML = spectating ? '&#128065; Spectating&hellip;' : '&#128065; Spectate';
+}
+function stopSpectating() {
+  if (spectateTimer) { clearTimeout(spectateTimer); spectateTimer = null; }
+  if (!spectating) return;
+  spectating = false;
+  paintSpectate();
+}
+function spectateBeat() {
+  spectateTimer = null;
+  if (!spectating || !roomCanSpectate()) { stopSpectating(); return; }
+  if (thinking) { spectateTimer = setTimeout(spectateBeat, 800); return; }
+  if (spectateBeats >= SPECTATE_MAX_BEATS) { stopSpectating(); return; }
+  spectateBeats += 1;
+  /* The speaker is picked inside ask() exactly as for a typed message
+     (current.speaker, else nextTurnSpeaker), so the partners are worked out
+     from the same rotation one step ahead: peek without advancing. */
+  var peek = null;
+  if (current && current.speaker) peek = current.speaker;
+  else if (FRIEND.companions && FRIEND.turnOrder) {
+    var i = 0; try { i = parseInt(sessionStorage.getItem('gc-turn-' + FRIEND.id), 10) || 0; } catch (e) {}
+    peek = FRIEND.turnOrder[i % FRIEND.turnOrder.length];
+  }
+  ask({
+    spectate: true,
+    spectate_with: spectatePartnersFor(peek),
+    onSettled: function (spoke, j) {
+      if (!spectating) return;
+      if (!spoke || (j && (j.credits_exhausted || j.daily_capped || j.error))) { stopSpectating(); return; }
+      spectateTimer = setTimeout(spectateBeat, SPECTATE_PAUSE_MS);
+    }
+  });
+}
+$('spectateBtn').addEventListener('click', function () {
+  if (spectating) { stopSpectating(); return; }
+  if (!roomCanSpectate()) return;
+  if (!gcSeenComposerIntro()) gcDismissComposerIntro();
+  spectating = true; spectateBeats = 0;
+  paintSpectate();
+  spectateBeat();
+});
 
 /* ── THE UPSELL, WHEN CREDITS OR THE FREE CAP RUN OUT ────────────────────────
    Matches Almost Human's own showUpsell pattern: daily_capped (a house demo,
@@ -3409,6 +3520,7 @@ function send() {
   post(youLabel(), v || '(showing you this)', true, shown);
   $("say").value = "";
   lastSpoke = Date.now();
+  stopSpectating(); // the person has stepped back in
   /* SPEAKING RESETS HOW SOON HE BREAKS A SILENCE. Only typing did, and typing
      is not how everybody talks: a person using the microphone never fired the
      input event, so the ladder never went back to the bottom for them. */
@@ -3695,6 +3807,7 @@ $("bringBtn").addEventListener("click", function () {
     $("bringBtn").disabled = false;
     if (!j || !j.seat_token) { post("Not wired yet", "Could not open the room: " + ((j && j.error) || "unknown")); return; }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
+    stopSpectating(); paintSpectate(); // a shared room's turns go through the room, not this button
     ROOM_CREDIT_REF = j.host_credit_ref || null;
     /* THE CARRIED THREAD IS ALREADY ON SCREEN. Opening a room writes the prior
        conversation up to the server, and without this the very next poll reads
@@ -3949,6 +4062,7 @@ function joinThenSit() {
       return;
     }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
+    stopSpectating(); paintSpectate(); // a shared room's turns go through the room, not this button
     ROOM_CREDIT_REF = j.host_credit_ref || null;
     /* INSTRUMENTED 2026-08-28, arrival side of gc_invite_shown above. Fired
        once, on a genuinely successful join (past the invite_not_found /

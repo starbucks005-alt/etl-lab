@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    gc-chat — the friend answers.
 
-   POST { friend, you, messages, message, idle? }
+   POST { friend, you, messages, message, idle?, spectate?, spectate_with? }
      friend   the whole friend object (name, age, work, voice, been, mood)
      you      { name, pronouns }
      messages [{ who, text, mine }]  the conversation so far
@@ -54,6 +54,11 @@ const { ownerUser } = require('./_owner-auth.js');
    product is whether they feel like a person. Haiku only for the classifier,
    which is short, high-volume and never seen. */
 const TURN_MODEL     = 'claude-sonnet-4-6';
+/* SPECTATOR MODE runs on Haiku, added 2026-09-03, Dr. O direct: "haiku for
+   the spectate chat." A spectate beat is the companions talking to each
+   other while the people watch, and a run of them is up to six model turns
+   nobody asked a question in. Cheaper model, same room. */
+const SPECTATE_MODEL = 'claude-haiku-4-5';
 const CLASSIFY_MODEL = 'claude-haiku-4-5-20251001';
 
 const MAX_TURNS = 24;   // how much conversation goes back to the model
@@ -220,7 +225,7 @@ async function classify(client, text) {
 }
 
 /* ── who they are ────────────────────────────────────────────────────────── */
-function buildSystem(friend, you, idle, scene, room) {
+function buildSystem(friend, you, idle, scene, room, spectate) {
   const f = friend || {}, u = you || {};
   const name = f.name || 'your friend';
   const bits = [];
@@ -698,6 +703,43 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
     ].join('\n'));
   }
 
+  /* SPECTATOR MODE, added 2026-09-03, named by Dr. O: "the characters with
+     2+ [get] the chance to play out their own conversations while the
+     humans watch... a button that lets the characters autoplay." Ported
+     from My Echo the same day (M.E. repo, 10_TOGETHER_SCENES.md), where a
+     room with two people in it is one model turn voicing both; here a room
+     already has the pieces -- turnOrder rotates who speaks, and the cameo
+     line is how the other one answers inside the same reply -- so a beat
+     is: this speaker says something TO the partner, the partner answers on
+     the cameo line, nobody addresses the people watching. The client asks
+     for the next beat once this one has been shown and said.
+
+     Placed after the idle block on purpose: both are "nobody said
+     anything" turns and the cameo block above has to be read first, since
+     it is the mechanism this leans on. */
+  if (spectate && spectate.partners && spectate.partners.length) {
+    const partners = spectate.partners;
+    const partnerList = partners.length === 1 ? partners[0]
+      : partners.slice(0, -1).join(', ') + ' or ' + partners[partners.length - 1];
+    bits.push([
+      '',
+      'NOBODY SAID ANYTHING. THE PEOPLE IN THE ROOM ARE SPECTATING.',
+      `They have gone quiet on purpose to watch you and ${partnerList} talk to each other, the way you do`,
+      'when nobody has asked you anything. So do that.',
+      '',
+      `Say one or two short things TO ${partnerList}, by name or not at all: pick up something from the`,
+      'conversation so far, or something of your own -- a thing you remember differently, a small thing',
+      'about the day, an old disagreement neither of you has ever settled. Then, on the cameo line,',
+      `${partners.length === 1 ? partners[0] + ' answers' : 'ONE of them answers'} -- this is NOT the rare case, it is the whole turn: the`,
+      'cameo line is required here, one line or two in their own words, and it is a reply to what you',
+      'just said, not a greeting.',
+      '',
+      'Do NOT address the people watching, do not ask them anything, do not thank them for listening,',
+      'and do not narrate or describe what you are doing. Whoever usually does most of the talking',
+      'between you still does. End somewhere a person could step back in.',
+    ].join('\n'));
+  }
+
   /* THE HOUSE VOICE LAW, added 2026-08-30, only now -- gc-chat.js has
      always imported houseTypography (the dash-cleanup function) from this
      same file, but never the actual VOICE_LAW_CHAT content every other
@@ -911,14 +953,35 @@ exports.handler = async function (event) {
   const you = body.you || {};
   const idle = body.idle ? { seconds: Number(body.idleSeconds) || 0 } : false;
   const said = String(body.message || '').slice(0, 4000);
-  if (!idle && !said.trim()) return json(400, { error: 'nothing_said' });
+  /* SPECTATOR MODE (2026-09-03). Like idle, a turn where nobody said anything;
+     unlike idle, it is asked for on purpose and it needs somebody to talk to.
+     Partners are names the page proposes (the room's other turnOrder
+     companions, or a friend's own spectateWith list) and are only accepted
+     if they are actually on this speaker's cameo list, because the cameo
+     line is how the partner answers and a name not on that list would be
+     dropped by the cameo parser below anyway. Nobody to talk to is a refusal,
+     not a monologue. */
+  const spectateAsked = body.spectate === true;
+  const cameoNames = (Array.isArray(activeFriend.cameos) ? activeFriend.cameos : [])
+    .filter(c => c && c.name && c.voiceId).map(c => c.name);
+  const spectatePartners = spectateAsked
+    ? (Array.isArray(body.spectate_with) ? body.spectate_with : [])
+        .map(n => String(n || '').slice(0, 60))
+        .filter(n => cameoNames.some(c => c.toLowerCase() === n.toLowerCase()))
+        .slice(0, 4)
+    : [];
+  if (spectateAsked && !spectatePartners.length) {
+    return json(400, { error: 'nobody_to_talk_to', detail: 'Spectator mode needs somebody in the room to talk to.' });
+  }
+  const spectate = spectateAsked ? { partners: spectatePartners } : null;
+  if (!idle && !spectate && !said.trim()) return json(400, { error: 'nothing_said' });
 
   const key = process.env.GOOD_COMPANY_API_KEY;
   if (!key) return json(500, { error: 'no_api_key' });
   const client = new Anthropic({ apiKey: key });
 
   /* The boundary, before the friend ever sees it. */
-  if (!idle && (ROMANCE_SNIFF.test(said) || CRISIS_SNIFF.test(said))) {
+  if (!idle && !spectate && (ROMANCE_SNIFF.test(said) || CRISIS_SNIFF.test(said))) {
     let verdict = 'FINE';
     try { verdict = await classify(client, said); }
     catch (_) {
@@ -1149,7 +1212,7 @@ exports.handler = async function (event) {
      Dropped only on a real, non-idle turn: idle's own synthetic lastTurn
      duplicates nothing in history, and trimming there would just lose a
      real message for no reason. */
-  const history = idle ? rawHistory : rawHistory.slice(0, -1);
+  const history = (idle || spectate) ? rawHistory : rawHistory.slice(0, -1);
 
   /* ── THEY CAN BE SHOWN THINGS ────────────────────────────────────────────
      Dr. O: the friend should be able to receive images and files and see
@@ -1184,6 +1247,8 @@ exports.handler = async function (event) {
 
   const lastTurn = idle
     ? { role: 'user', content: '(nobody has said anything for a while)' }
+    : spectate
+    ? { role: 'user', content: '(Nobody said anything. The people in the room are spectating. Carry on between yourselves.)' }
     : seen.length
       /* The picture comes first and the words after it, which is the order
          somebody hands you a phone in. */
@@ -1217,7 +1282,7 @@ exports.handler = async function (event) {
      Nothing is fetched from the conversation's history, and nothing is fetched
      that was not just typed. */
   let pages = [];
-  if (!idle && said) {
+  if (!idle && !spectate && said) {
     const urls = web.extractUrls(said);
     if (urls.length) {
       pages = await Promise.all(urls.map(u => web.fetchPage(u)));
@@ -1255,7 +1320,7 @@ exports.handler = async function (event) {
   const friendForPrompt = visitorMemories.length
     ? Object.assign({}, activeFriend, { memories: (activeFriend.memories || []).concat(visitorMemories) })
     : activeFriend;
-  const staticSystem = buildSystem(friendForPrompt, you, idle, body.scene, body.room);
+  const staticSystem = buildSystem(friendForPrompt, you, idle, body.scene, body.room, spectate);
   const dynamicSystem = when.nowNote(activeFriend, new Date()) + web.pageNote(pages) + headlinesNote(liveHeadlines) + [
     '',
     'AFTER your reply, on its own last line, write:',
@@ -1288,7 +1353,10 @@ exports.handler = async function (event) {
   let out;
   try {
     out = await client.messages.create({
-      model: TURN_MODEL,
+      /* Haiku for a spectate beat, see SPECTATE_MODEL. The prompt cache is
+         per model, so a run of beats caches among themselves rather than
+         against the Sonnet turns around them; a run is six at most. */
+      model: spectate ? SPECTATE_MODEL : TURN_MODEL,
       max_tokens: 500,
       system: [
         { type: 'text', text: staticSystem, cache_control: { type: 'ephemeral' } },
@@ -1464,7 +1532,7 @@ exports.handler = async function (event) {
      already counts this exact exchange, no separate counter needed. Awaited
      before responding, same as Almost Human's own version -- adds a beat of
      latency on the turns it actually fires on, never on the others. */
-  if (!idle && reply && memoryAgentKey && memoryIdentity && serviceKey && turns.length % MEMORY_CADENCE === 0) {
+  if (!idle && !spectate && reply && memoryAgentKey && memoryIdentity && serviceKey && turns.length % MEMORY_CADENCE === 0) {
     const recentTurns = turns.slice(-MEMORY_CADENCE * 2).concat([{ role: 'assistant', content: reply }]);
     const transcriptText = turnsToText(recentTurns, activeFriend.name || 'Friend');
     await saveVisitorMemory(client, memoryAgentKey, activeFriend.name || 'Friend', memoryIdentity, serviceKey, transcriptText, visitorMemories);
