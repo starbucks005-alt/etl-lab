@@ -1218,7 +1218,20 @@ function play(scene) {
      moment ago, so this has to happen before the reassignment on the
      next line touches it. */
   var enteringMirror = scene && scene.special === 'mirror' && (!current || current.key !== scene.key);
+  /* A SPECTATOR SCENE, added 2026-09-03. Dr. O: "a spectator scene? A room
+     where the user can go in and just listen?" Yes: a scene with
+     spectate:true starts Spectator Mode the moment it is on screen and the
+     chat is open, and walking to any other scene ends it. Same button,
+     same beats, same ceiling; the scene is just a door that opens onto
+     them already talking. Nothing happens on the doorstep (the gate is up)
+     or in a shared room (turns go through the room there). */
+  var wasSpectateScene = !!(current && current.spectate);
   current = scene;
+  if (typeof stopSpectating === 'function') {
+    var chatOpen = $('chat') && $('chat').style.display !== 'none';
+    if (scene && scene.spectate && chatOpen && !SEAT) { if (!spectating) startSpectating(); }
+    else if (wasSpectateScene && !(scene && scene.spectate)) stopSpectating();
+  }
   var old = portrait.querySelector('.missing');
   if (old) old.remove();
   var oldStill = portrait.querySelector('.still');
@@ -2731,6 +2744,8 @@ function sitDown() {
   if (!$("log").children.length && !SEAT) {
     post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear how you have been.");
   }
+  // Sat down onto a spectator scene: they are already talking (see play()).
+  if (current && current.spectate && !SEAT && typeof startSpectating === 'function') startSpectating();
   /* THE CHIP'S QUESTION, ASKED FOR THEM, now that #chat and $('say') are
      actually visible. Covers both sitDown()'s own callers and
      joinThenSit(), which calls this same function on a successful join. */
@@ -3113,13 +3128,16 @@ function spectateBeat() {
     }
   });
 }
-$('spectateBtn').addEventListener('click', function () {
-  if (spectating) { stopSpectating(); return; }
-  if (!roomCanSpectate()) return;
+function startSpectating() {
+  if (spectating || !roomCanSpectate()) return;
   if (!gcSeenComposerIntro()) gcDismissComposerIntro();
   spectating = true; spectateBeats = 0;
   paintSpectate();
   spectateBeat();
+}
+$('spectateBtn').addEventListener('click', function () {
+  if (spectating) { stopSpectating(); return; }
+  startSpectating();
 });
 
 /* ── THE UPSELL, WHEN CREDITS OR THE FREE CAP RUN OUT ────────────────────────

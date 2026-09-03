@@ -4453,7 +4453,10 @@ var GC_PUPPETS = {
        not. A local file removes the dependency instead of relying on it
        working for everyone's browser. */
     { key: 'together', label: 'Eli & Nell', vimeoId: '1222388506', thumb: 'photos/eli-nell-still.jpg' },
-    { key: 'stillhouse', label: 'Just the two of them', src: null, still: 'photos/eli-nell-still.jpg' },
+    /* spectate: the first spectator scene, 2026-09-03. Dr. O: "a room where
+       the user can go in and just listen?" This is that room: pick it and Eli
+       and Nell are already talking to each other; type and they turn to you. */
+    { key: 'stillhouse', label: 'Just the two of them', src: null, still: 'photos/eli-nell-still.jpg', spectate: true },
     /* ELI AND NELL'S OWN SOLO SCENES, same speaker mechanism as Poppy's and
        Blue's in Tansy's room, even though eli/nell are also turnOrder's
        defaults -- tagging these explicitly means showStill()/ask() are
