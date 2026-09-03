@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Almost Human — Reports</title>
+<link rel="icon" href="/brand/etl-favicon.svg" type="image/svg+xml">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #0a0a0f;
+    --cream: #f4f3ee;
+    --muted: #9a9aa5;
+    --line: #2a2a35;
+    --panel: #14141c;
+    --warn: #e08a8a;
+  }
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin-bottom: .3rem; }
+  .sub { color: var(--muted); font-size: .88rem; margin-bottom: 2rem; }
+
+  #gate { display: flex; gap: .6rem; margin-bottom: 2rem; }
+  #gate input {
+    flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    color: var(--cream); font-size: .95rem; padding: .7rem .9rem; font-family: inherit;
+  }
+  #gate button, .btn {
+    font-size: .82rem; font-weight: 600; background: #fff; color: var(--black);
+    border: none; border-radius: 8px; padding: .7rem 1.2rem; cursor: pointer;
+  }
+  .btn.ghost { background: transparent; color: var(--cream); border: 1px solid var(--line); }
+  #status { color: var(--warn); font-size: .85rem; margin-bottom: 1rem; min-height: 1.2em; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  th { text-align: left; color: var(--muted); font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; padding: .5rem .6rem; border-bottom: 1px solid var(--line); }
+  td { padding: .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .empty { color: var(--muted); padding: 2rem 0; text-align: center; }
+
+  #detail { display: none; }
+  #detail.open { display: block; }
+  #list.open { display: none; }
+  .transcript { margin-top: 1rem; display: flex; flex-direction: column; gap: .7rem; }
+  .line { border: 1px solid var(--line); border-radius: 10px; padding: .7rem .9rem; background: var(--panel); }
+  .line .who { font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
+  .line.visitor { border-color: #4c5fd6; }
+  .meta { color: var(--muted); font-size: .82rem; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Almost Human — Reports</h1>
+  <div class="sub">Conversations flagged from the shared table. Owner access only.</div>
+
+  <div id="gate">
+    <input type="password" id="ownerKey" placeholder="Owner key" autocomplete="off">
+    <button id="loadBtn">Load</button>
+  </div>
+  <div id="status"></div>
+
+  <div id="list">
+    <table>
+      <thead>
+        <tr><th>When</th><th>Reported by</th><th>Room</th><th>Messages</th><th></th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="emptyMsg" style="display:none">No reports yet.</div>
+  </div>
+
+  <div id="detail">
+    <button class="btn ghost" id="backBtn">&larr; Back to list</button>
+    <div class="meta" id="detailMeta"></div>
+    <div class="transcript" id="detailTranscript"></div>
+  </div>
+</div>
+
+<script>
+var KEY_STORAGE = 'ah_reports_owner_key';
+var ownerKey = '';
+try { ownerKey = sessionStorage.getItem(KEY_STORAGE) || ''; } catch (_) {}
+document.getElementById('ownerKey').value = ownerKey;
+
+function $(id) { return document.getElementById(id); }
+function setStatus(msg) { $('status').textContent = msg || ''; }
+
+function fmtDate(iso) {
+  try { return new Date(iso).toLocaleString(); } catch (_) { return iso || ''; }
+}
+
+function loadReports() {
+  ownerKey = $('ownerKey').value.trim();
+  if (!ownerKey) { setStatus('Enter the owner key.'); return; }
+  try { sessionStorage.setItem(KEY_STORAGE, ownerKey); } catch (_) {}
+  setStatus('Loading...');
+  fetch('/.netlify/functions/ah-table-report-list', {
+    headers: { 'X-Owner-Key': ownerKey },
+  })
+    .then(function (r) {
+      if (r.status === 401) throw new Error('Wrong owner key.');
+      if (!r.ok) throw new Error('Load failed (' + r.status + ').');
+      return r.json();
+    })
+    .then(function (d) {
+      setStatus('');
+      renderList(d.reports || []);
+    })
+    .catch(function (err) { setStatus(err.message || 'Load failed.'); });
+}
+
+function renderList(reports) {
+  var body = $('rows');
+  body.innerHTML = '';
+  $('emptyMsg').style.display = reports.length ? 'none' : 'block';
+  reports.forEach(function (r) {
+    var tr = document.createElement('tr');
+    var who = (r.reporter_name || 'Unnamed') + ' (' + (r.reported_by === 'host' ? 'host' : 'guest') + ')';
+    tr.innerHTML =
+      '<td>' + fmtDate(r.created_at) + '</td>' +
+      '<td>' + escapeHtml(who) + '</td>' +
+      '<td>' + escapeHtml(String(r.room_id || '').slice(0, 8)) + '&hellip;</td>' +
+      '<td>' + r.message_count + '</td>' +
+      '<td><button class="btn ghost view-btn">View</button></td>';
+    tr.querySelector('.view-btn').addEventListener('click', function () { loadDetail(r.key); });
+    body.appendChild(tr);
+  });
+}
+
+function escapeHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = String(s == null ? '' : s);
+  return d.innerHTML;
+}
+
+function loadDetail(key) {
+  setStatus('Loading report...');
+  fetch('/.netlify/functions/ah-table-report-list?key=' + encodeURIComponent(key), {
+    headers: { 'X-Owner-Key': ownerKey },
+  })
+    .then(function (r) {
+      if (!r.ok) throw new Error('Load failed (' + r.status + ').');
+      return r.json();
+    })
+    .then(function (d) { setStatus(''); renderDetail(d.report); })
+    .catch(function (err) { setStatus(err.message || 'Load failed.'); });
+}
+
+function renderDetail(report) {
+  var who = (report.reporter_name || 'Unnamed') + ' (' + (report.reported_by === 'host' ? 'host' : 'guest') + ')';
+  $('detailMeta').textContent = 'Reported by ' + who + ' on ' + fmtDate(report.created_at) + ' — room ' + report.room_id;
+  var wrap = $('detailTranscript');
+  wrap.innerHTML = '';
+  (report.transcript || []).forEach(function (m) {
+    var div = document.createElement('div');
+    div.className = 'line' + (m.speaker === 'visitor' ? ' visitor' : '');
+    div.innerHTML = '<div class="who">' + escapeHtml(m.name || m.speaker) + '</div><div>' + escapeHtml(m.content) + '</div>';
+    wrap.appendChild(div);
+  });
+  $('list').classList.remove('open');
+  $('list').style.display = 'none';
+  $('detail').classList.add('open');
+}
+
+$('backBtn').addEventListener('click', function () {
+  $('detail').classList.remove('open');
+  $('list').style.display = '';
+});
+
+$('loadBtn').addEventListener('click', loadReports);
+$('ownerKey').addEventListener('keydown', function (e) { if (e.key === 'Enter') loadReports(); });
+
+if (ownerKey) loadReports();
+</script>
+</body>
+</html>
