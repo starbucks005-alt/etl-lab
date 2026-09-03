@@ -3288,29 +3288,29 @@ var GC_MARION = {
      later without touching this shape.
 
      FAMILY SIZE CORRECTED 2026-08-30, Dr. O direct: "the borrowers only
-     has two kids and a husband/wife granddad/grandma." Henry, a third
-     kid-coded name that only ever showed up in the fishing scene, was the
-     extra one and is removed.
+     has two kids and a husband/wife granddad/grandma."
 
      WHO IS WHO, CORRECTED 2026-09-03, Dr. O direct: "Sam and Edith. Sam's
-     Walter's father, Edith's his mother." So: WALTER is Marion's husband,
-     SAM and EDITH are his parents (the granddad and grandma, Sam reading
-     aloud, Edith knitting), and DAISY is the daughter. The earlier note here
-     had Walter and Edith as the grandparent couple and Sam as a child, and
-     the two scene lines below said so to the model; both fixed. */
+     Walter's father, Edith's his mother... they all have names and voices."
+     So: WALTER is Marion's husband, SAM and EDITH are his parents (the
+     granddad and grandma, Sam reading aloud, Edith knitting), and the two
+     kids are DAISY and HENRY. The 2026-08-30 correction read Sam as a child
+     and so took Henry for a third kid and removed him, voice and all; he is
+     the boy in every frame, whittling, fishing with his father and granddad.
+     Restored here with the same voice id he had. The two scene lines below
+     said the old reading to the model; both fixed. */
   /* SPECTATOR MODE, added 2026-09-03, Dr. O: "borrowers... Marion and
      husband and two children and granddad/grandma." The household in her
      walls is who Marion talks to when the people go quiet and watch: Walter,
-     his parents, and Daisy, who are the four cameos below. THE BOY IS NOT
-     HERE YET. He is in every frame (whittling, fishing with his father and
-     granddad) but has no cameo entry, which means no name and no voice, and
-     a partner has to be on the cameo list to answer. When Dr. O gives him
-     both, he goes on the cameos list and on this one. */
-  spectateWith: ['Walter', 'Edith', 'Sam', 'Daisy'],
+     his parents, and the two children, the five cameos below. gc-chat keeps
+     up to four partners per beat, so the granddad sits out of the list and
+     still answers when spoken to by name, the way any cameo does. */
+  spectateWith: ['Walter', 'Edith', 'Henry', 'Daisy'],
   cameos: [
     { name: 'Walter', voiceId: 'MKlLqCItoCkvdhrxgtLv' },
     { name: 'Edith', voiceId: 'YHcCpa6SBWnKDaCPZJQR' },
     { name: 'Sam', voiceId: 'wcIrsZmi758yTtAxuW4l' },
+    { name: 'Henry', voiceId: 'Nov35cZOAeYofDhYHMnI' },
     { name: 'Daisy', voiceId: 'pPdl9cQBQq4p6mRkZy2Z' },
   ],
   skin: 'harvest',
@@ -3336,7 +3336,7 @@ var GC_MARION = {
       where: 'The same kitchen, Marion herself at work in it.' },
     { key: 'fishing', label: 'Fishing Tadpoles', src: null, vimeoId: '1222250192',
       thumb: 'photos/marion-thumb-fishing.jpeg',
-      where: 'A stream near the house, Walter and his father Sam fishing for tadpoles off the rocks with the boy, the ' +
+      where: 'A stream near the house, Walter, his father Sam and Henry fishing for tadpoles off the rocks, the ' +
              'closest thing to a real fish either of them will ever land.' },
     { key: 'movie', label: 'Movie Time', src: null, vimeoId: '1222249479',
       thumb: 'photos/marion-thumb-movie.png',
@@ -3344,8 +3344,8 @@ var GC_MARION = {
              'spools and a lantern, the whole family piled into two beds to watch it.' },
     { key: 'story', label: 'Story Time', src: null, vimeoId: '1222250191',
       thumb: 'photos/marion-thumb-story.png',
-      where: 'The evening, Sam reading aloud while Edith and Marion both knit and Daisy and her ' +
-             'brother play on the floor with dominoes and an old doll.' },
+      where: 'The evening, Sam reading aloud while Edith and Marion both knit and Henry and ' +
+             'Daisy play on the floor with dominoes and an old doll.' },
   ],
 };
 
