@@ -3065,7 +3065,12 @@ function spectatePartnersFor(speakerKey) {
       if (FRIEND.companions[k] && FRIEND.companions[k].name) names.push(FRIEND.companions[k].name);
     });
   }
-  return names.slice(0, 4);
+  /* A turnOrder can list the same companion more than once (the Littles
+     weight Marion to every other turn), so the same name must not be
+     offered twice as a partner. */
+  var seen = {}, out = [];
+  names.forEach(function (n) { if (!seen[n]) { seen[n] = 1; out.push(n); } });
+  return out.slice(0, 4);
 }
 function roomCanSpectate() {
   if (SEAT || !FRIEND) return false;
