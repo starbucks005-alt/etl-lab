@@ -88,9 +88,18 @@
   @media (max-width: 760px) { .splash-title { font-size: 2.4rem; } .splash-sub { font-size: 1.05rem; } }
 
   /* ── CONSENT MODAL ── */
-  #consent { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 50; padding: 1.2rem; }
+  /* THE OVERLAY SCROLLS, THE CARD DOES NOT GET CENTRED INTO THE CUTTING BOARD.
+     On a phone this card is taller than the viewport, and `align-items: center` on a
+     fixed, non-scrolling box centres the overflow: the top of the card goes off the top
+     of the screen and the bottom, which is where "Start the conversation" lives, goes off
+     the bottom, with nothing to scroll. Reported 2026-09-04 from a phone: the consent gate
+     could be read and filled in but never submitted or closed.
+     `overflow-y: auto` gives the overlay somewhere to scroll, and `margin: auto` on the
+     card (rather than `align-items: center`) still centres it when it fits and, when it
+     does not, resolves to zero instead of clipping. */
+  #consent { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: flex-start; justify-content: center; z-index: 50; padding: 1.2rem calc(1.2rem + env(safe-area-inset-right, 0px)) calc(1.2rem + env(safe-area-inset-bottom, 0px)) calc(1.2rem + env(safe-area-inset-left, 0px)); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   #consent.open { display: flex; }
-  .consent-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-width: 480px; width: 100%; padding: 2rem; }
+  .consent-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-width: 480px; width: 100%; padding: 2rem; margin: auto; }
   .consent-card h2 { font-family: 'Spectral', serif; font-size: 1.5rem; margin-bottom: 1rem; }
   .consent-card p { font-size: .92rem; line-height: 1.6; color: var(--cream); margin-bottom: .8rem; }
   .consent-card ul { padding-left: 1.2rem; margin-bottom: 1.2rem; }
@@ -217,9 +226,11 @@
   .room-end-btn { background: none; border: 1px solid var(--line); color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; padding: .45rem 1.1rem; border-radius: 999px; cursor: pointer; }
   .room-end-btn:hover { border-color: #4c5fd6; color: var(--cream); }
 
-  #likertModal { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 60; padding: 1.2rem; }
+  /* Same fix as #consent above, for the same reason: a short phone in landscape, or one
+     with the keyboard up over the optional note field, puts Submit below the fold. */
+  #likertModal { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: flex-start; justify-content: center; z-index: 60; padding: 1.2rem calc(1.2rem + env(safe-area-inset-right, 0px)) calc(1.2rem + env(safe-area-inset-bottom, 0px)) calc(1.2rem + env(safe-area-inset-left, 0px)); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   #likertModal.open { display: flex; }
-  .likert-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-width: 460px; width: 100%; padding: 2rem; text-align: center; }
+  .likert-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-width: 460px; width: 100%; padding: 2rem; text-align: center; margin: auto; }
   .likert-card h2 { font-family: 'Spectral', serif; font-size: 1.4rem; margin-bottom: .9rem; }
   .likert-card p { font-size: .95rem; line-height: 1.6; color: var(--cream); margin-bottom: 1.6rem; }
   .likert-scale { display: flex; justify-content: space-between; gap: .3rem; margin-bottom: .5rem; }
