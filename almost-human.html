@@ -365,8 +365,22 @@
            this was very likely never actually playing for a real visitor,
            just sitting frozen/black on the splash screen. muted=1 added,
            matching the exact same Vimeo embed pattern already used correctly
-           elsewhere on this campus (Good Company's own scene embeds). -->
-      <iframe id="splashVideo" src="https://player.vimeo.com/video/1206980983?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;muted=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="ALMOST HUMAN"></iframe>
+           elsewhere on this campus (Good Company's own scene embeds).
+
+           background=1 added 2026-09-04, Dr. O: "the intro video has the unmute
+           button". That button is Vimeo's, not ours: a muted autoplay makes the
+           player offer to turn sound on, and it sits there over the film along
+           with the rest of the chrome. Worse than clutter here, because this
+           iframe is pointer-events:none (it is a backdrop, the title and the
+           button sit on top of it), so the offer could never be accepted -
+           a control that does nothing when pressed.
+
+           background=1 is Vimeo's own name for exactly this use: no controls,
+           no title bar, no unmute offer, autoplay, muted, looped. It is the
+           parameter the modal loop in the M.E. build already uses, for the same
+           reason. muted/autoplay/loop are kept alongside it, spelled out, so the
+           address still says what it wants if the flag is ever dropped. -->
+      <iframe id="splashVideo" src="https://player.vimeo.com/video/1206980983?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;background=1&amp;autoplay=1&amp;muted=1&amp;loop=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="ALMOST HUMAN"></iframe>
     </div>
   </div>
   <div class="splash-inner" id="splashInner">
