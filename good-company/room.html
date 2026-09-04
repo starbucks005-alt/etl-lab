@@ -67,7 +67,19 @@ html,body{ height:100%; }
    what this was tested in. */
 html{ zoom:90%; }
 /* ── the room ────────────────────────────────────────────────────────────── */
-.room{ height:100vh; display:grid; grid-template-columns:auto 1fr; grid-template-rows:1fr; }
+/* 100vh, THEN 100dvh, added 2026-09-04: Dr. O, on a real phone, "those
+   buttons are not visible" -- Palette/Fullscreen/Close, all inside .chrome
+   below (position:fixed; bottom:12px on a phone). 100vh is the LARGEST
+   possible viewport, as if a mobile browser's own address bar were never
+   there; a real phone's address bar IS there for most of a visit, so
+   "bottom" ends up anchored below what is actually on screen, under the
+   browser's own chrome. Caught only on a real device: a desktop DevTools
+   phone simulator fakes the viewport SIZE, not this address-bar behavior,
+   which is exactly why it looked fine there. 100dvh tracks the real,
+   current visible viewport as the browser's own UI shows or hides, and
+   simply overrides 100vh in any browser new enough to know what dvh is;
+   older ones keep the 100vh already in the cascade above it. */
+.room{ height:100vh; height:100dvh; display:grid; grid-template-columns:auto 1fr; grid-template-rows:1fr; }
 .stage{ display:flex; flex-direction:column; width:min(58vw, calc(52vh * 16 / 9)); min-width:0; }
 
 .topline{ display:flex; align-items:center; gap:.8rem; padding:.5rem .6rem; }
@@ -473,7 +485,7 @@ html{ zoom:90%; }
    specificity, lost on source order, and left the phone broken while the media
    query matched perfectly. */
 @media (max-width:820px){
-  .room{ grid-template-columns:1fr; grid-template-rows:auto auto; height:100vh; overflow-y:auto;
+  .room{ grid-template-columns:1fr; grid-template-rows:auto auto; height:100vh; height:100dvh; overflow-y:auto;
          -webkit-overflow-scrolling:touch; scrollbar-width:none; }
   .room::-webkit-scrollbar{ width:0; }
   .stage{ width:100%; }
