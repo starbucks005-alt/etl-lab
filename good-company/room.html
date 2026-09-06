@@ -4552,11 +4552,118 @@ function renderMemories() {
    -- a real message, no AI answering in its place, because the thing most
    likely to send somebody here is exactly the kind of problem a chatbot
    cannot actually fix. */
+/* ASK TANSY, added 2026-09-06. Dr. O direct: "I think we need a chatbot for
+   GC and I was thinking Tansy as the chatbot, with all her arrogance,"
+   then, warn people it is her character and to lean into it. A second,
+   equal option alongside the existing contact form below, never a
+   replacement for it: that form's whole promise is "not a chatbot, a real
+   message, straight to her," and adding a chatbot elsewhere on this same
+   panel must not quietly break that for somebody with a real problem who
+   wants past the bit. See gc-help-chat.js for what she actually knows. */
+var helpMode = 'tansy';
+var tansyHistory = [];
+
 function renderHelp() {
   var host = $('helpPanel');
   host.innerHTML = '';
   host.className = 'you-panel';
 
+  var modeRow = document.createElement('div');
+  modeRow.style.cssText = 'display:flex; gap:.5rem; margin-bottom:1rem;';
+  var modeTansy = document.createElement('button');
+  modeTansy.type = 'button'; modeTansy.className = 'btn' + (helpMode === 'tansy' ? ' go' : '');
+  modeTansy.textContent = 'Ask Tansy';
+  var modeDrO = document.createElement('button');
+  modeDrO.type = 'button'; modeDrO.className = 'btn' + (helpMode === 'dro' ? ' go' : '');
+  modeDrO.textContent = 'Reach Dr. O directly';
+  modeRow.appendChild(modeTansy); modeRow.appendChild(modeDrO);
+  host.appendChild(modeRow);
+
+  var body = document.createElement('div');
+  host.appendChild(body);
+
+  modeTansy.addEventListener('click', function () { helpMode = 'tansy'; renderHelp(); });
+  modeDrO.addEventListener('click', function () { helpMode = 'dro'; renderHelp(); });
+
+  if (helpMode === 'tansy') renderAskTansy(body); else renderReachDrO(body);
+}
+
+function renderAskTansy(host) {
+  var warn = document.createElement('p');
+  warn.className = 'gate-say';
+  warn.textContent = "This is Tansy. She's answering on purpose, exactly as herself -- lean " +
+    'into it rather than expecting warmth.';
+  host.appendChild(warn);
+
+  var portraitRow = document.createElement('div');
+  portraitRow.style.cssText = 'display:flex; gap:.7rem; align-items:flex-start; margin-bottom:.8rem;';
+  var img = document.createElement('img');
+  img.src = 'photos/tansy-chatbot.png';
+  img.alt = 'Tansy';
+  img.style.cssText = 'width:64px; height:64px; border-radius:999px; object-fit:cover; ' +
+                      'object-position:top center; flex:0 0 auto; border:1px solid var(--line);';
+  portraitRow.appendChild(img);
+
+  var log = document.createElement('div');
+  log.id = 'tansyHelpLog';
+  log.style.cssText = 'flex:1; min-width:0; display:flex; flex-direction:column; gap:.5rem;';
+  tansyHistory.forEach(function (m) { log.appendChild(tansyBubble(m.text, m.mine)); });
+  portraitRow.appendChild(log);
+  host.appendChild(portraitRow);
+
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex; gap:.5rem;';
+  var box = document.createElement('input');
+  box.type = 'text'; box.autocomplete = 'off';
+  box.placeholder = 'Ask about how something works, what it costs...';
+  box.style.cssText = 'flex:1; font:inherit; padding:.5rem; border:1px solid var(--line); ' +
+                      'background:var(--paper); color:var(--ink); border-radius:3px;';
+  row.appendChild(box);
+  var send = document.createElement('button');
+  send.type = 'button'; send.className = 'btn go'; send.textContent = 'Ask';
+  row.appendChild(send);
+  host.appendChild(row);
+
+  function tansyBubble(text, mine) {
+    var b = document.createElement('div');
+    b.style.cssText = 'font-size:13px; padding:.4rem .6rem; border-radius:6px; max-width:90%; ' +
+      (mine
+        ? 'align-self:flex-end; background:var(--accent); color:var(--accent-ink);'
+        : 'align-self:flex-start; background:var(--panel); border:1px solid var(--line); color:var(--ink);');
+    b.textContent = text;
+    return b;
+  }
+
+  function ask() {
+    var v = box.value.trim();
+    if (!v) return;
+    box.value = '';
+    send.disabled = true;
+    tansyHistory.push({ text: v, mine: true });
+    log.appendChild(tansyBubble(v, true));
+    var thinking = tansyBubble('...', false);
+    log.appendChild(thinking);
+    log.scrollTop = log.scrollHeight;
+
+    fetch('/.netlify/functions/gc-help-chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: v, history: tansyHistory.slice(0, -1) }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      send.disabled = false;
+      var reply = (j && j.reply) || 'Could not reach her just now.';
+      thinking.textContent = reply;
+      tansyHistory.push({ text: reply, mine: false });
+      log.scrollTop = log.scrollHeight;
+    }).catch(function (err) {
+      send.disabled = false;
+      thinking.textContent = 'Could not reach her. ' + err.message;
+    });
+  }
+  send.addEventListener('click', ask);
+  box.addEventListener('keydown', function (e) { if (e.key === 'Enter') ask(); });
+}
+
+function renderReachDrO(host) {
   var note = document.createElement('p');
   note.className = 'gate-say';
   note.textContent = 'Something wrong, or something you cannot figure out? Say what happened ' +
@@ -4623,8 +4730,9 @@ function renderHelp() {
 }
 
 $('helpBtn').addEventListener('click', function () {
+  helpMode = 'tansy';
   renderHelp();
-  showGate('help', 'Reach Dr. O', 'Not a chatbot. A real message, straight to her.');
+  showGate('help', 'Help', 'Ask Tansy, or reach Dr. O directly.');
   $('startBtn').textContent = 'Back to ' + FRIEND.name;
 });
 
