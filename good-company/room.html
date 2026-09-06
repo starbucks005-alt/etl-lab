@@ -4599,17 +4599,25 @@ function renderAskTansy(host) {
   /* A BANNER NOW, not a floating cutout, changed 2026-09-06 (round three):
      Dr. O, after seeing the transparent portrait actually rendered -- small
      and adrift in a lot of empty space on a wide panel -- picked a second
-     image made for exactly this: a real forest scene, lanterns and all, at
-     1536x864, a clean 16:9 that matches this space's own wide, short
-     rectangle instead of fighting it. object-fit:cover fills the full
-     width; a fixed height keeps the panel from growing to the image's own
-     full size. */
+     image made for exactly this: a real forest scene, lanterns and all.
+     CAPPED WIDTH AND TALLER, round four, same day: the widened (2592x864)
+     version has real unrendered black canvas padding on both long edges --
+     the actual artwork only spans the centre ~1536px of it. Full width on a
+     wide panel made cover's crop WIDTH-bound, showing that black padding on
+     both sides no matter the height. Capping the box at 700x420 (worked out
+     against the source's real numbers, not guessed) makes cover
+     HEIGHT-bound instead, which crops to about 1440px of the source's
+     width, centred -- comfortably inside the real 1536px of content,
+     independent of how wide the surrounding panel happens to be. Dr. O
+     confirmed there is plenty of vertical room here for it to be this
+     size. */
   var portraitRow = document.createElement('div');
-  portraitRow.style.cssText = 'margin-bottom:.6rem; border-radius:10px; overflow:hidden;';
+  portraitRow.style.cssText = 'margin-bottom:.6rem; border-radius:10px; overflow:hidden; ' +
+                              'max-width:700px; margin-left:auto; margin-right:auto;';
   var img = document.createElement('img');
   img.src = 'photos/tansy-chatbot-banner.jpg';
   img.alt = 'Tansy';
-  img.style.cssText = 'display:block; width:100%; height:170px; object-fit:cover; object-position:center 30%;';
+  img.style.cssText = 'display:block; width:100%; height:420px; object-fit:cover; object-position:center 30%;';
   portraitRow.appendChild(img);
   host.appendChild(portraitRow);
 
