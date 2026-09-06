@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Good Company: Tansy, in your room</title>
+<meta name="description" content="Bring Tansy into your own room with your camera.">
+
+<!-- PILOT, ONE COMPANION ONLY, added 2026-09-06. Dr. O: "can we make our
+     companions AR so they can show up in our home?" then, scoped down
+     herself: "just a few of them... let's try tansy first."
+
+     THE REAL FORK, SAID PLAINLY RATHER THAN PROMISED AWAY: true 3D AR (a
+     companion standing in your room, anchored to your floor, occluded by
+     your furniture) needs an actual 3D model. Nothing this product makes is
+     3D -- every asset is a flat Veo video or a Gemini still. Building that
+     is a real, separate project, not this one.
+
+     WHAT THIS ACTUALLY IS: your own camera as a live background, with one
+     of Tansy's real existing scene videos (already made, already paid for,
+     nothing new generated) floating on top as a plain HTML <video>, which
+     you drag to move and pinch or scroll to resize by hand. No WebXR, no
+     surface detection, no 3D -- deliberately the simplest version that
+     works identically on any phone or laptop with a camera, rather than a
+     good experience on Android and a confusing, different one on iPhone.
+     Real surface-anchored AR (WebXR hit-test, Android-only, no iOS
+     equivalent) is a genuinely separate, later step if this pilot lands.
+
+     NOTHING LEAVES THIS DEVICE. The camera feed is read directly into a
+     <video> element and never touches a network request, a canvas capture,
+     or a recording -- the same privacy stance as everywhere else on this
+     campus that a device's own camera or mic is used live. -->
+
+<script src="gc-skin.js"></script>
+<link rel="stylesheet" href="gc-skin.css">
+
+<style>
+html, body { height: 100%; overflow: hidden; }
+body { position: relative; background: #000; }
+
+#camera {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 1;
+}
+
+#startScreen {
+  position: fixed; inset: 0; z-index: 20;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1rem; padding: 2rem; text-align: center;
+  background: var(--paper); color: var(--ink);
+}
+#startScreen h1 { font-family: Georgia, serif; font-weight: 400; font-size: 1.6rem; margin: 0; }
+#startScreen p { max-width: 34ch; color: var(--ink-dim); margin: 0; font-size: .92rem; }
+
+#overlayWrap {
+  position: fixed; z-index: 10; touch-action: none; cursor: grab;
+  width: 260px; aspect-ratio: 9/16;
+}
+#overlayWrap.dragging { cursor: grabbing; }
+#overlayVideo {
+  width: 100%; height: 100%; object-fit: contain;
+  pointer-events: none; -webkit-user-drag: none;
+}
+
+#topBar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 15;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: env(safe-area-inset-top, .8rem) 1rem .8rem;
+  background: linear-gradient(rgba(0,0,0,.5), transparent);
+}
+#topBar a, #topBar button {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: #F4ECE0; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px; padding: .5rem .9rem; cursor: pointer; text-decoration: none;
+}
+
+#hint {
+  position: fixed; bottom: env(safe-area-inset-bottom, 1rem); left: 50%; transform: translateX(-50%);
+  z-index: 15; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: #F4ECE0; background: rgba(0,0,0,.5); padding: .5rem .9rem; border-radius: 999px;
+  pointer-events: none; transition: opacity .4s;
+}
+
+#cameraError { max-width: 40ch; }
+</style>
+</head>
+
+<body>
+
+<div id="startScreen">
+  <h1>Tansy, in your room</h1>
+  <p>This uses your camera to put Tansy in front of it, right on your own screen. Nothing is
+    recorded, uploaded, or sent anywhere. It stays on this device, live, the whole time.</p>
+  <button class="btn go" id="startBtn" type="button">Turn on the camera</button>
+  <p id="cameraError" style="display:none; color:#c0645a;"></p>
+</div>
+
+<video id="camera" autoplay playsinline muted></video>
+
+<div id="overlayWrap" style="display:none;">
+  <video id="overlayVideo" src="video/tansy-oak-original.mp4" autoplay loop muted playsinline></video>
+</div>
+
+<div id="topBar" style="display:none;">
+  <a href="index.html">&larr; Good Company</a>
+  <button id="muteBtn" type="button">&#128264; Sound on</button>
+</div>
+
+<div id="hint" style="display:none;">Drag to move &middot; pinch or scroll to resize</div>
+
+<script>
+(function () {
+  var startScreen = document.getElementById('startScreen');
+  var startBtn = document.getElementById('startBtn');
+  var cameraError = document.getElementById('cameraError');
+  var camera = document.getElementById('camera');
+  var overlayWrap = document.getElementById('overlayWrap');
+  var overlayVideo = document.getElementById('overlayVideo');
+  var topBar = document.getElementById('topBar');
+  var hint = document.getElementById('hint');
+  var muteBtn = document.getElementById('muteBtn');
+
+  startBtn.addEventListener('click', function () {
+    startBtn.disabled = true;
+    startBtn.textContent = 'Asking...';
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false,
+    }).then(function (stream) {
+      camera.srcObject = stream;
+      startScreen.style.display = 'none';
+      overlayWrap.style.display = '';
+      topBar.style.display = '';
+      hint.style.display = '';
+      setTimeout(function () { hint.style.opacity = '0'; }, 4000);
+      /* Centre it on screen the first time, sized to something reasonable
+         relative to the viewport rather than a fixed guess. */
+      var w = Math.min(260, window.innerWidth * 0.55);
+      overlayWrap.style.width = w + 'px';
+      overlayWrap.style.left = ((window.innerWidth - w) / 2) + 'px';
+      overlayWrap.style.top = ((window.innerHeight - w * 16 / 9) / 2) + 'px';
+    }).catch(function (err) {
+      startBtn.disabled = false;
+      startBtn.textContent = 'Try again';
+      cameraError.style.display = '';
+      cameraError.textContent = 'Could not reach the camera: ' + err.message +
+        '. Check that this site has permission to use it.';
+    });
+  });
+
+  muteBtn.addEventListener('click', function () {
+    overlayVideo.muted = !overlayVideo.muted;
+    muteBtn.innerHTML = overlayVideo.muted ? '&#128264; Sound on' : '&#128263; Sound off';
+  });
+
+  /* DRAG TO MOVE, PINCH/SCROLL TO RESIZE. Plain pointer events, not a
+     library -- one draggable box is not worth a dependency. */
+  var dragging = false, startX = 0, startY = 0, boxX = 0, boxY = 0;
+  var pinchStartDist = 0, pinchStartWidth = 0;
+
+  function boxRect() {
+    return { x: parseFloat(overlayWrap.style.left) || 0, y: parseFloat(overlayWrap.style.top) || 0,
+             w: parseFloat(overlayWrap.style.width) || overlayWrap.offsetWidth };
+  }
+
+  overlayWrap.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'touch' && e.isPrimary === false) return;
+    dragging = true;
+    overlayWrap.classList.add('dragging');
+    overlayWrap.setPointerCapture(e.pointerId);
+    var r = boxRect();
+    startX = e.clientX; startY = e.clientY; boxX = r.x; boxY = r.y;
+  });
+  overlayWrap.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    overlayWrap.style.left = (boxX + (e.clientX - startX)) + 'px';
+    overlayWrap.style.top = (boxY + (e.clientY - startY)) + 'px';
+  });
+  function endDrag(e) { dragging = false; overlayWrap.classList.remove('dragging'); }
+  overlayWrap.addEventListener('pointerup', endDrag);
+  overlayWrap.addEventListener('pointercancel', endDrag);
+
+  /* Scroll wheel (trackpad/mouse) resizes on desktop. */
+  overlayWrap.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var r = boxRect();
+    var next = Math.max(80, Math.min(window.innerWidth * 0.95, r.w - e.deltaY));
+    overlayWrap.style.width = next + 'px';
+  }, { passive: false });
+
+  /* Two-finger pinch resizes on touch. */
+  var touches = {};
+  overlayWrap.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'touch') return;
+    touches[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var ids = Object.keys(touches);
+    if (ids.length === 2) {
+      dragging = false;   // two fingers means pinch, not drag
+      var a = touches[ids[0]], b = touches[ids[1]];
+      pinchStartDist = Math.hypot(a.x - b.x, a.y - b.y);
+      pinchStartWidth = boxRect().w;
+    }
+  });
+  overlayWrap.addEventListener('pointermove', function (e) {
+    if (!(e.pointerId in touches)) return;
+    touches[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var ids = Object.keys(touches);
+    if (ids.length === 2 && pinchStartDist) {
+      var a = touches[ids[0]], b = touches[ids[1]];
+      var dist = Math.hypot(a.x - b.x, a.y - b.y);
+      var next = Math.max(80, Math.min(window.innerWidth * 0.95, pinchStartWidth * (dist / pinchStartDist)));
+      overlayWrap.style.width = next + 'px';
+    }
+  });
+  function endTouch(e) { delete touches[e.pointerId]; if (Object.keys(touches).length < 2) pinchStartDist = 0; }
+  overlayWrap.addEventListener('pointerup', endTouch);
+  overlayWrap.addEventListener('pointercancel', endTouch);
+})();
+</script>
+
+</body>
+</html>

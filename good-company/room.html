@@ -505,6 +505,11 @@ html{ zoom:90%; }
   <div class="picker" id="picker">
     <button class="btn" id="skinBtn" type="button">&#127912; Palette</button>
   </div>
+  <!-- PILOT, ONE COMPANION ONLY, added 2026-09-06: Dr. O, "just a few of
+       them... let's try tansy first." Hidden by default, shown only for
+       Tansy specifically (see nameEverything()), not a general capability
+       every companion has yet. -->
+  <a class="btn" id="arLink" href="ar.html" style="display:none; text-decoration:none;">&#128241; In your room</a>
   <button class="btn" id="fsBtn" type="button">&#9974; Fullscreen</button>
   <button class="btn" id="closeBtn" type="button">&times; Close</button>
 </div>
@@ -823,6 +828,8 @@ function nameEverything() {
      unchanged) already gave per-room numbers a different way, but this is
      the report people actually open first. */
   document.title = 'Good Company: ' + FRIEND.name;
+  /* Pilot, Tansy only -- see the button's own note above .chrome. */
+  $('arLink').style.display = (FRIEND.name === 'Tansy') ? '' : 'none';
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
   /* THE GAUGE'S STARTING POINT, added 2026-08-26 per Dr. O direct ("did you
