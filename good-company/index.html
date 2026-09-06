@@ -1211,13 +1211,12 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       style="background:none; border:none; color:var(--ink-dim); font-size:18px; line-height:1; cursor:pointer; padding:0 0 0 .5rem;">&times;</button>
   </div>
   <!-- A banner, same fix and same reasoning as room.html's own Ask Tansy
-       panel: the source (2592x864) has real unrendered black padding on
-       both long edges, real content only in the centre ~1536px of it,
-       itself a clean 16:9. aspect-ratio:16/9 on a full-width box crops to
-       exactly that real content at any width, by construction -- reaches
-       the true edges every time rather than leaving a gap that reads as
-       the same black-bar problem all over again. -->
-  <div style="margin-bottom:.5rem; border-radius:10px; overflow:hidden; aspect-ratio:16/9;">
+       panel: pixel-sampled before believing "black bars" further, and the
+       darkness at both edges of this 2592x864 file is a real, smooth
+       vignette, not unrendered canvas -- there is no separate "real 1536px"
+       region to crop to. aspect-ratio:3/1 (the file's own exact ratio)
+       shows the entire image, edge to edge, with no cropping. -->
+  <div style="margin-bottom:.5rem; border-radius:10px; overflow:hidden; aspect-ratio:3/1;">
     <img src="photos/tansy-chatbot-banner.jpg" alt="Tansy" style="display:block; width:100%; height:100%; object-fit:cover; object-position:center 30%;">
   </div>
   <div id="tansyWidgetLog" style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:.6rem;"></div>

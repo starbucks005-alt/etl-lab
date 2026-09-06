@@ -4600,21 +4600,22 @@ function renderAskTansy(host) {
      Dr. O, after seeing the transparent portrait actually rendered -- small
      and adrift in a lot of empty space on a wide panel -- picked a second
      image made for exactly this: a real forest scene, lanterns and all.
-     ASPECT-RATIO LOCKED TO THE REAL ARTWORK, round five, same day: the
-     widened (2592x864) version has real unrendered black canvas padding on
-     both long edges -- the actual artwork only spans the centre ~1536px of
-     it, which is itself a clean 16:9 (1536x864). Capping the box to a fixed
-     pixel size (round four) fixed the crop but left a gap between the
-     boxed image and the wider panel's own dark background, which read as
-     the same black-bar problem all over again -- Dr. O: "it doesn't go to
-     the edge so it looks like it is." aspect-ratio:16/9 on a full-width box
-     is the actual fix: at ANY width, cover crops to exactly 1536px of the
-     source (the real content, no more, no less) by construction, not by a
-     pixel size worked out for one particular panel width. Full width now
-     always reaches the true edges, on any screen. */
+     3:1, THE IMAGE'S OWN REAL SHAPE, round six, same day: round five locked
+     this to 16:9 on the theory that the widened (2592x864) file had real
+     unrendered black padding past a 1536px "real" centre. Checked with
+     actual pixel sampling before believing it further (brightness by
+     column band, corner to corner) and that theory was wrong: the darkness
+     at both edges is a smooth, continuous gradient the whole way across,
+     not a flat-zero region jumping to real content at some boundary --
+     it is a real, deliberate vignette, not blank canvas. The 16:9 crop was
+     therefore discarding real picture and zooming in on her for no reason,
+     which is exactly what Dr. O flagged: "you just made her huge instead
+     of making use of the horizontal image." 2592/864 = 3 exactly, so
+     aspect-ratio:3/1 shows the entire real file, edge to edge, with no
+     cropping at all. */
   var portraitRow = document.createElement('div');
   portraitRow.style.cssText = 'margin-bottom:.6rem; border-radius:10px; overflow:hidden; ' +
-                              'aspect-ratio:16/9;';
+                              'aspect-ratio:3/1;';
   var img = document.createElement('img');
   img.src = 'photos/tansy-chatbot-banner.jpg';
   img.alt = 'Tansy';
