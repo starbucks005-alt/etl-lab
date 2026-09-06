@@ -175,7 +175,14 @@ body { position: relative; background: #000; }
       nature: SHARED_NATURE,
     },
     // poppy: { name: 'Poppy', color: 'video/poppy-ar-color.mp4', matte: 'video/poppy-ar-matte.mp4', nature: SHARED_NATURE },
-    // blue:  { name: 'Blue',  color: 'video/blue-ar-color.mp4',  matte: 'video/blue-ar-matte.mp4',  nature: SHARED_NATURE },
+    blue: {
+      name: 'Blue',
+      color: 'video/blue-ar-color.mp4',
+      matte: 'video/blue-ar-matte.mp4',
+      /* No ambience track for her -- her own clip's audio already carries
+         nature sound, per Dr. O direct, so a second layer would double it. */
+      nature: null,
+    },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
   var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;
@@ -198,7 +205,7 @@ body { position: relative; background: #000; }
   var natureAudio = document.getElementById('natureAudio');
   colorVideo.src = companion.color;
   matteVideo.src = companion.matte;
-  natureAudio.src = companion.nature;
+  if (companion.nature) natureAudio.src = companion.nature;
   var topBar = document.getElementById('topBar');
   var hint = document.getElementById('hint');
   var muteBtn = document.getElementById('muteBtn');
@@ -267,8 +274,12 @@ body { position: relative; background: #000; }
 
   /* Nature loop starts on its own schedule (it is not frame-matched to
      anything, unlike colorVideo/matteVideo) -- just play once and let its
-     own loop attribute repeat it. */
-  function startNature() { natureAudio.play().catch(function () {}); }
+     own loop attribute repeat it. Skipped entirely for a companion with no
+     nature entry (e.g. Blue, whose own clip audio already has it). */
+  function startNature() {
+    if (!companion.nature) return;
+    natureAudio.play().catch(function () {});
+  }
 
   startBtn.addEventListener('click', function () {
     startBtn.disabled = true;
