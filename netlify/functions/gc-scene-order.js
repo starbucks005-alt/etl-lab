@@ -101,6 +101,16 @@ exports.handler = async (event) => {
        storing something it would not recognize. */
     const aspect = /^9:16$/.test(String(body.aspect || '')) ? '9:16' : null;
 
+    /* SHARED COMPANIONS, added 2026-09-04. Dr. O direct: "if a user gets
+       attached to a GC companion they may want to make a scene for them,
+       and all the users benefit" -- a scene ordered for a house companion
+       (Arch, Reggie, A.L.I.C.E., anyone in GC_DEMO_IDS) is not a private
+       add-on the way a built friend's is, it becomes part of that companion
+       for every visitor (see gc-demo-scenes.js). Sent only when the room
+       was NOT looking at the visitor's own built friend; absent for every
+       existing personal order, which behaves exactly as it always has. */
+    const demoId = /^[a-z0-9_-]{1,40}$/.test(String(body.demo_id || '')) ? String(body.demo_id) : null;
+
     let ownVimeoId = null, ownPhoto = null, ownThumb = null;
     if (mode === 'own') {
       const rawVimeo = String(body.own_vimeo_id || '').trim();
@@ -133,6 +143,7 @@ exports.handler = async (event) => {
       where,
       aspect,
       mode,
+      demo_id: demoId,
       own_vimeo_id: ownVimeoId,
       own_photo_key: ownPhoto ? orderId + '.ownphoto' : null,
       own_thumb_key: ownThumb ? orderId + '.ownthumb' : null,

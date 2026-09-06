@@ -66,6 +66,11 @@ exports.handler = async (event) => {
     const where = String(body.where || '').trim().slice(0, 400);
     if (!where) return json(400, { error: 'where_required' });
 
+    /* SHARED COMPANIONS, added 2026-09-04 -- same field, same reasoning as
+       gc-scene-order.js's own demo_id: a still ordered for a house companion
+       belongs to that companion for every visitor, not just the buyer. */
+    const demoId = /^[a-z0-9_-]{1,40}$/.test(String(body.demo_id || '')) ? String(body.demo_id) : null;
+
     const friend = body.friend || {};
     const orderId = 'gci-' + require('crypto').randomBytes(8).toString('hex');
 
@@ -77,6 +82,7 @@ exports.handler = async (event) => {
       friend_name: String(friend.name || '').slice(0, 60) || 'their friend',
       gender: String(friend.gender || '').slice(0, 40),
       where,
+      demo_id: demoId,
       from: String(body.from || '').slice(0, 120),
       asked_at: new Date().toISOString(),
       portrait_key: orderId + '.b64',

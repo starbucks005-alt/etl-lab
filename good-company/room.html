@@ -1645,7 +1645,15 @@ function renderScenes() {
      could only ever end up with one delivered scene, permanently, the
      moment renderScenes() ran a second time. Living inside the function
      now means every render includes it, not just the first. */
-  if (FRIEND === GC_BUILT) {
+  /* WAS FRIEND === GC_BUILT, loosened 2026-09-04 per Dr. O direct: "we don't
+     call them demos anymore, they are GC companions" -- said while asking why
+     A.L.I.C.E. had no "+ Add a scene" slot. The old rule was written when
+     house companions were free demos with nothing to sell; that framing is
+     gone, and every companion with a real picture to build a scene from
+     should be offered one, not just a friend somebody built themselves. Still
+     gated on !SEAT: a guest who joined someone else's room is not the owner
+     of that companion and should never be offered a purchase against it. */
+  if (!SEAT && FRIEND && FRIEND.portrait) {
     var slot = document.createElement('button');
     slot.className = 'scene-chip locked';
     slot.textContent = '+ Add a scene';
@@ -1754,6 +1762,34 @@ watchCastBtn.addEventListener('click', function () {
    whatever FRIEND was at that moment. joinThenSit() calls renderScenes()
    again once the real friend is known. */
 if (!ARRIVING_ON_INVITE) renderScenes();
+
+/* A SHARED COMPANION'S GROWN WORLD, added 2026-09-04. FRIEND.scenes for a
+   demo (Arch, Reggie, A.L.I.C.E., anyone in GC_DEMO_IDS) is a static array
+   baked into gc-friend.js -- it cannot hold what somebody bought yesterday.
+   Fetched once per page load and merged in, then rendered again exactly
+   the way a page reload already does after adding a personal scene (see
+   the ?add-scene= handler further down). Skipped entirely for a personal
+   companion (GC_BUILT truthy) and for a guest in someone else's room
+   (SEAT truthy): a shared companion's extra scenes are a demo-only concept. */
+if (!GC_BUILT && !SEAT && typeof GC_WHO !== 'undefined' && GC_WHO && GC_DEMO_IDS.indexOf(GC_WHO) > -1) {
+  fetch('/.netlify/functions/gc-demo-scenes?id=' + encodeURIComponent(GC_WHO))
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      var extra = (j && Array.isArray(j.scenes)) ? j.scenes : [];
+      if (!extra.length) return;
+      var have = {};
+      (FRIEND.scenes || []).forEach(function (s) {
+        if (s) have[s.vimeoId || s.still || s.src || s.key] = true;
+      });
+      var added = false;
+      extra.forEach(function (s) {
+        var mark = s.vimeoId || s.still || s.src || s.key;
+        if (!have[mark]) { FRIEND.scenes = (FRIEND.scenes || []).concat([s]); have[mark] = true; added = true; }
+      });
+      if (added) renderScenes();
+    })
+    .catch(function () {});
+}
 
 /* ── COMING BACK FROM PAYING ─────────────────────────────────────────────────
    Stripe sends them back here with a session id and nothing else. Whether it
@@ -1900,13 +1936,20 @@ if (!ARRIVING_ON_INVITE) renderScenes();
    into storage and stops. Making the scene is a separate, owner-only step, so
    a queue can fill up without a penny being spent on it. */
 function askForScene() {
-  if (!GC_BUILT || !FRIEND.portrait) {
-    /* Also not notYet: ordering a scene IS built. What is missing is a friend
-       of theirs to make one of, which is a different sentence and a thing they
-       can go and do. */
-    post('More scenes', 'A scene is made from the picture you chose when you built ' +
-         'somebody, and there is not one on this device yet. Make a companion first and ' +
-         'this will be waiting.');
+  /* WAS !GC_BUILT || !FRIEND.portrait, loosened 2026-09-04 alongside the same
+     fix on the "+ Add a scene" chip itself (see renderScenes()): this
+     required the VISITOR to have built some friend of their own, on this
+     device, before they could order a scene for WHATEVER companion they were
+     actually looking at -- so the chip could show for A.L.I.C.E. and clicking
+     it would still say "make a companion first" to someone who had not built
+     one, even though A.L.I.C.E. needs no building. The only real requirement
+     is a picture to work from, which every real companion already has. */
+  if (!FRIEND.portrait) {
+    /* Also not notYet: ordering a scene IS built. What is missing is a picture
+       to make one of, which is a different sentence and a thing they can go
+       and do. */
+    post('More scenes', 'A scene is made from a picture, and there is not one of ' +
+         FRIEND.name + ' on this device yet.');
     return;
   }
 
@@ -1987,6 +2030,19 @@ function askForScene() {
   imageModeRow.appendChild(modePhoto); imageModeRow.appendChild(modeImageGenerate);
   host.appendChild(imageModeRow);
 
+  /* SHARED COMPANIONS CANNOT USE THE FREE BRING-YOUR-OWN PATHS, added
+     2026-09-04 alongside the shared-scenes feature (see gc-demo-scenes.js).
+     Neither "Insert Vimeo ID" nor "Upload your own" ever runs through
+     sceneRequestIsFitFor (there is no written description to classify) and
+     both write the result in with no server round trip. Fine for a private
+     companion; not fine for a shared one, where anything added becomes
+     everyone's canon instantly. Only the paid, classified Generate path is
+     offered here for a companion nobody built. */
+  if (!GC_BUILT) {
+    modeOwn.style.display = 'none';
+    modePhoto.style.display = 'none';
+  }
+
   var category = 'scenes';
   var mode = 'generate';
   function setCategory(c) {
@@ -1995,7 +2051,7 @@ function askForScene() {
     categoryScenes.className = 'btn' + (c === 'scenes' ? ' go' : '');
     modeRow.style.display = c === 'scenes' ? '' : 'none';
     imageModeRow.style.display = c === 'images' ? '' : 'none';
-    setMode(c === 'images' ? 'photo' : 'generate');
+    setMode((c === 'images' && GC_BUILT) ? 'photo' : 'generate');
   }
   function setMode(m) {
     mode = m;
@@ -2125,7 +2181,12 @@ function askForScene() {
   var sourceDefaultOpt = document.createElement('option');
   sourceDefaultOpt.value = ''; sourceDefaultOpt.textContent = FRIEND.name + "'s own picture";
   sourceSelect.appendChild(sourceDefaultOpt);
-  (GC_BUILT.scenes || []).forEach(function (s, i) {
+  /* FRIEND, not GC_BUILT: this list should show whatever stills the
+     COMPANION being looked at already has, whether that is a personal
+     companion's own scenes or a shared companion's (see gc-demo-scenes.js
+     merge in renderScenes()) -- GC_BUILT is null for the latter and would
+     throw here rather than just showing an empty list. */
+  (FRIEND.scenes || []).forEach(function (s, i) {
     if (!s || !s.still) return;
     var opt = document.createElement('option');
     opt.value = String(i);
@@ -2250,6 +2311,10 @@ function askForScene() {
           friend: { name: FRIEND.name, gender: FRIEND.gender },
           where: iw,
           from: from.value.trim(),
+          /* Absent for a personal companion, exactly as it always was; set
+             only when FRIEND is a shared GC companion, so the result
+             becomes theirs for every visitor (see gc-demo-scenes.js). */
+          demo_id: (!GC_BUILT && typeof GC_WHO !== 'undefined') ? GC_WHO : undefined,
         }),
       }).then(function (r) { return r.json(); }).then(function (j) {
         if (!j || !j.order_id) {
@@ -2397,7 +2462,7 @@ function askForScene() {
        taken as own_photo. Neither picked: falls through to plain
        from-scratch generation, exactly as before this existed. */
     var sourcePromise = sourceSelect.value
-      ? stillToBase64(GC_BUILT.scenes[Number(sourceSelect.value)].still)
+      ? stillToBase64(FRIEND.scenes[Number(sourceSelect.value)].still)
       : readAsBase64(photoInput);
 
     sourcePromise.then(function (sourceDataUrl) {
@@ -2407,6 +2472,10 @@ function askForScene() {
       from: from.value.trim(),
       where: w,
       aspect: sceneAspect,
+      /* Absent for a personal companion; set only when FRIEND is a shared
+         GC companion, so the finished scene becomes theirs for every
+         visitor rather than a private add-on (see gc-demo-scenes.js). */
+      demo_id: (!GC_BUILT && typeof GC_WHO !== 'undefined') ? GC_WHO : undefined,
     };
     if (sourceDataUrl) { body.mode = 'own'; body.own_photo = sourceDataUrl; }
 

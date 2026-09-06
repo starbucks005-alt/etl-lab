@@ -36,8 +36,11 @@
 const { getStore, connectLambda } = require('@netlify/blobs');
 const Stripe = require('stripe');
 const sharp = require('sharp');
+const Anthropic = require('@anthropic-ai/sdk');
 const veo = require('./_veo-video.js');
 const notify = require('./_gc-notify.js');
+const { addSceneToDemo } = require('./gc-demo-scenes.js');
+const { sceneRequestIsFitFor, fitErrorBody } = require('./_gc-scene-fit.js');
 
 /* CROPPED TO 16:9 BEFORE IT EVER REACHES VEO, added 2026-08-20. Real bug,
    found from a real delivered clip: Dr. O, "not the right size" -- a
@@ -396,12 +399,28 @@ exports.handler = async (event) => {
          portrait as Veo's source, same pipeline (crop, prompt, retry-on-
          filter) as any other render from here down. */
       if (order.own_vimeo_id) {
-        const link = 'https://emerging-tech-lab.com/good-company/room.html' +
-          '?add-scene=' + encodeURIComponent('vimeo:' + order.own_vimeo_id) +
-          (order.own_thumb_key
-            ? '&thumb=' + encodeURIComponent('/.netlify/functions/gc-scene-order?order_id=' + order.order_id + '&thumb=1')
-            : '') +
-          '&label=' + encodeURIComponent('A new scene');
+        /* NO TEXT CONTENT CHECK ON THIS PATH, WORTH KNOWING: sceneRequestIsFitFor
+           screens a WRITTEN description, and there is none here -- somebody's own
+           already-made video has no "where" to classify. For a shared companion
+           this is a real, narrower gap than the generated path has: the actual
+           video content itself (romantic framing, the buyer appearing in it) is
+           not checked by anything here. Left as a known limitation rather than
+           quietly ignored. */
+        let link;
+        if (order.demo_id) {
+          await addSceneToDemo(order.demo_id, {
+            label: 'A new scene', vimeoId: order.own_vimeo_id,
+            thumb: order.own_thumb_key ? ('/.netlify/functions/gc-scene-order?order_id=' + order.order_id + '&thumb=1') : undefined,
+          });
+          link = 'https://emerging-tech-lab.com/good-company/room.html?who=' + encodeURIComponent(order.demo_id);
+        } else {
+          link = 'https://emerging-tech-lab.com/good-company/room.html' +
+            '?add-scene=' + encodeURIComponent('vimeo:' + order.own_vimeo_id) +
+            (order.own_thumb_key
+              ? '&thumb=' + encodeURIComponent('/.netlify/functions/gc-scene-order?order_id=' + order.order_id + '&thumb=1')
+              : '') +
+            '&label=' + encodeURIComponent('A new scene');
+        }
         const told = await notify.sceneReady(order, link);
         order.status = 'made';
         order.link = link;
@@ -422,6 +441,12 @@ exports.handler = async (event) => {
 
     if (!portrait) return json(400, { error: 'portrait_required' });
     if (!where) return json(400, { error: 'where_required' });
+
+    /* NOT A ROMANCE SITE, checked once, here, upstream of both the personal
+       and shared paths -- see sceneRequestIsFitFor's own note above. */
+    const demoId = order && order.demo_id ? String(order.demo_id) : null;
+    const fit = await sceneRequestIsFitFor(Anthropic, where, !!demoId);
+    if (!fit.ok) return json(422, fitErrorBody(fit.reason));
 
     /* Four seconds by default and eight at most. Duration is the only real
        lever on what this costs, and the helper clamps it too. */
@@ -691,10 +716,24 @@ exports.handler = async (event) => {
               const orders = getStore('gc_scene_orders');
               const order = await orders.get(job.order_id, { type: 'json' });
               if (order && order.status !== 'made') {
-                const link = 'https://emerging-tech-lab.com/good-company/room.html' +
-                  '?add-scene=' + encodeURIComponent('/.netlify/functions/gc-scene?job_id=' + jobId + '&file=1') +
-                  '&label=' + encodeURIComponent('A new scene') +
-                  '&aspect=' + encodeURIComponent(job.aspect || '16:9');
+                const videoUrl = '/.netlify/functions/gc-scene?job_id=' + jobId + '&file=1';
+                let link;
+                /* SHARED COMPANION: goes straight into gc-demo-scenes.js so
+                   every visitor's next page load finds it, not just the
+                   buyer's own browser -- there is no personal friend record
+                   to attach it to, and there should not be one (see the
+                   note on gc-scene-order.js's demo_id field). The link sent
+                   to the buyer is just the room itself, since opening it is
+                   already all that is needed to see the scene live. */
+                if (order.demo_id) {
+                  await addSceneToDemo(order.demo_id, { label: 'A new scene', src: videoUrl });
+                  link = 'https://emerging-tech-lab.com/good-company/room.html?who=' + encodeURIComponent(order.demo_id);
+                } else {
+                  link = 'https://emerging-tech-lab.com/good-company/room.html' +
+                    '?add-scene=' + encodeURIComponent(videoUrl) +
+                    '&label=' + encodeURIComponent('A new scene') +
+                    '&aspect=' + encodeURIComponent(job.aspect || '16:9');
+                }
                 const told = await notify.sceneReady(order, link);
                 order.status = 'made';
                 order.job_id = jobId;

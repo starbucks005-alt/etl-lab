@@ -22,7 +22,10 @@
 
 const Stripe = require('stripe');
 const { getStore, connectLambda } = require('@netlify/blobs');
+const Anthropic = require('@anthropic-ai/sdk');
 const gemini = require('./_gemini-image.js');
+const { addSceneToDemo } = require('./gc-demo-scenes.js');
+const { sceneRequestIsFitFor, fitErrorBody } = require('./_gc-scene-fit.js');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -103,6 +106,22 @@ exports.handler = async (event) => {
        paying cannot generate (and get billed toward the Gemini key) a
        second time for the same order. */
     if (!order.image_key) {
+      /* NOT A ROMANCE SITE, checked here, after payment, same timing this
+         file already used for every other reason generation can fail --
+         see _gc-scene-fit.js's own note on the rule itself. WORTH KNOWING:
+         this runs after Stripe has already been charged, same as a
+         technical generation failure below already does, and neither path
+         issues a refund automatically. A content refusal is a different
+         kind of failure than an unreachable model, and whether it should
+         auto-refund is a real open question, not something decided here. */
+      const fit = await sceneRequestIsFitFor(Anthropic, order.where, !!order.demo_id);
+      if (!fit.ok) {
+        order.status = 'refused';
+        order.refused_reason = fit.reason;
+        await store.setJSON(orderId, order);
+        return json(200, { ok: true, paid: true, order_id: orderId, ready: false, ...fitErrorBody(fit.reason) });
+      }
+
       let portrait = '';
       try { portrait = String(await store.get(order.portrait_key, { type: 'text' }) || '').trim(); } catch (_) {}
       if (!portrait) return json(500, { error: 'portrait_missing' });
@@ -124,9 +143,17 @@ exports.handler = async (event) => {
       await store.setJSON(orderId, order);
     }
 
+    const imageUrl = '/.netlify/functions/gc-image?order_id=' + orderId + '&file=1';
+    /* SHARED COMPANION: goes straight into gc-demo-scenes.js, same reasoning
+       as gc-scene.js's own identical branch -- every visitor's next page
+       load should find it, not just the buyer's own browser. */
+    if (order.demo_id) {
+      await addSceneToDemo(order.demo_id, { label: 'A new image', still: imageUrl });
+    }
+
     return json(200, {
       ok: true, paid: true, order_id: orderId, friend_name: order.friend_name,
-      ready: true, image_url: '/.netlify/functions/gc-image?order_id=' + orderId + '&file=1',
+      ready: true, image_url: imageUrl, shared: !!order.demo_id,
     });
   }
 
