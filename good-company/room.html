@@ -4600,24 +4600,25 @@ function renderAskTansy(host) {
      Dr. O, after seeing the transparent portrait actually rendered -- small
      and adrift in a lot of empty space on a wide panel -- picked a second
      image made for exactly this: a real forest scene, lanterns and all.
-     CAPPED WIDTH AND TALLER, round four, same day: the widened (2592x864)
-     version has real unrendered black canvas padding on both long edges --
-     the actual artwork only spans the centre ~1536px of it. Full width on a
-     wide panel made cover's crop WIDTH-bound, showing that black padding on
-     both sides no matter the height. Capping the box at 700x420 (worked out
-     against the source's real numbers, not guessed) makes cover
-     HEIGHT-bound instead, which crops to about 1440px of the source's
-     width, centred -- comfortably inside the real 1536px of content,
-     independent of how wide the surrounding panel happens to be. Dr. O
-     confirmed there is plenty of vertical room here for it to be this
-     size. */
+     ASPECT-RATIO LOCKED TO THE REAL ARTWORK, round five, same day: the
+     widened (2592x864) version has real unrendered black canvas padding on
+     both long edges -- the actual artwork only spans the centre ~1536px of
+     it, which is itself a clean 16:9 (1536x864). Capping the box to a fixed
+     pixel size (round four) fixed the crop but left a gap between the
+     boxed image and the wider panel's own dark background, which read as
+     the same black-bar problem all over again -- Dr. O: "it doesn't go to
+     the edge so it looks like it is." aspect-ratio:16/9 on a full-width box
+     is the actual fix: at ANY width, cover crops to exactly 1536px of the
+     source (the real content, no more, no less) by construction, not by a
+     pixel size worked out for one particular panel width. Full width now
+     always reaches the true edges, on any screen. */
   var portraitRow = document.createElement('div');
   portraitRow.style.cssText = 'margin-bottom:.6rem; border-radius:10px; overflow:hidden; ' +
-                              'max-width:700px; margin-left:auto; margin-right:auto;';
+                              'aspect-ratio:16/9;';
   var img = document.createElement('img');
   img.src = 'photos/tansy-chatbot-banner.jpg';
   img.alt = 'Tansy';
-  img.style.cssText = 'display:block; width:100%; height:420px; object-fit:cover; object-position:center 30%;';
+  img.style.cssText = 'display:block; width:100%; height:100%; object-fit:cover; object-position:center 30%;';
   portraitRow.appendChild(img);
   host.appendChild(portraitRow);
 

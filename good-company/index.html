@@ -1212,12 +1212,13 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
   </div>
   <!-- A banner, same fix and same reasoning as room.html's own Ask Tansy
        panel: the source (2592x864) has real unrendered black padding on
-       both long edges, real content only in the centre ~1536px of it. This
-       popup is already narrow enough that a modest height keeps cover's
-       crop safely inside that real content -- worked out against the
-       source's actual numbers, not guessed. -->
-  <div style="margin-bottom:.5rem; border-radius:10px; overflow:hidden;">
-    <img src="photos/tansy-chatbot-banner.jpg" alt="Tansy" style="display:block; width:100%; height:220px; object-fit:cover; object-position:center 30%;">
+       both long edges, real content only in the centre ~1536px of it,
+       itself a clean 16:9. aspect-ratio:16/9 on a full-width box crops to
+       exactly that real content at any width, by construction -- reaches
+       the true edges every time rather than leaving a gap that reads as
+       the same black-bar problem all over again. -->
+  <div style="margin-bottom:.5rem; border-radius:10px; overflow:hidden; aspect-ratio:16/9;">
+    <img src="photos/tansy-chatbot-banner.jpg" alt="Tansy" style="display:block; width:100%; height:100%; object-fit:cover; object-position:center 30%;">
   </div>
   <div id="tansyWidgetLog" style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:.6rem;"></div>
   <div style="display:flex; gap:.4rem;">
