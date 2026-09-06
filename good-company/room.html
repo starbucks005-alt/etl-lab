@@ -4597,11 +4597,19 @@ function renderAskTansy(host) {
 
   var portraitRow = document.createElement('div');
   portraitRow.style.cssText = 'display:flex; gap:.7rem; align-items:flex-start; margin-bottom:.8rem;';
+  /* NO CROP, NO CIRCLE, NO BORDER, fixed 2026-09-06: Dr. O picked this
+     picture specifically for its transparent background, "so she could just
+     be floating" -- the original border-radius:999px + object-fit:cover
+     treatment cropped a small square from the middle and boxed it in a hard
+     circle, which is the exact opposite effect, wings and dress gone
+     entirely. object-fit:contain shows the whole figure at its own
+     proportions, and the transparent PNG does the rest against the panel's
+     own background. */
   var img = document.createElement('img');
   img.src = 'photos/tansy-chatbot.png';
   img.alt = 'Tansy';
-  img.style.cssText = 'width:64px; height:64px; border-radius:999px; object-fit:cover; ' +
-                      'object-position:top center; flex:0 0 auto; border:1px solid var(--line);';
+  img.style.cssText = 'width:110px; height:150px; object-fit:contain; object-position:top center; ' +
+                      'flex:0 0 auto;';
   portraitRow.appendChild(img);
 
   var log = document.createElement('div');
