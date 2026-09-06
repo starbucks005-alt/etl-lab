@@ -16,20 +16,33 @@
      3D -- every asset is a flat Veo video or a Gemini still. Building that
      is a real, separate project, not this one.
 
-     WHAT THIS ACTUALLY IS: your own camera as a live background, with one
-     of Tansy's real existing scene videos (already made, already paid for,
-     nothing new generated) floating on top as a plain HTML <video>, which
-     you drag to move and pinch or scroll to resize by hand. No WebXR, no
-     surface detection, no 3D -- deliberately the simplest version that
-     works identically on any phone or laptop with a camera, rather than a
-     good experience on Android and a confusing, different one on iPhone.
-     Real surface-anchored AR (WebXR hit-test, Android-only, no iOS
-     equivalent) is a genuinely separate, later step if this pilot lands.
+     WHAT THIS ACTUALLY IS: your own camera as a live background, with
+     Tansy floating on top, genuinely transparent this time, drag to move,
+     pinch or scroll to resize by hand. No WebXR, no surface detection, no
+     3D -- deliberately the simplest version that works identically on any
+     phone or laptop with a camera, rather than a good experience on
+     Android and a confusing, different one on iPhone. Real surface-
+     anchored AR (WebXR hit-test, Android-only, no iOS equivalent) is a
+     genuinely separate, later step if this pilot lands.
+
+     REAL TRANSPARENCY, NOT A RECTANGLE, added 2026-09-06 (round two): a
+     plain <video> is always a solid rectangle in every browser, even
+     playing a file with a genuine alpha channel -- that is a real,
+     universal web limitation, not a bug here. Dr. O keyed Tansy out in
+     Premiere (Rotobrush/Object Mask, then a Tint pass to turn the visible
+     pixels solid white) and exported TWO synced videos instead of one:
+     tansy-ar-color.mp4 (the real footage) and tansy-ar-matte.mp4 (a white
+     silhouette of her on black, frame-for-frame aligned). A <canvas> reads
+     both every frame and manually sets each pixel's alpha from the matte's
+     brightness -- the standard technique for real transparent video on the
+     web, since there is no shortcut around what <video> itself cannot do.
 
      NOTHING LEAVES THIS DEVICE. The camera feed is read directly into a
      <video> element and never touches a network request, a canvas capture,
      or a recording -- the same privacy stance as everywhere else on this
-     campus that a device's own camera or mic is used live. -->
+     campus that a device's own camera or mic is used live. The two hidden
+     Tansy videos and the compositing canvas are a separate, local-only
+     pipeline; nothing about them touches the camera stream or a server. -->
 
 <script src="gc-skin.js"></script>
 <link rel="stylesheet" href="gc-skin.css">
@@ -54,12 +67,16 @@ body { position: relative; background: #000; }
 
 #overlayWrap {
   position: fixed; z-index: 10; touch-action: none; cursor: grab;
-  width: 260px; aspect-ratio: 9/16;
+  width: 260px;
+  /* Fallback only, so the box has some height for the one or two frames
+     before the real video's dimensions are known -- JS overwrites this via
+     loadedmetadata with the real shape, no source video's shape is assumed. */
+  aspect-ratio: 9/16;
 }
 #overlayWrap.dragging { cursor: grabbing; }
-#overlayVideo {
-  width: 100%; height: 100%; object-fit: contain;
-  pointer-events: none; -webkit-user-drag: none;
+#overlayCanvas {
+  display: block; width: 100%; height: 100%;
+  pointer-events: none;
 }
 
 #topBar {
@@ -98,8 +115,15 @@ body { position: relative; background: #000; }
 <video id="camera" autoplay playsinline muted></video>
 
 <div id="overlayWrap" style="display:none;">
-  <video id="overlayVideo" src="video/tansy-oak-original.mp4" autoplay loop muted playsinline></video>
+  <canvas id="overlayCanvas"></canvas>
 </div>
+
+<!-- HIDDEN SOURCE VIDEOS, never shown directly -- the canvas reads their
+     frames every tick and draws the composited result. Both must load,
+     start, and loop in lockstep for the matte to line up with the color;
+     see the play/loop handling below. -->
+<video id="colorVideo" src="video/tansy-ar-color.mp4" playsinline muted style="display:none;"></video>
+<video id="matteVideo" src="video/tansy-ar-matte.mp4" playsinline muted style="display:none;"></video>
 
 <div id="topBar" style="display:none;">
   <a href="index.html">&larr; Good Company</a>
@@ -115,10 +139,75 @@ body { position: relative; background: #000; }
   var cameraError = document.getElementById('cameraError');
   var camera = document.getElementById('camera');
   var overlayWrap = document.getElementById('overlayWrap');
-  var overlayVideo = document.getElementById('overlayVideo');
+  var canvas = document.getElementById('overlayCanvas');
+  var ctx = canvas.getContext('2d', { willReadFrequently: true });
+  var colorVideo = document.getElementById('colorVideo');
+  var matteVideo = document.getElementById('matteVideo');
   var topBar = document.getElementById('topBar');
   var hint = document.getElementById('hint');
   var muteBtn = document.getElementById('muteBtn');
+
+  /* THE COMPOSITOR. Runs continuously once both videos are ready; drawing
+     is capped at a modest internal resolution (bufW/bufH, set once real
+     dimensions are known) since a full per-pixel alpha pass every frame is
+     real CPU work -- the canvas is then scaled up to whatever size the
+     user drags it to via ordinary CSS, same as any other image would be. */
+  var bufW = 0, bufH = 0;
+  var tempCanvas = document.createElement('canvas');
+  var tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+  var matteCanvas = document.createElement('canvas');
+  var matteCtx = matteCanvas.getContext('2d', { willReadFrequently: true });
+  var ready = false;
+
+  function setupBuffers() {
+    if (!colorVideo.videoWidth || !matteVideo.videoWidth) return;
+    /* Capped at 480px on the long side -- plenty for a dragged overlay on
+       a phone screen, and keeps the per-frame pixel loop cheap. */
+    var scale = Math.min(1, 480 / Math.max(colorVideo.videoWidth, colorVideo.videoHeight));
+    bufW = Math.round(colorVideo.videoWidth * scale);
+    bufH = Math.round(colorVideo.videoHeight * scale);
+    canvas.width = tempCanvas.width = matteCanvas.width = bufW;
+    canvas.height = tempCanvas.height = matteCanvas.height = bufH;
+    /* The overlay box's own on-screen SHAPE follows the real footage,
+       never assumed ahead of time (see the CSS note on #overlayWrap). */
+    overlayWrap.style.aspectRatio = bufW + '/' + bufH;
+    ready = true;
+  }
+
+  function compositeFrame() {
+    if (ready && colorVideo.readyState >= 2 && matteVideo.readyState >= 2 && !colorVideo.paused) {
+      tempCtx.drawImage(colorVideo, 0, 0, bufW, bufH);
+      matteCtx.drawImage(matteVideo, 0, 0, bufW, bufH);
+      var colorData = tempCtx.getImageData(0, 0, bufW, bufH);
+      var matteData = matteCtx.getImageData(0, 0, bufW, bufH);
+      var pixels = colorData.data, mask = matteData.data;
+      /* Alpha comes from the matte's own brightness: white (255) = fully
+         visible, black (0) = fully transparent. Reusing colorData's buffer
+         rather than allocating a third one every frame. */
+      for (var i = 0; i < pixels.length; i += 4) {
+        pixels[i + 3] = mask[i];
+      }
+      ctx.putImageData(colorData, 0, 0);
+    }
+    requestAnimationFrame(compositeFrame);
+  }
+  requestAnimationFrame(compositeFrame);
+
+  colorVideo.addEventListener('loadedmetadata', setupBuffers);
+  matteVideo.addEventListener('loadedmetadata', setupBuffers);
+
+  /* BOTH VIDEOS PLAY (AND LOOP) IN LOCKSTEP, started together, restarted
+     together -- two independently-looping <video> elements drift out of
+     sync within a few loops even at identical frame rates, which would
+     slide the mask off her over time. Resetting both to 0 and replaying
+     together on every loop keeps them locked. */
+  function playBoth() {
+    colorVideo.currentTime = 0;
+    matteVideo.currentTime = 0;
+    colorVideo.play().catch(function () {});
+    matteVideo.play().catch(function () {});
+  }
+  colorVideo.addEventListener('ended', playBoth);
 
   startBtn.addEventListener('click', function () {
     startBtn.disabled = true;
@@ -133,12 +222,15 @@ body { position: relative; background: #000; }
       topBar.style.display = '';
       hint.style.display = '';
       setTimeout(function () { hint.style.opacity = '0'; }, 4000);
+      playBoth();
       /* Centre it on screen the first time, sized to something reasonable
-         relative to the viewport rather than a fixed guess. */
+         relative to the viewport rather than a fixed guess. Height follows
+         from the aspect-ratio set once the real footage's shape is known
+         (setupBuffers), so this only needs to pick a width. */
       var w = Math.min(260, window.innerWidth * 0.55);
       overlayWrap.style.width = w + 'px';
       overlayWrap.style.left = ((window.innerWidth - w) / 2) + 'px';
-      overlayWrap.style.top = ((window.innerHeight - w * 16 / 9) / 2) + 'px';
+      overlayWrap.style.top = (window.innerHeight * 0.2) + 'px';
     }).catch(function (err) {
       startBtn.disabled = false;
       startBtn.textContent = 'Try again';
@@ -149,8 +241,8 @@ body { position: relative; background: #000; }
   });
 
   muteBtn.addEventListener('click', function () {
-    overlayVideo.muted = !overlayVideo.muted;
-    muteBtn.innerHTML = overlayVideo.muted ? '&#128264; Sound on' : '&#128263; Sound off';
+    colorVideo.muted = !colorVideo.muted;
+    muteBtn.innerHTML = colorVideo.muted ? '&#128264; Sound on' : '&#128263; Sound off';
   });
 
   /* DRAG TO MOVE, PINCH/SCROLL TO RESIZE. Plain pointer events, not a
