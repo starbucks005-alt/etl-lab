@@ -140,7 +140,7 @@ body { position: relative; background: #000; }
 
 <div id="topBar" style="display:none;">
   <a href="index.html">&larr; Good Company</a>
-  <button id="muteBtn" type="button">&#128264; Sound on</button>
+  <button id="muteBtn" type="button" aria-label="Sound off">&#128263;</button>
 </div>
 
 <div id="hint" style="display:none;">Drag to move &middot; pinch or scroll to resize</div>
@@ -260,11 +260,20 @@ body { position: relative; background: #000; }
     });
   });
 
+  /* Icon reflects the ACTUAL current state (slash = muted, no slash = on),
+     not "what clicking it will do" -- the old action-labeled version
+     (icon + "Sound on"/"Sound off" text) read backwards at a glance. */
+  function updateMuteIcon() {
+    var muted = colorVideo.muted;
+    muteBtn.innerHTML = muted ? '&#128263;' : '&#128266;';
+    muteBtn.setAttribute('aria-label', muted ? 'Sound off' : 'Sound on');
+  }
+
   muteBtn.addEventListener('click', function () {
     var next = !colorVideo.muted;
     colorVideo.muted = next;
     natureAudio.muted = next;
-    muteBtn.innerHTML = next ? '&#128264; Sound on' : '&#128263; Sound off';
+    updateMuteIcon();
   });
 
   /* DRAG TO MOVE, PINCH/SCROLL TO RESIZE. Plain pointer events, not a
