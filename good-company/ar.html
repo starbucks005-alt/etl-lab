@@ -3,12 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Good Company: Tansy, in your room</title>
-<meta name="description" content="Bring Tansy into your own room with your camera.">
+<title>Good Company: in your room</title>
+<meta name="description" content="Bring a Good Company companion into your own room with your camera.">
 
-<!-- PILOT, ONE COMPANION ONLY, added 2026-09-06. Dr. O: "can we make our
+<!-- PILOT, A FEW COMPANIONS, added 2026-09-06. Dr. O: "can we make our
      companions AR so they can show up in our home?" then, scoped down
-     herself: "just a few of them... let's try tansy first."
+     herself: "just a few of them... let's try tansy first." Then, once
+     Tansy's pilot landed: "let's try poppy next. then blue."
+
+     ONE PAGE, MANY COMPANIONS, keyed by a COMPANIONS registry below and a
+     ?who= in the URL (ar.html?who=poppy), rather than a copy of this whole
+     file per companion -- Poppy and Blue do not even have rooms of their
+     own (see gc-friend.js's own companions object comment: they borrow
+     Tansy's room, "not separately built or paid for"), so a separate page
+     per name would have invented a page structure that does not otherwise
+     exist anywhere else in the product. A companion only appears here once
+     it has a real Premiere-exported color/matte pair -- there is no
+     placeholder or "coming soon" entry for one that does not exist yet.
 
      THE REAL FORK, SAID PLAINLY RATHER THAN PROMISED AWAY: true 3D AR (a
      companion standing in your room, anchored to your floor, occluded by
@@ -113,9 +124,9 @@ body { position: relative; background: #000; }
 <body>
 
 <div id="startScreen">
-  <h1>Tansy, in your room</h1>
-  <p>This uses your camera to put Tansy in front of it, right on your own screen. Nothing is
-    recorded, uploaded, or sent anywhere. It stays on this device, live, the whole time.</p>
+  <h1 id="startTitle">In your room</h1>
+  <p id="startBody">This uses your camera to put them in front of it, right on your own screen.
+    Nothing is recorded, uploaded, or sent anywhere. It stays on this device, live, the whole time.</p>
   <button class="btn go" id="startBtn" type="button">Turn on the camera</button>
   <p id="cameraError" style="display:none; color:#c0645a;"></p>
 </div>
@@ -129,14 +140,15 @@ body { position: relative; background: #000; }
 <!-- HIDDEN SOURCE VIDEOS, never shown directly -- the canvas reads their
      frames every tick and draws the composited result. Both must load,
      start, and loop in lockstep for the matte to line up with the color;
-     see the play/loop handling below. -->
-<video id="colorVideo" src="video/tansy-ar-color.mp4" playsinline muted style="display:none;"></video>
-<video id="matteVideo" src="video/tansy-ar-matte.mp4" playsinline muted style="display:none;"></video>
+     see the play/loop handling below. src is set from JS, from the
+     COMPANIONS registry, not hardcoded here -- see setCompanion(). -->
+<video id="colorVideo" playsinline muted style="display:none;"></video>
+<video id="matteVideo" playsinline muted style="display:none;"></video>
 
 <!-- Ambient nature loop under the whole scene, from Dr. O (ElevenLabs).
      Muted by default same as colorVideo, for the same autoplay-policy
-     reason -- the Sound On button unmutes both together. -->
-<audio id="natureAudio" src="audio/tansy-ar-nature.mp3" loop muted></audio>
+     reason -- the Sound On button unmutes both together. src from JS too. -->
+<audio id="natureAudio" loop muted></audio>
 
 <div id="topBar" style="display:none;">
   <a href="index.html">&larr; Good Company</a>
@@ -147,6 +159,33 @@ body { position: relative; background: #000; }
 
 <script>
 (function () {
+  /* THE REGISTRY. One entry per companion who actually has a real
+     Premiere-exported color/matte pair -- add a line here, drop the two
+     files in video/ (and an audio/ line if this one gets its own ambience
+     rather than reusing Tansy's), nothing else in this file changes.
+     Poppy and Blue are named here even without files yet only because
+     Dr. O asked for them next; SHARED falls back to Tansy's nature loop
+     for either since neither has been given a different one of their own. */
+  var SHARED_NATURE = 'audio/tansy-ar-nature.mp3';
+  var COMPANIONS = {
+    tansy: {
+      name: 'Tansy',
+      color: 'video/tansy-ar-color.mp4',
+      matte: 'video/tansy-ar-matte.mp4',
+      nature: SHARED_NATURE,
+    },
+    // poppy: { name: 'Poppy', color: 'video/poppy-ar-color.mp4', matte: 'video/poppy-ar-matte.mp4', nature: SHARED_NATURE },
+    // blue:  { name: 'Blue',  color: 'video/blue-ar-color.mp4',  matte: 'video/blue-ar-matte.mp4',  nature: SHARED_NATURE },
+  };
+  var askedFor = new URLSearchParams(location.search).get('who');
+  var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;
+
+  document.title = 'Good Company: ' + companion.name + ', in your room';
+  document.getElementById('startTitle').textContent = companion.name + ', in your room';
+  document.getElementById('startBody').textContent = 'This uses your camera to put ' +
+    companion.name + ' in front of it, right on your own screen. Nothing is recorded, ' +
+    'uploaded, or sent anywhere. It stays on this device, live, the whole time.';
+
   var startScreen = document.getElementById('startScreen');
   var startBtn = document.getElementById('startBtn');
   var cameraError = document.getElementById('cameraError');
@@ -157,6 +196,9 @@ body { position: relative; background: #000; }
   var colorVideo = document.getElementById('colorVideo');
   var matteVideo = document.getElementById('matteVideo');
   var natureAudio = document.getElementById('natureAudio');
+  colorVideo.src = companion.color;
+  matteVideo.src = companion.matte;
+  natureAudio.src = companion.nature;
   var topBar = document.getElementById('topBar');
   var hint = document.getElementById('hint');
   var muteBtn = document.getElementById('muteBtn');
