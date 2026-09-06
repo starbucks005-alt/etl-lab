@@ -40,15 +40,36 @@ async function sceneRequestIsFitFor(Anthropic, where, forShared) {
   if (!key) return { ok: false, reason: 'cannot_confirm' };
   try {
     const client = new Anthropic({ apiKey: key });
+    /* WRITTEN WITH EXAMPLES, NOT JUST RULES, after a real test run: a bare
+       rule statement ("SELF = the visitor appears alongside the companion")
+       made Haiku over-trigger SELF on plainly innocent descriptions with no
+       visitor in them at all ("sitting with Poppy and Blue on a branch,
+       laughing about something" -- an established companion's own castmates,
+       nobody personal). A small, fast model needs the boundary shown, not
+       just stated -- see gc-face.js's own note on the same lesson for image
+       prompts. FINE now lists concrete examples first, on purpose: what is
+       allowed should be the thing most vividly in view, not an afterthought
+       clause at the end of a paragraph about what to refuse. */
     const system = forShared
       ? 'A visitor described a scene or image for a SHARED companion on a PLATONIC companion ' +
-        'app (not dating or romance) -- this companion is the same person for every visitor, ' +
-        'and the result becomes part of what everyone sees, permanently. Answer with exactly ' +
-        'one word. QUESTIONABLE = romantic, sexual, or suggestive in any way, or stages the ' +
-        'companion as a romantic partner. SELF = the description includes the visitor ' +
-        'themselves alongside the companion ("me and X", "the two of us", "with me", "us ' +
-        'together"), which cannot go in a shared scene even if completely innocent. FINE = the ' +
-        'companion alone, or with other established characters, nobody personal to the visitor.'
+        'app (not dating or romance). This companion is the same person for every visitor, and ' +
+        'the result becomes part of what everyone sees, permanently. Classify it as exactly ' +
+        'one word.\n\n' +
+        'FINE examples (answer FINE for anything like these): "in the garden with a cup of ' +
+        'tea", "sitting with Poppy and Blue on a branch, laughing about something", "reading ' +
+        'to the kids at bedtime", "on watch at the front porch", "the whole family around the ' +
+        'table". These describe the companion (alone, or with their own established castmates) ' +
+        'doing something ordinary. None of them mention the visitor.\n\n' +
+        'SELF examples (answer SELF for anything like these): "me and Julian on the sofa ' +
+        'listening to records", "the two of us at the beach", "hanging out with me", "us ' +
+        'having coffee together". The common thread: the VISITOR THEMSELVES (the person ' +
+        'asking, "I"/"me"/"us"/"we") is a character IN the scene, not just its audience. That ' +
+        'cannot go in a scene everyone else will also see, even when the request is completely ' +
+        'wholesome.\n\n' +
+        'QUESTIONABLE = romantic, sexual, or suggestive in any way, or stages the companion as ' +
+        'a romantic partner (checked regardless of SELF).\n\n' +
+        'Default to FINE. Only answer SELF if the visitor is explicitly named as a participant, ' +
+        'not merely because other characters, animals, or people in general are present.'
       : 'A visitor described a scene or image they want made of their OWN companion on a ' +
         'PLATONIC companion app (not dating or romance). Answer with exactly one word. ' +
         'QUESTIONABLE = romantic, sexual, or suggestive in any way, or stages the companion as ' +
