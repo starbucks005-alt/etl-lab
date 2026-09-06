@@ -1210,8 +1210,11 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     <button id="tansyWidgetClose" type="button" aria-label="Close"
       style="background:none; border:none; color:var(--ink-dim); font-size:18px; line-height:1; cursor:pointer; padding:0 0 0 .5rem;">&times;</button>
   </div>
-  <div style="text-align:center; margin-bottom:.5rem;">
-    <img src="photos/tansy-chatbot.png" alt="Tansy" style="width:150px; max-width:70%; height:auto; object-fit:contain;">
+  <!-- A banner, same fix and same reasoning as room.html's own Ask Tansy
+       panel: this image is a real forest scene at 1536x864, made to fill a
+       wide rectangle, not float small in one. -->
+  <div style="margin-bottom:.5rem; border-radius:10px; overflow:hidden;">
+    <img src="photos/tansy-chatbot-banner.jpg" alt="Tansy" style="display:block; width:100%; height:140px; object-fit:cover; object-position:center 30%;">
   </div>
   <div id="tansyWidgetLog" style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:.6rem;"></div>
   <div style="display:flex; gap:.4rem;">

@@ -4596,21 +4596,20 @@ function renderAskTansy(host) {
     'rather than expecting warmth.';
   host.appendChild(warn);
 
-  /* SHE IS A FAIRY, fixed 2026-09-06 (round two): the first fix stopped
-     cropping her into a circle but still boxed her at 110x150 -- a narrow,
-     portrait-shaped frame for an image that is actually 1404x1362, close to
-     square, with wings that spread WIDE. object-fit:contain inside a narrow
-     box just shrinks the whole wide figure down to fit the narrow width,
-     which reads as small and cramped, not floating. Given real room above
-     the chat instead -- centered, sized close to the source's own square
-     proportions -- so the wingspan actually has space to read as a
-     wingspan. */
+  /* A BANNER NOW, not a floating cutout, changed 2026-09-06 (round three):
+     Dr. O, after seeing the transparent portrait actually rendered -- small
+     and adrift in a lot of empty space on a wide panel -- picked a second
+     image made for exactly this: a real forest scene, lanterns and all, at
+     1536x864, a clean 16:9 that matches this space's own wide, short
+     rectangle instead of fighting it. object-fit:cover fills the full
+     width; a fixed height keeps the panel from growing to the image's own
+     full size. */
   var portraitRow = document.createElement('div');
-  portraitRow.style.cssText = 'text-align:center; margin-bottom:.6rem;';
+  portraitRow.style.cssText = 'margin-bottom:.6rem; border-radius:10px; overflow:hidden;';
   var img = document.createElement('img');
-  img.src = 'photos/tansy-chatbot.png';
+  img.src = 'photos/tansy-chatbot-banner.jpg';
   img.alt = 'Tansy';
-  img.style.cssText = 'width:200px; max-width:80%; height:auto; object-fit:contain;';
+  img.style.cssText = 'display:block; width:100%; height:170px; object-fit:cover; object-position:center 30%;';
   portraitRow.appendChild(img);
   host.appendChild(portraitRow);
 
