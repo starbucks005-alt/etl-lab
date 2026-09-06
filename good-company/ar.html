@@ -42,7 +42,15 @@
      or a recording -- the same privacy stance as everywhere else on this
      campus that a device's own camera or mic is used live. The two hidden
      Tansy videos and the compositing canvas are a separate, local-only
-     pipeline; nothing about them touches the camera stream or a server. -->
+     pipeline; nothing about them touches the camera stream or a server.
+
+     AMBIENT NATURE LOOP, added 2026-09-06 (round three): tansy-ar-nature.mp3,
+     from Dr. O's ElevenLabs library, loops under the whole scene. It is not
+     frame-matched to anything -- unlike colorVideo/matteVideo it just plays
+     and repeats on its own -- and shares the one Sound On/Off button rather
+     than getting a second control, since there is no reason a visitor would
+     want Tansy's own clip audio and the room ambience independently. -->
+
 
 <script src="gc-skin.js"></script>
 <link rel="stylesheet" href="gc-skin.css">
@@ -125,6 +133,11 @@ body { position: relative; background: #000; }
 <video id="colorVideo" src="video/tansy-ar-color.mp4" playsinline muted style="display:none;"></video>
 <video id="matteVideo" src="video/tansy-ar-matte.mp4" playsinline muted style="display:none;"></video>
 
+<!-- Ambient nature loop under the whole scene, from Dr. O (ElevenLabs).
+     Muted by default same as colorVideo, for the same autoplay-policy
+     reason -- the Sound On button unmutes both together. -->
+<audio id="natureAudio" src="audio/tansy-ar-nature.mp3" loop muted></audio>
+
 <div id="topBar" style="display:none;">
   <a href="index.html">&larr; Good Company</a>
   <button id="muteBtn" type="button">&#128264; Sound on</button>
@@ -143,6 +156,7 @@ body { position: relative; background: #000; }
   var ctx = canvas.getContext('2d', { willReadFrequently: true });
   var colorVideo = document.getElementById('colorVideo');
   var matteVideo = document.getElementById('matteVideo');
+  var natureAudio = document.getElementById('natureAudio');
   var topBar = document.getElementById('topBar');
   var hint = document.getElementById('hint');
   var muteBtn = document.getElementById('muteBtn');
@@ -209,6 +223,11 @@ body { position: relative; background: #000; }
   }
   colorVideo.addEventListener('ended', playBoth);
 
+  /* Nature loop starts on its own schedule (it is not frame-matched to
+     anything, unlike colorVideo/matteVideo) -- just play once and let its
+     own loop attribute repeat it. */
+  function startNature() { natureAudio.play().catch(function () {}); }
+
   startBtn.addEventListener('click', function () {
     startBtn.disabled = true;
     startBtn.textContent = 'Asking...';
@@ -223,6 +242,7 @@ body { position: relative; background: #000; }
       hint.style.display = '';
       setTimeout(function () { hint.style.opacity = '0'; }, 4000);
       playBoth();
+      startNature();
       /* Centre it on screen the first time, sized to something reasonable
          relative to the viewport rather than a fixed guess. Height follows
          from the aspect-ratio set once the real footage's shape is known
@@ -241,8 +261,10 @@ body { position: relative; background: #000; }
   });
 
   muteBtn.addEventListener('click', function () {
-    colorVideo.muted = !colorVideo.muted;
-    muteBtn.innerHTML = colorVideo.muted ? '&#128264; Sound on' : '&#128263; Sound off';
+    var next = !colorVideo.muted;
+    colorVideo.muted = next;
+    natureAudio.muted = next;
+    muteBtn.innerHTML = next ? '&#128264; Sound on' : '&#128263; Sound off';
   });
 
   /* DRAG TO MOVE, PINCH/SCROLL TO RESIZE. Plain pointer events, not a
