@@ -4595,29 +4595,29 @@ function renderAskTansy(host) {
     'into it rather than expecting warmth.';
   host.appendChild(warn);
 
+  /* SHE IS A FAIRY, fixed 2026-09-06 (round two): the first fix stopped
+     cropping her into a circle but still boxed her at 110x150 -- a narrow,
+     portrait-shaped frame for an image that is actually 1404x1362, close to
+     square, with wings that spread WIDE. object-fit:contain inside a narrow
+     box just shrinks the whole wide figure down to fit the narrow width,
+     which reads as small and cramped, not floating. Given real room above
+     the chat instead -- centered, sized close to the source's own square
+     proportions -- so the wingspan actually has space to read as a
+     wingspan. */
   var portraitRow = document.createElement('div');
-  portraitRow.style.cssText = 'display:flex; gap:.7rem; align-items:flex-start; margin-bottom:.8rem;';
-  /* NO CROP, NO CIRCLE, NO BORDER, fixed 2026-09-06: Dr. O picked this
-     picture specifically for its transparent background, "so she could just
-     be floating" -- the original border-radius:999px + object-fit:cover
-     treatment cropped a small square from the middle and boxed it in a hard
-     circle, which is the exact opposite effect, wings and dress gone
-     entirely. object-fit:contain shows the whole figure at its own
-     proportions, and the transparent PNG does the rest against the panel's
-     own background. */
+  portraitRow.style.cssText = 'text-align:center; margin-bottom:.6rem;';
   var img = document.createElement('img');
   img.src = 'photos/tansy-chatbot.png';
   img.alt = 'Tansy';
-  img.style.cssText = 'width:110px; height:150px; object-fit:contain; object-position:top center; ' +
-                      'flex:0 0 auto;';
+  img.style.cssText = 'width:200px; max-width:80%; height:auto; object-fit:contain;';
   portraitRow.appendChild(img);
+  host.appendChild(portraitRow);
 
   var log = document.createElement('div');
   log.id = 'tansyHelpLog';
-  log.style.cssText = 'flex:1; min-width:0; display:flex; flex-direction:column; gap:.5rem;';
+  log.style.cssText = 'display:flex; flex-direction:column; gap:.5rem; margin-bottom:.6rem;';
   tansyHistory.forEach(function (m) { log.appendChild(tansyBubble(m.text, m.mine)); });
-  portraitRow.appendChild(log);
-  host.appendChild(portraitRow);
+  host.appendChild(log);
 
   var row = document.createElement('div');
   row.style.cssText = 'display:flex; gap:.5rem;';
