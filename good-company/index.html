@@ -1179,6 +1179,108 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
   <p class="etl">Emerging Technologies Laboratory</p>
 </footer>
 
+<!-- ASK TANSY, THE FRONT DOOR, added 2026-09-06. Dr. O, after the first
+     version landed only inside a companion's room's Help panel: "I expected
+     to see it on the home page." Right call -- a help chatbot buried behind
+     "already have a companion open" is not reachable by the person who most
+     needs it, somebody who has not built or entered anything yet. Same
+     backend (gc-help-chat.js), same portrait, same disclaimer, as a small
+     persistent widget rather than something to go looking for. index.html
+     never loads gc-friend.js (see the owner-key script's own note at the
+     top of <head> on why), so this is self-contained rather than reaching
+     for her canon object -- gc-help-chat.js already carries her whole
+     personality server-side and needs nothing from this page but the
+     message typed into it. -->
+<button id="tansyWidgetBtn" type="button" style="position:fixed; right:18px; bottom:18px; z-index:60;
+  background:var(--accent); color:var(--accent-ink); border:none; border-radius:999px;
+  padding:.7rem 1.1rem; font:inherit; font-weight:600; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,.28);">
+  Ask Tansy
+</button>
+
+<div id="tansyWidgetPanel" style="display:none; position:fixed; right:18px; bottom:78px; z-index:60;
+  width:min(320px, calc(100vw - 36px)); max-height:70vh; overflow-y:auto;
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:1rem; box-shadow:0 8px 28px rgba(0,0,0,.32);">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.4rem;">
+    <p style="margin:0; font-size:12px; color:var(--ink-dim); max-width:85%;">
+      This is Tansy. She's answering on purpose, exactly as herself &mdash; lean into it rather
+      than expecting warmth.
+    </p>
+    <button id="tansyWidgetClose" type="button" aria-label="Close"
+      style="background:none; border:none; color:var(--ink-dim); font-size:18px; line-height:1; cursor:pointer; padding:0 0 0 .5rem;">&times;</button>
+  </div>
+  <div style="text-align:center; margin-bottom:.5rem;">
+    <img src="photos/tansy-chatbot.png" alt="Tansy" style="width:150px; max-width:70%; height:auto; object-fit:contain;">
+  </div>
+  <div id="tansyWidgetLog" style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:.6rem;"></div>
+  <div style="display:flex; gap:.4rem;">
+    <input id="tansyWidgetInput" type="text" autocomplete="off" placeholder="Ask about how something works, what it costs..."
+      style="flex:1; font:inherit; font-size:13px; padding:.5rem; border:1px solid var(--line);
+      background:var(--paper); color:var(--ink); border-radius:6px;">
+    <button id="tansyWidgetSend" type="button" class="btn go">Ask</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('tansyWidgetBtn');
+  var panel = document.getElementById('tansyWidgetPanel');
+  var log = document.getElementById('tansyWidgetLog');
+  var input = document.getElementById('tansyWidgetInput');
+  var send = document.getElementById('tansyWidgetSend');
+  var history = [];
+
+  function bubble(text, mine) {
+    var b = document.createElement('div');
+    b.style.cssText = 'font-size:13px; padding:.4rem .6rem; border-radius:6px; max-width:88%; ' +
+      (mine
+        ? 'align-self:flex-end; background:var(--accent); color:var(--accent-ink);'
+        : 'align-self:flex-start; background:var(--paper); border:1px solid var(--line); color:var(--ink);');
+    b.style.display = 'block';
+    b.style.marginLeft = mine ? 'auto' : '0';
+    b.textContent = text;
+    return b;
+  }
+
+  btn.addEventListener('click', function () {
+    var showing = panel.style.display !== 'none';
+    panel.style.display = showing ? 'none' : '';
+    if (!showing) input.focus();
+  });
+  document.getElementById('tansyWidgetClose').addEventListener('click', function () {
+    panel.style.display = 'none';
+  });
+
+  function ask() {
+    var v = input.value.trim();
+    if (!v) return;
+    input.value = '';
+    send.disabled = true;
+    history.push({ text: v, mine: true });
+    log.appendChild(bubble(v, true));
+    var thinking = bubble('...', false);
+    log.appendChild(thinking);
+    log.scrollTop = log.scrollHeight;
+
+    fetch('/.netlify/functions/gc-help-chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: v, history: history.slice(0, -1) }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      send.disabled = false;
+      var reply = (j && j.reply) || 'Could not reach her just now.';
+      thinking.textContent = reply;
+      history.push({ text: reply, mine: false });
+      log.scrollTop = log.scrollHeight;
+    }).catch(function (err) {
+      send.disabled = false;
+      thinking.textContent = 'Could not reach her. ' + err.message;
+    });
+  }
+  send.addEventListener('click', ask);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') ask(); });
+})();
+</script>
+
 <script>
 /* Skins. Resolution and the picker both live in gc-skin.js, shared with every
    other page, so the front door and the room cannot drift apart. */
