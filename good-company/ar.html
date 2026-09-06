@@ -55,12 +55,17 @@
      Tansy videos and the compositing canvas are a separate, local-only
      pipeline; nothing about them touches the camera stream or a server.
 
-     AMBIENT NATURE LOOP, added 2026-09-06 (round three): tansy-ar-nature.mp3,
-     from Dr. O's ElevenLabs library, loops under the whole scene. It is not
-     frame-matched to anything -- unlike colorVideo/matteVideo it just plays
-     and repeats on its own -- and shares the one Sound On/Off button rather
-     than getting a second control, since there is no reason a visitor would
-     want Tansy's own clip audio and the room ambience independently. -->
+     AMBIENCE TRACK, added 2026-09-06 (round three): an optional per-companion
+     loop (Tansy's is tansy-ar-nature.mp3, a real nature loop; a later
+     companion might carry music instead, hence the field is called
+     "ambience," not "nature," even though the variable/file names from round
+     three keep the word "nature" where they refer to Tansy's own asset
+     specifically). Not frame-matched to anything -- unlike colorVideo/
+     matteVideo it just plays and repeats on its own -- and shares the one
+     Sound On/Off button rather than getting a second control, since there is
+     no reason a visitor would want a companion's own clip audio and the
+     ambience independently. Omitted entirely for a companion whose own clip
+     audio already carries what it needs (Blue, Poppy). -->
 
 
 <script src="gc-skin.js"></script>
@@ -145,10 +150,11 @@ body { position: relative; background: #000; }
 <video id="colorVideo" playsinline muted style="display:none;"></video>
 <video id="matteVideo" playsinline muted style="display:none;"></video>
 
-<!-- Ambient nature loop under the whole scene, from Dr. O (ElevenLabs).
+<!-- Optional ambience loop under the whole scene, from Dr. O (ElevenLabs) --
+     a real one per companion, or none at all, from the COMPANIONS registry.
      Muted by default same as colorVideo, for the same autoplay-policy
      reason -- the Sound On button unmutes both together. src from JS too. -->
-<audio id="natureAudio" loop muted></audio>
+<audio id="ambientAudio" loop muted></audio>
 
 <div id="topBar" style="display:none;">
   <a href="index.html">&larr; Good Company</a>
@@ -161,24 +167,22 @@ body { position: relative; background: #000; }
 (function () {
   /* THE REGISTRY. One entry per companion who actually has a real
      Premiere-exported color/matte pair -- add a line here, drop the two
-     files in video/ (and an audio/ line if this one gets its own ambience
-     rather than reusing Tansy's), nothing else in this file changes.
-     Poppy and Blue are named here even without files yet only because
-     Dr. O asked for them next; SHARED falls back to Tansy's nature loop
-     for either since neither has been given a different one of their own. */
-  var SHARED_NATURE = 'audio/tansy-ar-nature.mp3';
+     files in video/, an ambience line if this one wants a loop of their
+     own, and a glow if they need one (see GLOW below), nothing else in
+     this file changes. */
+  var SHARED_AMBIENCE = 'audio/tansy-ar-nature.mp3';
   var COMPANIONS = {
     tansy: {
       name: 'Tansy',
       color: 'video/tansy-ar-color.mp4',
       matte: 'video/tansy-ar-matte.mp4',
-      nature: SHARED_NATURE,
+      ambience: SHARED_AMBIENCE,
     },
     poppy: {
       name: 'Poppy',
       color: 'video/poppy-ar-color.mp4',
       matte: 'video/poppy-ar-matte.mp4',
-      nature: null,   // no ambience track, per Dr. O direct, same as Blue
+      ambience: null,   // no ambience track, per Dr. O direct, same as Blue
     },
     blue: {
       name: 'Blue',
@@ -186,7 +190,25 @@ body { position: relative; background: #000; }
       matte: 'video/blue-ar-matte.mp4',
       /* No ambience track for her -- her own clip's audio already carries
          nature sound, per Dr. O direct, so a second layer would double it. */
-      nature: null,
+      ambience: null,
+    },
+    cressida: {
+      name: 'Cressida',
+      color: 'video/cressida-ar-color.mp4',
+      matte: 'video/cressida-ar-matte.mp4',
+      ambience: 'audio/cressida-ar-music.mp3',
+      /* GLOW, added 2026-09-06: her Object Mask export tracked her solid
+         body only, not the soft ghost aura around her -- a translucent glow
+         has feathered edges by nature, and a hard silhouette selection
+         excludes exactly that, so it came through as pure black in the
+         matte (0% alpha, invisible) even though it is plainly there in her
+         color footage. Rather than send her back into Premiere to re-mask
+         it, the halo is synthesized here instead: her own matte, blurred
+         into a soft pale shape and drawn UNDERNEATH the sharp figure (see
+         applyGlow() in compositeFrame). Genuinely generated, not recovered
+         footage -- say so if asked, this is not what her camera actually
+         saw. */
+      glow: { color: [225, 240, 255], strength: 0.55, blurPx: 10 },
     },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
@@ -207,10 +229,10 @@ body { position: relative; background: #000; }
   var ctx = canvas.getContext('2d', { willReadFrequently: true });
   var colorVideo = document.getElementById('colorVideo');
   var matteVideo = document.getElementById('matteVideo');
-  var natureAudio = document.getElementById('natureAudio');
+  var ambientAudio = document.getElementById('ambientAudio');
   colorVideo.src = companion.color;
   matteVideo.src = companion.matte;
-  if (companion.nature) natureAudio.src = companion.nature;
+  if (companion.ambience) ambientAudio.src = companion.ambience;
   var topBar = document.getElementById('topBar');
   var hint = document.getElementById('hint');
   var muteBtn = document.getElementById('muteBtn');
@@ -227,6 +249,43 @@ body { position: relative; background: #000; }
   var matteCtx = matteCanvas.getContext('2d', { willReadFrequently: true });
   var ready = false;
 
+  /* GLOW. A synthesized halo for a companion whose matte does not (or
+     cannot) capture a soft, translucent effect around them -- see Cressida's
+     own comment in the registry above for why this exists at all. Built
+     entirely from her own matte, not a second video: blur her silhouette
+     into a soft shape, then composite it UNDERNEATH the sharp figure using
+     real alpha-over math, so it reads as glow rather than a flat colored
+     smear. Buffers below are allocated once real dimensions are known
+     (setupBuffers), not per frame. */
+  var glowCfg = companion.glow || null;
+  var glowRadius = 0, maskChan, blurTmp, blurOut;
+
+  /* Standard two-pass box blur on a single-channel byte array -- O(w*h)
+     regardless of radius, cheap enough to run every frame on a small
+     buffer. dst may not alias src. */
+  function boxBlurH(src, dst, w, h, r) {
+    var iarr = 1 / (r + r + 1);
+    for (var y = 0; y < h; y++) {
+      var ti = y * w, li = ti, ri = ti + r;
+      var fv = src[ti], lv = src[ti + w - 1], val = (r + 1) * fv;
+      for (var j = 0; j < r; j++) val += src[ti + j];
+      for (var j = 0; j <= r; j++) { val += src[ri++] - fv; dst[ti++] = val * iarr; }
+      for (var j = r + 1; j < w - r; j++) { val += src[ri++] - src[li++]; dst[ti++] = val * iarr; }
+      for (var j = w - r; j < w; j++) { val += lv - src[li++]; dst[ti++] = val * iarr; }
+    }
+  }
+  function boxBlurV(src, dst, w, h, r) {
+    var iarr = 1 / (r + r + 1);
+    for (var x = 0; x < w; x++) {
+      var ti = x, li = ti, ri = ti + r * w;
+      var fv = src[ti], lv = src[ti + w * (h - 1)], val = (r + 1) * fv;
+      for (var j = 0; j < r; j++) val += src[ti + j * w];
+      for (var j = 0; j <= r; j++) { val += src[ri] - fv; dst[ti] = val * iarr; ri += w; ti += w; }
+      for (var j = r + 1; j < h - r; j++) { val += src[ri] - src[li]; dst[ti] = val * iarr; li += w; ri += w; ti += w; }
+      for (var j = h - r; j < h; j++) { val += lv - src[li]; dst[ti] = val * iarr; li += w; ti += w; }
+    }
+  }
+
   function setupBuffers() {
     if (!colorVideo.videoWidth || !matteVideo.videoWidth) return;
     /* Capped at 480px on the long side -- plenty for a dragged overlay on
@@ -239,6 +298,13 @@ body { position: relative; background: #000; }
     /* The overlay box's own on-screen SHAPE follows the real footage,
        never assumed ahead of time (see the CSS note on #overlayWrap). */
     overlayWrap.style.aspectRatio = bufW + '/' + bufH;
+    if (glowCfg) {
+      // Clamped so the box blur's sliding window never runs past a small buffer's edge.
+      glowRadius = Math.max(1, Math.min(glowCfg.blurPx, Math.floor(Math.min(bufW, bufH) / 2) - 2));
+      maskChan = new Uint8ClampedArray(bufW * bufH);
+      blurTmp = new Uint8ClampedArray(bufW * bufH);
+      blurOut = new Uint8ClampedArray(bufW * bufH);
+    }
     ready = true;
   }
 
@@ -249,11 +315,29 @@ body { position: relative; background: #000; }
       var colorData = tempCtx.getImageData(0, 0, bufW, bufH);
       var matteData = matteCtx.getImageData(0, 0, bufW, bufH);
       var pixels = colorData.data, mask = matteData.data;
-      /* Alpha comes from the matte's own brightness: white (255) = fully
-         visible, black (0) = fully transparent. Reusing colorData's buffer
-         rather than allocating a third one every frame. */
-      for (var i = 0; i < pixels.length; i += 4) {
-        pixels[i + 3] = mask[i];
+      if (glowCfg) {
+        for (var p = 0, m = 0; p < mask.length; p += 4, m++) maskChan[m] = mask[p];
+        boxBlurH(maskChan, blurTmp, bufW, bufH, glowRadius);
+        boxBlurV(blurTmp, blurOut, bufW, bufH, glowRadius);
+        var gR = glowCfg.color[0], gG = glowCfg.color[1], gB = glowCfg.color[2], gS = glowCfg.strength;
+        /* Real "A over B" alpha compositing: the sharp figure (A) over the
+           soft glow (B), flattened to one RGBA buffer since putImageData
+           writes pixels directly rather than blending with what is there. */
+        for (var i = 0, gi = 0; i < pixels.length; i += 4, gi++) {
+          var fgA = mask[i] / 255;
+          var glowA = (blurOut[gi] / 255) * gS;
+          var outA = fgA + glowA * (1 - fgA);
+          if (outA > 0) {
+            pixels[i]     = (pixels[i] * fgA + gR * glowA * (1 - fgA)) / outA;
+            pixels[i + 1] = (pixels[i + 1] * fgA + gG * glowA * (1 - fgA)) / outA;
+            pixels[i + 2] = (pixels[i + 2] * fgA + gB * glowA * (1 - fgA)) / outA;
+          }
+          pixels[i + 3] = outA * 255;
+        }
+      } else {
+        /* Alpha comes from the matte's own brightness: white (255) = fully
+           visible, black (0) = fully transparent. */
+        for (var j = 0; j < pixels.length; j += 4) pixels[j + 3] = mask[j];
       }
       ctx.putImageData(colorData, 0, 0);
     }
@@ -277,13 +361,13 @@ body { position: relative; background: #000; }
   }
   colorVideo.addEventListener('ended', playBoth);
 
-  /* Nature loop starts on its own schedule (it is not frame-matched to
+  /* Ambience starts on its own schedule (it is not frame-matched to
      anything, unlike colorVideo/matteVideo) -- just play once and let its
      own loop attribute repeat it. Skipped entirely for a companion with no
-     nature entry (e.g. Blue, whose own clip audio already has it). */
-  function startNature() {
-    if (!companion.nature) return;
-    natureAudio.play().catch(function () {});
+     ambience entry (e.g. Blue, whose own clip audio already has it). */
+  function startAmbience() {
+    if (!companion.ambience) return;
+    ambientAudio.play().catch(function () {});
   }
 
   startBtn.addEventListener('click', function () {
@@ -300,7 +384,7 @@ body { position: relative; background: #000; }
       hint.style.display = '';
       setTimeout(function () { hint.style.opacity = '0'; }, 4000);
       playBoth();
-      startNature();
+      startAmbience();
       /* Centre it on screen the first time, sized to something reasonable
          relative to the viewport rather than a fixed guess. Height follows
          from the aspect-ratio set once the real footage's shape is known
@@ -330,7 +414,7 @@ body { position: relative; background: #000; }
   muteBtn.addEventListener('click', function () {
     var next = !colorVideo.muted;
     colorVideo.muted = next;
-    natureAudio.muted = next;
+    ambientAudio.muted = next;
     updateMuteIcon();
   });
 
