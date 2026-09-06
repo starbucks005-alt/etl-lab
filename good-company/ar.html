@@ -174,7 +174,12 @@ body { position: relative; background: #000; }
       matte: 'video/tansy-ar-matte.mp4',
       nature: SHARED_NATURE,
     },
-    // poppy: { name: 'Poppy', color: 'video/poppy-ar-color.mp4', matte: 'video/poppy-ar-matte.mp4', nature: SHARED_NATURE },
+    poppy: {
+      name: 'Poppy',
+      color: 'video/poppy-ar-color.mp4',
+      matte: 'video/poppy-ar-matte.mp4',
+      nature: null,   // no ambience track, per Dr. O direct, same as Blue
+    },
     blue: {
       name: 'Blue',
       color: 'video/blue-ar-color.mp4',
