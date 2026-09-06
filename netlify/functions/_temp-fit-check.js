@@ -9,7 +9,7 @@ exports.handler = async function (event) {
   if (q.key !== SECRET) return { statusCode: 403, body: 'no' };
 
   if (q.raw) {
-    const key = process.env.ANTHROPIC_API_KEY;
+    const key = process.env.GOOD_COMPANY_API_KEY;
     if (!key) return { statusCode: 200, body: 'NO_KEY_IN_ENV' };
     try {
       const client = new Anthropic({ apiKey: key });

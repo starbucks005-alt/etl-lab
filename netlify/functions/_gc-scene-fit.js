@@ -30,7 +30,13 @@ async function sceneRequestIsFitFor(Anthropic, where, forShared) {
   const text = String(where || '');
   if (!forShared && !ROMANCE_SNIFF.test(text)) return { ok: true };
 
-  const key = process.env.ANTHROPIC_API_KEY;
+  /* GOOD_COMPANY_API_KEY, NOT ANTHROPIC_API_KEY -- this campus gives each
+     product its own Anthropic key (see GOOD_COMPANY_API_KEY, ALMOST_HUMAN_
+     API_KEY, ETL_API_KEY, etc. in the site's env vars), and there is no
+     literal ANTHROPIC_API_KEY at all. Caught by actually running this
+     against the real classifier before shipping, not assumed: every case
+     that needed a real call came back cannot_confirm until this was fixed. */
+  const key = process.env.GOOD_COMPANY_API_KEY;
   if (!key) return { ok: false, reason: 'cannot_confirm' };
   try {
     const client = new Anthropic({ apiKey: key });
