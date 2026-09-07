@@ -216,6 +216,17 @@ body { position: relative; background: #000; }
       matte: 'video/terry-ar-matte.mp4',
       ambience: null,
     },
+    cassius: {
+      /* The mirror at Larkmere Hall, "cut from four old-growth trees,"
+         personified enough by its own lore ("everyone just calls it
+         Cassius, as though it were a person") to earn a name here rather
+         than a generic label. No ambience: his own clip audio is fine,
+         per Dr. O direct. */
+      name: 'Cassius',
+      color: 'video/cassius-ar-color.mp4',
+      matte: 'video/cassius-ar-matte.mp4',
+      ambience: null,
+    },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
   var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;
