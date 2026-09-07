@@ -305,9 +305,15 @@ body { position: relative; background: #000; }
 
   function setupBuffers() {
     if (!colorVideo.videoWidth || !matteVideo.videoWidth) return;
-    /* Capped at 480px on the long side -- plenty for a dragged overlay on
-       a phone screen, and keeps the per-frame pixel loop cheap. */
-    var scale = Math.min(1, 480 / Math.max(colorVideo.videoWidth, colorVideo.videoHeight));
+    /* Capped at 900px on the long side, raised from an original 480 (added
+       2026-09-07, Dr. O testing the AR page full-screen on a 4K monitor
+       through a virtual camera into Zoom): the fairy was visibly blurry
+       once stretched to fill a much bigger box than the old cap rendered
+       at, then compressed again by Zoom's own video pipeline on top.
+       900 is still a real cap, not "unlimited" -- a full per-pixel alpha
+       pass every frame is real CPU work -- just a cheaper one to keep
+       cheap than most phones or laptops will actually strain against. */
+    var scale = Math.min(1, 900 / Math.max(colorVideo.videoWidth, colorVideo.videoHeight));
     bufW = Math.round(colorVideo.videoWidth * scale);
     bufH = Math.round(colorVideo.videoHeight * scale);
     canvas.width = tempCanvas.width = matteCanvas.width = bufW;
