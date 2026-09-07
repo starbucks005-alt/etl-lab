@@ -210,6 +210,12 @@ body { position: relative; background: #000; }
          saw. */
       glow: { color: [225, 240, 255], strength: 0.55, blurPx: 10 },
     },
+    terry: {
+      name: 'Terry',
+      color: 'video/terry-ar-color.mp4',
+      matte: 'video/terry-ar-matte.mp4',
+      ambience: null,
+    },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
   var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;
