@@ -147,6 +147,10 @@ body { position: relative; background: #000; }
     Nothing is recorded, uploaded, or sent anywhere. It stays on this device, live, the whole time.</p>
   <button class="btn go" id="startBtn" type="button">Turn on the camera</button>
   <p id="cameraError" style="display:none; color:#c0645a;"></p>
+  <!-- Said before the camera is asked for, not after. An automatic cut is
+       not a hand-cut one and somebody should know which they are looking
+       at. -->
+  <p id="liveNote" style="display:none; font-size:.82rem; color:var(--ink-dim); max-width:34ch;">This one is cut out automatically, on your device, so the edges are rougher than a hand-made one.</p>
 
   <details id="callHelp">
     <summary>Want her on a video call too?</summary>
@@ -190,6 +194,12 @@ body { position: relative; background: #000; }
 
 <div id="topBar" style="display:none;">
   <a href="index.html">&larr; Good Company</a>
+  <!-- THE ONE THING THAT CANNOT BE TESTED FROM CODE. A live matte is a mask,
+       and if the model's background and companion are the other way round,
+       the companion is cut away and the room is kept -- obvious in half a
+       second to anybody looking, impossible to diagnose from a description.
+       Only shown when a matte is being cut live, never for a hand-cut one. -->
+  <button id="flipBtn" type="button" style="display:none;" aria-label="Swap what is cut out">Swap</button>
   <button id="muteBtn" type="button" aria-label="Sound off">&#128263;</button>
 </div>
 
@@ -259,6 +269,19 @@ body { position: relative; background: #000; }
       matte: 'video/cassius-ar-matte.mp4',
       ambience: null,
     },
+    nell: {
+      /* NO MATTE FILE, on purpose -- see LIVE MATTE below. Nell is the
+         first companion here with only footage: matte: null is what
+         switches the compositor over to cutting her out live, in the
+         browser, rather than reading a hand-cut file. Ported from
+         My Echo's own copy of this same idea (MY_ECHO/ar.html), built
+         there first per Dr. O direct: "write it, let's try it out. I
+         think it is fun." */
+      name: 'Nell',
+      color: 'video/nell-worn.mp4',
+      matte: null,
+      ambience: null,
+    },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
   var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;
@@ -280,11 +303,13 @@ body { position: relative; background: #000; }
   var matteVideo = document.getElementById('matteVideo');
   var ambientAudio = document.getElementById('ambientAudio');
   colorVideo.src = companion.color;
-  matteVideo.src = companion.matte;
+  if (companion.matte) matteVideo.src = companion.matte;
   if (companion.ambience) ambientAudio.src = companion.ambience;
   var topBar = document.getElementById('topBar');
   var hint = document.getElementById('hint');
   var muteBtn = document.getElementById('muteBtn');
+  var flipBtn = document.getElementById('flipBtn');
+  var liveNote = document.getElementById('liveNote');
 
   /* THE COMPOSITOR. Runs continuously once both videos are ready; drawing
      is capped at a modest internal resolution (bufW/bufH, set once real
@@ -335,8 +360,73 @@ body { position: relative; background: #000; }
     }
   }
 
+  /* ─────────────────────────────────────────────────────────────────────
+     CUTTING THE MATTE HERE, WHEN NOBODY HAS CUT ONE BY HAND. Ported from
+     My Echo's own copy of this idea (MY_ECHO/ar.html), built there first
+     per Dr. O direct: "I don't know if it is possible to do automatically,
+     without my input", then "write it, let's try it out. I think it is
+     fun." Two paths, and the hand-made one always wins: a companion with a
+     matte file gets exactly what it got before, frame for frame; a
+     companion with only footage (matte: null in the registry) gets
+     segmented live in this browser instead.
+
+     IT WILL NOT BEAT PREMIERE and this should not pretend otherwise. Worth
+     saying again here specifically for Nell: the model is a "selfie"
+     segmenter, trained to find human portraits, being asked to find a
+     wooden marionette instead -- genuinely untested territory, not just
+     "rougher edges than Premiere." Watch the real result before trusting
+     it for her.
+
+     NOTHING LEAVES THE DEVICE HERE EITHER. The model file is fetched once
+     from a CDN and then runs locally on the clip already in the page. The
+     camera stream is never handed to it: it segments the companion's own
+     footage, not the room. ───────────────────────────────────────────── */
+  var LIVE = !companion.matte;
+  var segmenter = null;
+  var segReady = false;
+  var maskAlpha = null;   // Uint8 alpha for the current frame, buffer-sized
+  var invert = false;     // see flipBtn below
+
+  function startLiveMatte() {
+    if (liveNote) liveNote.style.display = 'block';
+    if (flipBtn) {
+      flipBtn.style.display = '';
+      flipBtn.addEventListener('click', function () { invert = !invert; });
+    }
+    /* Loaded on demand rather than in the page's head, so a companion with
+       a real matte never pays for a model it will not use. */
+    import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14')
+      .then(function (vision) {
+        return vision.FilesetResolver
+          .forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm')
+          .then(function (files) {
+            return vision.ImageSegmenter.createFromOptions(files, {
+              baseOptions: {
+                modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/'
+                  + 'selfie_segmenter/float16/1/selfie_segmenter.tflite',
+                delegate: 'GPU',
+              },
+              runningMode: 'VIDEO',
+              outputCategoryMask: true,
+              outputConfidenceMasks: false,
+            });
+          });
+      })
+      .then(function (made) { segmenter = made; segReady = true; })
+      .catch(function (err) {
+        /* SAID OUT LOUD. A model that will not load is not a reason to show
+           a rectangle of somebody's living room floating in the air. */
+        try { console.warn('[ar] live matte unavailable:', err && err.message); } catch (_) {}
+        cameraError.style.display = '';
+        cameraError.textContent = 'The background could not be cut out on this device, so this ' +
+          'one is not ready. Nothing has been turned on.';
+        startBtn.disabled = true;
+      });
+  }
+
   function setupBuffers() {
-    if (!colorVideo.videoWidth || !matteVideo.videoWidth) return;
+    if (!colorVideo.videoWidth) return;
+    if (!LIVE && !matteVideo.videoWidth) return;
     /* Capped at 900px on the long side, raised from an original 480 (added
        2026-09-07, Dr. O testing the AR page full-screen on a 4K monitor
        through a virtual camera into Zoom): the fairy was visibly blurry
@@ -353,7 +443,9 @@ body { position: relative; background: #000; }
     /* The overlay box's own on-screen SHAPE follows the real footage,
        never assumed ahead of time (see the CSS note on #overlayWrap). */
     overlayWrap.style.aspectRatio = bufW + '/' + bufH;
-    if (glowCfg) {
+    if (LIVE) {
+      maskAlpha = new Uint8ClampedArray(bufW * bufH);
+    } else if (glowCfg) {
       // Clamped so the box blur's sliding window never runs past a small buffer's edge.
       glowRadius = Math.max(1, Math.min(glowCfg.blurPx, Math.floor(Math.min(bufW, bufH) / 2) - 2));
       maskChan = new Uint8ClampedArray(bufW * bufH);
@@ -364,12 +456,43 @@ body { position: relative; background: #000; }
   }
 
   function compositeFrame() {
-    if (ready && colorVideo.readyState >= 2 && matteVideo.readyState >= 2 && !colorVideo.paused) {
+    var haveFrame = ready && colorVideo.readyState >= 2 && !colorVideo.paused;
+    var haveMatte = LIVE ? segReady : matteVideo.readyState >= 2;
+    if (haveFrame && haveMatte) {
       tempCtx.drawImage(colorVideo, 0, 0, bufW, bufH);
-      matteCtx.drawImage(matteVideo, 0, 0, bufW, bufH);
       var colorData = tempCtx.getImageData(0, 0, bufW, bufH);
+      var pixels = colorData.data;
+
+      if (LIVE) {
+        /* The already-downscaled frame goes to the model rather than the
+           video element, so the mask comes back at exactly the buffer's
+           size and no coordinates have to be mapped. Timestamps must
+           climb, which is what performance.now gives. */
+        try {
+          segmenter.segmentForVideo(tempCanvas, performance.now(), function (result) {
+            var m = result.categoryMask;
+            if (!m) return;
+            var data = m.getAsUint8Array();
+            for (var k = 0; k < maskAlpha.length && k < data.length; k++) {
+              /* Anything the model calls not-background is the companion.
+                 Which index means which is what flipBtn exists for. */
+              var on = data[k] !== 0;
+              maskAlpha[k] = (invert ? !on : on) ? 255 : 0;
+            }
+            m.close();
+          });
+        } catch (_) { /* a dropped frame is a dropped frame, not a crash */ }
+        for (var li = 0, lp = 0; li < pixels.length; li += 4, lp++) {
+          pixels[li + 3] = maskAlpha[lp];
+        }
+        ctx.putImageData(colorData, 0, 0);
+        requestAnimationFrame(compositeFrame);
+        return;
+      }
+
+      matteCtx.drawImage(matteVideo, 0, 0, bufW, bufH);
       var matteData = matteCtx.getImageData(0, 0, bufW, bufH);
-      var pixels = colorData.data, mask = matteData.data;
+      var mask = matteData.data;
       if (glowCfg) {
         for (var p = 0, m = 0; p < mask.length; p += 4, m++) maskChan[m] = mask[p];
         boxBlurH(maskChan, blurTmp, bufW, bufH, glowRadius);
@@ -402,17 +525,21 @@ body { position: relative; background: #000; }
 
   colorVideo.addEventListener('loadedmetadata', setupBuffers);
   matteVideo.addEventListener('loadedmetadata', setupBuffers);
+  if (LIVE) startLiveMatte();
 
   /* BOTH VIDEOS PLAY (AND LOOP) IN LOCKSTEP, started together, restarted
      together -- two independently-looping <video> elements drift out of
      sync within a few loops even at identical frame rates, which would
      slide the mask off her over time. Resetting both to 0 and replaying
-     together on every loop keeps them locked. */
+     together on every loop keeps them locked. Skips matteVideo entirely
+     when LIVE, since it has no src to play. */
   function playBoth() {
     colorVideo.currentTime = 0;
-    matteVideo.currentTime = 0;
     colorVideo.play().catch(function () {});
-    matteVideo.play().catch(function () {});
+    if (!LIVE) {
+      matteVideo.currentTime = 0;
+      matteVideo.play().catch(function () {});
+    }
   }
   colorVideo.addEventListener('ended', playBoth);
 
