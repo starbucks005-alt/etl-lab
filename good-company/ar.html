@@ -386,6 +386,44 @@ body { position: relative; background: #000; }
   var segReady = false;
   var maskAlpha = null;   // Uint8 alpha for the current frame, buffer-sized
   var invert = false;     // see flipBtn below
+  var compLabels = null, compQueue = null;   // scratch buffers for keepLargestBlob, allocated once
+
+  /* KEEP ONLY THE LARGEST CONNECTED SHAPE, added 2026-09-07 after watching
+     a real live cutout: the model sometimes calls a few stray, disconnected
+     pixels "foreground" (a fleck on a shoulder, a smudge near a chair),
+     which is invisible on a still frame but reads as noise once resized big
+     on screen. The companion herself is always one contiguous shape, so a
+     flood fill that finds every connected foreground blob and drops
+     everything but the biggest one removes exactly this kind of speck
+     without touching her own real, connected edges. Plain BFS, 4-connected,
+     using two buffers allocated once (setupBuffers) rather than every
+     frame, since this already runs on every segmented frame. */
+  function keepLargestBlob(alpha, w, h) {
+    var n = w * h;
+    compLabels.fill(-1);
+    var label = 0, bestLabel = -1, bestSize = 0;
+    for (var start = 0; start < n; start++) {
+      if (alpha[start] === 0 || compLabels[start] !== -1) continue;
+      var qHead = 0, qTail = 0;
+      compQueue[qTail++] = start;
+      compLabels[start] = label;
+      var size = 1;
+      while (qHead < qTail) {
+        var idx = compQueue[qHead++];
+        var x = idx % w, y = (idx / w) | 0;
+        if (x > 0) { var l = idx - 1; if (alpha[l] !== 0 && compLabels[l] === -1) { compLabels[l] = label; compQueue[qTail++] = l; size++; } }
+        if (x < w - 1) { var r = idx + 1; if (alpha[r] !== 0 && compLabels[r] === -1) { compLabels[r] = label; compQueue[qTail++] = r; size++; } }
+        if (y > 0) { var u = idx - w; if (alpha[u] !== 0 && compLabels[u] === -1) { compLabels[u] = label; compQueue[qTail++] = u; size++; } }
+        if (y < h - 1) { var d = idx + w; if (alpha[d] !== 0 && compLabels[d] === -1) { compLabels[d] = label; compQueue[qTail++] = d; size++; } }
+      }
+      if (size > bestSize) { bestSize = size; bestLabel = label; }
+      label++;
+    }
+    if (bestLabel === -1) return;   // nothing foreground this frame at all
+    for (var i = 0; i < n; i++) {
+      if (alpha[i] !== 0 && compLabels[i] !== bestLabel) alpha[i] = 0;
+    }
+  }
 
   function startLiveMatte() {
     if (liveNote) liveNote.style.display = 'block';
@@ -445,6 +483,8 @@ body { position: relative; background: #000; }
     overlayWrap.style.aspectRatio = bufW + '/' + bufH;
     if (LIVE) {
       maskAlpha = new Uint8ClampedArray(bufW * bufH);
+      compLabels = new Int32Array(bufW * bufH);
+      compQueue = new Int32Array(bufW * bufH);
     } else if (glowCfg) {
       // Clamped so the box blur's sliding window never runs past a small buffer's edge.
       glowRadius = Math.max(1, Math.min(glowCfg.blurPx, Math.floor(Math.min(bufW, bufH) / 2) - 2));
@@ -479,6 +519,7 @@ body { position: relative; background: #000; }
               var on = data[k] !== 0;
               maskAlpha[k] = (invert ? !on : on) ? 255 : 0;
             }
+            keepLargestBlob(maskAlpha, bufW, bufH);
             m.close();
           });
         } catch (_) { /* a dropped frame is a dropped frame, not a crash */ }
