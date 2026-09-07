@@ -123,6 +123,19 @@ body { position: relative; background: #000; }
 }
 
 #cameraError { max-width: 40ch; }
+
+/* CALL-SOFTWARE INSTRUCTIONS, added 2026-09-07. Collapsed by default (a
+   <details> element, no JS needed) since most visitors just want the
+   fairy on their own screen -- this is only for someone who specifically
+   wants her showing up inside Zoom or Teams too, which needs a real,
+   separate piece of free software (OBS) this page cannot do on its own. */
+#callHelp {
+  max-width: 34ch; text-align: left; margin-top: .6rem; font-size: .82rem;
+  color: var(--ink-dim);
+}
+#callHelp summary { cursor: pointer; text-align: center; color: var(--ink); }
+#callHelp ol { padding-left: 1.2rem; margin: .6rem 0 0; }
+#callHelp li { margin-bottom: .5rem; }
 </style>
 </head>
 
@@ -134,6 +147,25 @@ body { position: relative; background: #000; }
     Nothing is recorded, uploaded, or sent anywhere. It stays on this device, live, the whole time.</p>
   <button class="btn go" id="startBtn" type="button">Turn on the camera</button>
   <p id="cameraError" style="display:none; color:#c0645a;"></p>
+
+  <details id="callHelp">
+    <summary>Want her on a video call too?</summary>
+    <ol>
+      <li>Download <a href="https://obsproject.com" target="_blank" rel="noopener">OBS Studio</a> (free).</li>
+      <li>In OBS, add a <strong>Display Capture</strong> source, not a "Browser" source.
+        A Browser source cannot get permission to use your camera. Point it at whichever
+        monitor will show this page.</li>
+      <li>Come back here and turn the camera on, full screen, on that monitor.</li>
+      <li>In OBS, click <strong>Start Virtual Camera</strong>.</li>
+      <li>In Zoom or Teams, open your camera settings and choose
+        <strong>OBS Virtual Camera</strong> instead of your real one.</li>
+      <li>Turn off "blur my background" or any beauty filter in the call app. It
+        cannot tell your real background from her, and will blur them both.</li>
+    </ol>
+    <p>Two monitors makes this much easier: keep the call on one and this page full screen
+      on the other, so you can still see and use the call. With one monitor, you will need
+      to switch back and forth between them.</p>
+  </details>
 </div>
 
 <video id="camera" autoplay playsinline muted></video>
