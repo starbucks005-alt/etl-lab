@@ -282,6 +282,16 @@ body { position: relative; background: #000; }
       matte: null,
       ambience: null,
     },
+    meera: {
+      /* Dr. O direct: "Meera is a good company companion and she does
+         yoga, is a yoga pose. Perfect for AR." A still, held pose reads
+         especially well as a real thing standing in a room, more than a
+         moving/talking scene would. No ambience given, so none assumed. */
+      name: 'Meera',
+      color: 'video/meera-ar-color.mp4',
+      matte: 'video/meera-ar-matte.mp4',
+      ambience: null,
+    },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
   var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;
