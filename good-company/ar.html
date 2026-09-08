@@ -160,6 +160,22 @@ body { position: relative; background: #000; }
 #arChatLog .line.mine {
   background: rgba(201,162,75,.85); color: #1a1408; align-self: flex-end;
 }
+#arSessions {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .5rem;
+  margin-bottom: .5rem;
+}
+.ar-session-btn {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: .8rem; display: flex; align-items: center; gap: .4rem;
+  padding: .4rem .8rem; border-radius: 999px;
+  background: rgba(0,0,0,.5); color: #F4ECE0; border: 1px solid rgba(255,255,255,.3);
+  cursor: pointer;
+}
+.ar-session-btn:hover { border-color: #c9a24b; }
+.ar-session-key {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: .72rem; color: #b7ab98; margin-left: .2rem;
+}
 #arChatRow { display: flex; gap: .5rem; }
 #arChatInput {
   flex: 1; font-family: Georgia, serif; font-size: .95rem;
@@ -271,6 +287,10 @@ body { position: relative; background: #000; }
 
 <div id="arChat">
   <div id="arChatLog"></div>
+  <!-- SESSION ICONS + KEY, added 2026-09-08 for Meera's breathing/meditation sessions -- see
+       COMPANIONS.meera's own `sessions` note. Empty and hidden for any companion with no
+       `sessions` entry; renderSessionIcons() below fills it in only when there is one. -->
+  <div id="arSessions" style="display:none;"></div>
   <form id="arChatRow">
     <button id="arChatMic" type="button" style="display:none;" aria-label="Speak your message">&#127908;</button>
     <input id="arChatInput" type="text" autocomplete="off" placeholder="Say something to them">
@@ -364,6 +384,22 @@ body { position: relative; background: #000; }
       color: 'video/meera-ar-color.mp4',
       matte: 'video/meera-ar-matte.mp4',
       ambience: null,
+      /* SESSIONS, added 2026-09-08. Dr. O direct: "let her do a breathing session and a
+         meditation session with the clients (Voice - same one of each so we only pay once)."
+         Both real, already inside her expertise (see GC_MEERA's own knows/work fields) -- no new
+         footage or a second voice clone needed, since these are just two different opening lines
+         into the SAME existing chat and the SAME existing voiceId, not two different recordings.
+         Each button sets the chat input to its starter line and submits it, same mechanism the
+         mic button already uses (see recognizer's 'result' listener below).
+
+         ICONS + A KEY, per Dr. O direct ("some can have multiple labels (icons and a key)"): a
+         companion registry entry can carry a `sessions` array like this one; the AR page renders
+         one small icon button per entry plus a legend explaining them, and a companion with none
+         gets neither -- see renderSessionIcons() and its own key element. */
+      sessions: [
+        { icon: '\u{1F32C}️', label: 'Breathing', starter: 'Can you guide me through a short breathing exercise?' },
+        { icon: '\u{1F9D8}', label: 'Meditation', starter: 'Can you guide me through a short meditation?' },
+      ],
     },
     arch: {
       /* Dr. O direct: "arch is sitting in a chair, this is different from
@@ -854,8 +890,20 @@ body { position: relative; background: #000; }
       startBtn.disabled = false;
       startBtn.textContent = 'Try again';
       cameraError.style.display = '';
+      /* THE IN-APP BROWSER CASE, added 2026-09-08. Vikram hit exactly this on Arch's page,
+         opened from a WhatsApp chat link -- the screenshot showed WhatsApp's own in-app
+         browser chrome around the page. Those in-app webviews (WhatsApp, Instagram, Facebook,
+         Messenger, and others) commonly refuse getUserMedia outright as a platform restriction,
+         no matter what the phone's own camera permission says, and the browser's own error
+         message ("not allowed by the user agent") does not say that or tell anyone what to do
+         about it. NOT CLAIMED AS THE CAUSE WITH CERTAINTY -- there is no reliable way to detect
+         WhatsApp's own in-app browser from script, so this is added as a plain next step
+         whenever the camera is refused, since "open this in your regular browser" also just
+         works if the real cause turns out to be something else. */
       cameraError.textContent = 'Could not reach the camera: ' + err.message +
-        '. Check that this site has permission to use it.';
+        '. If you opened this link from WhatsApp, Instagram, Messages, or another app, that ' +
+        "app's own browser usually cannot use the camera at all: look for a ‹••› " +
+        'or share icon and choose "Open in Browser" (Safari or Chrome), then try again there.';
     });
   });
 
@@ -985,6 +1033,33 @@ body { position: relative; background: #000; }
         addChatLine('That did not send. Try again in a moment.', false);
       });
     });
+
+    /* SESSION ICONS + KEY, added 2026-09-08 for Meera's breathing/meditation sessions -- see
+       COMPANIONS.meera's own `sessions` note above for why this reuses her existing chat and
+       voice rather than needing anything new. Generic on purpose: any companion can carry a
+       `sessions` array and get the same icon row and key; a companion with none gets neither,
+       and #arSessions stays hidden. Clicking an icon just types its starter line and submits it
+       through the exact same chat path a typed message would take. */
+    if (companion.sessions && companion.sessions.length) {
+      var arSessions = document.getElementById('arSessions');
+      companion.sessions.forEach(function (session) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ar-session-btn';
+        btn.innerHTML = '<span aria-hidden="true">' + session.icon + '</span><span>' + session.label + '</span>';
+        btn.addEventListener('click', function () {
+          if (chatBusy) return;
+          arChatInput.value = session.starter;
+          arChatRow.requestSubmit ? arChatRow.requestSubmit() : arChatSend.click();
+        });
+        arSessions.appendChild(btn);
+      });
+      var key = document.createElement('span');
+      key.className = 'ar-session-key';
+      key.textContent = companion.sessions.map(function (s) { return s.icon + ' ' + s.label; }).join('  ·  ');
+      arSessions.appendChild(key);
+      arSessions.style.display = 'flex';
+    }
 
     /* SPEAK YOUR MESSAGE, same as My Echo's port: the browser's own speech
        recognition, no audio leaves the device, no credit cost, hidden
