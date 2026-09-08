@@ -387,6 +387,58 @@ body { position: relative; background: #000; }
   var maskAlpha = null;   // Uint8 alpha for the current frame, buffer-sized
   var invert = false;     // see flipBtn below
   var compLabels = null, compQueue = null;   // scratch buffers for keepLargestBlob, allocated once
+  var morphA = null, morphB = null;          // scratch buffers for openMask, allocated once
+
+  /* BREAK THIN CONNECTIONS BEFORE PICKING THE BIGGEST BLOB, added 2026-09-07
+     after watching Nell's real live cutout again: a second stray region,
+     bigger than a fleck, was surviving keepLargestBlob because the model
+     joined it to her by a sliver only a pixel or two wide -- one connected
+     shape as far as the flood fill is concerned. Standard morphological
+     "opening": erode the mask (a pixel only stays on if every neighbor is
+     also on, which erases anything thinner than the pass count) then
+     dilate it back by the same amount (grows survivors back toward their
+     original size). A sliver that thin does not survive the erosion to be
+     grown back; a real, thick region does. TRADEOFF SAID PLAINLY: this can
+     also shave off genuinely thin real parts of the companion herself (a
+     hair strand, a marionette string) along with the false connection --
+     the algorithm cannot tell "thin and wrong" from "thin and real." Two
+     passes is a starting point, not a tuned constant; watching the real
+     result together is the only way to know if it needs to move. */
+  function erode(src, dst, w, h) {
+    for (var y = 0; y < h; y++) {
+      for (var x = 0; x < w; x++) {
+        var i = y * w + x;
+        if (src[i] === 0) { dst[i] = 0; continue; }
+        var on = true;
+        if (x > 0 && src[i - 1] === 0) on = false;
+        if (on && x < w - 1 && src[i + 1] === 0) on = false;
+        if (on && y > 0 && src[i - w] === 0) on = false;
+        if (on && y < h - 1 && src[i + w] === 0) on = false;
+        dst[i] = on ? 255 : 0;
+      }
+    }
+  }
+  function dilate(src, dst, w, h) {
+    for (var y = 0; y < h; y++) {
+      for (var x = 0; x < w; x++) {
+        var i = y * w + x;
+        if (src[i] !== 0) { dst[i] = 255; continue; }
+        var on = false;
+        if (x > 0 && src[i - 1] !== 0) on = true;
+        if (!on && x < w - 1 && src[i + 1] !== 0) on = true;
+        if (!on && y > 0 && src[i - w] !== 0) on = true;
+        if (!on && y < h - 1 && src[i + w] !== 0) on = true;
+        dst[i] = on ? 255 : 0;
+      }
+    }
+  }
+  function openMask(mask, w, h) {
+    var passes = 2;
+    var src = mask, dst = morphA;
+    for (var e = 0; e < passes; e++) { erode(src, dst, w, h); src = dst; dst = (dst === morphA) ? morphB : morphA; }
+    for (var d = 0; d < passes; d++) { dilate(src, dst, w, h); src = dst; dst = (dst === morphA) ? morphB : morphA; }
+    mask.set(src);
+  }
 
   /* KEEP ONLY THE LARGEST CONNECTED SHAPE, added 2026-09-07 after watching
      a real live cutout: the model sometimes calls a few stray, disconnected
@@ -485,6 +537,8 @@ body { position: relative; background: #000; }
       maskAlpha = new Uint8ClampedArray(bufW * bufH);
       compLabels = new Int32Array(bufW * bufH);
       compQueue = new Int32Array(bufW * bufH);
+      morphA = new Uint8ClampedArray(bufW * bufH);
+      morphB = new Uint8ClampedArray(bufW * bufH);
     } else if (glowCfg) {
       // Clamped so the box blur's sliding window never runs past a small buffer's edge.
       glowRadius = Math.max(1, Math.min(glowCfg.blurPx, Math.floor(Math.min(bufW, bufH) / 2) - 2));
@@ -519,6 +573,7 @@ body { position: relative; background: #000; }
               var on = data[k] !== 0;
               maskAlpha[k] = (invert ? !on : on) ? 255 : 0;
             }
+            openMask(maskAlpha, bufW, bufH);
             keepLargestBlob(maskAlpha, bufW, bufH);
             m.close();
           });
