@@ -688,6 +688,25 @@ body { position: relative; background: #000; }
         return;
       }
 
+      /* KEEP THE MATTE LOCKED TO THE COLOR VIDEO'S OWN CLOCK, every frame,
+         not just reset together on loop. Two independently-playing <video>
+         elements can drift apart mid-loop even at an identical container
+         duration and frame rate -- that is decode timing, not the files --
+         and matteVideo reaching ITS OWN end a moment before colorVideo does
+         leaves it paused on one static frame. haveMatte above only checks
+         readyState, which stays >= 2 on a paused video, so this kept
+         counting as "ready" and redrew that one frozen frame while the
+         color video kept moving. If that last frame is near-black (alpha
+         near 0 everywhere), the whole companion vanishes until the next
+         full loop reset. Reported by Dr. O, after two re-exports of Nell's
+         footage did not change it: "the two layers are not syncing and
+         still blacking out" -- a real code gap, not the footage. colorVideo
+         is the single clock; matte is corrected toward it every frame and
+         woken back up if it had paused. */
+      if (Math.abs(matteVideo.currentTime - colorVideo.currentTime) > 0.1) {
+        matteVideo.currentTime = colorVideo.currentTime;
+      }
+      if (matteVideo.paused) matteVideo.play().catch(function () {});
       matteCtx.drawImage(matteVideo, 0, 0, bufW, bufH);
       var matteData = matteCtx.getImageData(0, 0, bufW, bufH);
       var mask = matteData.data;
