@@ -528,47 +528,162 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
 @media (prefers-reduced-motion:no-preference){
   .cta, .btn, .skin-opt{ transition:background .18s ease, color .18s ease, border-color .18s ease; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE BUILDING, added 2026-09-08. Dr. O direct: "everyone that sees the
+   current GC page thinks it's a meetup site. We are going to change that
+   perception," then "let's build it" over the concept renders she sent
+   (lobby, elevator, five named floors). Ported from My Echo's own copy of
+   this exact mechanism (index.html there): the elevator panel, the floor
+   plate, the room-photograph band, and the elevator ride animation. Same
+   class shapes, same go()/PLATE pattern, renamed .floor-band* rather than
+   .band* because Good Company's own .band already names something else (a
+   two-column testimonial section, below) and this is not that.
+
+   THE FLOOR KEYS STAY THE OLD SECTION IDS WHERE ONE ALREADY EXISTED --
+   'demos' and 'pricing' -- same reasoning as this page's own 2026-08-27
+   rename of "Demo" to "Companions": only the visible label changed, "the
+   CSS classes (.demos, .demo-card) ... stay as they are, internal plumbing
+   nobody visiting the page ever sees." Anything elsewhere on the site
+   already linking to index.html#demos or #pricing keeps working. */
+.elevator{
+  position:fixed; top:0; left:0; right:0; z-index:60;
+  background:var(--paper); border-bottom:1px solid var(--line);
+}
+.elevator .wrap{
+  height:61px; display:flex; align-items:center; justify-content:space-between; gap:24px;
+  max-width:1200px; margin:0 auto; padding:0 var(--pad);
+}
+.elevator .mark{font-size:16px; letter-spacing:.14em; color:var(--ink); border:0;}
+.elevator .floors{display:flex; gap:6px; flex-wrap:wrap; margin:0; padding:0; list-style:none; align-items:center;}
+.floor-btn{
+  font-family:var(--sans, inherit); font-size:11px; font-weight:400;
+  letter-spacing:.24em; text-transform:uppercase;
+  color:var(--ink-dim); background:transparent;
+  border:1px solid transparent; border-radius:2px;
+  padding:.5rem .7rem; cursor:pointer;
+  transition:color .4s ease, border-color .4s ease;
+}
+.floor-btn:hover{color:var(--accent);}
+.floor-btn[aria-current="page"]{
+  color:var(--ink); border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--panel) inset;
+}
+/* WRAP, NEVER HIDE. A hidden floor button is a floor nobody on a phone can
+   reach at all -- caught testing this build before it shipped. .floors
+   already carries flex-wrap, so the row just grows taller instead. */
+@media (max-width:900px){
+  .elevator{position:static;}
+  .elevator .wrap{height:auto; flex-wrap:wrap; padding:10px var(--pad);}
+  .floor{padding-top:0;}
+}
+
+.floor-plate{
+  position:absolute; z-index:5;
+  top:9%; left:max(24px, calc(50% - 550px + 24px));
+  min-width:170px; padding:12px 20px 13px; text-align:center;
+  background:var(--chrome, var(--paper));
+  border:1px solid var(--accent);
+  box-shadow:0 0 24px 6px rgba(0,0,0,.08);
+  pointer-events:none;
+}
+.floor-plate .label{margin:0 0 .3rem; color:var(--ink-dim); font-size:11px; letter-spacing:.3em; text-transform:uppercase;}
+.floor-plate b{display:block; font-weight:400; font-size:19px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink);}
+@media (max-width:900px){ .floor-plate{display:none;} }
+
+body.js .floor{display:none;}
+body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
+@keyframes gcDissolve{from{opacity:0;} to{opacity:1;}}
+.floor{padding-top:61px;}
+
+.floor-band{position:relative; width:100vw; margin:0 0 var(--rhythm); margin-left:calc(50% - 50vw);}
+.floor-band-room{width:100%; height:auto; display:block; background:var(--panel);}
+.floor-band-over{position:absolute; inset:0; pointer-events:none;}
+.floor-band-over .wrap{height:100%; position:relative; max-width:1200px; margin:0 auto; padding:0 var(--pad);}
+.floor-band-doors{
+  position:absolute; left:50%; transform:translateX(-50%); bottom:5%;
+  display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+  max-width:min(70%, 620px); pointer-events:auto;
+}
+.floor-band-doors .btn{background:var(--chrome, var(--paper));}
+@media (max-width:900px){
+  .floor-band-over{position:static; inset:auto;}
+  .floor-band-over .wrap{height:auto; padding:0; max-width:none;}
+  .floor-band-doors{position:static; transform:none; max-width:none; justify-content:flex-start; margin-top:16px;}
+}
+
+.doors{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 var(--rhythm);}
+.door{
+  background:var(--paper); border:0; cursor:pointer; text-align:left;
+  padding:34px 30px 30px; min-height:170px;
+  display:flex; flex-direction:column; justify-content:space-between; gap:18px;
+  font-family:inherit; color:var(--ink);
+  transition:background-color .4s ease;
+}
+.door:hover{background:var(--panel);}
+.door-name{font-size:24px; letter-spacing:.04em; color:var(--accent);}
+.door-line{font-size:14px; color:var(--ink-dim); line-height:1.5;}
+@media (max-width:900px){ .doors{grid-template-columns:1fr;} }
+
+.desk{display:grid; grid-template-columns:96px 1fr; gap:24px; align-items:start; margin:0 0 40px;}
+.desk-face{width:96px; height:96px; border-radius:50%; object-fit:cover; background:var(--panel);}
+.desk .said p{font-size:18px; line-height:1.5; margin:0 0 .8rem; max-width:56ch; color:var(--ink-dim);}
+@media (max-width:900px){ .desk{grid-template-columns:1fr; gap:14px;} .desk-face{width:76px; height:76px;} }
+
+/* ═══ THE RIDE ═══ Two photographs cross-dissolved, same timing as My Echo's copy. */
+.ride{
+  position:fixed; inset:0; z-index:70; pointer-events:none; opacity:0;
+  display:flex; align-items:center; justify-content:center; background:#000;
+  transition:opacity .4s ease;
+}
+.ride.riding{opacity:1;}
+.ride-frame{position:relative; width:100%; height:100%;}
+.ride-frame img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+.ride-frame img.open{opacity:0; transition:opacity 1.2s ease;}
+.ride.opening .ride-frame img.open{opacity:1;}
+.ride-directory{
+  position:absolute; left:44%; top:40%; width:16%;
+  display:grid; align-content:center; gap:.5em;
+  font-family:var(--sans, inherit); font-size:13px;
+  letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.55);
+  text-align:left; padding-left:.9em;
+}
+.ride-directory span{display:block; white-space:nowrap; transition:color .4s ease;}
+.ride-directory b{font-weight:600; display:inline-block; width:1.6em; color:rgba(255,255,255,.4);}
+.ride-directory span.to{color:#fff;}
+.ride-directory span.to b{color:var(--accent);}
+@media (max-width:900px){ .ride{display:none;} }
 </style>
 </head>
 
 <body>
 
-<header>
-  <a class="mark" href="index.html">
-    <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244">
-    <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
-  </a>
-
-  <!-- ADDED 2026-08-26 per Dr. O direct: "demo - cost - build - friends."
-       Four anchors to the four sections the page already has, in the order
-       she gave them -- Companions (the free cast, RENAMED 2026-08-27: "demo"
-       undersold it once the engagement data showed people choosing to spend
-       real time with the cast rather than just sampling it before building
-       their own -- see .demos below for the full note), Cost (the new
-       pricing table), Build (the real builder, not a section on this page
-       so it links out), Friends (bringing real people in, not the cast, so
-       it points at .bring rather than repeating Companions). Hidden below
-       the same width the rest of the header collapses at, since four more
-       words next to the logo and the Palette button has nowhere to go on a
-       phone. -->
-  <nav class="topnav">
-    <a href="#demos">Companions</a>
-    <!-- Added 2026-09-08. Dr. O: "I want to go to an AR room, not see poppy" -- until this the
-         only way to any companion's AR page was a link already had to be known, or one small
-         chip inside Tansy's own room, which Poppy and Blue never even had. -->
-    <a href="ar-room.html">AR</a>
-    <a href="#pricing">Cost</a>
-    <a href="build.html">Build</a>
-    <a href="#bring">Friends</a>
-    <a href="faq.html">Questions</a>
-  </nav>
-
-  <!-- The picker, not a toggle. On the front door especially it should show
-       that there are four rooms rather than hide them behind a cycle. -->
-  <div class="picker" id="picker">
-    <button class="btn" id="skinBtn" type="button">&#127912; Palette</button>
+<nav class="elevator" aria-label="Elevator">
+  <div class="wrap">
+    <a class="mark" href="index.html">
+      <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244" style="height:26px; width:auto;">
+      <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260" style="height:26px; width:auto;">
+    </a>
+    <ul class="floors">
+      <li><button class="floor-btn" type="button" data-floor="lobby" aria-current="page">Lobby</button></li>
+      <li><button class="floor-btn" type="button" data-floor="demos">Companions</button></li>
+      <li><button class="floor-btn" type="button" data-floor="build">Build</button></li>
+      <li><button class="floor-btn" type="button" data-floor="ar">AR</button></li>
+      <li><button class="floor-btn" type="button" data-floor="pricing">Owner</button></li>
+      <li><a class="floor-btn" href="faq.html">Questions</a></li>
+      <!-- The picker, not a toggle -- kept exactly as it was, just moved into the elevator row.
+           picker-li so the mobile collapse rule above does not also hide it. -->
+      <li class="picker-li"><div class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></div></li>
+    </ul>
   </div>
-</header>
+</nav>
+
+<!-- THE FLOOR INDICATOR, same behaviour as My Echo's own copy: one plate, re-hung in whichever
+     room is open, reading that floor's number and name until the next change. -->
+<div class="floor-plate" id="floorPlate" aria-hidden="true">
+  <span class="label" id="floorPlateNo">First floor</span>
+  <b id="floorPlateName">Lobby</b>
+</div>
 
 <!-- Empty and out of the way until the script below decides it has
      something real to say -- never a layout reservation for a message that
@@ -590,6 +705,48 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
 </script>
 
 <main id="top">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     GROUND FLOOR. The lobby: the front desk, the doors, and the pitch that
+     used to be the whole homepage underneath it. Reggie and Tansy are the
+     two already established as living in this lobby (see the hero copy's
+     own note below, "Reggie (a dog) and Tansy (a fairy)"). Isabelle, at the
+     desk itself, is Dr. O's own Good Company companion (see her own room,
+     "Isabelle's," referenced in the returning-visitor script further down
+     this page) -- cast here 2026-09-08, voiceId kkPJzQOWz2Oz9cUaEaQd. Her
+     arrival line below is Dr. O's own content direction, worded here rather
+     than invented from nothing: welcome them to Good Company, point at
+     Tansy as the one who actually answers in chat (begrudgingly helpful, a
+     bit of a handful), and invite them to say hello to Reggie. WRITTEN ONLY
+     SO FAR -- no audio file exists yet for this voiceId, so there is no
+     "Hear Isabelle" button the way Meg has one on My Echo; add it once a
+     real recording does. Tansy stays the one who actually answers as the
+     floating widget; Isabelle is the desk, not a second chat surface.
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="floor is-open" id="floor-lobby" data-floor="lobby" aria-labelledby="lobby-h">
+
+  <div class="floor-band">
+    <img class="floor-band-room" src="photos/lobby-band.jpg" alt="The Good Company lobby: Isabelle at the front desk, with Reggie and Tansy.">
+    <div class="floor-band-over"><div class="wrap">
+      <div class="floor-band-doors">
+        <button class="btn" type="button" data-door="demos">Companions</button>
+        <button class="btn" type="button" data-door="build">Build</button>
+        <button class="btn" type="button" data-door="ar">AR</button>
+      </div>
+    </div></div>
+  </div>
+
+  <h2 id="lobby-h" class="visually-hidden" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">Lobby</h2>
+
+  <div class="wrap" style="padding-top:var(--rhythm);">
+    <p class="label">The desk</p>
+    <div class="said" style="max-width:56ch;">
+      <p style="font-size:19px; line-height:1.5; color:var(--ink);">Welcome to Good Company. I'm Isabelle, I keep the front desk.</p>
+      <p style="font-size:19px; line-height:1.5; color:var(--ink);">If you want someone to actually talk with, that's Tansy. Ring her any time, right in the chat. She's here to help, begrudgingly so. Fair warning: a bit of a handful.</p>
+      <p style="font-size:19px; line-height:1.5; color:var(--ink);">And that's Reggie by my feet. Go ahead and say hello. He loves people.</p>
+      <p style="font-size:19px; line-height:1.5; color:var(--ink);">We have a wide range of companions here, human and not. Take the elevator up to the second floor and meet them.</p>
+    </div>
+  </div>
 
   <!-- HERO ---------------------------------------------------------------- -->
   <!-- Not .wrap: this section manages its own insets so the photograph can
@@ -686,6 +843,19 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <p>Two of you talking to a companion together, like Reggie, can be even more fun than one.</p>
     </div>
   </section>
+
+</section>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SECOND FLOOR. The companions grid, unchanged, just given its own room and
+     a photograph of the wall it used to only be described as.
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="floor" id="floor-demos-room" data-floor="demos" aria-labelledby="companions-h">
+
+  <div class="floor-band">
+    <img class="floor-band-room" src="photos/companions-band.jpg" alt="">
+  </div>
+
+  <h2 id="companions-h" class="visually-hidden" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">Companions</h2>
 
   <!-- DEMOS ------------------------------------------------------------------
        REPLACES the old quiet text link ("or try one of our demos: Arch,
@@ -1041,6 +1211,24 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     </div>
   </section>
 
+</section>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     THIRD FLOOR. What building your own looks like, plus the real builder,
+     which lives on its own page (build.html) rather than being a room here.
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="floor" id="floor-build-room" data-floor="build" aria-labelledby="build-h">
+
+  <div class="floor-band">
+    <img class="floor-band-room" src="photos/build-band.jpg" alt="">
+    <div class="floor-band-over"><div class="wrap">
+      <div class="floor-band-doors">
+        <a class="btn" href="build.html">Start building</a>
+      </div>
+    </div></div>
+  </div>
+
+  <h2 id="build-h" class="visually-hidden" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">Build</h2>
+
   <!-- THREE --------------------------------------------------------------- -->
   <!-- Each card is a figure now, so the caption belongs to the picture rather
        than floating near it. The caption is what tells a visitor the face is a
@@ -1073,6 +1261,45 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <p>A job, other people, plans this weekend. A companion with somewhere to be is a companion.</p>
     </figure>
   </section>
+
+</section>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     FOURTH FLOOR. New 2026-09-08. Bring your own camera and see them stand in
+     your own room, live -- links out to ar-room.html, the gallery built
+     2026-09-08 for the same reason this floor exists: "I want to go to an AR
+     room, not see poppy."
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="floor" id="floor-ar" data-floor="ar" aria-labelledby="ar-h">
+
+  <div class="floor-band">
+    <img class="floor-band-room" src="photos/ar-band.jpg" alt="">
+    <div class="floor-band-over"><div class="wrap">
+      <div class="floor-band-doors">
+        <a class="btn" href="ar-room.html">See them in your room</a>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="wrap">
+    <h2 id="ar-h">Bring them into your own room.</h2>
+    <p>Turn on your camera, and a companion stands right there on your own screen. Talk to them
+       the same as you would in their room, out loud or typed. Nothing is recorded, uploaded, or
+       sent anywhere.</p>
+    <p><a href="ar-room.html">See who is set up for AR &rarr;</a></p>
+  </div>
+
+</section>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     FIFTH FLOOR. Owning one: what it costs, what a week with them looks
+     like, and the fine print. Mirrors My Echo's own fifth floor.
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="floor" id="floor-pricing-room" data-floor="pricing" aria-labelledby="owner-h">
+
+  <div class="floor-band">
+    <img class="floor-band-room" src="photos/owner-band.jpg" alt="">
+  </div>
+
+  <h2 id="owner-h" class="visually-hidden" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">Owner</h2>
 
   <!-- THE SPINE ----------------------------------------------------------- -->
   <!-- THE SPINE, AND NOW THE ONLY PICTURE ON THE PAGE WITH NO FRIEND IN IT.
@@ -1169,6 +1396,8 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </div>
     </div>
   </section>
+
+</section>
 
 </main>
 
@@ -1481,6 +1710,121 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
   });
 })();
 
+</script>
+
+<!-- ═══ THE RIDE ═══ Two photographs of the elevator, shut and open, cross-dissolved over the
+     floor change -- same mechanism and same timing as My Echo's own copy. Skipped below 900px
+     (see .ride's own media query), same reasoning as there: a photograph of an elevator on a
+     380px screen is a distraction, not a detail. -->
+<div class="ride" id="ride" aria-hidden="true">
+  <div class="ride-frame">
+    <img class="shut" src="photos/elevator-closed.jpg" alt="">
+    <img class="open" src="photos/elevator-open.jpg" alt="">
+    <div class="ride-directory">
+      <span data-to="lobby"><b>1</b> Lobby</span>
+      <span data-to="demos"><b>2</b> Companions</span>
+      <span data-to="build"><b>3</b> Build</span>
+      <span data-to="ar"><b>4</b> AR</span>
+      <span data-to="pricing"><b>5</b> Owner</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ THE BUILDING'S JAVASCRIPT, ported from My Echo's index.html ═══
+     Same FLOORS/PLATE/go() shape as there, trimmed to what this page actually needs: no voice
+     arrival (Meg's is her own separate system, nothing here plays that role), no chat-window
+     fold (the existing Ask Tansy widget above already floats over every floor unmodified,
+     because it is fixed-positioned outside any .floor element and never gets hidden by the
+     body.js/is-open rule below). -->
+<script>
+(function () {
+  var FLOORS = ['lobby', 'demos', 'build', 'ar', 'pricing'];
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.floor-btn[data-floor]'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.floor'));
+
+  var PLATE = {
+    'lobby':  ['First floor',  'Lobby'],
+    'demos':  ['Second floor', 'Companions'],
+    'build':  ['Third floor',  'Build'],
+    'ar':     ['Fourth floor', 'AR'],
+    'pricing':['Fifth floor',  'Owner']
+  };
+  var plate = document.getElementById('floorPlate');
+  var plateNo = document.getElementById('floorPlateNo');
+  var plateName = document.getElementById('floorPlateName');
+
+  var ride = document.getElementById('ride');
+  var rideReady = false, riding = null;
+  var stillness = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  (function loadRide() {
+    var want = 2, got = 0, failed = false;
+    Array.prototype.forEach.call(ride.querySelectorAll('img'), function (img) {
+      var done = function () { if (++got === want && !failed) rideReady = true; };
+      if (img.complete && img.naturalWidth) return done();
+      img.addEventListener('load', done);
+      img.addEventListener('error', function () { failed = true; rideReady = false; });
+    });
+  })();
+  var rideDirectory = document.querySelectorAll('.ride-directory span');
+  function openTheDoors(name) {
+    if (!rideReady || (stillness && stillness.matches)) return;
+    Array.prototype.forEach.call(rideDirectory, function (row) {
+      row.classList.toggle('to', row.getAttribute('data-to') === name);
+    });
+    clearTimeout(riding);
+    ride.classList.remove('opening');
+    ride.classList.add('riding');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { ride.classList.add('opening'); });
+    });
+    riding = setTimeout(function () {
+      ride.classList.remove('riding');
+      riding = setTimeout(function () { ride.classList.remove('opening'); }, 400);
+    }, 1600);
+  }
+
+  var arrived = false, floorNow = 'lobby';
+  function go(name, opts) {
+    if (FLOORS.indexOf(name) === -1) name = 'lobby';
+    var moving = !document.querySelector('.floor[data-floor="' + name + '"]').classList.contains('is-open');
+    arrived = true;
+    floorNow = name;
+    if (PLATE[name]) {
+      plateNo.textContent = PLATE[name][0];
+      plateName.textContent = PLATE[name][1];
+      var room = document.querySelector('.floor[data-floor="' + name + '"] .floor-band');
+      if (room && plate.parentNode !== room) room.appendChild(plate);
+    }
+    sections.forEach(function (s) {
+      s.classList.toggle('is-open', s.getAttribute('data-floor') === name);
+    });
+    buttons.forEach(function (b) {
+      if (b.getAttribute('data-floor') === name) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    if (!opts || !opts.keepScroll) window.scrollTo(0, 0);
+    if (history.replaceState) history.replaceState(null, '', '#' + name);
+    if (moving && (!opts || !opts.noRide)) openTheDoors(name);
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () { go(b.getAttribute('data-floor')); });
+  });
+  /* THE DOORS, inside the lobby, build and AR floor-bands. Bound by the attribute (data-door)
+     rather than a class, same reasoning as My Echo's own copy of this: a door photographed
+     standing inside a room and a floor-btn hanging in the elevator panel are different objects
+     doing the same job. */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-door]'), function (d) {
+    d.addEventListener('click', function () { go(d.getAttribute('data-door')); });
+  });
+
+  window.addEventListener('hashchange', function () {
+    go((location.hash || '').replace('#', ''), { keepScroll: true });
+  });
+
+  document.body.classList.add('js');
+  go((location.hash || '').replace('#', '') || 'lobby', { keepScroll: true, noRide: true });
+})();
 </script>
 
 </body>
