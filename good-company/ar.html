@@ -998,11 +998,19 @@ body { position: relative; background: #000; }
         }),
       }).then(function (r) {
         if (!r.ok) throw new Error('voice_failed');
-        return r.blob();
-      }).then(function (blob) {
-        var url = URL.createObjectURL(blob);
-        var audio = new Audio(url);
-        audio.addEventListener('ended', function () { URL.revokeObjectURL(url); });
+        return r.json();
+      }).then(function (data) {
+        /* THE REAL BUG, found 2026-09-08 after Dr. O and Pookie both reported every AR
+           companion silent -- confirmed by calling the live endpoint directly and diffing
+           against room.html's own working playCachedAudio(), which this now matches.
+           gc-voice.js has never returned a raw audio blob: it returns JSON, {"audio": "<base64
+           mp3>"} (plus daily_capped / credits_exhausted flags room.html also checks). This was
+           calling response.blob() on that JSON text and trying to play the JSON ITSELF as an
+           audio file -- silently, since audio.play() rejecting was swallowed by the .catch()
+           below with no visible error anywhere. Every reply, on every companion, from the day
+           this was first written, because it never worked even once to notice by contrast. */
+        if (!data || !data.audio) return;
+        var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
         audio.play().catch(function () {});
       }).catch(function () { /* text reply already stands on its own */ });
     }
