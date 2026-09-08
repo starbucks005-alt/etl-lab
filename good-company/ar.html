@@ -365,6 +365,18 @@ body { position: relative; background: #000; }
       matte: 'video/meera-ar-matte.mp4',
       ambience: null,
     },
+    arch: {
+      /* Dr. O direct: "arch is sitting in a chair, this is different from
+         the others for that reason" -- a seated pose is wider and shorter
+         than the others' standing footage, which the compositor already
+         handles on its own (the overlay box follows whatever real shape
+         setupBuffers finds, nothing here assumes a portrait aspect ratio).
+         No ambience given, so none assumed. */
+      name: 'Arch',
+      color: 'video/arch-ar-color.mp4',
+      matte: 'video/arch-ar-matte.mp4',
+      ambience: null,
+    },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
   var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;
@@ -794,6 +806,7 @@ body { position: relative; background: #000; }
     if (key === 'cressida') return { friend: GC_CRESSIDA, speaker: null };
     if (key === 'meera') return { friend: GC_MEERA, speaker: null };
     if (key === 'nell') return { friend: GC_PUPPETS, speaker: GC_PUPPETS.companions.nell };
+    if (key === 'arch') return { friend: GC_DEMO, speaker: null };
     return null;
   }
   var chatWho = chatIdentity(askedFor || 'tansy');
