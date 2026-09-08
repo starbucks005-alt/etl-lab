@@ -233,7 +233,7 @@ body { position: relative; background: #000; }
   <p id="arVoiceCostNote" style="display:none; font-size:.85rem; color:var(--ink-dim); max-width:34ch;">Replies are spoken out loud, in their real voice, which uses more of your credits than typing does.</p>
 
   <details id="callHelp">
-    <summary id="callHelpSummary">Do you want this companion on a video call too?</summary>
+    <summary id="callHelpSummary">Want to bring this companion onto a Zoom or Teams call with other people?</summary>
     <ol>
       <li>Download <a href="https://obsproject.com" target="_blank" rel="noopener">OBS Studio</a> (free).</li>
       <li>In OBS, add a <strong>Display Capture</strong> source, not a "Browser" source.
@@ -431,8 +431,12 @@ body { position: relative; background: #000; }
   /* NAMED, NOT GENDERED, added 2026-09-08. This said "her" outright, which was simply wrong the
      moment anyone opened it for Arch. companion.name already exists for every entry here, so
      there was never a reason to guess a pronoun instead of just saying who. */
+  /* REWORDED 2026-09-08, Dr. O direct: the old line read as a call between the visitor and the
+     companion, when what this actually does is bring the companion into a call the visitor is
+     already having with other real people (colleagues, family) -- a surprise appearance for
+     everyone else on that call, not a private one-on-one. */
   document.getElementById('callHelpSummary').textContent =
-    'Do you want ' + companion.name + ' on a video call too?';
+    'Want to bring ' + companion.name + ' onto a Zoom or Teams call with other people?';
 
   var startScreen = document.getElementById('startScreen');
   var startBtn = document.getElementById('startBtn');
