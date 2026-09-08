@@ -343,16 +343,16 @@ body { position: relative; background: #000; }
       ambience: null,
     },
     nell: {
-      /* NO MATTE FILE, on purpose -- see LIVE MATTE below. Nell is the
-         first companion here with only footage: matte: null is what
-         switches the compositor over to cutting her out live, in the
-         browser, rather than reading a hand-cut file. Ported from
-         My Echo's own copy of this same idea (MY_ECHO/ar.html), built
-         there first per Dr. O direct: "write it, let's try it out. I
-         think it is fun." */
+      /* This was the first AR companion built with only raw footage and no
+         hand-cut matte (matte: null triggered the live, in-browser
+         segmentation below). Dr. O direct, 2026-09-08: "the automated way
+         did not work well. it needs replaced" -- she now has a real
+         hand-cut color/matte pair instead, same as every other companion.
+         Eli and Nell remain the established mom and dad; Nell keeps her
+         own separate room scene too ("Nell, worn out," nell-sad.jpg). */
       name: 'Nell',
-      color: 'video/nell-worn.mp4',
-      matte: null,
+      color: 'video/nell-ar-color.mp4',
+      matte: 'video/nell-ar-matte.mp4',
       ambience: null,
     },
     meera: {
@@ -471,6 +471,13 @@ body { position: relative; background: #000; }
      wooden marionette instead -- genuinely untested territory, not just
      "rougher edges than Premiere." Watch the real result before trusting
      it for her.
+
+     RETIRED FOR NELL 2026-09-08. The automated cutout did not hold up
+     ("the automated way did not work well," Dr. O direct) and she now has
+     a real hand-cut matte pair like every other companion (see the
+     registry). This whole mechanism is left in place, working code, for
+     the next companion who only has raw footage and no hand-cut matte --
+     it is no longer exercised by anyone today.
 
      NOTHING LEAVES THE DEVICE HERE EITHER. The model file is fetched once
      from a CDN and then runs locally on the clip already in the page. The
