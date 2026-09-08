@@ -711,11 +711,13 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
   text-decoration:none; border:0;
 }
 .ar-band-main b{
-  font-family:Georgia, serif; font-weight:400; color:var(--ink);
+  font-family:Georgia, serif; font-weight:400; color:#FFFFFF;
+  text-shadow:0 1px 18px rgba(0,0,0,.45);
   font-size:clamp(1.2rem, 3.2cqw, 2.6rem); letter-spacing:.06em;
 }
 .ar-band-main em{
-  font-family:Georgia, serif; font-style:normal; color:var(--ink-dim);
+  font-family:Georgia, serif; font-style:normal; color:rgba(255,255,255,.88);
+  text-shadow:0 1px 14px rgba(0,0,0,.4);
   font-size:clamp(.8rem, 1.5cqw, 1.2rem); line-height:1.45; max-width:32ch;
 }
 @media (max-width:700px){ .ar-band-main em{display:none;} }
@@ -1884,13 +1886,13 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
      been nicer, but this page never loads ar-room.html's script and duplicating seven lines is
      cheaper than a build step for this campus. Update both if an eighth companion gets real AR. */
   var AR_FRAMES = [
-    { who: 'arch', photo: 'photos/arch-ar-cutout.jpeg', label: 'Arch' },
-    { who: 'tansy', photo: 'photos/tansy-ar-cutout.jpeg', label: 'Tansy' },
-    { who: 'poppy', photo: 'photos/poppy-ar-cutout.jpeg', label: 'Poppy' },
-    { who: 'blue', photo: 'photos/blue-ar-cutout.jpeg', label: 'Blue' },
-    { who: 'cressida', photo: 'photos/cressida-ar-cutout.jpeg', label: 'Cressida' },
-    { who: 'meera', photo: 'photos/meera-ar-cutout.jpeg', label: 'Meera' },
-    { who: 'nell', photo: 'photos/nell-ar-cutout.jpeg', label: 'Nell' },
+    { who: 'arch', photo: 'photos/arch-onsite.png', label: 'Arch' },
+    { who: 'tansy', photo: 'photos/tansy.jpg', label: 'Tansy' },
+    { who: 'poppy', photo: 'photos/poppy.jpg', label: 'Poppy' },
+    { who: 'blue', photo: 'photos/blue-atelier.jpg', label: 'Blue' },
+    { who: 'cressida', photo: 'photos/cressida-portrait.jpg', label: 'Cressida' },
+    { who: 'meera', photo: 'photos/meera-portrait.jpg', label: 'Meera' },
+    { who: 'nell', photo: 'photos/nell-happy.jpg', label: 'Nell' },
     { who: 'alice', photo: 'photos/alice-portrait.png', label: 'A.L.I.C.E.' },
   ];
   Array.prototype.forEach.call(document.querySelectorAll('.ar-band-frame'), function (frame, i) {
