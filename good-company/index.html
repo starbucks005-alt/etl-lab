@@ -874,8 +874,23 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <p style="font-size:19px; line-height:1.5; color:var(--ink);">If you want someone to actually talk with, that's Tansy. Ring her any time, right in the chat. She's here to help, begrudgingly so. Fair warning: a bit of a handful.</p>
       <p style="font-size:19px; line-height:1.5; color:var(--ink);">And that's Reggie by my feet. Go ahead and say hello. He loves people.</p>
       <p style="font-size:19px; line-height:1.5; color:var(--ink);">We have a wide range of companions here, human and not. Take the elevator up to the second floor and meet them.</p>
+      <button class="btn plain" type="button" id="hearIsabelle">Hear Isabelle</button>
     </div>
   </div>
+
+  <!-- ISABELLE'S ARRIVAL, SPOKEN, added 2026-09-08 per Dr. O direct. Same mechanism as Meg's own
+       welcome on My Echo (a pre-recorded file, not a live gc-voice call on every visit -- a fixed
+       message spoken to every visitor is exactly what "recorded once, replayed forever" means
+       elsewhere on this campus; a live synthesis call for the same fixed words every time would
+       spend real credits for nothing new). NO FILE EXISTS YET at this path -- the audio element's
+       error handler below hides the button rather than leaving a dead one, same reasoning as the
+       AR chat mic being hidden on a browser with no speech recognition. Once a real recording
+       exists at audio/isabelle-lobby-welcome.mp3, generated from her voiceId
+       (kkPJzQOWz2Oz9cUaEaQd) reading her own four lines above, this starts working with no other
+       change needed. -->
+  <audio id="isabelleWelcome" preload="auto">
+    <source src="audio/isabelle-lobby-welcome.mp3" type="audio/mpeg">
+  </audio>
 
   <!-- HERO ---------------------------------------------------------------- -->
   <!-- Not .wrap: this section manages its own insets so the photograph can
@@ -1720,6 +1735,44 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
 
   document.body.classList.add('js');
   go((location.hash || '').replace('#', '') || 'lobby', { keepScroll: true, noRide: true });
+
+  /* ISABELLE'S ARRIVAL, added 2026-09-08. Same shape as Meg's own welcome on My Echo: try to
+     play automatically, once, only in the lobby; if the browser refuses (autoplay policy, no
+     gesture yet), the button beside her words plays it on demand instead, and nothing about the
+     page depends on the sound actually being heard. If the file itself does not exist yet
+     (error event, e.g. a 404), the button hides rather than sitting there doing nothing. */
+  (function () {
+    var isabelleAudio = document.getElementById('isabelleWelcome');
+    var isabelleBtn = document.getElementById('hearIsabelle');
+    if (!isabelleAudio || !isabelleBtn) return;
+    var isabelleMissing = false;
+    function hideIsabelleBtn() {
+      isabelleMissing = true;
+      isabelleBtn.style.display = 'none';
+    }
+    /* BOTH LISTENERS, NOT JUST ONE. A missing source can surface as an 'error' on the <source>
+       child (Chrome, reliably) or leave the <audio> itself at networkState 3 with no bubbled
+       event at all (seen live testing this exact file before it existed) -- checked once, after
+       a beat for the browser's own resource-selection algorithm to finish either way. */
+    isabelleAudio.addEventListener('error', hideIsabelleBtn, true);
+    var isabelleSource = isabelleAudio.querySelector('source');
+    if (isabelleSource) isabelleSource.addEventListener('error', hideIsabelleBtn);
+    setTimeout(function () {
+      if (isabelleAudio.networkState === 3) hideIsabelleBtn();
+    }, 1200);
+    var isabelleAutoTried = false;
+    function tryIsabelleAuto() {
+      if (isabelleAutoTried || isabelleMissing || floorNow !== 'lobby') return;
+      isabelleAutoTried = true;
+      isabelleAudio.play().catch(function () { /* button still works */ });
+    }
+    isabelleBtn.addEventListener('click', function () {
+      if (floorNow !== 'lobby') go('lobby');
+      isabelleAudio.currentTime = 0;
+      isabelleAudio.play().catch(function () {});
+    });
+    if (floorNow === 'lobby') tryIsabelleAuto();
+  })();
 
   /* THE WALL'S DATA, added 2026-09-08 alongside the genre filter and rebuilt again the same day
      to actually paint into the six measured frames rather than a card grid. One row per
