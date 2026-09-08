@@ -701,7 +701,24 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 /* ═══ THE AR FLOOR'S OWN BAND ═══ Measured off photos/ar-band-2.jpg (2752x1536) directly, same
    technique as the wall and the elevator directory: a big center screen plus four small square
    frames on each side, confirmed by drawing these exact boxes back over the photograph. */
-.ar-band-main{ position:absolute; left:31.36%; top:28.5%; width:37.4%; height:40%; z-index:2; }
+/* CLICK HERE, added 2026-09-08 per Dr. O direct reminder, same words and shape as My Echo's own
+   copy of this call on its AR floor (assets/ar-floor.jpg there): a big lit screen with nothing
+   on it read as unfinished, not as a button, until it says what it does. */
+.ar-band-main{
+  position:absolute; left:31.36%; top:28.5%; width:37.4%; height:40%; z-index:2;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:.7em; text-align:center; padding:1.5%; container-type:inline-size;
+  text-decoration:none; border:0;
+}
+.ar-band-main b{
+  font-family:Georgia, serif; font-weight:400; color:var(--ink);
+  font-size:clamp(.95rem, 2.2cqw, 2rem); letter-spacing:.06em;
+}
+.ar-band-main em{
+  font-family:Georgia, serif; font-style:normal; color:var(--ink-dim);
+  font-size:clamp(.6rem, 1.05cqw, .95rem); line-height:1.45; max-width:30ch;
+}
+@media (max-width:700px){ .ar-band-main em{display:none;} }
 .ar-band-frame{
   position:absolute; width:4.2%; height:8.0%; z-index:2;
   overflow:hidden; border-radius:2px;
@@ -1182,7 +1199,10 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 
   <div class="floor-band" id="arBand">
     <img class="floor-band-room" src="photos/ar-band-2.jpg" alt="">
-    <a class="ar-band-main" href="ar-room.html" aria-label="See them in your room"></a>
+    <a class="ar-band-main" href="ar-room.html">
+      <b>CLICK HERE</b>
+      <em>to see a live Augmented Reality (AR) companion standing in your own room</em>
+    </a>
     <div class="ar-band-frame" data-slot="0"><a><img alt=""></a></div>
     <div class="ar-band-frame" data-slot="1"><a><img alt=""></a></div>
     <div class="ar-band-frame" data-slot="2"><a><img alt=""></a></div>
