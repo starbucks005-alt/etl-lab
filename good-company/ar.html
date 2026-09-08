@@ -743,14 +743,71 @@ body { position: relative; background: #000; }
     ambientAudio.play().catch(function () {});
   }
 
-  startBtn.addEventListener('click', function () {
-    startBtn.disabled = true;
-    startBtn.textContent = 'Asking...';
+  /* RELEASE AND RE-ASK FOR THE CAMERA, added 2026-09-08. Dr. O had several
+     Good Company AR tabs open on her phone at once (Meera, Arch, Tansy) and
+     watched the real camera background go black on one, then another, then
+     "back and forth." Nothing here ever called stream.getTracks().stop(),
+     so every tab that had ever turned its camera on kept its claim on the
+     one physical camera for as long as the tab stayed open, and the phone
+     was left to silently referee which tab actually got real frames -- the
+     others still "succeeded" (no error, no re-prompt, permission already
+     granted) but drew nothing.
+
+     currentStream is the one live grant this page is holding, if any.
+     cameraLive means the user is past the start screen; it is set once and
+     never unset, so a tab that has released its stream while hidden still
+     knows to ask again the moment it is looked at. */
+  var currentStream = null;
+  var cameraLive = false;
+
+  function stopCamera() {
+    if (currentStream) {
+      currentStream.getTracks().forEach(function (t) { t.stop(); });
+      currentStream = null;
+    }
+    camera.srcObject = null;
+  }
+
+  function acquireCamera(onOk, onErr) {
     navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: 'environment' } },
       audio: false,
     }).then(function (stream) {
+      currentStream = stream;
       camera.srcObject = stream;
+      onOk();
+    }).catch(onErr);
+  }
+
+  /* A tab you are not looking at gives the camera back; the one you switch
+     to asks again -- silent, since permission is already granted. This is
+     the direct fix for the "back and forth" Dr. O watched between open
+     tabs. */
+  document.addEventListener('visibilitychange', function () {
+    if (!cameraLive) return;
+    if (document.hidden) {
+      stopCamera();
+    } else if (!currentStream) {
+      acquireCamera(function () {}, function () {});
+    }
+  });
+  window.addEventListener('pagehide', function () { if (cameraLive) stopCamera(); });
+
+  /* WATCHDOG. Separately, Dr. O saw Meera's feed go black while the tab
+     stayed the visible one the whole time, nothing else touched -- cause
+     not confirmed, this does not guess at it. It only notices a track that
+     is no longer live and asks again. */
+  setInterval(function () {
+    if (!cameraLive || document.hidden) return;
+    var track = currentStream && currentStream.getVideoTracks()[0];
+    if (!track || track.readyState === 'ended') acquireCamera(function () {}, function () {});
+  }, 3000);
+
+  startBtn.addEventListener('click', function () {
+    startBtn.disabled = true;
+    startBtn.textContent = 'Asking...';
+    acquireCamera(function () {
+      cameraLive = true;
       startScreen.style.display = 'none';
       overlayWrap.style.display = '';
       topBar.style.display = '';
@@ -767,7 +824,7 @@ body { position: relative; background: #000; }
       overlayWrap.style.width = w + 'px';
       overlayWrap.style.left = ((window.innerWidth - w) / 2) + 'px';
       overlayWrap.style.top = (window.innerHeight * 0.2) + 'px';
-    }).catch(function (err) {
+    }, function (err) {
       startBtn.disabled = false;
       startBtn.textContent = 'Try again';
       cameraError.style.display = '';
