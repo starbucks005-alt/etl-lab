@@ -1698,7 +1698,7 @@ var GC_ALICE = {
 
   skin: 'snowline',
 
-  portrait: 'photos/alice.jpg',
+  portrait: 'photos/alice-portrait.png',
   portraitWide: 'photos/alice-wide.jpg',
 
   scenes: [

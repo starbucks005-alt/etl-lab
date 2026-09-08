@@ -712,11 +712,11 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 }
 .ar-band-main b{
   font-family:Georgia, serif; font-weight:400; color:var(--ink);
-  font-size:clamp(.95rem, 2.2cqw, 2rem); letter-spacing:.06em;
+  font-size:clamp(1.2rem, 3.2cqw, 2.6rem); letter-spacing:.06em;
 }
 .ar-band-main em{
   font-family:Georgia, serif; font-style:normal; color:var(--ink-dim);
-  font-size:clamp(.6rem, 1.05cqw, .95rem); line-height:1.45; max-width:30ch;
+  font-size:clamp(.8rem, 1.5cqw, 1.2rem); line-height:1.45; max-width:32ch;
 }
 @media (max-width:700px){ .ar-band-main em{display:none;} }
 .ar-band-frame{
@@ -1784,10 +1784,10 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     { who: 'arch', photo: 'photos/arch-onsite.png', label: 'General contractor Arch', audio: 'audio/arch-bio.mp3', genre: ['mentors'] },
     { who: 'sofia', photo: 'photos/sofia.jpg', label: 'Vet nurse Sophia', audio: 'audio/sofia-bio.mp3', genre: ['everyday'] },
     { who: 'cora', photo: 'photos/nina.jpg', label: 'Retired teacher Nina', audio: 'audio/nina-bio.mp3', genre: ['mentors', 'storytellers'] },
-    { who: 'kioko', photo: 'photos/kioko.jpg', label: 'Paramedic Kioko', audio: 'audio/kioko-bio.mp3', genre: ['everyday'] },
+    { who: 'kioko', photo: 'photos/kioko.jpg', label: 'Paramedic Kioko', audio: 'audio/kioko-bio.mp3', genre: ['everyday'], pos: '50% 20%' },
     { who: 'reggie', photo: 'photos/reggie-explorers.jpg', label: 'Reggie, with friends', audio: 'audio/reggie-bio.mp3', genre: ['creatures'], kid: true },
     { who: 'tansy', photo: 'photos/tansy-poppy-blue.jpg', label: 'Tansy, of the Radiant Court', audio: 'audio/tansy-bio.mp3', genre: ['fantasy'] },
-    { who: 'alice', photo: 'photos/alice.jpg', label: 'A.L.I.C.E.', audio: 'audio/alice-bio.mp3', genre: ['fantasy', 'mentors'] },
+    { who: 'alice', photo: 'photos/alice-portrait.png', label: 'A.L.I.C.E.', audio: 'audio/alice-bio.mp3', genre: ['fantasy', 'mentors'] },
     { who: 'julian', photo: 'photos/julian.jpg', label: 'Julian, since 1741', audio: 'audio/julian-bio.mp3', genre: ['fantasy'] },
     { who: 'winston', photo: 'photos/winston-portrait.jpg', label: 'Winston, lord of the manor', audio: 'audio/winston-bio.mp3', genre: ['storytellers', 'everyday'] },
     { who: 'viv', photo: 'photos/viv-portrait.jpg', label: 'Viv, after dark', audio: 'audio/viv-bio.mp3', genre: ['fantasy'] },
@@ -1890,6 +1890,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     { who: 'cressida', photo: 'photos/cressida-ar-cutout.jpeg', label: 'Cressida' },
     { who: 'meera', photo: 'photos/meera-ar-cutout.jpeg', label: 'Meera' },
     { who: 'nell', photo: 'photos/nell-ar-cutout.jpeg', label: 'Nell' },
+    { who: 'alice', photo: 'photos/alice-portrait.png', label: 'A.L.I.C.E.' },
   ];
   Array.prototype.forEach.call(document.querySelectorAll('.ar-band-frame'), function (frame, i) {
     var item = AR_FRAMES[i];

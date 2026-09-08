@@ -233,7 +233,7 @@ body { position: relative; background: #000; }
   <p id="arVoiceCostNote" style="display:none; font-size:.85rem; color:var(--ink-dim); max-width:34ch;">Replies are spoken out loud, in their real voice, which uses more of your credits than typing does.</p>
 
   <details id="callHelp">
-    <summary>Want her on a video call too?</summary>
+    <summary id="callHelpSummary">Do you want this companion on a video call too?</summary>
     <ol>
       <li>Download <a href="https://obsproject.com" target="_blank" rel="noopener">OBS Studio</a> (free).</li>
       <li>In OBS, add a <strong>Display Capture</strong> source, not a "Browser" source.
@@ -244,7 +244,7 @@ body { position: relative; background: #000; }
       <li>In Zoom or Teams, open your camera settings and choose
         <strong>OBS Virtual Camera</strong> instead of your real one.</li>
       <li>Turn off "blur my background" or any beauty filter in the call app. It
-        cannot tell your real background from her, and will blur them both.</li>
+        cannot tell your real background from the companion, and will blur them both.</li>
     </ol>
     <p>Two monitors makes this much easier: keep the call on one and this page full screen
       on the other, so you can still see and use the call. With one monitor, you will need
@@ -401,6 +401,12 @@ body { position: relative; background: #000; }
         { icon: '\u{1F9D8}', label: 'Meditation', starter: 'Can you guide me through a short meditation?' },
       ],
     },
+    alice: {
+      name: 'A.L.I.C.E.',
+      color: 'video/alice-ar-color.mp4',
+      matte: 'video/alice-ar-matte.mp4',
+      ambience: null,
+    },
     arch: {
       /* Dr. O direct: "arch is sitting in a chair, this is different from
          the others for that reason" -- a seated pose is wider and shorter
@@ -422,6 +428,11 @@ body { position: relative; background: #000; }
   document.getElementById('startBody').textContent = 'This uses your camera to put ' +
     companion.name + ' in front of it, right on your own screen. Nothing is recorded, ' +
     'uploaded, or sent anywhere. It stays on this device, live, the whole time.';
+  /* NAMED, NOT GENDERED, added 2026-09-08. This said "her" outright, which was simply wrong the
+     moment anyone opened it for Arch. companion.name already exists for every entry here, so
+     there was never a reason to guess a pronoun instead of just saying who. */
+  document.getElementById('callHelpSummary').textContent =
+    'Do you want ' + companion.name + ' on a video call too?';
 
   var startScreen = document.getElementById('startScreen');
   var startBtn = document.getElementById('startBtn');
@@ -936,6 +947,7 @@ body { position: relative; background: #000; }
     if (key === 'blue') return { friend: GC_TANSY, speaker: GC_TANSY.companions.blue };
     if (key === 'cressida') return { friend: GC_CRESSIDA, speaker: null };
     if (key === 'meera') return { friend: GC_MEERA, speaker: null };
+    if (key === 'alice') return { friend: GC_ALICE, speaker: null };
     if (key === 'nell') return { friend: GC_PUPPETS, speaker: GC_PUPPETS.companions.nell };
     if (key === 'arch') return { friend: GC_DEMO, speaker: null };
     return null;
