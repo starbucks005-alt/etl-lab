@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- maximum-scale=1, user-scalable=no, ported 2026-09-08 from the same fix on My Echo's copy of
+     this page: a phone's native pinch-zoom can fire alongside the custom pinch-to-resize gesture
+     on #overlayWrap, and once the whole page is zoomed, anything "fixed" (the chat bar below) is
+     fixed to the zoomed-out layout, not the actual screen, and drifts out of view. Nothing on this
+     page benefits from a visitor zooming the page itself, only from resizing the companion. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Good Company: in your room</title>
 <meta name="description" content="Bring a Good Company companion into your own room with your camera.">
 
@@ -68,7 +73,13 @@
      audio already carries what it needs (Blue, Poppy). -->
 
 
+<!-- gc-friend.js and gc-you.js, added 2026-09-08 for real chat: the AR compositor
+     never needed the full persona objects (GC_TANSY, GC_PUPPETS, ...) before,
+     only a name and two video URLs, but sending a message to gc-chat.js needs
+     the same friend/speaker/you shape room.html already sends. -->
+<script src="gc-friend.js"></script>
 <script src="gc-skin.js"></script>
+<script src="gc-you.js"></script>
 <link rel="stylesheet" href="gc-skin.css">
 
 <style>
@@ -116,13 +127,62 @@ body { position: relative; background: #000; }
 }
 
 #hint {
-  position: fixed; bottom: env(safe-area-inset-bottom, 1rem); left: 50%; transform: translateX(-50%);
+  /* Lifted clear of #arChat's input row, ported 2026-09-08 alongside the chat bar itself -- the
+     two used to sit on top of each other for the four seconds before this fades. */
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 1rem) + 4.2rem); left: 50%; transform: translateX(-50%);
   z-index: 15; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
   color: #F4ECE0; background: rgba(0,0,0,.5); padding: .5rem .9rem; border-radius: 999px;
   pointer-events: none; transition: opacity .4s;
 }
 
 #cameraError { max-width: 40ch; }
+
+/* TEXT CHAT, SPOKEN REPLIES, AND A MIC, ported 2026-09-08 from My Echo's copy of this same page
+   (Dr. O: "I do think Good Company should be almost a mirror of My Echo"). Same idea as there:
+   the camera and the conversation are visibly the same moment, a fixed bar at the bottom rather
+   than a separate page. Not offered for Cassius -- see the COMPANIONS registry, chat/voice both
+   need a real person to answer as, and the mirror in Larkmere Hall is not one. */
+#arChat {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 16;
+  display: none; flex-direction: column;
+  padding: 0 .6rem env(safe-area-inset-bottom, .6rem);
+}
+#arChatLog {
+  max-height: 34vh; overflow-y: auto; margin-bottom: .5rem;
+  display: flex; flex-direction: column; gap: .4rem;
+}
+#arChatLog .line {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: .85rem; line-height: 1.4; max-width: 82%;
+  padding: .5rem .75rem; border-radius: 14px;
+  background: rgba(0,0,0,.55); color: #F4ECE0; align-self: flex-start;
+}
+#arChatLog .line.mine {
+  background: rgba(201,162,75,.85); color: #1a1408; align-self: flex-end;
+}
+#arChatRow { display: flex; gap: .5rem; }
+#arChatInput {
+  flex: 1; font-family: Georgia, serif; font-size: .95rem;
+  padding: .7rem .9rem; border-radius: 999px; border: 1px solid rgba(255,255,255,.28);
+  background: rgba(0,0,0,.55); color: #F4ECE0;
+}
+#arChatInput::placeholder { color: #b7ab98; }
+#arChatInput:focus { outline: none; border-color: #c9a24b; }
+#arChatSend {
+  font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+  background: #c9a24b; color: #1a1408; border: none; border-radius: 999px;
+  padding: 0 1.1rem; cursor: pointer;
+}
+#arChatSend:hover { background: #e3bf4a; }
+#arChatSend:disabled { opacity: .6; cursor: default; }
+/* Hidden entirely rather than shown broken on a browser with no speech recognition (Firefox,
+   most of Safari today): a mic that does nothing when pressed is worse than none at all. */
+#arChatMic {
+  font-size: 1.1rem; line-height: 1; width: 2.6rem; flex: none;
+  background: rgba(0,0,0,.55); color: #F4ECE0; border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px; cursor: pointer;
+}
+#arChatMic.listening { background: #c9a24b; color: #1a1408; border-color: #c9a24b; }
 
 /* CALL-SOFTWARE INSTRUCTIONS, added 2026-09-07. Collapsed by default (a
    <details> element, no JS needed) since most visitors just want the
@@ -151,6 +211,10 @@ body { position: relative; background: #000; }
        not a hand-cut one and somebody should know which they are looking
        at. -->
   <p id="liveNote" style="display:none; font-size:.82rem; color:var(--ink-dim); max-width:34ch;">This one is cut out automatically, on your device, so the edges are rougher than a hand-made one.</p>
+  <!-- Said before the camera, not after, same reasoning as My Echo's own copy of this note.
+       Shown only when there is someone real to talk to (see chatWho in the script) -- Cassius has
+       no chat, so nothing here would be true for him. -->
+  <p id="arVoiceCostNote" style="display:none; font-size:.85rem; color:var(--ink-dim); max-width:34ch;">Replies are spoken out loud, in their real voice, which uses more of your credits than typing does.</p>
 
   <details id="callHelp">
     <summary>Want her on a video call too?</summary>
@@ -204,6 +268,15 @@ body { position: relative; background: #000; }
 </div>
 
 <div id="hint" style="display:none;">Drag to move &middot; pinch or scroll to resize</div>
+
+<div id="arChat">
+  <div id="arChatLog"></div>
+  <form id="arChatRow">
+    <button id="arChatMic" type="button" style="display:none;" aria-label="Speak your message">&#127908;</button>
+    <input id="arChatInput" type="text" autocomplete="off" placeholder="Say something to them">
+    <button id="arChatSend" type="submit">Send</button>
+  </form>
+</div>
 
 <script>
 (function () {
@@ -671,6 +744,7 @@ body { position: relative; background: #000; }
       topBar.style.display = '';
       hint.style.display = '';
       setTimeout(function () { hint.style.opacity = '0'; }, 4000);
+      if (chatWho) arChat.style.display = 'flex';
       playBoth();
       startAmbience();
       /* Centre it on screen the first time, sized to something reasonable
@@ -705,6 +779,154 @@ body { position: relative; background: #000; }
     ambientAudio.muted = next;
     updateMuteIcon();
   });
+
+  /* WHO ACTUALLY ANSWERS, ported 2026-09-08 from My Echo's chat, adapted to
+     Good Company's real shape: gc-chat.js wants a full friend object plus,
+     for a companion who borrows another's room (Poppy and Blue borrowing
+     Tansy's, Nell borrowing the Puppets'), a separate speaker object --
+     same distinction room.html's own ask() makes. Returns null for a
+     companion with no real persona to answer as (Cassius: see the
+     registry's own comment on why he is not one). */
+  function chatIdentity(key) {
+    if (key === 'tansy') return { friend: GC_TANSY, speaker: null };
+    if (key === 'poppy') return { friend: GC_TANSY, speaker: GC_TANSY.companions.poppy };
+    if (key === 'blue') return { friend: GC_TANSY, speaker: GC_TANSY.companions.blue };
+    if (key === 'cressida') return { friend: GC_CRESSIDA, speaker: null };
+    if (key === 'meera') return { friend: GC_MEERA, speaker: null };
+    if (key === 'nell') return { friend: GC_PUPPETS, speaker: GC_PUPPETS.companions.nell };
+    return null;
+  }
+  var chatWho = chatIdentity(askedFor || 'tansy');
+  var arChat = document.getElementById('arChat');
+  if (chatWho) document.getElementById('arVoiceCostNote').style.display = 'block';
+
+  if (chatWho) {
+    var arChatLog = document.getElementById('arChatLog');
+    var arChatRow = document.getElementById('arChatRow');
+    var arChatInput = document.getElementById('arChatInput');
+    var arChatSend = document.getElementById('arChatSend');
+    var arChatMic = document.getElementById('arChatMic');
+    var YOU = gcLoadYou();
+    var voiceIdFor = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
+
+    var chatHistory = [];
+    var chatBusy = false;
+
+    function addChatLine(text, mine) {
+      var line = document.createElement('div');
+      line.className = mine ? 'line mine' : 'line';
+      line.textContent = text;
+      arChatLog.appendChild(line);
+      arChatLog.scrollTop = arChatLog.scrollHeight;
+      chatHistory.push({ who: mine ? (YOU.name || 'You') : companion.name, text: text, mine: mine });
+    }
+
+    /* SPOKEN AUTOMATICALLY, same reasoning and the same real, separate cost
+       as My Echo's port: gc-voice.js counts a spoken reply against real
+       credits, same as it always has for room.html. Respects the mute
+       toggle -- muted means muted, not muted except for the one thing that
+       costs money. */
+    function speakReply(text) {
+      if (colorVideo.muted || !voiceIdFor) return;
+      fetch('/.netlify/functions/gc-voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          voice_id: voiceIdFor,
+          is_demo: true,
+          visitor_id: GC_visitorId(),
+          access_token: GC_accessToken(),
+          owner_key: GC_ownerKey(),
+          tester_key: GC_testerKey(),
+        }),
+      }).then(function (r) {
+        if (!r.ok) throw new Error('voice_failed');
+        return r.blob();
+      }).then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var audio = new Audio(url);
+        audio.addEventListener('ended', function () { URL.revokeObjectURL(url); });
+        audio.play().catch(function () {});
+      }).catch(function () { /* text reply already stands on its own */ });
+    }
+
+    arChatRow.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = arChatInput.value.trim();
+      if (!text || chatBusy) return;
+      chatBusy = true;
+      arChatSend.disabled = true;
+      addChatLine(text, true);
+      arChatInput.value = '';
+      fetch('/.netlify/functions/gc-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          friend: chatWho.friend,
+          speaker: chatWho.speaker,
+          you: { name: YOU.name, pronouns: YOU.pronouns },
+          messages: chatHistory,
+          message: text,
+          scene: null,
+          guest_cameo: null,
+          is_demo: true,
+          visitor_id: GC_visitorId(),
+          access_token: GC_accessToken(),
+          owner_key: GC_ownerKey(),
+          tester_key: GC_testerKey(),
+        }),
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        chatBusy = false;
+        arChatSend.disabled = false;
+        var reply = (res && res.reply) || "I'm not sure what to say to that.";
+        addChatLine(reply, false);
+        speakReply(reply);
+        arChatInput.focus();
+      }).catch(function () {
+        chatBusy = false;
+        arChatSend.disabled = false;
+        addChatLine('That did not send. Try again in a moment.', false);
+      });
+    });
+
+    /* SPEAK YOUR MESSAGE, same as My Echo's port: the browser's own speech
+       recognition, no audio leaves the device, no credit cost, hidden
+       entirely on a browser with none. */
+    var Recognizer = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (Recognizer) {
+      arChatMic.style.display = '';
+      var recognizer = new Recognizer();
+      recognizer.lang = 'en-US';
+      recognizer.interimResults = false;
+      recognizer.maxAlternatives = 1;
+      var listening = false;
+
+      recognizer.addEventListener('result', function (e) {
+        var said = e.results[0][0].transcript.trim();
+        if (said) {
+          arChatInput.value = said;
+          arChatRow.requestSubmit ? arChatRow.requestSubmit() : arChatSend.click();
+        }
+      });
+      recognizer.addEventListener('end', function () {
+        listening = false;
+        arChatMic.classList.remove('listening');
+      });
+      recognizer.addEventListener('error', function () {
+        listening = false;
+        arChatMic.classList.remove('listening');
+      });
+
+      arChatMic.addEventListener('click', function () {
+        if (listening) { recognizer.stop(); return; }
+        listening = true;
+        arChatMic.classList.add('listening');
+        try { recognizer.start(); }
+        catch (_) { listening = false; arChatMic.classList.remove('listening'); }
+      });
+    }
+  }
 
   /* DRAG TO MOVE, PINCH/SCROLL TO RESIZE. Plain pointer events, not a
      library -- one draggable box is not worth a dependency. */
