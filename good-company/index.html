@@ -653,6 +653,21 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .ride-directory span.to{color:#fff;}
 .ride-directory span.to b{color:var(--accent);}
 @media (max-width:900px){ .ride{display:none;} }
+
+/* ═══ GENRE FILTER ═══ Same pill shape as .floor-btn, deliberately: a filter is a smaller
+   version of the same "choose a room" action as the elevator panel. */
+.genre-filter{display:flex; gap:8px; flex-wrap:wrap; margin:0 0 1.8rem;}
+.genre-pill{
+  font-family:inherit; font-size:12px; font-weight:400;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); background:transparent;
+  border:1px solid var(--line); border-radius:999px;
+  padding:.5rem 1rem; cursor:pointer;
+  transition:color .3s ease, border-color .3s ease, background-color .3s ease;
+}
+.genre-pill:hover{color:var(--accent); border-color:var(--accent);}
+.genre-pill.on{color:var(--accent-ink); background:var(--accent); border-color:var(--accent);}
+.demo-card[data-off]{display:none;}
 </style>
 </head>
 
@@ -880,6 +895,32 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
     <p class="demos-note">Some come with family or friends of their own, other voices you'll
        meet along the way. The ones marked <span class="kid-badge" style="position:static">Kid
        friendly</span> are made to be simple and safe for a young child to talk to on their own.</p>
+
+    <!-- GENRE FILTER, added 2026-09-08 per Dr. O direct: 24 cards with no way to narrow them is
+         a wall, not a roster. Each card below now carries a data-genre; this bar toggles a
+         data-off attribute the same way the wall-pager already does on My Echo (see that file's
+         own note on why data-off is script-only and never written into markup by hand), so a
+         visitor reading with no JS still gets every card, and search engines see all 24 too.
+
+         A FIRST PASS, SAID PLAINLY. Five buckets, one genre per card, chosen from each card's own
+         label and ask-line here rather than each companion's full persona file: Mentors (Arch,
+         Aaron, Meera, Rin, Nina -- teaching or guiding you toward something), Storytellers (the
+         Grimms, Winston, Larkmere -- lore and anecdote is the point of talking to them), Fantasy
+         (Tansy, A.L.I.C.E., Julian, Viv, Cressida, Nora, the Nursery -- magic, undeath, AI,
+         time), Creatures (Reggie, Marion & the Littles, the Puppet Family -- not human, not
+         humanoid-magical either), Everyday (Sophia, Kioko, Marcus, Theo, Dario, Zoe -- a real
+         job, no genre hook). Some of these are a real judgment call (Nina teaches AND tells
+         stories; the Nursery could as easily be Creatures) -- correct the data-genre attribute
+         directly if one reads wrong, rather than the filter mechanism itself. -->
+    <div class="genre-filter" role="group" aria-label="Filter companions">
+      <button class="genre-pill on" type="button" data-genre-filter="all">All</button>
+      <button class="genre-pill" type="button" data-genre-filter="storytellers">Storytellers</button>
+      <button class="genre-pill" type="button" data-genre-filter="mentors">Mentors</button>
+      <button class="genre-pill" type="button" data-genre-filter="fantasy">Fantasy</button>
+      <button class="genre-pill" type="button" data-genre-filter="creatures">Creatures</button>
+      <button class="genre-pill" type="button" data-genre-filter="everyday">Everyday</button>
+    </div>
+
     <!-- EACH CARD HOLDS TWO SEPARATE INTERACTIVE THINGS: the picture (goes
          to the room) and a play button (hears their voice, right here, no
          click-through). A <button> nested inside an <a> is invalid HTML
@@ -905,7 +946,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          actually respond to, "the characters are becoming the product, the
          sell" -- humans first because the order stays as-is per her own
          call, but grouped on purpose now rather than interleaved. -->
-    <div class="demo-card">
+    <div class="demo-card" data-genre="mentors">
       <a href="room.html?who=arch">
         <div class="slot" data-label="photos/arch-onsite.png"><img src="photos/arch-onsite.png" alt=""></div>
       </a>
@@ -915,7 +956,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What are you working on right now?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="everyday">
       <a href="room.html?who=sofia">
         <div class="slot" data-label="photos/sofia.jpg"><img src="photos/sofia.jpg" alt=""></div>
       </a>
@@ -933,7 +974,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          together once one exists, not before. Nina's internal id stays
          "cora" (see her own note in gc-friend.js for why); the URL is
          plumbing nobody reads as a name. -->
-    <div class="demo-card">
+    <div class="demo-card" data-genre="mentors">
       <a href="room.html?who=cora">
         <div class="slot" data-label="photos/nina.jpg"><img src="photos/nina.jpg" alt=""></div>
       </a>
@@ -943,7 +984,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Did the mango tree finally fruit?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="everyday">
       <a href="room.html?who=kioko">
         <div class="slot" data-label="photos/kioko.jpg"><img src="photos/kioko.jpg" alt=""></div>
       </a>
@@ -957,7 +998,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          comment above the humans. Reggie is a dog himself ("a people
          whisperer, not a dog whisperer" is the joke), not a human with dogs
          -- he belongs in this row, not the one above. -->
-    <div class="demo-card">
+    <div class="demo-card" data-genre="creatures">
       <a href="room.html?who=reggie">
         <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt="">
           <span class="kid-badge">Kid friendly</span></div>
@@ -972,7 +1013,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          own clips generated too (audio/poppy-bio.mp3, audio/blue-bio.mp3)
          for whenever their own solo scenes get a place to surface a play
          button of their own. -->
-    <div class="demo-card">
+    <div class="demo-card" data-genre="fantasy">
       <a href="room.html?who=tansy">
         <div class="slot" data-label="photos/tansy-poppy-blue.jpg"><img src="photos/tansy-poppy-blue.jpg" alt=""></div>
       </a>
@@ -989,7 +1030,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          she is (see gc-friend.js's opensAboutAI) is not reflected in this
          label on purpose: the label matches every other card's plain-fact
          style, her own voice is what carries that, not homepage copy. -->
-    <div class="demo-card">
+    <div class="demo-card" data-genre="fantasy">
       <a href="room.html?who=alice">
         <div class="slot" data-label="photos/alice.jpg"><img src="photos/alice.jpg" alt=""></div>
       </a>
@@ -999,7 +1040,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Do you ever wonder what you actually are?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="fantasy">
       <a href="room.html?who=julian">
         <div class="slot" data-label="photos/julian.jpg"><img src="photos/julian.jpg" alt=""></div>
       </a>
@@ -1014,7 +1055,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          and give up the catalog idea" -- the catalog was meant for
          user-shared companions, not the house's own, and using it that way
          made a growing cast look hidden instead of showcased. -->
-    <div class="demo-card">
+    <div class="demo-card" data-genre="storytellers">
       <a href="room.html?who=winston">
         <div class="slot" data-label="photos/winston-portrait.jpg"><img src="photos/winston-portrait.jpg" alt=""></div>
       </a>
@@ -1024,7 +1065,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Does anyone tell a chimpanzee he's not actually in charge?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="fantasy">
       <a href="room.html?who=viv">
         <div class="slot" data-label="photos/viv-portrait.jpg"><img src="photos/viv-portrait.jpg" alt=""></div>
       </a>
@@ -1034,7 +1075,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Can you actually fly?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="creatures">
       <a href="room.html?who=marion">
         <div class="slot" data-label="photos/marion-portrait.png"><img src="photos/marion-portrait.png" alt="">
           <span class="kid-badge">Kid friendly</span></div>
@@ -1045,7 +1086,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What did you borrow today?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="mentors">
       <a href="room.html?who=aaron">
         <div class="slot" data-label="photos/aaron-portrait.jpg"><img src="photos/aaron-portrait.jpg" alt=""></div>
       </a>
@@ -1055,7 +1096,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What's the hardest part of your job?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="storytellers">
       <a href="room.html?who=grimms">
         <div class="slot" data-label="photos/grimm-portrait.jpg"><img src="photos/grimm-portrait.jpg" alt=""></div>
       </a>
@@ -1065,7 +1106,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Tell me a story you haven't finished collecting.&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="creatures">
       <a href="room.html?who=puppets">
         <div class="slot" data-label="photos/eli-happy.jpg"><img src="photos/eli-happy.jpg" alt="">
           <span class="kid-badge">Kid friendly</span></div>
@@ -1076,7 +1117,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What's it like being made of wood?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="everyday">
       <a href="room.html?who=marcus">
         <div class="slot" data-label="photos/marcus-portrait.jpg"><img src="photos/marcus-portrait.jpg" alt=""></div>
       </a>
@@ -1086,7 +1127,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What's the story you're chasing right now?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="everyday">
       <a href="room.html?who=theo">
         <div class="slot" data-label="photos/theo-portrait.jpg"><img src="photos/theo-portrait.jpg" alt=""></div>
       </a>
@@ -1096,7 +1137,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What should I actually change about my look?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="fantasy">
       <a href="room.html?who=cressida">
         <div class="slot" data-label="photos/cressida-portrait.jpg"><img src="photos/cressida-portrait.jpg" alt=""></div>
       </a>
@@ -1106,7 +1147,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;How long have you been haunting this house?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="mentors">
       <a href="room.html?who=meera">
         <div class="slot" data-label="photos/meera-portrait.jpg"><img src="photos/meera-portrait.jpg" alt=""></div>
       </a>
@@ -1116,7 +1157,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Can you walk me through a breathing exercise?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="everyday">
       <a href="room.html?who=dario">
         <div class="slot" data-label="photos/dario-portrait.jpg"><img src="photos/dario-portrait.jpg" alt=""></div>
       </a>
@@ -1126,7 +1167,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Where did you fly today?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="fantasy">
       <a href="room.html?who=nora">
         <div class="slot" data-label="photos/nora-portrait.jpg"><img src="photos/nora-portrait.jpg" alt=""></div>
       </a>
@@ -1136,7 +1177,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;Where did you go this time -- and when?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="everyday">
       <a href="room.html?who=zoe">
         <div class="slot" data-label="photos/zoe-portrait.jpg"><img src="photos/zoe-portrait.jpg" alt=""></div>
       </a>
@@ -1146,7 +1187,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What's it really like behind the filter?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="mentors">
       <a href="room.html?who=rin">
         <div class="slot" data-label="photos/rin-portrait.jpg"><img src="photos/rin-portrait.jpg" alt=""></div>
       </a>
@@ -1156,7 +1197,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;I got a weird email, can you tell me if it's real?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="fantasy">
       <a href="room.html?who=nursery">
         <div class="slot" data-label="photos/nursery-together.jpg"><img src="photos/nursery-together.jpg" alt="">
           <span class="kid-badge">Kid friendly</span></div>
@@ -1167,7 +1208,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <span class="demo-card-ask">&ldquo;What do you four actually do once the door shuts?&rdquo;</span>
     </div>
-    <div class="demo-card">
+    <div class="demo-card" data-genre="storytellers">
       <a href="room.html?who=larkmere">
         <div class="slot" data-label="photos/larkmere-portrait.jpg"><img src="photos/larkmere-portrait.jpg" alt=""></div>
       </a>
@@ -1792,6 +1833,21 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
 
   document.body.classList.add('js');
   go((location.hash || '').replace('#', '') || 'lobby', { keepScroll: true, noRide: true });
+
+  /* GENRE FILTER, added 2026-09-08. One active pill at a time; "All" clears data-off from
+     every card rather than being treated as a sixth genre nothing actually carries. */
+  var genreCards = Array.prototype.slice.call(document.querySelectorAll('.demo-card[data-genre]'));
+  var genrePills = Array.prototype.slice.call(document.querySelectorAll('.genre-pill[data-genre-filter]'));
+  genrePills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      var wanted = pill.getAttribute('data-genre-filter');
+      genrePills.forEach(function (p) { p.classList.toggle('on', p === pill); });
+      genreCards.forEach(function (card) {
+        if (wanted === 'all' || card.getAttribute('data-genre') === wanted) card.removeAttribute('data-off');
+        else card.setAttribute('data-off', '');
+      });
+    });
+  });
 })();
 </script>
 
