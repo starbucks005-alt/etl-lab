@@ -60,27 +60,68 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
 
 .back{ display:inline-block; margin-top:.5rem; color:var(--ink-dim); }
 .back:hover{ color:var(--ink); }
+
+/* THE ELEVATOR BAR, copied from index.html's own copy 2026-09-08 so this page's header matches
+   the rest of the building -- see this page's own note above the nav markup. Not moved into the
+   shared gc-skin.css in this pass to keep the fix small; if a third page needs it, that is the
+   sign to actually share it. */
+.elevator{
+  position:fixed; top:0; left:0; right:0; z-index:60;
+  background:var(--paper); border-bottom:1px solid var(--line);
+}
+.elevator .wrap{
+  height:61px; display:flex; align-items:center; justify-content:space-between; gap:24px;
+  max-width:1200px; margin:0 auto; padding:0 clamp(.9rem,2.2vw,1.75rem);
+}
+.elevator .mark{font-size:16px; letter-spacing:.14em; color:var(--ink); border:0;}
+.elevator .floors{display:flex; gap:6px; flex-wrap:wrap; margin:0; padding:0; list-style:none; align-items:center;}
+.floor-btn{
+  font-family:var(--sans, inherit); font-size:11px; font-weight:400;
+  letter-spacing:.24em; text-transform:uppercase;
+  color:var(--ink-dim); background:transparent;
+  border:1px solid transparent; border-radius:2px;
+  padding:.5rem .7rem; cursor:pointer;
+  transition:color .4s ease, border-color .4s ease;
+}
+.floor-btn:hover{color:var(--accent);}
+.floor-btn[aria-current="page"]{
+  color:var(--ink); border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--panel) inset;
+}
+@media (max-width:900px){
+  .elevator{position:static;}
+  .elevator .wrap{height:auto; flex-wrap:wrap; padding:10px clamp(.9rem,2.2vw,1.75rem);}
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <a class="mark" href="index.html">
-    <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244">
-    <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
-  </a>
-  <!-- ADDED 2026-08-27 per Dr. O direct, same nav index.html and build.html
-       carry -- see .topnav's own note in gc-skin.css. -->
-  <nav class="topnav">
-    <a href="index.html#demos">Companions</a>
-    <a href="index.html#pricing">Cost</a>
-    <a href="build.html">Build</a>
-    <a href="index.html#bring">Friends</a>
-    <a href="faq.html">Questions</a>
-  </nav>
-  <span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></span>
-</header>
+<!-- REPLACED THE OLD PLAIN HEADER 2026-09-08, Dr. O direct ("questions page has to be the same
+     palette as the others"): this page still had the header/topnav from before the lobby/
+     elevator/floor building existed, so it read as a different, older product next to the new
+     front door -- not a real palette bug (gc-skin.css and the shared gc-skin data-skin attribute
+     were always shared correctly), just an unmatched shell around them. Same .elevator markup as
+     index.html, as plain links rather than floor-switching buttons since this page has no floors
+     of its own -- clicking one just goes to index.html at that floor (the hash still opens the
+     right one there, same go() logic). -->
+<nav class="elevator" aria-label="Elevator">
+  <div class="wrap">
+    <a class="mark" href="index.html">
+      <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244" style="height:26px; width:auto;">
+      <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260" style="height:26px; width:auto;">
+    </a>
+    <ul class="floors">
+      <li><a class="floor-btn" href="index.html#lobby">Lobby</a></li>
+      <li><a class="floor-btn" href="index.html#demos">Companions</a></li>
+      <li><a class="floor-btn" href="index.html#build">Build</a></li>
+      <li><a class="floor-btn" href="index.html#ar">AR</a></li>
+      <li><a class="floor-btn" href="index.html#pricing">Owner</a></li>
+      <li><a class="floor-btn" href="faq.html" aria-current="page">Questions</a></li>
+      <li class="picker-li"><span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></span></li>
+    </ul>
+  </div>
+</nav>
 
 <div class="hero-band">
   <img src="photos/faq-hero.jpg" alt="Good Company Questions">
