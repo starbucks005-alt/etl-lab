@@ -362,6 +362,12 @@ figure{ margin:0; }
    the first column instead of sitting over the whole row. */
 .demos h2{ grid-column:1 / -1; margin-bottom:.4rem; }
 .demos-note{ grid-column:1 / -1; color:var(--ink-dim); margin:0 0 1rem; }
+/* THE WALL AND THE FILTER BOTH SPAN THE FULL GRID ROW, same reasoning as h2/.demos-note above --
+   without this each became a lone grid item auto-placed into its own column of the 4-column
+   grid built for the old card layout, sat side by side instead of stacked, and (since a grid
+   item stretches to its row's height by default) the filter's pills inherited the wall photo's
+   own height and stretched to match it. Caught live: pills rendered ~137px tall apiece. */
+.genre-filter, .wall-band{ grid-column:1 / -1; }
 @media (max-width:820px){ .demos{ grid-template-columns:repeat(2,1fr); } }
 .demo-card > a{ display:block; text-decoration:none; color:inherit; }
 .demo-card .slot{ aspect-ratio:3/4; margin-bottom:.6rem; transition:opacity .15s; }
@@ -667,7 +673,63 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 }
 .genre-pill:hover{color:var(--accent); border-color:var(--accent);}
 .genre-pill.on{color:var(--accent-ink); background:var(--accent); border-color:var(--accent);}
-.demo-card[data-off]{display:none;}
+/* ═══ THE WALL ═══ Six real frames on Dr. O's own photograph (photos/companions-band.jpg),
+   positioned by percentage the same way the AR floor's own #frameText is: measured off the
+   photograph's own pixels so it holds at any window width. See WALL_FRAMES in the script for
+   the actual numbers and how they were found. */
+.wall-frame{
+  position:absolute; overflow:hidden; border-radius:2px;
+  transition:opacity .2s ease; container-type:inline-size;
+}
+.wall-frame[hidden]{display:none;}
+/* THE SIX POSITIONS, measured off photos/companions-band.jpg (2752x1536) directly: sampled the
+   image's own brightness across a horizontal line through each row (a lit frame reads ~230-242,
+   the wall between frames ~150-180, the same hard step My Echo's own frames were found by), then
+   confirmed by drawing these exact boxes back over the photograph and looking at the result. */
+.wall-frame[data-slot="0"]{ left:20.3%; top:27.0%; width:17.6%; height:18.3%; }
+.wall-frame[data-slot="1"]{ left:40.7%; top:27.0%; width:17.6%; height:18.3%; }
+.wall-frame[data-slot="2"]{ left:61.0%; top:27.0%; width:17.6%; height:18.3%; }
+.wall-frame[data-slot="3"]{ left:20.3%; top:47.3%; width:17.6%; height:18.6%; }
+.wall-frame[data-slot="4"]{ left:40.7%; top:47.3%; width:17.6%; height:18.6%; }
+.wall-frame[data-slot="5"]{ left:61.0%; top:47.3%; width:17.6%; height:18.6%; }
+.wall-frame-link{display:block; position:relative; width:100%; height:100%;}
+.wall-frame-img{width:100%; height:100%; object-fit:cover; display:block; background:var(--panel);}
+.wall-frame .kid-badge{position:absolute; top:6px; left:6px; z-index:2;}
+.wall-frame-plate{
+  position:absolute; left:0; right:0; bottom:0; z-index:2;
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+  padding:5% 6%;
+  background:linear-gradient(0deg, rgba(0,0,0,.62), rgba(0,0,0,0));
+}
+.wall-frame-name{
+  color:#fff; font-size:clamp(.68rem, 6cqw, .92rem); letter-spacing:.02em;
+  text-decoration:none; border:0; line-height:1.25;
+}
+.wall-frame-name:hover{text-decoration:underline;}
+.wall-frame-play{
+  flex:0 0 auto; width:1.7rem; height:1.7rem; border-radius:999px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.55);
+  color:#fff; font-size:.78rem; cursor:pointer;
+}
+.wall-frame-play:empty{display:none;}
+.wall-frame-play.playing{background:var(--accent); border-color:var(--accent);}
+.wall-pager{
+  position:absolute; left:0; right:0; bottom:3%; z-index:3;
+  display:flex; align-items:center; justify-content:center; gap:14px;
+}
+.wall-pager .floor-btn{color:#41525f; background:rgba(255,255,255,.75); border-color:rgba(65,82,95,.3);}
+.wall-pager .floor-btn:hover{color:#14181c; border-color:rgba(65,82,95,.6);}
+.wall-pager .floor-btn[disabled]{opacity:.35; cursor:default;}
+.wall-page-now{
+  font-family:inherit; font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+  color:#41525f; background:rgba(255,255,255,.6); padding:.3rem .7rem; border-radius:999px;
+}
+/* NO SPECIAL MOBILE LAYOUT. Every number above is a percentage of .floor-band, which is
+   itself 100vw -- the frames already scale down with the photograph at any width, the same
+   way the AR floor's #frameText and the floor-plate's own positioning do. A stacked-list
+   fallback was tried and looked broken at this pane's own width; percentages already solved
+   it without one. */
 </style>
 </head>
 
@@ -921,303 +983,93 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <button class="genre-pill" type="button" data-genre-filter="everyday">Everyday</button>
     </div>
 
-    <!-- EACH CARD HOLDS TWO SEPARATE INTERACTIVE THINGS: the picture (goes
-         to the room) and a play button (hears their voice, right here, no
-         click-through). A <button> nested inside an <a> is invalid HTML
-         even though browsers tolerate it, so the card is a plain <div>
-         with the link and the button as siblings rather than one nested
-         in the other.
+    <!-- THE WALL, REBUILT 2026-09-08 to match Dr. O's own template photo (photos/companions-band.jpg),
+         same mechanism as My Echo's demo floor: six real, measured frames on the actual wall in the
+         photograph, not a card grid sitting under a decorative image of one. Frame positions measured
+         directly off the photograph's own pixels (brightness steps hard at each lit border), the same
+         way My Echo's own frames were measured -- see WALL_FRAMES below in the script.
 
-         PLAY BUTTON MOVED NEXT TO THE NAME, 2026-08-18: Dr. O, after it
-         shipped sitting in the corner of the photograph -- "the demo
-         voices are not obvious." A small icon over a busy photo reads as
-         decoration, not a control; next to the text it is legible as a
-         second, distinct action the way a name and a button never get
-         confused for each other.
+         SIX FIXED FRAMES, ANY NUMBER OF COMPANIONS. The wall in the photo has exactly six lit
+         rectangles; that is a fact about the photograph, not a setting. The genre filter and the
+         pager both work by changing which six (or fewer) of the 24 fill those six frames, never by
+         asking the photograph to have a different number of them. Dr. O direct, confirming exactly
+         this before it was built: "if the filter is creature and there are six, we will see this
+         page with 6 creatures" and "if there are 7 we will see this page and the next page with 1
+         and 5 empty" -- an unused frame on a page hides its overlay and shows the empty lit frame
+         underneath, the same as an empty display case, never a placeholder graphic. -->
+    <div class="floor-band wall-band" id="companionsWall">
+      <img class="floor-band-room" src="photos/companions-band.jpg" alt="The companions wall, six lit frames.">
+      <div class="wall-frame" data-slot="0" hidden>
+        <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
+        <span class="kid-badge" hidden>Kid friendly</span>
+        <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
+        <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
+      </div>
+      <div class="wall-frame" data-slot="1" hidden>
+        <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
+        <span class="kid-badge" hidden>Kid friendly</span>
+        <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
+        <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
+      </div>
+      <div class="wall-frame" data-slot="2" hidden>
+        <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
+        <span class="kid-badge" hidden>Kid friendly</span>
+        <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
+        <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
+      </div>
+      <div class="wall-frame" data-slot="3" hidden>
+        <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
+        <span class="kid-badge" hidden>Kid friendly</span>
+        <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
+        <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
+      </div>
+      <div class="wall-frame" data-slot="4" hidden>
+        <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
+        <span class="kid-badge" hidden>Kid friendly</span>
+        <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
+        <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
+      </div>
+      <div class="wall-frame" data-slot="5" hidden>
+        <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
+        <span class="kid-badge" hidden>Kid friendly</span>
+        <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
+        <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
+      </div>
+      <div class="wall-pager">
+        <button class="floor-btn" id="wallPrev" type="button" aria-label="Previous page">&larr;</button>
+        <span class="wall-page-now" id="wallPageNow"></span>
+        <button class="floor-btn" id="wallNext" type="button" aria-label="Next page">&rarr;</button>
+      </div>
+    </div>
 
-         THE CLIPS ARE RECORDED, NOT LIVE. Cached mp3s (audio/*-bio.mp3),
-         generated once with each demo's real ElevenLabs voice reading a
-         short line in their own voice. Free to play any number of times:
-         no function call, no per-play cost, same "recorded once, replayed
-         forever" rule as everything else cached on this campus. -->
-    <!-- THE HUMANS, ROW ONE. Grid is exactly 4 columns (see .demos below),
-         so four cards here is a real, deliberate row, not an accident of
-         wrapping. Dr. O, 2026-08-26: the fairies and dogs are what people
-         actually respond to, "the characters are becoming the product, the
-         sell" -- humans first because the order stays as-is per her own
-         call, but grouped on purpose now rather than interleaved. -->
-    <div class="demo-card" data-genre="mentors">
-      <a href="room.html?who=arch">
-        <div class="slot" data-label="photos/arch-onsite.png"><img src="photos/arch-onsite.png" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=arch">General contractor Arch</a>
-        <button class="demo-card-play" type="button" data-audio="audio/arch-bio.mp3" aria-label="Hear Arch">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What are you working on right now?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="everyday">
-      <a href="room.html?who=sofia">
-        <div class="slot" data-label="photos/sofia.jpg"><img src="photos/sofia.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=sofia">Vet nurse Sophia</a>
-        <button class="demo-card-play" type="button" data-audio="audio/sofia-bio.mp3" aria-label="Hear Sophia">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What was the strangest case you saw this week?&rdquo;</span>
-    </div>
-    <!-- NINA AND KIOKO, added 2026-08-26. Real portraits now exist for both
-         (photos/nina.jpg, photos/kioko.jpg) so they belong in this grid the
-         same as the other two. NO PLAY BUTTON on either card yet, on
-         purpose: both now have a real voiceId (see gc-friend.js) but
-         neither has a recorded bio clip yet -- add the mp3 and the button
-         together once one exists, not before. Nina's internal id stays
-         "cora" (see her own note in gc-friend.js for why); the URL is
-         plumbing nobody reads as a name. -->
-    <div class="demo-card" data-genre="mentors">
-      <a href="room.html?who=cora">
-        <div class="slot" data-label="photos/nina.jpg"><img src="photos/nina.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=cora">Retired teacher Nina</a>
-        <button class="demo-card-play" type="button" data-audio="audio/nina-bio.mp3" aria-label="Hear Nina">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Did the mango tree finally fruit?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="everyday">
-      <a href="room.html?who=kioko">
-        <div class="slot" data-label="photos/kioko.jpg"><img src="photos/kioko.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=kioko">Paramedic Kioko</a>
-        <button class="demo-card-play" type="button" data-audio="audio/kioko-bio.mp3" aria-label="Hear Kioko">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;How was your shift last night?&rdquo;</span>
-    </div>
-    <!-- THE MYTHICAL/ANIMAL ONES, ROW TWO, on purpose, same reasoning as the
-         comment above the humans. Reggie is a dog himself ("a people
-         whisperer, not a dog whisperer" is the joke), not a human with dogs
-         -- he belongs in this row, not the one above. -->
-    <div class="demo-card" data-genre="creatures">
-      <a href="room.html?who=reggie">
-        <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt="">
-          <span class="kid-badge">Kid friendly</span></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=reggie">Reggie, with friends</a>
-        <button class="demo-card-play" type="button" data-audio="audio/reggie-bio.mp3" aria-label="Hear Reggie">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Find anything good in the trash today?&rdquo;</span>
-    </div>
-    <!-- The play button hears Tansy specifically; Poppy and Blue got their
-         own clips generated too (audio/poppy-bio.mp3, audio/blue-bio.mp3)
-         for whenever their own solo scenes get a place to surface a play
-         button of their own. -->
-    <div class="demo-card" data-genre="fantasy">
-      <a href="room.html?who=tansy">
-        <div class="slot" data-label="photos/tansy-poppy-blue.jpg"><img src="photos/tansy-poppy-blue.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=tansy">Tansy, of the Radiant Court</a>
-        <button class="demo-card-play" type="button" data-audio="audio/tansy-bio.mp3" aria-label="Hear Tansy">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Can you actually do magic?&rdquo;</span>
-    </div>
-    <!-- A.L.I.C.E. AND JULIAN, added 2026-08-26, completing "4 humans, 4
-         creatures" per Dr. O. Real portraits, voiceIds, and now real bio
-         clips (audio/alice-bio.mp3, audio/julian-bio.mp3) for both, same
-         shape as every other card. A.L.I.C.E.'s own openness about what
-         she is (see gc-friend.js's opensAboutAI) is not reflected in this
-         label on purpose: the label matches every other card's plain-fact
-         style, her own voice is what carries that, not homepage copy. -->
-    <div class="demo-card" data-genre="fantasy">
-      <a href="room.html?who=alice">
-        <div class="slot" data-label="photos/alice.jpg"><img src="photos/alice.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=alice">A.L.I.C.E.</a>
-        <button class="demo-card-play" type="button" data-audio="audio/alice-bio.mp3" aria-label="Hear A.L.I.C.E.">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Do you ever wonder what you actually are?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="fantasy">
-      <a href="room.html?who=julian">
-        <div class="slot" data-label="photos/julian.jpg"><img src="photos/julian.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=julian">Julian, since 1741</a>
-        <button class="demo-card-play" type="button" data-audio="audio/julian-bio.mp3" aria-label="Hear Julian">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What do vampire movies always get wrong?&rdquo;</span>
-    </div>
-    <!-- THE REST OF THE CAST, added 2026-08-30. Dr. O direct: "lets move all
-         of the companions to the main page for everyone to see and choose,
-         and give up the catalog idea" -- the catalog was meant for
-         user-shared companions, not the house's own, and using it that way
-         made a growing cast look hidden instead of showcased. -->
-    <div class="demo-card" data-genre="storytellers">
-      <a href="room.html?who=winston">
-        <div class="slot" data-label="photos/winston-portrait.jpg"><img src="photos/winston-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=winston">Winston, lord of the manor</a>
-        <button class="demo-card-play" type="button" data-audio="audio/winston-bio.mp3" aria-label="Hear Winston">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Does anyone tell a chimpanzee he's not actually in charge?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="fantasy">
-      <a href="room.html?who=viv">
-        <div class="slot" data-label="photos/viv-portrait.jpg"><img src="photos/viv-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=viv">Viv, after dark</a>
-        <button class="demo-card-play" type="button" data-audio="audio/viv-bio.mp3" aria-label="Hear Viv">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Can you actually fly?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="creatures">
-      <a href="room.html?who=marion">
-        <div class="slot" data-label="photos/marion-portrait.png"><img src="photos/marion-portrait.png" alt="">
-          <span class="kid-badge">Kid friendly</span></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=marion">Marion &amp; the Littles</a>
-        <button class="demo-card-play" type="button" data-audio="audio/marion-bio.mp3" aria-label="Hear Marion">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What did you borrow today?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="mentors">
-      <a href="room.html?who=aaron">
-        <div class="slot" data-label="photos/aaron-portrait.jpg"><img src="photos/aaron-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=aaron">Psychologist Aaron</a>
-        <button class="demo-card-play" type="button" data-audio="audio/aaron-bio.mp3" aria-label="Hear Aaron">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What's the hardest part of your job?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="storytellers">
-      <a href="room.html?who=grimms">
-        <div class="slot" data-label="photos/grimm-portrait.jpg"><img src="photos/grimm-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=grimms">Jacob &amp; Wilhelm Grimm</a>
-        <button class="demo-card-play" type="button" data-audio="audio/grimms-bio.mp3" aria-label="Hear Jacob &amp; Wilhelm">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Tell me a story you haven't finished collecting.&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="creatures">
-      <a href="room.html?who=puppets">
-        <div class="slot" data-label="photos/eli-happy.jpg"><img src="photos/eli-happy.jpg" alt="">
-          <span class="kid-badge">Kid friendly</span></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=puppets">The Puppet Family</a>
-        <button class="demo-card-play" type="button" data-audio="audio/puppets-bio.mp3" aria-label="Hear Eli &amp; Nell">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What's it like being made of wood?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="everyday">
-      <a href="room.html?who=marcus">
-        <div class="slot" data-label="photos/marcus-portrait.jpg"><img src="photos/marcus-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=marcus">Marcus Reyes, on deadline</a>
-        <button class="demo-card-play" type="button" data-audio="audio/marcus-bio.mp3" aria-label="Hear Marcus">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What's the story you're chasing right now?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="everyday">
-      <a href="room.html?who=theo">
-        <div class="slot" data-label="photos/theo-portrait.jpg"><img src="photos/theo-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=theo">Stylist Theo</a>
-        <button class="demo-card-play" type="button" data-audio="audio/theo-bio.mp3" aria-label="Hear Theo">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What should I actually change about my look?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="fantasy">
-      <a href="room.html?who=cressida">
-        <div class="slot" data-label="photos/cressida-portrait.jpg"><img src="photos/cressida-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=cressida">Lady Cressida, a ghost</a>
-        <button class="demo-card-play" type="button" data-audio="audio/cressida-bio.mp3" aria-label="Hear Cressida">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;How long have you been haunting this house?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="mentors">
-      <a href="room.html?who=meera">
-        <div class="slot" data-label="photos/meera-portrait.jpg"><img src="photos/meera-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=meera">Yoga teacher Meera</a>
-        <button class="demo-card-play" type="button" data-audio="audio/meera-bio.mp3" aria-label="Hear Meera">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Can you walk me through a breathing exercise?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="everyday">
-      <a href="room.html?who=dario">
-        <div class="slot" data-label="photos/dario-portrait.jpg"><img src="photos/dario-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=dario">Pilot Dario</a>
-        <button class="demo-card-play" type="button" data-audio="audio/dario-bio.mp3" aria-label="Hear Dario">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Where did you fly today?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="fantasy">
-      <a href="room.html?who=nora">
-        <div class="slot" data-label="photos/nora-portrait.jpg"><img src="photos/nora-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=nora">Nora, unstuck in time</a>
-        <button class="demo-card-play" type="button" data-audio="audio/nora-bio.mp3" aria-label="Hear Nora">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Where did you go this time -- and when?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="everyday">
-      <a href="room.html?who=zoe">
-        <div class="slot" data-label="photos/zoe-portrait.jpg"><img src="photos/zoe-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=zoe">Influencer Zoe</a>
-        <button class="demo-card-play" type="button" data-audio="audio/zoe-bio.mp3" aria-label="Hear Zoe">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What's it really like behind the filter?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="mentors">
-      <a href="room.html?who=rin">
-        <div class="slot" data-label="photos/rin-portrait.jpg"><img src="photos/rin-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=rin">White hat Rin</a>
-        <button class="demo-card-play" type="button" data-audio="audio/rin-bio.mp3" aria-label="Hear Rin">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;I got a weird email, can you tell me if it's real?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="fantasy">
-      <a href="room.html?who=nursery">
-        <div class="slot" data-label="photos/nursery-together.jpg"><img src="photos/nursery-together.jpg" alt="">
-          <span class="kid-badge">Kid friendly</span></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=nursery">The Nursery</a>
-        <button class="demo-card-play" type="button" data-audio="audio/nursery-bio.mp3" aria-label="Hear the Nursery">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;What do you four actually do once the door shuts?&rdquo;</span>
-    </div>
-    <div class="demo-card" data-genre="storytellers">
-      <a href="room.html?who=larkmere">
-        <div class="slot" data-label="photos/larkmere-portrait.jpg"><img src="photos/larkmere-portrait.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=larkmere">Tobias &amp; Briar, unsorted</a>
-        <button class="demo-card-play" type="button" data-audio="audio/larkmere-bio.mp3" aria-label="Hear Tobias &amp; Briar">&#128264;</button>
-      </div>
-      <span class="demo-card-ask">&ldquo;Which house would the mirror choose for you?&rdquo;</span>
-    </div>
+    <!-- Kept, empty, for anyone with a no-JS crawler or reader: every companion is still a real
+         link on the page, just not painted into the wall's own six frames. -->
+    <ul class="wall-fallback visually-hidden" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">
+      <li><a href="room.html?who=arch">General contractor Arch</a></li>
+      <li><a href="room.html?who=sofia">Vet nurse Sophia</a></li>
+      <li><a href="room.html?who=cora">Retired teacher Nina</a></li>
+      <li><a href="room.html?who=kioko">Paramedic Kioko</a></li>
+      <li><a href="room.html?who=reggie">Reggie, with friends</a></li>
+      <li><a href="room.html?who=tansy">Tansy, of the Radiant Court</a></li>
+      <li><a href="room.html?who=alice">A.L.I.C.E.</a></li>
+      <li><a href="room.html?who=julian">Julian, since 1741</a></li>
+      <li><a href="room.html?who=winston">Winston, lord of the manor</a></li>
+      <li><a href="room.html?who=viv">Viv, after dark</a></li>
+      <li><a href="room.html?who=marion">Marion &amp; the Littles</a></li>
+      <li><a href="room.html?who=aaron">Psychologist Aaron</a></li>
+      <li><a href="room.html?who=grimms">Jacob &amp; Wilhelm Grimm</a></li>
+      <li><a href="room.html?who=puppets">The Puppet Family</a></li>
+      <li><a href="room.html?who=marcus">Marcus Reyes, on deadline</a></li>
+      <li><a href="room.html?who=theo">Stylist Theo</a></li>
+      <li><a href="room.html?who=cressida">Lady Cressida, a ghost</a></li>
+      <li><a href="room.html?who=meera">Yoga teacher Meera</a></li>
+      <li><a href="room.html?who=dario">Pilot Dario</a></li>
+      <li><a href="room.html?who=nora">Nora, unstuck in time</a></li>
+      <li><a href="room.html?who=zoe">Influencer Zoe</a></li>
+      <li><a href="room.html?who=rin">White hat Rin</a></li>
+      <li><a href="room.html?who=nursery">The Nursery</a></li>
+      <li><a href="room.html?who=larkmere">Tobias &amp; Briar, unsorted</a></li>
+    </ul>
   </section>
 
 </section>
@@ -1679,46 +1531,9 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
   });
 })();
 
-/* FAVORITE STARS, added 2026-08-30. One flag in localStorage per visitor
-   (gc_favorited_ids), so a reload shows a returning visitor their own
-   stars back and a second click on an already-starred card un-stars it
-   instead of double-counting. The server side (gc-favorite.js) trusts
-   whichever action this sends; see its own file header for why that is
-   fine here. */
-(function () {
-  var KEY = 'gc_favorited_ids';
-  var mine = [];
-  try { mine = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch (e) {} }
-
-  Array.prototype.forEach.call(document.querySelectorAll('.demo-card'), function (card) {
-    var link = card.querySelector('a[href*="who="]');
-    var slot = card.querySelector('.slot');
-    if (!link || !slot) return;
-    var m = /who=([a-zA-Z0-9_-]+)/.exec(link.getAttribute('href') || '');
-    var id = m && m[1];
-    if (!id) return;
-
-    var star = document.createElement('button');
-    star.type = 'button';
-    star.className = 'fav-star' + (mine.indexOf(id) > -1 ? ' on' : '');
-    star.innerHTML = '&#9733;';
-    star.setAttribute('aria-label', 'Favorite this companion');
-    star.addEventListener('click', function (e) {
-      e.preventDefault(); e.stopPropagation();
-      var was = mine.indexOf(id) > -1;
-      if (was) mine.splice(mine.indexOf(id), 1); else mine.push(id);
-      save();
-      star.classList.toggle('on', !was);
-      fetch('/.netlify/functions/gc-favorite', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companion_id: id, action: was ? 'remove' : 'add' })
-      }).catch(function () {});
-    });
-    slot.appendChild(star);
-  });
-})();
-
+/* FAVORITE STARS: moved into the wall's own render loop, 2026-09-08, since the wall's frames
+   are repainted on every page turn and filter change rather than existing once as static
+   .demo-card elements. See the WALL/renderWall script further down for the current version. */
 </script>
 
 <!-- ═══ THE RIDE ═══ Two photographs of the elevator, shut and open, cross-dissolved over the
@@ -1834,19 +1649,126 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
   document.body.classList.add('js');
   go((location.hash || '').replace('#', '') || 'lobby', { keepScroll: true, noRide: true });
 
-  /* GENRE FILTER, added 2026-09-08. One active pill at a time; "All" clears data-off from
-     every card rather than being treated as a sixth genre nothing actually carries. */
-  var genreCards = Array.prototype.slice.call(document.querySelectorAll('.demo-card[data-genre]'));
+  /* THE WALL'S DATA, added 2026-09-08 alongside the genre filter and rebuilt again the same day
+     to actually paint into the six measured frames rather than a card grid. One row per
+     companion carrying everything a frame needs: portrait, room link, audio (some have none
+     yet), the genre(s) that filter matches against, and whether the kid-friendly badge shows.
+     Order matches the original grid's own order, unchanged, per Dr. O's standing call on cast
+     order. */
+  var WALL = [
+    { who: 'arch', photo: 'photos/arch-onsite.png', label: 'General contractor Arch', audio: 'audio/arch-bio.mp3', genre: ['mentors'] },
+    { who: 'sofia', photo: 'photos/sofia.jpg', label: 'Vet nurse Sophia', audio: 'audio/sofia-bio.mp3', genre: ['everyday'] },
+    { who: 'cora', photo: 'photos/nina.jpg', label: 'Retired teacher Nina', audio: 'audio/nina-bio.mp3', genre: ['mentors', 'storytellers'] },
+    { who: 'kioko', photo: 'photos/kioko.jpg', label: 'Paramedic Kioko', audio: 'audio/kioko-bio.mp3', genre: ['everyday'] },
+    { who: 'reggie', photo: 'photos/reggie-explorers.jpg', label: 'Reggie, with friends', audio: 'audio/reggie-bio.mp3', genre: ['creatures'], kid: true },
+    { who: 'tansy', photo: 'photos/tansy-poppy-blue.jpg', label: 'Tansy, of the Radiant Court', audio: 'audio/tansy-bio.mp3', genre: ['fantasy'] },
+    { who: 'alice', photo: 'photos/alice.jpg', label: 'A.L.I.C.E.', audio: 'audio/alice-bio.mp3', genre: ['fantasy', 'mentors'] },
+    { who: 'julian', photo: 'photos/julian.jpg', label: 'Julian, since 1741', audio: 'audio/julian-bio.mp3', genre: ['fantasy'] },
+    { who: 'winston', photo: 'photos/winston-portrait.jpg', label: 'Winston, lord of the manor', audio: 'audio/winston-bio.mp3', genre: ['storytellers', 'everyday'] },
+    { who: 'viv', photo: 'photos/viv-portrait.jpg', label: 'Viv, after dark', audio: 'audio/viv-bio.mp3', genre: ['fantasy'] },
+    { who: 'marion', photo: 'photos/marion-portrait.png', label: 'Marion &amp; the Littles', audio: 'audio/marion-bio.mp3', genre: ['creatures', 'fantasy'], kid: true },
+    { who: 'aaron', photo: 'photos/aaron-portrait.jpg', label: 'Psychologist Aaron', audio: 'audio/aaron-bio.mp3', genre: ['mentors'] },
+    { who: 'grimms', photo: 'photos/grimm-portrait.jpg', label: 'Jacob &amp; Wilhelm Grimm', audio: 'audio/grimms-bio.mp3', genre: ['storytellers'] },
+    { who: 'puppets', photo: 'photos/eli-happy.jpg', label: 'The Puppet Family', audio: 'audio/puppets-bio.mp3', genre: ['creatures', 'fantasy'], kid: true },
+    { who: 'marcus', photo: 'photos/marcus-portrait.jpg', label: 'Marcus Reyes, on deadline', audio: 'audio/marcus-bio.mp3', genre: ['everyday'] },
+    { who: 'theo', photo: 'photos/theo-portrait.jpg', label: 'Stylist Theo', audio: 'audio/theo-bio.mp3', genre: ['everyday'] },
+    { who: 'cressida', photo: 'photos/cressida-portrait.jpg', label: 'Lady Cressida, a ghost', audio: 'audio/cressida-bio.mp3', genre: ['fantasy'] },
+    { who: 'meera', photo: 'photos/meera-portrait.jpg', label: 'Yoga teacher Meera', audio: 'audio/meera-bio.mp3', genre: ['mentors'] },
+    { who: 'dario', photo: 'photos/dario-portrait.jpg', label: 'Pilot Dario', audio: 'audio/dario-bio.mp3', genre: ['everyday'] },
+    { who: 'nora', photo: 'photos/nora-portrait.jpg', label: 'Nora, unstuck in time', audio: 'audio/nora-bio.mp3', genre: ['fantasy'] },
+    { who: 'zoe', photo: 'photos/zoe-portrait.jpg', label: 'Influencer Zoe', audio: 'audio/zoe-bio.mp3', genre: ['everyday'] },
+    { who: 'rin', photo: 'photos/rin-portrait.jpg', label: 'White hat Rin', audio: 'audio/rin-bio.mp3', genre: ['mentors', 'everyday'] },
+    { who: 'nursery', photo: 'photos/nursery-together.jpg', label: 'The Nursery', audio: 'audio/nursery-bio.mp3', genre: ['fantasy', 'creatures'], kid: true },
+    { who: 'larkmere', photo: 'photos/larkmere-portrait.jpg', label: 'Tobias &amp; Briar, unsorted', audio: 'audio/larkmere-bio.mp3', genre: ['storytellers', 'fantasy'] },
+  ];
+
+  var FAV_KEY = 'gc_favorited_ids';
+  var favMine = [];
+  try { favMine = JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch (e) {}
+  function favSave() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favMine)); } catch (e) {} }
+
+  var wallFrames = Array.prototype.slice.call(document.querySelectorAll('.wall-frame'));
+  var wallPrev = document.getElementById('wallPrev');
+  var wallNext = document.getElementById('wallNext');
+  var wallPageNow = document.getElementById('wallPageNow');
+  var wallFiltered = WALL.slice();
+  var wallPage = 0;
+
+  function renderWall() {
+    var start = wallPage * 6;
+    var pageItems = wallFiltered.slice(start, start + 6);
+    wallFrames.forEach(function (frame, i) {
+      var item = pageItems[i];
+      if (!item) { frame.hidden = true; return; }
+      frame.hidden = false;
+      var img = frame.querySelector('.wall-frame-img');
+      img.src = item.photo;
+      img.alt = item.label.replace(/&amp;/g, '&');
+      var link = frame.querySelector('.wall-frame-link');
+      link.href = 'room.html?who=' + item.who;
+      var name = frame.querySelector('.wall-frame-name');
+      name.href = 'room.html?who=' + item.who;
+      name.innerHTML = item.label;
+      var play = frame.querySelector('.wall-frame-play');
+      if (item.audio) {
+        play.innerHTML = '&#128264;';
+        play.setAttribute('data-audio', item.audio);
+        play.setAttribute('aria-label', 'Hear ' + item.label.replace(/&amp;/g, '&'));
+      } else {
+        play.innerHTML = '';
+        play.removeAttribute('data-audio');
+      }
+      frame.querySelector('.kid-badge').hidden = !item.kid;
+      var star = frame.querySelector('.fav-star');
+      star.setAttribute('data-fav-who', item.who);
+      star.classList.toggle('on', favMine.indexOf(item.who) > -1);
+    });
+    var totalPages = Math.max(1, Math.ceil(wallFiltered.length / 6));
+    wallPageNow.textContent = 'Page ' + (wallPage + 1) + ' of ' + totalPages;
+    wallPrev.disabled = wallPage === 0;
+    wallNext.disabled = wallPage >= totalPages - 1;
+  }
+  wallPrev.addEventListener('click', function () { if (wallPage > 0) { wallPage--; renderWall(); } });
+  wallNext.addEventListener('click', function () {
+    var totalPages = Math.ceil(wallFiltered.length / 6);
+    if (wallPage < totalPages - 1) { wallPage++; renderWall(); }
+  });
+  renderWall();
+
+  /* GENRE FILTER, added 2026-09-08, rebuilt the same day to page the WALL instead of toggling
+     card visibility: Dr. O direct, confirming the shape before it was built -- "if the filter
+     is creature and there are six, we will see this page with 6 creatures" and "if there are 7
+     we will see this page and the next page with 1 and 5 empty." One active pill at a time. */
   var genrePills = Array.prototype.slice.call(document.querySelectorAll('.genre-pill[data-genre-filter]'));
   genrePills.forEach(function (pill) {
     pill.addEventListener('click', function () {
       var wanted = pill.getAttribute('data-genre-filter');
       genrePills.forEach(function (p) { p.classList.toggle('on', p === pill); });
-      genreCards.forEach(function (card) {
-        if (wanted === 'all' || card.getAttribute('data-genre') === wanted) card.removeAttribute('data-off');
-        else card.setAttribute('data-off', '');
+      wallFiltered = wanted === 'all' ? WALL.slice() : WALL.filter(function (item) {
+        return item.genre.indexOf(wanted) > -1;
       });
+      wallPage = 0;
+      renderWall();
     });
+  });
+
+  /* FAVORITE STARS, ported into the wall's own render loop 2026-09-08 -- was a one-time script
+     over static .demo-card elements, which no longer exist now that frames are repainted on
+     every page turn and filter change. Delegated to the wall itself so a star survives a
+     re-render: click anywhere with a data-fav-who and it toggles that id, then repaints. */
+  document.querySelector('.wall-band').addEventListener('click', function (e) {
+    var star = e.target.closest && e.target.closest('.fav-star');
+    if (!star) return;
+    e.preventDefault(); e.stopPropagation();
+    var id = star.getAttribute('data-fav-who');
+    var was = favMine.indexOf(id) > -1;
+    if (was) favMine.splice(favMine.indexOf(id), 1); else favMine.push(id);
+    favSave();
+    fetch('/.netlify/functions/gc-favorite', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companion_id: id, action: was ? 'remove' : 'add' })
+    }).catch(function () {});
+    star.classList.toggle('on', !was);
   });
 })();
 </script>
