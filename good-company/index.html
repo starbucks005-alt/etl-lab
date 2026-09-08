@@ -647,8 +647,13 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .ride-frame img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
 .ride-frame img.open{opacity:0; transition:opacity 1.2s ease;}
 .ride.opening .ride-frame img.open{opacity:1;}
+/* MEASURED OFF photos/elevator-open.jpg (2752x1536) DIRECTLY, same technique as the wall's own
+   frames: read the lit sign panel's edges off the photograph's own pixels, then confirmed by
+   drawing this exact box back over the image. The numbers borrowed from My Echo's own copy of
+   this element (44%/40%/16%) were tuned for a different photograph and landed off the sign here
+   -- Dr. O caught it live ("the elevator directory is off"). */
 .ride-directory{
-  position:absolute; left:44%; top:40%; width:16%;
+  position:absolute; left:42.5%; top:34.2%; width:15.1%; height:36%;
   display:grid; align-content:center; gap:.5em;
   font-family:var(--sans, inherit); font-size:13px;
   letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.55);
@@ -893,12 +898,15 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 <!-- ══════════════════════════════════════════════════════════════════════════
      SECOND FLOOR. The companions grid, unchanged, just given its own room and
      a photograph of the wall it used to only be described as.
-     ══════════════════════════════════════════════════════════════════════════ -->
-<section class="floor" id="floor-demos-room" data-floor="demos" aria-labelledby="companions-h">
 
-  <div class="floor-band">
-    <img class="floor-band-room" src="photos/companions-band.jpg" alt="">
-  </div>
+     THE DECORATIVE BAND THAT USED TO OPEN THIS FLOOR IS GONE, 2026-09-08. It was built before
+     the real wall (further down, inside .demos) existed, back when this floor just had a photo
+     for the floor-plate to hang on above a plain card grid. Once the real wall was built the
+     same photograph was showing twice on one floor -- once empty up here, once full of
+     portraits below. Dr. O caught it live ("what?"). The floor-plate now hangs on the wall's
+     own .floor-band instead (see go()'s own '.floor-band' lookup, unchanged -- it finds
+     whichever one exists in the open floor, and there is only one now). -->
+<section class="floor" id="floor-demos-room" data-floor="demos" aria-labelledby="companions-h">
 
   <h2 id="companions-h" class="visually-hidden" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">Companions</h2>
 
