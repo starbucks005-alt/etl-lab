@@ -1828,6 +1828,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       frame.hidden = false;
       var img = frame.querySelector('.wall-frame-img');
       img.src = item.photo;
+      img.style.objectPosition = item.pos || '50% 50%';
       img.alt = item.label.replace(/&amp;/g, '&');
       var link = frame.querySelector('.wall-frame-link');
       link.href = 'room.html?who=' + item.who;
