@@ -2255,10 +2255,17 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       if (!spectating) return;
       if (beats >= MAX_BEATS) { stop(); return; }
       beats += 1;
+      /* THE OWNER KEY, added 2026-09-09 after Dr. O's own long test run hit the same 15/day free
+         cap every anonymous visitor shares -- same localStorage key the page's own owner-key
+         planter (top of <head>) already writes to, so a real visitor is never treated as the
+         owner just because this key happens to exist unset in their browser: gc-chat itself only
+         honors it if it actually matches GC_OWNER_KEY server-side. */
+      var ownerKey = '';
+      try { ownerKey = localStorage.getItem('etl_owner_key') || ''; } catch (_) {}
       fetch('/.netlify/functions/gc-chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          friend: JULIAN_FOR_PARTY, you: {}, messages: log,
+          friend: JULIAN_FOR_PARTY, you: {}, messages: log, owner_key: ownerKey,
           /* is_demo:true, added 2026-09-09 after a live 200 came back credits_exhausted. gc-chat's
              free-vs-paid gate reads this one explicit request field, not anything about the shape
              of the friend object -- Julian here has no .id either way, but without this flag he
