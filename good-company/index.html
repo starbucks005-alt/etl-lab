@@ -890,6 +890,14 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <li><a class="floor-btn" href="faq.html">Questions</a></li>
       <!-- The picker, not a toggle -- kept exactly as it was, just moved into the elevator row.
            picker-li so the mobile collapse rule above does not also hide it. -->
+      <!-- MUTE, added 2026-09-09 per Dr. O direct: "a way to mute Isabelle upon entry in case of
+           meeting or public." In the nav so it is visible and reachable the instant the page
+           loads, before Isabelle's own welcome autoplay has a chance to fire lower down the page
+           -- her clarification right after, "mute but not as the default", is why a new visitor
+           still hears the normal autoplay and this is an escape hatch to reach for, not the
+           starting state. Remembered in localStorage so muting once means never being surprised
+           by this Echo again on the same device, not just for this visit. -->
+      <li><button class="btn" id="gcMuteBtn" type="button" title="Mute the lobby greeting">&#128266; Sound</button></li>
       <li class="picker-li"><div class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></div></li>
     </ul>
   </div>
@@ -1473,7 +1481,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          floor... and the user can click through the scenes" -- one running conversation, shared
          across every room, that a room click never restarts. Clicking a room only changes what you
          are looking at and listening to (openRoom), never the feed below: same "guests can see
-         beyond the room they are in" design already agreed for the shared cast. */ -->
+         beyond the room they are in" design already agreed for the shared cast. -->
     <div class="party-feed-head">
       <button class="btn" id="partySpectateBtn" type="button">&#128065; Spectate the party</button>
       <span class="party-feed-note" id="partyFeedNote">Nobody has started it yet.</span>
@@ -1890,6 +1898,26 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     var isabelleAudio = document.getElementById('isabelleWelcome');
     var isabelleBtn = document.getElementById('hearIsabelle');
     if (!isabelleAudio || !isabelleBtn) return;
+    /* MUTE, remembered per device. Only ever suppresses the UNPROMPTED autoplay below --
+       the "Hear Isabelle" button still works while muted, since pressing it is a person
+       deliberately asking, not the surprise this exists to prevent. */
+    var MUTE_KEY = 'gc_lobby_muted';
+    var muteBtn = document.getElementById('gcMuteBtn');
+    var muted = false;
+    try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (_) {}
+    function paintMute() {
+      if (!muteBtn) return;
+      muteBtn.innerHTML = muted ? '&#128263; Muted' : '&#128266; Sound';
+    }
+    if (muteBtn) {
+      muteBtn.addEventListener('click', function () {
+        muted = !muted;
+        try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (_) {}
+        if (muted) { isabelleAudio.pause(); }
+        paintMute();
+      });
+      paintMute();
+    }
     var isabelleMissing = false;
     function hideIsabelleBtn() {
       isabelleMissing = true;
@@ -1907,7 +1935,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     }, 1200);
     var isabelleAutoTried = false;
     function tryIsabelleAuto() {
-      if (isabelleAutoTried || isabelleMissing || floorNow !== 'lobby') return;
+      if (isabelleAutoTried || isabelleMissing || floorNow !== 'lobby' || muted) return;
       isabelleAutoTried = true;
       isabelleAudio.play().catch(function () { /* button still works */ });
     }
