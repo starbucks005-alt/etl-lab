@@ -805,7 +805,12 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
    a room, its clip plays (muted, looped, same <video> pattern room.html already uses for its own
    scenes) and its own long ambient track becomes available, independent of the 10-second video
    loop so the music never feels tied to that short a cycle -- see PARTY_ROOMS' audio field. */
-.party-wrap{ max-width:1100px; margin:0 auto; padding:2.5rem var(--pad) 4rem; }
+#floor-penthouse{ position:relative; }
+/* THE PLAQUE HAS NO PHOTO BAND TO HANG ON HERE, unlike every other floor, so it lands as a plain
+   corner card instead of a sign over a picture, and the heading gets extra top clearance so the
+   two never overlap the way they did before go()'s own fallback existed. */
+#floor-penthouse .floor-plate{ position:absolute; top:0; left:0; min-width:150px; }
+.party-wrap{ max-width:1100px; margin:0 auto; padding:5.5rem var(--pad) 4rem; }
 .party-lede{ color:var(--ink-dim); max-width:60ch; margin:0 0 2rem; }
 .party-stage{
   position:relative; width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden;
@@ -845,6 +850,25 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 }
 .party-room[aria-current="true"]{ border-color:var(--accent); }
 .party-room:hover{ opacity:.9; }
+/* A LINE ABOUT THIS ROOM SPECIFICALLY, added 2026-09-09 per Dr. O: "a thought bubble about what is
+   going on in that particular room." Filled in from the shared feed below whenever a line is
+   tagged for whichever room is currently on screen (see roomTagFor in the script) -- silent the
+   rest of the time rather than showing a stale line from three beats and one room-switch ago. */
+.party-thought{
+  position:absolute; left:1.2rem; top:1.2rem; z-index:2; max-width:60%;
+  background:rgba(0,0,0,.6); color:#fff; border-radius:10px; padding:.6rem .9rem;
+  font-size:.85rem; line-height:1.4; font-style:italic;
+}
+.party-feed-head{ display:flex; align-items:center; gap:1rem; margin:1.6rem 0 .4rem; flex-wrap:wrap; }
+.party-feed-note{ color:var(--ink-dim); font-size:.85rem; }
+.party-feed-warning{ color:var(--ink-dim); font-size:.8rem; max-width:70ch; margin:0 0 1rem; }
+.party-feed{
+  display:flex; flex-direction:column; gap:.6rem; max-height:360px; overflow-y:auto;
+  border:1px solid var(--line); border-radius:10px; padding:1rem 1.2rem; background:var(--panel);
+}
+.party-feed-line b{ font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-dim); }
+.party-feed-line span{ display:block; }
+.party-feed-empty{ color:var(--ink-dim); font-size:.9rem; }
 </style>
 </head>
 
@@ -1435,6 +1459,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
         </svg>
         <span id="partySoundLabel">Music: off</span>
       </button>
+      <div class="party-thought" id="partyThought" hidden></div>
       <div class="party-stage-info">
         <b id="partyRoomName"></b>
         <a class="btn" id="partyTalkBtn" href="room.html">Talk to Julian</a>
@@ -1443,6 +1468,20 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
     </div>
 
     <div class="party-rooms" id="partyRooms"></div>
+
+    <!-- THE PARTY ITSELF, added 2026-09-09 per Dr. O direct: "the spectate happen here, on this
+         floor... and the user can click through the scenes" -- one running conversation, shared
+         across every room, that a room click never restarts. Clicking a room only changes what you
+         are looking at and listening to (openRoom), never the feed below: same "guests can see
+         beyond the room they are in" design already agreed for the shared cast. */ -->
+    <div class="party-feed-head">
+      <button class="btn" id="partySpectateBtn" type="button">&#128065; Spectate the party</button>
+      <span class="party-feed-note" id="partyFeedNote">Nobody has started it yet.</span>
+    </div>
+    <p class="party-feed-warning">Text only, on purpose: spoken replies cost real credits per line,
+      and a running party spectate is many lines back to back. Turning voice on for this would burn
+      through a free or paid balance fast.</p>
+    <div class="party-feed" id="partyFeed"></div>
   </div>
 </section>
 
@@ -1803,7 +1842,13 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     if (PLATE[name]) {
       plateNo.textContent = PLATE[name][0];
       plateName.textContent = PLATE[name][1];
-      var room = document.querySelector('.floor[data-floor="' + name + '"] .floor-band');
+      /* FALLS BACK TO THE FLOOR SECTION ITSELF, added 2026-09-09 for the Penthouse: every other
+         floor has a .floor-band photo to hang the plate on, this one does not, so the plate was
+         never reparented at all and stayed wherever it last was -- floating over "Julian's
+         Penthouse" instead of moving with the floor. See #floor-penthouse .floor-plate below for
+         the position once it is actually here. */
+      var room = document.querySelector('.floor[data-floor="' + name + '"] .floor-band')
+        || document.querySelector('.floor[data-floor="' + name + '"]');
       if (room && plate.parentNode !== room) room.appendChild(plate);
     }
     sections.forEach(function (s) {
@@ -2078,6 +2123,119 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       paintSound(current);
     });
     openRoom(PARTY_ROOMS[0]);
+  })();
+
+  /* THE PARTY ITSELF, added 2026-09-09. Dr. O: "the spectate happen here, on this floor... and
+     the user can click through the scenes" -- one running gc-chat spectate loop, independent of
+     openRoom above, which a room click never touches. Calls gc-chat directly rather than sending
+     the visitor through room.html, so this needed Julian's own persona duplicated here rather
+     than loading all of gc-friend.js just for one friend object -- same tradeoff this page
+     already makes for the AR floor's and the wall's own companion data (see this file's own
+     earlier notes on why). Keep this cameos list in step with GC_JULIAN.cameos in gc-friend.js;
+     they are meant to be the same 19 names. */
+  var JULIAN_FOR_PARTY = {
+    name: 'Julian', gender: 'A man',
+    form: 'Not human, and does not pretend otherwise if it comes up directly, though he rarely ' +
+          'volunteers it: a vampire, in the old, unglamorous sense underneath the good tailoring ' +
+          '-- he does not age, does not eat, and has opinions about most of what popular fiction ' +
+          'gets wrong about what that actually involves.',
+    work: 'Lives at the top of this building and is hosting a party tonight, the way he ' +
+          'occasionally does. Plays piano most nights, has for longer than anyone currently on ' +
+          'staff here remembers.',
+    voice: ['Dry', 'Old-world charming', 'Self-aware', 'Quietly grieving', 'Uses contractions'],
+    habit: 'Says "don\'t get me started" with obvious relish right before getting started anyway.',
+    cameos: [
+      { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+      { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+      { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+      { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+      { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+      { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
+      { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
+      { name: 'Winston', voiceId: 'agL69Vji082CshT65Tcy' },
+      { name: 'Viv', voiceId: 'b1fu18ehYUVnbLjA7vJ3' },
+      { name: 'Marion', voiceId: 'Rm14i2uPTqCL0k0wW7KI' },
+      { name: 'Aaron', voiceId: '6Cnoni8qSu4opBcF3PMa' },
+      { name: 'Meera', voiceId: 'oQeBs2hQbwq5LlUV8TtR' },
+      { name: 'Marcus', voiceId: 'pqHfZKP75CvOlQylNhV4' },
+      { name: 'Nora', voiceId: 'pb6kCegKK9i4oRBqeUjR' },
+      { name: 'Zoe', voiceId: 'iom52mAbYXPrAtSEJM0w' },
+      { name: 'Dario', voiceId: 'cSGFM1CYxTbDUno2ByfF' },
+      { name: 'Theo', voiceId: 'gsr4awIbA0nfkChHUnvP' },
+      { name: 'Cressida', voiceId: 'RTBzdwjfw0SPTkN2srfl' },
+      { name: 'Rin', voiceId: '6G7epTsSEzxw727Ue7js' },
+    ],
+  };
+  (function () {
+    var btn = document.getElementById('partySpectateBtn');
+    var note = document.getElementById('partyFeedNote');
+    var feed = document.getElementById('partyFeed');
+    var thought = document.getElementById('partyThought');
+    var spectating = false, beats = 0, timer = null;
+    var MAX_BEATS = 40; // a party runs longer than a two-person spectate; still a ceiling, not forever
+    var PAUSE_MS = 2200;
+    var partners = JULIAN_FOR_PARTY.cameos.map(function (c) { return c.name; });
+    var log = []; // [{role:'assistant', content}], what gc-chat sees as history
+
+    function paint() {
+      btn.textContent = spectating ? '\u{1F441} Stop spectating' : '\u{1F441} Spectate the party';
+      note.textContent = spectating ? 'Running -- text only.'
+        : (log.length ? 'Stopped. Press to pick it back up.' : 'Nobody has started it yet.');
+    }
+    function addLine(name, text) {
+      var row = document.createElement('div');
+      row.className = 'party-feed-line';
+      var b = document.createElement('b'); b.textContent = name;
+      var span = document.createElement('span'); span.textContent = text;
+      row.appendChild(b); row.appendChild(span);
+      feed.appendChild(row);
+      feed.scrollTop = feed.scrollHeight;
+      /* THE THOUGHT BUBBLE, added 2026-09-09 per Dr. O: "a thought bubble about what is going on
+         in that particular room." Honest version of that for now: the model has no notion of
+         which physical room a line was said in, so this shows the party's latest line full stop,
+         not a room-matched one. Tagging a beat with the speaker's actual room is real backend
+         work (buildSystem would need to teach each cameo a location) -- not done here yet. */
+      thought.textContent = name + ': ' + text;
+      thought.hidden = false;
+    }
+    function stop() {
+      if (timer) { clearTimeout(timer); timer = null; }
+      spectating = false;
+      paint();
+    }
+    function beat() {
+      timer = null;
+      if (!spectating) return;
+      if (beats >= MAX_BEATS) { stop(); return; }
+      beats += 1;
+      fetch('/.netlify/functions/gc-chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          friend: JULIAN_FOR_PARTY, you: {}, messages: log,
+          spectate: true, spectate_with: partners,
+        }),
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!spectating) return;
+        if (j.error || j.credits_exhausted || j.daily_capped) { stop(); return; }
+        if (j.reply) {
+          addLine('Julian', j.reply);
+          log.push({ role: 'assistant', content: j.reply });
+        }
+        if (j.cameo && j.cameo.text) {
+          addLine(j.cameo.name || 'Someone', j.cameo.text);
+          log.push({ role: 'assistant', content: '[[CAMEO:' + (j.cameo.name || '') + ']] ' + j.cameo.text });
+        }
+        if (log.length > 40) log = log.slice(-40);
+        timer = setTimeout(beat, PAUSE_MS);
+      }).catch(function () { stop(); });
+    }
+    btn.addEventListener('click', function () {
+      if (spectating) { stop(); return; }
+      spectating = true; beats = 0;
+      paint();
+      beat();
+    });
+    paint();
   })();
 
   /* FAVORITE STARS, ported into the wall's own render loop 2026-09-08 -- was a one-time script
