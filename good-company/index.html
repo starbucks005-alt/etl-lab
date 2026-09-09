@@ -1992,29 +1992,26 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
   });
 
   /* JULIAN'S PENTHOUSE PARTY, added 2026-09-09. `who` is whichever companion this room's own
-     "Talk to" link goes to -- the room's own most central voice, not everyone pictured in it.
-     `audio` is filled in as Dr. O generates each room's own long ambient track; a room with no
-     audio yet just has no music toggle available for it, same "say so, no silent placeholder"
-     rule as everywhere else on this campus. */
+     "Talk to" link goes to -- the room's own most central voice, not everyone pictured in it. */
   var PARTY_ROOMS = [
     { key: 'salon', label: 'The Salon & Wet Bar', who: 'julian',
       video: 'video/party/salon.mp4', photo: 'photos/party/salon.jpg', audio: 'audio/party-salon.mp3' },
     { key: 'music-room', label: 'The Music Room', who: 'julian',
-      video: 'video/party/music-room.mp4', photo: 'photos/party/music-room.png', audio: null },
+      video: 'video/party/music-room.mp4', photo: 'photos/party/music-room.png', audio: 'audio/party-music-room.mp3' },
     { key: 'rooftop', label: 'The Rooftop Terrace', who: 'tansy',
-      video: 'video/party/rooftop.mp4', photo: 'photos/party/rooftop.jpg', audio: null },
+      video: 'video/party/rooftop.mp4', photo: 'photos/party/rooftop.jpg', audio: 'audio/party-rooftop.mp3' },
     { key: 'fire-escape', label: 'The Fire Escape', who: 'kioko',
-      video: 'video/party/fire-escape.mp4', photo: 'photos/party/fire-escape.png', audio: null },
+      video: 'video/party/fire-escape.mp4', photo: 'photos/party/fire-escape.png', audio: 'audio/party-fire-escape.mp3' },
     { key: 'library', label: 'The Mezzanine Library', who: 'cressida',
-      video: 'video/party/library.mp4', photo: 'photos/party/library.png', audio: null },
+      video: 'video/party/library.mp4', photo: 'photos/party/library.png', audio: 'audio/party-library.mp3' },
     { key: 'kitchen', label: 'The Kitchen', who: 'cora',
-      video: 'video/party/kitchen.mp4', photo: 'photos/party/kitchen.png', audio: null },
+      video: 'video/party/kitchen.mp4', photo: 'photos/party/kitchen.png', audio: 'audio/party-kitchen.mp3' },
     { key: 'study', label: 'The Study & Workroom', who: 'marcus',
-      video: 'video/party/study.mp4', photo: 'photos/party/study.png', audio: null },
+      video: 'video/party/study.mp4', photo: 'photos/party/study.png', audio: 'audio/party-study.mp3' },
     { key: 'dressing-suite', label: 'The Dressing Suite', who: 'theo',
-      video: 'video/party/dressing-suite.mp4', photo: 'photos/party/dressing-suite.jpg', audio: null },
+      video: 'video/party/dressing-suite.mp4', photo: 'photos/party/dressing-suite.jpg', audio: 'audio/party-dressing-suite.mp3' },
     { key: 'digital-alcove', label: 'The Digital Alcove', who: 'alice',
-      video: 'video/party/digital-alcove.mp4', photo: 'photos/party/digital-alcove.png', audio: null },
+      video: 'video/party/digital-alcove.mp4', photo: 'photos/party/digital-alcove.png', audio: 'audio/party-digital-alcove.mp3' },
   ];
   var PARTY_NAMES = { julian: 'Julian', tansy: 'Tansy', kioko: 'Kioko', cressida: 'Cressida',
     cora: 'Nina', marcus: 'Marcus', theo: 'Theo', alice: 'A.L.I.C.E.' };
