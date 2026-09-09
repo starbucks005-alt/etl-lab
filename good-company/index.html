@@ -809,8 +809,10 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 /* THE PLAQUE HAS NO PHOTO BAND TO HANG ON HERE, unlike every other floor, so it lands as a plain
    corner card instead of a sign over a picture, and the heading gets extra top clearance so the
    two never overlap the way they did before go()'s own fallback existed. */
-#floor-penthouse .floor-plate{ position:absolute; top:0; left:0; min-width:150px; }
-.party-wrap{ max-width:1100px; margin:0 auto; padding:5.5rem var(--pad) 4rem; }
+/* top:0 here sits behind the fixed 61px nav (z-index:60 beats the plate's own z-index:5), which
+   is what cut its top half off -- 80px clears the nav with a little room to spare. */
+#floor-penthouse .floor-plate{ position:absolute; top:80px; left:0; min-width:150px; }
+.party-wrap{ max-width:1100px; margin:0 auto; padding:11rem var(--pad) 4rem; }
 .party-lede{ color:var(--ink-dim); max-width:60ch; margin:0 0 2rem; }
 .party-stage{
   position:relative; width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden;
@@ -1783,6 +1785,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       <span data-to="build"><b>3</b> Build</span>
       <span data-to="ar"><b>4</b> AR</span>
       <span data-to="pricing"><b>5</b> Owner</span>
+      <span data-to="penthouse"><b>P</b> Penthouse</span>
     </div>
   </div>
 </div>
@@ -1805,7 +1808,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     'build':  ['Third floor',  'Build'],
     'ar':     ['Fourth floor', 'AR'],
     'pricing':['Fifth floor',  'Owner'],
-    'penthouse':['Sixth floor','Penthouse']
+    'penthouse':['P',          'Penthouse']
   };
   var plate = document.getElementById('floorPlate');
   var plateNo = document.getElementById('floorPlateNo');
@@ -2100,6 +2103,24 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
   ];
   var PARTY_NAMES = { julian: 'Julian', tansy: 'Tansy', kioko: 'Kioko', cressida: 'Cressida',
     cora: 'Nina', marcus: 'Marcus', theo: 'Theo', alice: 'A.L.I.C.E.' };
+  /* SHARED BETWEEN THE ROOM-SWITCHER AND THE SPECTATE FEED BELOW, added 2026-09-09 per Dr. O:
+     "the blurb for what is going on in the room at that time... e.g. what is ALICE thinking."
+     Honest version of a per-room thought bubble: the model has no notion of physical rooms, but
+     every line IS attributed to a real speaker, so this shows the latest line actually said by
+     whichever companion is this room's own "Talk to" name -- Alice's room shows Alice's latest
+     line, not just whoever spoke most recently anywhere at the party. Silent until that companion
+     has said something at least once. */
+  var PARTY_THOUGHT = {
+    currentName: null, lastLineByName: {}, el: null,
+    setRoom: function (name) { this.currentName = name; this.repaint(); },
+    record: function (name, text) { this.lastLineByName[name] = text; this.repaint(); },
+    repaint: function () {
+      if (!this.el) this.el = document.getElementById('partyThought');
+      var line = this.currentName && this.lastLineByName[this.currentName];
+      this.el.hidden = !line;
+      if (line) this.el.textContent = this.currentName + ': ' + line;
+    },
+  };
   (function () {
     var stage = document.getElementById('partyVideo');
     var audioEl = document.getElementById('partyAudio');
@@ -2125,6 +2146,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       nameEl.textContent = room.label;
       talkBtn.href = 'room.html?who=' + room.who + '&spectate=1';
       talkBtn.textContent = 'Talk to ' + (PARTY_NAMES[room.who] || room.who);
+      PARTY_THOUGHT.setRoom(PARTY_NAMES[room.who] || room.who);
       audioEl.pause();
       audioEl.src = room.audio || '';
       if (soundOn && room.audio) audioEl.play().catch(function () {});
@@ -2198,7 +2220,6 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     var btn = document.getElementById('partySpectateBtn');
     var note = document.getElementById('partyFeedNote');
     var feed = document.getElementById('partyFeed');
-    var thought = document.getElementById('partyThought');
     var spectating = false, beats = 0, timer = null;
     var MAX_BEATS = 40; // a party runs longer than a two-person spectate; still a ceiling, not forever
     var PAUSE_MS = 2200;
@@ -2218,13 +2239,11 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       row.appendChild(b); row.appendChild(span);
       feed.appendChild(row);
       feed.scrollTop = feed.scrollHeight;
-      /* THE THOUGHT BUBBLE, added 2026-09-09 per Dr. O: "a thought bubble about what is going on
-         in that particular room." Honest version of that for now: the model has no notion of
-         which physical room a line was said in, so this shows the party's latest line full stop,
-         not a room-matched one. Tagging a beat with the speaker's actual room is real backend
-         work (buildSystem would need to teach each cameo a location) -- not done here yet. */
-      thought.textContent = name + ': ' + text;
-      thought.hidden = false;
+      /* THE THOUGHT BUBBLE, matched to the room actually on screen -- see PARTY_THOUGHT above.
+         Not true room-awareness (the model still has no notion of physical rooms; this matches
+         on WHO said it, not WHERE), but it means Alice's room shows Alice's own latest line
+         instead of whoever happens to be talking anywhere at the party. */
+      PARTY_THOUGHT.record(name, text);
     }
     function stop() {
       if (timer) { clearTimeout(timer); timer = null; }
