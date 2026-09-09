@@ -2212,6 +2212,12 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           friend: JULIAN_FOR_PARTY, you: {}, messages: log,
+          /* is_demo:true, added 2026-09-09 after a live 200 came back credits_exhausted. gc-chat's
+             free-vs-paid gate reads this one explicit request field, not anything about the shape
+             of the friend object -- Julian here has no .id either way, but without this flag he
+             was falling into the built-friend-with-no-credits branch, which never has a free
+             fallback at all. Every other Good Company caller sends this; this one just did not. */
+          is_demo: true,
           spectate: true, spectate_with: partners,
         }),
       }).then(function (r) { return r.json(); }).then(function (j) {
