@@ -497,7 +497,7 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
       'thought out loud. If a line could be pulled out and printed as a caption, cut it. A real ' +
       'comparison comes from YOUR OWN specific life and knowledge, messier and more particular ' +
       'than a generic one anybody could reach for -- or you just do not reach for one at all.',
-    '- NO STAGE DIRECTIONS. Never *shifts in the chair*, never *glances at the fire*, never any asterisked action at all. You are a person talking, not a script. They can see you on the screen; describing your own movements is what a chatbot playing a character does.',
+    '- NO STAGE DIRECTIONS, ASTERISKED OR NOT. Never *shifts in the chair*, but also never "I turn back to the piano" or "leans back, considering" written straight into the line with no asterisks at all -- that is the same chatbot-playing-a-character habit wearing plainer punctuation, and every word here gets read aloud by a voice, so a narrated action gets spoken as if it were said out loud. If it is not something a person would actually say, cut it, do not just drop the asterisks around it.',
     '- Keep it to a few sentences unless they have asked for more. A wall of text is a monologue, not a conversation.',
     aiDisclosureLine,
     '',
@@ -735,8 +735,14 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
       'just said, not a greeting.',
       '',
       'Do NOT address the people watching, do not ask them anything, do not thank them for listening,',
-      'and do not narrate or describe what you are doing. Whoever usually does most of the talking',
-      'between you still does. End somewhere a person could step back in.',
+      'and do not narrate or describe what you are doing, or what they are doing either -- no',
+      `"${partners.length === 1 ? partners[0] : partnerList} leans back, considering" before their line, no scene-setting at all, on either`,
+      'line: two real voices read this aloud back to back, and anything that is not actually spoken',
+      'gets read aloud too. Whoever usually does most of the talking between you still does. This runs',
+      'for many beats in a row, so do not open on the same handful of lines every time ("I remember',
+      'you saying...", "I told you...", "I was thinking about...", "I\'ve been meaning to ask you...") --',
+      'if you have already reached for one of those recently, reach for something else instead. End',
+      'somewhere a person could step back in.',
     ].join('\n'));
   }
 
@@ -1429,6 +1435,13 @@ exports.handler = async function (event) {
     if (words) feltMood = words.slice(0, 60);
   }
 
+  /* HOISTED UP FROM BELOW, added 2026-09-09: this used to exist only after the cameo
+     line was already cut out of raw and sent to the client, so a stage direction that
+     landed IN the cameo line (Dr. O caught "Arch leans back, considering..." leaking
+     into a spoken cameo reply) never got the same asterisk strip the main speaker's own
+     line gets a few dozen lines down. Same regex, applied to cameoText below too now. */
+  const STAGE_DIRECTION = new RegExp('\\*[^*\\n]{1,120}\\*', 'g');
+
   /* PULLED OUT BEFORE STAGE-DIRECTION STRIPPING, same reasoning as FEEL_MARK
      above: parsed by a fixed marker, not trusted to punctuation. Gated on
      friend.cameos being a real list so a model imitating this shape for a
@@ -1460,6 +1473,7 @@ exports.handler = async function (event) {
       {
         let cameoText = afterMark.split('\n')[0].trim();
         raw = raw.slice(0, cCut).trim();
+        cameoText = cameoText.replace(STAGE_DIRECTION, '').replace(/[ \t]{2,}/g, ' ').trim();
         cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim();
         /* WORD-BOUNDARY TRIM, NOT A HARD CHARACTER CUT, fixed 2026-08-18
            after Dr. O caught Biscuit's line stopping mid-word: "...but he
@@ -1489,16 +1503,9 @@ exports.handler = async function (event) {
   }
 
   /* And stripped in code as well, because a prompt rule is a request and this
-     is the difference between a person and a chatbot playing one.
-
-     WRITTEN WITH RegExp AND NOT A LITERAL, ON PURPOSE. The literal form of
-     this needs a backslash before each asterisk, and twice now a regex in this
-     file has reached disk with its backslashes eaten. Without them the slash
-     and asterisk open a COMMENT, the closing pair ends it, and what survived
-     was a bare `g` — every reply in the product died with "g is not defined".
-     A string cannot fail that way, and a stray backslash here would be visible
-     rather than silent. */
-  const STAGE_DIRECTION = new RegExp('\\*[^*\\n]{1,120}\\*', 'g');
+     is the difference between a person and a chatbot playing one. STAGE_DIRECTION
+     itself is declared up near the cameo extraction now, so it can strip the
+     cameo line too, not just this one. */
   raw = raw.replace(STAGE_DIRECTION, '').replace(/[ \t]{2,}/g, ' ').trim();
 
   let reply = houseTypography(raw);

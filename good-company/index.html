@@ -2184,6 +2184,12 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       if (name) this.el.textContent = name + ': ' + this.lastLineByName[name];
     },
   };
+  /* Set inside the room-switcher IIFE below, called from the spectate IIFE further down --
+     same cross-IIFE sharing shape as PARTY_THOUGHT above, added 2026-09-09 so a running
+     spectate can cut the stage to whichever room its current speaker actually belongs in
+     rather than sitting on one static scene the whole time. Dr. O: "pretend to show snippets
+     of different room conversations... switching every few [beats]." */
+  var PARTY_SWITCH_ROOM = null;
   (function () {
     var stage = document.getElementById('partyVideo');
     var audioEl = document.getElementById('partyAudio');
@@ -2239,6 +2245,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       paintSound(current);
     });
     openRoom(PARTY_ROOMS[0]);
+    PARTY_SWITCH_ROOM = openRoom;
   })();
 
   /* THE PARTY ITSELF, added 2026-09-09. Dr. O: "the spectate happen here, on this floor... and
@@ -2323,6 +2330,26 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       return partnerOrder[slot];
     }
 
+    /* ROOM CUTAWAY, added 2026-09-09. Dr. O: "pretend to show snippets of different room
+       conversations... switching every few [beats]." Julian is still the one gc-chat is
+       actually calling (see the fetch below, unchanged), but the stage now cuts to whichever
+       room the CURRENT partner's own cast lives in, on the same rotation cadence as the
+       partner swap above -- so a run visibly moves through the Salon, the Rooftop, the
+       Study and so on instead of sitting on one static scene the whole time. Built from
+       PARTY_ROOMS' own cast lists (see the room-switcher IIFE above), not a separate map,
+       so a room's cast only ever needs updating in the one place it already lives. */
+    var ROOM_BY_NAME = {};
+    PARTY_ROOMS.forEach(function (r) {
+      (r.cast || []).forEach(function (p) { if (!(p.name in ROOM_BY_NAME)) ROOM_BY_NAME[p.name] = r; });
+    });
+    var lastCutName = null;
+    function cutToRoomFor(name) {
+      if (name === lastCutName) return; // same partner's span still running, do not restart the scene
+      lastCutName = name;
+      var room = ROOM_BY_NAME[name];
+      if (room && PARTY_SWITCH_ROOM) PARTY_SWITCH_ROOM(room);
+    }
+
     function paint() {
       btn.textContent = spectating ? '\u{1F441} Stop spectating' : '\u{1F441} Spectate the party';
       note.textContent = spectating ? 'Running -- text only.'
@@ -2359,6 +2386,8 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
          honors it if it actually matches GC_OWNER_KEY server-side. */
       var ownerKey = '';
       try { ownerKey = localStorage.getItem('etl_owner_key') || ''; } catch (_) {}
+      var partner = activePartner();
+      cutToRoomFor(partner);
       fetch('/.netlify/functions/gc-chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2369,7 +2398,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
              was falling into the built-friend-with-no-credits branch, which never has a free
              fallback at all. Every other Good Company caller sends this; this one just did not. */
           is_demo: true,
-          spectate: true, spectate_with: [activePartner()],
+          spectate: true, spectate_with: [partner],
         }),
       }).then(function (r) { return r.json(); }).then(function (j) {
         if (!spectating) return;
