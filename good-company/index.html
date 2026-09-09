@@ -705,7 +705,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
    copy of this call on its AR floor (assets/ar-floor.jpg there): a big lit screen with nothing
    on it read as unfinished, not as a button, until it says what it does. */
 .ar-band-main{
-  position:absolute; left:31.36%; top:28.5%; width:37.4%; height:40%; z-index:2;
+  position:absolute; left:31.36%; top:28.5%; width:37.4%; height:40%; z-index:4;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:.7em; text-align:center; padding:1.5%; container-type:inline-size;
   text-decoration:none; border:0;
@@ -728,14 +728,22 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .ar-band-frame[hidden]{display:none;}
 .ar-band-frame a{ display:block; width:100%; height:100%; }
 .ar-band-frame img{ width:100%; height:100%; object-fit:cover; display:block; background:var(--panel); }
-.ar-band-frame[data-slot="0"]{ left:21.7%; top:28.9%; }
-.ar-band-frame[data-slot="1"]{ left:21.7%; top:40.1%; }
-.ar-band-frame[data-slot="2"]{ left:21.7%; top:51.3%; }
-.ar-band-frame[data-slot="3"]{ left:21.7%; top:62.5%; }
-.ar-band-frame[data-slot="4"]{ left:73.9%; top:28.9%; }
-.ar-band-frame[data-slot="5"]{ left:73.9%; top:40.1%; }
-.ar-band-frame[data-slot="6"]{ left:73.9%; top:51.3%; }
-.ar-band-frame[data-slot="7"]{ left:73.9%; top:62.5%; }
+.ar-band-frame[data-slot="0"]{ left:21.5%; top:28.6%; width:4.15%; height:7.5%; }
+.ar-band-frame[data-slot="1"]{ left:21.5%; top:38.9%; width:4.15%; height:7.4%; }
+.ar-band-frame[data-slot="2"]{ left:21.5%; top:49.2%; width:4.15%; height:7.4%; }
+.ar-band-frame[data-slot="3"]{ left:21.5%; top:59.6%; width:4.15%; height:7.4%; }
+.ar-band-frame[data-slot="4"]{ left:73.7%; top:28.6%; width:4.1%; height:7.5%; }
+.ar-band-frame[data-slot="5"]{ left:73.7%; top:39.0%; width:4.1%; height:7.2%; }
+.ar-band-frame[data-slot="6"]{ left:73.7%; top:49.3%; width:4.1%; height:7.4%; }
+.ar-band-frame[data-slot="7"]{ left:73.7%; top:59.6%; width:4.1%; height:7.3%; }
+/* THE MASK, added 2026-09-08 after the measured-percentage boxes kept drifting off the real
+   photographed frame edges every time Dr. O revised the template photo ("the images do not line
+   up", repeated all day). Dr. O supplied a matching PNG of the same room with the eight small
+   frame windows cut out as real alpha transparency. It sits on top of everything at the frame
+   layer, opaque everywhere except those eight holes: the company photo underneath only has to
+   cover the hole, not match it exactly, because this crops it to the true shape no matter how the
+   box above is sized. No more re-measuring by eye when the photo changes. */
+.ar-band-overlay{ position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; display:block; }
 
 /* THE PLAQUE COLLIDES WITH THE FIRST SMALL FRAME on this floor specifically, caught live by
    Dr. O ("the elevator plaque text got messed up"): the plate's generic position (left: corner,
@@ -1228,6 +1236,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
     <div class="ar-band-frame" data-slot="5"><a><img alt=""></a></div>
     <div class="ar-band-frame" data-slot="6"><a><img alt=""></a></div>
     <div class="ar-band-frame" data-slot="7"><a><img alt=""></a></div>
+    <img class="ar-band-overlay" src="photos/ar-band-2-overlay.png" alt="">
   </div>
 
   <div class="wrap">
