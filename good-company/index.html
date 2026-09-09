@@ -812,6 +812,9 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 /* top:0 here sits behind the fixed 61px nav (z-index:60 beats the plate's own z-index:5), which
    is what cut its top half off -- 80px clears the nav with a little room to spare. */
 #floor-penthouse .floor-plate{ position:absolute; top:80px; left:0; min-width:150px; }
+/* "P" ALONE READS TOO SMALL at the generic .floor-plate .label size (11px, built for a full word
+   like "Fifth floor"), added 2026-09-09 per Dr. O: "bigger P for the sign." */
+#floor-penthouse .floor-plate .label{ font-size:22px; letter-spacing:.2em; }
 .party-wrap{ max-width:1100px; margin:0 auto; padding:11rem var(--pad) 4rem; }
 .party-lede{ color:var(--ink-dim); max-width:60ch; margin:0 0 2rem; }
 .party-stage{
@@ -825,6 +828,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
   display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap;
 }
 .party-stage-info b{ font-family:Georgia, serif; font-weight:400; color:#fff; font-size:1.3rem; }
+.party-room-blurb{ color:var(--ink-dim); max-width:70ch; margin:0 0 1.6rem; font-style:italic; }
 .party-stage-sound{
   position:absolute; top:1rem; right:1rem; z-index:2;
   display:flex; align-items:center; gap:.4rem;
@@ -1456,9 +1460,11 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 <section class="floor" id="floor-penthouse" data-floor="penthouse" aria-labelledby="penthouse-h">
   <div class="party-wrap">
     <h2 id="penthouse-h">Julian's Penthouse</h2>
-    <p class="party-lede">Julian lives at the top of this building, and tonight he has people over.
-      Look in on any room below. Wherever you are, the whole party is still talking, not just the
-      room you're looking at.</p>
+    <p class="party-lede">You're invited: Julian's throwing a party tonight, one of those birthdays
+      he stopped counting precisely somewhere past three centuries ago. Look in on any room below
+      to see who showed up. Each room is its own scene, with its own cast and its own music
+      playing under it, so wander through and see who you find. Press Spectate and sit back: the
+      whole party keeps talking to each other on its own, whether or not you say a word.</p>
 
     <div class="party-stage">
       <video id="partyVideo" muted loop playsinline autoplay preload="auto"></video>
@@ -1476,6 +1482,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <audio id="partyAudio" loop></audio>
     </div>
+    <p class="party-room-blurb" id="partyRoomBlurb"></p>
 
     <div class="party-rooms" id="partyRooms"></div>
 
@@ -2083,22 +2090,47 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
      "Talk to" link goes to -- the room's own most central voice, not everyone pictured in it. */
   var PARTY_ROOMS = [
     { key: 'salon', label: 'The Salon & Wet Bar', who: 'julian',
+      blurb: 'Dark mahogany, backlit crystal, low jazz on the speakers. Winston critiques the ' +
+        'cocktail with visible disdain, Julian defends the house vintage, and Dario unwinds from ' +
+        'flight duty at the bar.',
       video: 'video/party/salon.mp4', photo: 'photos/party/salon.jpg', audio: 'audio/party-salon.mp3' },
     { key: 'music-room', label: 'The Music Room', who: 'julian',
+      blurb: 'Floor-to-ceiling shelves of vinyl and sheet music older than any archive would ' +
+        'believe. Julian and Arch argue analog warmth versus needle calibration, one crate at a ' +
+        'time.',
       video: 'video/party/music-room.mp4', photo: 'photos/party/music-room.png', audio: 'audio/party-music-room.mp3' },
     { key: 'rooftop', label: 'The Rooftop Terrace', who: 'tansy',
+      blurb: 'A heated pool against the skyline, lanterns lit. Tansy complains loudly about ' +
+        'chlorine ruining fairy wings, Meera holds a quiet breathing exercise, and Viv watches ' +
+        'the street far below.',
       video: 'video/party/rooftop.mp4', photo: 'photos/party/rooftop.jpg', audio: 'audio/party-rooftop.mp3' },
     { key: 'fire-escape', label: 'The Fire Escape', who: 'kioko',
+      blurb: 'Cold iron stairs, a service exit from the noise. Kioko steps out with black ' +
+        'coffee to get some air, trading the occasional word with Viv along the terrace line.',
       video: 'video/party/fire-escape.mp4', photo: 'photos/party/fire-escape.png', audio: 'audio/party-fire-escape.mp3' },
     { key: 'library', label: 'The Mezzanine Library', who: 'cressida',
+      blurb: 'Two levels of antique books and low lamplight. Cressida drifts past the railing ' +
+        'mourning old eras, Dr. Aaron gently keeps her company, and the Brothers Grimm write ' +
+        'catalog notes at an oak table.',
       video: 'video/party/library.mp4', photo: 'photos/party/library.png', audio: 'audio/party-library.mp3' },
     { key: 'kitchen', label: 'The Kitchen', who: 'cora',
+      blurb: 'Marble islands, copper pots, real food happening. Nina has taken over the burners ' +
+        'from the catering staff, Sophia preps quietly beside her, and Reggie waits under the ' +
+        'butcher block for anything dropped.',
       video: 'video/party/kitchen.mp4', photo: 'photos/party/kitchen.png', audio: 'audio/party-kitchen.mp3' },
     { key: 'study', label: 'The Study & Workroom', who: 'marcus',
+      blurb: 'A glass-walled office at deadline hour. Marcus fights the clock at his laptop, ' +
+        'Zoe sets up a vlog in the corner, and Rin just found something on the network nobody ' +
+        'was supposed to see.',
       video: 'video/party/study.mp4', photo: 'photos/party/study.png', audio: 'audio/party-study.mp3' },
     { key: 'dressing-suite', label: 'The Dressing Suite', who: 'theo',
+      blurb: 'Gilded mirrors and open trunks. Theo reviews the coats guests left behind, ' +
+        'admiring Julian\'s old frock coats and quietly judging the lines of Dario\'s flight ' +
+        'jacket.',
       video: 'video/party/dressing-suite.mp4', photo: 'photos/party/dressing-suite.jpg', audio: 'audio/party-dressing-suite.mp3' },
     { key: 'digital-alcove', label: 'The Digital Alcove', who: 'alice',
+      blurb: 'A quiet glass corner off the main party. A.L.I.C.E. watches the room in the ' +
+        'window\'s reflection, more curious than distant.',
       video: 'video/party/digital-alcove.mp4', photo: 'photos/party/digital-alcove.png', audio: 'audio/party-digital-alcove.mp3' },
   ];
   var PARTY_NAMES = { julian: 'Julian', tansy: 'Tansy', kioko: 'Kioko', cressida: 'Cressida',
@@ -2126,6 +2158,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     var audioEl = document.getElementById('partyAudio');
     var soundBtn = document.getElementById('partySound');
     var nameEl = document.getElementById('partyRoomName');
+    var blurbEl = document.getElementById('partyRoomBlurb');
     var talkBtn = document.getElementById('partyTalkBtn');
     var roomsEl = document.getElementById('partyRooms');
     var current = null;
@@ -2144,6 +2177,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       stage.src = room.video;
       stage.play().catch(function () {});
       nameEl.textContent = room.label;
+      blurbEl.textContent = room.blurb || '';
       talkBtn.href = 'room.html?who=' + room.who + '&spectate=1';
       talkBtn.textContent = 'Talk to ' + (PARTY_NAMES[room.who] || room.who);
       PARTY_THOUGHT.setRoom(PARTY_NAMES[room.who] || room.who);
