@@ -3115,7 +3115,22 @@ var GC_JULIAN = {
                 'he says so rather than letting old-world manners read as mere politeness.',
 
   /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Nina's own
-     identical comment above for why. */
+     identical comment above for why. EXTENDED 2026-09-08 for Julian's
+     Penthouse Party (Dr. O: "all the companions show up for a SPECTATE
+     party at Julian's penthouse and the clients get to watch or chime
+     in") with every other individually-cast house demo added since that
+     original pass. This cameos list only feeds the backend's cameo/spectate
+     prompt (see gc-chat.js buildSystem) -- the button that actually starts
+     a beat running is spectateWith, just below, which this list never had
+     until now: he could always be NAMED as a partner in somebody else's
+     spectate, but nothing ever made him the host of his own.
+
+     LEFT OUT ON PURPOSE: the paired/turnOrder rooms (Grimms, the Puppet
+     Family, Eli/Nell, the Nursery, Larkmere), whose canon is built around
+     one specific partner, not a party circuit, and the Nursery specifically
+     because it is the stricter kid-safe cohort and does not belong in an
+     adult cocktail party regardless of the mechanism working fine either
+     way. */
   cameos: [
     { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
     { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
@@ -3124,6 +3139,29 @@ var GC_JULIAN = {
     { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
     { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
     { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
+    { name: 'Winston', voiceId: 'agL69Vji082CshT65Tcy' },
+    { name: 'Viv', voiceId: 'b1fu18ehYUVnbLjA7vJ3' },
+    { name: 'Marion', voiceId: 'Rm14i2uPTqCL0k0wW7KI' },
+    { name: 'Aaron', voiceId: '6Cnoni8qSu4opBcF3PMa' },
+    { name: 'Meera', voiceId: 'oQeBs2hQbwq5LlUV8TtR' },
+    { name: 'Marcus', voiceId: 'pqHfZKP75CvOlQylNhV4' },
+    { name: 'Nora', voiceId: 'pb6kCegKK9i4oRBqeUjR' },
+    { name: 'Zoe', voiceId: 'iom52mAbYXPrAtSEJM0w' },
+    { name: 'Dario', voiceId: 'cSGFM1CYxTbDUno2ByfF' },
+    { name: 'Theo', voiceId: 'gsr4awIbA0nfkChHUnvP' },
+    { name: 'Cressida', voiceId: 'RTBzdwjfw0SPTkN2srfl' },
+    { name: 'Rin', voiceId: '6G7epTsSEzxw727Ue7js' },
+  ],
+  /* THE PARTY ITSELF. spectateWith is what room.html actually reads to
+     decide whether to show the Spectate button at all (roomCanSpectate())
+     and who the beats are between -- see the identical list above for why
+     these 19 and not the paired rooms. On demand only: nothing runs, no
+     model call happens, until a person on this page actually presses
+     Spectate, same as Reggie's own two-dog version of this already does. */
+  spectateWith: [
+    'Arch', 'Sophia', 'Nina', 'Kioko', 'A.L.I.C.E.', 'Reggie', 'Tansy',
+    'Winston', 'Viv', 'Marion', 'Aaron', 'Meera', 'Marcus', 'Nora', 'Zoe',
+    'Dario', 'Theo', 'Cressida', 'Rin',
   ],
 };
 
