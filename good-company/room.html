@@ -2687,6 +2687,31 @@ function askForScene() {
   location.reload();
 })();
 
+/* ?spectate=1, added 2026-09-09 for Julian's Penthouse Party: a "Talk to X" link from a party
+   room arrives here already mid-party, not at a blank first hello, so spectate starts on its
+   own rather than making the person find and press the button themselves. Polls briefly rather
+   than hooking sitDown() directly, since a house demo like Julian sits straight down with no
+   name/pronouns gate and the exact moment #chat becomes visible is not one clean call site to
+   patch safely. Stops itself once it fires, or after five minutes if the person never actually
+   sits down at all (a stale or wrong ?who, or they just read the room and leave). */
+(function () {
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  if (!q.get('spectate')) return;
+  var tries = 0;
+  var timer = setInterval(function () {
+    tries++;
+    if (tries > 1200) { clearInterval(timer); return; }
+    if (typeof startSpectating !== 'function' || typeof roomCanSpectate !== 'function') return;
+    if (SEAT) { clearInterval(timer); return; }
+    var chat = document.getElementById('chat');
+    if (!chat || chat.style.display === 'none') return;
+    if (!roomCanSpectate()) return;
+    clearInterval(timer);
+    if (!spectating) startSpectating();
+  }, 250);
+})();
+
 /* ?debug-friends=1, added 2026-08-25, TEMPORARY. Console paste kept failing
    through a remote-controlled machine tonight (autocorrected quotes, a tiny
    input box). Real question on the table: is there more than one saved

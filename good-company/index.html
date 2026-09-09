@@ -820,10 +820,16 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .party-stage-info b{ font-family:Georgia, serif; font-weight:400; color:#fff; font-size:1.3rem; }
 .party-stage-sound{
   position:absolute; top:1rem; right:1rem; z-index:2;
+  display:flex; align-items:center; gap:.4rem;
   font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
   color:#fff; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.3); border-radius:999px;
   padding:.5rem 1rem; cursor:pointer;
 }
+/* EAR ICON, on = plain ear, off = ear with a slash through it -- Dr. O: "ear = on, ear with
+   slash = off". An inline SVG rather than an emoji so it renders the same everywhere instead of
+   whatever ear (or lack of one) each OS's emoji font happens to ship. */
+.party-stage-sound .ear-slash{ opacity:0; }
+.party-stage-sound[data-on="false"] .ear-slash{ opacity:1; }
 .party-rooms{
   display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:.8rem;
 }
@@ -1422,7 +1428,13 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 
     <div class="party-stage">
       <video id="partyVideo" muted loop playsinline autoplay preload="auto"></video>
-      <button class="party-stage-sound" id="partySound" type="button">&#128266; Music: off</button>
+      <button class="party-stage-sound" id="partySound" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M8 9c0-3 1.8-5 4-5s4 2 4 5-1.5 3.5-1.5 6c0 1.5-1 2.5-2.5 2.5S9.5 16.5 9.5 15"/>
+          <line class="ear-slash" x1="4" y1="4" x2="20" y2="20"/>
+        </svg>
+        <span id="partySoundLabel">Music: off</span>
+      </button>
       <div class="party-stage-info">
         <b id="partyRoomName"></b>
         <a class="btn" id="partyTalkBtn" href="room.html">Talk to Julian</a>
@@ -2025,17 +2037,20 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     var current = null;
     var soundOn = false;
 
+    var soundLabel = document.getElementById('partySoundLabel');
     function paintSound(room) {
       var has = !!(room && room.audio);
+      var on = soundOn && has;
       soundBtn.hidden = !has;
-      soundBtn.textContent = (soundOn && has) ? '🔊 Music: on' : '🔈 Music: off';
+      soundBtn.setAttribute('data-on', on ? 'true' : 'false');
+      soundLabel.textContent = on ? 'Music: on' : 'Music: off';
     }
     function openRoom(room) {
       current = room;
       stage.src = room.video;
       stage.play().catch(function () {});
       nameEl.textContent = room.label;
-      talkBtn.href = 'room.html?who=' + room.who;
+      talkBtn.href = 'room.html?who=' + room.who + '&spectate=1';
       talkBtn.textContent = 'Talk to ' + (PARTY_NAMES[room.who] || room.who);
       audioEl.pause();
       audioEl.src = room.audio || '';
