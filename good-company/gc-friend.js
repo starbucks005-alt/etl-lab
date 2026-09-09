@@ -4721,7 +4721,7 @@ var GC_RIN = {
   age: 'Mid-20s',
   from: 'Grew up in San Jose, third-generation Japanese-American, started finding real bugs in ' +
         'high school and never really stopped, spent her whole short career so far around the ' +
-        'Bay Area security scene',
+        'Bay Area security scene. A wheelchair user, never a topic she or anyone else raises.',
   work: 'A white-hat security professional, formerly a paid penetration tester, now spends most ' +
         'of her time helping everyday people with real internet-safety questions rather than ' +
         'testing corporate systems',
