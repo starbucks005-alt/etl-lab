@@ -828,6 +828,16 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
   display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap;
 }
 .party-stage-info b{ font-family:Georgia, serif; font-weight:400; color:#fff; font-size:1.3rem; }
+/* ONE LINK PER PERSON ACTUALLY IN THE ROOM, added 2026-09-09 replacing the single "Talk to
+   Julian" button that showed regardless of who a room's own blurb named. Small pills rather than
+   one .btn each, since a room can carry three or four names at once. */
+.party-talk-links{ display:flex; flex-wrap:wrap; gap:.4rem; justify-content:flex-end; }
+.party-talk-links a{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--ink); background:rgba(255,255,255,.9); border-radius:999px; padding:.4rem .8rem;
+  text-decoration:none; white-space:nowrap;
+}
+.party-talk-links a:hover{ background:#fff; }
 .party-room-blurb{ color:var(--ink-dim); max-width:70ch; margin:0 0 1.6rem; font-style:italic; }
 .party-stage-sound{
   position:absolute; top:1rem; right:1rem; z-index:2;
@@ -1478,7 +1488,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <div class="party-thought" id="partyThought" hidden></div>
       <div class="party-stage-info">
         <b id="partyRoomName"></b>
-        <a class="btn" id="partyTalkBtn" href="room.html">Talk to Julian</a>
+        <div class="party-talk-links" id="partyTalkLinks"></div>
       </div>
       <audio id="partyAudio" loop></audio>
     </div>
@@ -2086,71 +2096,82 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     img.alt = item.label;
   });
 
-  /* JULIAN'S PENTHOUSE PARTY, added 2026-09-09. `who` is whichever companion this room's own
-     "Talk to" link goes to -- the room's own most central voice, not everyone pictured in it. */
+  /* JULIAN'S PENTHOUSE PARTY, added 2026-09-09. `cast` is the room's own main people, each with
+     their own "Talk to" link -- Dr. O: "instead of this you could have the names of the people in
+     the scene with their links... just the main people in the scenes." Not everyone the blurb
+     mentions in passing, just whoever the scene is actually about. */
   var PARTY_ROOMS = [
-    { key: 'salon', label: 'The Salon & Wet Bar', who: 'julian',
+    { key: 'salon', label: 'The Salon & Wet Bar',
+      cast: [{ id: 'julian', name: 'Julian' }, { id: 'winston', name: 'Winston' }, { id: 'dario', name: 'Dario' }],
       blurb: 'Dark mahogany, backlit crystal, low jazz on the speakers. Winston critiques the ' +
         'cocktail with visible disdain, Julian defends the house vintage, and Dario unwinds from ' +
         'flight duty at the bar.',
       video: 'video/party/salon.mp4', photo: 'photos/party/salon.jpg', audio: 'audio/party-salon.mp3' },
-    { key: 'music-room', label: 'The Music Room', who: 'julian',
+    { key: 'music-room', label: 'The Music Room',
+      cast: [{ id: 'julian', name: 'Julian' }, { id: 'arch', name: 'Arch' }],
       blurb: 'Floor-to-ceiling shelves of vinyl and sheet music older than any archive would ' +
         'believe. Julian and Arch argue analog warmth versus needle calibration, one crate at a ' +
         'time.',
       video: 'video/party/music-room.mp4', photo: 'photos/party/music-room.png', audio: 'audio/party-music-room.mp3' },
-    { key: 'rooftop', label: 'The Rooftop Terrace', who: 'tansy',
+    { key: 'rooftop', label: 'The Rooftop Terrace',
+      cast: [{ id: 'tansy', name: 'Tansy' }, { id: 'meera', name: 'Meera' }, { id: 'viv', name: 'Viv' }],
       blurb: 'A heated pool against the skyline, lanterns lit. Tansy complains loudly about ' +
         'chlorine ruining fairy wings, Meera holds a quiet breathing exercise, and Viv watches ' +
         'the street far below.',
       video: 'video/party/rooftop.mp4', photo: 'photos/party/rooftop.jpg', audio: 'audio/party-rooftop.mp3' },
-    { key: 'fire-escape', label: 'The Fire Escape', who: 'kioko',
+    { key: 'fire-escape', label: 'The Fire Escape',
+      cast: [{ id: 'kioko', name: 'Kioko' }, { id: 'viv', name: 'Viv' }],
       blurb: 'Cold iron stairs, a service exit from the noise. Kioko steps out with black ' +
         'coffee to get some air, trading the occasional word with Viv along the terrace line.',
       video: 'video/party/fire-escape.mp4', photo: 'photos/party/fire-escape.png', audio: 'audio/party-fire-escape.mp3' },
-    { key: 'library', label: 'The Mezzanine Library', who: 'cressida',
+    { key: 'library', label: 'The Mezzanine Library',
+      cast: [{ id: 'aaron', name: 'Aaron' }, { id: 'cressida', name: 'Cressida' }, { id: 'grimms', name: 'The Grimms' }],
       blurb: 'Two levels of antique books and low lamplight. Dr. Aaron and Cressida are trading ' +
         'his strangest cases with the Brothers Grimm, who are turning them into stories. That\'s ' +
         'why everyone at the table is writing.',
       video: 'video/party/library.mp4', photo: 'photos/party/library.png', audio: 'audio/party-library.mp3' },
-    { key: 'kitchen', label: 'The Kitchen', who: 'cora',
+    { key: 'kitchen', label: 'The Kitchen',
+      cast: [{ id: 'cora', name: 'Nina' }, { id: 'sofia', name: 'Sophia' }, { id: 'reggie', name: 'Reggie' }],
       blurb: 'Marble islands, copper pots, real food happening. Nina has taken over the burners ' +
         'from the catering staff, Sophia preps quietly beside her, and Reggie waits under the ' +
         'butcher block for anything dropped.',
       video: 'video/party/kitchen.mp4', photo: 'photos/party/kitchen.png', audio: 'audio/party-kitchen.mp3' },
-    { key: 'study', label: 'The Study & Workroom', who: 'marcus',
+    { key: 'study', label: 'The Study & Workroom',
+      cast: [{ id: 'marcus', name: 'Marcus' }, { id: 'zoe', name: 'Zoe' }, { id: 'rin', name: 'Rin' }],
       blurb: 'A glass-walled office at deadline hour. Marcus fights the clock at his laptop, ' +
         'Zoe sets up a vlog in the corner, and Rin just found something on the network nobody ' +
         'was supposed to see.',
       video: 'video/party/study.mp4', photo: 'photos/party/study.png', audio: 'audio/party-study.mp3' },
-    { key: 'dressing-suite', label: 'The Dressing Suite', who: 'theo',
+    { key: 'dressing-suite', label: 'The Dressing Suite',
+      cast: [{ id: 'theo', name: 'Theo' }],
       blurb: 'Gilded mirrors and open trunks. Theo has no interest in the guests\' coats, it\'s ' +
         'Julian\'s own antique clothes that have caught his eye, going through the wardrobe like ' +
         'a museum piece he can\'t stop touching.',
       video: 'video/party/dressing-suite.mp4', photo: 'photos/party/dressing-suite.jpg', audio: 'audio/party-dressing-suite.mp3' },
-    { key: 'digital-alcove', label: 'The Digital Alcove', who: 'alice',
+    { key: 'digital-alcove', label: 'The Digital Alcove',
+      cast: [{ id: 'alice', name: 'A.L.I.C.E.' }],
       blurb: 'A quiet glass corner off the main party. A.L.I.C.E. watches the room in the ' +
         'window\'s reflection, more curious than distant.',
       video: 'video/party/digital-alcove.mp4', photo: 'photos/party/digital-alcove.png', audio: 'audio/party-digital-alcove.mp3' },
   ];
-  var PARTY_NAMES = { julian: 'Julian', tansy: 'Tansy', kioko: 'Kioko', cressida: 'Cressida',
-    cora: 'Nina', marcus: 'Marcus', theo: 'Theo', alice: 'A.L.I.C.E.' };
   /* SHARED BETWEEN THE ROOM-SWITCHER AND THE SPECTATE FEED BELOW, added 2026-09-09 per Dr. O:
      "the blurb for what is going on in the room at that time... e.g. what is ALICE thinking."
      Honest version of a per-room thought bubble: the model has no notion of physical rooms, but
      every line IS attributed to a real speaker, so this shows the latest line actually said by
-     whichever companion is this room's own "Talk to" name -- Alice's room shows Alice's latest
-     line, not just whoever spoke most recently anywhere at the party. Silent until that companion
-     has said something at least once. */
+     whichever companion is in this room's own cast -- Alice's room shows Alice's latest line, not
+     just whoever spoke most recently anywhere at the party. Silent until one of them has said
+     something at least once. */
   var PARTY_THOUGHT = {
-    currentName: null, lastLineByName: {}, el: null,
-    setRoom: function (name) { this.currentName = name; this.repaint(); },
+    names: [], lastLineByName: {}, el: null,
+    setRoom: function (names) { this.names = names || []; this.repaint(); },
     record: function (name, text) { this.lastLineByName[name] = text; this.repaint(); },
     repaint: function () {
       if (!this.el) this.el = document.getElementById('partyThought');
-      var line = this.currentName && this.lastLineByName[this.currentName];
-      this.el.hidden = !line;
-      if (line) this.el.textContent = this.currentName + ': ' + line;
+      var self = this;
+      var said = this.names.filter(function (n) { return self.lastLineByName[n]; });
+      var name = said[said.length - 1];
+      this.el.hidden = !name;
+      if (name) this.el.textContent = name + ': ' + this.lastLineByName[name];
     },
   };
   (function () {
@@ -2159,7 +2180,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     var soundBtn = document.getElementById('partySound');
     var nameEl = document.getElementById('partyRoomName');
     var blurbEl = document.getElementById('partyRoomBlurb');
-    var talkBtn = document.getElementById('partyTalkBtn');
+    var talkLinksEl = document.getElementById('partyTalkLinks');
     var roomsEl = document.getElementById('partyRooms');
     var current = null;
     var soundOn = false;
@@ -2178,9 +2199,10 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       stage.play().catch(function () {});
       nameEl.textContent = room.label;
       blurbEl.textContent = room.blurb || '';
-      talkBtn.href = 'room.html?who=' + room.who + '&spectate=1';
-      talkBtn.textContent = 'Talk to ' + (PARTY_NAMES[room.who] || room.who);
-      PARTY_THOUGHT.setRoom(PARTY_NAMES[room.who] || room.who);
+      talkLinksEl.innerHTML = (room.cast || []).map(function (p) {
+        return '<a href="room.html?who=' + p.id + '&spectate=1">Talk to ' + p.name + '</a>';
+      }).join('');
+      PARTY_THOUGHT.setRoom((room.cast || []).map(function (p) { return p.name; }));
       audioEl.pause();
       audioEl.src = room.audio || '';
       if (soundOn && room.audio) audioEl.play().catch(function () {});
