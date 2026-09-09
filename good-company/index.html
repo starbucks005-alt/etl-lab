@@ -776,8 +776,11 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 }
 .wall-frame-play:empty{display:none;}
 .wall-frame-play.playing{background:var(--accent); border-color:var(--accent);}
+/* ABOVE THE BENCH, not at the band's own bottom edge -- Dr. O, 2026-09-08: "put this above the
+   bench". Measured off companions-band.jpg directly: the frames' own glow ends around 67.2% down
+   the photo, the bench top starts around 77.2%, so 70% sits in the clear floor between them. */
 .wall-pager{
-  position:absolute; left:0; right:0; bottom:3%; z-index:3;
+  position:absolute; left:0; right:0; top:70%; z-index:3;
   display:flex; align-items:center; justify-content:center; gap:14px;
 }
 .wall-pager .floor-btn{color:#41525f; background:rgba(255,255,255,.75); border-color:rgba(65,82,95,.3);}
@@ -1806,7 +1809,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     { who: 'aaron', photo: 'photos/aaron-portrait.jpg', label: 'Psychologist Aaron', audio: 'audio/aaron-bio.mp3', genre: ['mentors'] },
     { who: 'grimms', photo: 'photos/grimm-portrait.jpg', label: 'Jacob &amp; Wilhelm Grimm', audio: 'audio/grimms-bio.mp3', genre: ['storytellers'] },
     { who: 'puppets', photo: 'photos/eli-happy.jpg', label: 'The Puppet Family', audio: 'audio/puppets-bio.mp3', genre: ['creatures', 'fantasy'], kid: true },
-    { who: 'marcus', photo: 'photos/marcus-portrait.jpg', label: 'Marcus Reyes, on deadline', audio: 'audio/marcus-bio.mp3', genre: ['everyday'], pos: '50% 35%' },
+    { who: 'marcus', photo: 'photos/marcus-portrait.jpg', label: 'Marcus Reyes, on deadline', audio: 'audio/marcus-bio.mp3', genre: ['everyday'], pos: '50% 15%' },
     { who: 'theo', photo: 'photos/theo-portrait.jpg', label: 'Stylist Theo', audio: 'audio/theo-bio.mp3', genre: ['everyday'] },
     { who: 'cressida', photo: 'photos/cressida-portrait.jpg', label: 'Lady Cressida, a ghost', audio: 'audio/cressida-bio.mp3', genre: ['fantasy'] },
     { who: 'meera', photo: 'photos/meera-portrait.jpg', label: 'Yoga teacher Meera', audio: 'audio/meera-bio.mp3', genre: ['mentors'] },
