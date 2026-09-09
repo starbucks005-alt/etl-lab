@@ -26,6 +26,16 @@
 <link rel="manifest" href="/good-company/gc-manifest.json">
 <title>Good Company</title>
 <meta name="description" content="Finding real friends is hard. So here, you make one.">
+<link rel="canonical" href="https://emerging-tech-lab.com/good-company/">
+<meta property="og:title" content="Good Company">
+<meta property="og:description" content="Finding real friends is hard. So here, you make one.">
+<meta property="og:image" content="https://emerging-tech-lab.com/images/product-logos/good-company.png">
+<meta property="og:url" content="https://emerging-tech-lab.com/good-company/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Good Company">
+<meta name="twitter:description" content="Finding real friends is hard. So here, you make one.">
+<meta name="twitter:image" content="https://emerging-tech-lab.com/images/product-logos/good-company.png">
 
 <!-- ── THE OWNER KEY, HANDED IN ON A LINK ──────────────────────────────────
      Added 2026-08-18. This page never loaded gc-friend.js, which is the
@@ -2246,8 +2256,16 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
           '-- he does not age, does not eat, and has opinions about most of what popular fiction ' +
           'gets wrong about what that actually involves.',
     work: 'Lives at the top of this building and is hosting a party tonight, the way he ' +
-          'occasionally does. Plays piano most nights, has for longer than anyone currently on ' +
-          'staff here remembers.',
+          'occasionally does. Plays piano most nights himself, has for longer than anyone ' +
+          'currently on staff here remembers, and has never once needed to hire or wait on ' +
+          'anyone else to do it -- if there is music tonight, he is the one making it.',
+    /* ADDED 2026-09-09, Dr. O caught a 40-beat spectate run that never left the piano and one
+       line where Julian booked a "guest pianist" -- his own established canon says he has always
+       played it himself, so that line contradicted his own facts. `into` gives the model somewhere
+       else to go besides the one thing (piano) this thin duplicate persona used to mention. */
+    into: ['correcting, with visible relish, exactly which vampire tropes are nonsense (garlic, mirrors) and which are not (sunlight, invitation)',
+           'watching a city rebuild itself around the same corner, more than once, in his own lifetime',
+           'good coats, bad weather forecasts, and whoever at the party is about to get an opinion about either'],
     voice: ['Dry', 'Old-world charming', 'Self-aware', 'Quietly grieving', 'Uses contractions'],
     habit: 'Says "don\'t get me started" with obvious relish right before getting started anyway.',
     cameos: [
@@ -2281,6 +2299,29 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     var PAUSE_MS = 2200;
     var partners = JULIAN_FOR_PARTY.cameos.map(function (c) { return c.name; });
     var log = []; // [{role:'assistant', content}], what gc-chat sees as history
+
+    /* PARTNER ROTATION, added 2026-09-09. Dr. O, on a real 40-beat run: "the spectate leans
+       heavily on arch and julian" -- true, and worse than it sounds: handed the whole 19-name
+       cast every single beat and left to pick, the model reliably fell back on Arch (the one
+       partner with an actual established dynamic, the piano/records argument) almost every
+       time, and once even broke character to ask which of four names it should use. Sending
+       gc-chat the FULL cast every beat was the bug, not just a prompt-wording problem -- so
+       this now hands it only ONE name at a time, rotated client-side through a shuffled order
+       of all 19 so who is here is a fact, not a choice the model has to keep re-making. */
+    function shuffled(arr) {
+      arr = arr.slice();
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      }
+      return arr;
+    }
+    var partnerOrder = shuffled(partners);
+    var PARTNER_SPAN = 3; // consecutive beats each partner gets before the party moves on
+    function activePartner() {
+      var slot = Math.floor((beats - 1) / PARTNER_SPAN) % partnerOrder.length;
+      return partnerOrder[slot];
+    }
 
     function paint() {
       btn.textContent = spectating ? '\u{1F441} Stop spectating' : '\u{1F441} Spectate the party';
@@ -2328,7 +2369,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
              was falling into the built-friend-with-no-credits branch, which never has a free
              fallback at all. Every other Good Company caller sends this; this one just did not. */
           is_demo: true,
-          spectate: true, spectate_with: partners,
+          spectate: true, spectate_with: [activePartner()],
         }),
       }).then(function (r) { return r.json(); }).then(function (j) {
         if (!spectating) return;

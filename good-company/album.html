@@ -144,6 +144,9 @@ $('sub').textContent = shots.length
   ? 'Every picture there is of ' + F.name + ', newest first.'
   : '';
 $('emptyHead').textContent = 'No pictures of ' + F.name + ' yet.';
+/* document.title never moved off the static "Good Company" placeholder in the head, unlike
+   room.html's own FRIEND.name swap -- same fallback-until-JS-runs shape as that page. */
+document.title = 'Good Company: Photos of ' + F.name;
 
 if (!shots.length) { $('empty').style.display = 'block'; }
 
