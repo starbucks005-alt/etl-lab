@@ -800,6 +800,45 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
    way the AR floor's #frameText and the floor-plate's own positioning do. A stacked-list
    fallback was tried and looked broken at this pane's own width; percentages already solved
    it without one. */
+
+/* ═══ THE PENTHOUSE ═══ Julian's own party, added 2026-09-09. Nine rooms, one video stage: click
+   a room, its clip plays (muted, looped, same <video> pattern room.html already uses for its own
+   scenes) and its own long ambient track becomes available, independent of the 10-second video
+   loop so the music never feels tied to that short a cycle -- see PARTY_ROOMS' audio field. */
+.party-wrap{ max-width:1100px; margin:0 auto; padding:2.5rem var(--pad) 4rem; }
+.party-lede{ color:var(--ink-dim); max-width:60ch; margin:0 0 2rem; }
+.party-stage{
+  position:relative; width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden;
+  background:#000; margin-bottom:1.2rem;
+}
+.party-stage video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.party-stage-info{
+  position:absolute; left:0; right:0; bottom:0; z-index:2; padding:1.2rem 1.4rem;
+  background:linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,0));
+  display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+}
+.party-stage-info b{ font-family:Georgia, serif; font-weight:400; color:#fff; font-size:1.3rem; }
+.party-stage-sound{
+  position:absolute; top:1rem; right:1rem; z-index:2;
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+  color:#fff; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.3); border-radius:999px;
+  padding:.5rem 1rem; cursor:pointer;
+}
+.party-rooms{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:.8rem;
+}
+.party-room{
+  position:relative; aspect-ratio:16/10; border-radius:8px; overflow:hidden; cursor:pointer;
+  border:2px solid transparent; background:var(--panel); padding:0; display:block;
+}
+.party-room img{ width:100%; height:100%; object-fit:cover; display:block; }
+.party-room span{
+  position:absolute; left:0; right:0; bottom:0; padding:.4rem .5rem .35rem;
+  background:linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,0));
+  color:#fff; font-family:var(--mono); font-size:.68rem; letter-spacing:.04em; text-transform:uppercase;
+}
+.party-room[aria-current="true"]{ border-color:var(--accent); }
+.party-room:hover{ opacity:.9; }
 </style>
 </head>
 
@@ -817,6 +856,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <li><button class="floor-btn" type="button" data-floor="build">Build</button></li>
       <li><button class="floor-btn" type="button" data-floor="ar">AR</button></li>
       <li><button class="floor-btn" type="button" data-floor="pricing">Owner</button></li>
+      <li><button class="floor-btn" type="button" data-floor="penthouse">Penthouse</button></li>
       <li><a class="floor-btn" href="faq.html">Questions</a></li>
       <!-- The picker, not a toggle -- kept exactly as it was, just moved into the elevator row.
            picker-li so the mobile collapse rule above does not also hide it. -->
@@ -1366,6 +1406,34 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 
 </section>
 
+<!-- JULIAN'S PENTHOUSE PARTY, added 2026-09-09. Nine rooms, one shared party -- Dr. O: "the
+     scenes just let us peek into the individual rooms and see them" while "the chat can still
+     be all the rooms because the guests can see beyond the room they are in." The video stage
+     is purely the peek-in view; the actual conversation (Julian's own Spectate button, in his
+     own room) already runs across the full house cast independent of which room is on screen
+     here -- see GC_JULIAN.spectateWith in gc-friend.js. fire-escape is a known placeholder: its
+     clip is a duplicate of rooftop's until a real one is re-exported. -->
+<section class="floor" id="floor-penthouse" data-floor="penthouse" aria-labelledby="penthouse-h">
+  <div class="party-wrap">
+    <h2 id="penthouse-h">Julian's Penthouse</h2>
+    <p class="party-lede">Julian lives at the top of this building, and tonight he has people over.
+      Look in on any room below. Wherever you are, the whole party is still talking, not just the
+      room you're looking at.</p>
+
+    <div class="party-stage">
+      <video id="partyVideo" muted loop playsinline autoplay preload="auto"></video>
+      <button class="party-stage-sound" id="partySound" type="button">&#128266; Music: off</button>
+      <div class="party-stage-info">
+        <b id="partyRoomName"></b>
+        <a class="btn" id="partyTalkBtn" href="room.html">Talk to Julian</a>
+      </div>
+      <audio id="partyAudio" loop></audio>
+    </div>
+
+    <div class="party-rooms" id="partyRooms"></div>
+  </div>
+</section>
+
 </main>
 
 <footer>
@@ -1668,7 +1736,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
      body.js/is-open rule below). -->
 <script>
 (function () {
-  var FLOORS = ['lobby', 'demos', 'build', 'ar', 'pricing'];
+  var FLOORS = ['lobby', 'demos', 'build', 'ar', 'pricing', 'penthouse'];
   var buttons = Array.prototype.slice.call(document.querySelectorAll('.floor-btn[data-floor]'));
   var sections = Array.prototype.slice.call(document.querySelectorAll('.floor'));
 
@@ -1677,7 +1745,8 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     'demos':  ['Second floor', 'Companions'],
     'build':  ['Third floor',  'Build'],
     'ar':     ['Fourth floor', 'AR'],
-    'pricing':['Fifth floor',  'Owner']
+    'pricing':['Fifth floor',  'Owner'],
+    'penthouse':['Sixth floor','Penthouse']
   };
   var plate = document.getElementById('floorPlate');
   var plateNo = document.getElementById('floorPlateNo');
@@ -1921,6 +1990,83 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     img.src = item.photo;
     img.alt = item.label;
   });
+
+  /* JULIAN'S PENTHOUSE PARTY, added 2026-09-09. `who` is whichever companion this room's own
+     "Talk to" link goes to -- the room's own most central voice, not everyone pictured in it.
+     `audio` is filled in as Dr. O generates each room's own long ambient track; a room with no
+     audio yet just has no music toggle available for it, same "say so, no silent placeholder"
+     rule as everywhere else on this campus. */
+  var PARTY_ROOMS = [
+    { key: 'salon', label: 'The Salon & Wet Bar', who: 'julian',
+      video: 'video/party/salon.mp4', photo: 'photos/party/salon.jpg', audio: 'audio/party-salon.mp3' },
+    { key: 'music-room', label: 'The Music Room', who: 'julian',
+      video: 'video/party/music-room.mp4', photo: 'photos/party/music-room.png', audio: null },
+    { key: 'rooftop', label: 'The Rooftop Terrace', who: 'tansy',
+      video: 'video/party/rooftop.mp4', photo: 'photos/party/rooftop.jpg', audio: null },
+    { key: 'fire-escape', label: 'The Fire Escape', who: 'kioko',
+      video: 'video/party/fire-escape.mp4', photo: 'photos/party/fire-escape.png', audio: null },
+    { key: 'library', label: 'The Mezzanine Library', who: 'cressida',
+      video: 'video/party/library.mp4', photo: 'photos/party/library.png', audio: null },
+    { key: 'kitchen', label: 'The Kitchen', who: 'cora',
+      video: 'video/party/kitchen.mp4', photo: 'photos/party/kitchen.png', audio: null },
+    { key: 'study', label: 'The Study & Workroom', who: 'marcus',
+      video: 'video/party/study.mp4', photo: 'photos/party/study.png', audio: null },
+    { key: 'dressing-suite', label: 'The Dressing Suite', who: 'theo',
+      video: 'video/party/dressing-suite.mp4', photo: 'photos/party/dressing-suite.jpg', audio: null },
+    { key: 'digital-alcove', label: 'The Digital Alcove', who: 'alice',
+      video: 'video/party/digital-alcove.mp4', photo: 'photos/party/digital-alcove.png', audio: null },
+  ];
+  var PARTY_NAMES = { julian: 'Julian', tansy: 'Tansy', kioko: 'Kioko', cressida: 'Cressida',
+    cora: 'Nina', marcus: 'Marcus', theo: 'Theo', alice: 'A.L.I.C.E.' };
+  (function () {
+    var stage = document.getElementById('partyVideo');
+    var audioEl = document.getElementById('partyAudio');
+    var soundBtn = document.getElementById('partySound');
+    var nameEl = document.getElementById('partyRoomName');
+    var talkBtn = document.getElementById('partyTalkBtn');
+    var roomsEl = document.getElementById('partyRooms');
+    var current = null;
+    var soundOn = false;
+
+    function paintSound(room) {
+      var has = !!(room && room.audio);
+      soundBtn.hidden = !has;
+      soundBtn.textContent = (soundOn && has) ? '🔊 Music: on' : '🔈 Music: off';
+    }
+    function openRoom(room) {
+      current = room;
+      stage.src = room.video;
+      stage.play().catch(function () {});
+      nameEl.textContent = room.label;
+      talkBtn.href = 'room.html?who=' + room.who;
+      talkBtn.textContent = 'Talk to ' + (PARTY_NAMES[room.who] || room.who);
+      audioEl.pause();
+      audioEl.src = room.audio || '';
+      if (soundOn && room.audio) audioEl.play().catch(function () {});
+      paintSound(room);
+      Array.prototype.forEach.call(roomsEl.querySelectorAll('.party-room'), function (btn) {
+        btn.setAttribute('aria-current', btn.getAttribute('data-key') === room.key ? 'true' : 'false');
+      });
+    }
+    roomsEl.innerHTML = PARTY_ROOMS.map(function (r) {
+      return '<button class="party-room" type="button" data-key="' + r.key + '">' +
+        '<img src="' + r.photo + '" alt="">' +
+        '<span>' + r.label + '</span></button>';
+    }).join('');
+    roomsEl.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.party-room');
+      if (!btn) return;
+      var room = PARTY_ROOMS.filter(function (r) { return r.key === btn.getAttribute('data-key'); })[0];
+      if (room) openRoom(room);
+    });
+    soundBtn.addEventListener('click', function () {
+      soundOn = !soundOn;
+      if (soundOn && current && current.audio) audioEl.play().catch(function () {});
+      else audioEl.pause();
+      paintSound(current);
+    });
+    openRoom(PARTY_ROOMS[0]);
+  })();
 
   /* FAVORITE STARS, ported into the wall's own render loop 2026-09-08 -- was a one-time script
      over static .demo-card elements, which no longer exist now that frames are repainted on
