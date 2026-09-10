@@ -5305,6 +5305,20 @@ var GC_ROBOT = {
   voiceIdFemale: 'mHX7OoPk2G45VMAuinIt',
   portraitMale: 'photos/gc-robot-m.png',
   portraitFemale: 'photos/gc-astra9.png',
+  /* ROOM SCENES, added 2026-09-10, two real clips Dr. O sent labeled "scenes." Same per-shell
+     resolution as voiceId/portrait above: scenesMale/scenesFemale are picked into GC_FRIEND.scenes
+     at GC_FRIEND resolution time below, so room.html's own scene player needs no changes to work
+     for GC. Note this uses the small mascot design for BOTH the male shell's scene and the
+     female shell's scene, not the taller Astra-9 build the female AR pair and portrait now use --
+     that is simply what these two clips actually show, not a mismatch to fix. */
+  scenesMale: [
+    { key: 'default', label: 'GC', src: 'video/gc-m-scene.mp4',
+      where: 'A dark room, one soft light overhead. GC just stands there, quietly pleased to.' },
+  ],
+  scenesFemale: [
+    { key: 'default', label: 'GC', src: 'video/gc-f-scene.mp4',
+      where: 'A dark room, one soft light overhead. GC just stands there, quietly pleased to.' },
+  ],
   talkingPoints: [
     'Can you help me word this message?',
     'Can you help me split this bill?',
@@ -5379,10 +5393,12 @@ if (GC_DEMO_ID === 'gc') {
     GC_FRIEND.gender = 'A woman';
     GC_FRIEND.voiceId = GC_FRIEND.voiceIdFemale;
     GC_FRIEND.portrait = GC_FRIEND.portraitFemale;
+    GC_FRIEND.scenes = GC_FRIEND.scenesFemale;
   } else {
     GC_FRIEND.gender = 'A man';
     GC_FRIEND.voiceId = GC_FRIEND.voiceIdMale;
     GC_FRIEND.portrait = GC_FRIEND.portraitMale;
+    GC_FRIEND.scenes = GC_FRIEND.scenesMale;
   }
 }
 
