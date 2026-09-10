@@ -101,14 +101,29 @@ body { position: relative; background: #000; }
   object-fit: cover; z-index: 1;
 }
 
+/* THE START SCREEN NOW LOOKS LIKE IT BELONGS HERE, added 2026-09-10. Dr. O, comparing this page
+   to the AR floor's own preview card: "image 2 is better incorporated" -- that card sits on the
+   room's own warm photo, in a proper bordered, shadowed card; this page was flat text on
+   var(--paper), the whole viewport, nothing behind it. Same fix: the companion's own portrait
+   (the same file AR_FRAMES in index.html already uses for this same companion, see startBg
+   below) fills the screen behind a dimming scrim, and the actual content sits inside #startCard,
+   the same chrome-and-shadow treatment every other card on this campus uses. A companion with no
+   portrait on file (Terry, Cassius) gets the plain warm background rather than a guessed image. */
 #startScreen {
   position: fixed; inset: 0; z-index: 20;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 1rem; padding: 2rem; text-align: center;
-  background: var(--paper); color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+  background: var(--paper) center/cover no-repeat;
 }
-#startScreen h1 { font-family: Georgia, serif; font-weight: 400; font-size: 1.6rem; margin: 0; }
-#startScreen p { max-width: 34ch; color: var(--ink-dim); margin: 0; font-size: .92rem; }
+#startScreen.has-photo { background-image: linear-gradient(rgba(20,16,10,.55), rgba(20,16,10,.55)), var(--start-photo); }
+#startCard {
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  max-width: 30rem; padding: 2rem 2.2rem; text-align: center;
+  background: var(--chrome); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 6px; box-shadow: 0 20px 50px rgba(0,0,0,.35);
+}
+#startCard h1 { font-family: Georgia, serif; font-weight: 400; font-size: 1.6rem; margin: 0; }
+#startCard p { max-width: 34ch; color: var(--ink-dim); margin: 0; font-size: .92rem; }
 
 #overlayWrap {
   position: fixed; z-index: 10; touch-action: none; cursor: grab;
@@ -228,6 +243,7 @@ body { position: relative; background: #000; }
 <body>
 
 <div id="startScreen">
+<div id="startCard">
   <h1 id="startTitle">In your room</h1>
   <p id="startBody">This uses your camera to put them in front of it, right on your own screen.
     Nothing is recorded, uploaded, or sent anywhere. It stays on this device, live, the whole time.</p>
@@ -260,6 +276,7 @@ body { position: relative; background: #000; }
       on the other, so you can still see and use the call. With one monitor, you will need
       to switch back and forth between them.</p>
   </details>
+</div>
 </div>
 
 <video id="camera" autoplay playsinline muted></video>
@@ -322,12 +339,14 @@ body { position: relative; background: #000; }
       color: 'video/tansy-ar-color.mp4',
       matte: 'video/tansy-ar-matte.mp4',
       ambience: SHARED_AMBIENCE,
+      photo: 'photos/tansy.jpg',
     },
     poppy: {
       name: 'Poppy',
       color: 'video/poppy-ar-color.mp4',
       matte: 'video/poppy-ar-matte.mp4',
       ambience: null,   // no ambience track, per Dr. O direct, same as Blue
+      photo: 'photos/poppy.jpg',
     },
     blue: {
       name: 'Blue',
@@ -336,12 +355,14 @@ body { position: relative; background: #000; }
       /* No ambience track for her -- her own clip's audio already carries
          nature sound, per Dr. O direct, so a second layer would double it. */
       ambience: null,
+      photo: 'photos/blue-atelier.jpg',
     },
     cressida: {
       name: 'Cressida',
       color: 'video/cressida-ar-color.mp4',
       matte: 'video/cressida-ar-matte.mp4',
       ambience: 'audio/cressida-ar-music.mp3',
+      photo: 'photos/cressida-portrait.jpg',
       /* GLOW, added 2026-09-06: her Object Mask export tracked her solid
          body only, not the soft ghost aura around her -- a translucent glow
          has feathered edges by nature, and a hard silhouette selection
@@ -384,6 +405,7 @@ body { position: relative; background: #000; }
       color: 'video/nell-ar-color.mp4',
       matte: 'video/nell-ar-matte.mp4',
       ambience: null,
+      photo: 'photos/nell-happy.jpg',
     },
     meera: {
       /* Dr. O direct: "Meera is a good company companion and she does
@@ -391,6 +413,7 @@ body { position: relative; background: #000; }
          especially well as a real thing standing in a room, more than a
          moving/talking scene would. No ambience given, so none assumed. */
       name: 'Meera',
+      photo: 'photos/meera-portrait.jpg',
       color: 'video/meera-ar-color.mp4',
       matte: 'video/meera-ar-matte.mp4',
       ambience: null,
@@ -416,6 +439,7 @@ body { position: relative; background: #000; }
       color: 'video/alice-ar-color.mp4',
       matte: 'video/alice-ar-matte.mp4',
       ambience: null,
+      photo: 'photos/alice-portrait.png',
     },
     arch: {
       /* Dr. O direct: "arch is sitting in a chair, this is different from
@@ -425,6 +449,7 @@ body { position: relative; background: #000; }
          setupBuffers finds, nothing here assumes a portrait aspect ratio).
          No ambience given, so none assumed. */
       name: 'Arch',
+      photo: 'photos/arch-onsite.png',
       color: 'video/arch-ar-color.mp4',
       matte: 'video/arch-ar-matte.mp4',
       ambience: null,
@@ -435,6 +460,14 @@ body { position: relative; background: #000; }
 
   document.title = 'Good Company: ' + companion.name + ', in your room';
   document.getElementById('startTitle').textContent = companion.name + ', in your room';
+  /* THE BACKDROP, added 2026-09-10: the same portrait AR_FRAMES already shows for this companion
+     on the AR floor itself, so the gate they land on afterward looks like part of the same place
+     rather than a bare page it dropped them onto. No image invented for a companion with none on
+     file (Terry, Cassius) -- they get the plain warm background instead of a guess. */
+  if (companion.photo) {
+    document.getElementById('startScreen').classList.add('has-photo');
+    document.getElementById('startScreen').style.setProperty('--start-photo', 'url(' + companion.photo + ')');
+  }
   document.getElementById('startBody').textContent = 'This uses your camera to put ' +
     companion.name + ' in front of it, right on your own screen. Nothing is recorded, ' +
     'uploaded, or sent anywhere. It stays on this device, live, the whole time.';
