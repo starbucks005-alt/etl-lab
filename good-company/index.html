@@ -901,11 +901,24 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .gc-wrap{ max-width:760px; margin:0 auto; padding:11rem var(--pad) 4rem; text-align:center; }
 .gc-lede{ color:var(--ink-dim); font-size:1rem; max-width:60ch; margin:0 auto 2rem; }
 .gc-stage{
-  width:min(320px, 70vw); aspect-ratio:1/1; margin:0 auto 1.6rem; border-radius:12px;
-  overflow:hidden; background:var(--panel); border:1px solid var(--line);
+  position:relative; width:min(320px, 70vw); aspect-ratio:1/1; margin:0 auto 1.6rem;
+  border-radius:12px; overflow:hidden; background:var(--panel); border:1px solid var(--line);
   display:flex; align-items:center; justify-content:center;
 }
-.gc-portrait{ width:100%; height:100%; object-fit:cover; transition:filter .3s ease; }
+.gc-portrait{ width:100%; height:100%; object-fit:cover; }
+/* THE TINT, REBUILT 2026-09-10. Dr. O: "the colors you picked do not sync with the colors shown
+   in the image and they are barely tinted." hue-rotate() was the bug: it only rotates hues
+   already IN the photo, and does almost nothing to the near-white/gray plastic that makes up
+   most of GC's shell, so a "blue" pick barely touched the body and shifted the eye-glow to some
+   other, unrelated color instead of blue. A real color overlay in mix-blend-mode:color takes the
+   swatch's own hue and saturation and paints it across the photo's actual light and shadow, so
+   the swatch you press is the color that shows up, on the shell itself, not just a stray tint on
+   the brightest pixel. */
+.gc-tint-layer{
+  position:absolute; inset:0; pointer-events:none; background:transparent;
+  mix-blend-mode:color; opacity:0; transition:opacity .25s ease, background-color .25s ease;
+}
+.gc-tint-layer.on{ opacity:.9; }
 .gc-picker-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:2rem; margin-bottom:2rem; }
 .gc-picker{ display:flex; align-items:center; gap:.5rem; }
 .gc-picker-label{
@@ -1604,6 +1617,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 
     <div class="gc-stage">
       <img class="gc-portrait" id="gcPortrait" src="photos/gc-robot-m.png" alt="GC">
+      <div class="gc-tint-layer" id="gcTintLayer"></div>
     </div>
 
     <div class="gc-picker-row">
@@ -1614,11 +1628,11 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       </div>
       <div class="gc-picker" role="group" aria-label="Choose GC's color">
         <span class="gc-picker-label">Color</span>
-        <button class="gc-swatch on" type="button" data-tint="0" style="--sw:#eef1f4;" aria-label="Original"></button>
-        <button class="gc-swatch" type="button" data-tint="190" style="--sw:#4fa7c9;" aria-label="Blue"></button>
-        <button class="gc-swatch" type="button" data-tint="330" style="--sw:#d9598c;" aria-label="Pink"></button>
-        <button class="gc-swatch" type="button" data-tint="140" style="--sw:#4bb388;" aria-label="Green"></button>
-        <button class="gc-swatch" type="button" data-tint="45" style="--sw:#e0a63a;" aria-label="Gold"></button>
+        <button class="gc-swatch on" type="button" data-tint="" style="--sw:#eef1f4;" aria-label="Original"></button>
+        <button class="gc-swatch" type="button" data-tint="#3d8fc9" style="--sw:#3d8fc9;" aria-label="Blue"></button>
+        <button class="gc-swatch" type="button" data-tint="#d13d78" style="--sw:#d13d78;" aria-label="Pink"></button>
+        <button class="gc-swatch" type="button" data-tint="#2fa571" style="--sw:#2fa571;" aria-label="Green"></button>
+        <button class="gc-swatch" type="button" data-tint="#d9971f" style="--sw:#d9971f;" aria-label="Gold"></button>
       </div>
     </div>
 
@@ -2227,17 +2241,19 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     var wrap = document.querySelector('.gc-wrap');
     if (!wrap) return;
     var portrait = document.getElementById('gcPortrait');
+    var tintLayer = document.getElementById('gcTintLayer');
     var arBtn = document.getElementById('gcArBtn');
     var shellBtns = Array.prototype.slice.call(wrap.querySelectorAll('[data-shell]'));
     var tintBtns = Array.prototype.slice.call(wrap.querySelectorAll('[data-tint]'));
     var PORTRAIT_BY_SHELL = { male: 'photos/gc-robot-m.png', female: 'photos/gc-astra9.png' };
-    var shell = 'male', tint = '0';
+    var shell = 'male', tint = '';
     try { shell = localStorage.getItem('gc_gc_shell') || 'male'; } catch (e) {}
-    try { tint = localStorage.getItem('gc_gc_tint') || '0'; } catch (e) {}
+    try { tint = localStorage.getItem('gc_gc_tint') || ''; } catch (e) {}
 
     function paint() {
       portrait.src = PORTRAIT_BY_SHELL[shell] || PORTRAIT_BY_SHELL.male;
-      portrait.style.filter = tint === '0' ? '' : 'hue-rotate(' + tint + 'deg) saturate(1.4)';
+      tintLayer.style.backgroundColor = tint || 'transparent';
+      tintLayer.classList.toggle('on', !!tint);
       arBtn.href = 'ar.html?who=gc-' + (shell === 'female' ? 'f' : 'm');
       shellBtns.forEach(function (b) {
         b.classList.toggle('on', b.getAttribute('data-shell') === shell);
