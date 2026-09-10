@@ -205,6 +205,8 @@ a:hover { color: var(--green); }
 .bio-btn:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
 .bio-btn:disabled { opacity: .5; cursor: not-allowed; }
 .bio-btn--stop { display: none; color: #d97a6c; border-color: #d97a6c; }
+.bio-btn--voice { border-color: var(--green); color: var(--green); }
+.bio-btn--voice.is-off { border-color: var(--line); color: var(--mute); }
 .bio-btn--stop:hover { background: var(--panel2); border-color: #d97a6c; color: #d97a6c; }
 
 .chat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; }
@@ -263,6 +265,7 @@ a:hover { color: var(--green); }
       <div class="bio-controls">
         <button type="button" class="bio-btn" id="playBio">&#9654; Hear a voice imagined for <span id="bioBtnName"></span></button>
         <button type="button" class="bio-btn bio-btn--stop" id="stopBio">&#9632; Stop</button>
+        <button type="button" class="bio-btn bio-btn--voice" id="voiceToggle" aria-pressed="true">&#128266; Answers out loud: on</button>
       </div>
     </div>
 
@@ -377,17 +380,22 @@ var ORDER = ['roosevelt', 'curie', 'wooden', 'perkins', 'gandhi', 'csking', 'mlk
   portraitClosedEl.src = '/assets/leadership/ldr_' + AGENT + '-eyes-closed.' + ext;
   portraitClosedEl.onerror = function () { this.style.display = 'none'; };
 
-  // Voice plays for the bio (the introduction) only, not every chat reply --
-  // same cost-conscious call as the History: Denmark classroom (kronborg-
-  // agent.html): keeps the back-and-forth text-only, and bio text is
-  // resolved server-side from leadership-chat.js's BIOS (one authoritative
-  // copy) so this only sends which agent to speak, not the text itself.
+  // Two things get spoken here. The bio sends only which agent to speak, and
+  // leadership-voice.js resolves the words server-side from its own BIOS, so
+  // the words on screen and the words spoken cannot drift. A chat answer has
+  // to send the text, because it is new every time.
+  //
+  // Answers out loud is ON by default, added 2026-09-10 for teaching the class
+  // live: the room hears the leader instead of Dr. O reading the screen out to
+  // them. The toggle sits with the other voice buttons and is remembered, for
+  // anyone reading on their own in a quiet room.
   var audio = null;
-  function fetchVoice() {
+  function fetchVoice(said) {
+    var payload = said ? { agent: AGENT, text: said } : { agent: AGENT };
     return fetch(VOICE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agent: AGENT })
+      body: JSON.stringify(payload)
     }).then(function (res) { return res.ok ? res.blob() : null; }).catch(function () { return null; });
   }
   function playBlob(blob) {
@@ -434,6 +442,43 @@ var ORDER = ['roosevelt', 'curie', 'wooden', 'perkins', 'gandhi', 'csking', 'mlk
       });
     });
   });
+
+  // Same play/stop machinery as the bio, including playToken, so an answer
+  // and a bio can never end up talking over each other.
+  var voiceOn = true;
+  try { voiceOn = localStorage.getItem('etl_leadership_voice') !== 'off'; } catch (_) {}
+  var voiceToggle = document.getElementById('voiceToggle');
+  function syncVoiceToggle() {
+    voiceToggle.innerHTML = voiceOn ? '&#128266; Answers out loud: on' : '&#128263; Answers out loud: off';
+    voiceToggle.setAttribute('aria-pressed', voiceOn ? 'true' : 'false');
+    voiceToggle.classList.toggle('is-off', !voiceOn);
+  }
+  syncVoiceToggle();
+  voiceToggle.addEventListener('click', function () {
+    voiceOn = !voiceOn;
+    try { localStorage.setItem('etl_leadership_voice', voiceOn ? 'on' : 'off'); } catch (_) {}
+    if (!voiceOn) stopBio();
+    syncVoiceToggle();
+  });
+
+  function speakReply(said) {
+    if (!voiceOn || !said) return;
+    var myToken = ++playToken;
+    portrait.classList.add('is-speaking');
+    stopBioBtn.style.display = 'inline-block';
+    function done() {
+      if (myToken !== playToken) return;
+      portrait.classList.remove('is-speaking');
+      stopBioBtn.style.display = 'none';
+    }
+    fetchVoice(said).then(function (blob) {
+      if (myToken !== playToken) return;
+      // No audio is not an error worth interrupting a class for: the answer is
+      // already on screen to read.
+      if (!blob) { done(); return; }
+      return playBlob(blob).then(done);
+    });
+  }
 
   var chipsEl = document.getElementById('chips');
   agent.chips.forEach(function (c) {
@@ -571,6 +616,7 @@ var ORDER = ['roosevelt', 'curie', 'wooden', 'perkins', 'gandhi', 'csking', 'mlk
         bubble('her', data.body);
         history.push({ role: 'assistant', body: data.body });
         if (data.scales) { scales = data.scales; updateGauge(); }
+        speakReply(data.body);
       }
     }).catch(function () {
       typing.remove();

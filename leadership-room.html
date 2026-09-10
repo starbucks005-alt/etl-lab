@@ -160,7 +160,15 @@ a:hover { color: var(--green); }
 .avatars span { font-family: 'IBM Plex Mono', monospace; font-size: .7rem; color: var(--mute); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .7rem; cursor: pointer; transition: border-color .15s, color .15s; }
 .avatars span:hover { border-color: var(--blue-br); }
 .avatars span.is-pinned { border-color: var(--blue-br); color: var(--blue-br); }
+.avatars span.is-speaking { border-color: var(--green); color: var(--green); }
 .avatars-hint { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; color: var(--mute); margin: 0 0 .6rem; }
+.hint-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.voice-toggle {
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .06em;
+  background: none; border: 1px solid var(--green); color: var(--green);
+  border-radius: 999px; padding: .3rem .7rem; cursor: pointer; margin: 0 0 .6rem;
+}
+.voice-toggle.is-off { border-color: var(--line); color: var(--mute); }
 
 .gauge-wrap { display: none; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .7rem .9rem; min-width: 150px; flex: 0 0 auto; }
 .gauge-wrap.is-visible { display: block; }
@@ -234,7 +242,10 @@ a:hover { color: var(--green); }
   </div>
 
   <div class="chat" id="chat">
-    <p class="avatars-hint">Click a name to track their mood scale.</p>
+    <div class="hint-row">
+      <p class="avatars-hint">Click a name to track their mood scale.</p>
+      <button type="button" class="voice-toggle" id="voiceToggle" aria-pressed="true">&#128266; Voices on</button>
+    </div>
     <div class="avatars-row">
       <div class="avatars" id="avatars"></div>
       <div class="gauge-wrap" id="gaugeWrap">
@@ -350,6 +361,7 @@ var MAX_AGENTS = 6;
   };
   var pinnedKey = null;
   var lastAgentState = {};
+  var avatarSpans = {};
   function pinAgent(key, spanEl) {
     var wasAlreadyPinned = pinnedKey === key;
     Array.prototype.forEach.call(avatarsEl.querySelectorAll('span'), function (s) { s.classList.remove('is-pinned'); });
@@ -394,6 +406,7 @@ var MAX_AGENTS = 6;
       var span = document.createElement('span');
       span.textContent = a.name;
       span.addEventListener('click', function () { pinAgent(key, span); });
+      avatarSpans[key] = span;
       avatarsEl.appendChild(span);
     });
     bubble('system', 'The table is quiet. Say something to begin.');
@@ -449,18 +462,84 @@ var MAX_AGENTS = 6;
   });
   sendEl.addEventListener('click', send);
 
+  /* Voices, added 2026-09-10 so the table can be heard while it is taught,
+     instead of the class reading ten leaders off a screen. On by default and
+     remembered. Each leader's voiceId lives server-side in leadership-chat.js;
+     this only sends who is speaking and what they said.
+
+     One at a time, always: the next leader does not start until the one before
+     has finished, which is what makes it sound like a table rather than a
+     crowd. The audio is fetched while the "thinking" beat is running, so their
+     words and their voice arrive together. */
+  var VOICE_URL = '/.netlify/functions/leadership-voice';
+  var voiceOn = true;
+  try { voiceOn = localStorage.getItem('etl_leadership_voice') !== 'off'; } catch (_) {}
+  var roomAudio = null;
+  var voiceToggle = document.getElementById('voiceToggle');
+  function syncVoiceToggle() {
+    voiceToggle.innerHTML = voiceOn ? '&#128266; Voices on' : '&#128263; Voices off';
+    voiceToggle.setAttribute('aria-pressed', voiceOn ? 'true' : 'false');
+    voiceToggle.classList.toggle('is-off', !voiceOn);
+  }
+  syncVoiceToggle();
+  voiceToggle.addEventListener('click', function () {
+    voiceOn = !voiceOn;
+    try { localStorage.setItem('etl_leadership_voice', voiceOn ? 'on' : 'off'); } catch (_) {}
+    // Turning voices off stops the leader mid-sentence, which is the point of
+    // reaching for it in a room full of people.
+    if (!voiceOn && roomAudio) { try { roomAudio.pause(); } catch (_) {} }
+    syncVoiceToggle();
+  });
+
+  function fetchVoice(key, said) {
+    return fetch(VOICE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent: key, text: said })
+    }).then(function (res) { return res.ok ? res.blob() : null; }).catch(function () { return null; });
+  }
+
+  // Never rejects, and never leaves the conversation stuck: no audio, a dead
+  // speaker, or voices switched off mid-sentence all just move the table on.
+  function speak(key, blob) {
+    return new Promise(function (resolve) {
+      if (!blob || !voiceOn) { resolve(); return; }
+      var span = avatarSpans[key];
+      if (span) span.classList.add('is-speaking');
+      function done() {
+        if (span) span.classList.remove('is-speaking');
+        resolve();
+      }
+      if (roomAudio) { try { roomAudio.pause(); } catch (_) {} }
+      roomAudio = new Audio(URL.createObjectURL(blob));
+      roomAudio.onended = done;
+      roomAudio.onerror = done;
+      roomAudio.onpause = done;
+      roomAudio.play().catch(done);
+    });
+  }
+
   function revealNext(replies, i, onDone) {
     if (i >= replies.length) { onDone(); return; }
     var r = replies[i];
     var agent = agentByKey(r.agent_key);
+    var audioReady = voiceOn ? fetchVoice(r.agent_key, r.reply) : Promise.resolve(null);
     var thinking = bubble('system', (agent ? agent.name : 'Someone') + ' is thinking...');
-    var typingDelay = Math.min((r.reply || '').length * 16, 3000);
+    // A read-along typing pause is dead air once the reply is also spoken, so
+    // it shortens to a beat when voices are on.
+    var typingDelay = voiceOn
+      ? Math.min((r.reply || '').length * 5, 1200)
+      : Math.min((r.reply || '').length * 16, 3000);
     var delay = 500 + Math.random() * 700 + typingDelay;
     setTimeout(function () {
       thinking.remove();
       bubble('agent', r.reply, agent ? agent.name : r.agent_name, r.mood);
-      var pause = 500 + Math.random() * 900;
-      setTimeout(function () { revealNext(replies, i + 1, onDone); }, pause);
+      audioReady.then(function (blob) {
+        return speak(r.agent_key, blob);
+      }).then(function () {
+        var pause = 500 + Math.random() * 900;
+        setTimeout(function () { revealNext(replies, i + 1, onDone); }, pause);
+      });
     }, delay);
   }
 
