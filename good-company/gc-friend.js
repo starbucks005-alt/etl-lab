@@ -5313,6 +5313,12 @@ var GC_ROBOT = {
       where: 'A row of retro arcade cabinets, neon marquees lit up on both sides, one light ' +
              'overhead in the aisle between them. GC stands there, at home in the noise and ' +
              'the color even with the machines quiet for the moment.' },
+    /* ADDED 2026-09-10, "together.mp4": both shells in one frame, holding hands. Listed on both
+       scenesMale and scenesFemale rather than living on just one -- whichever shell you have
+       chosen, this is still a real scene of GC's own to find, not the other shell's alone. */
+    { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
+      where: 'The same dark room, one light overhead. Both shells standing side by side, ' +
+             'holding hands, equally at home in it.' },
   ],
   /* FEMALE SCENE MOVED TO VIMEO, 2026-09-10 ("F-long"), same reasoning as the male scene above.
      thumb restored to gc-robot-f.jpg now that portraitFemale points to the same small mascot
@@ -5325,6 +5331,10 @@ var GC_ROBOT = {
       where: 'A row of retro arcade cabinets, neon marquees lit up on both sides, one light ' +
              'overhead in the aisle between them. GC stands there, at home in the noise and ' +
              'the color even with the machines quiet for the moment.' },
+    /* SAME CLIP AS scenesMale's own 'together' entry above -- one video, listed on both. */
+    { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
+      where: 'The same dark room, one light overhead. Both shells standing side by side, ' +
+             'holding hands, equally at home in it.' },
   ],
   talkingPoints: [
     'Can you help me word this message?',
