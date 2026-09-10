@@ -27,6 +27,20 @@ The second reason is this site. It deploys from `main`. Work sitting on a side
 branch is not on the site, so it is not done, and if she is teaching a class in
 twenty minutes it may as well not exist.
 
+The third reason is hers, 2026-09-10, and it is the worst of the three:
+
+> *"prior to that rule I had changes made that were not committed or pushed that
+> were weeks old and never identified because they were on a branch."*
+
+Finished work, asked for and done, that nobody could see and nobody knew to look
+for. A branch is where it goes to be forgotten. One was still sitting there when
+she said this: the unmute button she reported on the Almost Human intro film was
+fixed on 2026-09-04 and left on `claude/phone-screen-accessibility-7ly9tz`, six
+days off the site, brought onto main the same day she said the sentence above.
+
+So this rule is not only about where her uploads land. Anything finished belongs
+on `main` and pushed, today, or it is not finished.
+
 If a harness or a task description assigns a feature branch, main is still where
 this repository is worked on: push there, and say so.
 
