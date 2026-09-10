@@ -5128,7 +5128,13 @@ function speak(text, voiceId, onDone, bubble) {
   }).catch(function () { hush(); if (onDone) onDone(); });
 }
 
-var asAudio = false;
+/* DEFAULTS TO OFF, EXCEPT WHERE A FRIEND SAYS OTHERWISE. Added 2026-09-10, Dr. O direct:
+   "start with voice on in GC" -- a per-friend field (voiceDefaultOn) rather than a hardcoded
+   check for GC's own id here, same shape as opensAboutAI/glow/sessions: something one friend
+   needs lives on that friend's own object, not as a special case in this file. The button's own
+   starting label is kept in sync below so it never shows "Audio Off" while audio is actually on. */
+var asAudio = !!(FRIEND && FRIEND.voiceDefaultOn);
+if (asAudio) $('replyBtn').innerHTML = '&#127911; Audio On';
 $('replyBtn').addEventListener('click', function () {
   if (!gcSeenComposerIntro()) gcDismissComposerIntro();
   asAudio = !asAudio;

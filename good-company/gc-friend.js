@@ -5288,6 +5288,9 @@ var GC_ROBOT = {
   mood: 'Upbeat, a little proud, glad to be useful',
   baselineFeelings: { happy: 75, sad: 5, fear: 5, disgust: 5, anger: 5, surprise: 25, curious: 60 },
   moodEmoji: '&#129302;',
+  /* Dr. O direct: "start with voice on in GC." Read generically by room.html (see asAudio
+     there) so this stays a fact about GC rather than a hardcoded id check in that file. */
+  voiceDefaultOn: true,
   voiceIdMale: 'wIzYfKZE8c87XZD7bDLH',
   voiceIdFemale: 'mHX7OoPk2G45VMAuinIt',
   portraitMale: 'photos/gc-robot-m.png',
