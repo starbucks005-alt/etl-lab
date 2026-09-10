@@ -1133,7 +1133,13 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
        and gc-friend.js's GC_DEMOS/GC_DEMO_IDS stay as they are, internal
        plumbing nobody visiting the page ever sees. -->
   <section class="demos wrap" id="demos">
-    <h2>Meet Good Company's Companions</h2>
+    <!-- "& FRIENDS" ADDED 2026-09-10, Dr. O: the hero photo below started too far down the page,
+         and the fix was not to move the filter (it already sits directly above the wall photo)
+         but to shrink what sits above IT -- the old lede spent a whole sentence saying some
+         companions "come with family or friends of their own," which this heading now says in
+         two words, so that sentence came out of demos-note below rather than staying redundant
+         with it. -->
+    <h2>Meet Good Company's Companions &amp; Friends</h2>
     <!-- ADDED 2026-08-19 per Dr. O directly: trying a companion is often not
          trying one character, it is trying their whole cast -- turnOrder
          companions answer too (Tansy/Poppy/Blue, the Grimms, the puppet
@@ -1148,10 +1154,11 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          examples in visible copy rot the same way a hardcoded count does;
          this describes the feature instead of enumerating who currently
          has it. -->
-    <p class="demos-note">Some come with family or friends of their own, other voices you'll
-       meet along the way. The ones marked <span class="kid-badge" style="position:static">Kid
-       friendly</span> are made to be simple and safe for a young child to talk to on their own.</p>
-
+    <!-- THE OLD demos-note PARAGRAPH CAME OUT ENTIRELY, 2026-09-10. Dr. O: "no other floor has
+         that text disruption" -- a whole paragraph sitting between the heading and the hero photo
+         was the anomaly, not just the one sentence the new heading above absorbed. What it still
+         said that the heading does not (what "Kid friendly" actually means) now rides as a title
+         attribute on each kid-badge span instead of a standalone sentence. -->
     <!-- GENRE FILTER, added 2026-09-08 per Dr. O direct: 24 cards with no way to narrow them is
          a wall, not a roster. Each card below now carries a data-genre; this bar toggles a
          data-off attribute the same way the wall-pager already does on My Echo (see that file's
@@ -1195,37 +1202,37 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <img class="floor-band-room" src="photos/companions-band.jpg" alt="The companions wall, six lit frames.">
       <div class="wall-frame" data-slot="0" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
-        <span class="kid-badge" hidden>Kid friendly</span>
+        <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
         <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
         <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
       </div>
       <div class="wall-frame" data-slot="1" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
-        <span class="kid-badge" hidden>Kid friendly</span>
+        <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
         <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
         <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
       </div>
       <div class="wall-frame" data-slot="2" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
-        <span class="kid-badge" hidden>Kid friendly</span>
+        <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
         <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
         <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
       </div>
       <div class="wall-frame" data-slot="3" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
-        <span class="kid-badge" hidden>Kid friendly</span>
+        <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
         <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
         <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
       </div>
       <div class="wall-frame" data-slot="4" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
-        <span class="kid-badge" hidden>Kid friendly</span>
+        <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
         <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
         <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
       </div>
       <div class="wall-frame" data-slot="5" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
-        <span class="kid-badge" hidden>Kid friendly</span>
+        <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
         <button class="fav-star" type="button" data-fav-who="" aria-label="Favorite this companion">&#9733;</button>
         <div class="wall-frame-plate"><a class="wall-frame-name"></a><button class="demo-card-play wall-frame-play" type="button"></button></div>
       </div>
