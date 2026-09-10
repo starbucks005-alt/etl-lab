@@ -5360,8 +5360,7 @@ var GC_ROBOT = {
    into it -- see GC_ROBOT's own note above for that history. Dr. O's premise, direct: "astra-9
    wanted siblings... she was lonely." An early android build, found in a tailor's workshop
    (photos/gc-astra9.png, the AR pair, and her own scene all show the same setting: shelves of
-   folded fabric, spools of thread, a workbench). No voiceId yet -- placeholder below, do not
-   ship unfilled. */
+   folded fabric, spools of thread, a workbench). Voice handed over live: weA4Q36twV5kwSaTEL0Q. */
 var GC_ASTRA9 = {
   name: 'Astra-9',
   full: 'Astra-9',
@@ -5393,7 +5392,7 @@ var GC_ASTRA9 = {
   mood: 'Quiet, watchful, glad of the company',
   baselineFeelings: { happy: 40, sad: 40, fear: 10, disgust: 5, anger: 5, surprise: 20, curious: 55 },
   moodEmoji: '&#129302;',
-  voiceId: 'REPLACE_WITH_ASTRA9_VOICE_ID', // TODO: Dr. O sourcing this, do not ship unfilled
+  voiceId: 'weA4Q36twV5kwSaTEL0Q',
   portrait: 'photos/gc-astra9.png',
   scenes: [
     { key: 'shop', label: 'In the workshop', src: 'video/astra9-scene.mp4',
