@@ -454,6 +454,25 @@ body { position: relative; background: #000; }
       matte: 'video/arch-ar-matte.mp4',
       ambience: null,
     },
+    /* GC, ADDED 2026-09-10. Two registry entries rather than one, unlike gc-friend.js's single
+       GC_ROBOT object with a localStorage-read shell: this page is keyed entirely off ?who= in
+       the URL (see COMPANIONS lookup below), so the two shells need their own entries here to
+       each get their own color/matte pair and portrait. Whichever shell a visitor reaches this
+       page from should match the one shown on the Meet GC floor, via ?who=gc-m or ?who=gc-f. */
+    'gc-m': {
+      name: 'GC',
+      photo: 'photos/gc-robot-m.png',
+      color: 'video/gc-m-ar-color.mp4',
+      matte: 'video/gc-m-ar-matte.mp4',
+      ambience: null,
+    },
+    'gc-f': {
+      name: 'GC',
+      photo: 'photos/gc-robot-f.jpg',
+      color: 'video/gc-f-ar-color.mp4',
+      matte: 'video/gc-f-ar-matte.mp4',
+      ambience: null,
+    },
   };
   var askedFor = new URLSearchParams(location.search).get('who');
   var companion = COMPANIONS[askedFor] || COMPANIONS.tansy;

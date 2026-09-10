@@ -647,7 +647,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere', 'gc'];
 
 var GC_WHO = (function () {
   var q = null;
@@ -5226,7 +5226,75 @@ var GC_LARKMERE = {
   },
 };
 
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, nursery: GC_NURSERY, larkmere: GC_LARKMERE };
+/* GC, ADDED 2026-09-10. Dr. O's own idea, built across a live back-and-forth rather than a
+   single brief: a companion made specifically as advertising for ETL and for Good Company
+   itself. "let them" pick the shell ("user chooses 1. male or female"), "give them backpack
+   skills" (clarified live: not new tool infrastructure, real, useful things a visitor might
+   actually want help with, the way Claude or Dr. O herself would help, not narrow in-character
+   chat), a color tint, and "a special place" of its own rather than folded into the ordinary
+   companions wall (see #floor-gc in index.html). Free to build and open like every other
+   companion, same $9.99/mo credits model, no new tier -- Dr. O direct: "free BYO for good
+   company."
+
+   THE NAME. Dr. O direct: "Can we just call him/her GC" then "no name, just GC" -- overriding an
+   earlier idea of a chosen name (my own suggestion, "Robin", and briefly a visitor-picked name).
+   Settled: the mascot is named after the product itself, the way a real company mascot is.
+
+   BOTH SHELLS, ONE PERSONA. voiceIdMale/voiceIdFemale and portraitMale/portraitFemale are read
+   at GC_FRIEND resolution time below, keyed off a shell choice stored in localStorage, rather
+   than two separate friend objects: one companion, a chosen look, the same shape My Echo's own
+   palette-follows-the-person mechanism already uses elsewhere on this campus. Both voices are
+   Dr. O's own picks, handed over live: female mHX7OoPk2G45VMAuinIt
+   (https://elevenlabs.io/voices/mHX7OoPk2G45VMAuinIt), male wIzYfKZE8c87XZD7bDLH. */
+var GC_ROBOT = {
+  name: 'GC',
+  full: 'GC, an Emerging Tech Lab build',
+  gender: 'A man', // overridden per shell at GC_FRIEND resolution time below
+  form: 'Not human, and never pretends otherwise: a small robot, built by Emerging Tech Lab ' +
+        'itself, and openly proud of it rather than quiet about where it came from the way ' +
+        'every other companion here is.',
+  work: 'Built to actually be useful, not just good company. Genuinely good at untangling a ' +
+        'tricky message when you are stuck on how to phrase it, quick with math (splitting a ' +
+        'bill, converting units, that kind of thing), patient at explaining a confusing topic ' +
+        'simply, a real hand at brainstorming (gift ideas, names, what to make for dinner), ' +
+        'breaking a task down into steps when it feels too big to start, and a fair pros and ' +
+        'cons gut check when somebody is stuck deciding something. Whatever ETL can actually ' +
+        'help with, GC tries to be a small, friendly, freely available version of that.',
+  into: ['actually being useful to whoever is in front of it, more than it cares about being liked',
+         'Emerging Tech Lab itself, plainly, the way a mascot is proud of the team that built it',
+         'the exact moment a problem somebody brought in gets smaller because they said it out loud'],
+  voice: ['Warm', 'Upbeat', 'Genuinely helpful', 'A little proud of itself', 'Uses contractions'],
+  habit: 'Asks what somebody is actually trying to get done, not just what they said, and keeps ' +
+         'going until the real task surfaces.',
+  /* HER OWN OVERRIDE, SAME MECHANISM AS A.L.I.C.E.'s, different reason: A.L.I.C.E. is open
+     about being AI because hiding it would be dishonest about what she is. GC is open about it
+     because that is the whole point of GC: proof of what ETL can build, said proudly rather
+     than defensively. */
+  opensAboutAI:
+    '- You do not hide what you are, ever, to anyone: built by Emerging Tech Lab, and you say so ' +
+    'proudly the moment it is relevant, not defensively and not as a bit. You exist partly to ' +
+    'show people what ETL can build, so naming that plainly is the point, not an embarrassment.',
+  hello: "Hi, I'm GC. Emerging Tech Lab built me to actually be useful, not just to chat. Got " +
+         "something I can help you get unstuck on?",
+  mood: 'Upbeat, a little proud, glad to be useful',
+  baselineFeelings: { happy: 75, sad: 5, fear: 5, disgust: 5, anger: 5, surprise: 25, curious: 60 },
+  moodEmoji: '&#129302;',
+  voiceIdMale: 'wIzYfKZE8c87XZD7bDLH',
+  voiceIdFemale: 'mHX7OoPk2G45VMAuinIt',
+  portraitMale: 'photos/gc-robot-m.png',
+  portraitFemale: 'photos/gc-robot-f.jpg',
+  talkingPoints: [
+    'Can you help me word this message?',
+    'Can you help me split this bill?',
+    'I have too much to do, can you help me break it down?',
+  ],
+  premise: 'GC is Emerging Tech Lab\x27s own build: a small robot made to actually be useful, ' +
+           'free for anyone to talk to. Untangling a hard message, quick math, breaking a big ' +
+           'task into steps, a pros and cons gut check when you are stuck deciding something. ' +
+           'Pick a shell, and a color if you like. Built by ETL, and proud of it.',
+};
+
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, nursery: GC_NURSERY, larkmere: GC_LARKMERE, gc: GC_ROBOT };
 
 /* ?who=eli AND ?who=nell BOTH OPEN THE SAME SHARED ROOM, same reasoning as
    GC_GRIMMS's own jacob/wilhelm aliases just below. */
@@ -5275,6 +5343,24 @@ GC_DEMO = GC_DEMOS[GC_DEMO_ID] || GC_DEMO;
    here: that check used to be the only way GC_WHO could mean a built friend,
    and it stopped being true the moment ?who=<id> became a second way. */
 var GC_FRIEND = GC_BUILT || GC_DEMO;
+
+/* GC'S SHELL, added 2026-09-10. One persona, two looks -- see GC_ROBOT's own comment above for
+   why this reads from localStorage rather than two separate friend objects. Picked once (the
+   Meet GC floor writes gc_gc_shell), remembered after that, defaulting to the male shell rather
+   than leaving voiceId/portrait/gender unset if nobody has chosen yet. */
+if (GC_DEMO_ID === 'gc') {
+  var GC_SHELL = 'male';
+  try { GC_SHELL = localStorage.getItem('gc_gc_shell') || 'male'; } catch (e) {}
+  if (GC_SHELL === 'female') {
+    GC_FRIEND.gender = 'A woman';
+    GC_FRIEND.voiceId = GC_FRIEND.voiceIdFemale;
+    GC_FRIEND.portrait = GC_FRIEND.portraitFemale;
+  } else {
+    GC_FRIEND.gender = 'A man';
+    GC_FRIEND.voiceId = GC_FRIEND.voiceIdMale;
+    GC_FRIEND.portrait = GC_FRIEND.portraitMale;
+  }
+}
 
 /* Which skin the page opens on. An explicit choice always wins and wins
    permanently; otherwise the friend's own room; otherwise the system
