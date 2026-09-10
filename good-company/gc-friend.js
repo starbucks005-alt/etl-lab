@@ -5311,13 +5311,33 @@ var GC_ROBOT = {
      for GC. Note this uses the small mascot design for BOTH the male shell's scene and the
      female shell's scene, not the taller Astra-9 build the female AR pair and portrait now use --
      that is simply what these two clips actually show, not a mismatch to fix. */
+  /* MALE SCENE MOVED TO VIMEO, 2026-09-10 ("M-long"), same hosting pattern Reggie's spa and
+     Tansy's garden scenes already use for a real, longer clip rather than a local Veo file --
+     src stays null, room.html reads vimeoId instead. thumb is the same still already used for
+     the picker portrait, a real chosen frame rather than a guess through vumbnail.com. */
   scenesMale: [
-    { key: 'default', label: 'GC', src: 'video/gc-m-scene.mp4',
+    { key: 'default', label: 'GC', src: null, vimeoId: '1225756712', thumb: 'photos/gc-robot-m.png',
       where: 'A dark room, one soft light overhead. GC just stands there, quietly pleased to.' },
+    /* ADDED 2026-09-10, "GC-m". A second real scene rather than a replacement for the one
+       above -- same shape as every other companion who gets more than one room to be found in. */
+    { key: 'arcade', label: 'At the arcade', src: null, vimeoId: '1225756710',
+      where: 'A row of retro arcade cabinets, neon marquees lit up on both sides, one light ' +
+             'overhead in the aisle between them. GC stands there, at home in the noise and ' +
+             'the color even with the machines quiet for the moment.' },
   ],
+  /* FEMALE SCENE MOVED TO VIMEO, 2026-09-10 ("F-long"), same reasoning as the male scene above.
+     NO thumb HERE ON PURPOSE: this clip shows the small eyelashed mascot design, not the taller
+     Astra-9 build portraitFemale now points to, and there is no saved still of this exact
+     design to hand it -- room.html falls back to Vimeo's own vumbnail.com frame instead of
+     being handed the wrong companion's picture. */
   scenesFemale: [
-    { key: 'default', label: 'GC', src: 'video/gc-f-scene.mp4',
+    { key: 'default', label: 'GC', src: null, vimeoId: '1225756708',
       where: 'A dark room, one soft light overhead. GC just stands there, quietly pleased to.' },
+    /* ADDED 2026-09-10, "GC-f", matching "GC-m" above. */
+    { key: 'arcade', label: 'At the arcade', src: null, vimeoId: '1225756711',
+      where: 'A row of retro arcade cabinets, neon marquees lit up on both sides, one light ' +
+             'overhead in the aisle between them. GC stands there, at home in the noise and ' +
+             'the color even with the machines quiet for the moment.' },
   ],
   talkingPoints: [
     'Can you help me word this message?',
