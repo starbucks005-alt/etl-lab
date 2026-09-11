@@ -1363,7 +1363,10 @@ exports.handler = async function (event) {
          per model, so a run of beats caches among themselves rather than
          against the Sonnet turns around them; a run is six at most. */
       model: spectate ? SPECTATE_MODEL : TURN_MODEL,
-      max_tokens: 500,
+      /* 500 was cutting real conversation off mid-thought (Pookie caught Gracie
+         stopping on "yet", no punctuation). Spectate beats stay short on purpose,
+         a real one-on-one reply needs room to actually finish. */
+      max_tokens: spectate ? 500 : 900,
       system: [
         { type: 'text', text: staticSystem, cache_control: { type: 'ephemeral' } },
         { type: 'text', text: dynamicSystem },
