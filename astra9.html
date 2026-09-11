@@ -29,7 +29,7 @@
   figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
   figure img{width:100%;display:block;aspect-ratio:4/5;object-fit:cover}
   figcaption{padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--mute);display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-  figcaption .scene{color:var(--ice);font-size:13px}
+  figcaption .scene{color:var(--ice);font-size:13px;font-weight:600}
   figcaption .stamp{color:var(--gold);white-space:nowrap;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
   .note{max-width:640px;font-size:14px;color:var(--mute);border-left:2px solid var(--line2);padding-left:16px;margin:32px 0}
   .signup{max-width:480px;margin:56px 0 0;padding:28px;background:var(--panel2);border:1px solid var(--line);border-radius:10px}
@@ -41,6 +41,8 @@
   .signup button{padding:11px 20px;border-radius:6px;border:1px solid var(--cyan-dim);background:rgba(70,214,230,.12);
         color:var(--cyan);font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
   .signup button:hover{background:rgba(70,214,230,.22)}
+  .signup select{width:100%;margin-top:10px;padding:10px 12px;border-radius:6px;border:1px solid var(--line2);
+        background:var(--bg2);color:var(--mute);font-size:13px;font-family:var(--body)}
   .status{font-family:var(--mono);font-size:12px;margin-top:12px}
   .status.ok{color:var(--green)}
   .status.err{color:var(--rose)}
@@ -60,7 +62,8 @@
     someone's there, listens for her name, and talks back in her own real voice.</p>
     <p>The images below are concept renderings, not photographs of a finished product. They show
     what we're building toward: a companion who fits into an actual home, an actual classroom, an
-    actual workshop, not a screen.</p>
+    actual workshop, not a screen. She arrives ready to talk, and gains real skills over time,
+    ones suited to wherever she lives.</p>
   </div>
 
   <div class="gallery">
@@ -103,6 +106,13 @@
     <form id="astra9WaitForm">
       <input type="email" id="astra9WaitEmail" placeholder="you@email.com" required>
       <button type="submit">Notify me</button>
+      <select id="astra9WaitUseCase">
+        <option value="">Where would you put YOUR Astra-9? (optional)</option>
+        <option value="home">Home, a companion for someone</option>
+        <option value="education">Education, a classroom or lecture</option>
+        <option value="workshop">Workshop or garage</option>
+        <option value="other">Somewhere else</option>
+      </select>
     </form>
     <div id="astra9WaitStatus" class="status"></div>
   </div>
@@ -114,6 +124,7 @@
 (function(){
   var form = document.getElementById('astra9WaitForm');
   var input = document.getElementById('astra9WaitEmail');
+  var useCase = document.getElementById('astra9WaitUseCase');
   var status = document.getElementById('astra9WaitStatus');
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -123,7 +134,7 @@
     fetch('/.netlify/functions/astra9-waitlist', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email: email})
+      body: JSON.stringify({email: email, use_case: useCase.value || null})
     }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
       .then(function(res){
         if (res.ok && res.d && res.d.ok) {

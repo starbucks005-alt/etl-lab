@@ -7,6 +7,10 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+/* Optional, self-reported, so a bad or missing value is never a reason to
+   reject a signup -- worst case it is just not stored. */
+const USE_CASES = ['home', 'education', 'workshop', 'other'];
+
 exports.handler = async function(event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'method_not_allowed' }) };
@@ -20,6 +24,7 @@ exports.handler = async function(event) {
   if (!email || !isValidEmail(email)) {
     return { statusCode: 400, body: JSON.stringify({ error: 'invalid_email' }) };
   }
+  const useCase = USE_CASES.includes(body.use_case) ? body.use_case : null;
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) {
@@ -35,7 +40,7 @@ exports.handler = async function(event) {
         'Authorization': `Bearer ${serviceKey}`,
         'Prefer': 'resolution=ignore-duplicates',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, use_case: useCase }),
     });
 
     if (!r.ok && r.status !== 409) {
