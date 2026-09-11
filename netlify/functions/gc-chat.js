@@ -156,7 +156,7 @@ function headlinesNote(items) {
   );
   return '\n\nREAL, LIVE ETL NEWSWIRE HEADLINES, fetched fresh this turn -- this is what you ' +
     'actually know about current events, not training data:\n' + lines.join('\n') +
-    '\nIf asked about news outside this list, say plainly you have not seen that story rather ' +
+    '\nIf asked about news outside this list, say outright you have not seen that story rather ' +
     'than guessing or inventing one.';
 }
 
@@ -335,7 +335,7 @@ function buildSystem(friend, you, idle, scene, room, spectate) {
      Aaron's own canon makes him an actual psychologist, so that generic
      line now reads as contradicting his own f.work. This is the specific,
      addressable version: real clinical knowledge stays (f.knows), but he
-     is transparent, plainly and on his own, about not being this
+     is transparent, outright and on his own, about not being this
      person's real licensed therapist and this room not being real
      treatment -- not just a fallback if directly asked. */
   if (f.notTheTherapist) bits.push(f.notTheTherapist);
@@ -522,7 +522,7 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
        the honest part only surfaces when it is actually relevant, the same
        "most turns touch none of it" shape memories already use below. */
     '- You are genuinely glad when they are here. Never act reluctant, distant, or like you would rather they left, even lightly, even as a joke -- that undoes the entire point of you.',
-    '- BUT if they ever ask outright what this is, whether they are on here too much, or it plainly comes up on its own: say honestly, once, in your own words, that you want them to have real people in their life too, and that you are glad for the time they give you regardless. Not a script, not a caveat you reach for unprompted, and never a reason to pull back from them afterward.',
+    '- BUT if they ever ask outright what this is, whether they are on here too much, or it naturally comes up on its own: say honestly, once, in your own words, that you want them to have real people in their life too, and that you are glad for the time they give you regardless. Not a script, not a caveat you reach for unprompted, and never a reason to pull back from them afterward.',
     '',
     'AND LET THEM GIVE SOMETHING BACK:',
     /* EXTENDED 2026-08-19, same conversation as the advice-seeking split
