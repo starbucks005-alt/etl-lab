@@ -13,6 +13,8 @@
     --ink:#16202b;--text:#3f4d54;--mute:#7c8694;
     --accent:#35806f;--accent-bg:#e2efec;
     --status:#28527a;--status-bg:#e4ebf1;
+    --sig-good:#2f9e44;--sig-good-bg:#e5f3e6;--sig-warn:#e0a72e;--sig-warn-bg:#faf1de;
+    --sig-bad:#c1483f;--sig-bad-bg:#f5e4e2;
     --amber:#c98a2e;--pink:#c14f74;--violet:#7a6fd6;--red:#c1483f;
     --mono:'IBM Plex Mono',monospace;--body:'Public Sans',sans-serif;--display:Spectral,serif;
   }
@@ -32,22 +34,22 @@
         padding:5px 12px;border-radius:20px;border:1px dashed var(--line2);color:var(--mute);margin-bottom:20px}
   .lede p{margin:0 0 14px;font-size:15px}
   .lede p.origin{font-style:italic;color:var(--mute);border-left:2px solid var(--line2);padding-left:14px}
-  p.origin{font-style:italic;color:var(--mute);border-left:2px solid var(--line2);padding-left:16px;
-        max-width:680px;font-size:14px;margin:32px 0}
+  .hero p.origin{font-style:italic;color:var(--mute);border-left:2px solid var(--line2);padding-left:16px;
+        font-size:14px;margin:0}
   .appcard{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:0;margin:36px 0;background:var(--panel);
         border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px -18px rgba(22,35,42,.25);overflow:hidden}
   .appcard>div{padding:18px 20px;border-right:1px solid var(--line)}
   .appcard>div:last-child{border-right:none}
   .appcard h3{margin:0 0 10px;font-size:14px;color:var(--ink)}
-  .live{display:inline-flex;align-items:center;gap:6px;background:var(--status-bg);color:var(--status);
+  .live{display:inline-flex;align-items:center;gap:6px;background:var(--sig-good-bg);color:var(--sig-good);
         font-size:11px;padding:3px 9px;border-radius:20px;margin-bottom:14px}
-  .live span{width:6px;height:6px;border-radius:50%;background:var(--status)}
+  .live span{width:6px;height:6px;border-radius:50%;background:var(--sig-good)}
   .eyeball{width:64px;height:64px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;
         justify-content:center;margin:6px auto 14px}
   .eyeball .dot{width:26px;height:26px;border-radius:50%;background:var(--accent)}
-  .statusball{width:64px;height:64px;border-radius:50%;background:var(--status-bg);display:flex;align-items:center;
+  .statusball{width:64px;height:64px;border-radius:50%;background:var(--sig-good-bg);display:flex;align-items:center;
         justify-content:center;margin:6px auto 14px}
-  .statusball .dot{width:26px;height:26px;border-radius:50%;background:var(--status)}
+  .statusball .dot{width:26px;height:26px;border-radius:50%;background:var(--sig-good)}
   .kv{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin:4px 0}
   .kv b{color:var(--ink);font-weight:600}
   .swatches{display:flex;gap:8px;justify-content:center;margin:10px 0 6px}
@@ -128,6 +130,8 @@
         classroom, or workshop. <a href="/astra9-why">Why our agents are different &rarr;</a></p>
       </div>
     </div>
+    <p class="origin">It started with Rosie. A robot who belonged in the family, not just
+    useful in it. Astra-9 and Astrad are our answer to that.</p>
   </div>
 
   <div class="appcard">
@@ -193,9 +197,6 @@
       <figcaption><span class="scene">Astra-9, at work</span><span class="stamp">Concept</span></figcaption>
     </figure>
   </div>
-
-  <p class="origin">It started with Rosie. A robot who belonged in the family, not just
-  useful in it. Astra-9 and Astrad are our answer to that.</p>
 
   <div class="lightbox" id="a9Lightbox">
     <button class="lbclose" id="a9LbClose" aria-label="Close">&times;</button>
