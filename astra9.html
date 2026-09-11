@@ -43,6 +43,9 @@
   .eyeball{width:64px;height:64px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;
         justify-content:center;margin:6px auto 14px}
   .eyeball .dot{width:26px;height:26px;border-radius:50%;background:var(--accent)}
+  .statusball{width:64px;height:64px;border-radius:50%;background:var(--status-bg);display:flex;align-items:center;
+        justify-content:center;margin:6px auto 14px}
+  .statusball .dot{width:26px;height:26px;border-radius:50%;background:var(--status)}
   .kv{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin:4px 0}
   .kv b{color:var(--ink);font-weight:600}
   .swatches{display:flex;gap:8px;justify-content:center;margin:10px 0 6px}
@@ -99,10 +102,10 @@
 
   <div class="hero">
     <div class="hero-shots" id="a9HeroShots">
-      <img src="/images/astra9-home/hero-standalone.png" alt="Astra-9, a chrome and bronze android companion, standing alone, front view." data-scene="Astra-9, front view">
-      <img src="/images/astra9-home/hero-back.png" alt="Astra-9 from behind, showing her Astra Unit 01 marking." data-scene="Astra-9, back view">
-      <img src="/images/astra9-home/astrad1-front.png" alt="Astrad, Astra-9's companion, front view." data-scene="Astrad, front view">
-      <img src="/images/astra9-home/astrad1-back.png" alt="Astrad from behind, showing his AS-R-01 marking." data-scene="Astrad, back view">
+      <img src="/images/astra9-home/astra9-hero-front-v2.png" alt="Astra-9, a chrome and bronze android companion, standing alone, front view." data-scene="Astra-9, front view">
+      <img src="/images/astra9-home/astra9-hero-back-v2.png" alt="Astra-9 from behind, showing her Astra Unit 01 marking." data-scene="Astra-9, back view">
+      <img src="/images/astra9-home/astrad1-hero-front-v2.png" alt="Astrad, Astra-9's companion, front view." data-scene="Astrad, front view">
+      <img src="/images/astra9-home/astrad1-hero-back-v2.png" alt="Astrad from behind, showing his AS-R-01 marking." data-scene="Astrad, back view">
     </div>
     <div>
       <h1>Meet the newest members of your family, Astra-9 and her companion, Astrad.</h1>
@@ -131,7 +134,7 @@
     <div>
       <h3>Astra-9</h3>
       <div class="live"><span></span>Listening</div>
-      <div class="eyeball"><div class="dot"></div></div>
+      <div class="statusball"><div class="dot"></div></div>
       <div class="kv"><span>Last spoke</span><b>4 minutes ago</b></div>
       <div class="kv"><span>Mood</span><b>Curious</b></div>
     </div>
@@ -158,36 +161,36 @@
 
   <div class="gallery" id="a9Gallery">
     <figure>
-      <img src="/images/astra9-home/companion_skills.jpg" alt="Concept rendering of Astra-9 seated in an older woman's living room, having tea." loading="lazy" data-scene="Astra-9, at home">
-      <figcaption><span class="scene">Astra-9, at home</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
       <img src="/images/astra9-home/astrad-home.png" alt="Concept rendering of Astrad seated in an older woman's living room, having tea." loading="lazy" data-scene="Astrad, at home">
       <figcaption><span class="scene">Astrad, at home</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/homework_skills.jpg" alt="Concept rendering of Astra-9 standing by while a child does homework." loading="lazy" data-scene="Astra-9, homework help">
-      <figcaption><span class="scene">Astra-9, homework help</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
       <img src="/images/astra9-home/astrad-homework.jpg" alt="Concept rendering of Astrad standing by while a child does homework." loading="lazy" data-scene="Astrad, homework help">
       <figcaption><span class="scene">Astrad, homework help</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
-      <img src="/images/astra9-home/garage_skills.jpg" alt="Concept rendering of Astra-9 standing beside someone working on a car in a garage." loading="lazy" data-scene="Astra-9, in the garage">
-      <figcaption><span class="scene">Astra-9, in the garage</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
       <img src="/images/astra9-home/astrad-garage.jpg" alt="Concept rendering of Astrad standing beside someone working on a car in a garage." loading="lazy" data-scene="Astrad, in the garage">
       <figcaption><span class="scene">Astrad, in the garage</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
-      <img src="/images/astra9-home/fireside_chat.jpg" alt="Concept rendering of Astra-9 seated for a fireside conference conversation in front of an audience." loading="lazy" data-scene="Astra-9, on stage">
-      <figcaption><span class="scene">Astra-9, on stage</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
       <img src="/images/astra9-home/astrad-fireside.png" alt="Concept rendering of Astrad seated for a fireside conference conversation in front of an audience." loading="lazy" data-scene="Astrad, on stage">
       <figcaption><span class="scene">Astrad, on stage</span><span class="stamp">Concept</span></figcaption>
+    </figure>
+    <figure>
+      <img src="/images/astra9-home/kitchen_skills.jpg" alt="Concept rendering of Astra-9 in a kitchen." loading="lazy" data-scene="Astra-9, in the kitchen">
+      <figcaption><span class="scene">Astra-9, in the kitchen</span><span class="stamp">Concept</span></figcaption>
+    </figure>
+    <figure>
+      <img src="/images/astra9-home/classroom.png" alt="Concept rendering of Astra-9 teaching in a classroom." loading="lazy" data-scene="Astra-9, teaching">
+      <figcaption><span class="scene">Astra-9, teaching</span><span class="stamp">Concept</span></figcaption>
+    </figure>
+    <figure>
+      <img src="/images/astra9-home/healthcare.jpg" alt="Concept rendering of Astra-9 in an assisted living setting." loading="lazy" data-scene="Astra-9, assisted living">
+      <figcaption><span class="scene">Astra-9, assisted living</span><span class="stamp">Concept</span></figcaption>
+    </figure>
+    <figure>
+      <img src="/images/astra9-home/office.jpg" alt="Concept rendering of Astra-9 in a work environment." loading="lazy" data-scene="Astra-9, at work">
+      <figcaption><span class="scene">Astra-9, at work</span><span class="stamp">Concept</span></figcaption>
     </figure>
   </div>
 
@@ -262,11 +265,11 @@
   });
 
   var swatches = document.querySelectorAll('.swatch');
-  var previewDots = document.querySelectorAll('.appcard .eyeball .dot');
+  var eyePreviewDot = document.querySelector('.appcard .eyeball .dot');
   swatches.forEach(function(sw){
     sw.style.cursor = 'pointer';
     sw.addEventListener('click', function(){
-      previewDots[1].style.background = getComputedStyle(sw).backgroundColor;
+      eyePreviewDot.style.background = getComputedStyle(sw).backgroundColor;
     });
   });
 
