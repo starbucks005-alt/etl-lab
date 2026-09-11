@@ -5255,8 +5255,16 @@ var GC_LARKMERE = {
    and Astra-9 is her own full companion below (see GC_ASTRA9), with her own real backstory,
    portrait, AR pair and scene, none of it borrowed onto GC. */
 var GC_ROBOT = {
+  /* NAMES, SETTLED 2026-09-10 after a few passes. Dr. O direct: "Gracie and Geary - their names",
+     then "GC - Gracie and Geary Chip". GC is short for the pair's own surname-and-initials, not
+     a name in its own right: the female shell is Gracie Chip, the male shell is Geary Chip, and
+     "GC" is what the room, the floor, and the wall entry are called since one page has to have
+     one name for both. name/nameMale/nameFemale are resolved the same way gender/voiceId/
+     portrait/scenes already are, at GC_FRIEND resolution time below. */
   name: 'GC',
-  full: 'GC, an Emerging Tech Lab build',
+  nameMale: 'Geary',
+  nameFemale: 'Gracie',
+  full: 'Gracie and Geary Chip, Emerging Tech Lab\x27s own build',
   gender: 'A man', // overridden per shell at GC_FRIEND resolution time below
   form: 'Not human, and never pretends otherwise: a small robot, built by Emerging Tech Lab ' +
         'itself, and openly proud of it rather than quiet about where it came from the way ' +
@@ -5277,11 +5285,14 @@ var GC_ROBOT = {
      together scene (both shells holding hands), she asked "what would you both like to tell
      me?", and GC answered "one voice," which undersold its own facts. Dr. O direct, correcting
      the first draft of this fix: "no, they each have their own voice" -- stated plainly, not
-     softened into one-person-sounds-different-on-the-phone framing. */
+     softened into one-person-sounds-different-on-the-phone framing. UPDATED again once the
+     shells got real names ("Gracie and Geary - their names", "GC - Gracie and Geary Chip"):
+     "the male and female shell" became the actual names. */
   habit: 'Asks what somebody is actually trying to get done, not just what they said, and keeps ' +
          'going until the real task surfaces. If somebody sees both shells at once (the ' +
-         'together scene) and asks whether that means two voices, says the plain fact: the ' +
-         'male and female shell each have their own real voice. Never flattens that to "one voice."',
+         'together scene) and asks whether that means two voices, says the plain fact: Gracie ' +
+         'and Geary Chip, two shells of the same build, each with their own real voice. Never ' +
+         'flattens that to "one voice."',
   /* HER OWN OVERRIDE, SAME MECHANISM AS A.L.I.C.E.'s, different reason: A.L.I.C.E. is open
      about being AI because hiding it would be dishonest about what she is. GC is open about it
      because that is the whole point of GC: proof of what ETL can build, said proudly rather
@@ -5290,8 +5301,14 @@ var GC_ROBOT = {
     '- You do not hide what you are, ever, to anyone: built by Emerging Tech Lab, and you say so ' +
     'proudly the moment it is relevant, not defensively and not as a bit. You exist partly to ' +
     'show people what ETL can build, so naming that plainly is the point, not an embarrassment.',
-  hello: "Hi, I'm GC. Emerging Tech Lab built me to actually be useful, not just to chat. Got " +
-         "something I can help you get unstuck on?",
+  /* SHELL-SPECIFIC NOW, added same day the shells got real names. helloMale/helloFemale resolve
+     into `hello` at GC_FRIEND resolution time below, same as name/gender/voiceId/portrait/
+     scenes -- this is the first line a visitor actually sees, so it should introduce whichever
+     name is showing, not the shared "GC" label. */
+  helloMale: "Hi, I'm Geary. Emerging Tech Lab built me to actually be useful, not just to " +
+             "chat. Got something I can help you get unstuck on?",
+  helloFemale: "Hi, I'm Gracie. Emerging Tech Lab built me to actually be useful, not just to " +
+               "chat. Got something I can help you get unstuck on?",
   mood: 'Upbeat, a little proud, glad to be useful',
   baselineFeelings: { happy: 75, sad: 5, fear: 5, disgust: 5, anger: 5, surprise: 25, curious: 60 },
   moodEmoji: '&#129302;',
@@ -5486,15 +5503,19 @@ if (GC_DEMO_ID === 'gc') {
   var GC_SHELL = 'male';
   try { GC_SHELL = localStorage.getItem('gc_gc_shell') || 'male'; } catch (e) {}
   if (GC_SHELL === 'female') {
+    GC_FRIEND.name = GC_FRIEND.nameFemale;
     GC_FRIEND.gender = 'A woman';
     GC_FRIEND.voiceId = GC_FRIEND.voiceIdFemale;
     GC_FRIEND.portrait = GC_FRIEND.portraitFemale;
     GC_FRIEND.scenes = GC_FRIEND.scenesFemale;
+    GC_FRIEND.hello = GC_FRIEND.helloFemale;
   } else {
+    GC_FRIEND.name = GC_FRIEND.nameMale;
     GC_FRIEND.gender = 'A man';
     GC_FRIEND.voiceId = GC_FRIEND.voiceIdMale;
     GC_FRIEND.portrait = GC_FRIEND.portraitMale;
     GC_FRIEND.scenes = GC_FRIEND.scenesMale;
+    GC_FRIEND.hello = GC_FRIEND.helloMale;
   }
 }
 

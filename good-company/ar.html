@@ -1031,13 +1031,18 @@ body { position: relative; background: #000; }
        two shells (see its own comment in gc-friend.js); gc-m/gc-f here carry their OWN ?who=,
        never 'gc', so the shell-resolution block that keys off GC_DEMO_ID === 'gc' in gc-friend.js
        never runs for this page. Set the same three fields here instead, by hand, for whichever
-       shell this page was actually asked for. */
+       shell this page was actually asked for. Includes .name now too, added the same day GC's
+       shells got their real names (Gracie, Geary), same reasoning. */
     if (key === 'gc-m') {
-      GC_ROBOT.gender = 'A man'; GC_ROBOT.voiceId = GC_ROBOT.voiceIdMale; GC_ROBOT.scenes = GC_ROBOT.scenesMale;
+      GC_ROBOT.name = GC_ROBOT.nameMale; GC_ROBOT.gender = 'A man';
+      GC_ROBOT.voiceId = GC_ROBOT.voiceIdMale; GC_ROBOT.scenes = GC_ROBOT.scenesMale;
+      GC_ROBOT.hello = GC_ROBOT.helloMale;
       return { friend: GC_ROBOT, speaker: null };
     }
     if (key === 'gc-f') {
-      GC_ROBOT.gender = 'A woman'; GC_ROBOT.voiceId = GC_ROBOT.voiceIdFemale; GC_ROBOT.scenes = GC_ROBOT.scenesFemale;
+      GC_ROBOT.name = GC_ROBOT.nameFemale; GC_ROBOT.gender = 'A woman';
+      GC_ROBOT.voiceId = GC_ROBOT.voiceIdFemale; GC_ROBOT.scenes = GC_ROBOT.scenesFemale;
+      GC_ROBOT.hello = GC_ROBOT.helloFemale;
       return { friend: GC_ROBOT, speaker: null };
     }
     if (key === 'astra9') return { friend: GC_ASTRA9, speaker: null };

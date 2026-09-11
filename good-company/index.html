@@ -941,10 +941,18 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 
 /* THE CALLOUT ON THE COMPANIONS FLOOR, added 2026-09-10. Dr. O direct: "maybe in the demos, but
    it's own page" -- GC still gets a full page of its own (#floor-gc above), this is only a
-   pointer to it, so it reads as an announcement, not a 25th frame on the wall. */
+   pointer to it. GC also has its own frame in the wall now (companion #25), so this is not the
+   only mention of GC here any more, just the more prominent one.
+
+   MOVED ONTO THE HERO IMAGE, 2026-09-10, Dr. O: "remove... move to be above companion frames...
+   both on the hero image" -- an overlay on the room photo itself now, same absolute-positioned-
+   over-a-photo treatment .floor-plate already uses, top right rather than top left so the two
+   never collide. */
 .gc-callout{
-  display:flex; align-items:center; gap:.6rem; width:100%; margin:0 0 1.6rem;
-  background:var(--panel); border:1px solid var(--accent); border-radius:10px;
+  position:absolute; z-index:5; top:9%; right:max(24px, calc(50% - 550px + 24px));
+  display:flex; align-items:center; gap:.6rem; max-width:min(320px, 70vw);
+  background:var(--chrome, var(--paper)); border:1px solid var(--accent); border-radius:10px;
+  box-shadow:0 0 24px 6px rgba(0,0,0,.08);
   padding:.9rem 1.2rem; cursor:pointer; text-align:left;
   font-family:inherit; font-size:.95rem; color:var(--ink);
 }
@@ -952,6 +960,7 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
   font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
   background:var(--accent); color:#fff; border-radius:999px; padding:.25rem .6rem; flex:none;
 }
+@media (max-width:900px){ .gc-callout{display:none;} }
 </style>
 </head>
 
@@ -1242,17 +1251,6 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <button class="genre-pill" type="button" data-genre-filter="everyday">Everyday</button>
     </div>
 
-    <!-- MEET GC CALLOUT, added 2026-09-10. Dr. O direct: "maybe in the demos, but it's own page"
-         -- GC is not one more frame in the wall below (it has its own floor, #floor-gc), but a
-         visitor scrolling this wall should still see it mentioned here rather than only finding
-         it in the elevator panel or the nav. A plain button[data-door], same navigation mechanism
-         the rest of this page already uses, not a genre-pill: it goes somewhere, it does not
-         filter. -->
-    <button class="gc-callout" type="button" data-door="gc">
-      <span class="gc-callout-tag">New</span>
-      Meet GC, Emerging Tech Lab's own build &rarr;
-    </button>
-
     <!-- THE WALL, REBUILT 2026-09-08 to match Dr. O's own template photo (photos/companions-band.jpg),
          same mechanism as My Echo's demo floor: six real, measured frames on the actual wall in the
          photograph, not a card grid sitting under a decorative image of one. Frame positions measured
@@ -1269,6 +1267,17 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          underneath, the same as an empty display case, never a placeholder graphic. -->
     <div class="floor-band wall-band" id="companionsWall">
       <img class="floor-band-room" src="photos/companions-band.jpg" alt="The companions wall, six lit frames.">
+      <!-- MEET GC CALLOUT, added 2026-09-10, MOVED ONTO THE HERO IMAGE 2026-09-10. Dr. O direct:
+           "maybe in the demos, but it's own page" put it here at all; "remove... move to be
+           above companion frames... both on the hero image" moved it from a plain block sitting
+           in the white area above this photo to an overlay on the photo itself, top right,
+           mirroring the floor-plate's own top-left placement rather than colliding with it. A
+           plain button[data-door], same navigation mechanism the rest of this page already
+           uses, not a genre-pill: it goes somewhere, it does not filter. -->
+      <button class="gc-callout" type="button" data-door="gc">
+        <span class="gc-callout-tag">New</span>
+        Meet GC, Emerging Tech Lab's own build &rarr;
+      </button>
       <div class="wall-frame" data-slot="0" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
         <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
