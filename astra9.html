@@ -23,8 +23,9 @@
   header{display:flex;align-items:center;gap:10px;margin-bottom:40px}
   header .mark{font-family:var(--display);font-weight:500;font-size:32px;color:var(--ink);letter-spacing:.02em}
   header .word{font-size:15px;line-height:1.3;color:var(--mute);border-left:1px solid var(--line2);padding-left:12px}
-  .hero{display:grid;grid-template-columns:minmax(220px,320px) 1fr;gap:44px;align-items:start}
-  .hero img{width:auto;max-width:100%;height:auto;max-height:480px;display:block;border-radius:12px}
+  .hero{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:44px;align-items:start}
+  .hero-shots{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .hero-shots img{width:100%;height:auto;max-height:280px;object-fit:contain;display:block;border-radius:12px;cursor:pointer;background:var(--panel)}
   h1{font-family:var(--display);font-size:clamp(30px,5vw,44px);margin:0 0 8px;color:var(--ink)}
   .tag{color:var(--ink);font-size:17px;margin:0 0 18px}
   .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
@@ -97,22 +98,31 @@
   </header>
 
   <div class="hero">
-    <img src="/images/astra9-home/hero-standalone.png" alt="Astra-9, a chrome and bronze android companion, standing alone.">
+    <div class="hero-shots" id="a9HeroShots">
+      <img src="/images/astra9-home/hero-standalone.png" alt="Astra-9, a chrome and bronze android companion, standing alone, front view." data-scene="Astra-9, front view">
+      <img src="/images/astra9-home/hero-back.png" alt="Astra-9 from behind, showing her Astra Unit 01 marking." data-scene="Astra-9, back view">
+      <img src="/images/astra9-home/astrad1-front.png" alt="Astrad, Astra-9's companion, front view." data-scene="Astrad, front view">
+      <img src="/images/astra9-home/astrad1-back.png" alt="Astrad from behind, showing his AS-R-01 marking." data-scene="Astrad, back view">
+    </div>
     <div>
-      <h1>Meet the newest member of your family, Astra-9.</h1>
-      <p class="tag">A physical robot companion, built for your home.</p>
+      <h1>Meet the newest members of your family, Astra-9 and her companion, Astrad.</h1>
+      <p class="tag">Physical robot companions, built for your home.</p>
       <span class="pill">Concept &amp; prototype stage</span>
       <div class="lede">
-        <p>Astra-9 brings conversational intelligence into the physical room. She senses when
-        you walk in, turns to look at you, and talks back in her own natural voice.</p>
-        <p>Built on operational behavioral frameworks from Emerging Technologies Laboratory, she
-        carries memory, tracks context, and adapts her tone over time. She holds an actual
+        <p>Astra-9 and Astrad bring conversational intelligence into the physical room. They
+        sense when you walk in, turn to look at you, and talk back in their own natural
+        voices.</p>
+        <p>Built on operational behavioral frameworks from Emerging Technologies Laboratory, they
+        carry memory, track context, and adapt their tone over time. They hold an actual
         conversation instead of reciting canned voice-assistant commands.</p>
-        <p>The images below show our current prototype in development. Astra-9 arrives ready to
+        <p>Astra-9 is the ninth of nine, the number is what tells her apart from the eight
+        sisters before her who never woke up. Astrad was built after her, for her, so she would
+        finally have the company she'd waited for.</p>
+        <p>The images below show our current prototype in development. They arrive ready to
         talk, expanding through downloadable skill backpacks configured for your home,
         classroom, or workshop. <a href="/astra9-why">Why our agents are different &rarr;</a></p>
         <p class="origin">It started with Rosie. A robot who belonged in the family, not just
-        useful in it. Astra-9 is our answer to that.</p>
+        useful in it. Astra-9 and Astrad are our answer to that.</p>
       </div>
     </div>
   </div>
@@ -264,7 +274,7 @@
   var lbImg = document.getElementById('a9LbImg');
   var lbCap = document.getElementById('a9LbCap');
   var lbClose = document.getElementById('a9LbClose');
-  document.querySelectorAll('#a9Gallery img').forEach(function(img){
+  document.querySelectorAll('#a9Gallery img, #a9HeroShots img').forEach(function(img){
     img.addEventListener('click', function(){
       lbImg.src = img.src;
       lbImg.alt = img.alt;
