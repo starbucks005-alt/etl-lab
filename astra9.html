@@ -8,93 +8,176 @@
 <link rel="canonical" href="https://emerging-tech-lab.com/astra9">
 <style>
   :root{
-    --bg:#08111f;--bg2:#0c1a2c;--panel:#0f2236;--panel2:#12283f;
-    --line:#1d3a56;--line2:#2a5478;
-    --cyan:#46d6e6;--cyan-dim:#2c8c99;--ice:#bfe9f0;--text:#dce8f2;--mute:#7c97b0;
-    --gold:#e8b659;--rose:#e8728c;--green:#5bd6a0;
-    --display:'Rajdhani',sans-serif;--mono:'IBM Plex Mono',monospace;--body:'Inter',sans-serif;
+    --bg:#eef4f3;--panel:#ffffff;--line:#dbe6e3;--line2:#c7d6d2;
+    --ink:#16232a;--text:#3f4d54;--mute:#7c8a90;
+    --accent:#2f9e82;--accent-bg:#e3f3ef;
+    --amber:#c98a2e;--pink:#c14f74;--violet:#7a6fd6;--red:#c1483f;
+    --mono:'IBM Plex Mono',monospace;--body:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;line-height:1.6}
-  a{color:var(--cyan)}
-  .wrap{max-width:1000px;margin:0 auto;padding:48px 24px 96px}
-  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan-dim)}
-  h1{font-family:Georgia,serif;font-size:clamp(32px,6vw,56px);margin:12px 0 6px;color:var(--ice)}
-  .tag{color:var(--mute);font-size:18px;margin:0 0 20px}
-  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-        padding:5px 12px;border-radius:3px;border:1px dashed var(--line2);color:var(--mute);margin-bottom:24px}
-  .lede{max-width:640px;font-size:17px;color:var(--text)}
-  .lede p{margin:0 0 16px}
-  .lede p.origin{font-style:italic;color:var(--mute);border-left:2px solid var(--line2);padding-left:16px}
-  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:40px 0}
-  figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-  figure img{width:100%;display:block;aspect-ratio:4/5;object-fit:cover}
-  figcaption{padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--mute);display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-  figcaption .scene{color:var(--ice);font-size:13px;font-weight:600}
-  figcaption .stamp{color:var(--gold);white-space:nowrap;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
-  .note{max-width:640px;font-size:14px;color:var(--mute);border-left:2px solid var(--line2);padding-left:16px;margin:32px 0}
-  .signup{max-width:480px;margin:56px 0 0;padding:28px;background:var(--panel2);border:1px solid var(--line);border-radius:10px}
-  .signup h2{margin:0 0 6px;font-size:20px;color:var(--ice);font-family:Georgia,serif}
-  .signup p{margin:0 0 18px;color:var(--mute);font-size:14px}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6}
+  a{color:var(--accent)}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
+  header{display:flex;align-items:center;gap:10px;margin-bottom:40px}
+  header .mark{font-family:Georgia,serif;font-weight:700;font-size:22px;color:var(--ink)}
+  header .word{font-size:12px;line-height:1.3;color:var(--mute);border-left:1px solid var(--line2);padding-left:10px}
+  .hero{display:grid;grid-template-columns:minmax(220px,320px) 1fr;gap:44px;align-items:start}
+  .hero img{width:100%;display:block;border-radius:12px}
+  h1{font-family:Georgia,serif;font-size:clamp(30px,5vw,44px);margin:0 0 8px;color:var(--ink)}
+  .tag{color:var(--ink);font-size:17px;margin:0 0 18px}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+        padding:5px 12px;border-radius:20px;border:1px dashed var(--line2);color:var(--mute);margin-bottom:20px}
+  .lede p{margin:0 0 14px;font-size:15px}
+  .lede p.origin{font-style:italic;color:var(--mute);border-left:2px solid var(--line2);padding-left:14px}
+  .appcard{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:0;margin:36px 0;background:var(--panel);
+        border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px -18px rgba(22,35,42,.25);overflow:hidden}
+  .appcard>div{padding:18px 20px;border-right:1px solid var(--line)}
+  .appcard>div:last-child{border-right:none}
+  .appcard h3{margin:0 0 10px;font-size:14px;color:var(--ink)}
+  .live{display:inline-flex;align-items:center;gap:6px;background:var(--accent-bg);color:var(--accent);
+        font-size:11px;padding:3px 9px;border-radius:20px;margin-bottom:14px}
+  .live span{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  .eyeball{width:64px;height:64px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;
+        justify-content:center;margin:6px auto 14px}
+  .eyeball .dot{width:26px;height:26px;border-radius:50%;background:var(--accent)}
+  .kv{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin:4px 0}
+  .kv b{color:var(--ink);font-weight:600}
+  .swatches{display:flex;gap:8px;justify-content:center;margin:10px 0 6px}
+  .swatch{width:22px;height:22px;border-radius:50%;border:1px solid var(--line2)}
+  .appcard .hint{font-size:11px;color:var(--mute);text-align:center;margin-top:2px}
+  .skill{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .skill:last-child{border-bottom:none}
+  .skill .name{font-size:13px;color:var(--ink);margin:0}
+  .skill .status{font-size:11px;color:var(--mute);margin:0}
+  .skill .status.on{color:var(--accent)}
+  .skill button{margin-left:auto;font-size:11px;padding:3px 10px;border-radius:20px;background:transparent;
+        border:1px solid var(--line2);color:var(--ink);cursor:default}
+  .note{max-width:680px;font-size:14px;color:var(--mute);border-left:2px solid var(--line2);padding-left:16px;margin:32px 0}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:40px 0}
+  figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+        box-shadow:0 8px 20px -16px rgba(22,35,42,.3)}
+  figure img{width:100%;display:block;aspect-ratio:4/5;object-fit:cover;cursor:pointer}
+  .lightbox{position:fixed;inset:0;background:rgba(10,16,18,.88);display:none;align-items:center;
+        justify-content:center;padding:32px;z-index:50}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:min(90vw,720px);max-height:82vh;border-radius:10px;display:block}
+  .lightbox .lbcap{color:#fff;text-align:center;font-size:13px;margin-top:14px;opacity:.85}
+  .lightbox .lbclose{position:absolute;top:20px;right:24px;color:#fff;font-size:28px;line-height:1;
+        background:none;border:none;cursor:pointer;padding:4px 10px}
+  figcaption{padding:10px 12px;font-size:12px;color:var(--mute);display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  figcaption .scene{color:var(--ink);font-size:13px;font-weight:600}
+  figcaption .stamp{color:var(--amber);white-space:nowrap;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  .signup{max-width:520px;margin:48px 0 0;padding:26px;background:var(--panel);border:1px solid var(--line);
+        border-radius:12px;box-shadow:0 12px 30px -20px rgba(22,35,42,.3)}
+  .signup h2{margin:0 0 6px;font-size:19px;color:var(--ink);font-family:Georgia,serif}
+  .signup p{margin:0 0 16px;color:var(--mute);font-size:14px}
   .signup form{display:flex;gap:8px;flex-wrap:wrap}
-  .signup input[type=email]{flex:1;min-width:200px;padding:11px 14px;border-radius:6px;border:1px solid var(--line2);
-        background:var(--bg2);color:var(--text);font-size:14px;font-family:var(--body)}
-  .signup button{padding:11px 20px;border-radius:6px;border:1px solid var(--cyan-dim);background:rgba(70,214,230,.12);
-        color:var(--cyan);font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
-  .signup button:hover{background:rgba(70,214,230,.22)}
-  .signup select{width:100%;margin-top:10px;padding:10px 12px;border-radius:6px;border:1px solid var(--line2);
-        background:var(--bg2);color:var(--mute);font-size:13px;font-family:var(--body)}
+  .signup input[type=email]{flex:1;min-width:200px;padding:11px 14px;border-radius:8px;border:1px solid var(--line2);
+        background:var(--bg);color:var(--ink);font-size:14px;font-family:var(--body)}
+  .signup button{padding:11px 20px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);
+        color:#fff;font-size:13px;letter-spacing:.02em;cursor:pointer}
+  .signup button:hover{opacity:.9}
+  .signup select{width:100%;margin-top:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--line2);
+        background:var(--bg);color:var(--mute);font-size:13px;font-family:var(--body)}
   .status{font-family:var(--mono);font-size:12px;margin-top:12px}
-  .status.ok{color:var(--green)}
-  .status.err{color:var(--rose)}
-  .back{display:inline-block;margin-top:48px;font-family:var(--mono);font-size:12px;color:var(--mute)}
+  .status.ok{color:var(--accent)}
+  .status.err{color:var(--red)}
+  footer{margin-top:56px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .back{display:inline-block;margin-top:10px;font-size:12px;color:var(--mute)}
+  @media (max-width:640px){.hero{grid-template-columns:1fr}.appcard{grid-template-columns:1fr}.appcard>div{border-right:none;border-bottom:1px solid var(--line)}.appcard>div:last-child{border-bottom:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="eyebrow">Emerging Technologies Laboratory</div>
-  <h1>Astra-9</h1>
-  <p class="tag">A physical robot companion, built for your home.</p>
-  <span class="pill">Concept &amp; prototype stage</span>
+  <header>
+    <span class="mark">ETL</span>
+    <span class="word">Emerging Technologies<br>Laboratory</span>
+  </header>
 
-  <div class="lede">
-    <p>Astra-9 is one of Emerging Technologies Laboratory's companions, the same kind of conversation
-    you can already have with our Good Company characters, given an actual body. She senses when
-    someone's there, listens for her name, and talks back in her own real voice.</p>
-    <p>The images below are concept renderings, not photographs of a finished product. They show
-    what we're building toward: a companion who fits into an actual home, an actual classroom, an
-    actual workshop, not a screen. She arrives ready to talk, and gains real skills over time,
-    ones suited to wherever she lives.</p>
-    <p class="origin">It started with Rosie. A robot who belonged in the family, not just useful
-    in it. Astra-9 is Emerging Technologies Laboratory's own answer to that, the newest member of
-    the family here.</p>
+  <div class="hero">
+    <img src="/images/astra9-home/hero-standalone.png" alt="Astra-9, a chrome and bronze android companion, standing alone.">
+    <div>
+      <h1>Meet the newest member of your family, Astra-9.</h1>
+      <p class="tag">A physical robot companion, built for your home.</p>
+      <span class="pill">Concept &amp; prototype stage</span>
+      <div class="lede">
+        <p>Astra-9 is one of Emerging Technologies Laboratory's companions, the same kind of
+        conversation you can already have with our Good Company characters, given an actual
+        body. She senses when someone's there, listens for her name, and talks back in her own
+        real voice.</p>
+        <p>The images below are concept renderings, not photographs of a finished product. They
+        show what we're building toward: a companion who fits into an actual home, an actual
+        classroom, an actual workshop, not a screen. She arrives ready to talk, and gains real
+        skills over time, ones suited to wherever she lives.</p>
+        <p class="origin">It started with Rosie. A robot who belonged in the family, not just
+        useful in it. Astra-9 is Emerging Technologies Laboratory's own answer to that, the
+        newest member of the family here.</p>
+      </div>
+    </div>
   </div>
 
-  <div class="gallery">
+  <div class="appcard">
+    <div>
+      <h3>Astra-9</h3>
+      <div class="live"><span></span>Listening</div>
+      <div class="eyeball"><div class="dot"></div></div>
+      <div class="kv"><span>Last spoke</span><b>4 minutes ago</b></div>
+      <div class="kv"><span>Mood</span><b>Curious</b></div>
+    </div>
+    <div>
+      <h3>Eye color</h3>
+      <div class="eyeball"><div class="dot"></div></div>
+      <div class="swatches">
+        <span class="swatch" style="background:var(--accent)"></span>
+        <span class="swatch" style="background:var(--amber)"></span>
+        <span class="swatch" style="background:var(--pink)"></span>
+        <span class="swatch" style="background:var(--violet)"></span>
+        <span class="swatch" style="background:var(--red)"></span>
+      </div>
+      <p class="hint">Tap a color to preview it live</p>
+    </div>
+    <div>
+      <h3>Skills</h3>
+      <div class="skill"><p class="name">Conversation</p><p class="status">Always on</p></div>
+      <div class="skill"><p class="name">Cooking helper</p><p class="status on">Active</p></div>
+      <div class="skill"><p class="name">Homework helper</p><p class="status">Not added</p><button>Add</button></div>
+      <div class="skill"><p class="name">Garage companion</p><p class="status">Not added</p><button>Add</button></div>
+    </div>
+  </div>
+
+  <div class="gallery" id="a9Gallery">
     <figure>
-      <img src="/images/astra9-home/companion_skills.jpg" alt="Concept rendering of Astra-9 seated in an older woman's living room, having tea." loading="lazy">
+      <img src="/images/astra9-home/companion_skills.jpg" alt="Concept rendering of Astra-9 seated in an older woman's living room, having tea." loading="lazy" data-scene="At home">
       <figcaption><span class="scene">At home</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
-      <img src="/images/astra9-home/kitchen_skills.jpg" alt="Concept rendering of Astra-9 standing in a kitchen while someone cooks." loading="lazy">
+      <img src="/images/astra9-home/kitchen_skills.jpg" alt="Concept rendering of Astra-9 standing in a kitchen while someone cooks." loading="lazy" data-scene="In the kitchen">
       <figcaption><span class="scene">In the kitchen</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
-      <img src="/images/astra9-home/homework_skills.jpg" alt="Concept rendering of Astra-9 standing by while a child does homework." loading="lazy">
+      <img src="/images/astra9-home/homework_skills.jpg" alt="Concept rendering of Astra-9 standing by while a child does homework." loading="lazy" data-scene="Homework help">
       <figcaption><span class="scene">Homework help</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
-      <img src="/images/astra9-home/garage_skills.jpg" alt="Concept rendering of Astra-9 standing beside someone working on a car in a garage." loading="lazy">
+      <img src="/images/astra9-home/garage_skills.jpg" alt="Concept rendering of Astra-9 standing beside someone working on a car in a garage." loading="lazy" data-scene="In the garage">
       <figcaption><span class="scene">In the garage</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
-      <img src="/images/astra9-home/classroom.png" alt="Concept rendering of Astra-9 giving a lecture at the front of a university classroom." loading="lazy">
+      <img src="/images/astra9-home/classroom.png" alt="Concept rendering of Astra-9 giving a lecture at the front of a university classroom." loading="lazy" data-scene="Teaching">
       <figcaption><span class="scene">Teaching</span><span class="stamp">Concept</span></figcaption>
     </figure>
     <figure>
-      <img src="/images/astra9-home/fireside_chat.jpg" alt="Concept rendering of Astra-9 seated for a fireside conference conversation in front of an audience." loading="lazy">
+      <img src="/images/astra9-home/fireside_chat.jpg" alt="Concept rendering of Astra-9 seated for a fireside conference conversation in front of an audience." loading="lazy" data-scene="On stage">
       <figcaption><span class="scene">On stage</span><span class="stamp">Concept</span></figcaption>
     </figure>
+  </div>
+
+  <div class="lightbox" id="a9Lightbox">
+    <button class="lbclose" id="a9LbClose" aria-label="Close">&times;</button>
+    <div>
+      <img id="a9LbImg" src="" alt="">
+      <div class="lbcap" id="a9LbCap"></div>
+    </div>
   </div>
 
   <div class="note">
@@ -121,7 +204,10 @@
     <div id="astra9WaitStatus" class="status"></div>
   </div>
 
-  <a class="back" href="/">&larr; Back to Emerging Technologies Laboratory</a>
+  <footer>
+    Emerging Technologies Laboratory
+    <br><a class="back" href="/">&larr; Back to Emerging Technologies Laboratory</a>
+  </footer>
 </div>
 
 <script>
@@ -155,6 +241,32 @@
         status.className = 'status err';
       });
   });
+
+  var swatches = document.querySelectorAll('.swatch');
+  var previewDots = document.querySelectorAll('.appcard .eyeball .dot');
+  swatches.forEach(function(sw){
+    sw.style.cursor = 'pointer';
+    sw.addEventListener('click', function(){
+      previewDots[1].style.background = getComputedStyle(sw).backgroundColor;
+    });
+  });
+
+  var lightbox = document.getElementById('a9Lightbox');
+  var lbImg = document.getElementById('a9LbImg');
+  var lbCap = document.getElementById('a9LbCap');
+  var lbClose = document.getElementById('a9LbClose');
+  document.querySelectorAll('#a9Gallery img').forEach(function(img){
+    img.addEventListener('click', function(){
+      lbImg.src = img.src;
+      lbImg.alt = img.alt;
+      lbCap.textContent = img.getAttribute('data-scene') || '';
+      lightbox.classList.add('open');
+    });
+  });
+  function closeLb(){ lightbox.classList.remove('open'); lbImg.src = ''; }
+  lbClose.addEventListener('click', closeLb);
+  lightbox.addEventListener('click', function(e){ if (e.target === lightbox) closeLb(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLb(); });
 })();
 </script>
 </body>
