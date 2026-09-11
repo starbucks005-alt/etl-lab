@@ -1026,6 +1026,21 @@ body { position: relative; background: #000; }
     if (key === 'alice') return { friend: GC_ALICE, speaker: null };
     if (key === 'nell') return { friend: GC_PUPPETS, speaker: GC_PUPPETS.companions.nell };
     if (key === 'arch') return { friend: GC_DEMO, speaker: null };
+    /* GC AND ASTRA-9, ADDED 2026-09-10, Dr. O direct: "as an AR they need text boxes and voice
+       too" -- this page never had chat wired for either one. GC_ROBOT is one shared object with
+       two shells (see its own comment in gc-friend.js); gc-m/gc-f here carry their OWN ?who=,
+       never 'gc', so the shell-resolution block that keys off GC_DEMO_ID === 'gc' in gc-friend.js
+       never runs for this page. Set the same three fields here instead, by hand, for whichever
+       shell this page was actually asked for. */
+    if (key === 'gc-m') {
+      GC_ROBOT.gender = 'A man'; GC_ROBOT.voiceId = GC_ROBOT.voiceIdMale; GC_ROBOT.scenes = GC_ROBOT.scenesMale;
+      return { friend: GC_ROBOT, speaker: null };
+    }
+    if (key === 'gc-f') {
+      GC_ROBOT.gender = 'A woman'; GC_ROBOT.voiceId = GC_ROBOT.voiceIdFemale; GC_ROBOT.scenes = GC_ROBOT.scenesFemale;
+      return { friend: GC_ROBOT, speaker: null };
+    }
+    if (key === 'astra9') return { friend: GC_ASTRA9, speaker: null };
     return null;
   }
   var chatWho = chatIdentity(askedFor || 'tansy');

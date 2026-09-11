@@ -2134,6 +2134,16 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     { who: 'rin', photo: 'photos/rin-portrait.jpg', label: 'White hat Rin', audio: 'audio/rin-bio.mp3', genre: ['mentors', 'everyday'] },
     { who: 'nursery', photo: 'photos/nursery-together.jpg', label: 'The Nursery', audio: 'audio/nursery-bio.mp3', genre: ['fantasy', 'creatures'], kid: true },
     { who: 'larkmere', photo: 'photos/larkmere-portrait.jpg', label: 'Tobias &amp; Briar, unsorted', audio: 'audio/larkmere-bio.mp3', genre: ['storytellers', 'fantasy'] },
+    /* COMPANIONS 25 AND 26, ADDED 2026-09-10, Dr. O direct: "just make them companion # 25 and
+       Astra 9 companion #26" -- both get a normal frame here like everyone else, on top of GC's
+       own separate floor (#floor-gc) and Astra-9's own room. No bioAudio recorded for either
+       yet, so `audio` is left off rather than pointed at a file that does not exist; the wall
+       code already treats a missing audio as "no BIO button" for a demo with none (see Joel
+       King's own equivalent gap noted in My Echo). "who: 'gc'" opens GC's default (male) shell;
+       the group photo (together.png) is the one Dr. O said to use: "use the group image of
+       them." */
+    { who: 'gc', photo: 'photos/gc-together.png', label: 'GC, Emerging Tech Lab\'s own build', genre: ['everyday'] },
+    { who: 'astra9', photo: 'photos/astra9-wall.png', label: 'Astra-9', genre: ['fantasy'] },
   ];
 
   var FAV_KEY = 'gc_favorited_ids';
