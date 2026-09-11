@@ -3136,6 +3136,7 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'ETL Classrooms',       url:'/classrooms',         role:'AI agents for education',                         dom:'acad',    type:'engine', tool:'Teaching Assistants &middot; ETL Faculty &middot; Living Legends', access:'paid', price:'From $99/mo'},
     {name:'OPSEC Gauntlet',    url:'https://opsec-gauntlet.com/',             role:'Have an idea or skill that could protect your country?',    dom:'sec',     type:'count',  n:20, access:'paid', price:'$19.99/mo'},
     {name:'Spy Academy',       url:null,                                               role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
+    {name:'Astra-9',           url:'/astra9',                                          role:'A companion with a body, concept stage', dom:'friends', type:'engine', tool:'Concept renderings &middot; join the list', access:'pending'},
     {name:'M.E. (My Echo)',    url:'https://my-echo.me/',                   role:'Always there when they need you',     dom:'friends', type:'engine', tool:'Try the free demo &middot; build your own for a custom estimate', access:'free'},
   ];
 
@@ -3179,7 +3180,7 @@ document.addEventListener('DOMContentLoaded', function(){
       ? `<img class="hovershot" src="/images/campus-hover/${slug(p.name)}.webp" alt="" loading="lazy" decoding="async">`
       : '';
     const inner  = `${shot}${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div>`;
-    if (p.url && p.access !== 'pending') {
+    if (p.url) {
       const ext = p.url.startsWith('http') ? ' target="_blank" rel="noopener"' : '';
       return `<a href="${p.url}"${ext} class="card${pend}" style="border-left-color:${C[p.dom]}">${inner}</a>`;
     }
