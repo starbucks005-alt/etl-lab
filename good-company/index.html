@@ -895,72 +895,6 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .party-feed-line b{ font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-dim); }
 .party-feed-line span{ display:block; }
 .party-feed-empty{ color:var(--ink-dim); font-size:.9rem; }
-
-/* MEET GC, added 2026-09-10. A much lighter floor than Penthouse's: no room-switching, no
-   spectate feed, just a portrait, a shell choice, a color, and the two doors out (talk, AR). */
-.gc-wrap{ max-width:760px; margin:0 auto; padding:11rem var(--pad) 4rem; text-align:center; }
-.gc-lede{ color:var(--ink-dim); font-size:1rem; max-width:60ch; margin:0 auto 2rem; }
-.gc-stage{
-  position:relative; width:min(320px, 70vw); aspect-ratio:1/1; margin:0 auto 1.6rem;
-  border-radius:12px; overflow:hidden; background:var(--panel); border:1px solid var(--line);
-  display:flex; align-items:center; justify-content:center;
-}
-.gc-portrait{ width:100%; height:100%; object-fit:cover; }
-/* THE TINT, REBUILT 2026-09-10. Dr. O: "the colors you picked do not sync with the colors shown
-   in the image and they are barely tinted." hue-rotate() was the bug: it only rotates hues
-   already IN the photo, and does almost nothing to the near-white/gray plastic that makes up
-   most of GC's shell, so a "blue" pick barely touched the body and shifted the eye-glow to some
-   other, unrelated color instead of blue. A real color overlay in mix-blend-mode:color takes the
-   swatch's own hue and saturation and paints it across the photo's actual light and shadow, so
-   the swatch you press is the color that shows up, on the shell itself, not just a stray tint on
-   the brightest pixel. */
-.gc-tint-layer{
-  position:absolute; inset:0; pointer-events:none; background:transparent;
-  mix-blend-mode:color; opacity:0; transition:opacity .25s ease, background-color .25s ease;
-}
-.gc-tint-layer.on{ opacity:.9; }
-.gc-picker-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:2rem; margin-bottom:2rem; }
-.gc-picker{ display:flex; align-items:center; gap:.5rem; }
-.gc-picker-label{
-  font-family:var(--mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--ink-dim); margin-right:.3rem;
-}
-.gc-pill{
-  font-family:var(--mono); font-size:.78rem; letter-spacing:.04em; text-transform:uppercase;
-  background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:.4rem .9rem;
-  cursor:pointer; color:var(--ink);
-}
-.gc-pill.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
-.gc-swatch{
-  width:26px; height:26px; border-radius:50%; cursor:pointer; padding:0;
-  background:var(--sw); border:2px solid transparent;
-}
-.gc-swatch.on{ border-color:var(--ink); }
-.gc-actions{ display:flex; flex-wrap:wrap; justify-content:center; gap:.8rem; margin-bottom:1.2rem; }
-.gc-note{ color:var(--ink-dim); font-size:.85rem; }
-
-/* THE CALLOUT ON THE COMPANIONS FLOOR, added 2026-09-10. Dr. O direct: "maybe in the demos, but
-   it's own page" -- GC still gets a full page of its own (#floor-gc above), this is only a
-   pointer to it. GC also has its own frame in the wall now (companion #25), so this is not the
-   only mention of GC here any more, just the more prominent one.
-
-   MOVED ONTO THE HERO IMAGE, 2026-09-10, Dr. O: "remove... move to be above companion frames...
-   both on the hero image" -- an overlay on the room photo itself now, same absolute-positioned-
-   over-a-photo treatment .floor-plate already uses, top right rather than top left so the two
-   never collide. */
-.gc-callout{
-  position:absolute; z-index:5; top:9%; right:max(24px, calc(50% - 550px + 24px));
-  display:flex; align-items:center; gap:.6rem; max-width:min(320px, 70vw);
-  background:var(--chrome, var(--paper)); border:1px solid var(--accent); border-radius:10px;
-  box-shadow:0 0 24px 6px rgba(0,0,0,.08);
-  padding:.9rem 1.2rem; cursor:pointer; text-align:left;
-  font-family:inherit; font-size:.95rem; color:var(--ink);
-}
-.gc-callout-tag{
-  font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
-  background:var(--accent); color:#fff; border-radius:999px; padding:.25rem .6rem; flex:none;
-}
-@media (max-width:900px){ .gc-callout{display:none;} }
 </style>
 </head>
 
@@ -979,7 +913,6 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
       <li><button class="floor-btn" type="button" data-floor="ar">AR</button></li>
       <li><button class="floor-btn" type="button" data-floor="pricing">Owner</button></li>
       <li><button class="floor-btn" type="button" data-floor="penthouse">Penthouse</button></li>
-      <li><button class="floor-btn" type="button" data-floor="gc">Meet GC</button></li>
       <li><a class="floor-btn" href="faq.html">Questions</a></li>
       <!-- The picker, not a toggle -- kept exactly as it was, just moved into the elevator row.
            picker-li so the mobile collapse rule above does not also hide it. -->
@@ -1267,17 +1200,6 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          underneath, the same as an empty display case, never a placeholder graphic. -->
     <div class="floor-band wall-band" id="companionsWall">
       <img class="floor-band-room" src="photos/companions-band.jpg" alt="The companions wall, six lit frames.">
-      <!-- MEET GC CALLOUT, added 2026-09-10, MOVED ONTO THE HERO IMAGE 2026-09-10. Dr. O direct:
-           "maybe in the demos, but it's own page" put it here at all; "remove... move to be
-           above companion frames... both on the hero image" moved it from a plain block sitting
-           in the white area above this photo to an overlay on the photo itself, top right,
-           mirroring the floor-plate's own top-left placement rather than colliding with it. A
-           plain button[data-door], same navigation mechanism the rest of this page already
-           uses, not a genre-pill: it goes somewhere, it does not filter. -->
-      <button class="gc-callout" type="button" data-door="gc">
-        <span class="gc-callout-tag">New</span>
-        Meet GC, Emerging Tech Lab's own build &rarr;
-      </button>
       <div class="wall-frame" data-slot="0" hidden>
         <a class="wall-frame-link"><img class="wall-frame-img" alt=""></a>
         <span class="kid-badge" hidden title="Made to be simple and safe for a young child to talk to on their own.">Kid friendly</span>
@@ -1607,54 +1529,6 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
   </div>
 </section>
 
-<!-- MEET GC, added 2026-09-10. Dr. O's own idea, built live: "this is advertising for ETL and
-     GC" -- a companion built specifically to show what Emerging Tech Lab can build, not folded
-     into the ordinary companions wall the way every other free demo is, because "make them a
-     special companion" and "a special place for little [GC]" both asked for its own room rather
-     than one more frame among twenty-four. Free to build and open like everything else here, no
-     new pricing tier (Dr. O direct: "free BYO for good company"). See GC_ROBOT in gc-friend.js
-     for the persona itself, and the shell-choice/tint mechanism this floor's own script writes
-     into localStorage for that file to read. -->
-<section class="floor" id="floor-gc" data-floor="gc" aria-labelledby="gc-h">
-  <div class="gc-wrap">
-    <h2 id="gc-h">Meet GC</h2>
-    <p class="gc-lede">GC is Emerging Tech Lab's own build: a small robot made to actually be
-      useful, not just good company. Untangle a hard message, split a bill, explain something
-      confusing, brainstorm a gift idea, break a big task into steps, or get a straight pros and
-      cons gut check. Free to build, free to open, same as everyone else in this building. Pick a
-      look below, then say hello.</p>
-
-    <div class="gc-stage">
-      <img class="gc-portrait" id="gcPortrait" src="photos/gc-robot-m.png" alt="GC">
-      <div class="gc-tint-layer" id="gcTintLayer"></div>
-    </div>
-
-    <div class="gc-picker-row">
-      <div class="gc-picker" role="group" aria-label="Choose GC's shell">
-        <span class="gc-picker-label">Shell</span>
-        <button class="gc-pill on" type="button" data-shell="male">Male</button>
-        <button class="gc-pill" type="button" data-shell="female">Female</button>
-      </div>
-      <div class="gc-picker" role="group" aria-label="Choose GC's color">
-        <span class="gc-picker-label">Color</span>
-        <button class="gc-swatch on" type="button" data-tint="" style="--sw:#eef1f4;" aria-label="Original"></button>
-        <button class="gc-swatch" type="button" data-tint="#3d8fc9" style="--sw:#3d8fc9;" aria-label="Blue"></button>
-        <button class="gc-swatch" type="button" data-tint="#d13d78" style="--sw:#d13d78;" aria-label="Pink"></button>
-        <button class="gc-swatch" type="button" data-tint="#2fa571" style="--sw:#2fa571;" aria-label="Green"></button>
-        <button class="gc-swatch" type="button" data-tint="#d9971f" style="--sw:#d9971f;" aria-label="Gold"></button>
-      </div>
-    </div>
-
-    <div class="gc-actions">
-      <a class="btn go" id="gcTalkBtn" href="room.html?who=gc">Talk to GC</a>
-      <a class="btn" id="gcArBtn" href="ar.html?who=gc-m">See GC in your room</a>
-    </div>
-
-    <p class="gc-note">Built by Emerging Tech Lab, and proud of it. Ask GC yourself, it will tell
-      you the same thing.</p>
-  </div>
-</section>
-
 </main>
 
 <footer>
@@ -1946,7 +1820,6 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
       <span data-to="ar"><b>4</b> AR</span>
       <span data-to="pricing"><b>5</b> Owner</span>
       <span data-to="penthouse"><b>P</b> Penthouse</span>
-      <span data-to="gc"><b>GC</b> Meet GC</span>
     </div>
   </div>
 </div>
@@ -1959,7 +1832,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
      body.js/is-open rule below). -->
 <script>
 (function () {
-  var FLOORS = ['lobby', 'demos', 'build', 'ar', 'pricing', 'penthouse', 'gc'];
+  var FLOORS = ['lobby', 'demos', 'build', 'ar', 'pricing', 'penthouse'];
   var buttons = Array.prototype.slice.call(document.querySelectorAll('.floor-btn[data-floor]'));
   var sections = Array.prototype.slice.call(document.querySelectorAll('.floor'));
 
@@ -1969,8 +1842,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     'build':  ['Third floor',  'Build'],
     'ar':     ['Fourth floor', 'AR'],
     'pricing':['Fifth floor',  'Owner'],
-    'penthouse':['P',          'Penthouse'],
-    'gc':     ['GC',           'Meet GC']
+    'penthouse':['P',          'Penthouse']
   };
   var plate = document.getElementById('floorPlate');
   var plateNo = document.getElementById('floorPlateNo');
@@ -2144,9 +2016,10 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     { who: 'nursery', photo: 'photos/nursery-together.jpg', label: 'The Nursery', audio: 'audio/nursery-bio.mp3', genre: ['fantasy', 'creatures'], kid: true },
     { who: 'larkmere', photo: 'photos/larkmere-portrait.jpg', label: 'Tobias &amp; Briar, unsorted', audio: 'audio/larkmere-bio.mp3', genre: ['storytellers', 'fantasy'] },
     /* COMPANIONS 25 AND 26, ADDED 2026-09-10, Dr. O direct: "just make them companion # 25 and
-       Astra 9 companion #26" -- both get a normal frame here like everyone else, on top of GC's
-       own separate floor (#floor-gc) and Astra-9's own room. No bioAudio recorded for either
-       yet, so `audio` is left off rather than pointed at a file that does not exist; the wall
+       Astra 9 companion #26" -- both get a normal frame here like everyone else, on top of
+       Astra-9's own room (GC's separate floor and companions-wall callout were removed
+       2026-09-11). No bioAudio recorded for either yet, so `audio` is left off rather than
+       pointed at a file that does not exist; the wall
        code already treats a missing audio as "no BIO button" for a demo with none (see Joel
        King's own equivalent gap noted in My Echo). "who: 'gc'" opens GC's default (male) shell;
        the group photo (together.png) is the one Dr. O said to use: "use the group image of
@@ -2250,53 +2123,6 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     img.src = item.photo;
     img.alt = item.label;
   });
-
-  /* MEET GC, added 2026-09-10. Shell and tint are both remembered per device, same
-     localStorage-first shape as every other per-visitor preference on this campus. gc-friend.js
-     reads gc_gc_shell itself (see GC_FRIEND's own resolution block there) to pick GC's actual
-     voice and portrait for any room or AR page; this IIFE only has to keep ITS OWN preview and
-     the two "go elsewhere" links in sync with whatever was picked here. */
-  (function () {
-    var wrap = document.querySelector('.gc-wrap');
-    if (!wrap) return;
-    var portrait = document.getElementById('gcPortrait');
-    var tintLayer = document.getElementById('gcTintLayer');
-    var arBtn = document.getElementById('gcArBtn');
-    var shellBtns = Array.prototype.slice.call(wrap.querySelectorAll('[data-shell]'));
-    var tintBtns = Array.prototype.slice.call(wrap.querySelectorAll('[data-tint]'));
-    var PORTRAIT_BY_SHELL = { male: 'photos/gc-robot-m.png', female: 'photos/gc-robot-f.jpg' };
-    var shell = 'male', tint = '';
-    try { shell = localStorage.getItem('gc_gc_shell') || 'male'; } catch (e) {}
-    try { tint = localStorage.getItem('gc_gc_tint') || ''; } catch (e) {}
-
-    function paint() {
-      portrait.src = PORTRAIT_BY_SHELL[shell] || PORTRAIT_BY_SHELL.male;
-      tintLayer.style.backgroundColor = tint || 'transparent';
-      tintLayer.classList.toggle('on', !!tint);
-      arBtn.href = 'ar.html?who=gc-' + (shell === 'female' ? 'f' : 'm');
-      shellBtns.forEach(function (b) {
-        b.classList.toggle('on', b.getAttribute('data-shell') === shell);
-      });
-      tintBtns.forEach(function (b) {
-        b.classList.toggle('on', b.getAttribute('data-tint') === tint);
-      });
-    }
-    shellBtns.forEach(function (b) {
-      b.addEventListener('click', function () {
-        shell = b.getAttribute('data-shell');
-        try { localStorage.setItem('gc_gc_shell', shell); } catch (e) {}
-        paint();
-      });
-    });
-    tintBtns.forEach(function (b) {
-      b.addEventListener('click', function () {
-        tint = b.getAttribute('data-tint');
-        try { localStorage.setItem('gc_gc_tint', tint); } catch (e) {}
-        paint();
-      });
-    });
-    paint();
-  })();
 
   /* JULIAN'S PENTHOUSE PARTY, added 2026-09-09. `cast` is the room's own main people, each with
      their own "Talk to" link -- Dr. O: "instead of this you could have the names of the people in
