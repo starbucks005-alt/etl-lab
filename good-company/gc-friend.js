@@ -5520,13 +5520,13 @@ var GC_ASTRA9 = {
       where: 'The back room of a tailor\x27s shop: shelves of folded fabric, spools of thread, ' +
              'a bare bulb overhead, a workbench close by. She stands there, at home in it, the ' +
              'way anyone is at home in the place they actually spend their days.' },
-    /* WITH GC, RESTORED 2026-09-12 as a fresh, mannequin-accurate render ("Astra gc.mp4"),
-       replacing the original campus pairing that was dropped the same day this file was split
-       into per-Astrad scenes. Placement inferred from filename, not confirmed by watching the
-       clip (no way to preview video in this environment) -- flagging that plainly rather than
-       asserting the `where` below as settled fact. */
-    { key: 'gc', label: 'On the campus, with GC', src: 'video/astra9-astrad-gc-scene.mp4',
-      where: 'The Emerging Technologies Laboratory campus. She stands with GC.' },
+    /* ADDED 2026-09-12, "Astra gc.mp4" -- CORRECTED same day: first guessed from the filename
+       as a "with GC" scene, checked live after deploy and it is actually Astra-9 alone at the
+       Grand Canyon ("gc" was Grand Canyon, not the companion). File renamed off the wrong guess
+       once confirmed by eye. */
+    { key: 'canyon', label: 'At the canyon', src: 'video/astra9-canyon-scene.mp4',
+      where: 'The Grand Canyon at sunset, sun low over the rim. She stands alone at the edge, ' +
+             'looking out.' },
     /* WITH ASTRAD, ADDED 2026-09-12. Replaces the earlier "campus, with GC" scene (video/
        astra9-with-gc-scene.mp4, left on disk, nothing else points at it) now that Astrad is
        her actual established companion rather than a placeholder pairing. Four real scenes
