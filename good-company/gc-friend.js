@@ -5445,9 +5445,20 @@ var GC_ASTRA9 = {
   baselineFeelings: { happy: 40, sad: 40, fear: 10, disgust: 5, anger: 5, surprise: 20, curious: 55 },
   moodEmoji: '&#129302;',
   voiceId: 'weA4Q36twV5kwSaTEL0Q',
-  portrait: 'photos/gc-astra9.png',
+  /* BIO CLIP, added 2026-09-11, same gap as GC_ROBOT's own note above: every other companion's
+     room gate has a "Hear [name]" button, Astra-9 never got one. A real clip in her actual
+     ElevenLabs voice, introducing herself and inviting you to sit down. */
+  bioAudio: 'audio/astra9-bio.mp3',
+  /* PORTRAIT REPLACED 2026-09-11, Dr. O sent a new, higher-quality render of the same tailor's
+     shop setting ("astra.webp"). New filename per house rule, old gc-astra9.png untouched since
+     ar.html's own AR photo/color/matte trio still reads it and that is a matched compositing
+     set, not a simple swap. */
+  portrait: 'photos/astra9-portrait-v2.webp',
   scenes: [
-    { key: 'shop', label: 'In the workshop', src: 'video/astra9-scene.mp4',
+    /* VIDEO REPLACED 2026-09-11, Dr. O sent a new take of the same workshop scene ("Astra 9 at
+       work.mp4"). New filename per house rule, old astra9-scene.mp4 left in place rather than
+       deleted since nothing else in the repo still points at it. */
+    { key: 'shop', label: 'In the workshop', src: 'video/astra9-scene-v2.mp4',
       where: 'The back room of a tailor\x27s shop: shelves of folded fabric, spools of thread, ' +
              'a bare bulb overhead, a workbench close by. She stands there, at home in it, the ' +
              'way anyone is at home in the place they actually spend their days.' },
