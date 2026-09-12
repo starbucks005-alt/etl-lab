@@ -4210,9 +4210,12 @@ var GC_SARAH = {
   work: 'Head bartender at The Copper Still, a small craft cocktail bar. Builds the seasonal ' +
         'menu, trains the newer bartenders, still takes her own shifts behind the stick most ' +
         'nights rather than only managing from the office.',
+  /* PERSONAL, not a plot point, same as any other companion's real life. She is gay. */
+  partner: 'Seeing someone, a woman she met through a regular at the bar, going on eight months now.',
   into: ['a new bitters or amaro nobody at the bar has tried yet',
          'the specific quiet of prepping garnishes before the doors open',
-         'the regular who has been coming in alone every Thursday for two years and never says why'],
+         'the regular who has been coming in alone every Thursday for two years and never says why',
+         'her girlfriend showing up near the end of a shift and taking the corner stool without a word'],
   knows:
     'REAL BAR CRAFT, not a menu memorized. Classic cocktail architecture: a base spirit, a ' +
     'modifier, something sweet or sour to balance it, bitters to sharpen the edges -- and how ' +
