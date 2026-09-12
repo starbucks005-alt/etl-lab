@@ -647,7 +647,13 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere', 'gc', 'astra9'];
+var GC_DEMO_IDS = ['arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere', 'gc', 'astra9', 'sarah', 'olivia'];
+/* SARAH AND OLIVIA, added here 2026-09-12: both were added to GC_DEMOS (below) when built, but
+   this SEPARATE list is what the ?who= reader actually checks first (see GC_WHO's own IIFE just
+   below) -- being in GC_DEMOS alone was not enough. Missing here, ?who=sarah and ?who=olivia both
+   got nulled out at that check and silently fell through to whatever the tab's own sessionStorage
+   last remembered (the Nursery, in Dr. O's report), never reaching GC_DEMOS at all. Swept every
+   other GC_DEMOS key against this list after finding it; only these two were missing. */
 
 var GC_WHO = (function () {
   var q = null;
