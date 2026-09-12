@@ -627,6 +627,30 @@ function ownerKey() {
   } catch (e) {}
 })();
 
+/* TESTER KEY, added 2026-09-12 -- same real gap as etl_owner_key's own
+   planter above, one product later: Pookie's text hit the real "That's
+   today's free messages" wall here even though Good Company already
+   exempts her, because this product never read or planted a tester key at
+   all. Deliberately the SAME localStorage slot (gc_tester_key) and query
+   param (?testkey=) Good Company's own gc-friend.js already uses, not a
+   second ah_tester_key -- same origin, so the one link she already has
+   plants it here too, and a link planted here now covers Good Company as
+   well. See eq-room-ask.js's own AH_TESTER_KEYS comment for the backend
+   half. */
+function testerKey() {
+  try { return localStorage.getItem('gc_tester_key') || ''; } catch (e) { return ''; }
+}
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var tk = q.get('testkey');
+    if (tk) {
+      localStorage.setItem('gc_tester_key', tk);
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  } catch (e) {}
+})();
+
 function startUpgradeCheckout() {
   fetch('/.netlify/functions/create-checkout-ah', {
     method: 'POST',
@@ -1745,6 +1769,7 @@ function runAmbientCheck() {
         remember: rememberMe,
         access_token: accessToken(),
         owner_key: ownerKey(),
+        tester_key: testerKey(),
       };
 
   fetch('/.netlify/functions/eq-room-group-ask', {
@@ -1827,6 +1852,7 @@ $('table-form').addEventListener('submit', function (e) {
       remember: rememberMe,
       access_token: accessToken(),
       owner_key: ownerKey(),
+      tester_key: testerKey(),
     }),
   })
     .then(function (r) {
@@ -2033,6 +2059,7 @@ $('room-form').addEventListener('submit', function (e) {
       remember: rememberMe,
       access_token: accessToken(),
       owner_key: ownerKey(),
+      tester_key: testerKey(),
     }),
   })
     .then(function (r) {

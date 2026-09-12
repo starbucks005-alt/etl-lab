@@ -44,6 +44,19 @@ function isOwnerKey(key) {
   return !!process.env.OWNER_KEY && k === process.env.OWNER_KEY;
 }
 
+/* KNOWN BETA TESTERS, same hardcoded-list shape as Good Company's own
+   GC_TESTER_KEYS (gc-chat.js), added 2026-09-12: Pookie hit Almost Human's
+   real "That's today's free messages" wall here even though Good Company
+   already exempts her, because this product never had a tester door at
+   all, only an owner one. Reusing isOwner/OWNER_KEY was the wrong fix for
+   the same reason gc-chat.js's own comment gives: that would make a beta
+   tester a full owner on every studio on this domain, not just exempt her
+   from this one product's cost gates. almost-human.html plants and reads
+   the SAME localStorage slot Good Company's testkey link already writes
+   (gc_tester_key) rather than a second one, so the one link she already
+   has covers both products with nothing new to hand her. */
+const AH_TESTER_KEYS = ['pookie-test-2026'];
+
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
 // The room's short keys don't match the full roster names etl_agent_memories
@@ -410,6 +423,8 @@ exports.handler = async function (event) {
   // guardrail behavior itself (including deliberately tripping it) without
   // her own visitor_id accumulating real strikes toward a self-inflicted ban.
   const isOwner = isOwnerKey(body.owner_key);
+  const rawTesterKey = String(body.tester_key || '').trim();
+  const isTester = !isOwner && !!rawTesterKey && AH_TESTER_KEYS.indexOf(rawTesterKey) > -1;
   // Narrower than isOwner: must match ownerUser() specifically (the exact
   // check studio-auggie-chat.js's own auth resolves to), since that is the
   // id ('owner-master') the shared history blob is keyed under. isOwner
@@ -468,16 +483,16 @@ exports.handler = async function (event) {
   // the conduct check above.
   const accessToken = safeToken(body.access_token);
   let creditsRow = null;
-  if (!isOwner && accessToken && serviceKey) {
+  if (!isOwner && !isTester && accessToken && serviceKey) {
     creditsRow = await getCreditRow(accessToken, serviceKey);
   }
-  const isSubscriber = Boolean(!isOwner && creditsRow && creditsRow.subscription_active);
+  const isSubscriber = Boolean(!isOwner && !isTester && creditsRow && creditsRow.subscription_active);
 
   if (isSubscriber && creditsRow.balance < ONE_TO_ONE_COST) {
     return json(200, { reply: "You're out of credits for this cycle. Add more, or wait for next month's top-up.", credits_exhausted: true });
   }
 
-  const usingFreeDailyCap = !isOwner && !isSubscriber;
+  const usingFreeDailyCap = !isOwner && !isTester && !isSubscriber;
   let dayKey = null;
   if (usingFreeDailyCap && visitorId && serviceKey) {
     try { connectLambda(event); } catch (_) {}

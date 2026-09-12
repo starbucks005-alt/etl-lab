@@ -144,6 +144,15 @@ function isOwnerKey(key) {
   return !!process.env.OWNER_KEY && k === process.env.OWNER_KEY;
 }
 
+/* KNOWN BETA TESTERS, same list as eq-room-ask.js's own copy -- see its
+   comment for the full reasoning. Only covers the solo table (no
+   seat_token): the shared "bring a friend" table's freeRoom comes from
+   host_is_owner, stamped once on the room row by ah-table-open.js at open
+   time, which has no matching host_is_tester column yet. A tester hosting
+   a shared table still hits the real paywall there, a known gap, not
+   fixed here. */
+const AH_TESTER_KEYS = ['pookie-test-2026'];
+
 async function conductStatus(visitorId, serviceKey) {
   try {
     const r = await fetch(
@@ -431,7 +440,11 @@ exports.handler = async function (event) {
   // in a shared room is always the host, whoever asked. Without the split, a
   // guest at an owner-hosted table would inherit the owner's conduct bypass.
   const callerIsOwner = isOwnerKey(body.owner_key);
-  const freeRoom = shared ? Boolean(shared.room.host_is_owner) : callerIsOwner;
+  const rawTesterKey = String(body.tester_key || '').trim();
+  // Solo table only -- see AH_TESTER_KEYS's own comment for why a shared
+  // room's host_is_owner has no tester equivalent yet.
+  const callerIsTester = !shared && !callerIsOwner && !!rawTesterKey && AH_TESTER_KEYS.indexOf(rawTesterKey) > -1;
+  const freeRoom = shared ? Boolean(shared.room.host_is_owner) : (callerIsOwner || callerIsTester);
   const iAmHost = shared ? Boolean(shared.seat.is_host) : true;
 
   const visitorName = shared
