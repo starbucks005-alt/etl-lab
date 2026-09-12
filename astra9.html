@@ -57,6 +57,19 @@
   .swatches{display:flex;gap:8px;justify-content:center;margin:10px 0 6px}
   .swatch{width:22px;height:22px;border-radius:50%;border:1px solid var(--line2)}
   .appcard .hint{font-size:11px;color:var(--mute);text-align:center;margin-top:2px}
+  /* VOICE MOCKUP, added 2026-09-12, Dr. O direct: "do a natural/robot toggle for each of them...
+     and the mockup for the website." Visual only, matching the eye-color swatches\x27 own
+     active/inactive pattern -- no real audio behind it, this is a concept preview, not a working
+     feature. */
+  .voicecard{margin:20px 0 36px;background:var(--panel);border:1px solid var(--line);
+        border-radius:14px;box-shadow:0 12px 30px -18px rgba(22,35,42,.25);padding:18px 22px}
+  .voicecard h3{margin:0 0 6px;font-size:14px;color:var(--ink)}
+  .voicecard p{margin:0 0 14px;font-size:13px;color:var(--mute)}
+  .voice-toggle{display:flex;gap:10px}
+  .voice-pill{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+        padding:9px 22px;border-radius:20px;border:1px solid var(--line2);background:var(--bg);
+        color:var(--mute);cursor:pointer}
+  .voice-pill.on{background:var(--eye-teal);border-color:var(--eye-teal);color:#fff}
   .skill{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
   .skill:last-child{border-bottom:none}
   .skill .name{font-size:13px;color:var(--ink);margin:0}
@@ -164,6 +177,16 @@
       <div class="skill"><p class="name">Cooking helper</p><p class="status on">Active</p></div>
       <div class="skill"><p class="name">Homework helper</p><p class="status">Not added</p><button>Add</button></div>
       <div class="skill"><p class="name">Garage companion</p><p class="status">Not added</p><button>Add</button></div>
+    </div>
+  </div>
+
+  <div class="voicecard">
+    <h3>Voice</h3>
+    <p>Because she's a robot, she can sound like one, or not. Either way, poised and articulate,
+      never breathless.</p>
+    <div class="voice-toggle" id="a9VoiceToggle">
+      <button type="button" class="voice-pill on" data-voice="robot">Robot</button>
+      <button type="button" class="voice-pill" data-voice="natural">Natural</button>
     </div>
   </div>
 
@@ -278,6 +301,14 @@
     sw.style.cursor = 'pointer';
     sw.addEventListener('click', function(){
       eyePreviewDot.style.background = getComputedStyle(sw).backgroundColor;
+    });
+  });
+
+  var voicePills = document.querySelectorAll('#a9VoiceToggle .voice-pill');
+  voicePills.forEach(function(p){
+    p.addEventListener('click', function(){
+      voicePills.forEach(function(o){ o.classList.remove('on'); });
+      p.classList.add('on');
     });
   });
 
