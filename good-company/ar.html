@@ -482,17 +482,31 @@ body { position: relative; background: #000; }
        entry here, gc-f above reverted to the original small mascot footage.
        PHOTO REPLACED 2026-09-12, Dr. O direct: "replace all the old images of Astra-9 so she
        only resembles the mannequin" -- the old gc-astra9.png was the exact look she rejected
-       ("I did not want this one") on 2026-09-11. New filename per house rule.
-       color/matte LEFT UNCHANGED ON PURPOSE: these are a matched chroma-key pair (the matte is
-       an alpha mask keyed to the color clip's exact framing), not a still image, and no new
-       matched pair has been sent. The static photo now matches the mannequin look; the actual
-       AR overlay this pair renders still shows the old one until a real replacement pair
-       arrives. Flagging this rather than guessing at new matte/color footage. */
+       ("I did not want this one") on 2026-09-11.
+       color/matte REPLACED 2026-09-12, same day: the real matched pair Dr. O said she would make
+       ("I will make a new AR for Astra now") arrived (astra-scene-color.mp4/astra-scene-matte.mp4),
+       verified before wiring in -- both 1280x720, both 10 seconds, color shows her at the Grand
+       Canyon matching her own established scene, matte carries real black/white mask variance,
+       not a flat frame. New filenames per house rule (astra9-ar-color-v2.mp4/-matte-v2.mp4);
+       the old gc-astra9-ar-* pair is left in place, unreferenced, rather than deleted. */
     astra9: {
       name: 'Astra-9',
       photo: 'photos/astra9-ar-portrait-v2.png',
-      color: 'video/gc-astra9-ar-color.mp4',
-      matte: 'video/gc-astra9-ar-matte.mp4',
+      color: 'video/astra9-ar-color-v2.mp4',
+      matte: 'video/astra9-ar-matte-v2.mp4',
+      ambience: null,
+    },
+    /* ASTRAD, ADDED 2026-09-12, Dr. O direct: sent a real matched color/matte pair
+       (astrad-scene-color.mp4/astrad-scene-matte.mp4) same day as Astra-9's own replacement pair
+       above -- verified the same way before wiring in: both 1280x720, both 10 seconds, color
+       shows him at the Acropolis matching his own established scene, matte carries real
+       black/white mask variance. New filenames per house rule. Photo reuses his existing room
+       portrait (astrad-portrait.jpg), the same pattern as every other companion here. */
+    astrad: {
+      name: 'Astrad',
+      photo: 'photos/astrad-portrait.jpg',
+      color: 'video/astrad-ar-color.mp4',
+      matte: 'video/astrad-ar-matte.mp4',
       ambience: null,
     },
   };
@@ -1058,6 +1072,10 @@ body { position: relative; background: #000; }
       return { friend: GC_ROBOT, speaker: null };
     }
     if (key === 'astra9') return { friend: GC_ASTRA9, speaker: null };
+    /* ASTRAD, added 2026-09-12 alongside his own registry entry above -- same borrowed-room
+       pattern as Poppy/Blue (Tansy's room) and Nell (the Puppets' room): he has no room of his
+       own, GC_ASTRA9.companions.astrad is the speaker standing in for the shared friend. */
+    if (key === 'astrad') return { friend: GC_ASTRA9, speaker: GC_ASTRA9.companions.astrad };
     return null;
   }
   var chatWho = chatIdentity(askedFor || 'tansy');
