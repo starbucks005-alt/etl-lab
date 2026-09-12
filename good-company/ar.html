@@ -466,6 +466,19 @@ body { position: relative; background: #000; }
       matte: 'video/zoe-ar-matte.mp4',
       ambience: null,
     },
+    /* OLIVIA, ADDED 2026-09-12: a real matched color/matte pair (olivia-scene-color.mp4/
+       Olivia-scene-matte.mp4), verified the same way as every other pair added today -- both
+       1280x720, both 10 seconds, color shows her at the premiere-garden terrace matching her
+       own portrait, matte is a clean binary mask across the full clip (under 1.2% mid-gray at
+       any sampled point, pure 0/255 elsewhere, no gradient fade or hole). Photo reuses her own
+       garden portrait under a new AR-specific filename per house rule (olivia-ar-portrait.jpg). */
+    olivia: {
+      name: 'Olivia',
+      photo: 'photos/olivia-ar-portrait.jpg',
+      color: 'video/olivia-ar-color.mp4',
+      matte: 'video/olivia-ar-matte.mp4',
+      ambience: null,
+    },
     meera: {
       /* Dr. O direct: "Meera is a good company companion and she does
          yoga, is a yoga pose. Perfect for AR." A still, held pose reads
@@ -1215,6 +1228,7 @@ body { position: relative; background: #000; }
        override -- room-level GC_NURSERY answers, same as Arch or Tansy answering for themselves. */
     if (key === 'nursery') return { friend: GC_NURSERY, speaker: null };
     if (key === 'zoe') return { friend: GC_ZOE, speaker: null };
+    if (key === 'olivia') return { friend: GC_OLIVIA, speaker: null };
     if (key === 'arch') return { friend: GC_DEMO, speaker: null };
     /* REGGIE, added 2026-09-12 alongside his own registry entry above. His own friend, own room,
        no speaker override -- his real cameos (Biscuit, Mochi) are on GC_REGGIE.cameos already,
