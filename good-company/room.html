@@ -578,11 +578,14 @@ html{ zoom:90%; }
     <div class="photo-album" id="photoAlbum" style="display:none"></div>
   </div>
 
-  <!-- PHOTO ALBUM LIGHTBOX, added 2026-09-12. Same fixed-overlay shape as watchViewer above,
-       for a still image instead of a video. -->
+  <!-- PHOTO ALBUM LIGHTBOX, added 2026-09-12. Same fixed-overlay shape as watchViewer above.
+       Mostly stills, so an <img> by default; a photoAlbum entry can carry `video` instead of
+       `src` for the rare moving one (added same day for Astrad's own solo clip), and this
+       swaps to the <video> element instead. -->
   <div id="photoLightbox" style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.88); align-items:center; justify-content:center; flex-direction:column; padding:32px;">
     <button class="btn" id="photoLightboxClose" style="position:absolute; top:16px; right:16px; z-index:2; background:rgba(0,0,0,.62);">&times; Close</button>
     <img id="photoLightboxImg" src="" alt="" style="max-width:92vw; max-height:80vh; object-fit:contain; border-radius:8px;">
+    <video id="photoLightboxVideo" style="display:none; max-width:92vw; max-height:80vh; object-fit:contain; border-radius:8px;" controls playsinline></video>
     <div id="photoLightboxCap" style="color:#F0E7DA; text-align:center; font-size:13px; margin-top:14px; max-width:70ch;"></div>
   </div>
 
@@ -1020,7 +1023,7 @@ var bar = $('sceneBar'), video = $('loop'), portrait = $('portrait'), current = 
    before today -- renders exactly as it always has. */
 var stageEl = document.querySelector('.stage');
 var watchBar = $('watchBar'), watchViewer = $('watchViewer'), watchVideo = $('watchVideo');
-var photoAlbum = $('photoAlbum'), photoLightbox = $('photoLightbox'), photoLightboxImg = $('photoLightboxImg'), photoLightboxCap = $('photoLightboxCap');
+var photoAlbum = $('photoAlbum'), photoLightbox = $('photoLightbox'), photoLightboxImg = $('photoLightboxImg'), photoLightboxVideo = $('photoLightboxVideo'), photoLightboxCap = $('photoLightboxCap');
 
 /* Declared here, not down with the button: play() reads it, and relying on var
    hoisting to make that undefined-but-falsy is luck rather than intent. */
@@ -1749,8 +1752,10 @@ function renderWatch() {
 
 /* PHOTO ALBUM, added 2026-09-12, Dr. O direct: "photos for Astra-9 and Astrad's photo album."
    Same shape as renderWatch() just above (a labeled row of clickable thumbnails, hidden
-   entirely when the friend has no array for it), a still image and a caption instead of a
-   clip. Opens photoLightbox rather than the video viewer. */
+   entirely when the friend has no array for it). Mostly stills (`src`), but an entry can carry
+   `video` instead for the rare moving one (added same day for Astrad's own solo clip) -- the
+   thumb autoplays muted/looped same as a scene chip, and the lightbox opens the real clip with
+   sound and controls. Opens photoLightbox rather than the watch viewer either way. */
 function renderPhotoAlbum() {
   photoAlbum.innerHTML = '';
   var list = FRIEND.photoAlbum || [];
@@ -1761,15 +1766,22 @@ function renderPhotoAlbum() {
   label.textContent = 'Photo album';
   photoAlbum.appendChild(label);
   list.forEach(function (item) {
-    if (!item.src) return;
+    if (!item.src && !item.video) return;
     var chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'photo-chip';
-    var thumb = document.createElement('img');
-    thumb.src = item.src;
-    thumb.alt = item.caption || '';
-    thumb.onerror = function () { chip.remove(); };
-    chip.appendChild(thumb);
+    if (item.video) {
+      var v = document.createElement('video');
+      v.src = item.video; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+      v.setAttribute('aria-hidden', 'true');
+      chip.appendChild(v);
+    } else {
+      var thumb = document.createElement('img');
+      thumb.src = item.src;
+      thumb.alt = item.caption || '';
+      thumb.onerror = function () { chip.remove(); };
+      chip.appendChild(thumb);
+    }
     if (item.caption) {
       var cap = document.createElement('span');
       cap.textContent = item.caption;
@@ -1780,13 +1792,28 @@ function renderPhotoAlbum() {
   });
 }
 function openPhoto(item) {
-  if (!item.src) return;
-  photoLightboxImg.src = item.src;
-  photoLightboxImg.alt = item.caption || '';
+  if (!item.src && !item.video) return;
   photoLightboxCap.textContent = item.caption || '';
+  if (item.video) {
+    photoLightboxImg.style.display = 'none';
+    photoLightboxVideo.style.display = '';
+    photoLightboxVideo.src = item.video;
+    photoLightboxVideo.play().catch(function () {});
+  } else {
+    photoLightboxVideo.style.display = 'none';
+    photoLightboxVideo.pause();
+    photoLightboxImg.style.display = '';
+    photoLightboxImg.src = item.src;
+    photoLightboxImg.alt = item.caption || '';
+  }
   photoLightbox.style.display = 'flex';
 }
-function closePhoto() { photoLightbox.style.display = 'none'; photoLightboxImg.src = ''; }
+function closePhoto() {
+  photoLightbox.style.display = 'none';
+  photoLightboxImg.src = '';
+  photoLightboxVideo.pause();
+  photoLightboxVideo.removeAttribute('src');
+}
 $('photoLightboxClose').addEventListener('click', closePhoto);
 photoLightbox.addEventListener('click', function (e) { if (e.target === photoLightbox) closePhoto(); });
 

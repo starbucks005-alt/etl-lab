@@ -5520,6 +5520,13 @@ var GC_ASTRA9 = {
       where: 'The back room of a tailor\x27s shop: shelves of folded fabric, spools of thread, ' +
              'a bare bulb overhead, a workbench close by. She stands there, at home in it, the ' +
              'way anyone is at home in the place they actually spend their days.' },
+    /* WITH GC, RESTORED 2026-09-12 as a fresh, mannequin-accurate render ("Astra gc.mp4"),
+       replacing the original campus pairing that was dropped the same day this file was split
+       into per-Astrad scenes. Placement inferred from filename, not confirmed by watching the
+       clip (no way to preview video in this environment) -- flagging that plainly rather than
+       asserting the `where` below as settled fact. */
+    { key: 'gc', label: 'On the campus, with GC', src: 'video/astra9-astrad-gc-scene.mp4',
+      where: 'The Emerging Technologies Laboratory campus. She stands with GC.' },
     /* WITH ASTRAD, ADDED 2026-09-12. Replaces the earlier "campus, with GC" scene (video/
        astra9-with-gc-scene.mp4, left on disk, nothing else points at it) now that Astrad is
        her actual established companion rather than a placeholder pairing. Four real scenes
@@ -5567,6 +5574,12 @@ var GC_ASTRA9 = {
       caption: 'Looking out over Athens from the Acropolis, with Astrad.' },
     { src: 'photos/astra9-astrad-album-acropolis-front.jpg',
       caption: 'On the Acropolis, with Astrad, facing the camera.' },
+    /* ADDED 2026-09-12, "Astrad.mp4" -- a moving clip rather than a still, the one entry here
+       using `video` instead of `src` (see renderPhotoAlbum's own comment in room.html for the
+       mechanism this needed). Content inferred from the filename, not confirmed by watching
+       it, same caveat as the new "with GC" scene above. */
+    { video: 'video/astra9-astrad-acropolis-solo.mp4',
+      caption: 'Astrad, alone, among the columns above Athens.' },
   ],
   talkingPoints: [
     'What is it like being the only one of what you are?',
