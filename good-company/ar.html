@@ -438,6 +438,22 @@ body { position: relative; background: #000; }
       matte: 'video/nursery-ar-matte.mp4',
       ambience: null,
     },
+    /* ZOE, ADDED 2026-09-12: a real matched color/matte pair (zoe-scene-color.mp4/
+       zoe-scene-matte.mp4), verified the same way as every other pair added today -- both
+       1280x720, both 10 seconds, color shows her at her ring light matching her own influencer
+       setup, matte carries real black-to-white mask variance (under 0.6% mid-gray at any sampled
+       point across the full clip). A SCREENSHOT OF THE PLAYER LOOKED FADED ON HER TORSO; direct
+       pixel sampling at those exact coordinates read pure white -- that was the browser's own
+       video-control-bar overlay darkening the picture behind it, not the file, worth remembering
+       for any future check here. Page 2 filled up with the Nursery entry just above; she is the
+       first companion on a third page -- see index.html's own AR_FRAMES comment. */
+    zoe: {
+      name: 'Zoe',
+      photo: 'photos/zoe-portrait.jpg',
+      color: 'video/zoe-ar-color.mp4',
+      matte: 'video/zoe-ar-matte.mp4',
+      ambience: null,
+    },
     meera: {
       /* Dr. O direct: "Meera is a good company companion and she does
          yoga, is a yoga pose. Perfect for AR." A still, held pose reads
@@ -1145,6 +1161,7 @@ body { position: relative; background: #000; }
     /* NURSERY, the group, added 2026-09-12 alongside its own registry entry above. No speaker
        override -- room-level GC_NURSERY answers, same as Arch or Tansy answering for themselves. */
     if (key === 'nursery') return { friend: GC_NURSERY, speaker: null };
+    if (key === 'zoe') return { friend: GC_ZOE, speaker: null };
     if (key === 'arch') return { friend: GC_DEMO, speaker: null };
     /* REGGIE, added 2026-09-12 alongside his own registry entry above. His own friend, own room,
        no speaker override -- his real cameos (Biscuit, Mochi) are on GC_REGGIE.cameos already,
