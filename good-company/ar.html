@@ -486,11 +486,16 @@ body { position: relative; background: #000; }
        mid-gray at any sampled point, pure 0/255 elsewhere, no gradient fade or hole). Photo is
        Dr. O's own AR image ("sarah.jpg"), the serious-expression shot that matches this footage's
        look most closely, new filename per house rule (sarah-ar-portrait.jpg). */
+    /* MATTE REPLACED 2026-09-12, Dr. O direct: "replace" with a new sarah-scene-matte.mp4.
+       New filename per house rule (sarah-ar-matte-v2.mp4), old file left in place, unreferenced.
+       Verified before wiring in the same way as the original: 1280x720, 10 seconds, matches the
+       color clip, clean binary mask across the full clip (0.9-1.1% mid-gray at any sampled
+       point, pure 0/255 elsewhere, no gradient fade or hole). */
     sarah: {
       name: 'Sarah',
       photo: 'photos/sarah-ar-portrait.jpg',
       color: 'video/sarah-ar-color.mp4',
-      matte: 'video/sarah-ar-matte.mp4',
+      matte: 'video/sarah-ar-matte-v2.mp4',
       ambience: null,
     },
     meera: {
