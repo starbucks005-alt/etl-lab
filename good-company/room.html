@@ -2332,6 +2332,19 @@ function askForScene() {
   from.placeholder = 'an email address, or nothing at all';
   from.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
                        'background:var(--paper);color:var(--ink);border-radius:3px';
+  /* REMEMBERED ACROSS ATTEMPTS, added 2026-09-12. Dr. O direct: "I added my starbucks email
+     address" -- but the order that actually got paid for still landed with from blank. This
+     field never persisted anything: a first attempt abandoned (the exact shape of the leftover
+     "waiting" order sitting next to her real one, same demo_id, never paid) opens a brand new
+     modal on the next "+ Add a scene" click, with a brand new, empty input. Typing it once should
+     not mean typing it again for every attempt at the same purchase. GC_LAST_CONTACT_KEY is
+     intentionally a plain localStorage read/write, not routed through YOU/gc-you.js: this is
+     "where to send a receipt for a scene," not part of anybody's in-room identity. */
+  var GC_LAST_CONTACT_KEY = 'gc_last_scene_contact';
+  try { from.value = localStorage.getItem(GC_LAST_CONTACT_KEY) || ''; } catch (e) {}
+  from.addEventListener('input', function () {
+    try { localStorage.setItem(GC_LAST_CONTACT_KEY, from.value.trim()); } catch (e) {}
+  });
   fromRow.appendChild(from);
 
   var note = document.createElement('p');
