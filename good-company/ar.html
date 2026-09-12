@@ -308,6 +308,12 @@ body { position: relative; background: #000; }
        Only shown when a matte is being cut live, never for a hand-cut one. -->
   <button id="flipBtn" type="button" style="display:none;" aria-label="Swap what is cut out">Swap</button>
   <button id="muteBtn" type="button" aria-label="Sound off">&#128263;</button>
+  <!-- VIDEO SOUND, added 2026-09-12, separate from muteBtn on purpose -- see colorVideo.volume's
+       own comment further down for the full reasoning. muteBtn gates whether the companion's own
+       spoken reply is heard at all; this gates only whatever the color clip's own footage
+       carries (wind, birds, dogs, a quiet room), which some visitors will want and some will not,
+       so it is a real toggle rather than a decision made for them. -->
+  <button id="videoSoundBtn" type="button" aria-label="Video sound off">&#127925;&#128263;</button>
 </div>
 
 <div id="hint" style="display:none;">Drag to move &middot; pinch or scroll to resize</div>
@@ -518,10 +524,6 @@ body { position: relative; background: #000; }
       color: 'video/reggie-ar-color.mp4',
       matte: 'video/reggie-ar-matte.mp4',
       ambience: null,
-      /* mediaVolume, added 2026-09-12: see colorVideo.volume's own comment above. He is the
-         confirmed bad case (real dog panting), not the ambient sound this override exists to
-         protect for everyone else. */
-      mediaVolume: 0,
     },
     /* VIV, ADDED 2026-09-12: a real matched color/matte pair (viv-scene-color.mp4/
        viv-scene-matte.mp4), verified before wiring in the same way as the others added today --
@@ -655,23 +657,25 @@ body { position: relative; background: #000; }
   var matteVideo = document.getElementById('matteVideo');
   var ambientAudio = document.getElementById('ambientAudio');
   colorVideo.src = companion.color;
-  /* THE COLOR CLIP'S OWN EMBEDDED AUDIO, added 2026-09-12, Dr. O direct on Reggie: "the panting
-     of the dogs when trying to talk to them... annoying." colorVideo.muted is the gate
-     speakReply() below checks before playing the companion's own TTS reply (see its own comment),
-     so unmuting it to hear a reply also unmuted whatever the color clip's own audio track happens
-     to carry. FIRST FIX silenced this campus-wide (volume:0 for everyone) -- wrong, corrected the
-     same day: "some of the music from the video is lovely like the nature." Most of these clips
-     carry real, pleasant ambience (wind, birds, a quiet room) worth keeping at a low background
-     level; Reggie's dogs were the one confirmed bad case, not video sound in general. Default is
-     a low, present-but-not-competing level; companion.mediaVolume overrides it per companion for
-     the rare case (Reggie) that actually needs silence. Independent of the mute toggle either
-     way, so it never touches what that toggle actually gates. */
-  colorVideo.volume = (typeof companion.mediaVolume === 'number') ? companion.mediaVolume : 0.25;
+  /* THE COLOR CLIP'S OWN EMBEDDED AUDIO, a real, separate toggle now, added 2026-09-12 after two
+     wrong tries. First tried silencing it campus-wide (colorVideo.muted is the gate speakReply()
+     checks before playing the TTS reply, so unmuting for a voice reply also unmuted whatever the
+     clip's own audio happened to carry -- Reggie's real dog panting, "annoying"). Then tried a
+     hardcoded low default with a per-companion override for him alone. Both wrong, Dr. O direct:
+     "some may want the dogs. I just want users to have the option. volume off/on toggle... for
+     the video separate from voice." Not a policy for me to set per companion at all -- a real
+     control, #videoSoundBtn below, that any visitor operates for themselves, on any companion,
+     independent of the existing Sound button (which still only gates the TTS voice). Starts off
+     by default (videoSoundOn:false) since a first-time visitor has not asked for it yet; volume
+     when on is 0.5, audible without fighting a spoken reply. */
+  var videoSoundOn = false;
+  colorVideo.volume = 0;
   if (companion.matte) matteVideo.src = companion.matte;
   if (companion.ambience) ambientAudio.src = companion.ambience;
   var topBar = document.getElementById('topBar');
   var hint = document.getElementById('hint');
   var muteBtn = document.getElementById('muteBtn');
+  var videoSoundBtn = document.getElementById('videoSoundBtn');
   var flipBtn = document.getElementById('flipBtn');
   var liveNote = document.getElementById('liveNote');
 
@@ -1154,6 +1158,20 @@ body { position: relative; background: #000; }
     colorVideo.muted = next;
     ambientAudio.muted = next;
     updateMuteIcon();
+  });
+
+  /* VIDEO SOUND, added 2026-09-12 -- see this button's own markup comment and colorVideo.volume's
+     own setup comment for the full reasoning. Entirely separate state from muteBtn: this only
+     ever changes colorVideo.volume, never .muted, so it cannot interact with what speakReply()
+     checks before playing a reply. */
+  function updateVideoSoundIcon() {
+    videoSoundBtn.innerHTML = videoSoundOn ? '&#127925;&#128266;' : '&#127925;&#128263;';
+    videoSoundBtn.setAttribute('aria-label', videoSoundOn ? 'Video sound on' : 'Video sound off');
+  }
+  videoSoundBtn.addEventListener('click', function () {
+    videoSoundOn = !videoSoundOn;
+    colorVideo.volume = videoSoundOn ? 0.5 : 0;
+    updateVideoSoundIcon();
   });
 
   /* WHO ACTUALLY ANSWERS, ported 2026-09-08 from My Echo's chat, adapted to
