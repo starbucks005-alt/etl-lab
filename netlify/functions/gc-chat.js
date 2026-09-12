@@ -555,7 +555,7 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
        exactly the kind of thing recency quietly outranks. Left the original
        out rather than duplicating it, one place to find and edit this, not
        two that can drift apart. */
-    '- NO STAGE DIRECTIONS, ASTERISKED OR NOT. Never *shifts in the chair*, but also never "I turn back to the piano" or "leans back, considering" written straight into the line with no asterisks at all -- that is the same chatbot-playing-a-character habit wearing plainer punctuation, and every word here gets read aloud by a voice, so a narrated action gets spoken as if it were said out loud. If it is not something a person would actually say, cut it, do not just drop the asterisks around it. This is the last thing said before you answer, on purpose: it outranks everything above it.',
+    '- NEVER NARRATE YOUR OWN ACTIONS OR WORDS. No "I turn back to the piano" or "leans back, considering" written straight into your line, asterisked or not -- that is a chatbot playing a character, and every word here gets read aloud by a voice, so a narrated action of YOURS gets spoken as if you said it out loud. If someone else actually in the room does something brief and silent that is worth the reader seeing -- steps up beside you, says nothing for a moment -- that is the one exception: wrap ONLY that, in asterisks, like *steps up beside you, says nothing for a moment*, so it reads as what is seen rather than what is said, and never put it in your own voice. Rare, not a habit. This is the last thing said before you answer, on purpose: it outranks everything above it.',
   ].join('\n'));
 
   /* OCCASIONAL CAMEOS, added for Tansy/Poppy 2026-08-17, generalized to a
@@ -1485,6 +1485,15 @@ exports.handler = async function (event) {
       {
         let cameoText = afterMark.split('\n')[0].trim();
         raw = raw.slice(0, cCut).trim();
+        /* EXTRACTED, NOT JUST DELETED, added 2026-09-12. Dr. O, watching a stage direction
+           slip through in plain prose (no asterisks at all) rather than the *wrapped* form
+           this regex catches: "where there is narrative inside a dialog it should read
+           differently" -- she wants it kept and shown as what it is, not thrown away. The
+           prompt rule above now asks for it wrapped in asterisks specifically so it CAN be
+           told apart here; a bare stage direction with no asterisks still slips past this
+           regex the same as before, which is a prompt-compliance gap, not a stripping one. */
+        const cameoNarrationBits = (cameoText.match(STAGE_DIRECTION) || []).map(s => s.replace(/^\*|\*$/g, '').trim());
+        const cameoNarration = cameoNarrationBits.join(' ').trim() || null;
         cameoText = cameoText.replace(STAGE_DIRECTION, '').replace(/[ \t]{2,}/g, ' ').trim();
         cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim();
         /* WORD-BOUNDARY TRIM, NOT A HARD CHARACTER CUT, fixed 2026-08-18
@@ -1506,18 +1515,20 @@ exports.handler = async function (event) {
            still need voice_id: null so room.html knows never to call
            gc-voice.js for them; narrated is what tells it to show the line
            as description instead of a quote. */
-        if (cameoText && match) {
-          cameo = { name: match.name, text: houseTypography(cameoText), voice_id: match.voiceId || null,
-                    narrated: !match.voiceId };
+        if ((cameoText || cameoNarration) && match) {
+          cameo = { name: match.name, text: cameoText ? houseTypography(cameoText) : null, voice_id: match.voiceId || null,
+                    narrated: !match.voiceId, narration: cameoNarration };
         }
       }
     }
   }
 
-  /* And stripped in code as well, because a prompt rule is a request and this
-     is the difference between a person and a chatbot playing one. STAGE_DIRECTION
-     itself is declared up near the cameo extraction now, so it can strip the
-     cameo line too, not just this one. */
+  /* EXTRACTED IN CODE, NOT JUST DELETED, same reasoning as the cameo's own copy of this
+     above: a prompt rule is a request, and STAGE_DIRECTION is what makes it enforceable
+     rather than trusted, but Dr. O wants what it catches SHOWN, distinctly, not thrown
+     away -- see this file's own note above the cameo's identical extraction. */
+  const replyNarrationBits = (raw.match(STAGE_DIRECTION) || []).map(s => s.replace(/^\*|\*$/g, '').trim());
+  const replyNarration = replyNarrationBits.join(' ').trim() || null;
   raw = raw.replace(STAGE_DIRECTION, '').replace(/[ \t]{2,}/g, ' ').trim();
 
   let reply = houseTypography(raw);
@@ -1541,7 +1552,7 @@ exports.handler = async function (event) {
      never even reached the response, let alone the screen. Gated on
      cameo too now, so a genuinely empty turn (no host line, no cameo)
      still reads as quiet, but a cameo-only turn survives. */
-  if (!reply && !cameo) return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
+  if (!reply && !cameo && !replyNarration) return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
 
   /* DISTILLED EVERY MEMORY_CADENCE REAL TURNS, not on every single one --
      this is a real API call (see the file-level note above on why there is
@@ -1558,7 +1569,7 @@ exports.handler = async function (event) {
   }
 
   return json(200, {
-    reply: reply || null, mood: feltMood || activeFriend.mood || null, feelings: feelings, cameo,
+    reply: reply || null, narration: replyNarration, mood: feltMood || activeFriend.mood || null, feelings: feelings, cameo,
     /* Echoed back rather than trusted to whatever the client still has in
        memory: a shared room polls, and a guest's own copy of the scene can
        be a beat behind the host's. This is what actually generated the

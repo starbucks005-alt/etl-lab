@@ -360,6 +360,9 @@ html{ zoom:90%; }
 .msg .who{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink-dim); margin-bottom:.15rem; }
 .msg.mine{ margin-left:auto; border-color:var(--accent); }
+/* THE NARRATION LINE, see appendNarration()'s own comment. Its own block, not inline
+   with .msg-text, so a trailing action never reads as more of the sentence just quoted. */
+.msg-narration{ display:block; margin-top:.35rem; font-style:italic; color:var(--ink-dim); }
 /* REPLAY, sits under the line rather than inline with it: text wraps to
    several lines often enough that an inline button would land somewhere
    mid-sentence depending on line length. */
@@ -2818,6 +2821,22 @@ function post(who, text, mine, pictures) {
   return d;
 }
 
+/* A BRIEF, SILENT ACTION READS AS PART OF THE SAME MOMENT, NOT AS A SECOND THING SAID,
+   added 2026-09-12. Dr. O, catching one slip through as plain prose in the middle of
+   Astra-9's own paragraph: "where there is narrative inside a dialog it should read
+   differently." gc-chat.js now extracts anything the model wrapped in asterisks (its
+   own new, narrower exception to "never narrate") into reply.narration / cameo.narration
+   instead of just deleting it; this is where that gets shown -- its own line, italic,
+   below the actual words, on its own block so it never reads as a continuation of the
+   quote above it. Never passed to speak(): it is what happened, not what was said. */
+function appendNarration(bubble, text) {
+  if (!bubble || !text) return;
+  var n = document.createElement('div');
+  n.className = 'msg-narration';
+  n.textContent = text;
+  bubble.appendChild(n);
+}
+
 /* His own line if he has one, a neutral one if the user built somebody who
    does not. Never a line written for a different person. */
 /* WHO YOU ARE. The friend needs your pronouns to talk about you correctly,
@@ -3147,7 +3166,7 @@ function ask(payload) {
        turn (see its own fix, same date) -- this side still needed to stop
        requiring j.reply to render anything at all, or that preserved
        cameo would arrive here and still never post. */
-    if (j && (j.reply || (j.cameo && j.cameo.text))) {
+    if (j && (j.reply || j.narration || (j.cameo && (j.cameo.text || j.cameo.narration)))) {
       /* speaker_name/speaker_voice_id are what gc-chat.js actually used to
          build the reply (see its own activeFriend note) — trusted over the
          locally-picked speakerObj in case the scene changed underneath a
@@ -3155,14 +3174,18 @@ function ask(payload) {
          as before this existed. */
       var talkerName = (j.speaker_name) || FRIEND.name;
       var talkerVoice = (j.speaker_voice_id) || FRIEND.voiceId;
-      var replyBubble = j.reply ? post(talkerName, j.reply) : null;
+      /* A REPLY-LESS TURN THAT IS PURE NARRATION still needs a bubble to carry the line --
+         see appendNarration()'s own comment. Rare (the model is asked to actually speak),
+         but j.reply can genuinely be empty while j.narration is not. */
+      var replyBubble = (j.reply || j.narration) ? post(talkerName, j.reply || '') : null;
+      if (replyBubble && j.narration) appendNarration(replyBubble, j.narration);
       /* THE CAMEO, IF THERE IS ONE (Poppy, in Tansy's room, rarely).
          Text posts right away either way. The speech is chained after her
          own line finishes, via onDone, rather than fired at the same time,
          so audio mode never has two voices talking over each other. */
       function showCameo() {
-        if (j.cameo && j.cameo.text) {
-          var cameoBubble = post(j.cameo.name, j.cameo.text);
+        if (j.cameo && (j.cameo.text || j.cameo.narration)) {
+          var cameoBubble = post(j.cameo.name, j.cameo.text || '');
           /* A NARRATED LINE READS LIKE A QUOTE OTHERWISE. "Gus noses at
              Arch's hand" sits in the exact same bubble shape as anybody
              else's actual words; italic is the whole difference between
@@ -3171,6 +3194,10 @@ function ask(payload) {
             var cameoText = cameoBubble.querySelector('.msg-text');
             if (cameoText) cameoText.style.fontStyle = 'italic';
           }
+          /* A SPEAKING CAMEO'S OWN SILENT BEAT, added 2026-09-12 alongside the reply's
+             identical case -- see appendNarration()'s own comment. Astra-9's Astrad, say,
+             stepping up and saying nothing: he has a voice most turns, just not this one. */
+          if (j.cameo.narration) appendNarration(cameoBubble, j.cameo.narration);
           /* NARRATED CAMEOS (Gus, Barley) CARRY voice_id: null, and speak()
              falls back to FRIEND's OWN voice when given a falsy one -- fine
              for every ordinary call, wrong here specifically: Gus would
@@ -3179,9 +3206,9 @@ function ask(payload) {
              through. */
           /* settled() rides the cameo's own onDone, so a spectate run waits for the
              partner's answer to finish being said before asking for the next beat. */
-          if (j.cameo.voice_id) speak(j.cameo.text, j.cameo.voice_id, function () { settled(true); }, cameoBubble);
+          if (j.cameo.voice_id && j.cameo.text) speak(j.cameo.text, j.cameo.voice_id, function () { settled(true); }, cameoBubble);
           else settled(true);
-          rememberCameoElsewhere(j.cameo.name, j.cameo.text);
+          if (j.cameo.text) rememberCameoElsewhere(j.cameo.name, j.cameo.text);
         } else settled(true);
       }
       if (j.reply) speak(j.reply, talkerVoice, showCameo, replyBubble);
