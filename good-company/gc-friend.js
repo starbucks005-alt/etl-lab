@@ -5351,7 +5351,7 @@ var GC_ROBOT = {
        scenesMale and scenesFemale rather than living on just one -- whichever shell you have
        chosen, this is still a real scene of GC's own to find, not the other shell's alone. */
     { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
-      where: 'The same dark room, one light overhead. Both shells standing side by side, ' +
+      where: 'The same dark room, one light overhead. Gracie and Geary standing side by side, ' +
              'holding hands, equally at home in it.' },
   ],
   /* FEMALE SCENE MOVED TO VIMEO, 2026-09-10 ("F-long"), same reasoning as the male scene above.
@@ -5367,7 +5367,7 @@ var GC_ROBOT = {
              'the color even with the machines quiet for the moment.' },
     /* SAME CLIP AS scenesMale's own 'together' entry above -- one video, listed on both. */
     { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
-      where: 'The same dark room, one light overhead. Both shells standing side by side, ' +
+      where: 'The same dark room, one light overhead. Gracie and Geary standing side by side, ' +
              'holding hands, equally at home in it.' },
   ],
   talkingPoints: [
