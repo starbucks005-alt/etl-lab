@@ -707,13 +707,20 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
    the version before this one and it needs to never happen again. */
 .wall-heading-over{
   position:absolute; z-index:5; top:9%;
-  left:calc(max(24px, calc(50% - 550px + 24px)) + 210px);
+  left:calc(max(24px, calc(50% - 550px + 24px)) + 280px);
   right:max(24px, calc(50% - 550px + 24px));
   text-align:left; pointer-events:none;
 }
+/* FIXED 2026-09-12, Dr. O direct: "too small, too lt green too close to sign." Three real
+   problems, not one: the clamp topped out at 22px, which reads small next to a photograph this
+   size; var(--accent) is a pale green on most skins, easy to lose against a busy photo even with
+   a shadow; and the 210px gap from the plate was not enough breathing room. Size raised, color
+   switched to the same plain white + shadow treatment .ar-band-main's own heading already uses
+   for legibility over a photo (this is not a place for a skin-tinted color, it is a place for
+   contrast), and the left offset widened above. */
 .wall-heading-over h2{
-  margin:0 0 .5rem; font-weight:400; font-size:clamp(15px, 1.5vw, 22px); line-height:1.2;
-  color:var(--accent); text-shadow:0 1px 12px rgba(0,0,0,.35);
+  margin:0 0 .5rem; font-weight:400; font-size:clamp(20px, 2.4vw, 32px); line-height:1.2;
+  color:#FFFFFF; text-shadow:0 1px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.6);
 }
 .wall-heading-over .genre-filter{
   justify-content:flex-start; margin:0; gap:6px; pointer-events:auto;
@@ -798,8 +805,13 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .ar-band-frame[data-slot="5"]{ left:73.7%; top:39.0%; width:4.1%; height:7.2%; }
 .ar-band-frame[data-slot="6"]{ left:73.7%; top:49.3%; width:4.1%; height:7.4%; }
 .ar-band-frame[data-slot="7"]{ left:73.7%; top:59.6%; width:4.1%; height:7.3%; }
+/* MOVED UP 2026-09-12, Dr. O direct ("the page one needs to be moved up", "like the companion
+   page"): top:75% floated it down near the bench prop instead of right under the frames. The
+   Companions wall's own .wall-pager sits at top:70% with its frames ending around 66.7%; this
+   band's own lowest frame row ends at 59.6%+7.3%=66.9%, essentially identical, so the same 70%
+   lands it in the same relative spot. */
 .ar-band-pager{
-  position:absolute; left:0; right:0; top:75%; z-index:3;
+  position:absolute; left:0; right:0; top:70%; z-index:3;
   display:flex; align-items:center; justify-content:center; gap:14px;
 }
 .ar-band-pager .floor-btn{color:#41525f; background:rgba(255,255,255,.75); border-color:rgba(65,82,95,.3);}
