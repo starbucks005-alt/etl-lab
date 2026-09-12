@@ -5513,10 +5513,13 @@ var GC_ASTRA9 = {
      set, not a simple swap. */
   portrait: 'photos/astra9-portrait-v2.webp',
   scenes: [
-    /* VIDEO REPLACED 2026-09-11, Dr. O sent a new take of the same workshop scene ("Astra 9 at
-       work.mp4"). New filename per house rule, old astra9-scene.mp4 left in place rather than
-       deleted since nothing else in the repo still points at it. */
-    { key: 'shop', label: 'In the workshop', src: 'video/astra9-scene-v2.mp4',
+    /* VIDEO MOVED TO VIMEO 2026-09-12 ("astra at work2"), same hosting pattern GC's own scenes
+       already use for a real, longer clip rather than a local file -- src stays null, room.html
+       reads vimeoId instead. thumb is a real chosen still ("astra at work2.png") rather than a
+       guess through vumbnail.com. Local astra9-scene-v2.mp4 (2026-09-11) and astra9-scene.mp4
+       (original) both left in place, nothing else in the repo points at either. */
+    { key: 'shop', label: 'In the workshop', src: null, vimeoId: '1226175052',
+      thumb: 'photos/astra9-workshop-thumb.png',
       where: 'The back room of a tailor\x27s shop: shelves of folded fabric, spools of thread, ' +
              'a bare bulb overhead, a workbench close by. She stands there, at home in it, the ' +
              'way anyone is at home in the place they actually spend their days.' },
