@@ -5070,7 +5070,13 @@ var speaking = null;
    companion's spoken reply, not a Sarah-only patch -- same "default louder" reasoning her
    hearing already governs everywhere else on this campus. Wrapped in try/catch and only used
    when it succeeds: a boost that fails to build must never mean silence, only the same
-   unboosted playback this already was. */
+   unboosted playback this already was.
+   GAIN RAISED 2.2 -> 6.0 same day, Dr. O direct: "the volume improved for the bio but the room
+   is quiet." The bio clip's fix was a direct +16dB render-time boost (see sarah-bio.mp3's own
+   commit); this Web Audio path was only set to roughly +6.8dB, well short of matching it. 6.0 is
+   roughly the same +16dB in linear gain. Limiter tightened to match: a boost this size needs a
+   real ceiling, not just a gentle compressor, so a line that renders louder than usual still
+   cannot clip. */
 var GC_VOICE_CTX = null;
 function gcBoostVoice(audioEl) {
   try {
@@ -5078,12 +5084,12 @@ function gcBoostVoice(audioEl) {
     if (GC_VOICE_CTX.state === 'suspended') GC_VOICE_CTX.resume();
     var source = GC_VOICE_CTX.createMediaElementSource(audioEl);
     var gain = GC_VOICE_CTX.createGain();
-    gain.gain.value = 2.2;
+    gain.gain.value = 6.0;
     var limiter = GC_VOICE_CTX.createDynamicsCompressor();
-    limiter.threshold.value = -6;
-    limiter.knee.value = 6;
-    limiter.ratio.value = 12;
-    limiter.attack.value = 0.003;
+    limiter.threshold.value = -12;
+    limiter.knee.value = 4;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.002;
     limiter.release.value = 0.15;
     source.connect(gain).connect(limiter).connect(GC_VOICE_CTX.destination);
   } catch (e) { /* Web Audio unavailable -- audioEl still plays at its own volume. */ }

@@ -1309,7 +1309,9 @@ body { position: relative; background: #000; }
     /* VOICE GAIN BOOST, added 2026-09-12, same fix and same reasoning as room.html's own
        gcBoostVoice (see that comment for the full story: Dr. O, live, in Sarah's room, "can
        barely hear her despite my volume being full"). Duplicated here rather than shared since
-       this page and room.html are already two independently duplicated files. */
+       this page and room.html are already two independently duplicated files.
+       GAIN RAISED 2.2 -> 6.0 same day, Dr. O direct: "the volume improved for the bio but the
+       room is quiet" -- see room.html's own identical comment for the full reasoning. */
     var GC_VOICE_CTX = null;
     function gcBoostVoice(audioEl) {
       try {
@@ -1317,12 +1319,12 @@ body { position: relative; background: #000; }
         if (GC_VOICE_CTX.state === 'suspended') GC_VOICE_CTX.resume();
         var source = GC_VOICE_CTX.createMediaElementSource(audioEl);
         var gain = GC_VOICE_CTX.createGain();
-        gain.gain.value = 2.2;
+        gain.gain.value = 6.0;
         var limiter = GC_VOICE_CTX.createDynamicsCompressor();
-        limiter.threshold.value = -6;
-        limiter.knee.value = 6;
-        limiter.ratio.value = 12;
-        limiter.attack.value = 0.003;
+        limiter.threshold.value = -12;
+        limiter.knee.value = 4;
+        limiter.ratio.value = 20;
+        limiter.attack.value = 0.002;
         limiter.release.value = 0.15;
         source.connect(gain).connect(limiter).connect(GC_VOICE_CTX.destination);
       } catch (e) { /* Web Audio unavailable -- audioEl still plays at its own volume. */ }
