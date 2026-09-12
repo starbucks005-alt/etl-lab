@@ -798,6 +798,14 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .ar-band-frame[data-slot="5"]{ left:73.7%; top:39.0%; width:4.1%; height:7.2%; }
 .ar-band-frame[data-slot="6"]{ left:73.7%; top:49.3%; width:4.1%; height:7.4%; }
 .ar-band-frame[data-slot="7"]{ left:73.7%; top:59.6%; width:4.1%; height:7.3%; }
+.ar-band-pager{
+  position:absolute; left:0; right:0; top:75%; z-index:3;
+  display:flex; align-items:center; justify-content:center; gap:14px;
+}
+.ar-band-pager .floor-btn{color:#41525f; background:rgba(255,255,255,.75); border-color:rgba(65,82,95,.3);}
+.ar-band-pager .floor-btn:hover{color:#14181c; border-color:rgba(65,82,95,.6);}
+.ar-band-pager .floor-btn[disabled]{opacity:.35; cursor:default;}
+.ar-band-page-now{ font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#41525f; background:rgba(255,255,255,.75); border-radius:999px; padding:.4rem .9rem; }
 /* THE MASK, added 2026-09-08 after the measured-percentage boxes kept drifting off the real
    photographed frame edges every time Dr. O revised the template photo ("the images do not line
    up", repeated all day). Dr. O supplied a matching PNG of the same room with the eight small
@@ -942,6 +950,38 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 .party-feed-line b{ font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-dim); }
 .party-feed-line span{ display:block; }
 .party-feed-empty{ color:var(--ink-dim); font-size:.9rem; }
+
+/* ═══ THE VALUE MODAL ═══ see valueModalBtn's own markup comment for the full reasoning. */
+.value-modal-overlay{
+  position:fixed; inset:0; z-index:50; background:rgba(20,16,10,.55);
+  display:flex; align-items:flex-start; justify-content:center;
+  padding:6vh 1rem; overflow-y:auto;
+}
+.value-modal-overlay[hidden]{ display:none; }
+.value-modal{
+  position:relative; background:var(--paper); border:1px solid var(--line);
+  border-radius:12px; max-width:760px; width:100%; padding:2rem 2rem 1.6rem;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.value-modal-close{
+  position:absolute; top:.9rem; right:1rem; background:transparent; border:none;
+  font-size:1.6rem; line-height:1; color:var(--ink-dim); cursor:pointer; padding:.2rem .5rem;
+}
+.value-modal-close:hover{ color:var(--ink); }
+.value-modal h2{ margin:0 0 1rem; padding-right:2rem; font-weight:400; }
+.value-modal-lede{
+  color:var(--ink-dim); margin:0 0 1.4rem; font-size:.95rem; line-height:1.55;
+}
+.value-modal-list{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+  gap:.9rem 1.4rem; max-height:50vh; overflow-y:auto; padding-right:.3rem;
+}
+.value-item b{ display:block; color:var(--accent); font-weight:600; font-size:.95rem; }
+.value-item span{ display:block; color:var(--ink-dim); font-size:.85rem; margin-top:.15rem; }
+@media (max-width:600px){
+  .value-modal{ padding:1.4rem 1.2rem 1.2rem; }
+  .value-modal-list{ grid-template-columns:1fr; max-height:none; }
+}
 </style>
 </head>
 
@@ -972,9 +1012,41 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
            by this Echo again on the same device, not just for this visit. -->
       <li><button class="btn" id="gcMuteBtn" type="button" title="Mute the lobby greeting">&#128266; Sound</button></li>
       <li class="picker-li"><div class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></div></li>
+      <!-- WHY THEM, added 2026-09-12 per Dr. O direct: a modal naming the real, non-obvious
+           expertise behind each companion, so a visitor who only ever sees "Kioko, paramedic" as
+           a job title can find out that talking to her is really a way into what emergency
+           responders actually carry, on purpose, if they go looking for it. -->
+      <li><button class="btn" id="valueModalBtn" type="button">&#128161; Why Them</button></li>
     </ul>
   </div>
 </nav>
+
+<!-- THE VALUE MODAL, added 2026-09-12. See valueModalBtn's own comment above for why this
+     exists. Built as a plain overlay + card, the same shape as every other modal-ish thing on
+     this campus, since nothing on this page already had one to copy from. -->
+<div class="value-modal-overlay" id="valueModalOverlay" hidden>
+  <div class="value-modal" role="dialog" aria-modal="true" aria-labelledby="valueModalTitle">
+    <button class="value-modal-close" id="valueModalClose" type="button" aria-label="Close">&times;</button>
+    <h2 id="valueModalTitle">What's Actually Behind Each Companion</h2>
+    <!-- THE PHILOSOPHY, Dr. O direct, dictated live: this is the front-sell of a real design
+         choice, not a footnote. Several of these companions have a real, written need of their
+         own (see the same-day fix to their emotion baselines), and that is deliberate: this is
+         not a model that exists only to serve whatever you type, the way a general assistant
+         does. Being needed by someone, even a companion, is tied to real things for the person
+         on the other side: feeling useful and needed goes along with less depression, not more,
+         and with more confidence and more independence, not less. That is the actual difference
+         between this and an LLM with no needs of its own. -->
+    <p class="value-modal-lede">
+      Most of what a companion here actually knows never comes up unless you go looking for it.
+      A job title on a card is not the whole person behind it, and several of them need something
+      real from you too, on purpose. This is not a general assistant that exists only to answer
+      whatever you type. Being needed by someone, even a companion, turns out to matter: feeling
+      useful and needed is tied to less depression, more confidence, and more independence, not
+      less. That is a different kind of thing than talking to a model with no needs of its own.
+    </p>
+    <div class="value-modal-list" id="valueModalList"></div>
+  </div>
+</div>
 
 <!-- THE FLOOR INDICATOR, same behaviour as My Echo's own copy: one plate, re-hung in whichever
      room is open, reading that floor's number and name until the next change. -->
@@ -1410,6 +1482,16 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
     <div class="ar-band-frame" data-slot="6"><a><img alt=""></a></div>
     <div class="ar-band-frame" data-slot="7"><a><img alt=""></a></div>
     <img class="ar-band-overlay" src="photos/ar-band-2-overlay.png" alt="">
+    <!-- PAGER, added 2026-09-12 per Dr. O direct ("need a page 2 for the AR"): the eight frame
+         positions are cut into this one photograph (see .ar-band-frame's own comment), the same
+         way the Companions wall's six frames are cut into its own photo, so a second page reuses
+         the identical eight slots with a different eight companions rather than needing a new
+         photo. Same mechanism as .wall-pager, own class since it sits on a different photo. */
+    <div class="ar-band-pager">
+      <button class="floor-btn" id="arWallPrev" type="button" aria-label="Previous page">&larr;</button>
+      <span class="ar-band-page-now" id="arWallPageNow"></span>
+      <button class="floor-btn" id="arWallNext" type="button" aria-label="Next page">&rarr;</button>
+    </div>
   </div>
 
   <div class="wrap">
@@ -1709,6 +1791,60 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 /* Skins. Resolution and the picker both live in gc-skin.js, shared with every
    other page, so the front door and the room cannot drift apart. */
 gcMountSkinPicker(document.getElementById('picker'), document.getElementById('skinBtn'));
+
+/* THE VALUE MODAL, added 2026-09-12. See valueModalBtn's own markup comment for the full
+   reasoning. One flat list, dictated directly, in file order rather than alphabetical: a
+   visitor reads this once, top to bottom, it does not need to be looked something up in. */
+(function () {
+  var VALUES = [
+    ['Kioko', 'Emergency Response & Moral Fatigue', 'what a paramedic actually carries home'],
+    ['Nina', 'Late-Life Companionship & Quiet Resilience', 'a full house that emptied out, and cooking for one'],
+    ['Sophia', 'Animal Care & Night-Shift Identity', 'the vet-nurse hours nobody sees'],
+    ['Tansy', 'Fantasy Hierarchy & Pride', 'real fae-court politics, played straight'],
+    ['Reggie', 'Relational Joy & Unconditional Presence', 'real dog behavior and training instinct'],
+    ['Julian', 'Longevity & Era Psychology', 'what changes, and what does not, across centuries'],
+    ['A.L.I.C.E.', 'Synthetic Personhood & Connection', 'what it is to be built, then set aside'],
+    ['Viv', 'Boundary-Setting & Dual Identity', 'a schoolteacher by day, something else after dark'],
+    ['Winston', 'Etiquette & Mediation', 'an English estate, run by a chimpanzee, on purpose'],
+    ['Aaron', 'Clinical Psychology', 'a real specialty in OCD, not a generic therapist voice'],
+    ['Marion and family', 'Resourcefulness & Micro-Survival', 'living unseen among "bigs," by inches'],
+    ['Eli & Nell', 'Craft & Family Systems', 'a family built by hand, out of what was on hand'],
+    ['Grimm Brothers', 'Language & Folklore', 'the real scholarship behind the stories'],
+    ['Marcus', 'Policy & Information Integrity', 'a real reporter\x27s judgment about what to trust'],
+    ['Theo', 'Visibility & Communication', 'styling as an actual confidence practice'],
+    ['Cressida', 'Historical Identity', 'a hundred years as an Edwardian ghost, waiting'],
+    ['Meera', 'Burnout & Somatic Regulation', 'a law career she left for yoga, and why'],
+    ['Dario', 'Mobility & Cultural Fluency', 'a pilot\x27s worth of places, and what stuck'],
+    ['Nora', 'Time & Material Continuity', 'involuntary time travel, and the isolation of it'],
+    ['Zoe', 'Public Identity & Emotional Economics', 'the real cost of being watched for a living'],
+    ['Rin', 'Digital Safety', 'a real white-hat hacker\x27s instincts, on your side'],
+    ['The Nursery', 'Shared Emotional Regulation', 'four toys who only ever had each other'],
+    ['Larkmere (Tobias & Briar)', 'Belonging Under Pressure', 'a school built like the ones in stories, and the homesickness underneath it'],
+    ['Good Company (Gracie & Geary)', 'Social Resilience', 'ETL\x27s own build, holding the whole floor together'],
+    /* NEWEST, added same day as the modal itself, per Dr. O direct ("add the newest ones"). */
+    ['Astra-9 & Astrad', 'Firstness & Embodiment', 'the first of a new android line, waking up, and building real bodies'],
+  ];
+  var list = document.getElementById('valueModalList');
+  if (list) {
+    VALUES.forEach(function (row) {
+      var item = document.createElement('div');
+      item.className = 'value-item';
+      var b = document.createElement('b'); b.textContent = row[0] + ' → ' + row[1];
+      var span = document.createElement('span'); span.textContent = row[2];
+      item.appendChild(b); item.appendChild(span);
+      list.appendChild(item);
+    });
+  }
+  var overlay = document.getElementById('valueModalOverlay');
+  var openBtn = document.getElementById('valueModalBtn');
+  var closeBtn = document.getElementById('valueModalClose');
+  if (openBtn && overlay) openBtn.addEventListener('click', function () { overlay.hidden = false; });
+  if (closeBtn && overlay) closeBtn.addEventListener('click', function () { overlay.hidden = true; });
+  if (overlay) overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.hidden = true; });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay && !overlay.hidden) overlay.hidden = true;
+  });
+})();
 
 /* A RETURNING VISITOR WHO ALREADY BUILT SOMEBODY LANDS ON THEM, not on
    Arch. Dr. O: "I had to go to Arch's room, then switch to get to
@@ -2156,9 +2292,20 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
 
   /* THE AR FLOOR'S OWN SMALL FRAMES, added 2026-09-08 alongside the new ar-band-2.jpg template.
      Same roster as ar-room.html, in the same order, since both are the front door to the same
-     seven companions -- keeping one list here rather than importing the other page's would have
-     been nicer, but this page never loads ar-room.html's script and duplicating seven lines is
-     cheaper than a build step for this campus. Update both if an eighth companion gets real AR. */
+     companions -- keeping one list here rather than importing the other page's would have been
+     nicer, but this page never loads ar-room.html's script and duplicating a short list is
+     cheaper than a build step for this campus. Update both when a companion gets real AR.
+
+     PAGED, added 2026-09-12 per Dr. O direct ("need a page 2 for the AR"): the eight frame
+     positions are cut into ar-band-2.jpg itself (see .ar-band-frame's own comment), the same way
+     the Companions wall's six frames are cut into its own photo -- a second page reuses those
+     same eight slots with a different eight companions instead of needing a new photograph,
+     identical reasoning to renderWall()'s own pager just above this.
+
+     PAGE 2 IS GEARY, GRACIE, AND ASTRA-9 ONLY, not Astrad: he has no real color/matte chroma-key
+     pair yet (only a plain portrait, astrad-portrait.jpg), and this page's own established rule
+     for an empty slot is to just leave it out rather than show a placeholder graphic -- same
+     convention the Companions wall's own frames already use for an under-filled genre page. */
   var AR_FRAMES = [
     { who: 'arch', photo: 'photos/arch-onsite.png', label: 'Arch' },
     { who: 'tansy', photo: 'photos/tansy.jpg', label: 'Tansy' },
@@ -2168,16 +2315,38 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     { who: 'meera', photo: 'photos/meera-portrait.jpg', label: 'Meera' },
     { who: 'nell', photo: 'photos/nell-happy.jpg', label: 'Nell' },
     { who: 'alice', photo: 'photos/alice-portrait.png', label: 'A.L.I.C.E.' },
+    { who: 'gc-m', photo: 'photos/gc-robot-m.png', label: 'Geary' },
+    { who: 'gc-f', photo: 'photos/gc-robot-f.jpg', label: 'Gracie' },
+    { who: 'astra9', photo: 'photos/astra9-ar-portrait-v2.png', label: 'Astra-9' },
   ];
-  Array.prototype.forEach.call(document.querySelectorAll('.ar-band-frame'), function (frame, i) {
-    var item = AR_FRAMES[i];
-    if (!item) { frame.hidden = true; return; }
-    var a = frame.querySelector('a');
-    var img = frame.querySelector('img');
-    a.href = 'ar.html?who=' + item.who;
-    img.src = item.photo;
-    img.alt = item.label;
+  var arFrameEls = Array.prototype.slice.call(document.querySelectorAll('.ar-band-frame'));
+  var arWallPage = 0;
+  var arWallPrev = document.getElementById('arWallPrev');
+  var arWallNext = document.getElementById('arWallNext');
+  var arWallPageNow = document.getElementById('arWallPageNow');
+  function renderArWall() {
+    var start = arWallPage * arFrameEls.length;
+    arFrameEls.forEach(function (frame, i) {
+      var item = AR_FRAMES[start + i];
+      if (!item) { frame.hidden = true; return; }
+      frame.hidden = false;
+      var a = frame.querySelector('a');
+      var img = frame.querySelector('img');
+      a.href = 'ar.html?who=' + item.who;
+      img.src = item.photo;
+      img.alt = item.label;
+    });
+    var totalPages = Math.max(1, Math.ceil(AR_FRAMES.length / arFrameEls.length));
+    if (arWallPageNow) arWallPageNow.textContent = 'Page ' + (arWallPage + 1) + ' of ' + totalPages;
+    if (arWallPrev) arWallPrev.disabled = arWallPage === 0;
+    if (arWallNext) arWallNext.disabled = arWallPage >= totalPages - 1;
+  }
+  if (arWallPrev) arWallPrev.addEventListener('click', function () { if (arWallPage > 0) { arWallPage--; renderArWall(); } });
+  if (arWallNext) arWallNext.addEventListener('click', function () {
+    var totalPages = Math.ceil(AR_FRAMES.length / arFrameEls.length);
+    if (arWallPage < totalPages - 1) { arWallPage++; renderArWall(); }
   });
+  renderArWall();
 
   /* JULIAN'S PENTHOUSE PARTY, added 2026-09-09. `cast` is the room's own main people, each with
      their own "Talk to" link -- Dr. O: "instead of this you could have the names of the people in

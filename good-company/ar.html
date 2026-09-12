@@ -460,14 +460,18 @@ body { position: relative; background: #000; }
        each get their own color/matte pair and portrait. Whichever shell a visitor reaches this
        page from should match the one shown on the Meet GC floor, via ?who=gc-m or ?who=gc-f. */
     'gc-m': {
-      name: 'GC',
+      /* name UPDATED 2026-09-12 from generic 'GC' to 'Geary' -- chatIdentity() below already
+         resolves the real name (GC_ROBOT.nameMale) for the chat itself; this registry entry
+         only ever fed the page title and the AR wall's own frame label, which still said the
+         generic mascot name after everything else moved on. */
+      name: 'Geary',
       photo: 'photos/gc-robot-m.png',
       color: 'video/gc-m-ar-color.mp4',
       matte: 'video/gc-m-ar-matte.mp4',
       ambience: null,
     },
     'gc-f': {
-      name: 'GC',
+      name: 'Gracie',
       photo: 'photos/gc-robot-f.jpg',
       color: 'video/gc-f-ar-color.mp4',
       matte: 'video/gc-f-ar-matte.mp4',
