@@ -5520,15 +5520,53 @@ var GC_ASTRA9 = {
       where: 'The back room of a tailor\x27s shop: shelves of folded fabric, spools of thread, ' +
              'a bare bulb overhead, a workbench close by. She stands there, at home in it, the ' +
              'way anyone is at home in the place they actually spend their days.' },
-    /* ADDED 2026-09-10, "Astra - 9 and the little bots.mp4": Astra-9 out on the whole ETL
-       campus, holding hands with GC's own two shells. Worth noting, not overstating: her whole
-       premise is wanting siblings that never came. The `where` says what is actually on screen
-       and leaves the rest alone rather than declaring her loneliness resolved by it. */
-    { key: 'campus', label: 'On the campus, with GC', src: 'video/astra9-with-gc-scene.mp4',
-      thumb: 'photos/astra9-with-gc-thumb.png',
-      where: 'The whole Emerging Tech Lab campus behind her, the other buildings lit up on ' +
-             'both sides. She stands in the middle, holding hands with both of GC\x27s shells, ' +
-             'one on either side.' },
+    /* WITH ASTRAD, ADDED 2026-09-12. Replaces the earlier "campus, with GC" scene (video/
+       astra9-with-gc-scene.mp4, left on disk, nothing else points at it) now that Astrad is
+       her actual established companion rather than a placeholder pairing. Four real scenes
+       Dr. O sent the same day, all holding hands, all the mannequin-accurate look. Restrained
+       the same way the old scene was: the `where` says what is on screen, not that her
+       loneliness premise is resolved by it. */
+    { key: 'entrance', label: 'At the entrance, with Astrad', src: 'video/astra9-astrad-entrance-scene.mp4',
+      where: 'The Emerging Technologies Laboratory building behind them, doors open onto the ' +
+             'lab inside. She stands with Astrad, holding hands, a small rover-style companion ' +
+             'parked at their feet.' },
+    { key: 'library', label: 'In the library, with Astrad', src: 'video/astra9-astrad-library-scene.mp4',
+      thumb: 'photos/astra9-astrad-library-thumb.jpg',
+      where: 'A grand domed reading room, tiered bookshelves and green-shaded lamps on every ' +
+             'table. She stands with Astrad, holding hands, at home among the books.' },
+    { key: 'observatory', label: 'At the observatory, with Astrad', src: 'video/astra9-astrad-observatory-scene.mp4',
+      thumb: 'photos/astra9-astrad-observatory-thumb.jpg',
+      where: 'A mountaintop observatory at night, the Milky Way overhead and a telescope dome ' +
+             'open behind them. She stands with Astrad, holding hands, looking out at it.' },
+    { key: 'stage', label: 'In the studio, with Astrad', src: 'video/astra9-astrad-stage-scene.mp4',
+      thumb: 'photos/astra9-astrad-stage-thumb.jpg',
+      where: 'A plain lit studio backdrop, nothing else in frame. She stands with Astrad, ' +
+             'holding hands, the two of them the whole picture.' },
+  ],
+  /* PHOTO ALBUM, added 2026-09-12, Dr. O direct: "photos for Astra-9 and Astrad's photo
+     album." Nine real renders, matched by hand against what she actually sent (several
+     similarly named files in her folder did not match their own filenames). Rendered by
+     room.html's renderPhotoAlbum() as a separate row from the scene picker above, since these
+     are stills to look through, not clips to sit down to. */
+  photoAlbum: [
+    { src: 'photos/astra9-astrad-album-footbridge.jpg',
+      caption: 'On a footbridge on the Emerging Technologies Laboratory campus, with Astrad.' },
+    { src: 'photos/astra9-astrad-album-library-solo.jpg',
+      caption: 'Astra-9, alone, in a domed reading room.' },
+    { src: 'photos/astra9-astrad-album-canyon-solo.jpg',
+      caption: 'Astra-9, alone, at the edge of a canyon.' },
+    { src: 'photos/astra9-astrad-album-acropolis-solo.jpg',
+      caption: 'Astrad, alone, among the columns above Athens.' },
+    { src: 'photos/astra9-astrad-album-canyon-back.jpg',
+      caption: 'At the canyon\x27s edge at sunset, with Astrad.' },
+    { src: 'photos/astra9-astrad-album-canyon-front.jpg',
+      caption: 'At the canyon\x27s edge at sunset, with Astrad, facing the camera.' },
+    { src: 'photos/astra9-astrad-album-library-pair.jpg',
+      caption: 'In a grand old reading room, with Astrad.' },
+    { src: 'photos/astra9-astrad-album-acropolis-back.jpg',
+      caption: 'Looking out over Athens from the Acropolis, with Astrad.' },
+    { src: 'photos/astra9-astrad-album-acropolis-front.jpg',
+      caption: 'On the Acropolis, with Astrad, facing the camera.' },
   ],
   talkingPoints: [
     'What is it like being the only one of what you are?',
