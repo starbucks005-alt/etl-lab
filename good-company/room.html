@@ -5097,6 +5097,13 @@ function speak(text, voiceId, onDone, bubble) {
          audio from the same daily pool text already uses — "the free daily
          has to have audio because the audio makes it." */
       access_token: GC_accessToken(), credit_ref: ROOM_CREDIT_REF, owner_key: GC_ownerKey(),
+      /* tester_key, added 2026-09-12 -- this call never sent one at all,
+         the real reason Pookie's audio hit the real credits_exhausted/
+         daily_capped wall (and the upsell copy she read as her time being
+         up) while her text replies, sent through ask()/sayInRoom() further
+         up this file, correctly bypassed both. Same GC_testerKey() as
+         those two calls. */
+      tester_key: GC_testerKey(),
       /* Same currentDemoId() fix as the ask() call above, same date, same
          reason: this used to be FRIEND === GC_DEMO, true only for Arch. */
       is_demo: !!currentDemoId(), visitor_id: GC_visitorId(),

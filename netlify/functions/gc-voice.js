@@ -96,6 +96,18 @@ const { ownerUser } = require('./_owner-auth.js');
    pool looks untouched too. */
 const sherlockCap = require('./_sherlock-cap.js');
 
+/* KNOWN BETA TESTERS, SAME LIST AS gc-chat.js, added 2026-09-12. Pookie's
+   text replies bypass credits_exhausted/daily_capped fine (gc-chat.js's own
+   isTester), but this file never got the same check when tester_key was
+   added on 2026-08-29 -- it only ever wired ask()/sayInRoom()'s call to
+   gc-chat.js, never room.html's separate speak() call to THIS function. So
+   her text kept going while her audio quietly hit the real cap and threw
+   the same visitor-facing upsell copy ("That's today's free messages...")
+   a first-time visitor sees, which is what she reported as her time being
+   up. Kept as its own hardcoded copy rather than a shared require, matching
+   how GC_OWNER_KEY is independently duplicated between the two files. */
+const GC_TESTER_KEYS = ['pookie-test-2026'];
+
 const CREDIT_REF = /^[a-f0-9]{64}$/;
 
 function safeVisitorId(v) {
@@ -146,6 +158,8 @@ exports.handler = async function (event) {
      the client whether a key arrived and was rejected, versus never having
      arrived at all, without ever echoing the key value itself back. */
   const ownerKeySentButRejected = !isOwner && !!rawOwnerKey;
+  const rawTesterKey = String(body.tester_key || '').trim();
+  const isTester = !isOwner && !!rawTesterKey && GC_TESTER_KEYS.indexOf(rawTesterKey) > -1;
   const isDemo = body.is_demo === true;
   const visitorId = safeVisitorId(body.visitor_id);
   const accessToken = safeToken(body.access_token);
@@ -164,7 +178,7 @@ exports.handler = async function (event) {
      general, per-companion-only credits made that invisible here too). */
   let usingPooledCredits = false;
   let creditsRow = null;
-  if (!isOwner && serviceKey) {
+  if (!isOwner && !isTester && serviceKey) {
     if (!isDemo && accessToken && friendId) {
       creditsRow = await readCompanionCreditRow(accessToken, friendId, serviceKey);
       /* POOLED FALLBACK FOR A BUILT COMPANION -- see gc-chat.js's own
@@ -195,7 +209,7 @@ exports.handler = async function (event) {
      the same day: a rejection here used to leave no trace at all, which is
      exactly how Reggie/Sophia/Tansy's broken is_demo flag went unnoticed
      for two days. Grep-able by "REJECTED". */
-  if (!isOwner && !hasCredits) {
+  if (!isOwner && !isTester && !hasCredits) {
     if (!isDemo) {
       console.log(`[gc-voice] REJECTED credits_exhausted voice=${voiceId || '?'} is_demo=${isDemo} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
       return json(200, { error: 'credits_exhausted', credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected });
