@@ -518,6 +518,10 @@ body { position: relative; background: #000; }
       color: 'video/reggie-ar-color.mp4',
       matte: 'video/reggie-ar-matte.mp4',
       ambience: null,
+      /* mediaVolume, added 2026-09-12: see colorVideo.volume's own comment above. He is the
+         confirmed bad case (real dog panting), not the ambient sound this override exists to
+         protect for everyone else. */
+      mediaVolume: 0,
     },
     /* VIV, ADDED 2026-09-12: a real matched color/matte pair (viv-scene-color.mp4/
        viv-scene-matte.mp4), verified before wiring in the same way as the others added today --
@@ -651,15 +655,18 @@ body { position: relative; background: #000; }
   var matteVideo = document.getElementById('matteVideo');
   var ambientAudio = document.getElementById('ambientAudio');
   colorVideo.src = companion.color;
-  /* NEVER THE COLOR CLIP'S OWN EMBEDDED AUDIO, added 2026-09-12, Dr. O direct on Reggie: "the
-     panting of the dogs when trying to talk to them... annoying." colorVideo.muted is the gate
+  /* THE COLOR CLIP'S OWN EMBEDDED AUDIO, added 2026-09-12, Dr. O direct on Reggie: "the panting
+     of the dogs when trying to talk to them... annoying." colorVideo.muted is the gate
      speakReply() below checks before playing the companion's own TTS reply (see its own comment),
      so unmuting it to hear a reply also unmuted whatever the color clip's own audio track happens
-     to carry -- for most companions silence, for Reggie real embedded dog sound. colorVideo was
-     never meant to be a speaker, only the visual layer; the sanctioned audio surface is
-     companion.ambience, already separate. volume:0 silences the clip's own track regardless of
-     the mute toggle's state, without touching what that toggle actually gates. */
-  colorVideo.volume = 0;
+     to carry. FIRST FIX silenced this campus-wide (volume:0 for everyone) -- wrong, corrected the
+     same day: "some of the music from the video is lovely like the nature." Most of these clips
+     carry real, pleasant ambience (wind, birds, a quiet room) worth keeping at a low background
+     level; Reggie's dogs were the one confirmed bad case, not video sound in general. Default is
+     a low, present-but-not-competing level; companion.mediaVolume overrides it per companion for
+     the rare case (Reggie) that actually needs silence. Independent of the mute toggle either
+     way, so it never touches what that toggle actually gates. */
+  colorVideo.volume = (typeof companion.mediaVolume === 'number') ? companion.mediaVolume : 0.25;
   if (companion.matte) matteVideo.src = companion.matte;
   if (companion.ambience) ambientAudio.src = companion.ambience;
   var topBar = document.getElementById('topBar');
