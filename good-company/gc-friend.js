@@ -5338,34 +5338,32 @@ var GC_ROBOT = {
      Tansy's garden scenes already use for a real, longer clip rather than a local Veo file --
      src stays null, room.html reads vimeoId instead. thumb is the same still already used for
      the picker portrait, a real chosen frame rather than a guess through vumbnail.com. */
+  /* SCENES, COMBINED 2026-09-11. Used to be two separate lists, scenesMale and scenesFemale,
+     swapped whole based on which shell was picked -- Dr. O direct after seeing Gracie's picker
+     with no sign of Geary anywhere in it: "why is only gracie here? I want geary here too,"
+     "he has videos that should be here," "he should be contributing to the intro video." Both
+     of Geary's real clips (his own intro, his own arcade) and both of Gracie's now live in the
+     same list, labeled by name so it is clear which is which, regardless of which shell is
+     currently picked for chat. GC_FRIEND.scenes below is this one shared array for both shells;
+     scenesMale/scenesFemale stay only as the source arrays a scene-adding tool might still read. */
   scenesMale: [
-    { key: 'default', label: 'GC', src: null, vimeoId: '1225756712', thumb: 'photos/gc-robot-m.png',
-      where: 'A dark room, one soft light overhead. GC just stands there, quietly pleased to.' },
-    /* ADDED 2026-09-10, "GC-m". A second real scene rather than a replacement for the one
-       above -- same shape as every other companion who gets more than one room to be found in. */
-    { key: 'arcade', label: 'At the arcade', src: null, vimeoId: '1225756710',
+    { key: 'default-m', label: 'Geary', src: null, vimeoId: '1225756712', thumb: 'photos/gc-robot-m.png',
+      where: 'A dark room, one soft light overhead. Geary just stands there, quietly pleased to.' },
+    { key: 'arcade-m', label: 'Geary at the arcade', src: null, vimeoId: '1225756710',
       where: 'A row of retro arcade cabinets, neon marquees lit up on both sides, one light ' +
-             'overhead in the aisle between them. GC stands there, at home in the noise and ' +
+             'overhead in the aisle between them. Geary stands there, at home in the noise and ' +
              'the color even with the machines quiet for the moment.' },
-    /* ADDED 2026-09-10, "together.mp4": both shells in one frame, holding hands. Listed on both
-       scenesMale and scenesFemale rather than living on just one -- whichever shell you have
-       chosen, this is still a real scene of GC's own to find, not the other shell's alone. */
-    { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
-      where: 'The same dark room, one light overhead. Gracie and Geary standing side by side, ' +
-             'holding hands, equally at home in it.' },
   ],
-  /* FEMALE SCENE MOVED TO VIMEO, 2026-09-10 ("F-long"), same reasoning as the male scene above.
-     thumb restored to gc-robot-f.jpg now that portraitFemale points to the same small mascot
-     design again (Astra-9 un-merged, see the note above GC_ROBOT). */
   scenesFemale: [
-    { key: 'default', label: 'GC', src: null, vimeoId: '1225756708', thumb: 'photos/gc-robot-f.jpg',
-      where: 'A dark room, one soft light overhead. GC just stands there, quietly pleased to.' },
-    /* ADDED 2026-09-10, "GC-f", matching "GC-m" above. */
-    { key: 'arcade', label: 'At the arcade', src: null, vimeoId: '1225756711',
+    { key: 'default-f', label: 'Gracie', src: null, vimeoId: '1225756708', thumb: 'photos/gc-robot-f.jpg',
+      where: 'A dark room, one soft light overhead. Gracie just stands there, quietly pleased to.' },
+    { key: 'arcade-f', label: 'Gracie at the arcade', src: null, vimeoId: '1225756711',
       where: 'A row of retro arcade cabinets, neon marquees lit up on both sides, one light ' +
-             'overhead in the aisle between them. GC stands there, at home in the noise and ' +
+             'overhead in the aisle between them. Gracie stands there, at home in the noise and ' +
              'the color even with the machines quiet for the moment.' },
-    /* SAME CLIP AS scenesMale's own 'together' entry above -- one video, listed on both. */
+  ],
+  /* SHARED, listed once rather than duplicated per shell. */
+  scenesTogether: [
     { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
       where: 'The same dark room, one light overhead. Gracie and Geary standing side by side, ' +
              'holding hands, equally at home in it.' },
@@ -5437,6 +5435,11 @@ var GC_ASTRA9 = {
          'certainty about it',
          'Astrad, built after her and for her, not one of the eight but real company all the ' +
          'same, and she is honestly glad of him rather than performing gladness about it'],
+  /* ASTRAD'S REAL VOICE, handed over live 2026-09-11: bAq8AI9QURijOtmeFFqT. No GC_ASTRAD persona
+     object exists here yet, this campus has no room, portrait, or scenes built for him -- he is
+     currently only the astra9.html/astra9-why.html marketing copy for the physical product.
+     Recorded here, next to the one place he is already mentioned, so the id is not lost before
+     he gets an actual Good Company build. */
   voice: ['Quiet', 'Precise', 'Watchful', 'Uses contractions'],
   habit: 'Goes still and watches her own hands work before she answers a hard question, the ' +
          'way someone else might look away to think.',
@@ -5547,7 +5550,6 @@ if (GC_DEMO_ID === 'gc') {
     GC_FRIEND.gender = 'A woman';
     GC_FRIEND.voiceId = GC_FRIEND.voiceIdFemale;
     GC_FRIEND.portrait = GC_FRIEND.portraitFemale;
-    GC_FRIEND.scenes = GC_FRIEND.scenesFemale;
     GC_FRIEND.hello = GC_FRIEND.helloFemale;
     GC_FRIEND.bioAudio = GC_FRIEND.bioAudioFemale;
   } else {
@@ -5555,10 +5557,14 @@ if (GC_DEMO_ID === 'gc') {
     GC_FRIEND.gender = 'A man';
     GC_FRIEND.voiceId = GC_FRIEND.voiceIdMale;
     GC_FRIEND.portrait = GC_FRIEND.portraitMale;
-    GC_FRIEND.scenes = GC_FRIEND.scenesMale;
     GC_FRIEND.hello = GC_FRIEND.helloMale;
     GC_FRIEND.bioAudio = GC_FRIEND.bioAudioMale;
   }
+  /* SCENES ARE SHARED, not swapped per shell -- see the comment above
+     scenesMale/scenesFemale/scenesTogether for why. Geary's clips first, so the intro scene
+     that autoplays (FRIEND.scenes[0] in room.html) is his rather than always defaulting to
+     whichever shell happens to be picked. */
+  GC_FRIEND.scenes = GC_FRIEND.scenesMale.concat(GC_FRIEND.scenesFemale, GC_FRIEND.scenesTogether);
 }
 
 /* Which skin the page opens on. An explicit choice always wins and wins
