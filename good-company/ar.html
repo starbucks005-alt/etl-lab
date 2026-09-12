@@ -407,6 +407,22 @@ body { position: relative; background: #000; }
       ambience: null,
       photo: 'photos/nell-happy.jpg',
     },
+    /* CLOVER, ADDED 2026-09-12: a real matched color/matte pair (clover-scene-color.mp4/
+       clover-scene-matte.mp4), verified before wiring in the same way as every other pair added
+       today -- both 1280x720, both 10 seconds, color shows her sitting on the quilt shelf by the
+       window matching her own established scene, matte carries real black-to-white mask variance
+       (under 1.2% mid-gray at any sampled point across the full clip, a bit softer than a hard-
+       edged mannequin but expected for a fuzzy stuffed toy's own fur edge). gc-friend.js's own key
+       for her is 'bunny' (GC_NURSERY.companions.bunny); this page uses 'clover' since that reads
+       better in the URL, resolved below in chatIdentity(). Photo reuses her existing scene
+       thumbnail (nursery-bunny.jpg). */
+    clover: {
+      name: 'Clover',
+      photo: 'photos/nursery-bunny.jpg',
+      color: 'video/clover-ar-color.mp4',
+      matte: 'video/clover-ar-matte.mp4',
+      ambience: null,
+    },
     meera: {
       /* Dr. O direct: "Meera is a good company companion and she does
          yoga, is a yoga pose. Perfect for AR." A still, held pose reads
@@ -1107,6 +1123,10 @@ body { position: relative; background: #000; }
     if (key === 'meera') return { friend: GC_MEERA, speaker: null };
     if (key === 'alice') return { friend: GC_ALICE, speaker: null };
     if (key === 'nell') return { friend: GC_PUPPETS, speaker: GC_PUPPETS.companions.nell };
+    /* CLOVER, added 2026-09-12 alongside her own registry entry above. gc-friend.js's own key
+       for her is 'bunny', not 'clover' -- see that entry's comment for why this page uses the
+       friendlier name in the URL instead. */
+    if (key === 'clover') return { friend: GC_NURSERY, speaker: GC_NURSERY.companions.bunny };
     if (key === 'arch') return { friend: GC_DEMO, speaker: null };
     /* REGGIE, added 2026-09-12 alongside his own registry entry above. His own friend, own room,
        no speaker override -- his real cameos (Biscuit, Mochi) are on GC_REGGIE.cameos already,
