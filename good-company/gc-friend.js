@@ -5322,6 +5322,13 @@ var GC_ROBOT = {
   voiceIdFemale: 'mHX7OoPk2G45VMAuinIt',
   portraitMale: 'photos/gc-robot-m.png',
   portraitFemale: 'photos/gc-robot-f.jpg',
+  /* BIO CLIP, added 2026-09-11 per Dr. O direct: every other companion's room gate has a "Hear
+     [name]" button (room.html's gateBioPlay, reads FRIEND.bioAudio), GC never got one. Same
+     per-shell resolution as voiceId/portrait/scenes/hello above: real clips in each shell's own
+     ElevenLabs voice, Geary/Gracie introducing themselves and inviting you to sit down, same
+     shape as GC_ROBOT.hello{Male,Female} above. */
+  bioAudioMale: 'audio/gc-bio-m.mp3',
+  bioAudioFemale: 'audio/gc-bio-f.mp3',
   /* ROOM SCENES, added 2026-09-10, real clips Dr. O sent labeled "scenes." Same per-shell
      resolution as voiceId/portrait above: scenesMale/scenesFemale are picked into GC_FRIEND.scenes
      at GC_FRIEND resolution time below, so room.html's own scene player needs no changes to work
@@ -5531,6 +5538,7 @@ if (GC_DEMO_ID === 'gc') {
     GC_FRIEND.portrait = GC_FRIEND.portraitFemale;
     GC_FRIEND.scenes = GC_FRIEND.scenesFemale;
     GC_FRIEND.hello = GC_FRIEND.helloFemale;
+    GC_FRIEND.bioAudio = GC_FRIEND.bioAudioFemale;
   } else {
     GC_FRIEND.name = GC_FRIEND.nameMale;
     GC_FRIEND.gender = 'A man';
@@ -5538,6 +5546,7 @@ if (GC_DEMO_ID === 'gc') {
     GC_FRIEND.portrait = GC_FRIEND.portraitMale;
     GC_FRIEND.scenes = GC_FRIEND.scenesMale;
     GC_FRIEND.hello = GC_FRIEND.helloMale;
+    GC_FRIEND.bioAudio = GC_FRIEND.bioAudioMale;
   }
 }
 

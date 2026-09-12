@@ -2018,13 +2018,13 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     /* COMPANIONS 25 AND 26, ADDED 2026-09-10, Dr. O direct: "just make them companion # 25 and
        Astra 9 companion #26" -- both get a normal frame here like everyone else, on top of
        Astra-9's own room (GC's separate floor and companions-wall callout were removed
-       2026-09-11). No bioAudio recorded for either yet, so `audio` is left off rather than
-       pointed at a file that does not exist; the wall
-       code already treats a missing audio as "no BIO button" for a demo with none (see Joel
-       King's own equivalent gap noted in My Echo). "who: 'gc'" opens GC's default (male) shell;
-       the group photo (together.png) is the one Dr. O said to use: "use the group image of
-       them." */
-    { who: 'gc', photo: 'photos/gc-together.png', label: 'GC, Emerging Tech Lab\'s own build', genre: ['everyday'] },
+       2026-09-11). Astra-9 has no bioAudio recorded yet, so her `audio` is left off rather than
+       pointed at a file that does not exist; the wall code already treats a missing audio as
+       "no BIO button" for a demo with none (see Joel King's own equivalent gap noted in My
+       Echo). "who: 'gc'" opens GC's default (male) shell, so this uses Geary's real bio clip
+       (see GC_ROBOT.bioAudioMale in gc-friend.js, added 2026-09-11); the group photo
+       (together.png) is the one Dr. O said to use: "use the group image of them." */
+    { who: 'gc', photo: 'photos/gc-together.png', label: 'GC, Emerging Tech Lab\'s own build', audio: 'audio/gc-bio-m.mp3', genre: ['everyday'] },
     { who: 'astra9', photo: 'photos/astra9-wall.png', label: 'Astra-9', genre: ['fantasy'] },
   ];
 
