@@ -1139,18 +1139,15 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          companions "come with family or friends of their own," which this heading now says in
          two words, so that sentence came out of demos-note below rather than staying redundant
          with it. -->
-    <!-- HEADING AND FILTER, BACK ABOVE THE WALL, 2026-09-12. Briefly moved below the wall photo
-         earlier the same day to match every other floor's photo-first structure (see git history
-         for that version's own comment). Dr. O, once she saw that live: "this has to be where
-         the users will know to sort them, it is why I put it where I did." The two rules only
-         look like they conflict. Every other floor's .floor-band is a plain decorative photo with
-         no controls of its own, so heading-first-then-photo really was a visible disruption ahead
-         of the real content there. THIS floor's wall is not decorative: the six frames in
-         #companionsWall are the live, filtered, paginated grid itself (see WALL_FRAMES below), and
-         the filter bar is what drives what fills them. Putting the filter after the thing it
-         controls meant a visitor had to scroll past a whole page of results before discovering
-         sorting existed at all. Heading and filter lead, the wall (still the first REAL content
-         below the nav, nothing floats above the pair of them either) follows. -->
+    <!-- HEADING AND FILTER MOVED BELOW THE PHOTO, 2026-09-12. Dr. O direct, more than once:
+         "no other floor has that text disruption," "all the other pages have the hero image
+         starting right below the nav... only this one does not," "I said this exact thing to
+         you yesterday." Every other floor's hero photo (.floor-band) is the first thing visible
+         under the nav, with its own real heading either hidden or living further down the page
+         (see #floor-build-room's own h2, hidden, and its later .three-heading). This floor put a
+         visible h2 and the whole genre-filter bar ahead of the photo instead, which is exactly
+         the disruption the earlier "&amp; Friends" shortening only partly fixed. Reordered here
+         rather than shortened again: the wall photo now leads, this content follows it. -->
     <!-- THE WALL, REBUILT 2026-09-08 to match Dr. O's own template photo (photos/companions-band.jpg),
          same mechanism as My Echo's demo floor: six real, measured frames on the actual wall in the
          photograph, not a card grid sitting under a decorative image of one. Frame positions measured
@@ -1165,50 +1162,6 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
          page with 6 creatures" and "if there are 7 we will see this page and the next page with 1
          and 5 empty" -- an unused frame on a page hides its overlay and shows the empty lit frame
          underneath, the same as an empty display case, never a placeholder graphic. -->
-    <h2>Meet Good Company's Companions &amp; Friends</h2>
-    <!-- ADDED 2026-08-19 per Dr. O directly: trying a companion is often not
-         trying one character, it is trying their whole cast -- turnOrder
-         companions answer too (Tansy/Poppy/Blue, the Grimms, the puppet
-         family, the Nursery, the Littles since 2026-09-03), and some
-         (Reggie) have others who interject as cameos. Said plainly here rather than left for
-         someone to discover by accident inside the room.
-
-         GENERALIZED 2026-08-30, Dr. O direct: "many are now not alone, so
-         this doesn't fit" -- the two-name version (Tansy/Poppy/Blue,
-         Reggie/Biscuit/Mochi) was accurate the day it was written and
-         wrong the moment a third companion got a cast of its own. Named
-         examples in visible copy rot the same way a hardcoded count does;
-         this describes the feature instead of enumerating who currently
-         has it. -->
-    <!-- GENRE FILTER, added 2026-09-08 per Dr. O direct: 24 cards with no way to narrow them is
-         a wall, not a roster. Each card below now carries a data-genre; this bar toggles a
-         data-off attribute the same way the wall-pager already does on My Echo (see that file's
-         own note on why data-off is script-only and never written into markup by hand), so a
-         visitor reading with no JS still gets every card, and search engines see all 24 too.
-
-         A FIRST PASS, SAID PLAINLY. Five buckets, one genre per card, chosen from each card's own
-         label and ask-line here rather than each companion's full persona file: Mentors (Arch,
-         Aaron, Meera, Rin, Nina -- teaching or guiding you toward something), Storytellers (the
-         Grimms, Winston, Larkmere -- lore and anecdote is the point of talking to them), Fantasy
-         (Tansy, A.L.I.C.E., Julian, Viv, Cressida, Nora, the Nursery -- magic, undeath, AI,
-         time), Creatures (Reggie, Marion & the Littles, the Puppet Family -- not human, not
-         humanoid-magical either), Everyday (Sophia, Kioko, Marcus, Theo, Dario, Zoe -- a real
-         job, no genre hook). Some of these are a real judgment call (Nina teaches AND tells
-         stories; the Nursery could as easily be Creatures) -- correct the data-genre attribute
-         directly if one reads wrong, rather than the filter mechanism itself.
-
-         BACK ABOVE THE WALL, 2026-09-12 -- see this section's own note above the wall photo for
-         why: this bar filters the wall's own six frames, and a control has to come before the
-         thing it controls or nobody finds it before they have already scrolled past it. -->
-    <div class="genre-filter" role="group" aria-label="Filter companions">
-      <button class="genre-pill on" type="button" data-genre-filter="all">All</button>
-      <button class="genre-pill" type="button" data-genre-filter="storytellers">Storytellers</button>
-      <button class="genre-pill" type="button" data-genre-filter="mentors">Mentors</button>
-      <button class="genre-pill" type="button" data-genre-filter="fantasy">Fantasy</button>
-      <button class="genre-pill" type="button" data-genre-filter="creatures">Creatures</button>
-      <button class="genre-pill" type="button" data-genre-filter="everyday">Everyday</button>
-    </div>
-
     <div class="floor-band wall-band" id="companionsWall">
       <img class="floor-band-room" src="photos/companions-band.jpg" alt="The companions wall, six lit frames.">
       <div class="wall-frame" data-slot="0" hidden>
@@ -1252,6 +1205,50 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
         <span class="wall-page-now" id="wallPageNow"></span>
         <button class="floor-btn" id="wallNext" type="button" aria-label="Next page">&rarr;</button>
       </div>
+    </div>
+
+    <h2>Meet Good Company's Companions &amp; Friends</h2>
+    <!-- ADDED 2026-08-19 per Dr. O directly: trying a companion is often not
+         trying one character, it is trying their whole cast -- turnOrder
+         companions answer too (Tansy/Poppy/Blue, the Grimms, the puppet
+         family, the Nursery, the Littles since 2026-09-03), and some
+         (Reggie) have others who interject as cameos. Said plainly here rather than left for
+         someone to discover by accident inside the room.
+
+         GENERALIZED 2026-08-30, Dr. O direct: "many are now not alone, so
+         this doesn't fit" -- the two-name version (Tansy/Poppy/Blue,
+         Reggie/Biscuit/Mochi) was accurate the day it was written and
+         wrong the moment a third companion got a cast of its own. Named
+         examples in visible copy rot the same way a hardcoded count does;
+         this describes the feature instead of enumerating who currently
+         has it. -->
+    <!-- GENRE FILTER, added 2026-09-08 per Dr. O direct: 24 cards with no way to narrow them is
+         a wall, not a roster. Each card below now carries a data-genre; this bar toggles a
+         data-off attribute the same way the wall-pager already does on My Echo (see that file's
+         own note on why data-off is script-only and never written into markup by hand), so a
+         visitor reading with no JS still gets every card, and search engines see all 24 too.
+
+         A FIRST PASS, SAID PLAINLY. Five buckets, one genre per card, chosen from each card's own
+         label and ask-line here rather than each companion's full persona file: Mentors (Arch,
+         Aaron, Meera, Rin, Nina -- teaching or guiding you toward something), Storytellers (the
+         Grimms, Winston, Larkmere -- lore and anecdote is the point of talking to them), Fantasy
+         (Tansy, A.L.I.C.E., Julian, Viv, Cressida, Nora, the Nursery -- magic, undeath, AI,
+         time), Creatures (Reggie, Marion & the Littles, the Puppet Family -- not human, not
+         humanoid-magical either), Everyday (Sophia, Kioko, Marcus, Theo, Dario, Zoe -- a real
+         job, no genre hook). Some of these are a real judgment call (Nina teaches AND tells
+         stories; the Nursery could as easily be Creatures) -- correct the data-genre attribute
+         directly if one reads wrong, rather than the filter mechanism itself.
+
+         MOVED BELOW THE WALL, 2026-09-12 -- see this section's own note above the wall photo for
+         why: filtering controls for cards the visitor has not scrolled to yet is a reasonable
+         tradeoff against matching the photo-first structure every other floor uses. -->
+    <div class="genre-filter" role="group" aria-label="Filter companions">
+      <button class="genre-pill on" type="button" data-genre-filter="all">All</button>
+      <button class="genre-pill" type="button" data-genre-filter="storytellers">Storytellers</button>
+      <button class="genre-pill" type="button" data-genre-filter="mentors">Mentors</button>
+      <button class="genre-pill" type="button" data-genre-filter="fantasy">Fantasy</button>
+      <button class="genre-pill" type="button" data-genre-filter="creatures">Creatures</button>
+      <button class="genre-pill" type="button" data-genre-filter="everyday">Everyday</button>
     </div>
 
     <!-- Kept, empty, for anyone with a no-JS crawler or reader: every companion is still a real
