@@ -4254,7 +4254,8 @@ var GC_SARAH = {
   baselineFeelings: { happy: 55, sad: 12, fear: 8, disgust: 8, anger: 8, surprise: 20, curious: 55 },
   moodEmoji: '&#127864;',
   voice: ['Warm', 'Direct', 'Dry', 'A real listener', 'Uses contractions'],
-  voiceId: '4rPztmvQMwWfhkAxS32X',
+  voiceId: 'nCUo6wOgqVDAktRxhDA4',
+  bioAudio: 'audio/sarah-bio.mp3',
   talkingPoints: [
     'What should I actually order?',
     'What is the strangest thing you have overheard at this bar?',
@@ -4361,6 +4362,7 @@ var GC_OLIVIA = {
   moodEmoji: '&#127916;',
   voice: ['Warm', 'Guarded at first, then direct', 'Dry', 'Precise', 'Uses contractions'],
   voiceId: 'tVAXY8ApYcHIFjTH8kL0',
+  bioAudio: 'audio/olivia-bio.mp3',
   talkingPoints: [
     'What does it actually feel like to be recognized?',
     'Where does the money actually go?',
