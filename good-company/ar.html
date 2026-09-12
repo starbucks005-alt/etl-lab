@@ -521,12 +521,26 @@ body { position: relative; background: #000; }
        the old gc-astra9-ar-* pair is left in place, unreferenced, rather than deleted.
        PHOTO REPLACED AGAIN, same day: "the image I used for her AR" (astra.jpg), matching this
        replacement pair's own Grand Canyon look exactly rather than the earlier v2 portrait's
-       different pose. New filename per house rule (astra9-ar-portrait-v3.jpg). */
+       different pose. New filename per house rule (astra9-ar-portrait-v3.jpg).
+       color/matte REPLACED A SECOND TIME, same day: the v2 Grand Canyon matte turned out to have
+       a real defect confirmed by direct pixel inspection (a gradient fade toward black on her
+       lower-right torso/arm, visible even in a single still frame, not a playback artifact) --
+       Dr. O saw it live as missing parts on the robot. She sent a wholly different scene, not a
+       fix to the same footage: Astra-9 at the tailor's shop desk (astra-scene-color-tailor.mp4/
+       astra-scene-matte-tailor.mp4), 1280x720, 30 seconds. Verified thoroughly before wiring in
+       given the last pair's own defect -- sampled 11 points across the full 30 seconds (always
+       min 0/max 255, under 0.5% mid-gray at every point) and checked every flagged interior dark
+       region against the color clip at the same coordinates; each one was real background (the
+       shop's own bookshelf) showing through an actual gap between her arm and torso, not a
+       tracking miss. New filenames per house rule (astra9-ar-color-v4.mp4/-matte-v4.mp4); v2 and
+       v3's photo stays for now since no still photo of this tailor-shop scene has been sent yet --
+       the frame and the photo now show two different scenes of her, flagged rather than guessed
+       at by extracting a frame myself. */
     astra9: {
       name: 'Astra-9',
       photo: 'photos/astra9-ar-portrait-v3.jpg',
-      color: 'video/astra9-ar-color-v2.mp4',
-      matte: 'video/astra9-ar-matte-v2.mp4',
+      color: 'video/astra9-ar-color-v4.mp4',
+      matte: 'video/astra9-ar-matte-v4.mp4',
       ambience: null,
     },
     /* ASTRAD, ADDED 2026-09-12, Dr. O direct: sent a real matched color/matte pair
