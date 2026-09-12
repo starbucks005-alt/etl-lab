@@ -5061,6 +5061,34 @@ var MIC_TAIL_MS = 3000;
 var micQuietUntil = 0;
 var speaking = null;
 
+/* VOICE GAIN BOOST, added 2026-09-12, Dr. O direct, live, sitting in Sarah's own room: "I am in
+   the room with her and can barely hear her despite my volume being full." <audio>.volume tops
+   out at 1.0, which cannot exceed the loudness ElevenLabs actually rendered -- some voices come
+   back quieter than others, and a listener already at full device volume has nowhere left to
+   turn it up. Routes playback through a real Web Audio gain stage instead, with a limiter so the
+   boost that helps a quiet voice does not clip one that was already loud. Applies to every
+   companion's spoken reply, not a Sarah-only patch -- same "default louder" reasoning her
+   hearing already governs everywhere else on this campus. Wrapped in try/catch and only used
+   when it succeeds: a boost that fails to build must never mean silence, only the same
+   unboosted playback this already was. */
+var GC_VOICE_CTX = null;
+function gcBoostVoice(audioEl) {
+  try {
+    if (!GC_VOICE_CTX) GC_VOICE_CTX = new (window.AudioContext || window.webkitAudioContext)();
+    if (GC_VOICE_CTX.state === 'suspended') GC_VOICE_CTX.resume();
+    var source = GC_VOICE_CTX.createMediaElementSource(audioEl);
+    var gain = GC_VOICE_CTX.createGain();
+    gain.gain.value = 2.2;
+    var limiter = GC_VOICE_CTX.createDynamicsCompressor();
+    limiter.threshold.value = -6;
+    limiter.knee.value = 6;
+    limiter.ratio.value = 12;
+    limiter.attack.value = 0.003;
+    limiter.release.value = 0.15;
+    source.connect(gain).connect(limiter).connect(GC_VOICE_CTX.destination);
+  } catch (e) { /* Web Audio unavailable -- audioEl still plays at its own volume. */ }
+}
+
 function hush() {
   if (speaking) {
     try { speaking.pause(); } catch (_) {}
@@ -5080,6 +5108,7 @@ function hush() {
 function playCachedAudio(b64) {
   hush();
   speaking = new Audio("data:audio/mpeg;base64," + b64);
+  gcBoostVoice(speaking);
   $("stopBtn").style.display = "inline-block";
   speaking.onended = hush;
   speaking.play().catch(function () { hush(); });
@@ -5168,6 +5197,7 @@ function speak(text, voiceId, onDone, bubble) {
       return;
     }
     speaking = new Audio("data:audio/mpeg;base64," + j.audio);
+    gcBoostVoice(speaking);
     $("stopBtn").style.display = "inline-block";
     speaking.onended = function () { hush(); if (onDone) onDone(); };
     speaking.play().catch(function () { hush(); if (onDone) onDone(); });

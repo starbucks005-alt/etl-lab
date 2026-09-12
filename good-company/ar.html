@@ -1306,6 +1306,28 @@ body { position: relative; background: #000; }
       chatHistory.push({ who: mine ? (YOU.name || 'You') : companion.name, text: text, mine: mine });
     }
 
+    /* VOICE GAIN BOOST, added 2026-09-12, same fix and same reasoning as room.html's own
+       gcBoostVoice (see that comment for the full story: Dr. O, live, in Sarah's room, "can
+       barely hear her despite my volume being full"). Duplicated here rather than shared since
+       this page and room.html are already two independently duplicated files. */
+    var GC_VOICE_CTX = null;
+    function gcBoostVoice(audioEl) {
+      try {
+        if (!GC_VOICE_CTX) GC_VOICE_CTX = new (window.AudioContext || window.webkitAudioContext)();
+        if (GC_VOICE_CTX.state === 'suspended') GC_VOICE_CTX.resume();
+        var source = GC_VOICE_CTX.createMediaElementSource(audioEl);
+        var gain = GC_VOICE_CTX.createGain();
+        gain.gain.value = 2.2;
+        var limiter = GC_VOICE_CTX.createDynamicsCompressor();
+        limiter.threshold.value = -6;
+        limiter.knee.value = 6;
+        limiter.ratio.value = 12;
+        limiter.attack.value = 0.003;
+        limiter.release.value = 0.15;
+        source.connect(gain).connect(limiter).connect(GC_VOICE_CTX.destination);
+      } catch (e) { /* Web Audio unavailable -- audioEl still plays at its own volume. */ }
+    }
+
     /* SPOKEN AUTOMATICALLY, same reasoning and the same real, separate cost
        as My Echo's port: gc-voice.js counts a spoken reply against real
        credits, same as it always has for room.html. Respects the mute
@@ -1340,6 +1362,7 @@ body { position: relative; background: #000; }
            this was first written, because it never worked even once to notice by contrast. */
         if (!data || !data.audio) return;
         var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
+        gcBoostVoice(audio);
         audio.play().catch(function () {});
       }).catch(function () { /* text reply already stands on its own */ });
     }
