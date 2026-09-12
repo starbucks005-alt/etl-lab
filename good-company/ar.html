@@ -580,6 +580,15 @@ body { position: relative; background: #000; }
   var matteVideo = document.getElementById('matteVideo');
   var ambientAudio = document.getElementById('ambientAudio');
   colorVideo.src = companion.color;
+  /* NEVER THE COLOR CLIP'S OWN EMBEDDED AUDIO, added 2026-09-12, Dr. O direct on Reggie: "the
+     panting of the dogs when trying to talk to them... annoying." colorVideo.muted is the gate
+     speakReply() below checks before playing the companion's own TTS reply (see its own comment),
+     so unmuting it to hear a reply also unmuted whatever the color clip's own audio track happens
+     to carry -- for most companions silence, for Reggie real embedded dog sound. colorVideo was
+     never meant to be a speaker, only the visual layer; the sanctioned audio surface is
+     companion.ambience, already separate. volume:0 silences the clip's own track regardless of
+     the mute toggle's state, without touching what that toggle actually gates. */
+  colorVideo.volume = 0;
   if (companion.matte) matteVideo.src = companion.matte;
   if (companion.ambience) ambientAudio.src = companion.ambience;
   var topBar = document.getElementById('topBar');
