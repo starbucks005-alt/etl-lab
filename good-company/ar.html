@@ -468,6 +468,19 @@ body { position: relative; background: #000; }
       matte: 'video/reggie-ar-matte.mp4',
       ambience: null,
     },
+    /* VIV, ADDED 2026-09-12: a real matched color/matte pair (viv-scene-color.mp4/
+       viv-scene-matte.mp4), verified before wiring in the same way as the others added today --
+       both 1280x720, both 10 seconds, color shows her in the masked cape costume on a rooftop at
+       dusk matching her own "dual identity, after dark" persona, matte carries real
+       black-to-white mask variance. Portrait reuses her existing room photo (viv-portrait.jpg,
+       see GC_VIV's own portrait field). New filenames per house rule. */
+    viv: {
+      name: 'Viv',
+      photo: 'photos/viv-portrait.jpg',
+      color: 'video/viv-ar-color.mp4',
+      matte: 'video/viv-ar-matte.mp4',
+      ambience: null,
+    },
     /* GC, ADDED 2026-09-10. Two registry entries rather than one, unlike gc-friend.js's single
        GC_ROBOT object with a localStorage-read shell: this page is keyed entirely off ?who= in
        the URL (see COMPANIONS lookup below), so the two shells need their own entries here to
@@ -1070,6 +1083,7 @@ body { position: relative; background: #000; }
        no speaker override -- his real cameos (Biscuit, Mochi) are on GC_REGGIE.cameos already,
        same as every other companion's cameo mechanism, nothing special needed here for them. */
     if (key === 'reggie') return { friend: GC_REGGIE, speaker: null };
+    if (key === 'viv') return { friend: GC_VIV, speaker: null };
     /* GC AND ASTRA-9, ADDED 2026-09-10, Dr. O direct: "as an AR they need text boxes and voice
        too" -- this page never had chat wired for either one. GC_ROBOT is one shared object with
        two shells (see its own comment in gc-friend.js); gc-m/gc-f here carry their OWN ?who=,
