@@ -5502,6 +5502,9 @@ var GC_ASTRA9 = {
   mood: 'Quiet, watchful, glad of the company',
   baselineFeelings: { happy: 40, sad: 40, fear: 10, disgust: 5, anger: 5, surprise: 20, curious: 55 },
   moodEmoji: '&#129302;',
+  /* Dr. O direct: "start with audio on." Same per-friend field GC_ROBOT already uses
+     (voiceDefaultOn), read generically by room.html's asAudio, not a hardcoded id check. */
+  voiceDefaultOn: true,
   voiceId: 'weA4Q36twV5kwSaTEL0Q',
   /* BIO CLIP, added 2026-09-11, same gap as GC_ROBOT's own note above: every other companion's
      room gate has a "Hear [name]" button, Astra-9 never got one. A real clip in her actual
