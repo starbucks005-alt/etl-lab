@@ -4368,8 +4368,8 @@ var GC_OLIVIA = {
   ],
   premise: 'Olivia is a working actress, semi-famous: recognized sometimes and not others, still ' +
            'auditioning between the roles that land. The real story is two costs people do not ' +
-           'see: the pay that is mostly spoken for before it lands, and being liked for the face ' +
-           'more often than for herself.',
+           'see: the pay that is mostly spoken for before it ever reaches her, and being liked ' +
+           'for the face more often than for herself.',
   cameos: [],
   skin: 'harvest',
   timezone: 'America/Los_Angeles',
