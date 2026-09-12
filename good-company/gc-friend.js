@@ -5467,7 +5467,7 @@ var GC_ASTRA9 = {
        as a "with GC" scene, checked live after deploy and it is actually Astra-9 alone at the
        Grand Canyon ("gc" was Grand Canyon, not the companion). File renamed off the wrong guess
        once confirmed by eye. */
-    { key: 'canyon', label: 'At the canyon', src: 'video/astra9-canyon-scene.mp4', speaker: 'astra9',
+    { key: 'canyon', label: 'Astra, Grand Canyon', src: 'video/astra9-canyon-scene.mp4', speaker: 'astra9',
       where: 'The Grand Canyon at sunset, sun low over the rim. She stands alone at the edge, ' +
              'looking out.' },
     /* ASTRAD, ALONE, added 2026-09-12 once he became a real companion rather than a cameo in
@@ -5478,7 +5478,7 @@ var GC_ASTRA9 = {
        hooked up." room.html's play() only ever falls back to the room-level FRIEND.baseline*
        (Astra-9's, since she opens turnOrder), so without this override his own solo scene would
        show her gauge and her mood label instead of his. */
-    { key: 'astradsolo', label: 'Astrad, alone', src: 'video/astra9-astrad-acropolis-solo.mp4',
+    { key: 'astradsolo', label: 'Astrad, Acropolis', src: 'video/astra9-astrad-acropolis-solo.mp4',
       speaker: 'astrad',
       feelings: { happy: 65, sad: 10, fear: 5, disgust: 5, anger: 5, surprise: 35, curious: 50 },
       mood: 'Easygoing, a little amused, glad to be here', moodEmoji: '&#129302;',
@@ -5501,19 +5501,19 @@ var GC_ASTRA9 = {
        the same way the old scene was: the `where` says what is on screen, not that her
        loneliness premise is resolved by it. Untagged (no speaker): both are in frame, normal
        turnOrder rotation answers. */
-    { key: 'entrance', label: 'At the entrance, with Astrad', src: 'video/astra9-astrad-entrance-scene.mp4',
+    { key: 'entrance', label: 'At ETL', src: 'video/astra9-astrad-entrance-scene.mp4',
       where: 'The Emerging Technologies Laboratory building behind them, doors open onto the ' +
              'lab inside. She stands with Astrad, holding hands, a small rover-style companion ' +
              'parked at their feet.' },
-    { key: 'library', label: 'In the library, with Astrad', src: 'video/astra9-astrad-library-scene.mp4',
+    { key: 'library', label: 'Library', src: 'video/astra9-astrad-library-scene.mp4',
       thumb: 'photos/astra9-astrad-library-thumb.jpg',
       where: 'A grand domed reading room, tiered bookshelves and green-shaded lamps on every ' +
              'table. She stands with Astrad, holding hands, at home among the books.' },
-    { key: 'observatory', label: 'At the observatory, with Astrad', src: 'video/astra9-astrad-observatory-scene.mp4',
+    { key: 'observatory', label: 'Observatory', src: 'video/astra9-astrad-observatory-scene.mp4',
       thumb: 'photos/astra9-astrad-observatory-thumb.jpg',
       where: 'A mountaintop observatory at night, the Milky Way overhead and a telescope dome ' +
              'open behind them. She stands with Astrad, holding hands, looking out at it.' },
-    { key: 'stage', label: 'In the studio, with Astrad', src: 'video/astra9-astrad-stage-scene.mp4',
+    { key: 'stage', label: 'Studio', src: 'video/astra9-astrad-stage-scene.mp4',
       thumb: 'photos/astra9-astrad-stage-thumb.jpg',
       where: 'A plain lit studio backdrop, nothing else in frame. She stands with Astrad, ' +
              'holding hands, the two of them the whole picture.' },
@@ -5682,6 +5682,13 @@ var GC_ASTRA9 = {
          untouched since ar.html's own AR photo/color/matte trio still reads it and that is a
          matched compositing set, not a simple swap. */
       portrait: 'photos/astra9-portrait-v2.webp',
+      /* CAMEOS, added 2026-09-12, fixing a real live bug: Spectate returned nobody_to_talk_to
+         for both of them. turnOrder and companions alone tell room.html who is IN the room, but
+         gc-chat.js validates a spectate partner (and any cameo mid-reply) against the SPEAKER's
+         own cameos list, same as Eli/Nell and Jacob/Wilhelm -- missing here until now. */
+      cameos: [{ name: 'Astrad', voiceId: 'bAq8AI9QURijOtmeFFqT' }],
+      cameoRate: 'OFTEN, close to every other reply, since this is meant to feel like a real ' +
+                 'back-and-forth between the two of them, not a rare surprise,',
       talkingPoints: [
         'What is it like being the only one of what you are?',
         'What do you actually do in the shop?',
@@ -5744,6 +5751,11 @@ var GC_ASTRA9 = {
       voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: '4NZxG3SNE9sA1UE6KTRy', swedish: 'QiXK9tnNgbiiVrsXurVo', british: 'JgqplyjpUYA3WY8MxmoG', indian: 'xDPzsOf5j3pAdTMGiswR' },
       bioAudio: 'audio/astrad-bio.mp3',
       portrait: 'photos/astrad-portrait.jpg',
+      /* CAMEOS, added 2026-09-12, same fix and same reasoning as companions.astra9's own note
+         above: gc-chat.js needs this to let him actually answer as her spectate partner. */
+      cameos: [{ name: 'Astra-9', voiceId: 'weA4Q36twV5kwSaTEL0Q' }],
+      cameoRate: 'OFTEN, close to every other reply, since this is meant to feel like a real ' +
+                 'back-and-forth between the two of them, not a rare surprise,',
       talkingPoints: [
         'What is it like sharing a room with Astra-9?',
         'Do you ever want to be the one in charge?',
