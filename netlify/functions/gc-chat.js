@@ -678,7 +678,29 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
                 `${names.join(', ')}), then right after the ###: their own short line in their own words if ` +
                 `they can talk, or one short line describing what they do, third person, if they cannot ` +
                 `(${narratedNames.length ? narratedList : 'all of these can talk'}). Nothing else on the ` +
-                `line, and if they are speaking, not in quotation marks.`);
+                `line, and if they are speaking, not in quotation marks.\n` +
+                /* THE SAME MIX-UP, TWO SHAPES, added 2026-09-12 after a repeated live miss --
+                   Dr. O, naming it directly: Tansy/Poppy/Blue, then Reggie/Biscuit/Mochi, then
+                   Astra-9/Astrad, "and the narration (Tansy narrating or Reggie narrating)". One
+                   shape is answering a real question on their behalf, in your own words, instead
+                   of handing it to them. The other is narrating what they do or feel in the third
+                   person instead of handing THAT to them either -- "Astrad steps up beside her,
+                   says nothing" belongs on a cameo line the same as a spoken answer does, not
+                   folded into your own reply just because it is action rather than speech. Both
+                   are the identical mistake: content that is actually theirs, written in your own
+                   line instead of theirs. The instruction above was sized for a short interjection
+                   and said nothing about length, so a real answer or a real described moment
+                   started in your own words and only its tail end, if any, made it past a marker. */
+                `IF WHAT COMES NEXT IS REALLY THEIRS -- answering a real question about what THEY ` +
+                `think, want, or would say, or describing something THEY do or feel rather than ` +
+                `you -- none of it belongs in your own line, not even the third-person description ` +
+                `of it. All of it goes on the cameo line, however long it actually takes -- not one ` +
+                `short line, not trimmed to fit a greeting-sized reply. Your own line stays about ` +
+                `you: a short reaction or a handoff ("ask her yourself" / "she can tell you better ` +
+                `than I can"), never a summary, a paraphrase, or a narrated moment of theirs written ` +
+                `in your own words. The instant you notice you are describing what they want, think, ` +
+                `do, or feel rather than what you do, stop mid-sentence and put the rest after the ` +
+                `marker, in their own voice or as their own described moment, instead.`);
     }
   }
 
@@ -1499,14 +1521,19 @@ exports.handler = async function (event) {
         /* WORD-BOUNDARY TRIM, NOT A HARD CHARACTER CUT, fixed 2026-08-18
            after Dr. O caught Biscuit's line stopping mid-word: "...but he
            was RIGHT TH". A flat .slice(0, N) does not care where it lands.
-           Raised the ceiling too (200 -> 280): the instruction says one
-           short line, but a genuinely excited dog runs on, and 200 was
-           tight enough to be clipping lines that were not actually
-           unreasonable. */
-        if (cameoText.length > 280) {
-          const cut = cameoText.slice(0, 280);
+           Raised the ceiling once already (200 -> 280) for a genuinely
+           excited dog running on. RAISED AGAIN (280 -> 600), 2026-09-12,
+           alongside the new REAL-QUESTION instruction above: a short
+           interjection cap made sense when a cameo line was always a
+           passing aside, but a cameo asked a genuine question ("what does
+           Astra-9 want") needs room for a genuine answer, not a greeting-
+           sized one. A narrated cameo (Biscuit, Mochi, Gus, Barley) will
+           still land well under this on its own, since a dog's own moment
+           was never going to run long regardless of where the ceiling sits. */
+        if (cameoText.length > 600) {
+          const cut = cameoText.slice(0, 600);
           const lastSpace = cut.lastIndexOf(' ');
-          cameoText = (lastSpace > 200 ? cut.slice(0, lastSpace) : cut).trim();
+          cameoText = (lastSpace > 500 ? cut.slice(0, lastSpace) : cut).trim();
         }
         const match = activeFriend.cameos.find(c => c && c.name && c.name.toLowerCase() === spokenName.toLowerCase());
         /* USED TO REQUIRE match.voiceId, dropping the line entirely for
