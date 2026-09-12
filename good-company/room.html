@@ -651,6 +651,12 @@ html{ zoom:90%; }
              offered a copy of it. -->
         <button class="btn" id="syncBtn" style="display:none">&#128241; Other device</button>
         <button class="btn" id="replyBtn">&#127911; Audio Off</button>
+        <!-- VOICE STYLE, added 2026-09-12, Dr. O direct: "offer choices for the robot...
+             choose robot or natural." Hidden unless the friend (or a companion in a shared
+             room) carries voiceOptions -- see paintVoiceStyle() and styledVoiceId() below.
+             Cycles through the options on each click rather than a dropdown, same minimal
+             shape every other chip in this row already uses. -->
+        <button class="btn" id="voiceStyleBtn" style="display:none"></button>
         <!-- SPECTATOR MODE, added 2026-09-03, named by Dr. O. Only where there is
              somebody in the room to talk to (a turnOrder room, a friend with
              companions, or one with spectateWith): the people go quiet and the
@@ -2877,6 +2883,7 @@ if (introTipCloseBtn) introTipCloseBtn.addEventListener('click', gcDismissCompos
    than a second copy of it, and the conversation is still there afterwards. */
 function sitDown() {
   if (typeof paintSpectate === 'function') paintSpectate();
+  if (typeof paintVoiceStyle === 'function') paintVoiceStyle();
   $("gate").style.display = "none";
   $("chat").style.display = "flex";
   if (!gcSeenComposerIntro()) {
@@ -5067,7 +5074,7 @@ function speak(text, voiceId, onDone, bubble) {
      (the cameo's text bubble and speech) without caring whether audio is
      even enabled. bubble, if given, gets a Replay button once the audio for
      THIS line actually arrives. */
-  voiceId = voiceId || FRIEND.voiceId;
+  voiceId = styledVoiceId(voiceId || FRIEND.voiceId);
   if (!asAudio || !voiceId || !text) { if (onDone) onDone(); return; }
   hush();
 
@@ -5140,6 +5147,65 @@ $('replyBtn').addEventListener('click', function () {
   asAudio = !asAudio;
   this.innerHTML = asAudio ? '&#127911; Audio On' : '&#127911; Audio Off';
   if (!asAudio) hush();
+});
+
+/* VOICE STYLE, added 2026-09-12, Dr. O direct: "offer choices for the robot in your home and
+   companion... choose robot or natural," then, once opinions differed between her and David on
+   which natural voice: "both as separate options." A per-visitor localStorage choice, same
+   shape as the shell/skin preferences elsewhere on this campus, not tied to any one friend's
+   own data. Astra-9 and Astrad are the only two with voiceOptions right now (GC_ASTRA9's
+   companions.astra9/astrad in gc-friend.js); everyone else is untouched, same "hidden entirely
+   when a friend has nothing for it" rule as Spectate/Watch/Photo album.
+
+   styledVoiceId() IS THE ONLY PLACE THIS TAKES EFFECT, called once, inside speak() above, since
+   every call site in this file already funnels through there. Nothing about turnOrder, cameos,
+   or the server's own speaker_voice_id needed to change: whatever voiceId speak() was already
+   about to use gets swapped for its styled equivalent, or passed through untouched for anyone
+   without voiceOptions. */
+var VOICE_STYLES = ['robot', 'american', 'swedish'];
+var VOICE_STYLE_LABELS = { robot: 'Robot', american: 'American', swedish: 'Swedish' };
+function getVoiceStyle() {
+  try { var s = localStorage.getItem('gc_voice_style'); return VOICE_STYLES.indexOf(s) > -1 ? s : 'robot'; }
+  catch (e) { return 'robot'; }
+}
+function setVoiceStyle(s) { try { localStorage.setItem('gc_voice_style', s); } catch (e) {} }
+/* Finds whichever voiceOptions map (the friend's own, or a companion's, in a shared room)
+   actually owns this voiceId as its "robot" entry, so the same function works whether the
+   current speaker is Astra-9, Astrad, or a friend with no voiceOptions at all (returns the
+   original id unchanged in that last case). */
+function voiceOptionsFor(id) {
+  if (FRIEND.voiceOptions && FRIEND.voiceOptions.robot === id) return FRIEND.voiceOptions;
+  if (FRIEND.companions) {
+    for (var k in FRIEND.companions) {
+      var c = FRIEND.companions[k];
+      if (c && c.voiceOptions && c.voiceOptions.robot === id) return c.voiceOptions;
+    }
+  }
+  return null;
+}
+function styledVoiceId(id) {
+  var style = getVoiceStyle();
+  if (style === 'robot' || !id) return id;
+  var opts = voiceOptionsFor(id);
+  return (opts && opts[style]) || id;
+}
+function friendHasVoiceOptions() {
+  if (FRIEND.voiceOptions) return true;
+  if (FRIEND.companions) {
+    for (var k in FRIEND.companions) { if (FRIEND.companions[k] && FRIEND.companions[k].voiceOptions) return true; }
+  }
+  return false;
+}
+function paintVoiceStyle() {
+  var b = $('voiceStyleBtn');
+  if (!b) return;
+  b.style.display = friendHasVoiceOptions() ? '' : 'none';
+  b.innerHTML = '&#127911; Voice: ' + VOICE_STYLE_LABELS[getVoiceStyle()];
+}
+$('voiceStyleBtn').addEventListener('click', function () {
+  var i = VOICE_STYLES.indexOf(getVoiceStyle());
+  setVoiceStyle(VOICE_STYLES[(i + 1) % VOICE_STYLES.length]);
+  paintVoiceStyle();
 });
 </script>
 

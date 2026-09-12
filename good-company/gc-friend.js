@@ -5648,6 +5648,16 @@ var GC_ASTRA9 = {
       baselineFeelings: { happy: 40, sad: 40, fear: 10, disgust: 5, anger: 5, surprise: 20, curious: 55 },
       moodEmoji: '&#129302;',
       voiceId: 'weA4Q36twV5kwSaTEL0Q',
+      /* VOICE OPTIONS, added 2026-09-12, Dr. O direct: offer robot vs natural choices, then,
+         once she and David preferred different natural takes: "both as separate options."
+         'robot' here must match voiceId above exactly -- room.html's styledVoiceId() looks up
+         this map by matching the CURRENT voiceId against 'robot', so the two can never drift
+         apart. American and Swedish are both real, saved ElevenLabs voices, not previews:
+         American promoted from a Voice Design generation (Dr. O picked it after noticing the
+         "Nordic lilt" attempt came out sounding fully American and asked to keep it anyway,
+         generation id lqgYrNyQrOY96N3mj3M9, saved via gc-voice-design.js's create action);
+         Swedish is a real library voice she found and handed over directly. */
+      voiceOptions: { robot: 'weA4Q36twV5kwSaTEL0Q', american: 'lqgYrNyQrOY96N3mj3M9', swedish: 'oVXQ3H21hRI9OtM4YH5K' },
       /* BIO CLIP, added 2026-09-11, same gap as GC_ROBOT's own note above: every other
          companion's room gate has a "Hear [name]" button, Astra-9 never got one. A real clip
          in her actual ElevenLabs voice, introducing herself and inviting you to sit down. */
@@ -5710,6 +5720,11 @@ var GC_ASTRA9 = {
       baselineFeelings: { happy: 65, sad: 10, fear: 5, disgust: 5, anger: 5, surprise: 35, curious: 50 },
       moodEmoji: '&#129302;',
       voiceId: 'bAq8AI9QURijOtmeFFqT',
+      /* VOICE OPTIONS, added 2026-09-12, same reasoning as companions.astra9's own note above.
+         American promoted from a Voice Design generation (generation id
+         4NZxG3SNE9sA1UE6KTRy, saved via gc-voice-design.js's create action); Swedish a real
+         library voice Dr. O found and handed over directly. */
+      voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: '4NZxG3SNE9sA1UE6KTRy', swedish: 'QiXK9tnNgbiiVrsXurVo' },
       bioAudio: 'audio/astrad-bio.mp3',
       portrait: 'photos/astrad-portrait.jpg',
       talkingPoints: [
