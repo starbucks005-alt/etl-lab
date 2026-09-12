@@ -688,27 +688,52 @@ body.js .floor.is-open{display:block; animation:gcDissolve .5s ease both;}
 }
 .genre-pill:hover{color:var(--accent); border-color:var(--accent);}
 .genre-pill.on{color:var(--accent-ink); background:var(--accent); border-color:var(--accent);}
-/* THE HEADING+FILTER, OVERLAID ON THE WALL PHOTO ITSELF, between the floor-plate (top:9%) and
-   the first row of frames (top:27.2%, see .wall-frame[data-slot] below) -- see the markup
-   comment on .wall-heading-over's own <div> for the full reasoning. Centered rather than
-   left-aligned like the floor-plate, since it addresses the whole wall, not one corner of it. */
+/* THE HEADING+FILTER, OVERLAID ON THE WALL PHOTO ITSELF, fixed a second time 2026-09-12 after
+   Dr. O caught it live at her own actual window width: "look at yours" / "look here". Centered
+   in its own row between the floor-plate (top:9%) and the first frame row (top:27.2%) LOOKED
+   right on a very wide monitor (where 9%-to-27.2% is hundreds of real pixels) but the floor-plate
+   is a FIXED-height box (px padding, px font-size) sitting at a PERCENTAGE top -- at anything
+   under roughly 1500px wide the plate's real height eats nearly all of that percentage gap, and
+   the "ALL" pill ended up rendering right under the plate's own corner. There is no top value
+   that fixes this while it is still a separate row: measured the real gap at 900px wide (photo is
+   2752x1536, so 900px wide is a 502px-tall band) and the plate alone already leaves under 25px
+   before the frames start, nowhere near enough for a heading and a pill row no matter how it is
+   tuned. So it is no longer a row of its own -- it sits BESIDE the floor-plate, sharing its own
+   band (both start at top:9%), never needing the cramped middle ground at all. NEVER position:
+   static on any breakpoint: .wall-frame and .wall-pager are absolute at every width on purpose
+   (see "NO SPECIAL MOBILE LAYOUT" below) because .floor-band has no height of its own beyond
+   its <img> -- anything in normal flow here inflates that height and throws off every frame's
+   own percentage position, which was the real reason mobile got a plain document-flow copy in
+   the version before this one and it needs to never happen again. */
 .wall-heading-over{
-  position:absolute; z-index:5; top:13%; left:50%; transform:translateX(-50%);
-  width:min(90%, 900px); text-align:center; pointer-events:none;
+  position:absolute; z-index:5; top:9%;
+  left:calc(max(24px, calc(50% - 550px + 24px)) + 210px);
+  right:max(24px, calc(50% - 550px + 24px));
+  text-align:left; pointer-events:none;
 }
 .wall-heading-over h2{
-  margin:0 0 .7rem; font-weight:400; font-size:clamp(20px, 2.4vw, 30px);
+  margin:0 0 .5rem; font-weight:400; font-size:clamp(15px, 1.5vw, 22px); line-height:1.2;
   color:var(--accent); text-shadow:0 1px 12px rgba(0,0,0,.35);
 }
 .wall-heading-over .genre-filter{
-  justify-content:center; margin:0; pointer-events:auto;
+  justify-content:flex-start; margin:0; gap:6px; pointer-events:auto;
 }
 .wall-heading-over .genre-pill{
   background:var(--chrome, var(--paper)); box-shadow:0 1px 8px rgba(0,0,0,.25);
+  padding:.35rem .7rem; font-size:10px;
 }
+/* MOBILE: the floor-plate is already hidden below 900px (see .floor-plate's own media query),
+   so there is no corner to share a row with -- centered over the wall like the first version of
+   this fix, just kept absolute (never static, see the note above) and sized down to fit the
+   shorter band a narrow screen produces, same "gets proportionally small, never a different
+   layout" tradeoff .wall-frame already accepts at this width. */
 @media (max-width:900px){
-  .wall-heading-over{position:static; transform:none; width:auto; margin:1rem var(--pad) 1.4rem;}
-  .wall-heading-over h2{color:var(--ink); text-shadow:none;}
+  .wall-heading-over{
+    left:4%; right:4%; top:8%; text-align:center;
+  }
+  .wall-heading-over h2{ font-size:clamp(11px, 3vw, 15px); margin-bottom:.3rem; }
+  .wall-heading-over .genre-filter{ justify-content:center; gap:4px; }
+  .wall-heading-over .genre-pill{ padding:.2rem .5rem; font-size:8px; }
 }
 /* ═══ THE WALL ═══ Six real frames on Dr. O's own photograph (photos/companions-band.jpg),
    positioned by percentage the same way the AR floor's own #frameText is: measured off the
