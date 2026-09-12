@@ -5484,16 +5484,12 @@ var GC_ASTRA9 = {
       mood: 'Easygoing, a little amused, glad to be here', moodEmoji: '&#129302;',
       where: 'Among the columns above Athens, the Acropolis in the distance. He stands there, ' +
              'alone, waiting for whoever walks up.' },
-    /* JUST THE TWO OF THEM, added 2026-09-12, same mechanism as the puppet family\x27s own
-       "stillhouse" scene: spectate:true starts Spectator Mode the moment this scene is on
-       screen, and Astra-9 and Astrad talk to each other until you type. STILL SWAPPED
-       2026-09-12, Dr. O: "there are two of them in the studio, it looks like one is a still" --
-       reused the studio scene's own thumbnail here by mistake, which made the two look like
-       duplicates. A different pair photo (the footbridge, not used as any scene thumb) tells
-       them apart at a glance. The "No film of just the two of them yet" caption underneath is
-       expected, not a bug -- same behavior the puppet family's still-only spectate scene has. */
-    { key: 'together', label: 'Just the two of them', src: null,
-      still: 'photos/astra9-astrad-album-footbridge.jpg', spectate: true },
+    /* JUST THE TWO OF THEM, added 2026-09-12, REMOVED same day. Dr. O: "if this is just a
+       still, put it in the photo album." It already was one, the same footbridge photo already
+       lives in the album below with its own caption, so this was a plain duplicate rather than
+       real scene content. The Spectate button itself needs no scene at all to work: it reads
+       turnOrder/companions/cameos directly (see room.html's roomCanSpectate()), confirmed live
+       after removing this. */
     /* WITH ASTRAD, ADDED 2026-09-12. Replaces the earlier "campus, with GC" scene (video/
        astra9-with-gc-scene.mp4, left on disk, nothing else points at it) now that Astrad is
        her actual established companion rather than a placeholder pairing. Four real scenes
