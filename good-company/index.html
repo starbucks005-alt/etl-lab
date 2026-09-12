@@ -2314,11 +2314,10 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
      same eight slots with a different eight companions instead of needing a new photograph,
      identical reasoning to renderWall()'s own pager just above this.
 
-     PAGE 2 IS GEARY, GRACIE, ASTRA-9, ASTRAD, REGGIE, VIV, AND CLOVER, seven of the eight slots --
-     the last one stays hidden rather than showing a placeholder graphic, same convention the
-     Companions wall's own frames already use for an under-filled genre page. Astrad's, Reggie's,
-     Viv's, and Clover's own real color/matte pairs all arrived 2026-09-12, same day as Astra-9's
-     own replacement pair (see ar.html's registry for all five). */
+     PAGE 2 IS NOW FULL, all eight slots: Geary, Gracie, Astra-9, Astrad, Reggie, Viv, Clover, and
+     the Nursery group. Astrad's, Reggie's, Viv's, Clover's, and the Nursery's own real color/matte
+     pairs all arrived 2026-09-12, same day as Astra-9's own replacement pair (see ar.html's
+     registry for all six). The next companion added here needs a page 3. */
   var AR_FRAMES = [
     { who: 'arch', photo: 'photos/arch-onsite.png', label: 'Arch' },
     { who: 'tansy', photo: 'photos/tansy.jpg', label: 'Tansy' },
@@ -2337,6 +2336,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     { who: 'reggie', photo: 'photos/reggie-with-friends-ar.png', label: 'Reggie' },
     { who: 'viv', photo: 'photos/viv-ar-portrait.jpg', label: 'Viv' },
     { who: 'clover', photo: 'photos/nursery-bunny.jpg', label: 'Clover' },
+    { who: 'nursery', photo: 'photos/nursery-together.jpg', label: 'The Nursery' },
   ];
   var arFrameEls = Array.prototype.slice.call(document.querySelectorAll('.ar-band-frame'));
   var arWallPage = 0;

@@ -423,6 +423,21 @@ body { position: relative; background: #000; }
       matte: 'video/clover-ar-matte.mp4',
       ambience: null,
     },
+    /* NURSERY (the group), ADDED 2026-09-12: a real matched color/matte pair
+       (nursery_scene_color.mp4/nursery_scene_matte.mp4), verified the same way as every other
+       pair added today -- both 1280x720, both 10 seconds, color shows all four together (Pearl,
+       Bramble, Ozzie, Clover) matching the room's own cast, matte carries real black-to-white
+       mask variance (about 1% mid-gray at any sampled point across the full clip, and the small
+       interior dark spots found are the expected gaps between four separate heads/ears sitting
+       side by side, not a tracking miss). Photo reuses the room's own group portrait
+       (nursery-together.jpg). Distinct from 'clover' above, which is her alone. */
+    nursery: {
+      name: 'Bramble, Clover, Ozzie & Pearl',
+      photo: 'photos/nursery-together.jpg',
+      color: 'video/nursery-ar-color.mp4',
+      matte: 'video/nursery-ar-matte.mp4',
+      ambience: null,
+    },
     meera: {
       /* Dr. O direct: "Meera is a good company companion and she does
          yoga, is a yoga pose. Perfect for AR." A still, held pose reads
@@ -1127,6 +1142,9 @@ body { position: relative; background: #000; }
        for her is 'bunny', not 'clover' -- see that entry's comment for why this page uses the
        friendlier name in the URL instead. */
     if (key === 'clover') return { friend: GC_NURSERY, speaker: GC_NURSERY.companions.bunny };
+    /* NURSERY, the group, added 2026-09-12 alongside its own registry entry above. No speaker
+       override -- room-level GC_NURSERY answers, same as Arch or Tansy answering for themselves. */
+    if (key === 'nursery') return { friend: GC_NURSERY, speaker: null };
     if (key === 'arch') return { friend: GC_DEMO, speaker: null };
     /* REGGIE, added 2026-09-12 alongside his own registry entry above. His own friend, own room,
        no speaker override -- his real cameos (Biscuit, Mochi) are on GC_REGGIE.cameos already,
