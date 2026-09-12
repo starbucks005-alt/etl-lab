@@ -154,6 +154,11 @@ exports.handler = async (event) => {
     return json(200, {
       ok: true, paid: true, order_id: orderId, friend_name: order.friend_name,
       ready: true, image_url: imageUrl, shared: !!order.demo_id,
+      /* demo_id, added 2026-09-12 alongside gc-scene.js's identical fix: room.html's own
+         image-paid handler redirected every finished image to ?who=mine, correct for a
+         personally built friend and wrong for a shared/demo companion -- shared was already
+         here to say THAT it was shared, never which one to send the browser back to. */
+      demo_id: order.demo_id || null,
     });
   }
 
@@ -166,6 +171,9 @@ exports.handler = async (event) => {
   if (order.status !== 'waiting') return json(409, { error: 'already_' + order.status });
 
   const room = 'https://emerging-tech-lab.com/good-company/room.html';
+  /* THE RETURN ADDRESS, added 2026-09-12, same fix and same reasoning as gc-scene-checkout.js's
+     own identical comment: hardcoded '?who=mine' is wrong for a shared/demo companion. */
+  const returnWho = order.demo_id || 'mine';
 
   /* A RECEIPT, IF THEY GAVE US SOMEWHERE TO SEND IT -- same reasoning and
      same shape as gc-scene-checkout.js's own identical note: Stripe's own
@@ -187,8 +195,8 @@ exports.handler = async (event) => {
         },
         quantity: 1,
       }],
-      success_url: room + '?image-paid={CHECKOUT_SESSION_ID}&who=mine',
-      cancel_url: room + '?who=mine',
+      success_url: room + '?image-paid={CHECKOUT_SESSION_ID}&who=' + encodeURIComponent(returnWho),
+      cancel_url: room + '?who=' + encodeURIComponent(returnWho),
       metadata: { gi_order_id: orderId, source: 'good_company_image' },
       ...(receiptEmail ? { payment_intent_data: { receipt_email: receiptEmail } } : {}),
     });

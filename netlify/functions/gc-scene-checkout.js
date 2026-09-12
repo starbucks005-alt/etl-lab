@@ -146,6 +146,13 @@ exports.handler = async (event) => {
     return json(200, {
       ok: true, paid: true, order_id: orderId, friend_name: order.friend_name,
       job_id: order.job_id || null,
+      /* demo_id, added 2026-09-12: room.html's own scene-paid handler forced ?who=mine on every
+         return from Stripe, correct for a personally built friend and wrong for a shared/demo
+         companion like Sarah -- the scene was always safely attached server side (see
+         addSceneToDemo in gc-scene.js), only the browser ended up looking at the wrong room once
+         payment was confirmed. See gc-scene.js's own identical field on its job-status response
+         for the second half of this fix (the poll that runs after this one resolves). */
+      demo_id: order.demo_id || null,
     });
   }
 
@@ -158,6 +165,12 @@ exports.handler = async (event) => {
   if (order.status !== 'waiting') return json(409, { error: 'already_' + order.status });
 
   const room = 'https://emerging-tech-lab.com/good-company/room.html';
+  /* THE RETURN ADDRESS, added 2026-09-12: this hardcoded '?who=mine' on both success and
+     cancel, correct for a personally built friend and wrong for a shared/demo companion --
+     Dr. O paid for a real Sarah scene and came back to a different room entirely, reading as
+     "it never went through" when the charge and the render both actually succeeded. order.demo_id
+     is already known here, at session-creation time, so the return trip can just carry it. */
+  const returnWho = order.demo_id || 'mine';
 
   /* A RECEIPT, IF THEY GAVE US SOMEWHERE TO SEND IT, added 2026-08-30, Dr. O
      direct: "if they give us an email address we need to give them a
@@ -188,8 +201,8 @@ exports.handler = async (event) => {
         },
         quantity: 1,
       }],
-      success_url: room + '?scene-paid={CHECKOUT_SESSION_ID}&who=mine',
-      cancel_url: room + '?who=mine',
+      success_url: room + '?scene-paid={CHECKOUT_SESSION_ID}&who=' + encodeURIComponent(returnWho),
+      cancel_url: room + '?who=' + encodeURIComponent(returnWho),
       /* The order id travels with the payment, so coming back means something
          even if they finish on a different device. */
       metadata: { gc_order_id: orderId, source: 'good_company_scene' },

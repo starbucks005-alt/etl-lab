@@ -1823,7 +1823,13 @@ if (!GC_BUILT && !SEAT && typeof GC_WHO !== 'undefined' && GC_WHO && GC_DEMO_IDS
   var sid = q.get('scene-paid');
   if (!sid) return;
 
-  history.replaceState({}, '', location.pathname + '?who=mine');
+  /* WHOEVER THIS SCENE WAS ACTUALLY FOR, added 2026-09-12: this used to hardcode '?who=mine'
+     here, correct for a personally built friend and wrong for a shared/demo companion -- Dr. O
+     paid for a real Sarah scene and the page sent her back to a different room entirely. Stripe's
+     own success_url now already carries the right who= (see gc-scene-checkout.js), so this just
+     needs to keep it instead of overwriting it. */
+  var sceneWho = q.get('who') || 'mine';
+  history.replaceState({}, '', location.pathname + '?who=' + encodeURIComponent(sceneWho));
 
   fetch('/.netlify/functions/gc-scene-checkout?session_id=' + encodeURIComponent(sid))
     .then(function (r) { return r.json(); }).then(function (j) {
@@ -1878,6 +1884,18 @@ if (!GC_BUILT && !SEAT && typeof GC_WHO !== 'undefined' && GC_WHO && GC_DEMO_IDS
         .then(function (r) { return r.json(); }).then(function (j) {
           if (!j || !j.ok) { scheduleNext(); return; }
           if (j.status === 'ready') {
+            /* A SHARED/DEMO COMPANION, added 2026-09-12: gc-scene.js already attached this scene
+               to the companion itself server side (addSceneToDemo, the moment the render
+               finished), so there is nothing left here to "receive" -- ?add-scene= is the
+               personal-friend path (below), which would wrongly try to save it onto GC_BUILT
+               instead. Reloading straight into the right room is enough: the normal
+               gc-demo-scenes fetch on load picks the new scene up on its own. Fixes the same bug
+               as gc-scene-checkout.js's own return-address fix: paid and made, but the browser
+               used to land on a different companion entirely (?who=mine, always). */
+            if (j.demo_id) {
+              location.href = location.pathname + '?who=' + encodeURIComponent(j.demo_id);
+              return;
+            }
             /* REUSES THE EXISTING DELIVERY LINK MECHANISM, same shape the
                email already sends (see gc-scene.js's own order.status ===
                'made' block) and the same one ?add-scene= already knows how
@@ -1923,12 +1941,23 @@ if (!GC_BUILT && !SEAT && typeof GC_WHO !== 'undefined' && GC_WHO && GC_DEMO_IDS
   var sid = q.get('image-paid');
   if (!sid) return;
 
-  history.replaceState({}, '', location.pathname + '?who=mine');
+  /* WHOEVER THIS IMAGE WAS ACTUALLY FOR, added 2026-09-12 -- same fix and same reasoning as the
+     scene handler just above: keep the who= Stripe's own success_url already got right instead
+     of overwriting it. */
+  var imageWho = q.get('who') || 'mine';
+  history.replaceState({}, '', location.pathname + '?who=' + encodeURIComponent(imageWho));
 
   fetch('/.netlify/functions/gc-image-checkout?session_id=' + encodeURIComponent(sid))
     .then(function (r) { return r.json(); }).then(function (j) {
       if (j && j.paid && j.ready && j.image_url) {
         if (typeof gtag === 'function') gtag('event', 'image_ordered', { value: 4.99, currency: 'USD' });
+        /* A SHARED/DEMO COMPANION, added 2026-09-12: gc-image-checkout.js already attached this
+           image to the companion itself server side (addSceneToDemo) -- same reasoning as
+           pollScene()'s own identical branch above. Reloading into the right room is enough. */
+        if (j.demo_id) {
+          location.href = location.pathname + '?who=' + encodeURIComponent(j.demo_id);
+          return;
+        }
         location.href = location.pathname + '?add-scene=' + encodeURIComponent(j.image_url) +
           '&label=' + encodeURIComponent('A new image') + '&image=1&who=mine';
         return;

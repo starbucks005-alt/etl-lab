@@ -756,6 +756,23 @@ exports.handler = async (event) => {
     }
   }
 
+  /* DEMO_ID, added 2026-09-12, Dr. O direct after paying for and receiving a real Sarah scene
+     that still left her looking at the wrong room: "I am in the room with her and can barely
+     hear her" was one bug this same day, this is a second, separate one -- room.html's own
+     pollScene() redirected every finished scene to ?who=mine on success, which is correct for a
+     personally built friend and wrong for a shared/demo companion like Sarah. The video itself
+     was already correctly attached to her via addSceneToDemo() above; only the browser ended up
+     looking at the wrong companion once it was done. job.order_id was already stored and never
+     read back until now -- a cheap lookup, not a schema change. */
+  var jobDemoId = null;
+  if (job.order_id) {
+    try {
+      const orders = getStore('gc_scene_orders');
+      const jobOrder = await orders.get(job.order_id, { type: 'json' });
+      if (jobOrder && jobOrder.demo_id) jobDemoId = String(jobOrder.demo_id);
+    } catch (e) { /* no demo_id available -- room.html falls back to 'mine', today's behavior */ }
+  }
+
   return json(200, {
     ok: true,
     job_id: jobId,
@@ -773,5 +790,6 @@ exports.handler = async (event) => {
        pollScene() and play() for the two places this actually gets read. */
     aspect: job.aspect || '16:9',
     url: job.status === 'ready' ? ('/.netlify/functions/gc-scene?job_id=' + jobId + '&file=1') : null,
+    demo_id: jobDemoId,
   });
 };
