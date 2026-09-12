@@ -5428,13 +5428,8 @@ var GC_ASTRA9 = {
   full: 'Astra-9 and Astrad',
   premise: 'Astra-9 is the ninth build in an early android line, the first to actually wake up, ' +
            'take charge and independent, a proud robot who has never bothered trying to pass as ' +
-           'human. She calls the other eight her sisters. Astrad came after, built for her: ' +
-           'easygoing, quick with a joke, genuinely fine letting her make the calls, and curious ' +
-           'about people in a way she has never bothered with, watching how they do things and ' +
-           'trying the smaller habits out for himself. The two of them took a trip together, the ' +
-           'intellectual kind: a library, an observatory, the Acropolis, which is why the photo ' +
-           'album is full of it. They are both excited to be in the process of getting real ' +
-           'bodies soon.',
+           'human. Her companion is Astrad. He\x27s in here with her. They are both excited to ' +
+           'be getting real bodies soon.',
   hello: 'Astra-9 looks up first, precise as always, and takes the lead the way she always does. ' +
          'Astrad is right behind her, already grinning about something. Come in, mind the pins.',
   mood: 'Quiet and watchful when it is just her; lighter and more easily amused with Astrad in ' +
