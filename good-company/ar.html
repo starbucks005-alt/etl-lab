@@ -307,13 +307,16 @@ body { position: relative; background: #000; }
        second to anybody looking, impossible to diagnose from a description.
        Only shown when a matte is being cut live, never for a hand-cut one. -->
   <button id="flipBtn" type="button" style="display:none;" aria-label="Swap what is cut out">Swap</button>
-  <button id="muteBtn" type="button" aria-label="Sound off">&#128263;</button>
+  <!-- MOUTH RATHER THAN SPEAKER, added 2026-09-12 -- see updateMuteIcon()'s own comment further
+       down for why: this is about hearing the companion's own spoken reply, videoSoundBtn right
+       after it is the actual speaker icon. -->
+  <button id="muteBtn" type="button" aria-label="Sound off">&#129296;</button>
   <!-- VIDEO SOUND, added 2026-09-12, separate from muteBtn on purpose -- see colorVideo.volume's
        own comment further down for the full reasoning. muteBtn gates whether the companion's own
        spoken reply is heard at all; this gates only whatever the color clip's own footage
        carries (wind, birds, dogs, a quiet room), which some visitors will want and some will not,
        so it is a real toggle rather than a decision made for them. -->
-  <button id="videoSoundBtn" type="button" aria-label="Video sound off">&#127925;&#128263;</button>
+  <button id="videoSoundBtn" type="button" aria-label="Video sound off">&#128263;</button>
 </div>
 
 <div id="hint" style="display:none;">Drag to move &middot; pinch or scroll to resize</div>
@@ -611,12 +614,24 @@ body { position: relative; background: #000; }
        above -- verified the same way before wiring in: both 1280x720, both 10 seconds, color
        shows him at the Acropolis matching his own established scene, matte carries real
        black/white mask variance. New filenames per house rule. Photo reuses his existing room
-       portrait (astrad-portrait.jpg), the same pattern as every other companion here. */
+       portrait (astrad-portrait.jpg), the same pattern as every other companion here.
+       color/matte REPLACED, same day: that Acropolis pair had a real, confirmed hole (his left
+       shoulder read pure black against a real color-video match of solid arm-against-body,
+       pixel-checked against the mirrored right shoulder). Same root cause as Astra-9's own
+       gradient-fade defect -- his warm metallic skin against warm sandstone columns gave the
+       tracker too little contrast. Dr. O re-shot him against a plain white background instead of
+       trying to patch the same footage (new-astrad-scene-color.mp4/new-astrad-scene-matte.mp4,
+       1000x720, 10 seconds). Verified across the full clip; one flagged asymmetric point at
+       3.5-4.5s checked out as real background (RGB 249,249,249, the white backdrop) against the
+       color clip at that exact coordinate, not a tracking miss. New filenames
+       (astrad-ar-color-v2.mp4/-matte-v2.mp4). PHOTO STAYS THE ACROPOLIS PORTRAIT, Dr. O direct:
+       "the original comes from this one, so it does not have to change" -- the white-background
+       video is for tracking only, not a scene change. */
     astrad: {
       name: 'Astrad',
       photo: 'photos/astrad-portrait.jpg',
-      color: 'video/astrad-ar-color.mp4',
-      matte: 'video/astrad-ar-matte.mp4',
+      color: 'video/astrad-ar-color-v2.mp4',
+      matte: 'video/astrad-ar-matte-v2.mp4',
       ambience: null,
     },
   };
@@ -1144,12 +1159,15 @@ body { position: relative; background: #000; }
     });
   });
 
-  /* Icon reflects the ACTUAL current state (slash = muted, no slash = on),
-     not "what clicking it will do" -- the old action-labeled version
-     (icon + "Sound on"/"Sound off" text) read backwards at a glance. */
+  /* Icon reflects the ACTUAL current state (not "what clicking it will do" -- the old
+     action-labeled version read backwards at a glance), and MOUTH RATHER THAN SPEAKER, added
+     2026-09-12, Dr. O direct after this button and videoSoundBtn sat side by side both using
+     speaker icons: "one could be a speaker, one could be a mouth." This one is about whether the
+     companion's own spoken reply is heard, so a mouth reads right at a glance; the speaker family
+     is left for videoSoundBtn, which is genuinely about a speaker (the clip's own ambience). */
   function updateMuteIcon() {
     var muted = colorVideo.muted;
-    muteBtn.innerHTML = muted ? '&#128263;' : '&#128266;';
+    muteBtn.innerHTML = muted ? '&#129296;' : '&#128068;';
     muteBtn.setAttribute('aria-label', muted ? 'Sound off' : 'Sound on');
   }
 
@@ -1165,7 +1183,7 @@ body { position: relative; background: #000; }
      ever changes colorVideo.volume, never .muted, so it cannot interact with what speakReply()
      checks before playing a reply. */
   function updateVideoSoundIcon() {
-    videoSoundBtn.innerHTML = videoSoundOn ? '&#127925;&#128266;' : '&#127925;&#128263;';
+    videoSoundBtn.innerHTML = videoSoundOn ? '&#128266;' : '&#128263;';
     videoSoundBtn.setAttribute('aria-label', videoSoundOn ? 'Video sound on' : 'Video sound off');
   }
   videoSoundBtn.addEventListener('click', function () {
