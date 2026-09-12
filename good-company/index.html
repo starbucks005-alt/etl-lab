@@ -2302,10 +2302,11 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
      same eight slots with a different eight companions instead of needing a new photograph,
      identical reasoning to renderWall()'s own pager just above this.
 
-     PAGE 2 IS GEARY, GRACIE, ASTRA-9, AND ASTRAD, four of the eight slots -- the other four stay
-     hidden rather than showing a placeholder graphic, same convention the Companions wall's own
-     frames already use for an under-filled genre page. Astrad's own real color/matte pair
-     arrived 2026-09-12, same day as Astra-9's own replacement pair (see ar.html's registry). */
+     PAGE 2 IS GEARY, GRACIE, ASTRA-9, ASTRAD, AND REGGIE, five of the eight slots -- the other
+     three stay hidden rather than showing a placeholder graphic, same convention the Companions
+     wall's own frames already use for an under-filled genre page. Astrad's and Reggie's own real
+     color/matte pairs both arrived 2026-09-12, same day as Astra-9's own replacement pair (see
+     ar.html's registry for all three). */
   var AR_FRAMES = [
     { who: 'arch', photo: 'photos/arch-onsite.png', label: 'Arch' },
     { who: 'tansy', photo: 'photos/tansy.jpg', label: 'Tansy' },
@@ -2321,6 +2322,7 @@ document.querySelectorAll('[data-checkout]').forEach(function (btn) {
     /* ASTRAD, added 2026-09-12: his own real color/matte pair arrived same day as Astra-9's
        replacement pair, see ar.html's own registry comment. No longer the one gap on page 2. */
     { who: 'astrad', photo: 'photos/astrad-portrait.jpg', label: 'Astrad' },
+    { who: 'reggie', photo: 'photos/reggie.png', label: 'Reggie' },
   ];
   var arFrameEls = Array.prototype.slice.call(document.querySelectorAll('.ar-band-frame'));
   var arWallPage = 0;
