@@ -5486,9 +5486,14 @@ var GC_ASTRA9 = {
              'alone, waiting for whoever walks up.' },
     /* JUST THE TWO OF THEM, added 2026-09-12, same mechanism as the puppet family\x27s own
        "stillhouse" scene: spectate:true starts Spectator Mode the moment this scene is on
-       screen, and Astra-9 and Astrad talk to each other until you type. */
+       screen, and Astra-9 and Astrad talk to each other until you type. STILL SWAPPED
+       2026-09-12, Dr. O: "there are two of them in the studio, it looks like one is a still" --
+       reused the studio scene's own thumbnail here by mistake, which made the two look like
+       duplicates. A different pair photo (the footbridge, not used as any scene thumb) tells
+       them apart at a glance. The "No film of just the two of them yet" caption underneath is
+       expected, not a bug -- same behavior the puppet family's still-only spectate scene has. */
     { key: 'together', label: 'Just the two of them', src: null,
-      still: 'photos/astra9-astrad-stage-thumb.jpg', spectate: true },
+      still: 'photos/astra9-astrad-album-footbridge.jpg', spectate: true },
     /* WITH ASTRAD, ADDED 2026-09-12. Replaces the earlier "campus, with GC" scene (video/
        astra9-with-gc-scene.mp4, left on disk, nothing else points at it) now that Astrad is
        her actual established companion rather than a placeholder pairing. Four real scenes
