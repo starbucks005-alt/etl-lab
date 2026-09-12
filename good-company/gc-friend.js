@@ -5373,10 +5373,13 @@ var GC_ROBOT = {
     { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
       where: 'The same dark room, one light overhead. Gracie and Geary standing side by side, ' +
              'holding hands, equally at home in it.' },
-    /* ADDED 2026-09-12, "GC at Kings Island." Dr. O: a beta tester found the constant movement
-       in the other scenes annoying. A still, not the video she also sent, is the direct answer
-       to that rather than just another moving clip: nothing here pans or loops, it just sits. */
-    { key: 'kingsisland', label: 'At Kings Island', src: null, still: 'photos/gc-kings-island.jpg',
+    /* ADDED 2026-09-12, "GC at Kings Island." CORRECTED same day: first built as a still-only
+       scene, guessing the beta tester's "constant movement" complaint meant this one should
+       have no video at all. Dr. O clarified directly: the video is the scene, the photo is its
+       thumbnail, the ordinary pattern every other scene uses. This clip is presumably calmer
+       than the ones the complaint was actually about, not a still. */
+    { key: 'kingsisland', label: 'At Kings Island', src: 'video/gc-kings-island.mp4',
+      thumb: 'photos/gc-kings-island.jpg',
       where: 'A grassy hilltop overlooking an amusement park at dusk, roller coasters and a ' +
              'small Eiffel Tower replica behind them. Gracie and Geary stand side by side in ' +
              'the grass, smiling.' },
@@ -5664,7 +5667,7 @@ var GC_ASTRA9 = {
          "Nordic lilt" attempt came out sounding fully American and asked to keep it anyway,
          generation id lqgYrNyQrOY96N3mj3M9, saved via gc-voice-design.js's create action);
          Swedish is a real library voice she found and handed over directly. */
-      voiceOptions: { robot: 'weA4Q36twV5kwSaTEL0Q', american: 'lqgYrNyQrOY96N3mj3M9', swedish: 'oVXQ3H21hRI9OtM4YH5K', british: 'k9kFjM4M02PYt2PvKMYq' },
+      voiceOptions: { robot: 'weA4Q36twV5kwSaTEL0Q', american: 'lqgYrNyQrOY96N3mj3M9', swedish: 'oVXQ3H21hRI9OtM4YH5K', british: 'k9kFjM4M02PYt2PvKMYq', indian: 'q3x3TtD3G4JrDlZbY1S4' },
       /* BIO CLIP, added 2026-09-11, same gap as GC_ROBOT's own note above: every other
          companion's room gate has a "Hear [name]" button, Astra-9 never got one. A real clip
          in her actual ElevenLabs voice, introducing herself and inviting you to sit down. */
@@ -5731,7 +5734,7 @@ var GC_ASTRA9 = {
          American promoted from a Voice Design generation (generation id
          4NZxG3SNE9sA1UE6KTRy, saved via gc-voice-design.js's create action); Swedish a real
          library voice Dr. O found and handed over directly. */
-      voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: '4NZxG3SNE9sA1UE6KTRy', swedish: 'QiXK9tnNgbiiVrsXurVo', british: 'JgqplyjpUYA3WY8MxmoG' },
+      voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: '4NZxG3SNE9sA1UE6KTRy', swedish: 'QiXK9tnNgbiiVrsXurVo', british: 'JgqplyjpUYA3WY8MxmoG', indian: 'xDPzsOf5j3pAdTMGiswR' },
       bioAudio: 'audio/astrad-bio.mp3',
       portrait: 'photos/astrad-portrait.jpg',
       talkingPoints: [

@@ -5162,8 +5162,8 @@ $('replyBtn').addEventListener('click', function () {
    or the server's own speaker_voice_id needed to change: whatever voiceId speak() was already
    about to use gets swapped for its styled equivalent, or passed through untouched for anyone
    without voiceOptions. */
-var VOICE_STYLES = ['robot', 'american', 'swedish', 'british'];
-var VOICE_STYLE_LABELS = { robot: 'Robot', american: 'American', swedish: 'Swedish', british: 'British' };
+var VOICE_STYLES = ['robot', 'american', 'swedish', 'british', 'indian'];
+var VOICE_STYLE_LABELS = { robot: 'Robot', american: 'American', swedish: 'Swedish', british: 'British', indian: 'Indian' };
 function getVoiceStyle() {
   try { var s = localStorage.getItem('gc_voice_style'); return VOICE_STYLES.indexOf(s) > -1 ? s : 'robot'; }
   catch (e) { return 'robot'; }
