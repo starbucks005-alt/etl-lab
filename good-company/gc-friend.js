@@ -5556,35 +5556,37 @@ var GC_ASTRA9 = {
       where: 'A plain lit studio backdrop, nothing else in frame. She stands with Astrad, ' +
              'holding hands, the two of them the whole picture.' },
   ],
-  /* PHOTO ALBUM, added 2026-09-12, Dr. O direct: "photos for Astra-9 and Astrad's photo
-     album." Nine real renders, matched by hand against what she actually sent (several
-     similarly named files in her folder did not match their own filenames). Rendered by
-     room.html's renderPhotoAlbum() as a separate row from the scene picker above, since these
-     are stills to look through, not clips to sit down to. */
-  photoAlbum: [
-    { src: 'photos/astra9-astrad-album-footbridge.jpg',
+  /* ALBUM, added 2026-09-12, Dr. O direct: "photos for Astra-9 and Astrad's photo album."
+     CORRECTED same day: first built as a one-off `photoAlbum` field with its own custom
+     renderer in room.html, duplicating the real, already-existing album.html/FRIEND.album
+     mechanism every other companion already uses (Dr. O: "there is a photo album, you did not
+     use it"). Same shape as Arch's and Sofia's own album entries above: `src`/`caption`/`on`,
+     a moving picture is just an `src` ending in .mp4 (album.html's own shotMoving() reads
+     that), no separate field needed. Nine real renders, matched by hand against what she
+     actually sent (several similarly named files in her folder did not match their own
+     filenames). */
+  album: [
+    { src: 'photos/astra9-astrad-album-footbridge.jpg', on: 'Added later',
       caption: 'On a footbridge on the Emerging Technologies Laboratory campus, with Astrad.' },
-    { src: 'photos/astra9-astrad-album-library-solo.jpg',
+    { src: 'photos/astra9-astrad-album-library-solo.jpg', on: 'Added later',
       caption: 'Astra-9, alone, in a domed reading room.' },
-    { src: 'photos/astra9-astrad-album-canyon-solo.jpg',
+    { src: 'photos/astra9-astrad-album-canyon-solo.jpg', on: 'Added later',
       caption: 'Astra-9, alone, at the edge of a canyon.' },
-    { src: 'photos/astra9-astrad-album-acropolis-solo.jpg',
+    { src: 'photos/astra9-astrad-album-acropolis-solo.jpg', on: 'Added later',
       caption: 'Astrad, alone, among the columns above Athens.' },
-    { src: 'photos/astra9-astrad-album-canyon-back.jpg',
+    { src: 'photos/astra9-astrad-album-canyon-back.jpg', on: 'Added later',
       caption: 'At the canyon\x27s edge at sunset, with Astrad.' },
-    { src: 'photos/astra9-astrad-album-canyon-front.jpg',
+    { src: 'photos/astra9-astrad-album-canyon-front.jpg', on: 'Added later',
       caption: 'At the canyon\x27s edge at sunset, with Astrad, facing the camera.' },
-    { src: 'photos/astra9-astrad-album-library-pair.jpg',
+    { src: 'photos/astra9-astrad-album-library-pair.jpg', on: 'Added later',
       caption: 'In a grand old reading room, with Astrad.' },
-    { src: 'photos/astra9-astrad-album-acropolis-back.jpg',
+    { src: 'photos/astra9-astrad-album-acropolis-back.jpg', on: 'Added later',
       caption: 'Looking out over Athens from the Acropolis, with Astrad.' },
-    { src: 'photos/astra9-astrad-album-acropolis-front.jpg',
+    { src: 'photos/astra9-astrad-album-acropolis-front.jpg', on: 'Added later',
       caption: 'On the Acropolis, with Astrad, facing the camera.' },
-    /* ADDED 2026-09-12, "Astrad.mp4" -- a moving clip rather than a still, the one entry here
-       using `video` instead of `src` (see renderPhotoAlbum's own comment in room.html for the
-       mechanism this needed). Content inferred from the filename, not confirmed by watching
-       it, same caveat as the new "with GC" scene above. */
-    { video: 'video/astra9-astrad-acropolis-solo.mp4',
+    /* ADDED 2026-09-12, "Astrad.mp4" -- content inferred from the filename, not confirmed by
+       watching it, same caveat as the canyon scene correction above. */
+    { src: 'video/astra9-astrad-acropolis-solo.mp4', on: 'Added later',
       caption: 'Astrad, alone, among the columns above Athens.' },
   ],
   talkingPoints: [
