@@ -5373,6 +5373,13 @@ var GC_ROBOT = {
     { key: 'together', label: 'Both at once', src: 'video/gc-together-scene.mp4',
       where: 'The same dark room, one light overhead. Gracie and Geary standing side by side, ' +
              'holding hands, equally at home in it.' },
+    /* ADDED 2026-09-12, "GC at Kings Island." Dr. O: a beta tester found the constant movement
+       in the other scenes annoying. A still, not the video she also sent, is the direct answer
+       to that rather than just another moving clip: nothing here pans or loops, it just sits. */
+    { key: 'kingsisland', label: 'At Kings Island', src: null, still: 'photos/gc-kings-island.jpg',
+      where: 'A grassy hilltop overlooking an amusement park at dusk, roller coasters and a ' +
+             'small Eiffel Tower replica behind them. Gracie and Geary stand side by side in ' +
+             'the grass, smiling.' },
   ],
   talkingPoints: [
     'Can you help me word this message?',
