@@ -5657,7 +5657,7 @@ var GC_ASTRA9 = {
          "Nordic lilt" attempt came out sounding fully American and asked to keep it anyway,
          generation id lqgYrNyQrOY96N3mj3M9, saved via gc-voice-design.js's create action);
          Swedish is a real library voice she found and handed over directly. */
-      voiceOptions: { robot: 'weA4Q36twV5kwSaTEL0Q', american: 'lqgYrNyQrOY96N3mj3M9', swedish: 'oVXQ3H21hRI9OtM4YH5K' },
+      voiceOptions: { robot: 'weA4Q36twV5kwSaTEL0Q', american: 'lqgYrNyQrOY96N3mj3M9', swedish: 'oVXQ3H21hRI9OtM4YH5K', british: 'k9kFjM4M02PYt2PvKMYq' },
       /* BIO CLIP, added 2026-09-11, same gap as GC_ROBOT's own note above: every other
          companion's room gate has a "Hear [name]" button, Astra-9 never got one. A real clip
          in her actual ElevenLabs voice, introducing herself and inviting you to sit down. */
@@ -5724,7 +5724,7 @@ var GC_ASTRA9 = {
          American promoted from a Voice Design generation (generation id
          4NZxG3SNE9sA1UE6KTRy, saved via gc-voice-design.js's create action); Swedish a real
          library voice Dr. O found and handed over directly. */
-      voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: '4NZxG3SNE9sA1UE6KTRy', swedish: 'QiXK9tnNgbiiVrsXurVo' },
+      voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: '4NZxG3SNE9sA1UE6KTRy', swedish: 'QiXK9tnNgbiiVrsXurVo', british: 'JgqplyjpUYA3WY8MxmoG' },
       bioAudio: 'audio/astrad-bio.mp3',
       portrait: 'photos/astrad-portrait.jpg',
       talkingPoints: [
