@@ -3296,11 +3296,17 @@ var GC_VIV = {
   skin: 'seaside',
   timezone: 'America/New_York',
   portrait: 'photos/viv-portrait.jpg',
+  /* sceneVolume, added 2026-09-12, Dr. O direct: "can we turn down the music from the video so
+     we can hear her voice better" -- her scenes carry real background music, playing at the
+     Vimeo player's own default full volume right alongside her separately-played TTS voice line.
+     Turned down to 0.3 on all four rather than muted outright: the room should still feel like a
+     real place with something playing in it, just not competing with what she is saying. See
+     playVimeo()'s own comment in room.html for the mechanism. */
   scenes: [
-    { key: 'bar', label: 'At the Bar', src: null, vimeoId: '1222223201' },
-    { key: 'classroom', label: 'Classroom', src: null, vimeoId: '1222223202' },
-    { key: 'edge', label: 'Contemplating Life on the Edge', src: null, vimeoId: '1222223199' },
-    { key: 'night-job', label: 'Her Night Job', src: null, vimeoId: '1222223200' },
+    { key: 'bar', label: 'At the Bar', src: null, vimeoId: '1222223201', sceneVolume: 0.3 },
+    { key: 'classroom', label: 'Classroom', src: null, vimeoId: '1222223202', sceneVolume: 0.3 },
+    { key: 'edge', label: 'Contemplating Life on the Edge', src: null, vimeoId: '1222223199', sceneVolume: 0.3 },
+    { key: 'night-job', label: 'Her Night Job', src: null, vimeoId: '1222223200', sceneVolume: 0.3 },
   ],
 };
 
