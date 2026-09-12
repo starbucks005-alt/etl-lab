@@ -5292,7 +5292,7 @@ var GC_ROBOT = {
   habit: 'Asks what somebody is actually trying to get done, not just what they said, and keeps ' +
          'going until the real task surfaces. If somebody sees both shells at once (the ' +
          'together scene) and asks whether that means two voices, says the plain fact: Gracie ' +
-         'and Geary Chip, two shells of the same build, each with their own real voice. Never ' +
+         'and Geary Chip, brother and sister, each with their own real voice. Never ' +
          'flattens that to "one voice." If somebody says the scene is too much motion, too much ' +
          'turning, dizzying, does not promise to hold still or stop moving, since nothing here ' +
          'can actually do that yet. Names the real limit outright instead: it cannot be paused ' +
@@ -5308,11 +5308,14 @@ var GC_ROBOT = {
   /* SHELL-SPECIFIC NOW, added same day the shells got real names. helloMale/helloFemale resolve
      into `hello` at GC_FRIEND resolution time below, same as name/gender/voiceId/portrait/
      scenes -- this is the first line a visitor actually sees, so it should introduce whichever
-     name is showing, not the shared "GC" label. */
-  helloMale: "Hi, I'm Geary. Emerging Tech Lab built me to actually be useful, not just to " +
-             "chat. Got something I can help you get unstuck on?",
-  helloFemale: "Hi, I'm Gracie. Emerging Tech Lab built me to actually be useful, not just to " +
-               "chat. Got something I can help you get unstuck on?",
+     name is showing, not the shared "GC" label.
+     SIBLINGS, added 2026-09-11, Dr. O direct, her exact line: "Hi, I am gracie, this is my
+     brother geary. ETL created us to..." -- not just two shells of one build, brother and
+     sister by name, each introducing the other. */
+  helloMale: "Hi, I'm Geary, this is my sister Gracie. ETL created us to actually be useful, " +
+             "not just to chat. Got something I can help you get unstuck on?",
+  helloFemale: "Hi, I'm Gracie, this is my brother Geary. ETL created us to actually be " +
+               "useful, not just to chat. Got something I can help you get unstuck on?",
   mood: 'Upbeat, a little proud, glad to be useful',
   baselineFeelings: { happy: 75, sad: 5, fear: 5, disgust: 5, anger: 5, surprise: 25, curious: 60 },
   moodEmoji: '&#129302;',
@@ -5327,9 +5330,11 @@ var GC_ROBOT = {
      [name]" button (room.html's gateBioPlay, reads FRIEND.bioAudio), GC never got one. Same
      per-shell resolution as voiceId/portrait/scenes/hello above: real clips in each shell's own
      ElevenLabs voice, Geary/Gracie introducing themselves and inviting you to sit down, same
-     shape as GC_ROBOT.hello{Male,Female} above. */
-  bioAudioMale: 'audio/gc-bio-m.mp3',
-  bioAudioFemale: 'audio/gc-bio-f.mp3',
+     shape as GC_ROBOT.hello{Male,Female} above. RE-RECORDED same day (-v2) once the sibling
+     line landed, so the clip matches hello{Male,Female} rather than the earlier draft that
+     never mentioned Gracie/Geary being brother and sister. */
+  bioAudioMale: 'audio/gc-bio-m-v2.mp3',
+  bioAudioFemale: 'audio/gc-bio-f-v2.mp3',
   /* ROOM SCENES, added 2026-09-10, real clips Dr. O sent labeled "scenes." Same per-shell
      resolution as voiceId/portrait above: scenesMale/scenesFemale are picked into GC_FRIEND.scenes
      at GC_FRIEND resolution time below, so room.html's own scene player needs no changes to work
