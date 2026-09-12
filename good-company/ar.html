@@ -479,6 +479,20 @@ body { position: relative; background: #000; }
       matte: 'video/olivia-ar-matte.mp4',
       ambience: null,
     },
+    /* SARAH, ADDED 2026-09-12: a real matched color/matte pair (sarah-scene-color.mp4/
+       sarah-scene-matte.mp4), verified the same way as every other pair added today -- both
+       1280x720, both 10 seconds, color shows her shaking a cocktail at The Copper Still matching
+       her own establishing scene, matte is a clean binary mask across the full clip (1.3-1.7%
+       mid-gray at any sampled point, pure 0/255 elsewhere, no gradient fade or hole). Photo is
+       Dr. O's own AR image ("sarah.jpg"), the serious-expression shot that matches this footage's
+       look most closely, new filename per house rule (sarah-ar-portrait.jpg). */
+    sarah: {
+      name: 'Sarah',
+      photo: 'photos/sarah-ar-portrait.jpg',
+      color: 'video/sarah-ar-color.mp4',
+      matte: 'video/sarah-ar-matte.mp4',
+      ambience: null,
+    },
     meera: {
       /* Dr. O direct: "Meera is a good company companion and she does
          yoga, is a yoga pose. Perfect for AR." A still, held pose reads
@@ -1229,6 +1243,7 @@ body { position: relative; background: #000; }
     if (key === 'nursery') return { friend: GC_NURSERY, speaker: null };
     if (key === 'zoe') return { friend: GC_ZOE, speaker: null };
     if (key === 'olivia') return { friend: GC_OLIVIA, speaker: null };
+    if (key === 'sarah') return { friend: GC_SARAH, speaker: null };
     if (key === 'arch') return { friend: GC_DEMO, speaker: null };
     /* REGGIE, added 2026-09-12 alongside his own registry entry above. His own friend, own room,
        no speaker override -- his real cameos (Biscuit, Mochi) are on GC_REGGIE.cameos already,
