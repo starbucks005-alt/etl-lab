@@ -195,6 +195,21 @@ a:hover { color: var(--green); }
 /* An address a leader hands over is a link a student can open. It wraps,
    because a source URL is longer than a chat bubble is wide. */
 .bubble a { text-decoration: underline; overflow-wrap: anywhere; }
+/* Somebody else in the room. Their line is theirs, so it is not dressed as a
+   leader's and not dressed as your own. */
+.bubble--other { background: var(--panel); color: var(--text); align-self: flex-start; border-left: 2px solid var(--mute); }
+.bubble--other .who { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); margin-bottom: 4px; }
+.share { margin: 0 0 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel2); }
+.share p { margin: 0 0 8px; font-size: .9rem; }
+.share p:last-child { margin-bottom: 0; }
+.share-code { font-family: 'IBM Plex Mono', monospace; font-size: 1.5rem; letter-spacing: .18em; color: var(--cream); }
+.share-url { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; color: var(--blue-br); overflow-wrap: anywhere; }
+.share-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.share input { flex: 1 1 180px; background: var(--bg2); border: 1px solid var(--line); color: var(--text); border-radius: 3px; padding: 9px 11px; font-family: 'Public Sans', sans-serif; font-size: .92rem; }
+.share button { background: var(--green); color: #fff; border: 0; border-radius: 3px; padding: 9px 16px; font-family: 'IBM Plex Mono', monospace; font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.share button.is-quiet { background: none; color: var(--mute); border: 1px solid var(--line); }
+.share-roster { font-size: .82rem; color: var(--mute); }
+
 .bubble--you a { color: #fff; }
 .bubble-row { display: flex; align-items: flex-end; gap: 8px; max-width: 96%; align-self: flex-start; }
 .bubble-row .bubble--agent { max-width: none; flex: 0 1 auto; }
@@ -236,6 +251,15 @@ a:hover { color: var(--green); }
     <p>Pick two or more leaders, any era, any style. They answer you, and they answer each other, the way entirely different leadership philosophies actually collide: agreement, real disagreement, and the occasional leader who has no patience for another's method at all.</p>
   </div>
 
+  <div class="share" id="joinPanel" hidden style="max-width:760px;margin:0 auto 24px;">
+    <p id="joinWho">Finding that table...</p>
+    <div class="share-row">
+      <input id="joinName" maxlength="40" placeholder="Your name, so the leaders can use it">
+      <button type="button" id="joinBtn">Take a seat</button>
+    </div>
+    <p class="share-roster" id="joinNote"></p>
+  </div>
+
   <div class="picker" id="picker">
     <p class="picker-hint">Choose 2 to 6.</p>
     <div class="picker-grid" id="pickerGrid"></div>
@@ -249,6 +273,26 @@ a:hover { color: var(--green); }
     <div class="hint-row">
       <p class="avatars-hint">Click a name to track their mood scale.</p>
       <button type="button" class="voice-toggle" id="voiceToggle" aria-pressed="true">&#128266; Voices on</button>
+      <button type="button" class="voice-toggle" id="bringBtn">&#128101; Bring people in</button>
+    </div>
+    <div class="share" id="sharePanel" hidden>
+      <div id="shareSetup">
+        <p>Open this table to other people. Your students join with a code, from their own phone or laptop, with nothing to install and no account to make.</p>
+        <div class="share-row">
+          <input id="hostName" maxlength="40" placeholder="What the table should call you" value="Dr. O">
+          <button type="button" id="openTableBtn">Open the table</button>
+          <button type="button" class="is-quiet" id="cancelShareBtn">Not now</button>
+        </div>
+      </div>
+      <div id="shareLive" hidden>
+        <p>Anyone can sit down with the code <span class="share-code" id="shareCode"></span></p>
+        <p class="share-url" id="shareUrl"></p>
+        <div class="share-row">
+          <button type="button" class="is-quiet" id="copyLinkBtn">Copy the link</button>
+          <button type="button" class="is-quiet" id="closeTableBtn">Close the table</button>
+        </div>
+        <p class="share-roster" id="shareRoster">Nobody else has arrived yet.</p>
+      </div>
     </div>
     <div class="avatars-row">
       <div class="avatars" id="avatars"></div>
@@ -400,21 +444,30 @@ var MAX_AGENTS = 6;
     pickerGrid.appendChild(card);
   });
 
-  startBtn.addEventListener('click', function () {
-    if (selected.length < MIN_AGENTS) return;
-    activeKeys = selected.slice();
+  // Pulled out of the start button so a guest arriving with a code lands in
+  // the same room, with the same faces along the top, rather than in a second
+  // screen built to look like it.
+  function openChatWith(keys) {
+    activeKeys = keys.slice();
     pickerEl.style.display = 'none';
     chatEl.classList.add('is-open');
+    avatarsEl.innerHTML = '';
     activeKeys.forEach(function (key) {
-      var a = ROSTER.filter(function (r) { return r.key === key; })[0];
+      var a = agentByKey(key);
+      if (!a) return;
       var span = document.createElement('span');
       span.textContent = a.name;
       span.addEventListener('click', function () { pinAgent(key, span); });
       avatarSpans[key] = span;
       avatarsEl.appendChild(span);
     });
-    bubble('system', 'The table is quiet. Say something to begin.');
     inputEl.focus();
+  }
+
+  startBtn.addEventListener('click', function () {
+    if (selected.length < MIN_AGENTS) return;
+    openChatWith(selected);
+    bubble('system', 'The table is quiet. Say something to begin.');
   });
 
   function agentByKey(k) {
@@ -458,7 +511,7 @@ var MAX_AGENTS = 6;
   function bubble(kind, text, agentName, mood) {
     var d = document.createElement('div');
     d.className = 'bubble bubble--' + kind;
-    if (kind === 'agent' && agentName) {
+    if ((kind === 'agent' || kind === 'other') && agentName) {
       var who = document.createElement('span');
       who.className = 'who';
       who.textContent = agentName;
@@ -621,13 +674,329 @@ var MAX_AGENTS = 6;
     }, delay);
   }
 
+  /* ── The table with other people in it ──────────────────────────────────
+     Dr. O asked to bring people into the classroom table, so this is the room
+     she opens and the door her students come through. It sits alongside the
+     solo table rather than replacing it: with nobody else here, everything
+     above still runs in this browser and touches no database at all.
+
+     In shared mode nothing is rendered locally, not even your own line. Every
+     line in the room, yours included, comes back from the poll, so thirty
+     browsers are showing one conversation in one order instead of thirty
+     slightly different ones.
+
+     Voices default to off for a guest and stay as they are for the host. A
+     classroom where thirty phones all speak Eleanor Roosevelt at once, half a
+     second apart, is not a seminar. */
+  var TABLE_OPEN_URL = '/.netlify/functions/leadership-table-open';
+  var TABLE_JOIN_URL = '/.netlify/functions/leadership-table-join';
+  var TABLE_POLL_URL = '/.netlify/functions/leadership-table-poll';
+  var TABLE_SAY_URL  = '/.netlify/functions/leadership-table-say';
+
+  /* A seat survives a refresh. In a classroom somebody's phone locks, a laptop
+     reloads, a browser is closed by accident, and without this they are back at
+     the picker with a table still running without them. The seat token is the
+     credential, so it is kept the same way the theme and the voice setting are,
+     and thrown away the moment the table closes or the token stops working. */
+  var TABLE_MEMORY = 'etl_leadership_seat';
+  function rememberSeat(seat) {
+    try { localStorage.setItem(TABLE_MEMORY, JSON.stringify(seat)); } catch (_) {}
+  }
+  function forgetSeat() {
+    try { localStorage.removeItem(TABLE_MEMORY); } catch (_) {}
+  }
+  function rememberedSeat() {
+    try {
+      var raw = localStorage.getItem(TABLE_MEMORY);
+      if (!raw) return null;
+      var v = JSON.parse(raw);
+      return (v && v.seat_token) ? v : null;
+    } catch (_) { return null; }
+  }
+
+  var table = null;          // { seat_token, room_id, is_host }
+  var tableCursor = null;
+  var tableTimer = null;
+  var seenMessageIds = {};
+  var speakQueue = Promise.resolve();
+
+  var bringBtn = document.getElementById('bringBtn');
+  var sharePanel = document.getElementById('sharePanel');
+  var shareSetup = document.getElementById('shareSetup');
+  var shareLive = document.getElementById('shareLive');
+  var hostNameEl = document.getElementById('hostName');
+  var joinPanel = document.getElementById('joinPanel');
+
+  function postJSON(url, payload) {
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) { return res.json().catch(function () { return {}; }); });
+  }
+
+  bringBtn.addEventListener('click', function () {
+    if (table) { sharePanel.hidden = !sharePanel.hidden; return; }
+    if (!activeKeys.length) {
+      bubble('system', 'Pick the leaders and start the conversation first, then bring people in.');
+      return;
+    }
+    sharePanel.hidden = false;
+    shareSetup.hidden = false;
+    shareLive.hidden = true;
+    hostNameEl.focus();
+  });
+  document.getElementById('cancelShareBtn').addEventListener('click', function () {
+    sharePanel.hidden = true;
+  });
+
+  document.getElementById('openTableBtn').addEventListener('click', function () {
+    var btn = document.getElementById('openTableBtn');
+    btn.disabled = true;
+    postJSON(TABLE_OPEN_URL, {
+      active_agents: activeKeys,
+      display_name: hostNameEl.value,
+      visitor_id: visitorId(),
+      // What the leaders have already said, so the room she opens is the room
+      // she is in rather than an empty one.
+      seed: history.slice(-24),
+      agent_state: Object.keys(lastAgentState).reduce(function (acc, k) {
+        acc[k] = { scales: lastAgentState[k] };
+        return acc;
+      }, {})
+    }).then(function (data) {
+      btn.disabled = false;
+      if (!data || !data.seat_token) {
+        bubble('system', 'The table could not be opened just now. Try again in a moment.');
+        return;
+      }
+      table = { seat_token: data.seat_token, room_id: data.room_id, is_host: true };
+      rememberSeat({ seat_token: data.seat_token, room_id: data.room_id, is_host: true,
+                     code_display: data.code_display, join_url: data.join_url });
+      tableCursor = data.cursor || null;
+      shareSetup.hidden = true;
+      shareLive.hidden = false;
+      document.getElementById('shareCode').textContent = data.code_display || data.code || '';
+      document.getElementById('shareUrl').textContent = data.join_url || '';
+      bringBtn.innerHTML = '&#128101; Sharing on';
+      bubble('system', 'This table is open. Anyone with the code can sit down.');
+      startTablePolling();
+    }).catch(function () {
+      btn.disabled = false;
+      bubble('system', 'The table could not be opened just now. Try again in a moment.');
+    });
+  });
+
+  document.getElementById('copyLinkBtn').addEventListener('click', function () {
+    var url = document.getElementById('shareUrl').textContent;
+    var btn = document.getElementById('copyLinkBtn');
+    // Not every browser hands a page the clipboard, so the link is on screen
+    // to read either way and the button only ever says what actually happened.
+    if (!navigator.clipboard) { btn.textContent = 'Copy it from above'; return; }
+    navigator.clipboard.writeText(url).then(function () {
+      btn.textContent = 'Copied';
+      setTimeout(function () { btn.textContent = 'Copy the link'; }, 1600);
+    }).catch(function () { btn.textContent = 'Copy it from above'; });
+  });
+
+  document.getElementById('closeTableBtn').addEventListener('click', function () {
+    if (!table) return;
+    var btn = document.getElementById('closeTableBtn');
+    btn.disabled = true;
+    postJSON('/.netlify/functions/leadership-table-close', { seat_token: table.seat_token })
+      .then(function () {
+        if (tableTimer) { clearInterval(tableTimer); tableTimer = null; }
+        table = null;
+        forgetSeat();
+        sharePanel.hidden = true;
+        bringBtn.innerHTML = '&#128101; Bring people in';
+        bubble('system', 'The table is closed. The code no longer works.');
+      })
+      .catch(function () { btn.disabled = false; });
+  });
+
+  function startTablePolling() {
+    if (tableTimer) clearInterval(tableTimer);
+    pollTable();
+    tableTimer = setInterval(pollTable, 2500);
+  }
+
+  function pollTable() {
+    if (!table) return;
+    postJSON(TABLE_POLL_URL, { seat_token: table.seat_token, since: tableCursor })
+      .then(function (data) {
+        if (!data || data.error) return;
+        (data.messages || []).forEach(function (m) {
+          if (seenMessageIds[m.id]) return;
+          seenMessageIds[m.id] = true;
+          tableCursor = m.created_at;
+          if (m.speaker === 'visitor') {
+            if (m.mine) bubble('you', m.content);
+            else bubble('other', m.content, m.name);
+          } else {
+            var agent = agentByKey(m.speaker);
+            bubble('agent', m.content, agent ? agent.name : m.name);
+            if (voiceOn) queueSpeak(m.speaker, m.content);
+          }
+        });
+        if (data.agent_state) {
+          Object.keys(data.agent_state).forEach(function (k) {
+            if (data.agent_state[k] && data.agent_state[k].scales) lastAgentState[k] = data.agent_state[k].scales;
+          });
+          if (pinnedKey && lastAgentState[pinnedKey]) updateGauge(lastAgentState[pinnedKey]);
+        }
+        if (data.roster && table.is_host) {
+          var others = data.roster.filter(function (p) { return !p.is_host; });
+          document.getElementById('shareRoster').textContent = others.length
+            ? 'At the table: ' + others.map(function (p) { return p.name; }).join(', ')
+            : 'Nobody else has arrived yet.';
+        }
+        if (data.closed) {
+          clearInterval(tableTimer);
+          tableTimer = null;
+          table = null;
+          forgetSeat();
+          bubble('system', 'This table has closed.');
+        }
+      })
+      .catch(function () { /* a missed poll is picked up by the next one */ });
+  }
+
+  // One voice at a time, in the order the leaders actually spoke.
+  function queueSpeak(key, text) {
+    speakQueue = speakQueue.then(function () {
+      return fetchVoice(key, text).then(function (blob) { return speak(key, blob); });
+    }).catch(function () { /* silence is not worth stopping the room for */ });
+  }
+
+  function sayAtTable(text) {
+    sending = true; sendEl.disabled = true;
+    postJSON(TABLE_SAY_URL, { seat_token: table.seat_token, message: text })
+      .then(function (data) {
+        sending = false; sendEl.disabled = false; inputEl.focus();
+        if (data && data.busy) {
+          bubble('system', 'The table is still answering. Send that again in a moment.');
+          inputEl.value = text;
+          autogrow();
+          return;
+        }
+        if (data && data.error) {
+          bubble('system', 'That did not reach the table. Try again?');
+          return;
+        }
+        pollTable();
+      })
+      .catch(function () {
+        sending = false; sendEl.disabled = false;
+        bubble('system', 'That did not reach the table. Try again?');
+      });
+  }
+
+  /* The door. A code in the address bar means somebody was handed this link,
+     so the page asks who they are before it takes a seat for them, and shows
+     them whose table it is first. */
+  function tableCodeFromUrl() {
+    try {
+      var v = new URLSearchParams(window.location.search).get('table');
+      return v ? v.trim() : null;
+    } catch (_) { return null; }
+  }
+
+  /* Back after a reload. The poll is the test: a seat that still answers is a
+     seat that still exists, and one that does not is cleared rather than left
+     to fail on every send. Asking with no cursor brings back the room from
+     where this person sat down, so the log fills in again. */
+  (function resumeSeat() {
+    var saved = rememberedSeat();
+    if (!saved) return;
+    /* A student who reloads still has the invite link in the address bar, and
+       taking the door again would hand her a SECOND seat: a new arrival time,
+       and the first half of the class gone from her screen. So a seat she
+       already holds wins over the code that brought her here, unless the code
+       is for a different table, which is how a fresh code still gets her in. */
+    function bare(v) { return String(v || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); }
+    var urlCode = tableCodeFromUrl();
+    if (urlCode && saved.code && bare(urlCode) !== bare(saved.code)) return;
+    if (urlCode && !saved.code) return;   // her seat is the host's, this code is somebody's invite
+    postJSON(TABLE_POLL_URL, { seat_token: saved.seat_token }).then(function (data) {
+      if (!data || data.error || data.closed) { forgetSeat(); return; }
+      table = { seat_token: saved.seat_token, room_id: saved.room_id, is_host: saved.is_host };
+      openChatWith(data.active_agents || []);
+      bubble('system', saved.is_host ? 'You are back at your table.' : 'You are back at the table.');
+      if (saved.is_host) {
+        sharePanel.hidden = false;
+        shareSetup.hidden = true;
+        shareLive.hidden = false;
+        document.getElementById('shareCode').textContent = saved.code_display || '';
+        document.getElementById('shareUrl').textContent = saved.join_url || '';
+        bringBtn.innerHTML = '&#128101; Sharing on';
+      }
+      startTablePolling();
+    }).catch(function () { /* offline for a moment; the seat stays remembered */ });
+  })();
+
+  (function offerTheSeat() {
+    var code = tableCodeFromUrl();
+    if (!code) return;
+    if (table) return;                    // already sitting down, resumed above
+    pickerEl.style.display = 'none';
+    joinPanel.hidden = false;
+    var whoEl = document.getElementById('joinWho');
+    var noteEl = document.getElementById('joinNote');
+    postJSON(TABLE_JOIN_URL, { code: code, peek: true }).then(function (data) {
+      if (!data || data.error) {
+        whoEl.textContent = data && data.error === 'expired'
+          ? 'That table has closed. Ask for a fresh code.'
+          : 'That code does not match a table that is open right now.';
+        document.getElementById('joinBtn').disabled = true;
+        return;
+      }
+      whoEl.textContent = data.host_name + ' has a table open with ' + (data.leaders || []).join(', ') + '.';
+      noteEl.textContent = 'You will see the conversation from the moment you sit down, not what was said before.';
+    });
+
+    document.getElementById('joinBtn').addEventListener('click', function () {
+      var nameEl = document.getElementById('joinName');
+      var name = nameEl.value.trim();
+      if (!name) { nameEl.focus(); noteEl.textContent = 'The leaders will use your name, so they need one.'; return; }
+      var btn = document.getElementById('joinBtn');
+      btn.disabled = true;
+      postJSON(TABLE_JOIN_URL, { code: code, display_name: name, visitor_id: visitorId() })
+        .then(function (data) {
+          if (!data || !data.seat_token) {
+            btn.disabled = false;
+            noteEl.textContent = data && data.error === 'full'
+              ? 'That table is full.'
+              : 'That did not work. Check the code and try again.';
+            return;
+          }
+          table = { seat_token: data.seat_token, room_id: data.room_id, is_host: false };
+          rememberSeat({ seat_token: data.seat_token, room_id: data.room_id, is_host: false, code: code });
+          joinPanel.hidden = true;
+          openChatWith(data.active_agents || []);
+          bubble('system', 'You are at ' + data.host_name + "'s table. Say something when you are ready.");
+          // A room full of phones all speaking at once is nobody's seminar.
+          if (voiceOn) { voiceOn = false; syncVoiceToggle(); }
+          startTablePolling();
+        })
+        .catch(function () {
+          btn.disabled = false;
+          noteEl.textContent = 'That did not work. Check the code and try again.';
+        });
+    });
+  })();
+
   function send() {
     if (sending) return;
     var text = inputEl.value.trim();
     if (!text) return;
-    sending = true; sendEl.disabled = true;
     inputEl.value = ''; autogrow();
 
+    // With other people in the room the server holds the conversation, so the
+    // line goes there and comes back on the next poll like everybody else's.
+    if (table) { clearSystemBubbles(); sayAtTable(text); return; }
+
+    sending = true; sendEl.disabled = true;
     clearSystemBubbles();
     bubble('you', text);
     var waiting = bubble('system', 'The table is talking...');

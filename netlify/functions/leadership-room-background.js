@@ -107,7 +107,16 @@ async function runTurn(client, system, messages) {
   return extractDeliverReply(fallback) || extractPlainText(fallback);
 }
 
-async function runCascade(activeAgents, transcript, visitorName, visitorId, serviceKey, rawAgentState) {
+/* One cascade at the table, used by both tables this classroom has.
+
+   onReply, added 2026-09-17, is the whole difference between them. The solo
+   table collects the replies and hands them back in one job result for the one
+   browser to reveal. The shared table (leadership-table-background.js) writes
+   each reply into the room as it lands, so every person sitting there watches
+   the leaders answer at the pace they are actually written. One cascade, one
+   director, one voice guard, two ways of delivering it: a second copy would
+   drift, and the beat rules and the tic guard are exactly what must not. */
+async function runCascade(activeAgents, transcript, visitorName, visitorId, serviceKey, rawAgentState, onReply) {
   const client = new Anthropic({ apiKey: process.env.ETL_CLASSROOMS_API_KEY });
   const replies = [];
   const transcriptAppend = [];
@@ -171,12 +180,20 @@ async function runCascade(activeAgents, transcript, visitorName, visitorId, serv
     const nextScales = engine.applyTurn(decayedScales, turn.felt, speaker, engine.SMOOTHING);
     nextAgentState[speaker] = { scales: nextScales };
 
-    replies.push({
+    const delivered = {
       agent_key: speaker,
       agent_name: agent.name,
       reply: replyText,
       mood: engine.dominantEmotion(nextScales),
-    });
+    };
+    replies.push(delivered);
+    if (typeof onReply === 'function') {
+      // A write that fails must not take the rest of the table down with it:
+      // the reply is already in the transcript the next beat reads.
+      try { await onReply(delivered); } catch (err) {
+        console.error('[leadership-room-background] onReply failed (non-fatal):', err && err.message);
+      }
+    }
 
     await saveVisitorMemory(client, speaker, agent.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: replyText }]);
   }
@@ -245,3 +262,7 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: (err && err.message) || 'unknown_error' }) };
   }
 };
+
+// Shared with leadership-table-background.js, which runs the same cascade
+// against a room that has real people in it.
+module.exports.runCascade = runCascade;
