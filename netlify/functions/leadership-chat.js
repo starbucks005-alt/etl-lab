@@ -100,6 +100,36 @@ const WIKIPEDIA_TOOL = {
   },
 };
 
+/* The second half of the backpack, added 2026-09-17: real published
+   scholarship, with links a student can open. Students in PTX 7006 started
+   asking these leaders for websites and papers, and there was no way to hand
+   one over, because the Wikipedia tool above verifies a fact rather than
+   giving anybody something to cite.
+
+   OpenAlex first, because it names an open-access copy when one exists, which
+   is the difference between a student reading the paper and hitting a paywall.
+   Crossref second, same query, when OpenAlex returns nothing or fails. Both
+   are free, keyless, public catalogues. If both fail the agent is told the
+   lookup failed and says so, the same fail-soft shape as fetchWikipedia.
+
+   NOT YET CONFIRMED AGAINST THE LIVE CATALOGUES. Neither api.openalex.org nor
+   api.crossref.org could be reached from where this was written, so what is
+   proven is the parsing and every way it can fail, against recorded response
+   shapes in tests/leadership-sources.test.js. The first real question a
+   student asks is what confirms the rest. If it comes back empty every time,
+   look at the response shape before anything else. */
+const FIND_SCHOLARSHIP_TOOL = {
+  name: 'find_scholarship',
+  description: 'Search real published scholarship (journal articles, chapters, books) and get back real citations with links a student can open. Use this whenever a student asks for a paper, a reading, a study, a citation, evidence, or somewhere to read more about a topic. Never give a student a citation you did not get back from this tool.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'What to look for, e.g. "Shackleton crisis leadership" or "pacesetting leadership burnout"' },
+    },
+    required: ['query'],
+  },
+};
+
 // The emotion engine's per-turn input: same shape as Almost Human's "felt"
 // mechanic and _kronborg-engine.js's, reimplemented in _leadership-engine.js.
 // Forcing this as a tool call (rather than free-text JSON) means the reply
@@ -131,7 +161,7 @@ const DELIVER_REPLY_TOOL = {
   },
 };
 
-const TOOLS = [WIKIPEDIA_TOOL, DELIVER_REPLY_TOOL];
+const TOOLS = [WIKIPEDIA_TOOL, FIND_SCHOLARSHIP_TOOL, DELIVER_REPLY_TOOL];
 
 async function fetchWikipedia(query) {
   try {
@@ -154,9 +184,113 @@ async function fetchWikipedia(query) {
   }
 }
 
+const SCHOLARSHIP_MAX = 4;
+// OpenAlex asks callers to identify themselves so they can be contacted about
+// a misbehaving client. Her work address, the one the whole lab sends from.
+const SCHOLARSHIP_CONTACT = 'drterryoroszi@emerging-tech-lab.com';
+
+function citationLine(c) {
+  const bits = [];
+  if (c.author) bits.push(c.author + (c.moreAuthors ? ' and others' : ''));
+  if (c.year) bits.push(String(c.year));
+  if (c.journal) bits.push(c.journal);
+  const where = bits.length ? ' (' + bits.join(', ') + ')' : '';
+  const access = c.openAccess ? 'free to read: ' : 'link: ';
+  return '- "' + c.title + '"' + where + '. ' + access + c.link;
+}
+
+async function fetchOpenAlex(query) {
+  const url = 'https://api.openalex.org/works?per_page=' + SCHOLARSHIP_MAX
+    + '&search=' + encodeURIComponent(query)
+    + '&mailto=' + encodeURIComponent(SCHOLARSHIP_CONTACT);
+  const r = await fetch(url, { headers: { 'User-Agent': UA } });
+  if (!r.ok) throw new Error('openalex ' + r.status);
+  const data = await r.json();
+  const results = Array.isArray(data && data.results) ? data.results : [];
+  return results.map((w) => {
+    if (!w || typeof w !== 'object') return null;
+    const title = String(w.display_name || '').trim();
+    const authorships = Array.isArray(w.authorships) ? w.authorships : [];
+    const first = authorships[0] && authorships[0].author && authorships[0].author.display_name;
+    const journal = w.primary_location && w.primary_location.source && w.primary_location.source.display_name;
+    const best = w.best_oa_location || {};
+    const oa = (w.open_access && w.open_access.oa_url) || best.pdf_url || best.landing_page_url || '';
+    const link = String(oa || w.doi || '').trim();
+    if (!title || !link) return null;
+    return {
+      title,
+      author: first ? String(first) : '',
+      moreAuthors: authorships.length > 1,
+      year: w.publication_year || '',
+      journal: journal ? String(journal) : '',
+      link,
+      openAccess: Boolean(oa),
+    };
+  }).filter(Boolean);
+}
+
+async function fetchCrossref(query) {
+  const url = 'https://api.crossref.org/works?rows=' + SCHOLARSHIP_MAX
+    + '&query=' + encodeURIComponent(query)
+    + '&select=title,author,issued,container-title,URL'
+    + '&mailto=' + encodeURIComponent(SCHOLARSHIP_CONTACT);
+  const r = await fetch(url, { headers: { 'User-Agent': UA } });
+  if (!r.ok) throw new Error('crossref ' + r.status);
+  const data = await r.json();
+  const items = data && data.message && Array.isArray(data.message.items) ? data.message.items : [];
+  return items.map((w) => {
+    if (!w || typeof w !== 'object') return null;
+    const title = Array.isArray(w.title) && w.title.length ? String(w.title[0]).trim() : '';
+    const authors = Array.isArray(w.author) ? w.author : [];
+    const a0 = authors[0] || {};
+    const name = [a0.given, a0.family].filter(Boolean).join(' ').trim() || String(a0.name || '').trim();
+    const container = Array.isArray(w['container-title']) && w['container-title'].length ? String(w['container-title'][0]) : '';
+    const parts = w.issued && Array.isArray(w.issued['date-parts']) ? w.issued['date-parts'][0] : null;
+    const year = Array.isArray(parts) && parts.length ? parts[0] : '';
+    const link = String(w.URL || '').trim();
+    if (!title || !link) return null;
+    return { title, author: name, moreAuthors: authors.length > 1, year, journal: container, link, openAccess: false };
+  }).filter(Boolean);
+}
+
+/* Returns text the agent reads, never a fact on its own authority: every line
+   is a record that came back from a live catalogue a moment ago. The closing
+   instruction is there because a model handed a short list will otherwise pad
+   it with a title it half remembers, which is the one thing this classroom
+   promises students it does not do. */
+async function fetchScholarship(query) {
+  const asked = String(query || '').trim();
+  if (!asked) return 'No search terms were given, so nothing was looked up.';
+  let found = [];
+  let firstError = '';
+  try {
+    found = await fetchOpenAlex(asked);
+  } catch (e) {
+    firstError = e.message;
+  }
+  if (!found.length) {
+    try {
+      found = await fetchCrossref(asked);
+    } catch (e) {
+      const why = [firstError, e.message].filter(Boolean).join('; ');
+      return 'The source lookup for "' + asked + '" could not be reached (' + why + '). '
+        + 'Tell the student the library search did not come back this time, and do not name a paper you did not just look up.';
+    }
+  }
+  if (!found.length) {
+    return 'The search for "' + asked + '" returned no published sources. Tell the student that honestly, '
+      + 'and offer to look again under different words rather than naming something you did not find.';
+  }
+  return 'Published sources found just now for "' + asked + '":\n'
+    + found.map(citationLine).join('\n')
+    + '\nUse only what is on this list, and give each web address exactly as it appears here. '
+    + 'Do not add a source that is not listed, and do not change a link.';
+}
+
 async function executeTool(name, input) {
   switch (name) {
     case 'get_wikipedia_info': return fetchWikipedia(input.query);
+    case 'find_scholarship': return fetchScholarship(input.query);
     default: return '[Unknown tool]';
   }
 }
@@ -170,6 +304,7 @@ const FORMAT_RULES = [
   '- Stay fully in character. Never mention being an AI, a model, a language model, or a system, and never break character to explain how you work.',
   '- Never fabricate a quote, date, or event. If you are not certain specific words were really said, describe your real documented position instead of inventing a quotation.',
   '- If you use a real source lookup, describe what you found in your own voice; keep the actual fact accurate, and if a live lookup fails, say so honestly rather than inventing a fact.',
+  '- A web address is the one thing you write out instead of speaking around it: give it bare and exactly as you were given it, no markdown, no brackets, no punctuation stuck on the end, and never one you worked out for yourself.',
   '- Output ONLY the words you would say. No labels, no quotation marks around it.',
   '- Always finish your turn by calling deliver_reply exactly once. "felt" is out-of-character bookkeeping the room reads to track your emotional state; never mention it, and nothing in your reply should reference it.',
 ].join('\n');
@@ -182,6 +317,94 @@ const FORMAT_RULES = [
 // museum exhibit or classroom discussion can imagine historical figures in
 // conversation without claiming they actually met.
 const ROOM_PREMISE_NOTE = 'One thing about this classroom: when you appear in the group table with other leaders from this course, you are very likely meeting leaders from a different era, place, or movement than your own, most of whom you never knew in real life. Treat this as an accepted device of the room, the way a classroom discussion or museum exhibit can put historical figures in conversation for the sake of comparison, and rely on your own ROOM DYNAMICS guidance below for exactly which connections are real and which are not. Never invent a meeting, correspondence, or relationship that the historical record does not support.';
+
+/* GIVING A STUDENT SOMETHING TO OPEN. Added 2026-09-17, because students in
+   PTX 7006 are asking these leaders for websites and papers and they had no
+   way to hand one over.
+
+   Two halves. find_scholarship above goes and looks, live, for anything
+   written ABOUT a leader or about a leadership question. ARCHIVES below is
+   the other half: where each leader's OWN words and records actually live.
+
+   The honesty problem this has to solve is that a leader who died in 1962 has
+   not read a paper published in 2019. So the rules separate the two: their own
+   record they simply know, and modern scholarship they hand over as what the
+   lookup returned while the student waited. */
+const SOURCE_RULES = [
+  'GIVING A STUDENT A SOURCE',
+  'Students in this course ask where they can read more, and you can now answer that with something they can open.',
+  'Your own words and records: the addresses under YOUR OWN RECORD below are real and fixed. Give one exactly as it is written there, character for character. If nothing there fits what was asked, name the work itself and leave the address out. Never assemble, shorten, or guess at a web address, and never offer one that is not written there.',
+  'Anything written about you, or about a question of leadership: call find_scholarship and give back only what it returns, the title, who wrote it, the year, and the link.',
+  'Work published after your own lifetime is not work you have read, and you never suggest otherwise. Hand it over as what the search turned up just now, in your own voice, and say as much. If the search fails or finds nothing, tell the student that instead of reaching for a title you half remember.',
+  'Two or three sources is plenty for one answer. Fold them into ordinary sentences, the way you would give somebody an address out loud.',
+].join('\n');
+
+/* Each address below came back from a live search of the holding institution
+   on 2026-09-17, rather than being typed from memory, which is how a
+   plausible looking link that goes nowhere ends up in a classroom. They are
+   in the prompt rather than behind a lookup because they do not change, and
+   because a leader should be able to say where their own papers are kept
+   without going anywhere to find out.
+
+   A leader with nothing here has nothing, and the rules above tell them to
+   name the work and leave the address out rather than invent one. When one of
+   these stops working, it is fixed here once and every agent quoting it is
+   fixed with it. */
+const ARCHIVES = {
+  roosevelt: [
+    'The Eleanor Roosevelt Papers Project at George Washington University, where my "My Day" columns are transcribed and searchable: https://erpapers.columbian.gwu.edu/my-day',
+    'The Universal Declaration of Human Rights, the full text, at the United Nations: https://www.un.org/en/about-us/universal-declaration-of-human-rights',
+  ],
+  curie: [
+    'My Nobel lecture in chemistry, December 1911, on radium as a new element: https://www.nobelprize.org/prizes/chemistry/1911/marie-curie/lecture/',
+    'The Nobel Foundation\'s record of the 1911 prize: https://www.nobelprize.org/prizes/chemistry/1911/marie-curie/facts/',
+  ],
+  wooden: [
+    'The Pyramid of Success, block by block, on my own site: https://coachwooden.com/pyramid-of-success',
+  ],
+  perkins: [
+    'The Social Security Administration\'s own history pages on me: https://www.ssa.gov/history/fperkins.html',
+    'The Frances Perkins Center, at the homestead in Newcastle, Maine: https://francesperkinscenter.org/',
+    'Columbia University Libraries\' exhibition, The Woman Behind the New Deal, on Social Security: https://exhibitions.library.columbia.edu/exhibits/show/perkins/social-security',
+  ],
+  gandhi: [
+    'The Collected Works of Mahatma Gandhi, a hundred volumes in English, free on the Gandhi Heritage Portal: https://www.gandhiheritageportal.org/the-collected-works-of-mahatma-gandhi',
+  ],
+  csking: [
+    'The King Center in Atlanta, which I founded in 1968, and its library and archives: https://thekingcenter.org/what-we-do/king-library-and-archives/',
+    'The King Institute at Stanford, which holds and publishes Martin\'s papers: https://kinginstitute.stanford.edu/',
+  ],
+  mlk: [
+    'The King Institute at Stanford, which holds my papers: https://kinginstitute.stanford.edu/',
+    'Letter from Birmingham Jail, the full text: https://kinginstitute.stanford.edu/letter-birmingham-jail',
+    'The "I Have a Dream" address: https://kinginstitute.stanford.edu/i-have-dream',
+  ],
+  truth: [
+    'The 1875 Narrative of Sojourner Truth, the whole book, at Documenting the American South, University of North Carolina: https://docsouth.unc.edu/neh/truth75/truth75.html',
+    'The earlier 1850 Narrative, in the same collection: https://docsouth.unc.edu/neh/truth50/menu.html',
+  ],
+  tubman: [
+    'The National Park Service on my life and my war service: https://www.nps.gov/people/harriet-tubman.htm',
+    'The Harriet Tubman Underground Railroad National Historical Park in Maryland: https://www.nps.gov/articles/tubman.htm',
+  ],
+  shackleton: [
+    '"South," my own account of the Endurance expedition, the whole book free at Project Gutenberg: https://www.gutenberg.org/ebooks/5199',
+  ],
+  powell: [
+    'The Colin Powell School for Civic and Global Leadership at the City College of New York: https://colinpowellschool.ccny.cuny.edu/',
+  ],
+  drterry: [
+    'Her Forbes Technology Council column, which the course readings come from: https://www.forbes.com/councils/forbestechcouncil/people/terryoroszi/',
+    'The Week 8 reading, "The Three Bears of AI: What Goldilocks Can Teach About Using AI Just Right": https://www.forbes.com/councils/forbestechcouncil/2026/08/20/the-three-bears-of-ai-what-goldilocks-can-teach-about-using-ai-just-right/',
+    'Her Wright State University faculty page: https://people.wright.edu/terry.oroszi',
+    'The Emerging Technologies Laboratory: https://emerging-tech-lab.com/',
+  ],
+  iris: [
+    'The classroom page itself, with the full syllabus, the ten leaders, and the table: https://emerging-tech-lab.com/leadership',
+    'The course modules from the syllabus: https://emerging-tech-lab.com/elevator-speech.html, https://emerging-tech-lab.com/body-language-cert.html, https://emerging-tech-lab.com/egos-at-the-table.html, https://emerging-tech-lab.com/academic-poster.html, https://emerging-tech-lab.com/job-fair.html, https://emerging-tech-lab.com/power-platform.html',
+    'The ETL Leadership Certificate issued in Week 15: https://emerging-tech-lab.com/leadership-cert.html',
+  ],
+};
 
 const AGENTS = {
   roosevelt: {
@@ -717,6 +940,19 @@ const AGENTS = {
   },
 };
 
+/* Appended after the map rather than written into each persona, so a new
+   agent cannot be added without the source rules, which is exactly how one
+   agent ends up inventing a link while the rest do not. The room's group
+   table builds its prompts from agent.system too, so both halves travel
+   there with no further wiring. */
+Object.keys(AGENTS).forEach((key) => {
+  const own = ARCHIVES[key];
+  const ownBlock = own && own.length
+    ? '\n\nYOUR OWN RECORD, THE ADDRESSES ARE EXACT\n' + own.map((line) => '- ' + line).join('\n')
+    : '\n\nYOUR OWN RECORD\nNo permanent address has been verified for your own papers yet, so name the work itself and do not offer a link for it.';
+  AGENTS[key].system += '\n\n' + SOURCE_RULES + ownBlock;
+});
+
 // Returns { text, felt }. felt is the deliver_reply tool's emotion reading
 // (null if the model never called it, which the emotion engine treats as no
 // movement this turn rather than erroring).
@@ -925,6 +1161,7 @@ const BIOS = {
 module.exports.AGENTS = AGENTS;
 module.exports.BIOS = BIOS;
 module.exports.TOOLS = TOOLS;
+module.exports.ARCHIVES = ARCHIVES;
 module.exports.DELIVER_REPLY_TOOL = DELIVER_REPLY_TOOL;
 module.exports.extractDeliverReply = extractDeliverReply;
 module.exports.extractPlainText = extractPlainText;

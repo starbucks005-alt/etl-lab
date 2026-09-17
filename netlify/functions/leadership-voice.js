@@ -71,7 +71,7 @@ exports.handler = async (event) => {
   const said = String(body.text || '').trim();
   const isReply = said.length > 0;
 
-  const text0 = isReply ? said.slice(0, TEXT_CAP) : BIOS[agentId];
+  const text0 = isReply ? spokenText(said.slice(0, TEXT_CAP)) : BIOS[agentId];
   if (!text0) return jsonError(404, `No bio configured for "${agentId}"`);
 
   // Leading pause buffer -- without it ElevenLabs starts mid-phoneme and the
@@ -134,6 +134,30 @@ exports.handler = async (event) => {
 
   return audioResponse(buf, isReply);
 };
+
+/* A leader can now hand a student a web address (leadership-chat.js's source
+   rules), and the live classroom plays replies out loud, so without this the
+   room hears a voice spell out h t t p s colon slash slash for eight seconds.
+   The address stays in the text on screen, where it is a link; the spoken
+   version says where to look instead of reading it out. */
+const SPOKEN_URL = /\b(?:https?:\/\/|www\.)[^\s<>"']+/gi;
+function spokenText(reply) {
+  const raw = String(reply || '');
+  let found = 0;
+  const out = raw.replace(SPOKEN_URL, (match) => {
+    // The full stop at the end of the sentence gets caught by the pattern
+    // along with the address, so it is put back rather than swallowed.
+    const trail = (match.match(/[.,;:!?'")\]]+$/) || [''])[0];
+    found += 1;
+    return (found === 1 ? 'the address on your screen' : 'the next one on your screen') + trail;
+  });
+  if (!found) return raw;
+  return out.replace(/\s{2,}/g, ' ').trim();
+}
+
+// Exported for tests/leadership-sources.test.js, which checks that an address
+// handed to a student is not read out character by character in class.
+module.exports.spokenText = spokenText;
 
 function audioResponse(buf, isReply) {
   return {

@@ -46,7 +46,9 @@ async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forc
   const transcriptText = transcript.slice(-16).map((e) => `${e.name}: ${e.content}`).join('\n');
   const instruction = beatIndex === 0
     ? 'The visitor just said something new. Pick whoever at the table would naturally respond first, given their real personality and the substance of what was just asked.'
-    : 'Judge this moment honestly: often one reply is plenty and the room naturally pauses there, sometimes someone can\'t help reacting to what was just said, especially across sharply different leadership philosophies. Only pick a name if that person would genuinely, naturally have something to say about what the LAST person just said.';
+    : forced
+      ? 'Someone else at this table comes in now. Pick whoever has the strongest real reason to respond to what was just said, whether that is agreement, a sharp disagreement across two different leadership philosophies, or their own experience of the same problem.'
+      : 'Judge this moment honestly: two voices have already spoken and often that is a whole exchange, sometimes a third genuinely cannot let it stand. Only pick a name if that person would really have something to say about what the LAST person just said.';
   const prompt = `You're directing a real conversation among a small group of historical leaders gathered for a graduate leadership seminar, actually talking to each other and to one visitor, not taking turns answering the visitor one at a time. People at the table:\n${roster}\n\n` +
     `Recent conversation:\n${transcriptText}\n\n${instruction}` +
     (forced ? ' Pick exactly one agent key from the roster above.' : ' Pick exactly one agent key from the roster above, or "none" if nobody would genuinely add anything right now.');
@@ -115,7 +117,15 @@ async function runCascade(activeAgents, transcript, visitorName, visitorId, serv
   for (let beat = 0; beat < CASCADE_CAP; beat++) {
     const candidates = activeAgents.filter((a) => !usedThisBeat.includes(a));
     if (!candidates.length) break;
-    const forced = beat === 0;
+    /* Beat 0 is always somebody answering the visitor. Beat 1 was the
+       director's discretion too until 2026-09-17, when Dr. O reported a table
+       of six where only Coretta Scott King ever spoke: asked each beat whether
+       anybody NEEDED to add something, a cheap model says no almost every
+       time, and a seminar table that answers one at a time is not a table.
+       So a second leader now always comes in when there is one sitting there,
+       and beat 2 stays real discretion, so a three-way exchange still happens
+       without every single turn becoming one. */
+    const forced = beat <= 1;
     let speaker;
     try {
       speaker = await pickNextSpeaker(client, candidates, transcript, beat, forced);

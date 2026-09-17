@@ -192,6 +192,10 @@ a:hover { color: var(--green); }
 .bubble--agent .who { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-br); margin-bottom: 4px; }
 .bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
 .bubble--system { color: var(--mute); font-style: italic; align-self: center; font-size: .84rem; }
+/* An address a leader hands over is a link a student can open. It wraps,
+   because a source URL is longer than a chat bubble is wide. */
+.bubble a { text-decoration: underline; overflow-wrap: anywhere; }
+.bubble--you a { color: #fff; }
 .bubble-row { display: flex; align-items: flex-end; gap: 8px; max-width: 96%; align-self: flex-start; }
 .bubble-row .bubble--agent { max-width: none; flex: 0 1 auto; }
 .bubble-mood {
@@ -266,7 +270,7 @@ a:hover { color: var(--green); }
     </div>
   </div>
 
-  <p class="disclosure">Every leader here is a real historical figure represented for education, each with genuine, real-time access to live sources. A cheap "director" model decides who speaks next each beat, favoring genuine back-and-forth over a fixed rotation. Free to use, built for Leadership, Theory and Application, PTX 7006, Wright State University.</p>
+  <p class="disclosure">Every leader here is a real historical figure represented for education, each with genuine, real-time access to live sources. Ask for somewhere to read further and you get a real one, with the link. A cheap "director" model decides who speaks next each beat, favoring genuine back-and-forth over a fixed rotation. Free to use, built for Leadership, Theory and Application, PTX 7006, Wright State University.</p>
 </div>
 
 <script>
@@ -423,6 +427,34 @@ var MAX_AGENTS = 6;
     if (logEl.children.length === sys.length) { sys.forEach(function (b) { b.remove(); }); }
   }
 
+  /* A leader can now hand a student a web address (see leadership-chat.js's
+     source rules), so an address in a reply becomes something a student can
+     actually click. Built out of text nodes and one anchor at a time, never
+     innerHTML, because the text here comes back from a model and a page that
+     pastes model output into markup is a page waiting to be told to. */
+  var LINK_RE = /\b(?:https?:\/\/|www\.)[^\s<>()\[\]"']+/gi;
+  function appendLinked(parent, text) {
+    var s = String(text == null ? '' : text);
+    var re = new RegExp(LINK_RE.source, 'gi');
+    var last = 0;
+    var m;
+    while ((m = re.exec(s)) !== null) {
+      // Trailing punctuation belongs to the sentence, not to the address.
+      var raw = m[0].replace(/[.,;:!?'")\]]+$/, '');
+      if (!raw) { re.lastIndex = m.index + m[0].length; continue; }
+      if (m.index > last) parent.appendChild(document.createTextNode(s.slice(last, m.index)));
+      var a = document.createElement('a');
+      a.href = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
+      a.textContent = raw;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      parent.appendChild(a);
+      last = m.index + raw.length;
+      re.lastIndex = last;
+    }
+    if (last < s.length) parent.appendChild(document.createTextNode(s.slice(last)));
+  }
+
   function bubble(kind, text, agentName, mood) {
     var d = document.createElement('div');
     d.className = 'bubble bubble--' + kind;
@@ -431,10 +463,8 @@ var MAX_AGENTS = 6;
       who.className = 'who';
       who.textContent = agentName;
       d.appendChild(who);
-      d.appendChild(document.createTextNode(text));
-    } else {
-      d.textContent = text;
     }
+    appendLinked(d, text);
     if (kind === 'agent' && mood) {
       var row = document.createElement('div');
       row.className = 'bubble-row';
@@ -491,12 +521,37 @@ var MAX_AGENTS = 6;
     syncVoiceToggle();
   });
 
+  /* Reported by Dr. O 2026-09-17: voices switched on, table silent, and
+     nothing on screen to say why. Every way this can fail used to return null
+     and the table just carried on mute, so the room could not tell a missing
+     voice from a dead key from a browser refusing to play. It says so now,
+     once per turn, and the reason goes to the console with it. What is
+     actually failing on her machine is not known from here; these lines are
+     what will name it. */
+  var voiceToldThisTurn = false;
+  function voiceTrouble(note) {
+    if (voiceToldThisTurn) return;
+    voiceToldThisTurn = true;
+    bubble('system', note);
+  }
+
   function fetchVoice(key, said) {
     return fetch(VOICE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ agent: key, text: said })
-    }).then(function (res) { return res.ok ? res.blob() : null; }).catch(function () { return null; });
+    }).then(function (res) {
+      if (res.ok) return res.blob();
+      console.error('[leadership-room] voice for ' + key + ' came back ' + res.status);
+      voiceTrouble(res.status === 409
+        ? 'That leader has no voice set up yet, so this one is on screen only.'
+        : 'The voices did not come back just now (' + res.status + '), so the table is on screen only. Everything else still works.');
+      return null;
+    }).catch(function (err) {
+      console.error('[leadership-room] voice for ' + key + ' failed', err);
+      voiceTrouble('The voices could not be reached just now, so the table is on screen only. Everything else still works.');
+      return null;
+    });
   }
 
   // Never rejects, and never leaves the conversation stuck: no audio, a dead
@@ -513,13 +568,25 @@ var MAX_AGENTS = 6;
       if (roomAudio) { try { roomAudio.pause(); } catch (_) {} }
       roomAudio = new Audio(URL.createObjectURL(blob));
       roomAudio.onended = done;
-      roomAudio.onerror = done;
+      roomAudio.onerror = function (err) {
+        console.error('[leadership-room] audio for ' + key + ' would not play', err);
+        voiceTrouble('That reply came back as sound the browser could not play, so it is on screen only.');
+        done();
+      };
       roomAudio.onpause = done;
-      roomAudio.play().catch(done);
+      roomAudio.play().catch(function (err) {
+        // A browser can refuse to start audio on its own. Saying so is the
+        // difference between a teacher clicking once and a teacher wondering
+        // whether the whole feature is broken.
+        console.error('[leadership-room] play was refused for ' + key, err);
+        voiceTrouble('The browser is holding the sound back. Click anywhere on this page, then send again, and the table will speak.');
+        done();
+      });
     });
   }
 
   function revealNext(replies, i, onDone) {
+    if (i === 0) voiceToldThisTurn = false;
     if (i >= replies.length) { onDone(); return; }
     var r = replies[i];
     var agent = agentByKey(r.agent_key);

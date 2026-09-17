@@ -215,6 +215,10 @@ a:hover { color: var(--green); }
 .bubble--her { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
 .bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
 .bubble--typing { color: var(--mute); font-style: italic; }
+/* An address a leader hands over is a link a student can open. It wraps,
+   because a source URL is longer than a chat bubble is wide. */
+.bubble a { text-decoration: underline; overflow-wrap: anywhere; }
+.bubble--you a { color: #fff; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; }
 .chip { background: none; border: 1px solid var(--line); color: var(--blue-br); border-radius: 999px; padding: 7px 14px; font-family: 'IBM Plex Mono', monospace; font-size: .74rem; cursor: pointer; text-align: left; }
 .chip:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
@@ -390,21 +394,40 @@ var ORDER = ['roosevelt', 'curie', 'wooden', 'perkins', 'gandhi', 'csking', 'mlk
   // them. The toggle sits with the other voice buttons and is remembered, for
   // anyone reading on their own in a quiet room.
   var audio = null;
+  // Why the last voice call came back empty, so the page can tell a leader who
+  // has no voice yet from a voice that failed on the way, and so the console
+  // names it either way. Every one of these used to be the same silent null.
+  var lastVoiceStatus = 0;
   function fetchVoice(said) {
     var payload = said ? { agent: AGENT, text: said } : { agent: AGENT };
+    lastVoiceStatus = 0;
     return fetch(VOICE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).then(function (res) { return res.ok ? res.blob() : null; }).catch(function () { return null; });
+    }).then(function (res) {
+      if (res.ok) return res.blob();
+      lastVoiceStatus = res.status;
+      console.error('[leadership-agent] voice for ' + AGENT + ' came back ' + res.status);
+      return null;
+    }).catch(function (err) {
+      console.error('[leadership-agent] voice for ' + AGENT + ' failed', err);
+      return null;
+    });
   }
   function playBlob(blob) {
     return new Promise(function (resolve) {
       if (audio) { try { audio.pause(); } catch (_) {} }
       audio = new Audio(URL.createObjectURL(blob));
       audio.onended = resolve;
-      audio.onerror = resolve;
-      audio.play().catch(resolve);
+      audio.onerror = function (err) {
+        console.error('[leadership-agent] audio would not play', err);
+        resolve();
+      };
+      audio.play().catch(function (err) {
+        console.error('[leadership-agent] play was refused', err);
+        resolve();
+      });
     });
   }
   var playBioBtn = document.getElementById('playBio');
@@ -430,7 +453,7 @@ var ORDER = ['roosevelt', 'curie', 'wooden', 'perkins', 'gandhi', 'csking', 'mlk
         portrait.classList.remove('is-speaking');
         playBioBtn.disabled = false;
         stopBioBtn.style.display = 'none';
-        playBioBtn.textContent = 'No voice configured yet';
+        playBioBtn.textContent = lastVoiceStatus === 409 ? 'No voice configured yet' : 'The voice did not load';
         setTimeout(function () { playBioBtn.innerHTML = playBioBtnLabel; }, 1800);
         return;
       }
@@ -507,10 +530,38 @@ var ORDER = ['roosevelt', 'curie', 'wooden', 'perkins', 'gandhi', 'csking', 'mlk
   var busy = false;
   var scales = null;
 
+  /* A leader can now hand a student a web address (see leadership-chat.js's
+     source rules), so an address in a reply becomes something a student can
+     actually click. Built out of text nodes and one anchor at a time, never
+     innerHTML, because the text here comes back from a model and a page that
+     pastes model output into markup is a page waiting to be told to. */
+  var LINK_RE = /\b(?:https?:\/\/|www\.)[^\s<>()\[\]"']+/gi;
+  function appendLinked(parent, text) {
+    var s = String(text == null ? '' : text);
+    var re = new RegExp(LINK_RE.source, 'gi');
+    var last = 0;
+    var m;
+    while ((m = re.exec(s)) !== null) {
+      // Trailing punctuation belongs to the sentence, not to the address.
+      var raw = m[0].replace(/[.,;:!?'")\]]+$/, '');
+      if (!raw) { re.lastIndex = m.index + m[0].length; continue; }
+      if (m.index > last) parent.appendChild(document.createTextNode(s.slice(last, m.index)));
+      var a = document.createElement('a');
+      a.href = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
+      a.textContent = raw;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      parent.appendChild(a);
+      last = m.index + raw.length;
+      re.lastIndex = last;
+    }
+    if (last < s.length) parent.appendChild(document.createTextNode(s.slice(last)));
+  }
+
   function bubble(role, text) {
     var d = document.createElement('div');
     d.className = 'bubble ' + (role === 'you' ? 'bubble--you' : 'bubble--her');
-    d.textContent = text;
+    appendLinked(d, text);
     logEl.appendChild(d);
     logEl.scrollTop = logEl.scrollHeight;
     return d;
