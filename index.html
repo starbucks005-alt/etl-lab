@@ -22,14 +22,16 @@
      /favicon.ico at the root, which is the Founder Studio mark, gold on black.
      Not ETL either way.
 
-     WHAT IS NOT KNOWN is where her phone drew the Almost Human mark from.
-     Nothing in this repository serves an AH icon for the front page: the AH
-     icons are named only by almost-human.html and its own manifest, and that
-     manifest is scoped to /almost-human.html. Almost Human sits on this same
-     domain, so the rest of that answer is on the phone, not in here. What
-     would settle it: whether the AH mark shows on the browser tab itself or
-     only in the row of icons at the bottom of her screen, and whether she has
-     Almost Human saved to that phone as an app.
+     THE AH MARK IS A SEPARATE THING AND IT IS NOT SETTLED. No page here
+     serves an AH icon for the front page: those icons are named only by
+     almost-human.html and its own manifest, which is scoped to
+     /almost-human.html. But .well-known/assetlinks.json hands the Almost
+     Human Android app handle_all_urls on this whole domain, every address on
+     it, this page included. If that app is on the phone, Android can open an
+     ETL link inside it, and then the phone is showing AH because AH is the
+     app that is running. Which paths that app actually claims is decided
+     inside the app, and the app is not in this repository, so this is where
+     the trail stops from here.
 
      favicon_etl_512.png has a transparent background, which a home screen
      fills in with a colour of its own choosing, so etl-apple-180.png is the

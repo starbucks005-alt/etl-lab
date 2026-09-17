@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ETL">
+  <!-- The ETL mark as a browser tab icon. Ten pages have named this file since
+       before 2026-09-08 and it was never in the repository, so every one of them
+       fell back to /favicon.ico, which is the Founder Studio mark.
+       Same three bars and same colours as brand/etl-mark.svg. The difference is
+       the white tile underneath: the bars are near black, and a tab strip in
+       dark mode would have swallowed them. -->
+  <rect width="64" height="64" rx="10" fill="#ffffff"/>
+  <rect x="6" y="42" width="36" height="11" fill="#16202b"/>
+  <rect x="14" y="26" width="36" height="11" fill="#16202b"/>
+  <rect x="22" y="10" width="36" height="11" fill="#28527a"/>
+</svg>
