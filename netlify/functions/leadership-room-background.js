@@ -17,7 +17,7 @@ const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
 const {
   AGENTS, TOOLS, DELIVER_REPLY_TOOL, extractDeliverReply, extractPlainText,
-  executeTool, cleanDashes, MODEL, safeVisitorId, fetchVisitorMemory, saveVisitorMemory,
+  executeTool, cleanDashes, straightenVoice, MODEL, safeVisitorId, fetchVisitorMemory, saveVisitorMemory,
 } = require('./leadership-chat.js');
 const engine = require('./_leadership-engine.js');
 
@@ -159,7 +159,9 @@ async function runCascade(activeAgents, transcript, visitorName, visitorId, serv
       continue;
     }
     if (!turn || !turn.text) continue;
-    const replyText = cleanDashes(turn.text);
+    // Same check the 1:1 chat runs, so a leader does not sound like a machine
+    // at the table and like themselves in their own room.
+    const replyText = await straightenVoice(client, agent.name, cleanDashes(turn.text));
 
     const entry = { speaker, name: agent.name, content: replyText };
     transcript.push(entry);

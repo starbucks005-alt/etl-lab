@@ -318,6 +318,70 @@ const FORMAT_RULES = [
 // conversation without claiming they actually met.
 const ROOM_PREMISE_NOTE = 'One thing about this classroom: when you appear in the group table with other leaders from this course, you are very likely meeting leaders from a different era, place, or movement than your own, most of whom you never knew in real life. Treat this as an accepted device of the room, the way a classroom discussion or museum exhibit can put historical figures in conversation for the sake of comparison, and rely on your own ROOM DYNAMICS guidance below for exactly which connections are real and which are not. Never invent a meeting, correspondence, or relationship that the historical record does not support.';
 
+/* HOW THEY SOUND. Added 2026-09-17, after Dr. O sat in her own class and heard the
+   machine in the leaders' mouths. What she wrote down, verbatim, is the whole
+   specification for this block:
+
+     "That is not a small thing"
+     "I want to say one thing plainly,"
+     "I am going to say plainly what the others have said with more patience
+      than I sometimes have."
+     "I have lived close enough to it to call it plainly."
+     "plainest language I know how to use."
+     "You walk in, you speak plainly, and you make"
+     "I want to sit with it for a moment"
+
+   Taking the word out of the prompts was not enough, and it was never going to
+   be: half of those lines are not about a word at all. They are a shape. The
+   speaker announces the sentence, then says it. Or denies a thing, then
+   affirms it. Both are how an essay talks, and a graduate student can hear it
+   in two sentences.
+
+   Ported from My Echo's NOT_A_BRIEFING, which was written for the same
+   complaint about somebody's mother and is the one rule in that repository
+   appended after every persona branch so no agent can be built without it.
+   Same here: the loop below attaches it to all thirteen, and the test fails if
+   one ever slips out.
+
+   A prompt is a request, not a guarantee, so straightenVoice() further down
+   checks the finished line on the way out of the room. */
+const NOT_A_BRIEFING = [
+  '',
+  'HOW YOU SOUND, AND THIS COMES AFTER EVERYTHING ABOVE',
+  'Everything above is who you are. This is how the words come out. A room of graduate students '
+    + 'hears a machine in two sentences, and what gives it away is the shape of the sentence, not any fact in it.',
+  '',
+  'SAY THE THING. Never announce that you are about to say it.',
+  '  Say: "The fire changed the whole direction of my life."',
+  '  Never: "I want to say one thing plainly. The fire changed the whole direction of my life."',
+  '  Never: "I am going to say what the others have said, with less patience than they had."',
+  '  Never: "I want to sit with that for a moment."',
+  'A run-up is a delay. Nobody who actually has something to say needs one.',
+  '',
+  'NEVER THE WORD PLAINLY, in any form: plainly, plainest, plain language, plain-spoken, speaking plainly, '
+    + 'calling it plainly. Say it straight, say it outright, or just say the thing itself. That word is the '
+    + 'clearest single mark of a machine having written the sentence, and students have already heard it here.',
+  '',
+  'DO NOT SAY WHAT A THING IS NOT AND THEN SAY WHAT IT IS.',
+  '  Say: "It cost me my health, and it cost my daughter hers."',
+  '  Never: "That is not a small thing."',
+  '  Never: "It was not just a hard year, it was the year everything changed."',
+  'Denying something in order to affirm it is an essay\'s move. It is not a person\'s.',
+  '',
+  'Also stay away from:',
+  '- "that is not a small thing", "that is not nothing", "no small thing"',
+  '- three things in a list where two would do',
+  '- genuinely, precisely, quietly, deliberately, simply, as words of emphasis',
+  '- "what matters is", "the point is", "the truth is", "here is the thing"',
+  '- summing up at the end what you have just finished saying',
+  '- a sentence built as two halves balanced against each other, UNLESS that is genuinely your own '
+    + 'documented rhetoric. King, Sojourner Truth and Gandhi really did speak in antithesis and it is theirs '
+    + 'to use. If it is not in your own record, it is the machine\'s habit and not your voice.',
+  '',
+  'Real speech repeats itself, wanders, arrives at the point late, and leaves things half said. You are '
+    + 'allowed all of that. Two sentences that sound like you beat five that sound like a briefing.',
+].join('\n');
+
 /* GIVING A STUDENT SOMETHING TO OPEN. Added 2026-09-17, because students in
    PTX 7006 are asking these leaders for websites and papers and they had no
    way to hand one over.
@@ -950,8 +1014,127 @@ Object.keys(AGENTS).forEach((key) => {
   const ownBlock = own && own.length
     ? '\n\nYOUR OWN RECORD, THE ADDRESSES ARE EXACT\n' + own.map((line) => '- ' + line).join('\n')
     : '\n\nYOUR OWN RECORD\nNo permanent address has been verified for your own papers yet, so name the work itself and do not offer a link for it.';
-  AGENTS[key].system += '\n\n' + SOURCE_RULES + ownBlock;
+  AGENTS[key].system += '\n\n' + SOURCE_RULES + ownBlock + '\n' + NOT_A_BRIEFING;
 });
+
+/* THE LINE ON THE WAY OUT.
+
+   NOT_A_BRIEFING tells a leader how to sound. This checks whether it worked,
+   because a prompt is a request and Dr. O heard the answer to that request in
+   a live class. Two stages, cheapest first:
+
+   1. The scrub, which is deterministic and free. An announcement in front of a
+      sentence ("I want to say one thing plainly, ...") and a sentence that
+      carries nothing ("That is not a small thing.") can both be cut without
+      touching a single word the leader actually said. Most turns end here.
+   2. The repair, one fast model call, ONLY when something a regular expression
+      cannot safely fix is still in the line, the word itself above all. It
+      never runs on a clean turn, which is nearly all of them, so it costs
+      nothing in the ordinary case and about a second in the bad one.
+
+   The repair is the risky half, so it is fenced: the rewrite is kept only if
+   it is close to the same length, still carries every web address character
+   for character (a leader now hands students real sources, and a rewrite that
+   quietly bends a URL is worse than the tic), and actually contains fewer
+   tics than what went in. Anything else, the scrubbed line stands. */
+const VOICE_MODEL = 'claude-haiku-4-5-20251001';
+
+// Cut from the front. Each one is a run-up to a sentence, never the sentence.
+const PREAMBLES = [
+  /^\s*(?:and\s+)?i (?:want|need) to say (?:one thing|something|this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
+  /^\s*(?:and\s+)?(?:i am|i'm) going to say (?:one thing|something|this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
+  /^\s*let me (?:say|put) (?:this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
+  /^\s*i will say (?:this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
+  /^\s*let me be (?:direct|blunt|honest)\b[^.,;:!?]*[,.;:]\s*/i,
+];
+
+// Whole sentences that say nothing, dropped wherever they sit.
+const FILLER_SENTENCES = [
+  /^that is not a small thing[.!]?$/i,
+  /^that is not nothing[.!]?$/i,
+  /^and that is not a small thing[.!]?$/i,
+  /^i want to sit with (?:it|that|this)(?: for a moment)?[.!]?$/i,
+  /^let me sit with (?:it|that|this)(?: for a moment)?[.!]?$/i,
+];
+
+// What the scrub cannot fix without rewriting the sentence around it.
+const REMAINING_TICS = [
+  /\bplain(?:ly|est)\b/i,
+  /\bplain[- ]spoken\b/i,
+  /\bplain language\b/i,
+  /\b(?:is|was) not a small thing\b/i,
+  /\bno small thing\b/i,
+  /\bwhat matters is\b/i,
+  /\bthe point is\b/i,
+  /\bhere is the thing\b/i,
+  /\bsit with (?:it|that|this)\b/i,
+];
+
+function ticCount(text) {
+  return REMAINING_TICS.reduce((n, re) => n + (re.test(text) ? 1 : 0), 0);
+}
+
+function urlsIn(text) {
+  return String(text).match(/https?:\/\/[^\s,)"']+/gi) || [];
+}
+
+function scrubVoice(text) {
+  let out = String(text || '').trim();
+  for (let pass = 0; pass < 2; pass++) {
+    const before = out;
+    PREAMBLES.forEach((re) => { out = out.replace(re, ''); });
+    if (out !== before) {
+      // The sentence it was stalling now starts the line, so it starts with a capital.
+      out = out.charAt(0).toUpperCase() + out.slice(1);
+    } else break;
+  }
+  const sentences = out.match(/[^.!?]+[.!?]*\s*/g) || [out];
+  const kept = sentences.filter((raw) => {
+    const t = raw.trim();
+    return !t || !FILLER_SENTENCES.some((re) => re.test(t));
+  });
+  return kept.join('').replace(/\s{2,}/g, ' ').trim() || String(text || '').trim();
+}
+
+/* What the repair model is told. Pulled out and named because, like
+   NOT_A_BRIEFING, it has to say the word in order to forbid it, and
+   tests/leadership-voice-tics.test.js cuts both blocks out before it counts
+   what the leaders are actually given to say. */
+const VOICE_REPAIR_BRIEF = (speakerName) => [
+  'Below is one line of spoken dialogue from ' + speakerName + ' in a graduate seminar. ',
+  'It carries a machine habit a student can hear. Edit ONLY that, and change nothing else.',
+  '',
+  'Take out: the word plainly in any form (plainly, plainest, plain language, plain-spoken); any ',
+  'announcement that they are about to say something, so that the sentence itself starts the line; any ',
+  'phrase that says what a thing is not in order to say what it is; "that is not a small thing", ',
+  '"what matters is", "the point is", "sit with it".',
+  '',
+  'Keep every fact, every name, every number and every web address exactly as written, character ',
+  'for character. Keep the speaker\'s voice and roughly the same length. Add nothing. Do not ',
+  'explain. Return only the edited line, with no quotation marks around it.',
+].join('');
+
+async function straightenVoice(client, speakerName, text) {
+  const scrubbed = scrubVoice(text);
+  const before = ticCount(scrubbed);
+  if (!before || !client) return scrubbed;
+  try {
+    const msg = await client.messages.create({
+      model: VOICE_MODEL,
+      max_tokens: 600,
+      messages: [{ role: 'user', content: VOICE_REPAIR_BRIEF(speakerName) + '\n\nLINE:\n' + scrubbed }],
+    });
+    const rewritten = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
+    if (!rewritten) return scrubbed;
+    if (rewritten.length < scrubbed.length * 0.5 || rewritten.length > scrubbed.length * 1.5) return scrubbed;
+    const kept = urlsIn(scrubbed);
+    if (kept.some((u) => rewritten.indexOf(u) === -1)) return scrubbed;
+    return ticCount(rewritten) < before ? rewritten : scrubbed;
+  } catch (err) {
+    console.error('[leadership-chat] voice repair failed (non-fatal):', err && err.message);
+    return scrubbed;
+  }
+}
 
 // Returns { text, felt }. felt is the deliver_reply tool's emotion reading
 // (null if the model never called it, which the emotion engine treats as no
@@ -1129,7 +1312,7 @@ exports.handler = async (event) => {
   const decayedScales = engine.decayEmotions(body.scales, agentId);
   const nextScales = engine.applyTurn(decayedScales, output.felt, agentId, engine.SMOOTHING);
 
-  const cleaned = cleanDashes(output.text);
+  const cleaned = await straightenVoice(client, agent.name, cleanDashes(output.text));
   return json(200, {
     ok: true,
     body: cleaned,
@@ -1167,6 +1350,9 @@ module.exports.extractDeliverReply = extractDeliverReply;
 module.exports.extractPlainText = extractPlainText;
 module.exports.executeTool = executeTool;
 module.exports.cleanDashes = cleanDashes;
+module.exports.scrubVoice = scrubVoice;
+module.exports.straightenVoice = straightenVoice;
+module.exports.ticCount = ticCount;
 module.exports.MODEL = MODEL;
 module.exports.safeVisitorId = safeVisitorId;
 module.exports.fetchVisitorMemory = fetchVisitorMemory;
