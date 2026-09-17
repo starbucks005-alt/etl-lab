@@ -550,7 +550,11 @@ var MAX_AGENTS = 6;
       // The endpoint passes the voice service's own status through, and that
       // number is the difference between a key, a quota and a wrong voice id.
       return res.json().catch(function () { return null; }).then(function (info) {
-        var why = info && info.upstream ? res.status + ', the voice service said ' + info.upstream : res.status;
+        var why = res.status;
+        if (info && info.upstream) {
+          why = res.status + ', the voice service said ' + info.upstream;
+          if (info.reason) why += ' ' + info.reason;
+        }
         voiceTrouble('The voices did not come back just now (' + why + '), so the table is on screen only. Everything else still works.');
         return null;
       });

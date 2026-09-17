@@ -122,7 +122,7 @@ exports.handler = async (event) => {
        quota) and 404 (the voice id) are three different jobs. The body itself
        stays in the log, since it can carry account detail nobody in a
        classroom needs to see. */
-    return jsonError(502, `tts upstream ${resp.status}`, resp.status);
+    return jsonError(502, `tts upstream ${resp.status}`, resp.status, upstreamReason(detail));
   }
 
   const buf = Buffer.from(await resp.arrayBuffer());
@@ -180,8 +180,26 @@ function audioResponse(buf, isReply) {
     isBase64Encoded: true,
   };
 }
-function jsonError(statusCode, message, upstream) {
-  const body = upstream ? { error: message, upstream } : { error: message };
+function jsonError(statusCode, message, upstream, reason) {
+  const body = { error: message };
+  if (upstream) body.upstream = upstream;
+  if (reason) body.reason = reason;
   return { statusCode, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+}
+
+/* The one word out of the voice service's refusal that says what to do about
+   it, and nothing else. A 401 is three different jobs: an invalid or expired
+   key, an account out of credit, or the service having blocked the account.
+   ElevenLabs names which in detail.status, so that token travels to the room
+   while the rest of the body, which can carry account detail, stays in the
+   log. Whitelisted to a bare token so no message text rides along with it. */
+function upstreamReason(body) {
+  try {
+    const parsed = JSON.parse(body);
+    const status = parsed && parsed.detail && parsed.detail.status;
+    return typeof status === 'string' && /^[a-z0-9_]{1,40}$/.test(status) ? status : '';
+  } catch (_) {
+    return '';
+  }
 }
 async function safeRead(resp) { try { return await resp.text(); } catch { return ''; } }
