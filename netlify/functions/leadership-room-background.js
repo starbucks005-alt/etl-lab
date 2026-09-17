@@ -43,6 +43,22 @@ function buildMessagesFor(agentKey, transcript) {
 // discretion, so the room doesn't lock into the same reply count every turn.
 async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forced) {
   const roster = activeAgents.map((k) => `${k}: ${AGENTS[k].name}, ${AGENTS[k].title}. ${AGENTS[k].tagline}`).join('\n');
+
+  /* WHO HAS NOT SPOKEN LATELY. Added 2026-09-17 with the table raised from six
+     seats to ten: with that many leaders sitting there, a director picking
+     purely on fit will keep returning to the same two or three, and a student
+     watching Sojourner Truth say nothing for twenty minutes has been given a
+     panel that does not include her. This is a nudge, not a rotation. Fit still
+     wins; it only breaks the tie, because a leader dragged into a question that
+     is not theirs is worse than a quiet one. */
+  const spokeRecently = new Set(
+    transcript.slice(-10).map((e) => e.speaker).filter((sp) => sp && sp !== 'visitor')
+  );
+  const quiet = activeAgents.filter((k) => !spokeRecently.has(k));
+  const quietNote = (quiet.length && quiet.length < activeAgents.length)
+    ? `\n\nWho has not spoken in the last while: ${quiet.map((k) => AGENTS[k].name).join(', ')}. `
+      + 'If two of them would answer this equally well, choose the one who has been quiet. Never choose somebody the question is not actually for.'
+    : '';
   const transcriptText = transcript.slice(-16).map((e) => `${e.name}: ${e.content}`).join('\n');
   const instruction = beatIndex === 0
     ? 'The visitor just said something new. Pick whoever at the table would naturally respond first, given their real personality and the substance of what was just asked.'
@@ -50,7 +66,7 @@ async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forc
       ? 'Someone else at this table comes in now. Pick whoever has the strongest real reason to respond to what was just said, whether that is agreement, a sharp disagreement across two different leadership philosophies, or their own experience of the same problem.'
       : 'Judge this moment honestly: two voices have already spoken and often that is a whole exchange, sometimes a third genuinely cannot let it stand. Only pick a name if that person would really have something to say about what the LAST person just said.';
   const prompt = `You're directing a real conversation among a small group of historical leaders gathered for a graduate leadership seminar, actually talking to each other and to one visitor, not taking turns answering the visitor one at a time. People at the table:\n${roster}\n\n` +
-    `Recent conversation:\n${transcriptText}\n\n${instruction}` +
+    `Recent conversation:\n${transcriptText}\n\n${instruction}${quietNote}` +
     (forced ? ' Pick exactly one agent key from the roster above.' : ' Pick exactly one agent key from the roster above, or "none" if nobody would genuinely add anything right now.');
 
   const enumValues = forced ? [...activeAgents] : [...activeAgents, 'none'];

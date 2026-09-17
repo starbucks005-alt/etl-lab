@@ -3,7 +3,7 @@
 
    POST /.netlify/functions/leadership-table-open
    Body: {
-     active_agents: string[]   -- 2..MAX_ROOM_AGENTS leaders already at the table
+     active_agents: string[]   -- 2..10 leaders already at the table
      display_name?, visitor_id?
      seed?: [{speaker, name, content}]   -- a table already in progress
      agent_state?: { [agentKey]: { scales } }
@@ -35,7 +35,7 @@ const {
 } = require('./_leadership-table.js');
 
 const MIN_AGENTS = 2;
-const MAX_ROOM_AGENTS = 6;   // matches leadership-room.js
+const MAX_ROOM_AGENTS = 10;  // matches leadership-room.js: the whole table may sit
 const MAX_SEED = 24;
 
 /* The leaders' feelings, carried in when a solo table becomes a shared one.

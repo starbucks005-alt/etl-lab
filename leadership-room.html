@@ -261,7 +261,7 @@ a:hover { color: var(--green); }
   </div>
 
   <div class="picker" id="picker">
-    <p class="picker-hint">Choose 2 to 6.</p>
+    <p class="picker-hint">Choose 2 or more, up to all ten.</p>
     <div class="picker-grid" id="pickerGrid"></div>
     <div class="picker-foot">
       <span class="picker-count" id="pickerCount">0 selected</span>
@@ -332,7 +332,11 @@ var ROSTER = [
 ];
 var PORTRAIT_EXT = { roosevelt: 'jpg', curie: 'jpg', wooden: 'jpg', perkins: 'jpg', gandhi: 'jpg', csking: 'jpg', mlk: 'jpg', tubman: 'jpg', shackleton: 'jpg', truth: 'jpg' };
 var MIN_AGENTS = 2;
-var MAX_AGENTS = 6;
+/* All ten, because Dr. O counted: "I could bring in 6 leaders, and I have 6
+   female leaders, don't make me choose." Six was never a limit of the cascade,
+   which answers in two or three voices a turn whoever is sitting there. It was
+   a number copied from the room next door. */
+var MAX_AGENTS = 10;
 
 (function () {
   var ROOM_URL = '/.netlify/functions/leadership-room';

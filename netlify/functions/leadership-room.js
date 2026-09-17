@@ -31,7 +31,10 @@ function json(status, obj) {
   return { statusCode: status, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(obj) };
 }
 
-const MAX_ROOM_AGENTS = 6;
+// All ten leaders may sit down. The cascade answers in two or three voices a
+// turn regardless, so the cost of a full table is the roster in the director's
+// prompt, not a longer wait.
+const MAX_ROOM_AGENTS = 10;
 
 function newJobId() {
   const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
