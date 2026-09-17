@@ -218,7 +218,7 @@ function format(date, time, sun, obs, sunError, obsError) {
       'Civil dusk is the threshold that matters for whether a person can make out detail outdoors without artificial light. After it, unaided identification at distance is not reliable.'
     );
   } else {
-    out.push(`Sun: lookup failed (${sunError}). Do not state a sunset or twilight time. Say plainly that you could not verify it.`);
+    out.push(`Sun: lookup failed (${sunError}). Do not state a sunset or twilight time. Say that you could not verify it.`);
   }
 
   if (obs) {
@@ -232,7 +232,7 @@ function format(date, time, sun, obs, sunError, obsError) {
     if (obs.weatherCodes) bits.push(`present weather ${obs.weatherCodes}`);
     out.push(`Observed at Dayton International, reported ${obs.observedAt}${obs.minutesFromTarget > 15 ? ` (the nearest report, ${obs.minutesFromTarget} minutes off)` : ''}: ${bits.join(', ') || 'no usable elements in that report'}.`);
   } else {
-    out.push(`Observed conditions: lookup failed (${obsError}). Do not state a cloud cover or visibility. Say plainly that you could not verify it.`);
+    out.push(`Observed conditions: lookup failed (${obsError}). Do not state a cloud cover or visibility. Say that you could not verify it.`);
   }
 
   out.push(
@@ -254,7 +254,7 @@ async function getConditions(date, time) {
   const obsError = obsRes.status === 'rejected' ? String(obsRes.reason && obsRes.reason.message || obsRes.reason) : null;
 
   if (!sun && !obs) {
-    return `Could not reach either record for ${date} at ${time} (${sunError}; ${obsError}). Say plainly that you could not verify the conditions, and do not state a time or a sky condition you have not checked.`;
+    return `Could not reach either record for ${date} at ${time} (${sunError}; ${obsError}). Say that you could not verify the conditions, and do not state a time or a sky condition you have not checked.`;
   }
   return format(date, time, sun, obs, sunError, obsError);
 }

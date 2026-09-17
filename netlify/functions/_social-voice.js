@@ -40,7 +40,7 @@ function firstNameOf(fullName) {
 function buyerVoiceCore(ownerName, companyName) {
   const who = ownerName || 'the site owner';
   return [
-    'BASELINE VOICE: you are writing AS ' + who + (companyName ? (', who runs ' + companyName) : '') + '. Confident, direct, first person. Short declarative sentences. State the real thing plainly instead of hedging.',
+    'BASELINE VOICE: you are writing AS ' + who + (companyName ? (', who runs ' + companyName) : '') + '. Confident, direct, first person. Short declarative sentences. State the real thing instead of hedging.',
     '',
     /* WRITING IN THE FIRST PERSON MEANS EVERY DETAIL IS A CLAIM THEY MADE.
        ─────────────────────────────────────────────────────────────────────

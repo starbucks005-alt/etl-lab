@@ -229,7 +229,7 @@ function buildTurnNote(position, answeredSoFar, targeted, opening, capped) {
       : (() => {
           const who = spoke.map((a) => a.name);
           const named = who.length === 1 ? who[0] : who.slice(0, -1).join(', ') + ' and ' + who[who.length - 1];
-          return `YOUR TURN. ${named} just pitched, directly above. Give YOUR own read now: build on it where your lane agrees, push back plainly where it does not. Do not just agree, welcome, or repeat what was said. Everyone speaks on this turn, so an empty reply is not valid here.`;
+          return `YOUR TURN. ${named} just pitched, directly above. Give YOUR own read now: build on it where your lane agrees, push back where it does not. Do not just agree, welcome, or repeat what was said. Everyone speaks on this turn, so an empty reply is not valid here.`;
         })();
   } else if (targeted) {
     note = 'YOUR TURN. The client addressed this to YOU specifically, by name. The others are not answering this one. Answer it directly.';
@@ -242,7 +242,7 @@ function buildTurnNote(position, answeredSoFar, targeted, opening, capped) {
       `YOUR TURN. ${named} just answered this same message, directly above. Your job is to ADD, never to restate.\n` +
       '- If you have nothing your own lane can add, return an empty string for reply. You will simply not speak this turn, and that is a normal, good outcome.\n' +
       '- Agreeing, echoing, or thanking is NOT an answer. If that is all you have, return the empty string.\n' +
-      '- If you disagree with something a teammate just said, say so plainly and say why, by name.\n' +
+      '- If you disagree with something a teammate just said, say so and say why, by name.\n' +
       '- You are adding, not answering from scratch, so one sentence is often the right length.';
   }
 

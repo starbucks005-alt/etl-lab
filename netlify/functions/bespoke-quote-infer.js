@@ -66,7 +66,7 @@ exports.handler = async (event) => {
 
 "${description}"
 
-Based ONLY on what they actually described, suggest calculator parameters using the suggest_build tool. Do not invent scope they did not describe or imply. If the description is vague about agent count, pick a reasonable, defensible default for the scale implied and say so plainly in your reasoning rather than guessing wildly high or low. Write the reasoning in plain sentences with commas or periods; never use an em dash or en dash.`;
+Based ONLY on what they actually described, suggest calculator parameters using the suggest_build tool. Do not invent scope they did not describe or imply. If the description is vague about agent count, pick a reasonable, defensible default for the scale implied and say so in your reasoning rather than guessing wildly high or low. Write the reasoning in plain sentences with commas or periods; never use an em dash or en dash.`;
 
   try {
     const msg = await client.messages.create({

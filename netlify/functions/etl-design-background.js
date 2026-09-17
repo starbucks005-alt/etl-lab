@@ -513,7 +513,7 @@ exports.handler = async (event) => {
     // so the palette, the type and the layout are the ones she specified
     // rather than a deck tool's approximation of them (2026-07-30).
     if (renderLoadError) {
-      // Steps 1 to 3 already landed and are worth having. Say plainly that the
+      // Steps 1 to 3 already landed and are worth having. Say that the
       // picture is missing rather than failing the job the client just waited
       // through, and charge nothing for it.
       await save({ result: Object.assign(state.result, { image_error: renderLoadError }) });
@@ -700,7 +700,7 @@ exports.handler = async (event) => {
            problem unaided (2026-08-01). */
         'ABOUT TO HAPPEN, NOT HAPPENING. Build anticipation, not activity. Stillness over motion, waiting over doing, arrangement over interaction. People spaced a little too evenly, close together but not engaging, looking at slightly different things, none of them meeting each other\'s eyes. A group portrait nobody agreed to pose for. Avoid laughter, chatter, mid-gesture warmth and anything that reads as a nice moment.',
         'THE FRAME MUST BE STRANGE ON ITS OWN. There is no episode, no voiceover and no caption to explain this picture. A viewer sees it for one second while scrolling and must feel that something is wrong without being told what. A scene that only becomes unsettling once somebody explains it has failed. Never solve it with a glow, an aura, a rim light or a lit-up face: that is decoration standing in for an idea, and it reads as an effect applied afterwards rather than something true inside the frame.',
-        'MATCH THE CLIENT\'S OWN VISUAL WORLD. The mood line above was read off their real photography. Shoot in that world: the same kind of place, the same light, the same sort of people, framed the same way. An ORDINARY scene in which something is deeply wrong is far stronger than a dark one that announces itself. Ordinary is not the same as warm: warmth, laughter and a nice moment kill the effect outright, and a scene can be plainly lit and completely still at the same time.',
+        'MATCH THE CLIENT\'S OWN VISUAL WORLD. The mood line above was read off their real photography. Shoot in that world: the same kind of place, the same light, the same sort of people, framed the same way. An ORDINARY scene in which something is deeply wrong is far stronger than a dark one that announces itself. Ordinary is not the same as warm: warmth, laughter and a nice moment kill the effect outright, and a scene can be simply lit and completely still at the same time.',
         'DEPICT THE IDEA, NOT THE NOUNS. Do not illustrate the words of the brief object by object. Work out what this business actually IS and show that. If a prop would make a viewer file this under the wrong category, it is the wrong prop, however well it matches the wording.',
         'Absolutely NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks anywhere in the image.',
         // Asking for "no text" is not enough on its own: gpt-image-1 wrote
@@ -736,7 +736,7 @@ exports.handler = async (event) => {
            IMPOSSIBLE FACT that could only be about this technology. That is
            how the future gets shown without equipment (2026-07-31). */
         'SIGNAL THE CATEGORY THE BUSINESS COMPETES IN. A technology business must not be drawn as a heritage one. No soft storybook pencil, no sepia, no antique or period styling, no nostalgic warmth standing in for emotion. Contemporary rendering, contemporary light, a confident modern hand.',
-        'SHOW WHAT ONLY THIS TECHNOLOGY MAKES POSSIBLE. Convey the future through an impossible or uncanny FACT in the picture, never through equipment: a person present and absent at once, one person in two places, a voice with no speaker, a presence with no body, a self meeting itself. Depict the impossible thing plainly and let it be the whole idea.',
+        'SHOW WHAT ONLY THIS TECHNOLOGY MAKES POSSIBLE. Convey the future through an impossible or uncanny FACT in the picture, never through equipment: a person present and absent at once, one person in two places, a voice with no speaker, a presence with no body, a self meeting itself. Depict the impossible thing simply and let it be the whole idea.',
         'BANNED VISUAL CLICHES, these read as stock AI and cheapen the piece: circuit boards, glowing brains, neural networks, robots, androids, humanoid machines, holograms, blue neon grids, binary, streaming data, wireframe or polygonal faces.',
         'Show the subject matter itself: materials, hands, texture, place, light, scale.',
         // Not a full-canvas wash. Asking for an even-toned background is how

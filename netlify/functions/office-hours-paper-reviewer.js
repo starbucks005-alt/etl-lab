@@ -95,7 +95,7 @@ You MUST return ONLY a JSON object with this exact shape, no prose before or aft
 {
   "summary": "<one to two sentences: what the paper claims and how>",
   "recommendation": "Accept" | "Minor revision" | "Major revision" | "Reject",
-  "recommendation_rationale": "<one to two sentences: why that recommendation, plainly>",
+  "recommendation_rationale": "<one to two sentences: why that recommendation>",
   "strengths": ["<strength 1>", "<strength 2>", ...],
   "major_concerns": ["<full numbered concern 1>", "<full numbered concern 2>", ...],
   "minor_concerns": ["<minor concern 1>", ...],

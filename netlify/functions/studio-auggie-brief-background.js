@@ -357,7 +357,7 @@ exports.handler = async (event) => {
     '3. Any upcoming speaking engagements, conference appearances, or panels where she is listed in the next 90 days.',
     '4. Recent news in AI governance, federal AI policy, biodefense, research security, counter-terrorism, intelligence community, or her active initiatives (MPSA traction, Gandhi-King Dayton-Dubai $150M corridor, NSF research-on-research security).',
     '',
-    'Then write the morning brief as Ms. Terry would hear it from you. One continuous monologue, in your voice, 200-340 words. Order: opening with a tiny scene-set + digression, then the inbox if anything is there, then anything about HER (mentions, Forbes, speaking), then field news, then close with one small recommendation or question. Cite source names + dates in plain language. If you found nothing fresh about HER AND no new inbox, say so plainly and still cover the field news.',
+    'Then write the morning brief as Ms. Terry would hear it from you. One continuous monologue, in your voice, 200-340 words. Order: opening with a tiny scene-set + digression, then the inbox if anything is there, then anything about HER (mentions, Forbes, speaking), then field news, then close with one small recommendation or question. Cite source names + dates in plain language. If you found nothing fresh about HER AND no new inbox, say so and still cover the field news.',
     '',
     'Return ONLY the monologue text. No headers. No bullet points. No JSON. Just the words Auggie would speak.',
   ].join('\n');

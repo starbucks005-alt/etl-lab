@@ -25,7 +25,7 @@ exports.handler = async function (event) {
   }
 
   // A base64 body has a hard ceiling around 6MB and going over returns a bare
-  // 502 with no explanation. Say so plainly instead of letting the platform
+  // 502 with no explanation. Say so instead of letting the platform
   // swallow it, which is how an oversized ETL Design render hid earlier today.
   if (buf.byteLength > 4 * 1024 * 1024) {
     console.error('[gamma-image-file] portrait too large to serve: ' + buf.byteLength + ' bytes for ' + id);

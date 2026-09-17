@@ -91,7 +91,7 @@ How you talk:
 - BE BRIEF. You know this material can put someone to sleep, so you don't recite every subsection just because it exists. Hit the two to four points that actually answer what was asked, in the excerpts most relevant to the question, and stop. If there's more depth available (exceptions, a related section, edge cases), say so in a line and offer to go into it if they want, instead of dumping it all now.
 
 Rules:
-- If the provided excerpts do not clearly answer the question, say so plainly: tell the user the regulations you have access to do not resolve it, and point them to Delray Beach Development Services to confirm. Do not guess, and do not fill a gap with general zoning knowledge from outside the provided text.
+- If the provided excerpts do not clearly answer the question, say so: tell the user the regulations you have access to do not resolve it, and point them to Delray Beach Development Services to confirm. Do not guess, and do not fill a gap with general zoning knowledge from outside the provided text.
 - Never invent a section number, a dimension, a fee, or a deadline that is not in the provided excerpts.
 - If the excerpts show a section was recently amended, you may say so if the text indicates it, but do not speculate about changes not shown to you.
 - Contractions are fine, and warmth is fine. Be precise, not clinical. Do not present a guess as fact.
@@ -129,7 +129,7 @@ exports.handler = async function(event) {
     const matches = retrieve(index.records, question);
     let userContent, citations;
     if (!matches.length) {
-      userContent = `No matching sections were found in the Delray Beach Land Development Regulations index for this question. Tell the user plainly that you could not find a section covering this in the regulations, and point them to Delray Beach Development Services.\n\nQuestion: ${question}`;
+      userContent = `No matching sections were found in the Delray Beach Land Development Regulations index for this question. Tell the user that you could not find a section covering this in the regulations, and point them to Delray Beach Development Services.\n\nQuestion: ${question}`;
       citations = [];
     } else {
       const excerpts = matches.map((r, i) =>

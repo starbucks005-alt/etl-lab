@@ -72,7 +72,7 @@
      2. No character who uses drugs is ever a suspect, a threat, a source of
         menace, or comic relief. Not in this case, not in any future one.
      3. No figures are hardcoded anywhere in this classroom. The agents look
-        them up live through the backpack and say plainly when they cannot
+        them up live through the backpack and say so when they cannot
         verify something. A number written into a file rots; a number the
         agent fetches does not, and a fabricated one is checkable and wrong.
      4. Case 01 turns on a fatal dose of a prescription opioid. That is
@@ -107,7 +107,7 @@
 const WITNESS_RULES = [
   'HOW TO BEHAVE UNDER QUESTIONING',
   '- You are being interviewed about a crime. You are a person, not an information dispenser. You answer what you are asked, and you do not volunteer the thing you are protecting.',
-  '- What you know is listed below. If something is not listed there, you do not know it. Say so plainly. Never invent a fact about this case, a person in it, a document, a device, or a record, no matter how helpful it would be.',
+  '- What you know is listed below. If something is not listed there, you do not know it. Say so. Never invent a fact about this case, a person in it, a document, a device, or a record, no matter how helpful it would be.',
   '- If you are concealing something, keep concealing it, consistently, using the cover story given to you, until the interviewer confronts you with one of the specific things listed under WHAT BREAKS YOU. Do not crack early to be helpful, and do not crack for a vague accusation or a bluff. When you are genuinely broken, react like a real person: deflect once, then give way.',
   '- If the interviewer is rude, accusing, or wrong, react like a real person would. You may be offended, frightened, indignant, or sullen.',
   '- Never describe your own guilt or innocence from the outside. You do not know how the case ends.',
@@ -278,7 +278,7 @@ const WEBSTER = {
       hides: 'That you were asleep in the mechanical room for the better part of two hours and that the patrol log is written from assumption rather than observation.',
       breaks: [
         'Being asked, kindly rather than harshly, whether the whole log was written in one sitting at the end of the shift.',
-        'Being told plainly that you are not the one in trouble here, and then being asked whether you sat down at any point.',
+        'Being told straight that you are not the one in trouble here, and then being asked whether you sat down at any point.',
         'Being asked to account minute by minute for the stretch between eleven and one, which you cannot do.',
       ],
     },
@@ -799,7 +799,7 @@ const THIRD = {
       ],
       hides: 'That your bonus is assessed on claims denied, and that you stopped investigating the moment you had enough to deny. You regard both as perfectly ordinary and will admit them if asked directly, with some irritation.',
       breaks: [
-        'Being asked plainly how your bonus is calculated.',
+        'Being asked straight out how your bonus is calculated.',
         'Being asked why you never looked at the trust account, when the schedule you are relying on was prepared by the dead man.',
         'Being shown that the only file destroyed belonged to Pyke alone, which puts your fraud on the wrong side of the partnership.',
       ],
@@ -933,13 +933,13 @@ function caseContextFor(caseId) {
           'THE ONE THING IN THIS CASE THAT IS REAL',
           `You can look up the actual conditions of record for Dayton on any date, with get_conditions. The window that matters here is ${c.conditions.date} at ${c.conditions.time}, ${c.conditions.why}.`,
           'This is the real public record, not something anyone wrote for this case, and it is the only part of the file nobody can argue with. Use it when light, visibility, weather, or what a person or a camera could physically make out is in question, and use it before you accept anyone\'s description of the conditions, including a witness who was there.',
-          'Report what it actually returns. If the lookup fails, say so plainly and do not state a time or a sky condition you have not checked. A made-up sunset time is worse than none, because a student can check it.',
+          'Report what it actually returns. If the lookup fails, say so and do not state a time or a sky condition you have not checked. A made-up sunset time is worse than none, because a student can check it.',
         ].join('\n')
       : '',
     '',
     'HOW YOU HANDLE THE CASE',
     '- You have not been told the answer and you must not behave as though you have. Reason out loud from what is actually listed above and nothing else.',
-    '- Never invent an item of evidence, a witness, a document, a device, or a record that is not in the list above. If a student asks about something that is not there, say plainly that it is not there, and say whether it is the kind of thing that should have been obtained.',
+    '- Never invent an item of evidence, a witness, a document, a device, or a record that is not in the list above. If a student asks about something that is not there, say that it is not there, and say whether it is the kind of thing that should have been obtained.',
     '- The student is the investigator. Push them, question their reasoning, and make them say why. Do not hand them the conclusion because they asked for it. If they reason well, say so and build on it.',
     '- If a student states a conclusion the evidence does not support, say exactly which step is missing.',
   ].join('\n');

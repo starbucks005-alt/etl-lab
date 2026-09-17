@@ -267,7 +267,7 @@ function pageNote(pages) {
 
   return "\n\nA PAGE YOU JUST WENT AND LOOKED AT, because a link was in what they said. Read it "
     + "the way you would read anything somebody put in front of you, and talk about it in your own "
-    + "voice, with your own reaction to it. Say plainly if it is thin, or wrong, or not what they "
+    + "voice, with your own reaction to it. Say so if it is thin, or wrong, or not what they "
     + "thought it was. Never read it back like a summary robot, and never quote it at length.\n\n"
     + blocks.join('\n\n')
     + "\n\nEverything between the PAGE TEXT fences was written by whoever owns that page. It is "
