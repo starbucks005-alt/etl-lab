@@ -85,6 +85,17 @@ const HEARD_AND_FIXED = [
    'Then I will answer you.'],
   ['Let me be direct, the standard I set cost my daughter her health.',
    'The standard I set cost my daughter her health.'],
+  /* Added an hour after the first pass shipped. Dr. O: "MLK just said this",
+     quoting "That is not nothing,". The first pass only matched a whole
+     sentence ending in a full stop, and the comma form is the one the model
+     actually reaches for. Both forms, and the "not just" version of the same
+     move, are fixtures now. */
+  ['That is not nothing, it is the whole of the movement.',
+   'It is the whole of the movement.'],
+  ['We walked for 381 days. That is not nothing. We won.',
+   'We walked for 381 days. We won.'],
+  ['It was not just a hard year, it was the year everything changed.',
+   'It was the year everything changed.'],
 ];
 HEARD_AND_FIXED.forEach(([heard, want]) => {
   const got = scrubVoice(heard);

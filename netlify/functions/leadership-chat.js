@@ -1048,6 +1048,16 @@ const PREAMBLES = [
   /^\s*let me be (?:direct|blunt|honest)\b[^.,;:!?]*[,.;:]\s*/i,
 ];
 
+/* A denial standing in front of the real sentence, cut so the real sentence
+   starts. Added 2026-09-17, an hour after the first pass shipped, because MLK
+   said "That is not nothing," in her class and every pattern here missed it:
+   the filler list below only ever matched a whole sentence ending in a full
+   stop, and the comma form is the one the model actually reaches for. */
+const FILLER_CLAUSES = [
+  /^(?:and\s+)?(?:that|this|it|which) (?:is|was) not (?:nothing|a small thing)\s*,\s*/i,
+  /^(?:and\s+)?(?:that|this|it) (?:is|was) not (?:just|only|merely|simply)\b[^,.;:!?]*,\s*/i,
+];
+
 // Whole sentences that say nothing, dropped wherever they sit.
 const FILLER_SENTENCES = [
   /^that is not a small thing[.!]?$/i,
@@ -1062,8 +1072,14 @@ const REMAINING_TICS = [
   /\bplain(?:ly|est)\b/i,
   /\bplain[- ]spoken\b/i,
   /\bplain language\b/i,
-  /\b(?:is|was) not a small thing\b/i,
+  /\b(?:is|was|are|were) not a small thing\b/i,
+  /\bnot a small thing\b/i,
   /\bno small thing\b/i,
+  // The denial that exists to set up the affirmation. "That is not nothing,"
+  // and "it was not just a hard year, it was" are the same move, and both were
+  // missed by the first pass.
+  /\b(?:is|was|are|were) not nothing\b/i,
+  /\b(?:is|was|are|were) not (?:just|only|merely|simply)\b[^.!?]*,/i,
   /\bwhat matters is\b/i,
   /\bthe point is\b/i,
   /\bhere is the thing\b/i,
@@ -1089,10 +1105,22 @@ function scrubVoice(text) {
     } else break;
   }
   const sentences = out.match(/[^.!?]+[.!?]*\s*/g) || [out];
-  const kept = sentences.filter((raw) => {
-    const t = raw.trim();
-    return !t || !FILLER_SENTENCES.some((re) => re.test(t));
-  });
+  const kept = sentences
+    .filter((raw) => {
+      const t = raw.trim();
+      return !t || !FILLER_SENTENCES.some((re) => re.test(t));
+    })
+    .map((raw) => {
+      let t = raw;
+      FILLER_CLAUSES.forEach((re) => {
+        if (re.test(t.trimStart())) {
+          const lead = t.length - t.trimStart().length;
+          const cut = t.trimStart().replace(re, '');
+          t = t.slice(0, lead) + cut.charAt(0).toUpperCase() + cut.slice(1);
+        }
+      });
+      return t;
+    });
   return kept.join('').replace(/\s{2,}/g, ' ').trim() || String(text || '').trim();
 }
 
