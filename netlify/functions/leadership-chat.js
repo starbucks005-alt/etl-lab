@@ -1039,20 +1039,29 @@ Object.keys(AGENTS).forEach((key) => {
    tics than what went in. Anything else, the scrubbed line stands. */
 const VOICE_MODEL = 'claude-haiku-4-5-20251001';
 
-// Cut from the front. Each one is a run-up to a sentence, never the sentence.
+/* Cut from the front OF ANY SENTENCE, not just the front of the reply. Widened
+   2026-09-17 after Coretta Scott King opened her second sentence with "And I
+   want to say, what you have built here ...": the first version anchored on the
+   whole line, so a run-up in any sentence after the first sailed through.
+
+   Each pattern has to end on a comma or a colon, never a full stop. That is
+   deliberate: it means the cut always leaves a real sentence behind it. A
+   run-up that IS the whole sentence ("Let me be direct.") is handled as filler
+   below instead, where dropping it is safe. */
 const PREAMBLES = [
-  /^\s*(?:and\s+)?i (?:want|need) to say (?:one thing|something|this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
-  /^\s*(?:and\s+)?(?:i am|i'm) going to say (?:one thing|something|this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
-  /^\s*let me (?:say|put) (?:this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
-  /^\s*i will say (?:this|that|it)\b[^.,;:!?]*[,.;:]\s*/i,
-  /^\s*let me be (?:direct|blunt|honest)\b[^.,;:!?]*[,.;:]\s*/i,
+  /^(?:and |but |so |well )?i (?:want|need) to say(?: (?:one thing|something|this|that|it))?\b[^.,;:!?]*[,:]\s*/i,
+  /^(?:and |but |so |well )?(?:i am|i'm) going to say\b[^.,;:!?]*[,:]\s*/i,
+  /^(?:and |but |so |well )?i will say\b[^.,;:!?]*[,:]\s*/i,
+  /^(?:and |but |so |well )?let me (?:say|put|be)\b[^.,;:!?]*[,:]\s*/i,
+  /^what i (?:want|need) to say is\b[,:]?\s*/i,
+  /^(?:and |but |so |well )?i (?:want|need) to sit with (?:it|that|this)\b[^.,;:!?]*[,:]\s*/i,
 ];
 
+// Whole sentences that say nothing, dropped wherever they sit.
 /* A denial standing in front of the real sentence, cut so the real sentence
-   starts. Added 2026-09-17, an hour after the first pass shipped, because MLK
-   said "That is not nothing," in her class and every pattern here missed it:
-   the filler list below only ever matched a whole sentence ending in a full
-   stop, and the comma form is the one the model actually reaches for. */
+   starts. Added after MLK said "That is not nothing," in her class: the filler
+   list below only matches a whole sentence, and the comma form is the one the
+   model actually reaches for. */
 const FILLER_CLAUSES = [
   /^(?:and\s+)?(?:that|this|it|which) (?:is|was) not (?:nothing|a small thing)\s*,\s*/i,
   /^(?:and\s+)?(?:that|this|it) (?:is|was) not (?:just|only|merely|simply)\b[^,.;:!?]*,\s*/i,
@@ -1060,6 +1069,8 @@ const FILLER_CLAUSES = [
 
 // Whole sentences that say nothing, dropped wherever they sit.
 const FILLER_SENTENCES = [
+  /^(?:and |but |so |well )?let me be (?:direct|blunt|honest)[.!]?$/i,
+  /^(?:and |but |so |well )?i (?:want|need) to say (?:this|that|it|one thing|something)[.!]?$/i,
   /^that is not a small thing[.!]?$/i,
   /^that is not nothing[.!]?$/i,
   /^and that is not a small thing[.!]?$/i,
@@ -1095,33 +1106,36 @@ function urlsIn(text) {
 }
 
 function scrubVoice(text) {
-  let out = String(text || '').trim();
-  for (let pass = 0; pass < 2; pass++) {
-    const before = out;
-    PREAMBLES.forEach((re) => { out = out.replace(re, ''); });
-    if (out !== before) {
-      // The sentence it was stalling now starts the line, so it starts with a capital.
-      out = out.charAt(0).toUpperCase() + out.slice(1);
-    } else break;
-  }
-  const sentences = out.match(/[^.!?]+[.!?]*\s*/g) || [out];
-  const kept = sentences
-    .filter((raw) => {
-      const t = raw.trim();
-      return !t || !FILLER_SENTENCES.some((re) => re.test(t));
-    })
-    .map((raw) => {
-      let t = raw;
-      FILLER_CLAUSES.forEach((re) => {
-        if (re.test(t.trimStart())) {
-          const lead = t.length - t.trimStart().length;
-          const cut = t.trimStart().replace(re, '');
-          t = t.slice(0, lead) + cut.charAt(0).toUpperCase() + cut.slice(1);
-        }
-      });
-      return t;
-    });
-  return kept.join('').replace(/\s{2,}/g, ' ').trim() || String(text || '').trim();
+  const whole = String(text || '').trim();
+  /* Web addresses are taken out of the line before anything touches it and put
+     back at the end, untouched. Without this the sentence splitter reads the
+     dots in www.gutenberg.org as full stops and hands a student a link with
+     spaces in it, which is worse than any tic. Caught by the fence in
+     tests/leadership-voice-tics.test.js before it ever ran in a classroom. */
+  const links = [];
+  const masked = whole.replace(/\b(?:https?:\/\/|www\.)[^\s]+/gi, (url) => {
+    links.push(url);
+    return '\u0000' + (links.length - 1) + '\u0000';
+  });
+  const sentences = masked.match(/[^.!?]+[.!?]*\s*/g) || [masked];
+  const kept = [];
+  sentences.forEach((raw) => {
+    const trimmed = raw.trim();
+    if (!trimmed) return;
+    if (FILLER_SENTENCES.some((re) => re.test(trimmed))) return;
+    let body = trimmed;
+    for (let pass = 0; pass < 2; pass++) {
+      const before = body;
+      PREAMBLES.concat(FILLER_CLAUSES).forEach((re) => { body = body.replace(re, ''); });
+      if (body === before) break;
+      // The sentence the run-up was stalling now starts, so it starts capitalised.
+      body = body.charAt(0).toUpperCase() + body.slice(1);
+    }
+    if (body.trim()) kept.push(body.trim());
+  });
+  const out = kept.join(' ').replace(/\s{2,}/g, ' ').trim();
+  const restored = out.replace(/\u0000(\d+)\u0000/g, (_, i) => links[Number(i)]);
+  return restored || whole;
 }
 
 /* What the repair model is told. Pulled out and named because, like
@@ -1135,7 +1149,7 @@ const VOICE_REPAIR_BRIEF = (speakerName) => [
   'Take out: the word plainly in any form (plainly, plainest, plain language, plain-spoken); any ',
   'announcement that they are about to say something, so that the sentence itself starts the line; any ',
   'phrase that says what a thing is not in order to say what it is; "that is not a small thing", ',
-  '"what matters is", "the point is", "sit with it".',
+  '"that is not nothing", "what matters is", "the point is", "sit with it".',
   '',
   'Keep every fact, every name, every number and every web address exactly as written, character ',
   'for character. Keep the speaker\'s voice and roughly the same length. Add nothing. Do not ',

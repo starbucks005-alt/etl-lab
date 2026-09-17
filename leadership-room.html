@@ -543,10 +543,17 @@ var MAX_AGENTS = 6;
     }).then(function (res) {
       if (res.ok) return res.blob();
       console.error('[leadership-room] voice for ' + key + ' came back ' + res.status);
-      voiceTrouble(res.status === 409
-        ? 'That leader has no voice set up yet, so this one is on screen only.'
-        : 'The voices did not come back just now (' + res.status + '), so the table is on screen only. Everything else still works.');
-      return null;
+      if (res.status === 409) {
+        voiceTrouble('That leader has no voice set up yet, so this one is on screen only.');
+        return null;
+      }
+      // The endpoint passes the voice service's own status through, and that
+      // number is the difference between a key, a quota and a wrong voice id.
+      return res.json().catch(function () { return null; }).then(function (info) {
+        var why = info && info.upstream ? res.status + ', the voice service said ' + info.upstream : res.status;
+        voiceTrouble('The voices did not come back just now (' + why + '), so the table is on screen only. Everything else still works.');
+        return null;
+      });
     }).catch(function (err) {
       console.error('[leadership-room] voice for ' + key + ' failed', err);
       voiceTrouble('The voices could not be reached just now, so the table is on screen only. Everything else still works.');

@@ -96,6 +96,16 @@ const HEARD_AND_FIXED = [
    'We walked for 381 days. We won.'],
   ['It was not just a hard year, it was the year everything changed.',
    'It was the year everything changed.'],
+  /* Coretta Scott King, in Dr. O's own room, opening her SECOND sentence with
+     the run-up. The first version anchored on the whole reply, so anything
+     after the first full stop sailed through. */
+  ['Dr. Oroszi, it is good to be back at this table. And I want to say, what you have built here took vision.',
+   'Dr. Oroszi, it is good to be back at this table. What you have built here took vision.'],
+  // A run-up that is the whole sentence is dropped rather than cut.
+  ['Let me be direct. You did not prepare.', 'You did not prepare.'],
+  // And the dots inside a source link are not full stops.
+  ['And I want to say, the whole book is free at https://www.gutenberg.org/ebooks/5199. Start there.',
+   'The whole book is free at https://www.gutenberg.org/ebooks/5199. Start there.'],
 ];
 HEARD_AND_FIXED.forEach(([heard, want]) => {
   const got = scrubVoice(heard);

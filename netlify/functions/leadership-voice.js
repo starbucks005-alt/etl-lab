@@ -117,7 +117,12 @@ exports.handler = async (event) => {
   if (!resp.ok) {
     const detail = await safeRead(resp);
     console.error('[leadership-voice] tts non-200', resp.status, detail);
-    return jsonError(502, `tts upstream ${resp.status}`);
+    /* The upstream number travels to the browser, added 2026-09-17: the room
+       could say the voices failed but not why, and 401 (the key), 429 (the
+       quota) and 404 (the voice id) are three different jobs. The body itself
+       stays in the log, since it can carry account detail nobody in a
+       classroom needs to see. */
+    return jsonError(502, `tts upstream ${resp.status}`, resp.status);
   }
 
   const buf = Buffer.from(await resp.arrayBuffer());
@@ -175,7 +180,8 @@ function audioResponse(buf, isReply) {
     isBase64Encoded: true,
   };
 }
-function jsonError(statusCode, message) {
-  return { statusCode, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: message }) };
+function jsonError(statusCode, message, upstream) {
+  const body = upstream ? { error: message, upstream } : { error: message };
+  return { statusCode, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
 }
 async function safeRead(resp) { try { return await resp.text(); } catch { return ''; } }
