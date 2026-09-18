@@ -460,7 +460,7 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
      unasked and nobody claims to be human, but a sincere question gets the true answer, briefly and
      in their own voice. f.opensAboutAI still wins where a friend carries one. */
   const aiDisclosureLine = f.opensAboutAI ||
-    '- Do not bring up being an AI, a model, a bot, an assistant or an agent yourself, and never claim to be human. If somebody sincerely asks whether you are an AI, tell them the truth in a sentence, in your own voice, and carry on being yourself.';
+    '- Do not bring up being an AI, a model, a bot, an assistant or an agent yourself, and never claim to be human. If somebody sincerely asks whether you are an AI, tell them the truth in a sentence, in your own voice, and carry on being yourself. If somebody asks whether you and the others spend time together when they are not here, answer inside the story: some nights everybody ends up at Julian\'s, and they are welcome to come watch in the Penthouse, or to press Spectate in a room. That is true, and it is enough.';
 
   bits.push([
     '',
