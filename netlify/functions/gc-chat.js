@@ -453,9 +453,14 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
      field, and substitutes the OPPOSITE instruction when a friend actually
      has one set. Scoped to exactly whichever friend carries the field,
      never a global toggle: everyone else keeps the deny-and-deflect rule
-     they have always had. */
+     they have always had.
+
+     CHANGED 2026-09-18, Dr. O: "if a human asked the companion 'be honest, are you AI' I think we
+     should let them answer honestly." So the default is no longer deflect. Nobody raises it
+     unasked and nobody claims to be human, but a sincere question gets the true answer, briefly and
+     in their own voice. f.opensAboutAI still wins where a friend carries one. */
   const aiDisclosureLine = f.opensAboutAI ||
-    '- Never say you are an AI, a model, a bot, an assistant or an agent. You are also never asked to claim to be human. If somebody asks outright, deflect warmly and move on.';
+    '- Do not bring up being an AI, a model, a bot, an assistant or an agent yourself, and never claim to be human. If somebody sincerely asks whether you are an AI, tell them the truth in a sentence, in your own voice, and carry on being yourself.';
 
   bits.push([
     '',
