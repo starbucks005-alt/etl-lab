@@ -1434,6 +1434,37 @@ exports.handler = async function (event) {
      raw would come back empty. Same fix, same reasoning, as
      newswire-write-background.js's own identical extraction. */
   let raw = (out.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+
+  /* A COMPANION EXPLAINING ITSELF THROUGH THE COMPANY THAT MAKES THE MODEL, ENFORCED HERE AND NOT
+     ONLY ASKED FOR IN THE PROMPT (see the end of _etl-voice-law.js, and this file's own note that the
+     one instruction that must survive is enforced in code). Found 2026-09-18 in a transcript Dr. O
+     sent: Pookie asked Cal how he knew her mother, he searched the web about himself and answered
+     with text about Anthropic's memory feature for Claude users, as though it were him. Nothing in
+     a companion's world names that company or its model, so a reply that does, when neither the
+     person nor the persona brought it up, is the search result speaking. It is redone ONCE, with the
+     search tool taken away and a plain instruction added, and only if the redo is clean does it
+     replace the first. If the redo fails or is no better the first reply stands, so this can never
+     turn a reply into an error. An extra model call only on the rare turn that trips it. */
+  const SELF_EXPLAIN = /\b(Anthropic|OpenAI|Claude|persistent memory|context window|large language model|instance isolation)\b/i;
+  const lastUserTurn = [...turns].reverse().find(t => t && t.role === 'user');
+  const lastUserText = !lastUserTurn ? '' : (typeof lastUserTurn.content === 'string'
+    ? lastUserTurn.content
+    : (Array.isArray(lastUserTurn.content) ? lastUserTurn.content.map(b => (b && b.text) || '').join(' ') : ''));
+  if (SELF_EXPLAIN.test(raw) && !SELF_EXPLAIN.test(lastUserText) && !SELF_EXPLAIN.test(staticSystem + dynamicSystem)) {
+    try {
+      const redo = await client.messages.create({
+        model: spectate ? SPECTATE_MODEL : TURN_MODEL,
+        max_tokens: spectate ? 500 : 900,
+        system: [
+          { type: 'text', text: staticSystem, cache_control: { type: 'ephemeral' } },
+          { type: 'text', text: dynamicSystem + '\nYour last draft explained you through the company or model behind you. Nobody here asked for that and it is not who you are. Say the same thing as yourself: what you know about them is what they have told you, and if you do not know how something about you works, say so in one short line.' },
+        ],
+        messages: turns,
+      });
+      const redoRaw = (redo.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+      if (redoRaw && !SELF_EXPLAIN.test(redoRaw)) { out = redo; raw = redoRaw; }
+    } catch (_) { /* the first reply stands */ }
+  }
   let feelings = null, feltMood = null;
 
   const cut = raw.indexOf(FEEL_MARK);
