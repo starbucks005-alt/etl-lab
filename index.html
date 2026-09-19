@@ -3195,6 +3195,14 @@ document.addEventListener('DOMContentLoaded', function(){
   // slug must keep matching how those files were named when a platform is renamed.
   const slug = s => s.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 
+  /* RE-CAPTURED 2026-09-19, Dr. O: "the hover image behind GC and ME need to reflect the new
+     homepages." Both platforms now open on a lobby, and the August shots showed the old front
+     doors. New filenames rather than replacing the old files in place, because a replaced file
+     does not reach a browser that already has it (the house rule on assets). M.E. is shot with
+     Meg's panel minimized, so no price sits baked into a picture. Any other platform keeps its
+     slug filename until it is re-shot the same way. */
+  const HOVER_FILE = { 'Good Company': 'good-company_v2', 'M.E. (My Echo)': 'm-e-my-echo_v2' };
+
   function cardHTML(p, showDom){
     const pend   = p.access==='pending' ? ' pending-card' : '';
     const tag    = showDom ? `<span class="domtag" style="color:${C[p.dom]}"><span class="sw" style="background:${C[p.dom]}"></span>${DOM[p.dom]}</span>` : '';
@@ -3204,7 +3212,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const foot   = (p.type==='engine' ? '<span class="pill engine">Tool-led</span>' : '') + accPill(p.access, p.price);
     const travel = p.travel ? `<span class="travel">&#8596; ${p.travel}</span>` : '';
     const shot   = (p.url && p.access !== 'pending')
-      ? `<img class="hovershot" src="/images/campus-hover/${slug(p.name)}.webp" alt="" loading="lazy" decoding="async">`
+      ? `<img class="hovershot" src="/images/campus-hover/${HOVER_FILE[p.name] || slug(p.name)}.webp" alt="" loading="lazy" decoding="async">`
       : '';
     const inner  = `${shot}${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div>`;
     if (p.url) {
