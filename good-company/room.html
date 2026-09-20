@@ -4034,6 +4034,48 @@ function showInvite(token) {
   $("log").scrollTop = $("log").scrollHeight;
 }
 
+/* ASK BEFORE EITHER OF THESE FIRES, 2026-09-19. Dr. O, with a photo of Pookie's laptop: the "On your
+   other device" card, link and all, "keeps popping up without her clicking on it." Nothing in this
+   page presses these two buttons by itself (checked: no shortcut, no programmatic click), so it is
+   a press from outside, most likely a stray click or a key landing on a focused button, and the
+   cause is not known from here. What is known is that they are not harmless to press by accident:
+   "Bring someone" opens a shared room and writes the whole conversation so far up to the server,
+   and "Other device" mints a one-time code. So each asks first, in the page (not a browser dialog,
+   which can be refused), and does nothing until the answer is yes. This listener is registered
+   before the two real ones below on purpose, so it runs first and holds them back. */
+function askBefore(btn, question) {
+  var old = $("log").querySelector(".confirm-pending");
+  if (old) old.remove();
+  var box = document.createElement("div");
+  box.className = "msg confirm-pending";
+  var q = document.createElement("div");
+  q.textContent = question;
+  box.appendChild(q);
+  var yes = document.createElement("button");
+  yes.className = "btn"; yes.style.marginTop = ".45rem"; yes.textContent = "Yes, do it";
+  yes.addEventListener("click", function () {
+    box.remove();
+    btn.dataset.confirmed = "1";
+    btn.click();
+  });
+  var no = document.createElement("button");
+  no.className = "btn"; no.style.margin = ".45rem 0 0 .4rem"; no.textContent = "No thanks";
+  no.addEventListener("click", function () { box.remove(); });
+  box.appendChild(yes); box.appendChild(no);
+  $("log").appendChild(box);
+  $("log").scrollTop = $("log").scrollHeight;
+}
+$("bringBtn").addEventListener("click", function (e) {
+  if (this.dataset.confirmed === "1") { this.dataset.confirmed = ""; return; }
+  e.stopImmediatePropagation();
+  askBefore(this, "Bring someone into this room? That opens a shared room with your conversation so far, and gives you a link for one other person.");
+});
+$("syncBtn").addEventListener("click", function (e) {
+  if (this.dataset.confirmed === "1") { this.dataset.confirmed = ""; return; }
+  e.stopImmediatePropagation();
+  askBefore(this, "Make a link so " + FRIEND.name + " opens on your phone or another computer too?");
+});
+
 $("bringBtn").addEventListener("click", function () {
   if (SEAT) {  /* already a room: just mint another invite */
     fetch("/.netlify/functions/gc-room-open", {
