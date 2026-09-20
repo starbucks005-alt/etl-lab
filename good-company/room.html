@@ -5003,6 +5003,34 @@ function startListening() {
      it again. "I am still here, Arch", twice. */
   var taken = 0;
 
+  /* A LONGER VERSION OF WHAT WAS JUST HEARD IS THE SAME SENTENCE, NOT A NEW ONE. 2026-09-20,
+     from a photo Dr. O took of a tablet where her grandchildren were talking to the puppet
+     household: one sentence came out as "this this this is this is this is Charlotte's this is
+     Charlotte's grandma this is Charlotte's Grandma Charlotte will be over today ..." for a
+     whole screen, ending "this is horrible it's repeating everything 20 times".
+
+     The pattern is each growing partial phrase arriving as its OWN result, every one carrying
+     everything said so far ("this", "this is", "this is Charlotte's"), each marked final.
+     The consumed-index guard above cannot help with that: every result is new, at a new index,
+     and each one is correctly counted once. What is wrong is treating them as separate speech. So
+     a final result that begins with the previous final result replaces it instead of being added
+     after it. Compared as lower-case words with punctuation stripped, and allowed to differ a
+     little after the start, because a recognizer revises words as it goes.
+
+     The cause is INFERRED from that transcript, not reproduced on a device: it is what the text
+     looks like, and the guard is harmless where it does not apply, since speech that does not
+     grow from the last piece is appended exactly as before. If it still repeats, the raw list of
+     results from one such session is what would settle it. */
+  var lastFinal = '', pendingBefore = '';
+  function words(s) { return s.toLowerCase().replace(/[^a-z0-9' ]/g, ' ').split(/\s+/).filter(Boolean); }
+  function growsFrom(prev, cur) {
+    var p = words(prev), c = words(cur);
+    if (!p.length || c.length < p.length) return false;
+    var same = 0;
+    for (var k = 0; k < p.length; k++) { if (p[k] === c[k]) same++; }
+    return same >= Math.max(1, Math.ceil(p.length * 0.6)) && p[0] === c[0];
+  }
+
   rec.onresult = function (e) {
     /* THE FEEDBACK LOOP. Dr. O: "when Sophia talks on audio her voice is
        displayed as text in my text space and sends." Nothing here was ever
@@ -5035,14 +5063,23 @@ function startListening() {
     if (speaking) micQuietUntil = Date.now() + MIC_TAIL_MS;
     if (speaking || Date.now() < micQuietUntil) return;
 
-    var finalBit = '';
+    var gotFinal = false;
     /* Never behind what has already been consumed, whatever the index claims. */
     for (var i = Math.max(e.resultIndex, taken); i < e.results.length; i++) {
-      if (e.results[i].isFinal) { finalBit += e.results[i][0].transcript; taken = i + 1; }
-      else $('say').value = pending + e.results[i][0].transcript;   // show it forming
+      if (e.results[i].isFinal) {
+        var chunk = e.results[i][0].transcript.trim();
+        taken = i + 1;
+        if (chunk) {
+          if (lastFinal && growsFrom(lastFinal, chunk) && pending.slice(-lastFinal.length) === lastFinal) pending = pendingBefore;   // same sentence, longer: replace
+          else pendingBefore = pending;
+          lastFinal = chunk;
+          pending = (pending + ' ' + chunk).trim();
+          gotFinal = true;
+        }
+      }
+      else $('say').value = (pending ? pending + ' ' : '') + e.results[i][0].transcript;   // show it forming
     }
-    if (finalBit || pending) {
-      pending = (pending + ' ' + finalBit).trim();
+    if (gotFinal || pending) {
       $('say').value = pending;
       /* A PAUSE IS THE SEND, AND 1.4 SECONDS IS NOT A PAUSE. It is the gap in
          the middle of an ordinary sentence.
@@ -5063,7 +5100,7 @@ function startListening() {
 
       clearTimeout(rec._pause);
       rec._pause = setTimeout(function () {
-        if ($('say').value.trim()) { send(); pending = ''; }
+        if ($('say').value.trim()) { send(); pending = ''; lastFinal = ''; pendingBefore = ''; }
       }, wait);
     }
   };
@@ -5073,7 +5110,7 @@ function startListening() {
      session gets a fresh results array, so the consumed mark starts over with
      it. Getting this wrong in the other direction would swallow speech. */
   rec.onend = function () {
-    taken = 0;
+    taken = 0; lastFinal = '';
     if (listening) { try { rec.start(); } catch (_) {} }
   };
 
