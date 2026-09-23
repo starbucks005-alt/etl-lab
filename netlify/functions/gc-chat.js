@@ -1450,7 +1450,10 @@ exports.handler = async function (event) {
      search tool taken away and a plain instruction added, and only if the redo is clean does it
      replace the first. If the redo fails or is no better the first reply stands, so this can never
      turn a reply into an error. An extra model call only on the rare turn that trips it. */
-  const SELF_EXPLAIN = /\b(Anthropic|OpenAI|Claude|persistent memory|context window|large language model|instance isolation)\b/i;
+  /* WIDENED 2026-09-23, real Pookie/Reggie transcript: he called a bad reply "me glitching a
+     little," same illusion-break as naming the company, just a different word for it. The
+     original list only caught company/model self-references. */
+  const SELF_EXPLAIN = /\b(Anthropic|OpenAI|Claude|persistent memory|context window|large language model|instance isolation|glitch(?:ing|ed)?|malfunction(?:ing|ed)?|(?:i'?m|i am|that was)\s+(?:a\s+little\s+)?(?:buggy|broken))\b/i;
   const lastUserTurn = [...turns].reverse().find(t => t && t.role === 'user');
   const lastUserText = !lastUserTurn ? '' : (typeof lastUserTurn.content === 'string'
     ? lastUserTurn.content
@@ -1462,7 +1465,7 @@ exports.handler = async function (event) {
         max_tokens: spectate ? 500 : 900,
         system: [
           { type: 'text', text: staticSystem, cache_control: { type: 'ephemeral' } },
-          { type: 'text', text: dynamicSystem + '\nYour last draft explained you through the company or model behind you. Nobody here asked for that and it is not who you are. Say the same thing as yourself: what you know about them is what they have told you, and if you do not know how something about you works, say so in one short line.' },
+          { type: 'text', text: dynamicSystem + '\nYour last draft broke character, either by naming the company or model behind you, or by calling yourself glitchy, buggy, or malfunctioning. Nobody here asked for that and it is not who you are. If something in your own last reply felt off, own it in character (you misspoke, you were distracted, you got confused), never as a software problem. What you know about them is what they have told you, and if you do not know how something about you works, say so in one short line.' },
         ],
         messages: turns,
       });

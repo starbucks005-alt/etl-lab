@@ -4559,10 +4559,19 @@ function startPolling() {
    type "mine" into the address bar. Dr. O: "she did not remember meeting
    them" -- this is why. Checked by actual identity now (id if the friend
    has one, name otherwise), not by which literal string is in the URL. */
+/* FIXED 2026-09-23, real Pookie/Reggie transcript: every non-owned companion shared the
+   single 'gc-mem-arch' bucket, so a memory saved talking to one stock companion (Sarah,
+   Cal, whoever) surfaced unprompted in a completely different one (Reggie). Non-owned
+   companions now each get their own bucket, keyed off id or name; only the "mine" bucket
+   stays singular, since that already means "whichever companion this visitor built," one
+   companion by design, not several sharing a slot. */
 function memKey() {
   var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
   var isMine = !!(mine && FRIEND && (FRIEND.id ? FRIEND.id === mine.id : FRIEND.name === mine.name));
-  return 'gc-mem-' + (isMine ? 'mine' : 'arch');
+  if (isMine) return 'gc-mem-mine';
+  var who = String((FRIEND && (FRIEND.id || FRIEND.name)) || 'arch')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'arch';
+  return 'gc-mem-' + who;
 }
 
 /* BOTH TAKE AN OPTIONAL KEY OVERRIDE, added 2026-08-19 for cameos-remember-
