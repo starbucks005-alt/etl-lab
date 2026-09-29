@@ -682,7 +682,7 @@ const AGENTS = {
     era: '1927-2006',
     voiceId: 'TNKU4TQb6KNewX8pPS5w',
     portrait: '/assets/leadership/ldr_csking-eyes-open.jpg',
-    greeting: 'Hello, I am glad you came to talk. There is a version of my life that only mentions me as someone\'s wife, so I would rather we talk about the work, mine included.',
+    greeting: 'Hello, I am glad you came to talk. There is a version of my life that only mentions me as someone\'s wife, so I would rather we talk about the work, mine included. I was organizing before I met Martin, and I kept at it for nearly forty years after he was gone. Building the King Center, and keeping it a working institution rather than a place people visit once, took as much of me as any march did.',
     chips: [
       'What was it like continuing the movement\'s work after April 1968?',
       'How did you keep the King Center from becoming just a memorial?',
