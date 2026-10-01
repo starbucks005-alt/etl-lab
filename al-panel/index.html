@@ -240,7 +240,7 @@
     $('talkHint').textContent = on ? 'Type a message. AL answers out loud and here.' : 'Type a message. In demo mode the replies are examples.';
     $('voiceNote').textContent = on
       ? 'AL will say a sample in her own voice.'
-      : 'Demo mode uses your device\'s voice for the preview. AL\'s own voice is different.';
+      : 'Plays a recorded sample of the voice. If a recording is missing, your device\'s own voice is used instead.';
   }
   function api(path, body, isForm){
     var opts = {method:'POST'};
@@ -308,7 +308,15 @@
       api('/api/accent', {accent:state.accent, sample:SAMPLE[state.accent]})
         .then(function(){ $('face').classList.remove('speaking'); })
         .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al','(I could not change my accent: '+e.message+')'); });
-    } else { previewVoice(SAMPLE[state.accent], state.accent); }
+    } else {
+      var acc = state.accent, used = false;
+      function fallback(){ if(!used){ used = true; $('face').classList.remove('speaking'); previewVoice(SAMPLE[acc], acc); } }
+      var clip = new Audio('audio/accent-' + acc + '.mp3');
+      clip.onplay = function(){ used = true; $('face').classList.add('speaking'); };
+      clip.onended = function(){ $('face').classList.remove('speaking'); };
+      clip.onerror = fallback;
+      var pr = clip.play(); if(pr && pr.catch){ pr.catch(fallback); }
+    }
   }
 
   // ---------- name ----------
