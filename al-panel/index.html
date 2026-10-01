@@ -131,11 +131,11 @@
       <p class="hint">Pick how she sounds, then press Hear it.</p>
       <label for="accent">Accent</label>
       <select id="accent">
-        <option value="us">American (her default)</option>
-        <option value="uk">British</option>
-        <option value="au">Australian</option>
-        <option value="ie">Irish</option>
-        <option value="south">Southern American</option>
+        <option value="robot">Robot (her default voice)</option>
+        <option value="american">American</option>
+        <option value="swedish">Swedish</option>
+        <option value="british">British</option>
+        <option value="indian">Indian</option>
       </select>
       <div class="row" style="margin-top:12px">
         <button class="primary" id="hear">Hear it</button>
@@ -199,7 +199,7 @@
 (function(){
   'use strict';
   var live = false;            // true when this page is served by AL and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'us', skills:[]};
+  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[]};
 
   var SKILLS = [
     {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
@@ -219,13 +219,13 @@
     ['Teal','#1fb7c9'],['Ice blue','#6ab8ff'],['Green','#3ddc84'],['Amber','#ffb02e'],
     ['Rose','#ff6b9a'],['Violet','#a78bfa'],['Warm white','#fff1d6']
   ];
-  var LANGS = {us:'en-US', uk:'en-GB', au:'en-AU', ie:'en-IE', south:'en-US'};
+  var LANGS = {robot:'en-US', american:'en-US', swedish:'sv-SE', british:'en-GB', indian:'en-IN'};
   var SAMPLE = {
-    us:'Hi, I am AL. It is nice to meet you.',
-    uk:'Hello, I am AL. Lovely to meet you.',
-    au:'G\'day, I am AL. Good to meet you.',
-    ie:'Hello there, I am AL. It is grand to meet you.',
-    south:'Well hey there, I am AL. It sure is nice to meet you.'
+    robot:'Hi, I am AL. It is nice to meet you.',
+    american:'Hi, I am AL. It is great to meet you.',
+    swedish:'Hello, I am AL. It is nice to meet you.',
+    british:'Hello, I am AL. Lovely to meet you.',
+    indian:'Hello, I am AL. It is very nice to meet you.'
   };
 
   function $(id){return document.getElementById(id);}
@@ -438,7 +438,7 @@
 
   function resetDemo(){
     state.skills = []; store('skills', []); $('log').innerHTML = ''; $('thumbs').innerHTML = '';
-    state.color = '#1fb7c9'; state.bright = 40; state.accent = 'us'; $('accent').value = 'us';
+    state.color = '#1fb7c9'; state.bright = 40; state.accent = 'robot'; $('accent').value = 'robot';
     $('bright').value = 40; paintEyes(); renderSkills();
     if(live){ sendEyes(); }
   }
@@ -446,7 +446,7 @@
   // ---------- start ----------
   buildSwatches();
   var saved = load('eyes', null); if(saved){ state.color = saved.color; state.bright = saved.bright; $('bright').value = saved.bright; }
-  state.skills = load('skills', []); state.accent = load('accent', 'us'); $('accent').value = state.accent;
+  state.skills = load('skills', []); state.accent = load('accent', 'robot'); if(!SAMPLE[state.accent]){ state.accent = 'robot'; } $('accent').value = state.accent;
   paintEyes(); renderSkills(); setLive(false);
   $('hear').addEventListener('click', hearIt);
   $('rename').addEventListener('click', renameInfo);
