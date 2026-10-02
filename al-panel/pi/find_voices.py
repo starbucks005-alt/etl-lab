@@ -24,17 +24,33 @@ if not m:
     raise SystemExit("Could not find the voice key line in al.py. Tell Claude.")
 KEY = eval(m.group(1).strip(), al.__dict__)
 
-voices, token = [], None
+voices, seen = [], set()
+def take(vs):
+    for v in vs:
+        if v.get("voice_id") and v["voice_id"] not in seen:
+            seen.add(v["voice_id"])
+            voices.append(v)
+
+# Ask for the list two ways and combine them; either one alone can leave voices out.
+token = None
 while True:
     r = requests.get("https://api.elevenlabs.io/v2/voices", headers={"xi-api-key": KEY},
                      params={"page_size": 100, **({"next_page_token": token} if token else {})}, timeout=60)
     if r.status_code != 200:
-        raise SystemExit("The voice list failed: %d %s" % (r.status_code, r.text[:150]))
+        print("The newer voice list failed:", r.status_code, r.text[:120])
+        break
     j = r.json()
-    voices += j.get("voices", [])
+    take(j.get("voices", []))
     token = j.get("next_page_token")
     if not j.get("has_more") or not token:
         break
+n2 = len(voices)
+r = requests.get("https://api.elevenlabs.io/v1/voices", headers={"xi-api-key": KEY}, timeout=60)
+if r.status_code == 200:
+    take(r.json().get("voices", []))
+else:
+    print("The older voice list failed:", r.status_code, r.text[:120])
+print("Found by the newer list:", n2, "| added by the older list:", len(voices) - n2)
 print("Voices in the account:", len(voices))
 
 if "--list" in sys.argv:
