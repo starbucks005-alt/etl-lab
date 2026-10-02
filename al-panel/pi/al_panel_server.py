@@ -167,6 +167,53 @@ def skill():
     return jsonify(ok=True, skills=state["skills"])
 
 
+PREVIEW_DIR = os.path.join(HERE, "previews")
+preview_lock = threading.Lock()
+
+
+def make_preview(pid):
+    """Make (once) and return the path of a short sample in this character's own voice."""
+    path = os.path.join(PREVIEW_DIR, pid + ".mp3")
+    if os.path.exists(path):
+        return path
+    p = PERSONAS.get(pid)
+    if not p or not p.get("voice"):
+        return None
+    key = header_value("xi-api-key")
+    if not key:
+        raise RuntimeError("could not find the voice key line in al.py")
+    with preview_lock:
+        if os.path.exists(path):
+            return path
+        r = requests.post(
+            "https://api.elevenlabs.io/v1/text-to-speech/" + p["voice"],
+            headers={"xi-api-key": key},
+            json={"text": p.get("say") or "Hello. It is nice to meet you.", "model_id": "eleven_multilingual_v2"},
+            timeout=60,
+        )
+        if r.status_code != 200:
+            raise RuntimeError("voice service answered %d" % r.status_code)
+        os.makedirs(PREVIEW_DIR, exist_ok=True)
+        with open(path + ".tmp", "wb") as f:
+            f.write(r.content)
+        os.replace(path + ".tmp", path)
+    return path
+
+
+@app.get("/previews/<pid>.mp3")
+def preview(pid):
+    """A sample of a character's voice, made the first time it is asked for and kept after that."""
+    if not re.fullmatch(r"[a-z0-9-]+", pid) or pid not in PERSONAS:
+        return jsonify(error="unknown personality"), 404
+    try:
+        path = make_preview(pid)
+    except Exception as e:
+        return jsonify(error=str(e)[:200]), 502
+    if not path:
+        return jsonify(error="this one uses AL's own voice"), 404
+    return send_from_directory(PREVIEW_DIR, pid + ".mp3", mimetype="audio/mpeg")
+
+
 @app.get("/personas.json")
 def personas_list():
     return send_from_directory(HERE, "personas.json")

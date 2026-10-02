@@ -179,7 +179,7 @@
     <!-- 5. PERSONALITIES -->
     <section class="card wide" id="personaCard">
       <h2>5. Personalities</h2>
-      <p class="hint">Not everyone wants the same companion. Download a different personality for AL: these are characters from The Dose, The Gym, Almost Human and Good Company. She is still AL, and the prices are examples, with no payment taken.</p>
+      <p class="hint">Not everyone wants the same companion. Download a different personality for AL: these are characters from The Dose, The Gym, Almost Human and Good Company. Press Hear voice to listen first. She is still AL, and the prices are examples, with no payment taken.</p>
       <div class="pfilters" id="pfilters">
         <input type="text" id="psearch" placeholder="Search by name, job or feeling" aria-label="Search personalities">
       </div>
@@ -225,6 +225,8 @@
   'use strict';
   var PERSONAS = [];           // the short list from personas.json
   var pGroup = 'All';
+  var pGender = 'All';
+  var pAudio = null;
   var live = false;            // true when this page is served by AL and her API answers
   var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null};
 
@@ -386,6 +388,7 @@
     var q = ($('psearch').value || '').toLowerCase();
     var shown = PERSONAS.filter(function(p){
       if(pGroup !== 'All' && p.group !== pGroup){ return false; }
+      if(pGender !== 'All' && p.gender !== pGender){ return false; }
       return !q || (p.name + ' ' + p.line + ' ' + (p.role || '') + ' ' + (p.sub || '')).toLowerCase().indexOf(q) !== -1;
     });
     box.innerHTML = '';
@@ -395,11 +398,16 @@
       var h = document.createElement('h3'); h.textContent = shortName(p.name); card.appendChild(h);
       var meta = document.createElement('div'); meta.className = 'meta';
       var t = document.createElement('span'); t.className = 'tag'; t.textContent = p.sub || p.group; meta.appendChild(t);
-      if(p.voice){ var v = document.createElement('span'); v.className = 'tag'; v.textContent = 'own voice'; meta.appendChild(v); }
+      var gt = document.createElement('span'); gt.className = 'tag'; gt.textContent = p.gender === 'female' ? 'female' : p.gender === 'male' ? 'male' : 'other'; meta.appendChild(gt);
+      var v = document.createElement('span'); v.className = 'tag'; v.textContent = p.voice ? 'own voice' : 'uses AL\'s voice'; meta.appendChild(v);
       card.appendChild(meta);
       var d = document.createElement('p'); d.textContent = p.line || p.role || ''; card.appendChild(d);
       var pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(p.price) + '  (example price)'; card.appendChild(pr);
       var row = document.createElement('div'); row.className = 'row';
+      if(p.voice){
+        var hv = document.createElement('button'); hv.textContent = 'Hear voice'; hv.setAttribute('aria-label', 'Hear the voice of ' + shortName(p.name));
+        hv.addEventListener('click', function(){ hearPersona(p, hv); }); row.appendChild(hv);
+      }
       if(state.persona === p.id){
         var on = document.createElement('span'); on.className = 'tag'; on.textContent = 'Installed'; row.appendChild(on);
       } else {
@@ -411,11 +419,25 @@
     var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
     $('personaNow').textContent = cur ? 'Speaking as ' + shortName(cur.name) + '.' : 'Speaking as AL.';
   }
+  function hearPersona(p, btn){
+    if(pAudio){ pAudio.pause(); pAudio = null; }
+    var old = btn.textContent; btn.textContent = 'Loading...'; btn.disabled = true;
+    var a = new Audio('previews/' + p.id + '.mp3'); pAudio = a;
+    function done(msg){ btn.disabled = false; btn.textContent = msg || old; }
+    a.addEventListener('playing', function(){ done('Playing'); });
+    a.addEventListener('ended', function(){ done(old); });
+    a.addEventListener('error', function(){ done('Not ready yet'); setTimeout(function(){ btn.textContent = old; }, 2500); });
+    var pr = a.play(); if(pr && pr.catch){ pr.catch(function(){ done('Not ready yet'); setTimeout(function(){ btn.textContent = old; }, 2500); }); }
+  }
   function buildGroups(){
     var bar = $('pfilters'); Array.prototype.slice.call(bar.querySelectorAll('button')).forEach(function(b){ b.remove(); });
     ['All', 'The Dose', 'The Gym', 'Almost Human', 'Good Company'].forEach(function(g){
       var b = document.createElement('button'); b.textContent = g; b.className = g === pGroup ? 'on' : '';
       b.addEventListener('click', function(){ pGroup = g; buildGroups(); renderPersonas(); }); bar.appendChild(b);
+    });
+    [['All', 'Any voice'], ['female', 'Female'], ['male', 'Male']].forEach(function(g){
+      var b = document.createElement('button'); b.textContent = g[1]; b.className = g[0] === pGender ? 'on' : '';
+      b.addEventListener('click', function(){ pGender = g[0]; buildGroups(); renderPersonas(); }); bar.appendChild(b);
     });
   }
   function confirmPersona(p){

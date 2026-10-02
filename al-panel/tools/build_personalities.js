@@ -59,6 +59,19 @@ function clip(t, n) {
   const cut = t.slice(0, n), i = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
   return (i > n * 0.5 ? cut.slice(0, i + 1) : cut.replace(/\s+\S*$/, '') + '...');
 }
+// Gender is read from the files, never from a name. Good Company stores it (woman, man, boy, girl, or a species);
+// for a species, and for the roster (which has no gender field), the pronouns in the character's own text decide.
+const byPronouns = text => {
+  const she = (text.match(/\b(she|her|hers|herself)\b/gi) || []).length, he = (text.match(/\b(he|him|his|himself)\b/gi) || []).length;
+  return she > he ? 'female' : he > she ? 'male' : 'other';
+};
+const GENDER_OVERRIDE = { 'Dr. Lena Brandt, DPT': 'female' }; // gym.html's own bio for her says "She does not raise her voice".
+const gcGender = c => {
+  const g = String(c.gender || '').toLowerCase();
+  if (/woman|girl/.test(g)) return 'female';
+  if (/\bman\b|boy/.test(g)) return 'male';
+  return byPronouns(['premise', 'work', 'been', 'knows', 'habit', 'underneath', 'form'].map(k => typeof c[k] === 'string' ? c[k] : '').join(' '));
+};
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const out = [];   // full records
@@ -86,8 +99,9 @@ for (const name of Object.keys(best)) {
   if (line.length < 35) line = (line + ' ' + first(c.form)).trim();
   line = clip(line, 110);
   const id = 'gc-' + slug(name);
-  out.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: c.voiceId, prompt: PREAMBLE(who) + parts.join(' ') });
-  list.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: true });
+  const gender = gcGender(c);
+  out.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: c.voiceId, gender, say: "Hello, I'm " + name + ". It's nice to meet you.", prompt: PREAMBLE(who) + parts.join(' ') });
+  list.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: true, gender });
 }
 
 // ---------- The Dose, The Gym, Almost Human (roster.json) ----------
@@ -109,14 +123,17 @@ for (const r of roster) {
   add('Background', r.background, 700); add('Story', r.backstory, 900); add('On the floor', r.floor, 300);
   const id = slug(group.replace('The ', '')) + '-' + slug(r.name.replace(/\(.*?\)/g, ''));
   if (out.some(o => o.id === id)) continue;
-  out.push({ id, name: r.name, group, sub: '', line: clip(r.tagline || r.role, 110), role: r.role, price: priceFor(r.price), voice: r.voice_id || '', prompt: PREAMBLE(r.name) + parts.join(' ') });
-  list.push({ id, name: r.name, group, sub: '', line: clip(r.tagline || r.role, 110), role: r.role, price: priceFor(r.price), voice: !!r.voice_id });
+  const gender = GENDER_OVERRIDE[r.name] || byPronouns(['bio', 'background', 'backstory', 'tagline', 'floor'].map(k => r[k] || '').join(' '));
+  const nick = r.name.replace(/\(.*?\)/g, '').replace(/,.*$/, '').trim();
+  out.push({ id, name: r.name, group, sub: '', line: clip(r.tagline || r.role, 110), role: r.role, price: priceFor(r.price), voice: r.voice_id || '', gender, say: "Hello, I'm " + nick + ". It's nice to meet you.", prompt: PREAMBLE(r.name) + parts.join(' ') });
+  list.push({ id, name: r.name, group, sub: '', line: clip(r.tagline || r.role, 110), role: r.role, price: priceFor(r.price), voice: !!r.voice_id, gender });
 }
 
-const full = {}; out.forEach(o => { full[o.id] = { name: o.name, group: o.group, voice: o.voice, prompt: o.prompt }; });
+const full = {}; out.forEach(o => { full[o.id] = { name: o.name, group: o.group, voice: o.voice, say: o.say, prompt: o.prompt }; });
 const clean = o => JSON.parse(JSON.stringify(o).replace(/\s*\u2014\s*/g, ', ').replace(/\u2011/g, '-'));
 fs.writeFileSync(path.join(root, 'al-panel/pi/personalities.json'), JSON.stringify(clean(full)));
 fs.writeFileSync(path.join(root, 'al-panel/personas.json'), JSON.stringify(clean(list)));
 const by = {}; list.forEach(l => { by[l.group] = (by[l.group] || 0) + 1; });
 console.log('personalities:', list.length, JSON.stringify(by), '| with a voice:', list.filter(l => l.voice).length);
+const gc = {}; list.forEach(l => { gc[l.gender] = (gc[l.gender] || 0) + 1; }); console.log('gender:', JSON.stringify(gc));
 console.log('longest prompt:', Math.max(...out.map(o => o.prompt.length)), 'chars');
