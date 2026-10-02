@@ -197,6 +197,7 @@
         <input type="text" id="say" placeholder="Say something to AL" style="flex:1;min-width:180px">
         <button class="primary" id="send">Send</button>
       </div>
+      <div class="row" style="margin-top:10px"><button id="sayAddress">Say my address</button></div>
     </section>
 
     <!-- 6. PHOTOS -->
@@ -590,6 +591,11 @@
   $('showPhoto').addEventListener('click', showPhoto);
   $('reset').addEventListener('click', resetDemo);
   addMsg('al', 'Hello. I am AL. Try changing my eyes, or ask me something.');
+  $('sayAddress').addEventListener('click', function(){
+    if(!live){ addMsg('al', 'In demo mode I have no address of my own. Open this panel from AL to use this button.'); return; }
+    api('/api/address').then(function(j){ addMsg('al', 'My address is ' + j.url + '. I am saying it out loud now.'); })
+      .catch(function(e){ addMsg('al', '(I could not say my address: ' + e.message + ')'); });
+  });
   $('psearch').addEventListener('input', renderPersonas);
   $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
   buildGroups(); loadPersonas();

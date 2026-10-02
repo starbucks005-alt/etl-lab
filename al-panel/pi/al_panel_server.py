@@ -87,11 +87,11 @@ def write_eyes():
     os.replace(tmp, EYES_FILE)
 
 
-def speak_async(text):
+def speak_async(text, use_persona=True):
     def run():
         with speak_lock:
             try:
-                persona = PERSONAS.get(state["persona"]) if state["persona"] else None
+                persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
                 al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
                 al.speak(text)
             except Exception as e:  # keep the server alive if sound fails
@@ -241,6 +241,16 @@ def personality():
     return jsonify(ok=True, note=note, reply=reply)
 
 
+@app.post("/api/address")
+def say_address():
+    """Say AL's address out loud now (in her own voice, whatever character is installed) and return it."""
+    ip = my_address()
+    if not ip:
+        return jsonify(error="I am not on a network right now"), 503
+    speak_async(address_words(ip), use_persona=False)
+    return jsonify(ok=True, address=ip, url="http://" + ip + ":8000")
+
+
 @app.post("/api/reset")
 def reset():
     """Start fresh for the next person: forget the chat, the skills, and go back to default voice and eyes."""
@@ -328,6 +338,10 @@ def my_address():
         probe.close()
 
 
+def address_words(ip):
+    return "I am ready. To open my panel, go to " + " dot ".join(" ".join(part) for part in ip.split(".")) + " colon eight thousand."
+
+
 def say_address_when_ready():
     """Once, after the Pi itself boots: tell whoever is standing there where to open the panel.
     Restarting only this program (for an update) stays quiet."""
@@ -340,8 +354,7 @@ def say_address_when_ready():
     for _ in range(60):
         ip = my_address()
         if ip:
-            digits = " dot ".join(" ".join(part) for part in ip.split("."))
-            speak_async("I am ready. To open my panel, go to " + digits + " colon eight thousand.")
+            speak_async(address_words(ip), use_persona=False)
             return
         time.sleep(2)
 
