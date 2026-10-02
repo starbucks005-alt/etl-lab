@@ -129,6 +129,11 @@ for (const r of roster) {
   list.push({ id, name: r.name, group, sub: '', line: clip(r.tagline || r.role, 110), role: r.role, price: priceFor(r.price), voice: !!r.voice_id, gender });
 }
 
+// Voices found later (by pi/find_voices.py) are kept in tools/voices.json as { "<personality id>": "<ElevenLabs voice id>" }.
+const vmPath = path.join(__dirname, 'voices.json');
+const VOICE_MAP = fs.existsSync(vmPath) ? JSON.parse(fs.readFileSync(vmPath, 'utf8')) : {};
+out.forEach(o => { if (!o.voice && VOICE_MAP[o.id]) o.voice = VOICE_MAP[o.id]; });
+list.forEach(l => { if (!l.voice && VOICE_MAP[l.id]) l.voice = true; });
 const full = {}; out.forEach(o => { full[o.id] = { name: o.name, group: o.group, voice: o.voice, say: o.say, prompt: o.prompt }; });
 const clean = o => JSON.parse(JSON.stringify(o).replace(/\s*\u2014\s*/g, ', ').replace(/\u2011/g, '-'));
 fs.writeFileSync(path.join(root, 'al-panel/pi/personalities.json'), JSON.stringify(clean(full)));
