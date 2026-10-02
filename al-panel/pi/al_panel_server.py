@@ -329,8 +329,14 @@ def my_address():
 
 
 def say_address_when_ready():
-    """Once, after start-up: tell whoever is standing there where to open the panel."""
+    """Once, after the Pi itself boots: tell whoever is standing there where to open the panel.
+    Restarting only this program (for an update) stays quiet."""
     import time
+    try:
+        if float(open("/proc/uptime").read().split()[0]) > 600:   # the Pi has been up more than ten minutes
+            return
+    except (OSError, ValueError):
+        pass
     for _ in range(60):
         ip = my_address()
         if ip:
