@@ -65,7 +65,8 @@ const byPronouns = text => {
   const she = (text.match(/\b(she|her|hers|herself)\b/gi) || []).length, he = (text.match(/\b(he|him|his|himself)\b/gi) || []).length;
   return she > he ? 'female' : he > she ? 'male' : 'other';
 };
-const GENDER_OVERRIDE = { 'Dr. Lena Brandt, DPT': 'female' }; // gym.html's own bio for her says "She does not raise her voice".
+// Overrides, each confirmed by the roster or by Dr. O: Lena (gym.html: "She does not raise her voice"); Chris Avila (roster: nonbinary, they/them, confirmed by Dr. O 2026-10-02).
+const GENDER_OVERRIDE = { 'Dr. Lena Brandt, DPT': 'female', 'Chris Avila': 'other' };
 const gcGender = c => {
   const g = String(c.gender || '').toLowerCase();
   if (/woman|girl/.test(g)) return 'female';

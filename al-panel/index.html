@@ -398,7 +398,7 @@
       var h = document.createElement('h3'); h.textContent = shortName(p.name); card.appendChild(h);
       var meta = document.createElement('div'); meta.className = 'meta';
       var t = document.createElement('span'); t.className = 'tag'; t.textContent = p.sub || p.group; meta.appendChild(t);
-      var gt = document.createElement('span'); gt.className = 'tag'; gt.textContent = p.gender === 'female' ? 'female' : p.gender === 'male' ? 'male' : 'other'; meta.appendChild(gt);
+      var gt = document.createElement('span'); gt.className = 'tag'; gt.textContent = p.gender === 'female' ? 'female' : p.gender === 'male' ? 'male' : 'nonbinary'; meta.appendChild(gt);
       var v = document.createElement('span'); v.className = 'tag'; v.textContent = p.voice ? 'own voice' : 'uses AL\'s voice'; meta.appendChild(v);
       card.appendChild(meta);
       var d = document.createElement('p'); d.textContent = p.line || p.role || ''; card.appendChild(d);
@@ -435,7 +435,7 @@
       var b = document.createElement('button'); b.textContent = g; b.className = g === pGroup ? 'on' : '';
       b.addEventListener('click', function(){ pGroup = g; buildGroups(); renderPersonas(); }); bar.appendChild(b);
     });
-    [['All', 'Any voice'], ['female', 'Female'], ['male', 'Male']].forEach(function(g){
+    [['All', 'Any voice'], ['female', 'Female'], ['male', 'Male'], ['other', 'Nonbinary']].forEach(function(g){
       var b = document.createElement('button'); b.textContent = g[1]; b.className = g[0] === pGender ? 'on' : '';
       b.addEventListener('click', function(){ pGender = g[0]; buildGroups(); renderPersonas(); }); bar.appendChild(b);
     });
