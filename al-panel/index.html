@@ -460,7 +460,7 @@
     state.skills = []; store('skills', []); $('log').innerHTML = ''; $('thumbs').innerHTML = '';
     state.color = '#1fb7c9'; state.bright = 40; state.accent = 'robot'; $('accent').value = 'robot';
     $('bright').value = 40; paintEyes(); renderSkills();
-    if(live){ sendEyes(); }
+    if(live){ api('/api/reset').catch(function(){}); }
   }
 
   // ---------- start ----------

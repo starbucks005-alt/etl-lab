@@ -151,6 +151,15 @@ def skill():
     return jsonify(ok=True, skills=state["skills"])
 
 
+@app.post("/api/reset")
+def reset():
+    """Start fresh for the next person: forget the chat, the skills, and go back to default voice and eyes."""
+    state.update(color="#1fb7c9", brightness=40, accent="robot", skills=[], history=[], log=[])
+    apply_prompt()
+    write_eyes()
+    return jsonify(ok=True)
+
+
 @app.post("/api/say")
 def say():
     d = request.get_json(silent=True) or {}
