@@ -214,6 +214,14 @@ def preview(pid):
     return send_from_directory(PREVIEW_DIR, pid + ".mp3", mimetype="audio/mpeg")
 
 
+@app.get("/images/<name>")
+def image(name):
+    """The pictures the panel page uses (kept in an images folder next to the server)."""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+\.(jpg|jpeg|png|webp)", name):
+        return jsonify(error="not found"), 404
+    return send_from_directory(os.path.join(HERE, "images"), name)
+
+
 @app.get("/personas.json")
 def personas_list():
     return send_from_directory(HERE, "personas.json")

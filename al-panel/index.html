@@ -8,6 +8,7 @@
 <link rel="icon" type="image/png" href="/favicon_etl_512.png">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet"></noscript>
+<meta name="color-scheme" content="light dark">
 <style>
   :root{
     --bg:#f4f3ee;--panel:#ffffff;--line:#d8d6cc;--line2:#c2beb0;
@@ -16,7 +17,28 @@
     --status:#28527a;--status-bg:#e4ebf1;
     --note:#28527a;--note-bg:#e4ebf1;--muted-dot:#7c8694;
     --night:#10161d;
+    --field:#ffffff;--on-status:#ffffff;--on-accent:#ffffff;
     --mono:'IBM Plex Mono',monospace;--body:'Public Sans',sans-serif;--display:Spectral,serif;
+  }
+  :root[data-theme="dark"]{
+    --bg:#10161d;--panel:#18212b;--line:#2a3541;--line2:#3a4756;
+    --ink:#eef2f5;--text:#c4ccd3;--mute:#8d99a5;
+    --accent:#5fc4ab;--accent-bg:#17352f;
+    --status:#7fb3e6;--status-bg:#1c2b3a;
+    --note:#a9cdf0;--note-bg:#1c2b3a;--muted-dot:#8d99a5;
+    --night:#0a0f14;
+    --field:#1f2a36;--on-status:#0e1620;--on-accent:#0e1620;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10161d;--panel:#18212b;--line:#2a3541;--line2:#3a4756;
+      --ink:#eef2f5;--text:#c4ccd3;--mute:#8d99a5;
+      --accent:#5fc4ab;--accent-bg:#17352f;
+      --status:#7fb3e6;--status-bg:#1c2b3a;
+      --note:#a9cdf0;--note-bg:#1c2b3a;--muted-dot:#8d99a5;
+      --night:#0a0f14;
+      --field:#1f2a36;--on-status:#0e1620;--on-accent:#0e1620;
+    }
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.55}
@@ -24,7 +46,7 @@
   header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:26px}
   header .mark{font-family:var(--display);font-weight:500;font-size:30px;color:var(--ink);letter-spacing:2px}
   header svg{flex:none}
-  .tab{display:inline-block;font-size:11px;font-weight:600;color:#fff;background:var(--status);padding:4px 10px;margin-bottom:6px}
+  .tab{display:inline-block;font-size:11px;font-weight:600;color:var(--on-status);background:var(--status);padding:4px 10px;margin-bottom:6px}
   header .word{font-size:14px;line-height:1.3;color:var(--mute);border-left:1px solid var(--line2);padding-left:12px}
   h1{font-family:var(--display);font-weight:300;font-size:clamp(30px,5vw,44px);line-height:1.12;margin:0 0 6px;color:var(--ink)}
   h1 em{font-style:italic;color:var(--status)}
@@ -41,10 +63,10 @@
   button,select,input[type=text],textarea{font-family:var(--body);font-size:15px}
   button{cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--ink);padding:9px 14px;border-radius:8px}
   button:hover{border-color:var(--status)}
-  button.primary{background:var(--status);color:#fff;border-color:var(--status)}
-  button.green{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.primary{background:var(--status);color:var(--on-status);border-color:var(--status)}
+  button.green{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
   button:disabled{opacity:.5;cursor:default}
-  input[type=text],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line2);border-radius:8px;background:#fff;color:var(--ink)}
+  input[type=text],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line2);border-radius:8px;background:var(--field);color:var(--ink)}
   textarea{resize:vertical;min-height:70px}
   label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -53,7 +75,7 @@
   .face{background:var(--night);border-radius:12px;padding:14px 10px 6px;margin-bottom:14px}
   .face svg{display:block;width:100%;height:auto;max-height:190px}
   .swatches{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-  .sw{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px var(--line2);padding:0}
+  .sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--field);box-shadow:0 0 0 1px var(--line2);padding:0}
   .sw.on{box-shadow:0 0 0 3px var(--status)}
   .speaking .eye-glow{animation:breathe 1.1s ease-in-out infinite}
   @keyframes breathe{0%,100%{opacity:.72}50%{opacity:1}}
@@ -61,7 +83,7 @@
 
   /* skills */
   .skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-  .skill{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff;display:flex;flex-direction:column;gap:8px}
+  .skill{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--field);display:flex;flex-direction:column;gap:8px}
   .skill h3{margin:0;font-size:16px;color:var(--ink)}
   .skill p{margin:0;font-size:14px;flex:1}
   .price{font-family:var(--mono);font-size:13px;color:var(--status)}
@@ -69,12 +91,18 @@
   .bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
   .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
 
+  /* hero picture */
+  .hero{margin:6px 0 22px;max-width:760px}
+  .hero img{width:100%;height:auto;display:block;border-radius:12px;border:1px solid var(--line);background:var(--panel)}
+  .hero figcaption{font-size:13px;color:var(--mute);margin-top:8px}
+  .themebtn{margin-left:auto;font-size:13px;padding:6px 10px}
+
   /* personalities */
   .pfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
   .pfilters input{flex:1;min-width:180px;width:auto}
-  .pfilters button.on{background:var(--status);color:#fff;border-color:var(--status)}
+  .pfilters button.on{background:var(--status);color:var(--on-status);border-color:var(--status)}
   .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;max-height:560px;overflow:auto;padding:2px}
-  .persona{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;display:flex;flex-direction:column;gap:6px}
+  .persona{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--field);display:flex;flex-direction:column;gap:6px}
   .persona h3{margin:0;font-size:15px;color:var(--ink)}
   .persona p{margin:0;font-size:13px;flex:1;color:var(--mute)}
   .persona .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -82,7 +110,7 @@
   .pcount{font-size:13px;color:var(--mute);margin:0 0 8px}
 
   /* chat */
-  .log{border:1px solid var(--line);border-radius:10px;background:#fff;min-height:170px;max-height:300px;overflow:auto;padding:12px;margin-bottom:10px}
+  .log{border:1px solid var(--line);border-radius:10px;background:var(--field);min-height:170px;max-height:300px;overflow:auto;padding:12px;margin-bottom:10px}
   .msg{margin:0 0 10px;font-size:15px}
   .msg b{color:var(--ink)}
   .msg.al b{color:var(--accent)}
@@ -100,15 +128,20 @@
 <body>
 <div class="wrap">
   <header>
-    <svg width="38" height="38" viewBox="0 0 64 64" role="img" aria-label="ETL mark"><rect x="6" y="42" width="36" height="11" fill="#16202b"/><rect x="14" y="26" width="36" height="11" fill="#16202b"/><rect x="22" y="10" width="36" height="11" fill="#28527a"/></svg>
+    <svg style="color:var(--ink)" width="38" height="38" viewBox="0 0 64 64" role="img" aria-label="ETL mark"><rect x="6" y="42" width="36" height="11" fill="currentColor"/><rect x="14" y="26" width="36" height="11" fill="currentColor"/><rect x="22" y="10" width="36" height="11" fill="#28527a"/></svg>
     <span class="mark">ETL</span>
     <span class="word">Emerging Technologies<br>Laboratory</span>
+    <button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button>
     <span class="status" id="status"><span class="dot"></span><span id="statusText">Demo mode, no AL connected</span></span>
   </header>
 
   <span class="tab">AL, companion panel</span>
   <h1>Meet <em>AL</em>, a companion you can shape</h1>
   <p class="sub">Change her eyes, her accent, and what she can do. Talk to her, and show her a photo so she gets to know you. This panel is a demo: skills and prices are examples, and no payment is taken.</p>
+  <figure class="hero">
+    <img src="images/astra-lite-views_v1.jpg" alt="AL, Astra Lite: a bust-sized metallic android with teal eyes and copper lines, shown from the front, the back and the side." width="1200" height="670">
+    <figcaption>AL, short for Astra Lite, is the bust-sized companion shown here. She is not Astra-9 or Astrad, the two full-size mannequins.</figcaption>
+  </figure>
 
   <div class="grid">
 
@@ -596,6 +629,14 @@
     api('/api/address').then(function(j){ addMsg('al', 'My address is ' + j.url + '. I am saying it out loud now.'); })
       .catch(function(e){ addMsg('al', '(I could not say my address: ' + e.message + ')'); });
   });
+  (function(){
+    var root = document.documentElement, btn = $('themeBtn');
+    function isDark(){ var t = root.getAttribute('data-theme'); return t ? t === 'dark' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+    function label(){ btn.textContent = isDark() ? 'Light mode' : 'Dark mode'; }
+    var saved = load('theme', null); if(saved){ root.setAttribute('data-theme', saved); }
+    label();
+    btn.addEventListener('click', function(){ var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); store('theme', n); label(); });
+  })();
   $('psearch').addEventListener('input', renderPersonas);
   $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
   buildGroups(); loadPersonas();
