@@ -215,7 +215,34 @@ def photo():
     return jsonify(reply=reply)  # the photo itself is never saved
 
 
+def my_address():
+    """AL's address on the network, or None if she is not connected yet."""
+    import socket
+    probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        probe.connect(("10.255.255.255", 1))  # sends nothing, only picks the network in use
+        ip = probe.getsockname()[0]
+        return None if ip.startswith("127.") else ip
+    except OSError:
+        return None
+    finally:
+        probe.close()
+
+
+def say_address_when_ready():
+    """Once, after start-up: tell whoever is standing there where to open the panel."""
+    import time
+    for _ in range(60):
+        ip = my_address()
+        if ip:
+            digits = " dot ".join(" ".join(part) for part in ip.split("."))
+            speak_async("I am ready. To open my panel, go to " + digits + " colon eight thousand.")
+            return
+        time.sleep(2)
+
+
 if __name__ == "__main__":
     write_eyes()
     apply_prompt()
+    threading.Thread(target=say_address_when_ready, daemon=True).start()
     app.run(host="0.0.0.0", port=8000, threaded=True)
