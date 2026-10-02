@@ -89,10 +89,10 @@ for (const name of Object.keys(best)) {
 
 // ---------- The Dose, The Gym, Almost Human (roster.json) ----------
 const roster = JSON.parse(fs.readFileSync(path.join(root, 'roster.json'), 'utf8'));
-const EXCLUDE = new Set(['Dr. Arthur Pendelton', 'Archibald Baxter']); // Pendelton: a persona that says it is human. Baxter: this is Arch above.
+const EXCLUDE = new Set(['Archibald Baxter']); // Baxter: this is Arch, already in from Good Company.
 // Almost Human's cast is listed in the ETL Master Reference (not tagged in roster.json), so it is matched by name.
 const ALMOST_HUMAN = ['Ms. Ivy', 'Auggie', 'Coach Dom', 'Chris', 'Jen Lopez', 'Noor Haddad', 'Mara Rivera', 'Marceline Smith', 'Marcus Holt',
-  'Jax Rivera', 'Reece', 'Wyatt Cooper', 'Zara Cole', 'Walt Brenner', 'Nadia', 'Arun', 'Margo Bennett', 'Dr. Amina Farouk'];
+  'Jax Rivera', 'Reece', 'Wyatt Cooper', 'Zara Cole', 'Walt Brenner', 'Nadia', 'Arun', 'Margo Bennett', 'Dr. Amina Farouk', 'Dr. Arthur Pendelton'];
 const isAlmostHuman = n => ALMOST_HUMAN.some(a => new RegExp('(^|[^A-Za-z])' + a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^A-Za-z])').test(n));
 const priceFor = p => p === 49 ? 2.99 : p === 69 ? 3.99 : p === 549 ? 4.99 : 3.99;
 for (const r of roster) {
