@@ -48,6 +48,11 @@ PHOTO_NOTE = (
     "and that you are seeing a photo of yourself and not through a camera."
 )
 
+PHOTO_NOTE_CHARACTER = (
+    " When shown a photo, answer in one to three short sentences, warmly, saying what you see. "
+    "Say 'I see' only about the photo itself."
+)
+
 BASE_PROMPT = al.AL_SYSTEM_PROMPT
 
 # Characters AL can take on, built from the lab's own character files by tools/build_personalities.js.
@@ -66,8 +71,10 @@ app = Flask(__name__)
 def apply_prompt():
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"])
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
-    al.AL_SYSTEM_PROMPT = (BASE_PROMPT + (" Skills you have: " + extra if extra else "")
-                           + (" " + persona["prompt"] if persona else ""))
+    skills = (" Skills you have: " + extra if extra else "")
+    # A character is given only its own text. It is never told it is sharing a body with AL,
+    # and AL is never told about the characters.
+    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills) if persona else (BASE_PROMPT + skills)
 
 
 def write_eyes():
@@ -175,8 +182,7 @@ def personality():
     state["persona"] = pid
     state["history"] = []   # a new character should not inherit the last one's turns
     apply_prompt()
-    ask = ("You have just been installed with a new personality. Greet the visitor in one short sentence, in that style."
-           if pid else "You are back to being yourself, AL. Say hello again in one short sentence.")
+    ask = "Say hello to the visitor in one short sentence."
     try:
         reply = al.get_al_reply(ask)
     except Exception as e:
@@ -241,7 +247,7 @@ def photo():
             json={
                 "model": "claude-sonnet-5",
                 "max_tokens": 300,
-                "system": al.AL_SYSTEM_PROMPT + PHOTO_NOTE,
+                "system": al.AL_SYSTEM_PROMPT + (PHOTO_NOTE_CHARACTER if state["persona"] else PHOTO_NOTE),
                 "messages": [{"role": "user", "content": [
                     {"type": "image", "source": {"type": "base64", "media_type": mt,
                                                  "data": base64.b64encode(raw).decode()}},

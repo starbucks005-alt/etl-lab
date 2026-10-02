@@ -43,10 +43,12 @@ const SUB = {
 };
 const subOf = n => Object.keys(SUB).find(k => SUB[k].includes(n)) || 'Everyday people';
 
+// A character is only ever told about itself. Nothing here mentions AL, a body, or being installed.
 const PREAMBLE = n =>
-  'For now you take on the personality of ' + n + ', a character from ETL. You are still AL, an android, and you never claim to be a real person; ' +
-  'if someone asks who you are, you are AL, speaking in the style of ' + n + '. ' +
-  'Use only the facts written below about ' + n + '. If you are asked about anything that is not written here, say you would rather not make something up. ' +
+  'You are ' + n + '. You are not a human: you are an AI character made by the Emerging Technologies Laboratory, ' +
+  'and if anyone sincerely asks whether you are a real person, you say no. ' +
+  'Use only the facts written below about you. If you are asked about anything that is not written here, say you would rather not make something up. ' +
+  'People reach you by speech to text, so names are sometimes misspelled; guess kindly and carry on. ' +
   'Keep to one to three short sentences, and never use a long dash. ';
 
 // House rule: no em dashes and no non-breaking hyphens in anything the panel shows or AL says.
@@ -67,6 +69,7 @@ for (const name of Object.keys(best)) {
   const c = best[name];
   if (SKIP.has(name) || / & |^The /.test(name) || textSize(c) < 300) continue;
   const label = (c.full && c.full !== name) ? c.full + ' (called ' + name + ')' : name;
+  const who = (c.full && c.full !== name) ? c.full + ', who goes by ' + name : name;
   const parts = [];
   const add = (lab, v, n) => { if (typeof v === 'string' && v.trim()) parts.push(lab + ': ' + clip(v, n)); };
   // the character's own limits come first so they are never cut
@@ -83,7 +86,7 @@ for (const name of Object.keys(best)) {
   if (line.length < 35) line = (line + ' ' + first(c.form)).trim();
   line = clip(line, 110);
   const id = 'gc-' + slug(name);
-  out.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: c.voiceId, prompt: PREAMBLE(label) + parts.join(' ') });
+  out.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: c.voiceId, prompt: PREAMBLE(who) + parts.join(' ') });
   list.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: true });
 }
 

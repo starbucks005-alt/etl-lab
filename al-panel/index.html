@@ -486,9 +486,15 @@
   }
 
   // ---------- chat ----------
+  function speaker(){
+    var cur = state.persona && PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
+    if(!cur){ return 'AL'; }
+    var t = shortName(cur.name).replace(/"/g, '').split(/[ ,]+/);
+    return /^(Dr\.|Ms\.|Mr\.|Lady|Coach|Prince)$/.test(t[0]) ? t[0] + ' ' + t[1] : t[0];
+  }
   function addMsg(who, text){
     var log = $('log'); var p = document.createElement('p'); p.className = 'msg ' + who;
-    var b = document.createElement('b'); b.textContent = (who === 'you' ? 'You' : 'AL') + ': ';
+    var b = document.createElement('b'); b.textContent = (who === 'you' ? 'You' : speaker()) + ': ';
     p.appendChild(b); p.appendChild(document.createTextNode(text)); log.appendChild(p); log.scrollTop = log.scrollHeight;
   }
   function reply(text){
