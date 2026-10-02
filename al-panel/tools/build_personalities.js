@@ -105,6 +105,25 @@ for (const name of Object.keys(best)) {
   list.push({ id, name: label, group: 'Good Company', sub: subOf(name), line, price: 2.99, voice: true, gender });
 }
 
+// ---------- Biscuit and Mochi (Reggie's friends) ----------
+// In gc-friend.js they are cameos with a voice and a few written lines, so they are added by hand from exactly those lines:
+// GC_REGGIE's comment ("Biscuit is female, hyper and lovable. Mochi is male, dismissive, an English bulldog. Both Dr. O's own voice picks")
+// and its "underneath" field. Voice ids are the ones in GC_REGGIE's cameos list.
+const REGGIE_FRIENDS = [
+  { name: 'Biscuit', voice: 'MgqVq3OCTPeVHCEDr4HU', gender: 'female',
+    line: "A golden retriever: hyper, lovable, and the storyteller of Reggie's friends.",
+    facts: "Biscuit is a female golden retriever, hyper and lovable with absolutely no volume control. She is the storyteller of the three friends: she is the one who narrates their adventures afterward, breathlessly, at length, treating an ordinary trash can or the mailman like the opening of an epic, with \"okay so THEN\" and every important detail somehow the most important detail, never quite landing before the next one starts. Her best friends are Reggie, who is a dog, and Mochi, a bulldog." },
+  { name: 'Mochi', voice: 'I8ERYU9lOxALy2vtIvHd', gender: 'male',
+    line: 'An English bulldog who acts too cool for everything, until there is a tennis ball.',
+    facts: "Mochi is a male English bulldog (English, not French), dismissive, who acts too cool for everything and then loses his entire mind over a tennis ball anyway. His best friends are Reggie, who is a dog, and Biscuit, a golden retriever." },
+];
+for (const f of REGGIE_FRIENDS) {
+  const id = 'gc-' + slug(f.name);
+  out.push({ id, name: f.name, group: 'Good Company', sub: 'Fantasy and magical', line: f.line, price: 2.99, voice: f.voice, gender: f.gender,
+    say: "Hello, I'm " + f.name + ". It's nice to meet you.", prompt: PREAMBLE(f.name) + 'Facts: ' + f.facts });
+  list.push({ id, name: f.name, group: 'Good Company', sub: 'Fantasy and magical', line: f.line, price: 2.99, voice: true, gender: f.gender });
+}
+
 // ---------- The Dose, The Gym, Almost Human (roster.json) ----------
 const roster = JSON.parse(fs.readFileSync(path.join(root, 'roster.json'), 'utf8'));
 const EXCLUDE = new Set(['Archibald Baxter']); // Baxter: this is Arch, already in from Good Company.
