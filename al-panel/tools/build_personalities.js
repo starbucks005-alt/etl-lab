@@ -124,6 +124,25 @@ for (const f of REGGIE_FRIENDS) {
   list.push({ id, name: f.name, group: 'Good Company', sub: 'Fantasy and magical', line: f.line, price: 2.99, voice: true, gender: f.gender });
 }
 
+// ---------- Gracie and Geary Chip (Good Company's own robot pair, stored as one entry called GC) ----------
+// Two personalities from GC_ROBOT's own fields: Gracie (female shell) and Geary (male shell), brother and sister,
+// each with their own voice (voiceIdFemale / voiceIdMale). Gender confirmed by Dr. O, 2026-10-02.
+const GCR = sb.GC_ROBOT;
+if (GCR) {
+  for (const k of [{ name: 'Gracie', sib: 'Geary', rel: 'brother', voice: GCR.voiceIdFemale, gender: 'female', hello: GCR.helloFemale },
+                   { name: 'Geary', sib: 'Gracie', rel: 'sister', voice: GCR.voiceIdMale, gender: 'male', hello: GCR.helloMale }]) {
+    const first = t => tidy(t || '').split(/(?<=[.!?]) /)[0];
+    const facts = [GCR.form, GCR.work, 'Cares about: ' + (GCR.into || []).join('; ') + '.',
+      'Manner: ' + (GCR.voice || []).join(', ') + '.', 'Mood: ' + GCR.mood + '.',
+      'Full name: ' + k.name + ' Chip. ' + (k.gender === 'female' ? 'Her' : 'His') + ' ' + k.rel + ' is ' + k.sib + ', who has a real voice of ' + (k.gender === 'female' ? 'his' : 'her') + ' own.',
+      'How you open: ' + k.hello].map(tidy).join(' ');
+    const id = 'gc-' + slug(k.name), line = clip(first(GCR.work), 110);
+    out.push({ id, name: k.name + ' Chip (called ' + k.name + ')', group: 'Good Company', sub: 'Robots and AI', line, price: 2.99, voice: k.voice, gender: k.gender,
+      say: "Hello, I'm " + k.name + ". It's nice to meet you.", prompt: PREAMBLE(k.name + ' Chip, who goes by ' + k.name) + 'Facts: ' + facts });
+    list.push({ id, name: k.name + ' Chip (called ' + k.name + ')', group: 'Good Company', sub: 'Robots and AI', line, price: 2.99, voice: true, gender: k.gender });
+  }
+}
+
 // ---------- The Dose, The Gym, Almost Human (roster.json) ----------
 const roster = JSON.parse(fs.readFileSync(path.join(root, 'roster.json'), 'utf8'));
 const EXCLUDE = new Set(['Archibald Baxter']); // Baxter: this is Arch, already in from Good Company.
