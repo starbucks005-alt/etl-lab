@@ -19,7 +19,7 @@ VOICES = {
     "american": ("lqgYrNyQrOY96N3mj3M9", "Hi, I am AL. It is great to meet you."),
     "swedish": ("oVXQ3H21hRI9OtM4YH5K", "Hello, I am AL. It is nice to meet you."),
     "british": ("k9kFjM4M02PYt2PvKMYq", "Hello, I am AL. Lovely to meet you."),
-    "indian": ("q3x3TtD3G4JrDlZbY1S4", "Hello, I am AL. It is very nice to meet you."),
+    "indian": ("6qL48o1LBmtR94hIYAQh", "Hello, I am AL. It is very nice to meet you."),
 }
 
 src = open(os.path.expanduser("~/al.py")).read()

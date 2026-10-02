@@ -28,7 +28,7 @@ VOICES = {
     "american": "lqgYrNyQrOY96N3mj3M9",
     "swedish": "oVXQ3H21hRI9OtM4YH5K",
     "british": "k9kFjM4M02PYt2PvKMYq",
-    "indian": "q3x3TtD3G4JrDlZbY1S4",
+    "indian": "6qL48o1LBmtR94hIYAQh",
 }
 
 # What each example skill teaches her. The server holds this text, so the
