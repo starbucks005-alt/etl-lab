@@ -238,6 +238,10 @@
     $('status').className = 'status' + (on ? ' live' : '');
     $('statusText').textContent = on ? 'Connected to AL' : 'Demo mode, no AL connected';
     $('talkHint').textContent = on ? 'Type a message. AL answers out loud and here.' : 'Type a message. In demo mode the replies are examples.';
+    if(on && info && info.log && info.log.length){
+      $('log').innerHTML = '';
+      info.log.forEach(function(m){ addMsg(m.who, m.text); });
+    }
     $('voiceNote').textContent = on
       ? 'AL will say a sample in her own voice.'
       : 'Plays a recorded sample of the voice. If a recording is missing, your device\'s own voice is used instead.';

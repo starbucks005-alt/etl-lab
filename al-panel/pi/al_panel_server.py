@@ -52,7 +52,7 @@ BASE_PROMPT = al.AL_SYSTEM_PROMPT
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
-state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "history": []}
+state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "history": [], "log": []}
 speak_lock = threading.Lock()
 app = Flask(__name__)
 
@@ -107,7 +107,8 @@ def home():
 @app.get("/api/status")
 def status():
     return jsonify(ok=True, name="AL", accent=state["accent"], skills=state["skills"],
-                   color=state["color"], brightness=state["brightness"])
+                   color=state["color"], brightness=state["brightness"],
+                   log=state["log"][-40:])
 
 
 @app.post("/api/eyes")
@@ -161,6 +162,7 @@ def say():
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
     speak_async(reply)
     return jsonify(reply=reply)
 
@@ -208,6 +210,7 @@ def photo():
         return jsonify(error="photo service answered %d" % r.status_code), 502
     reply = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text") or "Thank you for showing me that."
     state["history"].append("They showed you a photo and you said \"%s\"." % reply)
+    state["log"].append({"who": "al", "text": reply})
     speak_async(reply)
     return jsonify(reply=reply)  # the photo itself is never saved
 
