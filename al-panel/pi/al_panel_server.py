@@ -49,17 +49,25 @@ PHOTO_NOTE = (
 )
 
 BASE_PROMPT = al.AL_SYSTEM_PROMPT
+
+# Characters AL can take on, built from the lab's own character files by tools/build_personalities.js.
+try:
+    PERSONAS = json.load(open(os.path.join(HERE, "personalities.json")))
+except (OSError, ValueError):
+    PERSONAS = {}
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
-state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "history": [], "log": []}
+state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "persona": None, "history": [], "log": []}
 speak_lock = threading.Lock()
 app = Flask(__name__)
 
 
 def apply_prompt():
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"])
-    al.AL_SYSTEM_PROMPT = BASE_PROMPT + (" Skills you have: " + extra if extra else "")
+    persona = PERSONAS.get(state["persona"]) if state["persona"] else None
+    al.AL_SYSTEM_PROMPT = (BASE_PROMPT + (" Skills you have: " + extra if extra else "")
+                           + (" " + persona["prompt"] if persona else ""))
 
 
 def write_eyes():
@@ -76,7 +84,8 @@ def speak_async(text):
     def run():
         with speak_lock:
             try:
-                al.AL_VOICE_ID = VOICES[state["accent"]]
+                persona = PERSONAS.get(state["persona"]) if state["persona"] else None
+                al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
                 al.speak(text)
             except Exception as e:  # keep the server alive if sound fails
                 print("SPEAK ERROR:", e, flush=True)
@@ -107,8 +116,8 @@ def home():
 @app.get("/api/status")
 def status():
     return jsonify(ok=True, name="AL", accent=state["accent"], skills=state["skills"],
-                   color=state["color"], brightness=state["brightness"],
-                   log=state["log"][-40:])
+                   color=state["color"], brightness=state["brightness"], persona=state["persona"],
+                   personas=len(PERSONAS), log=state["log"][-40:])
 
 
 @app.post("/api/eyes")
@@ -151,10 +160,38 @@ def skill():
     return jsonify(ok=True, skills=state["skills"])
 
 
+@app.get("/personas.json")
+def personas_list():
+    return send_from_directory(HERE, "personas.json")
+
+
+@app.post("/api/personality")
+def personality():
+    """Take on a character (id) or go back to being AL (id empty). Returns her first line in the new style."""
+    d = request.get_json(silent=True) or {}
+    pid = d.get("id") or None
+    if pid is not None and pid not in PERSONAS:
+        return jsonify(error="unknown personality"), 400
+    state["persona"] = pid
+    state["history"] = []   # a new character should not inherit the last one's turns
+    apply_prompt()
+    ask = ("You have just been installed with a new personality. Greet the visitor in one short sentence, in that style."
+           if pid else "You are back to being yourself, AL. Say hello again in one short sentence.")
+    try:
+        reply = al.get_al_reply(ask)
+    except Exception as e:
+        return jsonify(error=str(e)[:200]), 502
+    note = ("Now speaking as " + PERSONAS[pid]["name"] + ".") if pid else "Back to AL."
+    state["log"] += [{"who": "al", "text": note}, {"who": "al", "text": reply}]
+    state["history"].append('You said "%s".' % reply)
+    speak_async(reply)
+    return jsonify(ok=True, note=note, reply=reply)
+
+
 @app.post("/api/reset")
 def reset():
     """Start fresh for the next person: forget the chat, the skills, and go back to default voice and eyes."""
-    state.update(color="#1fb7c9", brightness=40, accent="robot", skills=[], history=[], log=[])
+    state.update(color="#1fb7c9", brightness=40, accent="robot", skills=[], persona=None, history=[], log=[])
     apply_prompt()
     write_eyes()
     return jsonify(ok=True)

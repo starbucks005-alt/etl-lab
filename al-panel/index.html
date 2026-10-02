@@ -69,6 +69,18 @@
   .bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
   .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
 
+  /* personalities */
+  .pfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .pfilters input{flex:1;min-width:180px;width:auto}
+  .pfilters button.on{background:var(--status);color:#fff;border-color:var(--status)}
+  .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;max-height:560px;overflow:auto;padding:2px}
+  .persona{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;display:flex;flex-direction:column;gap:6px}
+  .persona h3{margin:0;font-size:15px;color:var(--ink)}
+  .persona p{margin:0;font-size:13px;flex:1;color:var(--mute)}
+  .persona .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .persona.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+  .pcount{font-size:13px;color:var(--mute);margin:0 0 8px}
+
   /* chat */
   .log{border:1px solid var(--line);border-radius:10px;background:#fff;min-height:170px;max-height:300px;overflow:auto;padding:12px;margin-bottom:10px}
   .msg{margin:0 0 10px;font-size:15px}
@@ -164,9 +176,21 @@
       </div>
     </section>
 
-    <!-- 5. TALK -->
+    <!-- 5. PERSONALITIES -->
+    <section class="card wide" id="personaCard">
+      <h2>5. Personalities</h2>
+      <p class="hint">Not everyone wants the same companion. Download a different personality for AL: these are characters from The Dose, The Gym, Almost Human and Good Company. She is still AL, and the prices are examples, with no payment taken.</p>
+      <div class="pfilters" id="pfilters">
+        <input type="text" id="psearch" placeholder="Search by name, job or feeling" aria-label="Search personalities">
+      </div>
+      <p class="pcount" id="pcount"></p>
+      <div class="plist" id="plist"></div>
+      <div class="row" style="margin-top:12px"><button id="backToAl">Back to AL</button><span class="hint" id="personaNow" style="margin:0"></span></div>
+    </section>
+
+    <!-- 6. TALK -->
     <section class="card" id="talkCard">
-      <h2>5. Talk to AL</h2>
+      <h2>6. Talk to AL</h2>
       <p class="hint" id="talkHint">Type a message. In demo mode the replies are examples.</p>
       <div class="log" id="log" aria-live="polite"></div>
       <div class="row">
@@ -177,7 +201,7 @@
 
     <!-- 6. PHOTOS -->
     <section class="card" id="photoCard">
-      <h2>6. Show her a photo</h2>
+      <h2>7. Show her a photo</h2>
       <p class="hint">Share a photo so AL gets to know you. She tells you what she sees.</p>
       <input type="file" id="photo" accept="image/*">
       <label for="caption">Who or what is in it? (optional)</label>
@@ -199,8 +223,10 @@
 <script>
 (function(){
   'use strict';
+  var PERSONAS = [];           // the short list from personas.json
+  var pGroup = 'All';
   var live = false;            // true when this page is served by AL and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[]};
+  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null};
 
   var SKILLS = [
     {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
@@ -249,6 +275,7 @@
       if(info.accent !== state.accent){ api('/api/accent', {accent:state.accent}).catch(quiet); }
       if(info.color !== state.color || info.brightness !== state.bright){ api('/api/eyes', {color:state.color, brightness:state.bright}).catch(quiet); }
       state.skills.forEach(function(id){ if((info.skills || []).indexOf(id) === -1){ api('/api/skill', {id:id}).catch(quiet); } });
+      if((info.persona || null) !== (state.persona || null)){ api('/api/personality', {id:state.persona}).catch(quiet); }
     }
     $('voiceNote').textContent = on
       ? 'AL will say a sample in her own voice.'
@@ -353,6 +380,65 @@
 
   // ---------- skills ----------
   function money(p){ return p === 0 ? 'Included' : '$' + p.toFixed(2); }
+  function shortName(n){ return String(n).replace(/\s*\(called [^)]*\)/, '').replace(/ \u2014 .*$/, ''); }
+  function renderPersonas(){
+    var box = $('plist'); if(!box){ return; }
+    var q = ($('psearch').value || '').toLowerCase();
+    var shown = PERSONAS.filter(function(p){
+      if(pGroup !== 'All' && p.group !== pGroup){ return false; }
+      return !q || (p.name + ' ' + p.line + ' ' + (p.role || '') + ' ' + (p.sub || '')).toLowerCase().indexOf(q) !== -1;
+    });
+    box.innerHTML = '';
+    $('pcount').textContent = PERSONAS.length ? (shown.length + ' of ' + PERSONAS.length + ' personalities') : 'Loading personalities...';
+    shown.forEach(function(p){
+      var card = document.createElement('div'); card.className = 'persona' + (state.persona === p.id ? ' on' : '');
+      var h = document.createElement('h3'); h.textContent = shortName(p.name); card.appendChild(h);
+      var meta = document.createElement('div'); meta.className = 'meta';
+      var t = document.createElement('span'); t.className = 'tag'; t.textContent = p.sub || p.group; meta.appendChild(t);
+      if(p.voice){ var v = document.createElement('span'); v.className = 'tag'; v.textContent = 'own voice'; meta.appendChild(v); }
+      card.appendChild(meta);
+      var d = document.createElement('p'); d.textContent = p.line || p.role || ''; card.appendChild(d);
+      var pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(p.price) + '  (example price)'; card.appendChild(pr);
+      var row = document.createElement('div'); row.className = 'row';
+      if(state.persona === p.id){
+        var on = document.createElement('span'); on.className = 'tag'; on.textContent = 'Installed'; row.appendChild(on);
+      } else {
+        var g = document.createElement('button'); g.className = 'primary'; g.textContent = 'Get for ' + money(p.price);
+        g.addEventListener('click', function(){ confirmPersona(p); }); row.appendChild(g);
+      }
+      card.appendChild(row); box.appendChild(card);
+    });
+    var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
+    $('personaNow').textContent = cur ? 'Speaking as ' + shortName(cur.name) + '.' : 'Speaking as AL.';
+  }
+  function buildGroups(){
+    var bar = $('pfilters'); Array.prototype.slice.call(bar.querySelectorAll('button')).forEach(function(b){ b.remove(); });
+    ['All', 'The Dose', 'The Gym', 'Almost Human', 'Good Company'].forEach(function(g){
+      var b = document.createElement('button'); b.textContent = g; b.className = g === pGroup ? 'on' : '';
+      b.addEventListener('click', function(){ pGroup = g; buildGroups(); renderPersonas(); }); bar.appendChild(b);
+    });
+  }
+  function confirmPersona(p){
+    dialog('Get ' + shortName(p.name) + '?',
+      'Demo only: no payment is taken. In a real purchase, ' + money(p.price) + ' would be charged here. ' +
+      (p.voice ? 'This personality has its own voice.' : 'She keeps her own voice for this one.'),
+      [['Cancel', null], ['Install', function(){ setPersona(p.id); }, true]]);
+  }
+  function setPersona(id){
+    state.persona = id; store('persona', id); renderPersonas();
+    var p = PERSONAS.filter(function(x){ return x.id === id; })[0];
+    if(live){
+      api('/api/personality', {id:id}).then(function(j){ addMsg('al', j.note); addMsg('al', j.reply); })
+        .catch(function(e){ addMsg('al', '(I could not change my personality: ' + e.message + ')'); });
+    } else {
+      addMsg('al', id && p ? 'Demo: with a real AL, she would now speak as ' + shortName(p.name) + '.' : 'Back to AL.');
+    }
+  }
+  function loadPersonas(){
+    fetch('personas.json').then(function(r){ if(!r.ok){ throw new Error('no'); } return r.json(); })
+      .then(function(j){ PERSONAS = j; buildGroups(); renderPersonas(); })
+      .catch(function(){ $('pcount').textContent = 'The personality list could not be loaded.'; });
+  }
   function renderSkills(){
     var box = $('skills'); box.innerHTML = '';
     SKILLS.forEach(function(s){
@@ -459,14 +545,14 @@
   function resetDemo(){
     state.skills = []; store('skills', []); $('log').innerHTML = ''; $('thumbs').innerHTML = '';
     state.color = '#1fb7c9'; state.bright = 40; state.accent = 'robot'; $('accent').value = 'robot';
-    $('bright').value = 40; paintEyes(); renderSkills();
+    state.persona = null; store('persona', null); $('bright').value = 40; paintEyes(); renderSkills(); renderPersonas();
     if(live){ api('/api/reset').catch(function(){}); }
   }
 
   // ---------- start ----------
   buildSwatches();
   var saved = load('eyes', null); if(saved){ state.color = saved.color; state.bright = saved.bright; $('bright').value = saved.bright; }
-  state.skills = load('skills', []); state.accent = load('accent', 'robot'); if(!SAMPLE[state.accent]){ state.accent = 'robot'; } $('accent').value = state.accent;
+  state.persona = load('persona', null); state.skills = load('skills', []); state.accent = load('accent', 'robot'); if(!SAMPLE[state.accent]){ state.accent = 'robot'; } $('accent').value = state.accent;
   paintEyes(); renderSkills(); setLive(false);
   $('hear').addEventListener('click', hearIt);
   $('rename').addEventListener('click', renameInfo);
@@ -476,6 +562,9 @@
   $('showPhoto').addEventListener('click', showPhoto);
   $('reset').addEventListener('click', resetDemo);
   addMsg('al', 'Hello. I am AL. Try changing my eyes, or ask me something.');
+  $('psearch').addEventListener('input', renderPersonas);
+  $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
+  buildGroups(); loadPersonas();
   tryConnect();
 })();
 </script>
