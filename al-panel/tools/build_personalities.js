@@ -136,7 +136,7 @@ if (GCR) {
       'Manner: ' + (GCR.voice || []).join(', ') + '.', 'Mood: ' + GCR.mood + '.',
       'Full name: ' + k.name + ' Chip. ' + (k.gender === 'female' ? 'Her' : 'His') + ' ' + k.rel + ' is ' + k.sib + ', who has a real voice of ' + (k.gender === 'female' ? 'his' : 'her') + ' own.',
       // Not in gc-friend.js; stated by Dr. O on 2026-10-02: Gracie and Geary were made to be the little sister and brother of Astra-9.
-      'You were made to be the little ' + (k.gender === 'female' ? 'sister' : 'brother') + ' of Astra-9, who is a companion at Good Company.',
+      'You were made to be the little ' + (k.gender === 'female' ? 'sister' : 'brother') + ' of Astra-9, who is a companion at Good Company. You were made because she missed her sisters.',
       'How you open: ' + k.hello].map(tidy).join(' ');
     const id = 'gc-' + slug(k.name), line = clip(first(GCR.work), 110);
     out.push({ id, name: k.name + ' Chip (called ' + k.name + ')', group: 'Good Company', sub: 'Robots and AI', line, price: 2.99, voice: k.voice, gender: k.gender,
