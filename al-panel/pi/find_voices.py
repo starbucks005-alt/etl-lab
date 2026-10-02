@@ -37,6 +37,17 @@ while True:
         break
 print("Voices in the account:", len(voices))
 
+if "--list" in sys.argv:
+    # Everything not already used by a personality, with its labels, so the right one can be picked by gender, accent and age.
+    used = {p.get("voice") for p in personas.values() if p.get("voice")}
+    rest = [v for v in voices if v["voice_id"] not in used]
+    print("Not used by any personality yet:", len(rest))
+    for v in sorted(rest, key=lambda v: v.get("name", "").lower()):
+        lab = v.get("labels") or {}
+        tags = ",".join(str(lab[k]) for k in ("gender", "accent", "age", "descriptive") if lab.get(k))
+        print(v.get("name", "")[:60] + " [" + tags + "] = " + v["voice_id"])
+    raise SystemExit(0)
+
 words = lambda s: [w for w in re.findall(r"[a-z]+", s.lower()) if w not in ("dr", "ms", "mr", "the", "and", "of", "rph", "dpt", "md", "coach")]
 need = {pid: p for pid, p in personas.items() if not p.get("voice")}
 print("Personalities without a voice:", len(need))
