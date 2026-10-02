@@ -242,6 +242,13 @@
       $('log').innerHTML = '';
       info.log.forEach(function(m){ addMsg(m.who, m.text); });
     }
+    if(on && info){
+      // AL may have been restarted since this page was last used, so tell her what this page shows
+      var quiet = function(){};
+      if(info.accent !== state.accent){ api('/api/accent', {accent:state.accent}).catch(quiet); }
+      if(info.color !== state.color || info.brightness !== state.bright){ api('/api/eyes', {color:state.color, brightness:state.bright}).catch(quiet); }
+      state.skills.forEach(function(id){ if((info.skills || []).indexOf(id) === -1){ api('/api/skill', {id:id}).catch(quiet); } });
+    }
     $('voiceNote').textContent = on
       ? 'AL will say a sample in her own voice.'
       : 'Plays a recorded sample of the voice. If a recording is missing, your device\'s own voice is used instead.';
