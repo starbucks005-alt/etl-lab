@@ -63,9 +63,55 @@ except (OSError, ValueError):
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
-state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "persona": None, "history": [], "log": []}
+state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "persona": None, "history": [], "log": [],
+         "motion": "missing"}   # the sensor: missing, warming or ready
 speak_lock = threading.Lock()
 app = Flask(__name__)
+
+# What AL does when the motion sensor sees someone. The owner picks which of the three,
+# and how long she waits before welcoming again (so a crowd does not get hello over and over).
+WELCOME_FILE = os.path.join(HERE, "welcome.json")
+NECK_FILE = "/tmp/al_neck.json"
+WAIT_CHOICES = (15, 30, 60, 300, 900)
+WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "wait": 60}
+GREETINGS = [
+    "Hello there. I am AL. Welcome.",
+    "Hi. I am AL. Come and say hello.",
+    "Welcome. I am AL. Ask me anything.",
+    "Hello. It is nice to have you here.",
+]
+MOTION_PIN = 13          # GPIO13, the second signal pin of the HAT's GPIO12 socket
+MOTION_WARM_UP = 60      # seconds the sensor needs after power-up before it can be trusted
+welcome_state = {"last": 0.0, "n": 0, "greet_i": -1}
+welcome_lock = threading.Lock()
+
+
+def load_welcome():
+    try:
+        d = json.load(open(WELCOME_FILE))
+    except (OSError, ValueError):
+        d = {}
+    return clean_welcome(d)
+
+
+def clean_welcome(d):
+    out = dict(WELCOME_DEFAULT)
+    for k in ("greet", "turn", "eyes"):
+        if isinstance(d.get(k), bool):
+            out[k] = d[k]
+    if d.get("wait") in WAIT_CHOICES:
+        out["wait"] = d["wait"]
+    return out
+
+
+def save_welcome():
+    tmp = WELCOME_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(state["welcome"], f)
+    os.replace(tmp, WELCOME_FILE)
+
+
+state["welcome"] = load_welcome()
 
 
 def apply_prompt():
@@ -77,9 +123,9 @@ def apply_prompt():
     al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills) if persona else (BASE_PROMPT + skills)
 
 
-def write_eyes():
+def write_eyes(boost=False):
     c = state["color"].lstrip("#")
-    level = MAX_LEVEL * (state["brightness"] / 100.0)
+    level = MAX_LEVEL if boost else MAX_LEVEL * (state["brightness"] / 100.0)
     data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3)}
     tmp = EYES_FILE + ".tmp"
     with open(tmp, "w") as f:
@@ -97,6 +143,66 @@ def speak_async(text, use_persona=True):
             except Exception as e:  # keep the server alive if sound fails
                 print("SPEAK ERROR:", e, flush=True)
     threading.Thread(target=run, daemon=True).start()
+
+
+def welcome(force=False):
+    """Do whichever of the three the owner has switched on. Returns what was done.
+    The sensor path respects the wait; the Welcome now button (force) does not.
+    A single motion sensor cannot tell where a person is, so the head makes a small friendly
+    glance and comes back to the middle. It does not aim at anyone."""
+    import time
+    with welcome_lock:
+        w = state["welcome"]
+        now = time.time()
+        if not force and now - welcome_state["last"] < w["wait"]:
+            return []
+        welcome_state["last"] = now
+        welcome_state["n"] += 1
+        did = []
+        if w["eyes"]:
+            write_eyes(boost=True)
+            threading.Timer(4.0, write_eyes).start()
+            did.append("eyes")
+        if w["turn"]:
+            try:
+                tmp = NECK_FILE + ".tmp"
+                with open(tmp, "w") as f:
+                    json.dump({"cmd": "glance", "id": int(now * 1000)}, f)
+                os.replace(tmp, NECK_FILE)
+                did.append("turn")
+            except OSError as e:
+                print("NECK ERROR:", e, flush=True)
+        if w["greet"]:
+            if state["persona"]:
+                line = "Hello."   # a character is never given words it was not written
+            else:
+                welcome_state["greet_i"] = (welcome_state["greet_i"] + 1) % len(GREETINGS)
+                line = GREETINGS[welcome_state["greet_i"]]
+            speak_async(line)
+            did.append("greet")
+        return did
+
+
+def watch_motion():
+    """Read the motion sensor (HC-SR501) on GPIO13. If it is not wired or the library is missing,
+    the panel says so and everything else keeps working."""
+    import time
+    try:
+        from gpiozero import MotionSensor
+        sensor = MotionSensor(MOTION_PIN, queue_len=1, sample_rate=10, threshold=0.5)
+    except Exception as e:
+        print("MOTION SENSOR NOT AVAILABLE:", e, flush=True)
+        state["motion"] = "missing"
+        return
+    state["motion"] = "warming"
+    time.sleep(MOTION_WARM_UP)
+
+    def seen():
+        threading.Thread(target=welcome, daemon=True).start()
+
+    sensor.when_motion = seen
+    state["motion"] = "ready"
+    threading.Event().wait()   # keep the sensor object alive
 
 
 def header_value(name):
@@ -124,7 +230,8 @@ def home():
 def status():
     return jsonify(ok=True, name="AL", accent=state["accent"], skills=state["skills"],
                    color=state["color"], brightness=state["brightness"], persona=state["persona"],
-                   personas=len(PERSONAS), log=state["log"][-40:])
+                   personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"],
+                   log=state["log"][-40:])
 
 
 @app.post("/api/eyes")
@@ -268,6 +375,27 @@ def say_address():
     return jsonify(ok=True, address=ip, url="http://" + ip + ":8000")
 
 
+@app.get("/api/welcome")
+def welcome_get():
+    return jsonify(welcome=state["welcome"], motion=state["motion"])
+
+
+@app.post("/api/welcome")
+def welcome_set():
+    """Save what AL does when someone walks up. Reset does not touch this: it is the owner's choice."""
+    d = request.get_json(silent=True) or {}
+    state["welcome"] = clean_welcome({**state["welcome"], **d})
+    save_welcome()
+    return jsonify(ok=True, welcome=state["welcome"])
+
+
+@app.post("/api/welcome/now")
+def welcome_now():
+    """The backup for when the sensor misses someone: do the welcome now, ignoring the wait."""
+    did = welcome(force=True)
+    return jsonify(ok=True, did=did)
+
+
 @app.post("/api/reset")
 def reset():
     """Start fresh for the next person: forget the chat, the skills, and go back to default voice and eyes."""
@@ -380,4 +508,5 @@ if __name__ == "__main__":
     write_eyes()
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()
+    threading.Thread(target=watch_motion, daemon=True).start()
     app.run(host="0.0.0.0", port=8000, threaded=True)

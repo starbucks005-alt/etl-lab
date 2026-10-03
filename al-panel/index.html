@@ -70,6 +70,8 @@
   textarea{resize:vertical;min-height:70px}
   label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  label.wopt{display:flex;gap:10px;align-items:center;font-size:16px;color:var(--ink);margin:10px 0}
+  label.wopt input{width:20px;height:20px;margin:0}
 
   /* eyes */
   .face{background:var(--night);border-radius:12px;padding:14px 10px 6px;margin-bottom:14px}
@@ -258,6 +260,25 @@
       <div class="note">Only share photos you are happy for AL to see. When AL is connected, the photo is sent to her AI service to be described.</div>
     </section>
 
+    <!-- 8. WHEN SOMEONE WALKS UP -->
+    <section class="card wide" id="welcomeCard">
+      <h2>8. When someone walks up</h2>
+      <p class="hint" id="welcomeHint">AL notices when someone comes close. Choose what she does. If a lot of people pass by, set a longer wait so the hello does not get old.</p>
+      <label class="wopt"><input type="checkbox" id="wGreet"> Say hello</label>
+      <label class="wopt"><input type="checkbox" id="wTurn"> Turn her head</label>
+      <label class="wopt"><input type="checkbox" id="wEyes"> Brighten her eyes</label>
+      <label for="wWait">Wait this long before welcoming again</label>
+      <select id="wWait" style="max-width:260px">
+        <option value="15">15 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="60">1 minute</option>
+        <option value="300">5 minutes</option>
+        <option value="900">15 minutes</option>
+      </select>
+      <div class="row" style="margin-top:14px"><button id="wNow">Welcome now</button><span class="hint" id="wStatus" style="margin:0"></span></div>
+      <div class="note">Her head makes a small friendly glance to each side and comes back. One motion sensor can tell that someone is there, but not where, so she does not aim at anyone. Welcome now is for when the sensor misses a person.</div>
+    </section>
+
   </div>
 
   <footer>Concept and prototype stage. AL is a physical companion from Emerging Technologies Laboratory. She is an android, not a person.</footer>
@@ -273,7 +294,7 @@
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by AL and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null};
+  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, welcome:{greet:true, turn:true, eyes:true, wait:60}};
 
   var SKILLS = [
     {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
@@ -317,6 +338,8 @@
       $('log').innerHTML = '';
       info.log.forEach(function(m){ addMsg(m.who, m.text); });
     }
+    if(on && info && info.welcome){ state.welcome = info.welcome; paintWelcome(); }   // AL keeps these choices herself
+    paintSensor(on ? info : null);
     if(on && info){
       // AL may have been restarted since this page was last used, so tell her what this page shows
       var quiet = function(){};
@@ -617,6 +640,34 @@
     $('photo').value = ''; $('caption').value = ''; chosen = null; $('showPhoto').disabled = true;
   }
 
+  // ---------- when someone walks up ----------
+  function paintWelcome(){
+    var w = state.welcome;
+    $('wGreet').checked = !!w.greet; $('wTurn').checked = !!w.turn; $('wEyes').checked = !!w.eyes;
+    $('wWait').value = String(w.wait);
+  }
+  function paintSensor(info){
+    var msg = 'On AL this works with her motion sensor. Here your choices are only saved on this page.';
+    if(info){
+      msg = info.motion === 'ready' ? 'Her motion sensor is working.'
+          : info.motion === 'warming' ? 'Her motion sensor is warming up. This takes about a minute.'
+          : 'Her motion sensor is not connected yet. Welcome now still works.';
+    }
+    $('wStatus').textContent = msg;
+  }
+  function saveWelcome(){
+    var w = state.welcome;
+    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.wait = parseInt($('wWait').value, 10);
+    store('welcome', w);
+    if(live){ api('/api/welcome', w).catch(function(e){ addMsg('al', '(I could not save that choice: ' + e.message + ')'); }); }
+  }
+  function welcomeNow(){
+    if(!live){ addMsg('al', 'In demo mode I only say hello here. On AL this also turns my head and brightens my eyes, as you chose.'); reply(SAMPLE[state.accent]); return; }
+    api('/api/welcome/now').then(function(j){
+      if(!j.did || !j.did.length){ addMsg('al', 'All three are switched off, so I did nothing.'); }
+    }).catch(function(e){ addMsg('al', '(I could not welcome just now: ' + e.message + ')'); });
+  }
+
   function resetDemo(){
     state.skills = []; store('skills', []); $('log').innerHTML = ''; $('thumbs').innerHTML = '';
     state.color = '#1fb7c9'; state.bright = 40; state.accent = 'robot'; $('accent').value = 'robot';
@@ -636,6 +687,9 @@
   $('photo').addEventListener('change', pickPhoto);
   $('showPhoto').addEventListener('click', showPhoto);
   $('reset').addEventListener('click', resetDemo);
+  state.welcome = load('welcome', state.welcome); paintWelcome();
+  ['wGreet','wTurn','wEyes','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
+  $('wNow').addEventListener('click', welcomeNow);
   addMsg('al', 'Hello. I am AL. Try changing my eyes, or ask me something.');
   $('sayAddress').addEventListener('click', function(){
     if(!live){ addMsg('al', 'In demo mode I have no address of my own. Open this panel from AL to use this button.'); return; }
