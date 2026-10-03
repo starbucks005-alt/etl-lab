@@ -289,6 +289,8 @@
   var input = document.getElementById('astra9WaitEmail');
   var useCase = document.getElementById('astra9WaitUseCase');
   var status = document.getElementById('astra9WaitStatus');
+  var source = null;
+  try { source = new URLSearchParams(location.search).get('src'); } catch (e) {}
   form.addEventListener('submit', function(e){
     e.preventDefault();
     var email = input.value.trim();
@@ -297,7 +299,7 @@
     fetch('/.netlify/functions/astra9-waitlist', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email: email, use_case: useCase.value || null})
+      body: JSON.stringify({email: email, use_case: useCase.value || null, source: source})
     }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
       .then(function(res){
         if (res.ok && res.d && res.d.ok) {

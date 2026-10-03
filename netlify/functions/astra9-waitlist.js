@@ -11,6 +11,13 @@ function isValidEmail(email) {
    reject a signup -- worst case it is just not stored. */
 const USE_CASES = ['home', 'education', 'workshop', 'other'];
 
+/* Optional "came from" tag, e.g. a QR code on a table at an exhibition. Only
+   short lowercase words, numbers and dashes are kept, anything else is dropped. */
+function cleanSource(v) {
+  const s = String(v || '').trim().toLowerCase();
+  return /^[a-z0-9-]{1,40}$/.test(s) ? s : null;
+}
+
 exports.handler = async function(event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'method_not_allowed' }) };
@@ -26,13 +33,15 @@ exports.handler = async function(event) {
   }
   const useCase = USE_CASES.includes(body.use_case) ? body.use_case : null;
 
+  const source = cleanSource(body.source);
+
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) {
     return { statusCode: 500, body: JSON.stringify({ error: 'config' }) };
   }
 
-  try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/astra9_waitlist_emails`, {
+  async function save(row) {
+    return fetch(`${SUPABASE_URL}/rest/v1/astra9_waitlist_emails`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,8 +49,17 @@ exports.handler = async function(event) {
         'Authorization': `Bearer ${serviceKey}`,
         'Prefer': 'resolution=ignore-duplicates',
       },
-      body: JSON.stringify({ email, use_case: useCase }),
+      body: JSON.stringify(row),
     });
+  }
+
+  try {
+    let r = await save({ email, use_case: useCase, source });
+    /* If the source column has not been added in Supabase yet, keep the signup
+       without it rather than losing the email. */
+    if (!r.ok && r.status !== 409 && source) {
+      r = await save({ email, use_case: useCase });
+    }
 
     if (!r.ok && r.status !== 409) {
       const err = await r.text();
