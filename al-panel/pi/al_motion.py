@@ -6,6 +6,8 @@ shares the one 4-wire cable with the eye lights (GPIO12). Not tested on AL yet.
 
 Run it by hand to check the wiring:   python3 ~/al_panel/al_motion.py
 No sudo needed. Stop it with Ctrl+C.
+The panel server holds GPIO13 too, and only one program can, so stop the panel first:
+  sudo systemctl stop al-panel.service      (and start it again afterwards)
 
 The sensor needs about a minute after power-up before it settles. Wave a hand
 in front of the dome. It should print MOTION, then STILL after its delay.

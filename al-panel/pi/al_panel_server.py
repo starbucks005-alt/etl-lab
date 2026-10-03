@@ -64,7 +64,8 @@ EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
 state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "persona": None, "history": [], "log": [],
-         "motion": "missing"}   # the sensor: missing, warming or ready
+         "motion": "missing",   # the library and pin: missing (could not start), warming or ready
+         "seen": 0.0}           # when the sensor last noticed someone
 speak_lock = threading.Lock()
 app = Flask(__name__)
 
@@ -198,6 +199,7 @@ def watch_motion():
     time.sleep(MOTION_WARM_UP)
 
     def seen():
+        state["seen"] = time.time()
         threading.Thread(target=welcome, daemon=True).start()
 
     sensor.when_motion = seen
@@ -377,7 +379,9 @@ def say_address():
 
 @app.get("/api/welcome")
 def welcome_get():
-    return jsonify(welcome=state["welcome"], motion=state["motion"])
+    import time
+    ago = round(time.time() - state["seen"]) if state["seen"] else None
+    return jsonify(welcome=state["welcome"], motion=state["motion"], seen_ago=ago)
 
 
 @app.post("/api/welcome")

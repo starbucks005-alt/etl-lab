@@ -646,14 +646,21 @@
     $('wGreet').checked = !!w.greet; $('wTurn').checked = !!w.turn; $('wEyes').checked = !!w.eyes;
     $('wWait').value = String(w.wait);
   }
+  function ago(n){ return n < 90 ? n + ' seconds ago' : n < 5400 ? Math.round(n/60) + ' minutes ago' : Math.round(n/3600) + ' hours ago'; }
   function paintSensor(info){
+    // AL cannot tell whether a sensor is plugged in, only whether it has noticed anyone
     var msg = 'On AL this works with her motion sensor. Here your choices are only saved on this page.';
     if(info){
-      msg = info.motion === 'ready' ? 'Her motion sensor is working.'
-          : info.motion === 'warming' ? 'Her motion sensor is warming up. This takes about a minute.'
-          : 'Her motion sensor is not connected yet. Welcome now still works.';
+      msg = info.motion === 'warming' ? 'Her motion sensor is warming up. This takes about a minute.'
+          : info.motion === 'ready' ? (info.seen_ago == null ? 'Listening for her motion sensor. It has not noticed anyone yet. Wave a hand in front of it to check.'
+                                                                : 'Her motion sensor last noticed someone ' + ago(info.seen_ago) + '.')
+          : 'Her motion sensor could not be started. Welcome now still works.';
     }
     $('wStatus').textContent = msg;
+  }
+  function pollSensor(){
+    if(!live){ return; }
+    fetch('/api/welcome').then(function(r){ return r.json(); }).then(function(j){ paintSensor(j); }).catch(function(){});
   }
   function saveWelcome(){
     var w = state.welcome;
@@ -708,6 +715,7 @@
   $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
   buildGroups(); loadPersonas();
   tryConnect();
+  setInterval(pollSensor, 3000);
 })();
 </script>
 </body>
