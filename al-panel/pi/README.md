@@ -24,6 +24,14 @@ eye lights are untested.
 3. If it complains about the Pi's own audio, turn that off with `dtparam=audio=off`
    in `/boot/firmware/config.txt` and restart. That is flagged in the build brief.
 
+## Motion sensor (after the sensor is wired)
+`al_motion.py` only reports motion on the screen. It does not make AL do anything
+yet. The signal wire goes to GPIO13, the second signal pin of the HAT's GPIO12
+socket, because the pins under the HAT are not reachable. Which wire of the cable is
+GPIO13 has to be found with a meter before it is connected (see the build brief).
+1. `python3 ~/al_panel/al_motion.py`
+2. Wait for "Ready", then wave a hand in front of the dome.
+
 ## Limits and notes
 - Eye brightness is capped at 30 percent of the lights' full power, in two places.
 - Photos are held in memory only and are never saved.
