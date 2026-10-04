@@ -8,7 +8,9 @@ al.py already holds.
 Run:   python3 ~/al_panel/al_panel_server.py
 Open:  http://<AL's address>:8000   (from a phone or laptop on the same network)
 """
+import array
 import base64
+import collections
 import json
 import os
 import re
@@ -16,6 +18,7 @@ import subprocess
 import sys
 import threading
 import time
+import wave
 
 import requests
 from flask import Flask, jsonify, request, send_from_directory
@@ -76,7 +79,7 @@ app = Flask(__name__)
 WELCOME_FILE = os.path.join(HERE, "welcome.json")
 NECK_FILE = "/tmp/al_neck.json"
 WAIT_CHOICES = (15, 30, 60, 300, 900)
-WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "wait": 60}
+WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "wait": 60}
 GREETINGS = [
     "Hello there. I am Astra-9 Lite. Welcome.",
     "Hi. I am Astra-9 Lite, but you can call me Elle. Come and say hello.",
@@ -99,7 +102,7 @@ def load_welcome():
 
 def clean_welcome(d):
     out = dict(WELCOME_DEFAULT)
-    for k in ("greet", "turn", "eyes"):
+    for k in ("greet", "turn", "eyes", "chat", "always"):
         if isinstance(d.get(k), bool):
             out[k] = d[k]
     if d.get("wait") in WAIT_CHOICES:
@@ -136,16 +139,19 @@ def write_eyes(boost=False):
     os.replace(tmp, EYES_FILE)
 
 
+def speak_now(text, use_persona=True):
+    """Say it and come back only when she has finished."""
+    with speak_lock:
+        try:
+            persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
+            al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
+            al.speak(text)
+        except Exception as e:  # keep the server alive if sound fails
+            print("SPEAK ERROR:", e, flush=True)
+
+
 def speak_async(text, use_persona=True):
-    def run():
-        with speak_lock:
-            try:
-                persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
-                al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
-                al.speak(text)
-            except Exception as e:  # keep the server alive if sound fails
-                print("SPEAK ERROR:", e, flush=True)
-    threading.Thread(target=run, daemon=True).start()
+    threading.Thread(target=speak_now, args=(text, use_persona), daemon=True).start()
 
 
 def welcome(force=False):
@@ -181,8 +187,14 @@ def welcome(force=False):
             else:
                 welcome_state["greet_i"] = (welcome_state["greet_i"] + 1) % len(GREETINGS)
                 line = GREETINGS[welcome_state["greet_i"]]
-            speak_async(line)
+            if w["chat"]:
+                # say it, then keep listening so the person can answer without touching anything
+                threading.Thread(target=lambda: (speak_now(line), converse()), daemon=True).start()
+            else:
+                speak_async(line)
             did.append("greet")
+        elif w["chat"]:
+            threading.Thread(target=converse, daemon=True).start()
         return did
 
 
@@ -456,6 +468,143 @@ def say():
     return jsonify(reply=reply)
 
 
+# ---- hands-free listening ----
+CONVERSE_SECONDS = 20     # after a hello, she keeps listening this long, and again after each thing she answers
+MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
+NAME_RE = re.compile(r"\b(elle|astra|astro|astrid|al|8l)\b", re.I)   # speech to text often mishears her name
+
+
+def level_of(buf):
+    a = array.array("h")
+    a.frombytes(buf[: len(buf) // 2 * 2])
+    return (sum(x * x for x in a) / len(a)) ** 0.5 if a else 0.0
+
+
+def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None):
+    """Wait for someone to start speaking, record until they stop, and return the wav path.
+    Returns None if nobody spoke within wait_seconds. She never listens while she is speaking."""
+    with speak_lock:
+        pass
+    time.sleep(0.6 if stream is None else 0)       # let the room go quiet after she finishes
+    proc = None
+    if stream is None:
+        proc = subprocess.Popen(["arecord", "-q", "-D", MIC_DEVICE, "-f", "S16_LE", "-r", "16000", "-c", "1", "-t", "raw"],
+                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        stream = proc.stdout
+    CH = 3200                                       # 0.1 second of 16 kHz mono 16 bit
+    try:
+        base = []
+        for _ in range(5):                          # the first half second sets how noisy the room is
+            c = stream.read(CH)
+            if len(c) < CH:
+                return None
+            base.append(level_of(c))
+        floor = sum(base) / len(base)
+        thr = max(MIN_LEVEL, min(floor * 3, 2500))
+        print("LISTEN room %.0f, speech above %.0f" % (floor, thr), flush=True)
+        pre = collections.deque(maxlen=3)
+        speech = bytearray()
+        started, loud, quiet, voiced, t0 = False, 0, 0, 0, time.time()
+        while True:
+            c = stream.read(CH)
+            if len(c) < CH:
+                break
+            lvl = level_of(c)
+            if not started:
+                pre.append(c)
+                loud = loud + 1 if lvl > thr else 0
+                if loud >= 2:
+                    started = True
+                    speech += b"".join(pre)
+                elif time.time() - t0 > wait_seconds:
+                    return None
+            else:
+                speech += c
+                voiced += 1 if lvl > thr else 0
+                quiet = quiet + 1 if lvl < thr else 0
+                if quiet >= 10 or len(speech) / 32000.0 > max_seconds:
+                    break
+        if not started or voiced < 3:          # a click or a cough is under a third of a second of sound
+            return None
+        with wave.open(LISTEN_FILE, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(16000)
+            w.writeframes(bytes(speech))
+        return LISTEN_FILE
+    finally:
+        if proc:
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except Exception:
+                proc.kill()
+
+
+def answer_and_say(text):
+    """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
+    reply = al.get_al_reply(context_for(text))
+    state["history"].append('They said "%s" and you said "%s".' % (text, reply))
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
+    speak_now(reply)
+    return reply
+
+
+def converse(window=None):
+    """Keep listening and answering until nobody has spoken for a while."""
+    if not listen_lock.acquire(blocking=False):
+        return
+    try:
+        window = window or CONVERSE_SECONDS
+        deadline = time.time() + window
+        while time.time() < deadline:
+            path = hear_one(wait_seconds=max(1.0, deadline - time.time()))
+            if not path:
+                break
+            try:
+                text = transcribe(path)
+            except Exception as e:
+                print("LISTEN ERROR:", e, flush=True)
+                break
+            if not text:
+                continue
+            try:
+                answer_and_say(text)
+            except Exception as e:
+                print("ANSWER ERROR:", e, flush=True)
+                break
+            deadline = time.time() + window        # keep going while people keep talking
+    finally:
+        listen_lock.release()
+
+
+def watch_names():
+    """With "always listening" on, answer only when she hears her own name, then carry on the conversation."""
+    while True:
+        if not state["welcome"].get("always"):
+            time.sleep(1)
+            continue
+        if not listen_lock.acquire(blocking=False):
+            time.sleep(0.5)
+            continue
+        text = ""
+        try:
+            path = hear_one(wait_seconds=4)
+            if path:
+                text = transcribe(path)
+        except Exception as e:
+            print("LISTEN ERROR:", e, flush=True)
+            time.sleep(5)
+        finally:
+            listen_lock.release()
+        if text and NAME_RE.search(text):
+            try:
+                answer_and_say(text)
+                converse()
+            except Exception as e:
+                print("ANSWER ERROR:", e, flush=True)
+
+
 LISTEN_SECONDS = 6                     # how long she listens after Talk is pressed
 MIC_DEVICE = "plughw:wm8960soundcard"  # the HAT's sound card, as aplay -l names it; the 5 second test through it worked
 LISTEN_FILE = "/tmp/al_heard.wav"
@@ -484,7 +633,7 @@ def transcribe(path=None):
 def listen():
     """Listen for a few seconds, turn what was said into words, and answer it out loud like a typed message."""
     if not listen_lock.acquire(blocking=False):
-        return jsonify(error="I am already listening."), 409
+        return jsonify(error="She is already listening. Just speak to her."), 409
     try:
         with speak_lock:                 # she does not talk over herself, and does not hear herself
             try:
@@ -597,4 +746,5 @@ if __name__ == "__main__":
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()
     threading.Thread(target=watch_motion, daemon=True).start()
+    threading.Thread(target=watch_names, daemon=True).start()
     app.run(host="0.0.0.0", port=8000, threaded=True)

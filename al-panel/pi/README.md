@@ -86,6 +86,13 @@ some credit), and gives the words to the same reply code as the typed box.
 Tested here with stand-ins for the microphone and the service. NOT yet run against the real service on the Pi, so
 the model name and the pace of the answer are unproven. She does not listen all the time: one press, one question.
 Her own speaking and the recording never overlap, so she does not hear herself.
+Hands free, in card 8: "Keep listening after the hello" (on by default) makes her listen for about 20 seconds after
+the hello, and again after each answer, so people can just talk to her. "Always listening" (off by default) makes her
+answer only when she hears her name (Elle or Astra; speech to text often mishears it, so Al, Astro and Astrid count).
+Hearing starts when a sound rises above the room's level (at least 600 on a 16 bit scale, `MIN_LEVEL`) and ends after a
+second of quiet. That number is a first guess and needs tuning on the real Pi in a quiet room and in a noisy one: the
+server prints "LISTEN room X, speech above Y" to the journal each time (`journalctl -u al-panel.service -f`).
+Tested here with made-up audio and stand-ins only. She never listens while she is speaking, with a short pause after.
 Note for later: `al.py` plays sound on `plughw:3,0`, by card number. Turning the Pi's own audio off moves the HAT
 from card 3 to card 2, which silenced her on 2026-10-04. Leave the built-in audio on, or change that line to
 `plughw:wm8960soundcard`.

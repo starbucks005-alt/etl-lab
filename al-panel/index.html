@@ -269,6 +269,9 @@
       <label class="wopt"><input type="checkbox" id="wGreet"> Say hello</label>
       <label class="wopt"><input type="checkbox" id="wTurn"> Turn her head</label>
       <label class="wopt"><input type="checkbox" id="wEyes"> Brighten her eyes</label>
+      <label class="wopt"><input type="checkbox" id="wChat"> Keep listening after the hello, so people can just talk to her</label>
+      <label class="wopt"><input type="checkbox" id="wAlways"> Always listening: she answers when she hears her name, Elle or Astra</label>
+      <p class="hint" id="wListenHint" style="margin:4px 0 10px">After the hello she listens for about 20 seconds and answers what is said, and keeps going while people keep talking. Always listening uses some speech service credit each time anyone speaks nearby, so switch it off when it is not needed. Only on Astra-9 Lite.</p>
       <label for="wWait">Wait this long before welcoming again</label>
       <select id="wWait" style="max-width:260px">
         <option value="15">15 seconds</option>
@@ -305,7 +308,7 @@
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by Astra-9 Lite and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, welcome:{greet:true, turn:true, eyes:true, wait:60}};
+  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
 
   var SKILLS = [
     {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
@@ -657,6 +660,7 @@
   function paintWelcome(){
     var w = state.welcome;
     $('wGreet').checked = !!w.greet; $('wTurn').checked = !!w.turn; $('wEyes').checked = !!w.eyes;
+    $('wChat').checked = w.chat !== false; $('wAlways').checked = !!w.always;
     $('wWait').value = String(w.wait);
   }
   function ago(n){ return n < 90 ? n + ' seconds ago' : n < 5400 ? Math.round(n/60) + ' minutes ago' : Math.round(n/3600) + ' hours ago'; }
@@ -677,7 +681,7 @@
   }
   function saveWelcome(){
     var w = state.welcome;
-    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.wait = parseInt($('wWait').value, 10);
+    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.chat = $('wChat').checked; w.always = $('wAlways').checked; w.wait = parseInt($('wWait').value, 10);
     store('welcome', w);
     if(live){ api('/api/welcome', w).catch(function(e){ addMsg('al', '(I could not save that choice: ' + e.message + ')'); }); }
   }
@@ -733,7 +737,7 @@
   $('showPhoto').addEventListener('click', showPhoto);
   $('reset').addEventListener('click', resetDemo);
   state.welcome = load('welcome', state.welcome); paintWelcome();
-  ['wGreet','wTurn','wEyes','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
+  ['wGreet','wTurn','wEyes','wChat','wAlways','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
   addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
   // ---------- talk by voice: she listens for 6 seconds through her own microphones ----------
