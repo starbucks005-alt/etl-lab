@@ -65,6 +65,17 @@ sudo curl -sSLo /etc/systemd/system/al-eyes.service https://raw.githubuserconten
 It should print `active` twice. If a part is not connected yet, its service keeps trying
 every 5 seconds and does no harm. The username `terryoroszi` is AL's; change it for another unit.
 
+## Switching her off (the Shut down button)
+Card 9 in the panel, "Switching off", shuts the Pi down properly: she says goodnight, then the Pi halts.
+Wait about 30 seconds after that, then it is safe to switch the power off. Pulling the power while the Pi is
+running can slowly damage its memory card. The button is only shown when the page is served by the Pi, and it
+takes two taps so a stray tap cannot do it.
+The panel needs permission to run the shutdown without a password. Run this once on the Pi:
+```
+echo 'terryoroszi ALL=(root) NOPASSWD: /usr/sbin/shutdown' | sudo tee /etc/sudoers.d/al-shutdown && sudo chmod 440 /etc/sudoers.d/al-shutdown && sudo visudo -c
+```
+Until that is done the button says so and shuts nothing down. Tested only with stand-ins here, not yet on the Pi.
+
 ## Limits and notes
 - Eye brightness is capped at 30 percent of the lights' full power, in two places.
 - Photos are held in memory only and are never saved.

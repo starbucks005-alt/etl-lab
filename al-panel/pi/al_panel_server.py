@@ -12,8 +12,10 @@ import base64
 import json
 import os
 import re
+import subprocess
 import sys
 import threading
+import time
 
 import requests
 from flask import Flask, jsonify, request, send_from_directory
@@ -398,6 +400,35 @@ def welcome_now():
     """The backup for when the sensor misses someone: do the welcome now, ignoring the wait."""
     did = welcome(force=True)
     return jsonify(ok=True, did=did)
+
+
+SHUTDOWN_CMD = ["sudo", "-n", "/usr/sbin/shutdown", "-h", "now"]
+SUDOERS_LINE = ("echo 'terryoroszi ALL=(root) NOPASSWD: /usr/sbin/shutdown' | sudo tee /etc/sudoers.d/al-shutdown "
+                "&& sudo chmod 440 /etc/sudoers.d/al-shutdown && sudo visudo -c")
+
+
+def may_shut_down():
+    """True when this server is allowed to switch the Pi off without asking for a password."""
+    try:
+        r = subprocess.run(["sudo", "-n", "-l", "/usr/sbin/shutdown"], capture_output=True, timeout=5)
+        return r.returncode == 0
+    except Exception:
+        return False
+
+
+@app.post("/api/shutdown")
+def shut_down():
+    """Say goodnight, then switch the Pi off properly, so the power can be cut safely afterwards."""
+    if not may_shut_down():
+        return jsonify(error="I am not allowed to shut myself down yet. Run this once on the Pi, then try again: "
+                             + SUDOERS_LINE), 503
+
+    def go():
+        time.sleep(6)                    # let the goodnight finish
+        subprocess.run(SHUTDOWN_CMD)
+    speak_async("Shutting down now. Goodnight.", use_persona=False)
+    threading.Thread(target=go, daemon=True).start()
+    return jsonify(ok=True)
 
 
 @app.post("/api/reset")

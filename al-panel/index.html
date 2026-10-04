@@ -281,7 +281,16 @@
 
   </div>
 
-  <footer>Concept and prototype stage. Astra-9 Lite is a physical companion from Emerging Technologies Laboratory. She is an android, not a person.</footer>
+  <!-- 9. SWITCHING OFF, added 2026-10-04, Dr. O: "add a shut down button to the panel". Only shown when this page is
+         served by Astra-9 Lite. Switching the power off while the Pi is running can slowly damage its memory card,
+         so this shuts it down properly first. -->
+    <section class="card wide" id="shutCard" style="display:none">
+      <h2>9. Switching off</h2>
+      <p class="hint">Press this before switching off her power. She says goodnight and shuts down properly. Wait about 30 seconds after that, then it is safe to switch the power off.</p>
+      <div class="row" style="margin-top:12px"><button id="shutBtn">Shut down Astra-9 Lite</button><span class="hint" id="shutStatus" style="margin:0"></span></div>
+    </section>
+
+    <footer>Concept and prototype stage. Astra-9 Lite is a physical companion from Emerging Technologies Laboratory. She is an android, not a person.</footer>
 </div>
 
 <dialog id="dlg"><h3 id="dlgTitle"></h3><p id="dlgBody"></p><div class="row" id="dlgBtns"></div></dialog>
@@ -330,7 +339,8 @@
   // ---------- connection ----------
   function setLive(on, info){
     live = on;
-    $('demoNote').style.display = on ? 'none' : '';   // the sample-data note is for the website, not for the real Astra-9 Lite
+    $('demoNote').style.display = on ? 'none' : '';
+    $('shutCard').style.display = on ? '' : 'none';   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
     $('statusText').textContent = on ? 'Connected to Astra-9 Lite' : 'Demo mode, no Astra-9 Lite connected';
     $('talkHint').textContent = on ? 'Type a message. Astra-9 Lite answers out loud and here.' : 'Type a message. In demo mode the replies are examples.';
@@ -682,12 +692,37 @@
     if(live){ api('/api/reset').catch(function(){}); }
   }
 
+  // ---------- switching off: two taps, so a stray tap cannot do it ----------
+  var shutTimer = null;
+  function shutDown(){
+    var b = $('shutBtn'), msg = $('shutStatus');
+    if(!live){ return; }
+    if(!shutTimer){
+      b.textContent = 'Tap again to shut down';
+      msg.textContent = '';
+      shutTimer = setTimeout(function(){ shutTimer = null; b.textContent = 'Shut down Astra-9 Lite'; }, 6000);
+      return;
+    }
+    clearTimeout(shutTimer); shutTimer = null;
+    b.disabled = true; b.textContent = 'Shutting down';
+    fetch('/api/shutdown', {method:'POST'}).then(function(r){
+      return r.json().then(function(j){ return {ok:r.ok, j:j}; });
+    }).then(function(x){
+      if(!x.ok){ throw new Error(x.j.error || 'Astra-9 Lite could not shut down.'); }
+      msg.textContent = 'She is saying goodnight. In about 30 seconds it is safe to switch the power off.';
+    }).catch(function(e){
+      b.disabled = false; b.textContent = 'Shut down Astra-9 Lite';
+      msg.textContent = e.message;
+    });
+  }
+
   // ---------- start ----------
   buildSwatches();
   var saved = load('eyes', null); if(saved){ state.color = saved.color; state.bright = saved.bright; $('bright').value = saved.bright; }
   state.persona = load('persona', null); state.skills = load('skills', []); state.accent = load('accent', 'robot'); if(!SAMPLE[state.accent]){ state.accent = 'robot'; } $('accent').value = state.accent;
   paintEyes(); renderSkills(); setLive(false);
   $('hear').addEventListener('click', hearIt);
+  $('shutBtn').addEventListener('click', shutDown);
   $('rename').addEventListener('click', renameInfo);
   $('send').addEventListener('click', send);
   $('say').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ send(); } });
