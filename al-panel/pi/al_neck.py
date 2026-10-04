@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Turns AL's head. Drives the neck servo (MG996R) through the PCA9685 board on channel 0.
+"""Turns AL's head. Drives the neck servo (MG996R) through the PCA9685 board on channel 8.
 
-NOT TESTED ON AL YET. Run it on the bench first with the head off the servo.
+The motor moved on the bench on 2026-10-04, found by trying channels one at a time. Run it on the bench first
+with the head off the servo.
 
 The panel server asks for a small friendly glance by writing /tmp/al_neck.json.
 A motion sensor cannot tell where a person is, so the head does not aim at anyone:
@@ -21,7 +22,7 @@ import time
 
 from adafruit_servokit import ServoKit
 
-CHANNEL = 0
+CHANNEL = 8         # found by trying each channel in turn: the motor moved on 8, with its plug on the pins nearest the board's far end
 MIDDLE = 90
 LIMIT = 60          # the most the head may ever turn from the middle, in degrees
 GLANCE = 25         # how far the glance goes each way

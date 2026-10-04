@@ -45,7 +45,8 @@ Power the sensor from the 5V supply, not from the cable.
    not be started, and everything else keeps working.
 
 ## Neck (after the servo board is wired)
-Not run on AL yet. The PCA9685 board takes its two data wires from the HAT's I2C socket.
+Moved the motor on the bench on 2026-10-04, on channel 8 (found by trying each channel in turn).
+The PCA9685 board takes its two data wires from the HAT's I2C socket.
 Measure that socket's power pin with a meter before connecting the board's logic power.
 1. `sudo pip3 install adafruit-circuitpython-servokit --break-system-packages`
 2. `i2cdetect -y 1` should show 40 once the board is connected.
