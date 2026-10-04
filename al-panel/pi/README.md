@@ -66,6 +66,17 @@ sudo curl -sSLo /etc/systemd/system/al-eyes.service https://raw.githubuserconten
 It should print `active` twice. If a part is not connected yet, its service keeps trying
 every 5 seconds and does no harm. The username `terryoroszi` is AL's; change it for another unit.
 
+## The arcade Talk button (shares the sensor's line)
+There is no free pin to reach without soldering, so the button shares GPIO13, the sensor's line. Wire the button's two
+tabs between the GPIO12 plug's RED wire (3.3 volts, otherwise unused) and the plug's WHITE wire, with a 220 ohm resistor
+in one leg (two 470 ohm side by side will do). It must join the white wire on the Pi's side of the sensor's own 470 ohm
+resistor, not on the sensor's side, or the sensor's output holds the line low and the press is lost.
+A tap pulls the line high for under a second and does the same as the panel's Talk to her button. The sensor holds its
+line high for 3 seconds or more and still triggers the hello. `BUTTON_MAX_PULSE` in the server (1.0 second) is the
+dividing line. A held press looks like the sensor, so tap, do not hold.
+Tested here with a stand-in for the pin (a tap, a long signal, a repeat inside the wait, two taps, a 0.9 second tap).
+NOT yet tried with a real button. While she listens her eyes brighten, so people can see she is.
+
 ## Switching her off (the Shut down button)
 Card 9 in the panel, "Switching off", shuts the Pi down properly: she says goodnight, then the Pi halts.
 Wait about 30 seconds after that, then it is safe to switch the power off. Pulling the power while the Pi is

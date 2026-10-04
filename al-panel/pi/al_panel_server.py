@@ -198,13 +198,24 @@ def welcome(force=False):
         return did
 
 
+BUTTON_MAX_PULSE = 1.0   # seconds. A pulse shorter than this on the sensor line is the arcade button;
+                         # the sensor holds its signal for 3 seconds or more.
+
+
+def talk_button():
+    """The arcade button: the same as pressing Talk to her in the panel."""
+    payload, status = listen_once()
+    print("BUTTON TALK:", status, payload, flush=True)
+
+
 def watch_motion():
-    """Read the motion sensor (HC-SR501) on GPIO13. If it is not wired or the library is missing,
+    """Read the sensor line on GPIO13. A long signal is the motion sensor (HC-SR501); a short tap is the arcade
+    button, wired from 3.3V to the same line through a resistor. If it is not wired or the library is missing,
     the panel says so and everything else keeps working."""
     import time
     try:
-        from gpiozero import MotionSensor
-        sensor = MotionSensor(MOTION_PIN, queue_len=1, sample_rate=10, threshold=0.5)
+        from gpiozero import DigitalInputDevice
+        line = DigitalInputDevice(MOTION_PIN, pull_up=False, bounce_time=0.02)
     except Exception as e:
         print("MOTION SENSOR NOT AVAILABLE:", e, flush=True)
         state["motion"] = "missing"
@@ -212,13 +223,32 @@ def watch_motion():
     state["motion"] = "warming"
     time.sleep(MOTION_WARM_UP)
 
+    pulse = {"t": None, "timer": None}
+
     def seen():
+        pulse["timer"] = None
+        if not line.is_active:       # it dropped again, so the falling edge has already handled it
+            return
         state["seen"] = time.time()
         threading.Thread(target=welcome, daemon=True).start()
 
-    sensor.when_motion = seen
+    def rising():
+        pulse["t"] = time.time()
+        pulse["timer"] = threading.Timer(BUTTON_MAX_PULSE, seen)
+        pulse["timer"].start()
+
+    def falling():
+        t, timer = pulse["t"], pulse["timer"]
+        pulse["t"], pulse["timer"] = None, None
+        if t is not None and time.time() - t < BUTTON_MAX_PULSE:
+            if timer:
+                timer.cancel()
+            threading.Thread(target=talk_button, daemon=True).start()
+
+    line.when_activated = rising
+    line.when_deactivated = falling
     state["motion"] = "ready"
-    threading.Event().wait()   # keep the sensor object alive
+    threading.Event().wait()   # keep the line object alive
 
 
 def header_value(name):
@@ -629,33 +659,43 @@ def transcribe(path=None):
     return (r.json().get("text") or "").strip()
 
 
-@app.post("/api/listen")
-def listen():
-    """Listen for a few seconds, turn what was said into words, and answer it out loud like a typed message."""
+def listen_once():
+    """Listen for a few seconds, turn what was said into words, and answer it out loud like a typed message.
+    Returns (what to send back, status). Her eyes brighten while she listens, so people can see she is."""
     if not listen_lock.acquire(blocking=False):
-        return jsonify(error="She is already listening. Just speak to her."), 409
+        return {"error": "She is already listening. Just speak to her."}, 409
     try:
-        with speak_lock:                 # she does not talk over herself, and does not hear herself
-            try:
-                record_clip()
-            except Exception as e:
-                return jsonify(error="I could not use the microphones: " + str(e)[:160]), 502
+        write_eyes(boost=True)
+        try:
+            with speak_lock:                 # she does not talk over herself, and does not hear herself
+                try:
+                    record_clip()
+                except Exception as e:
+                    return {"error": "I could not use the microphones: " + str(e)[:160]}, 502
+        finally:
+            write_eyes()
         try:
             heard = transcribe()
         except Exception as e:
-            return jsonify(error=str(e)[:200]), 502
+            return {"error": str(e)[:200]}, 502
         if not heard:
-            return jsonify(heard="", reply=""), 200
+            return {"heard": "", "reply": ""}, 200
         try:
             reply = al.get_al_reply(context_for(heard))
         except Exception as e:
-            return jsonify(error=str(e)[:200], heard=heard), 502
+            return {"error": str(e)[:200], "heard": heard}, 502
         state["history"].append('They said "%s" and you said "%s".' % (heard, reply))
         state["log"] += [{"who": "you", "text": heard}, {"who": "al", "text": reply}]
         speak_async(reply)
-        return jsonify(heard=heard, reply=reply)
+        return {"heard": heard, "reply": reply}, 200
     finally:
         listen_lock.release()
+
+
+@app.post("/api/listen")
+def listen():
+    payload, status = listen_once()
+    return jsonify(payload), status
 
 
 @app.post("/api/photo")
