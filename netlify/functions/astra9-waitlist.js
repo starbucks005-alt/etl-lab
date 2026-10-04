@@ -1,4 +1,4 @@
-/* astra9-waitlist — adds email to astra9_waitlist_emails table in Supabase.
+/* astra9-waitlist: adds email to astra9_waitlist_emails table in Supabase.
    No auth required, no payment. Rate-limited by Netlify's default function limits. */
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
@@ -10,6 +10,11 @@ function isValidEmail(email) {
 /* Optional, self-reported, so a bad or missing value is never a reason to
    reject a signup -- worst case it is just not stored. */
 const USE_CASES = ['home', 'education', 'workshop', 'other'];
+
+/* Optional too: which size would suit them. Added 2026-10-04. It needs a "version" text column in the
+   astra9_waitlist_emails table. Until that column exists the choice is simply not stored, and the
+   email still is. */
+const VERSIONS = ['fullsize', 'lite', 'either'];
 
 /* Optional "came from" tag, e.g. a QR code on a table at an exhibition. Only
    short lowercase words, numbers and dashes are kept, anything else is dropped. */
@@ -34,6 +39,7 @@ exports.handler = async function(event) {
   const useCase = USE_CASES.includes(body.use_case) ? body.use_case : null;
 
   const source = cleanSource(body.source);
+  const version = VERSIONS.includes(body.version) ? body.version : null;
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) {
@@ -54,9 +60,13 @@ exports.handler = async function(event) {
   }
 
   try {
-    let r = await save({ email, use_case: useCase, source });
-    /* If the source column has not been added in Supabase yet, keep the signup
-       without it rather than losing the email. */
+    let r = await save({ email, use_case: useCase, source, version });
+    /* If the source or version column has not been added in Supabase yet, keep the signup
+       without it rather than losing the email. Try without the version first, then without
+       the source too. */
+    if (!r.ok && r.status !== 409 && version) {
+      r = await save({ email, use_case: useCase, source });
+    }
     if (!r.ok && r.status !== 409 && source) {
       r = await save({ email, use_case: useCase });
     }

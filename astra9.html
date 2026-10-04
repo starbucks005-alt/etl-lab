@@ -151,10 +151,11 @@
         sisters before her who never woke up. Astrad was built after her, for her, so she would
         finally have the company she'd waited for.</p>
         <p>The images below show our current prototype in development, including Astra-9
-        Lite, a bench-top version running Astra-9's own real voice and personality, built
-        first to prove out the electronics before they go into the full-size figures above.
-        Both arrive ready to talk, expanding through downloadable skill backpacks configured
-        for your home, classroom, or workshop. <a href="/astra9-why">Why our agents are different &rarr;</a>
+        Lite, the portable version: a head and bust running Astra-9's own real voice and
+        personality. She travels, takes up less room, and should cost less than a full-size
+        figure, so she suits a school, a desk, or a workshop that wants a companion without a
+        whole body. Both sizes arrive ready to talk, expanding through downloadable skill
+        backpacks configured for your home, classroom, or workshop. <a href="/astra9-why">Why our agents are different &rarr;</a>
         <a href="/al-panel/">Try the AL companion panel: eyes, accent, skills and personalities &rarr;</a></p>
       </div>
     </div>
@@ -208,8 +209,8 @@
 
   <div class="gallery" id="a9Gallery">
     <figure>
-      <img src="/images/astra9-home/astra9-lite-bench-v1.jpg" alt="Astra-9 Lite, a bench-top version of Astra-9, front, back, and side view." loading="lazy" data-scene="Astra-9 Lite, the bench-top version">
-      <figcaption><span class="scene">Astra-9 Lite, the bench-top version</span><span class="stamp">In progress</span></figcaption>
+      <img src="/images/astra9-home/astra9-lite-bench-v1.jpg" alt="Astra-9 Lite, the portable head and bust version of Astra-9, front, back, and side view." loading="lazy" data-scene="Astra-9 Lite, the portable version">
+      <figcaption><span class="scene">Astra-9 Lite, the portable version</span><span class="stamp">In progress</span></figcaption>
     </figure>
     <figure>
       <img src="/images/astra9-home/astrad-home.png" alt="Concept rendering of Astrad seated in an older woman's living room, having tea." loading="lazy" data-scene="Astrad, at home">
@@ -266,6 +267,12 @@
     <form id="astra9WaitForm">
       <input type="email" id="astra9WaitEmail" placeholder="you@email.com" required>
       <button type="submit">Notify me</button>
+      <select id="astra9WaitVersion">
+        <option value="">Which would suit you? (optional)</option>
+        <option value="fullsize">The full-size figure</option>
+        <option value="lite">Astra-9 Lite, the portable head and bust</option>
+        <option value="either">Either, I am not sure yet</option>
+      </select>
       <select id="astra9WaitUseCase">
         <option value="">Where would you put YOUR Astra-9? (optional)</option>
         <option value="home">Home, a companion for someone</option>
@@ -288,6 +295,7 @@
   var form = document.getElementById('astra9WaitForm');
   var input = document.getElementById('astra9WaitEmail');
   var useCase = document.getElementById('astra9WaitUseCase');
+  var version = document.getElementById('astra9WaitVersion');
   var status = document.getElementById('astra9WaitStatus');
   var source = null;
   try { source = new URLSearchParams(location.search).get('src'); } catch (e) {}
@@ -299,7 +307,7 @@
     fetch('/.netlify/functions/astra9-waitlist', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email: email, use_case: useCase.value || null, source: source})
+      body: JSON.stringify({email: email, use_case: useCase.value || null, version: version.value || null, source: source})
     }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
       .then(function(res){
         if (res.ok && res.d && res.d.ok) {
