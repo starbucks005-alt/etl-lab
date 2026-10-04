@@ -244,6 +244,15 @@
         <button class="primary" id="send">Send</button>
       </div>
       <div class="row" style="margin-top:10px"><button id="sayAddress">Say my address</button></div>
+      <!-- CONVERSATION STARTERS, added 2026-10-04, Dr. O: one tap to start a conversation at the event. Only on the real Astra-9 Lite. -->
+      <div class="row" id="starters" style="margin-top:10px;display:none">
+        <button data-q="What are you?">What are you?</button>
+        <button data-q="Are you for sale?">Are you for sale?</button>
+        <button data-q="Where would you put me?">Where would you put me?</button>
+        <button data-q="Tell me a fun fact about the Wright brothers.">Wright brothers fact</button>
+        <button data-q="Tell me a joke.">Tell a joke</button>
+        <button data-q="What can you do?">What can you do?</button>
+      </div>
       <!-- TALK BY VOICE, added 2026-10-04: the microphones on her HAT. Only shown when this page is served by the Pi. -->
       <div class="row" id="listenRow" style="margin-top:10px;display:none"><button class="primary" id="listenBtn">Talk to her</button><span class="hint" id="listenStatus" style="margin:0">Press, then speak. She listens for 6 seconds.</span></div>
     </section>
@@ -271,6 +280,7 @@
       <label class="wopt"><input type="checkbox" id="wEyes"> Brighten her eyes</label>
       <label class="wopt"><input type="checkbox" id="wChat"> Keep listening after the hello, so people can just talk to her</label>
       <label class="wopt"><input type="checkbox" id="wAlways"> Always listening: she answers when she hears her name, Elle or Astra</label>
+      <label class="wopt"><input type="checkbox" id="wEventNote"> Talk about today's event: Wright Brothers AI and Innovation, at Wright State</label>
       <p class="hint" id="wListenHint" style="margin:4px 0 10px">After the hello she listens for about 20 seconds and answers what is said, and keeps going while people keep talking. Always listening uses some speech service credit each time anyone speaks nearby, so switch it off when it is not needed. Only on Astra-9 Lite.</p>
       <label for="wWait">Wait this long before welcoming again</label>
       <select id="wWait" style="max-width:260px">
@@ -310,7 +320,7 @@
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by Astra-9 Lite and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
+  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, event:true, wait:60}};
 
   var SKILLS = [
     {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
@@ -348,7 +358,8 @@
     live = on;
     $('demoNote').style.display = on ? 'none' : '';
     $('shutCard').style.display = on ? '' : 'none';
-    $('listenRow').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
+    $('listenRow').style.display = on ? '' : 'none';
+    $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
     $('statusText').textContent = on ? 'Connected to Astra-9 Lite' : 'Demo mode, no Astra-9 Lite connected';
     $('talkHint').textContent = on ? 'Type a message. Astra-9 Lite answers out loud and here.' : 'Type a message. In demo mode the replies are examples.';
@@ -662,7 +673,7 @@
   function paintWelcome(){
     var w = state.welcome;
     $('wGreet').checked = !!w.greet; $('wTurn').checked = !!w.turn; $('wEyes').checked = !!w.eyes;
-    $('wChat').checked = w.chat !== false; $('wAlways').checked = !!w.always;
+    $('wChat').checked = w.chat !== false; $('wAlways').checked = !!w.always; $('wEventNote').checked = w.event !== false;
     $('wWait').value = String(w.wait);
   }
   function ago(n){ return n < 90 ? n + ' seconds ago' : n < 5400 ? Math.round(n/60) + ' minutes ago' : Math.round(n/3600) + ' hours ago'; }
@@ -683,7 +694,7 @@
   }
   function saveWelcome(){
     var w = state.welcome;
-    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.chat = $('wChat').checked; w.always = $('wAlways').checked; w.wait = parseInt($('wWait').value, 10);
+    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.chat = $('wChat').checked; w.always = $('wAlways').checked; w.event = $('wEventNote').checked; w.wait = parseInt($('wWait').value, 10);
     store('welcome', w);
     if(live){ api('/api/welcome', w).catch(function(e){ addMsg('al', '(I could not save that choice: ' + e.message + ')'); }); }
   }
@@ -744,13 +755,14 @@
     $('wGreet').checked = true; $('wTurn').checked = true; $('wEyes').checked = true;
     $('wChat').checked = !e;          // at a crowded event she does not keep listening on her own
     $('wAlways').checked = !e;        // in the lab she listens for her name all the time
+    $('wEventNote').checked = e;      // the event note is for the event, not for the lab
     $('wWait').value = e ? '300' : '60';
     saveWelcome();
     $('wPreset').textContent = e ? 'Event settings are on.' : 'Lab settings are on.';
   }
   $('wEvent').addEventListener('click', function(){ preset('event'); });
   $('wLab').addEventListener('click', function(){ preset('lab'); });
-  ['wGreet','wTurn','wEyes','wChat','wAlways','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
+  ['wGreet','wTurn','wEyes','wChat','wAlways','wEventNote','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
   addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
   // ---------- talk by voice: she listens for 6 seconds through her own microphones ----------
@@ -776,6 +788,9 @@
     }).then(function(){
       clearInterval(tick); b.disabled = false; b.textContent = 'Talk to her';
     });
+  });
+  document.querySelectorAll('#starters button').forEach(function(b){
+    b.addEventListener('click', function(){ $('say').value = b.getAttribute('data-q'); send(); });
   });
   $('sayAddress').addEventListener('click', function(){
     if(!live){ addMsg('al', 'In demo mode I have no address of my own. Open this panel from Astra-9 Lite to use this button.'); return; }

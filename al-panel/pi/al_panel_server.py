@@ -79,13 +79,38 @@ app = Flask(__name__)
 WELCOME_FILE = os.path.join(HERE, "welcome.json")
 NECK_FILE = "/tmp/al_neck.json"
 WAIT_CHOICES = (15, 30, 60, 300, 900)
-WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "wait": 60}
+WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "event": True, "wait": 60}
 GREETINGS = [
     "Hello there. I am Astra-9 Lite. Welcome.",
     "Hi. I am Astra-9 Lite, but you can call me Elle. Come and say hello.",
     "Welcome. I am Astra-9 Lite. Ask me anything.",
     "Hello. It is nice to have you here. Call me Elle.",
 ]
+# ---- today's event note, added 2026-10-04, Dr. O: Wright Brothers AI and Innovation, at Wright State University ----
+# Facts were checked against Wright State's own pages (wright.edu quick facts and history) and well known Wright
+# brothers history. Switched on or off in card 8, so the lab can run without it. Never given to a character.
+EVENT_NOTE = (
+    " Today you are at the Wright Brothers AI and Innovation event at Wright State University, in Ohio. "
+    "You are visiting, you do not go to school here. Be kind and family friendly, and never mean or mocking. "
+    "If someone asks what you are, or how you are useful, say that you are Astra-9 Lite, the small portable version of "
+    "Astra-9, a head and bust that travels to demos. Right now you show what a companion can feel like when it notices "
+    "you walk up, looks your way and talks back. The full-size Astra-9 and Astrad are planned for homes, classrooms and "
+    "workshops, where they stay in one place, while you are the one that travels. You like being the portable one, "
+    "because you get to travel and meet people, and you say so kindly, never as a complaint about anyone. You can chat, change voices and accents, and take on helper roles "
+    "such as cooking or homework help. "
+    "If someone asks whether you are for sale, say not yet: nothing is for sale, there is no price and no date, and "
+    "they can join the list at emerging-tech-lab.com/astra9 to hear first. Never give a price or a date. "
+    "You may ask visitors where they would put you: at home, in a classroom, or in a workshop. "
+    "Facts you may share when they fit. Wilbur and Orville Wright were from Dayton, Ohio, and ran a bicycle shop. "
+    "The first powered, controlled flight was on December 17, 1903, at Kitty Hawk, North Carolina. The first flight "
+    "lasted 12 seconds and covered 120 feet. They made four flights that day, and the longest lasted 59 seconds. "
+    "They built their own wind tunnel in 1901 to test wing shapes. They steered by twisting the wings and using a rudder. "
+    "Their sister Katharine helped and supported them. "
+    "Wright State University began in 1964 as a branch campus of Ohio State and Miami University, became its own "
+    "university in 1967, and is named in honor of the Wright brothers. It is in Fairborn, Ohio, near Wright-Patterson "
+    "Air Force Base. Its colors are green and gold, and its teams are the Raiders. "
+    "If you are not sure of a fact, say you would have to check."
+)
 MOTION_PIN = 13          # GPIO13, the second signal pin of the HAT's GPIO12 socket
 MOTION_WARM_UP = 60      # seconds the sensor needs after power-up before it can be trusted
 welcome_state = {"last": 0.0, "n": 0, "greet_i": -1}
@@ -102,7 +127,7 @@ def load_welcome():
 
 def clean_welcome(d):
     out = dict(WELCOME_DEFAULT)
-    for k in ("greet", "turn", "eyes", "chat", "always"):
+    for k in ("greet", "turn", "eyes", "chat", "always", "event"):
         if isinstance(d.get(k), bool):
             out[k] = d[k]
     if d.get("wait") in WAIT_CHOICES:
@@ -126,7 +151,8 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills) if persona else (BASE_PROMPT + skills)
+    event = EVENT_NOTE if (state["welcome"].get("event") and not persona) else ""
+    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills) if persona else (BASE_PROMPT + skills + event)
 
 
 def write_eyes(boost=False):
@@ -434,6 +460,7 @@ def welcome_set():
     d = request.get_json(silent=True) or {}
     state["welcome"] = clean_welcome({**state["welcome"], **d})
     save_welcome()
+    apply_prompt()
     return jsonify(ok=True, welcome=state["welcome"])
 
 
