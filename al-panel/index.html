@@ -280,6 +280,8 @@
         <option value="300">5 minutes</option>
         <option value="900">15 minutes</option>
       </select>
+      <!-- TWO QUICK SETTINGS, added 2026-10-04, Dr. O: at the event she is pushed to talk, in the lab she is always listening. -->
+      <div class="row" style="margin-top:14px"><button id="wEvent">Event settings</button><button id="wLab">Lab settings</button><span class="hint" id="wPreset" style="margin:0">Event: a hello for each visitor, then she waits to be asked. Lab: she listens all the time and answers her name.</span></div>
       <div class="row" style="margin-top:14px"><button id="wNow">Welcome now</button><span class="hint" id="wStatus" style="margin:0"></span></div>
       <div class="note">Her head makes a small friendly glance to each side and comes back. One motion sensor can tell that someone is there, but not where, so she does not aim at anyone. Welcome now is for when the sensor misses a person.</div>
     </section>
@@ -737,6 +739,17 @@
   $('showPhoto').addEventListener('click', showPhoto);
   $('reset').addEventListener('click', resetDemo);
   state.welcome = load('welcome', state.welcome); paintWelcome();
+  function preset(name){
+    var e = name === 'event';
+    $('wGreet').checked = true; $('wTurn').checked = true; $('wEyes').checked = true;
+    $('wChat').checked = !e;          // at a crowded event she does not keep listening on her own
+    $('wAlways').checked = !e;        // in the lab she listens for her name all the time
+    $('wWait').value = e ? '300' : '60';
+    saveWelcome();
+    $('wPreset').textContent = e ? 'Event settings are on.' : 'Lab settings are on.';
+  }
+  $('wEvent').addEventListener('click', function(){ preset('event'); });
+  $('wLab').addEventListener('click', function(){ preset('lab'); });
   ['wGreet','wTurn','wEyes','wChat','wAlways','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
   addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
