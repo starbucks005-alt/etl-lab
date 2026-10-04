@@ -77,6 +77,19 @@ echo 'terryoroszi ALL=(root) NOPASSWD: /usr/sbin/shutdown' | sudo tee /etc/sudoe
 ```
 Until that is done the button says so and shuts nothing down. Tested only with stand-ins here, not yet on the Pi.
 
+## Talking to her by voice (the Talk to her button)
+Card 6 in the panel has a "Talk to her" button, shown only when the page is served by the Pi. Press it, speak for
+6 seconds, and she answers out loud, the same way as a typed message. The server records from the HAT's microphones
+with `arecord` (card `plughw:wm8960soundcard`; a 5 second record and play back through it worked on 2026-10-04),
+sends the clip to ElevenLabs speech to text (`scribe_v1`, the same account and key that gives her voice, so it uses
+some credit), and gives the words to the same reply code as the typed box.
+Tested here with stand-ins for the microphone and the service. NOT yet run against the real service on the Pi, so
+the model name and the pace of the answer are unproven. She does not listen all the time: one press, one question.
+Her own speaking and the recording never overlap, so she does not hear herself.
+Note for later: `al.py` plays sound on `plughw:3,0`, by card number. Turning the Pi's own audio off moves the HAT
+from card 3 to card 2, which silenced her on 2026-10-04. Leave the built-in audio on, or change that line to
+`plughw:wm8960soundcard`.
+
 ## Limits and notes
 - Eye brightness is capped at 30 percent of the lights' full power, in two places.
 - Photos are held in memory only and are never saved.

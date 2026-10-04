@@ -456,6 +456,59 @@ def say():
     return jsonify(reply=reply)
 
 
+LISTEN_SECONDS = 6                     # how long she listens after Talk is pressed
+MIC_DEVICE = "plughw:wm8960soundcard"  # the HAT's sound card, as aplay -l names it; the 5 second test through it worked
+LISTEN_FILE = "/tmp/al_heard.wav"
+listen_lock = threading.Lock()
+
+
+def record_clip(path=None, seconds=None):
+    """Record from the HAT's two microphones into a wav file."""
+    subprocess.run(["arecord", "-q", "-D", MIC_DEVICE, "-f", "S16_LE", "-r", "16000", "-c", "2",
+                    "-d", str(seconds or LISTEN_SECONDS), path or LISTEN_FILE],
+                   check=True, timeout=(seconds or LISTEN_SECONDS) + 10)
+
+
+def transcribe(path=None):
+    """Turn the recording into words, with the same ElevenLabs account that gives her voice."""
+    key = header_value("xi-api-key")
+    with open(path or LISTEN_FILE, "rb") as f:
+        r = requests.post("https://api.elevenlabs.io/v1/speech-to-text", headers={"xi-api-key": key},
+                          data={"model_id": "scribe_v1"}, files={"file": ("clip.wav", f, "audio/wav")}, timeout=60)
+    if not r.ok:
+        raise RuntimeError("the listening service said %s: %s" % (r.status_code, r.text[:160]))
+    return (r.json().get("text") or "").strip()
+
+
+@app.post("/api/listen")
+def listen():
+    """Listen for a few seconds, turn what was said into words, and answer it out loud like a typed message."""
+    if not listen_lock.acquire(blocking=False):
+        return jsonify(error="I am already listening."), 409
+    try:
+        with speak_lock:                 # she does not talk over herself, and does not hear herself
+            try:
+                record_clip()
+            except Exception as e:
+                return jsonify(error="I could not use the microphones: " + str(e)[:160]), 502
+        try:
+            heard = transcribe()
+        except Exception as e:
+            return jsonify(error=str(e)[:200]), 502
+        if not heard:
+            return jsonify(heard="", reply=""), 200
+        try:
+            reply = al.get_al_reply(context_for(heard))
+        except Exception as e:
+            return jsonify(error=str(e)[:200], heard=heard), 502
+        state["history"].append('They said "%s" and you said "%s".' % (heard, reply))
+        state["log"] += [{"who": "you", "text": heard}, {"who": "al", "text": reply}]
+        speak_async(reply)
+        return jsonify(heard=heard, reply=reply)
+    finally:
+        listen_lock.release()
+
+
 @app.post("/api/photo")
 def photo():
     f = request.files.get("photo")

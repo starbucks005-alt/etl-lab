@@ -244,6 +244,8 @@
         <button class="primary" id="send">Send</button>
       </div>
       <div class="row" style="margin-top:10px"><button id="sayAddress">Say my address</button></div>
+      <!-- TALK BY VOICE, added 2026-10-04: the microphones on her HAT. Only shown when this page is served by the Pi. -->
+      <div class="row" id="listenRow" style="margin-top:10px;display:none"><button class="primary" id="listenBtn">Talk to her</button><span class="hint" id="listenStatus" style="margin:0">Press, then speak. She listens for 6 seconds.</span></div>
     </section>
 
     <!-- 6. PHOTOS -->
@@ -340,7 +342,8 @@
   function setLive(on, info){
     live = on;
     $('demoNote').style.display = on ? 'none' : '';
-    $('shutCard').style.display = on ? '' : 'none';   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
+    $('shutCard').style.display = on ? '' : 'none';
+    $('listenRow').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
     $('statusText').textContent = on ? 'Connected to Astra-9 Lite' : 'Demo mode, no Astra-9 Lite connected';
     $('talkHint').textContent = on ? 'Type a message. Astra-9 Lite answers out loud and here.' : 'Type a message. In demo mode the replies are examples.';
@@ -733,6 +736,30 @@
   ['wGreet','wTurn','wEyes','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
   addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
+  // ---------- talk by voice: she listens for 6 seconds through her own microphones ----------
+  $('listenBtn').addEventListener('click', function(){
+    if(!live){ return; }
+    var b = $('listenBtn'), msg = $('listenStatus'), left = 6;
+    b.disabled = true; b.textContent = 'Listening';
+    msg.textContent = 'Speak now. ' + left + ' seconds.';
+    var tick = setInterval(function(){
+      left -= 1;
+      if(left > 0){ msg.textContent = 'Speak now. ' + left + ' seconds.'; }
+      else { clearInterval(tick); msg.textContent = 'One moment.'; }
+    }, 1000);
+    fetch('/api/listen', {method:'POST'}).then(function(r){
+      return r.json().then(function(j){ return {ok:r.ok, j:j}; });
+    }).then(function(x){
+      if(!x.ok){ throw new Error(x.j.error || 'I could not listen just now.'); }
+      if(!x.j.heard){ msg.textContent = 'I did not hear anything. Press again and speak a little closer.'; return; }
+      addMsg('you', x.j.heard); addMsg('al', x.j.reply || '...');
+      msg.textContent = 'Press, then speak. She listens for 6 seconds.';
+    }).catch(function(e){
+      msg.textContent = e.message;
+    }).then(function(){
+      clearInterval(tick); b.disabled = false; b.textContent = 'Talk to her';
+    });
+  });
   $('sayAddress').addEventListener('click', function(){
     if(!live){ addMsg('al', 'In demo mode I have no address of my own. Open this panel from Astra-9 Lite to use this button.'); return; }
     api('/api/address').then(function(j){ addMsg('al', 'My address is ' + j.url + '. I am saying it out loud now.'); })
