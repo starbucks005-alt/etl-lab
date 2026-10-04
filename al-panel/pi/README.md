@@ -55,6 +55,16 @@ Measure that socket's power pin with a meter before connecting the board's logic
    The head is limited to 60 degrees each side of the middle. One motion sensor cannot
    tell where a person is, so the head makes a small glance and comes back; it does not aim.
 
+## Start the eyes and the neck by themselves (after both have worked by hand)
+`al-eyes.service` and `al-neck.service` start the two drivers when the Pi starts, the same
+way `al-panel.service` starts the panel. The eye driver runs as root because the lights need it.
+Not run on AL yet. To install both, on the Pi:
+```
+sudo curl -sSLo /etc/systemd/system/al-eyes.service https://raw.githubusercontent.com/starbucks005-alt/etl-lab/main/al-panel/pi/al-eyes.service && sudo curl -sSLo /etc/systemd/system/al-neck.service https://raw.githubusercontent.com/starbucks005-alt/etl-lab/main/al-panel/pi/al-neck.service && sudo systemctl daemon-reload && sudo systemctl enable --now al-eyes.service al-neck.service && sleep 3 && systemctl is-active al-eyes.service al-neck.service
+```
+It should print `active` twice. If a part is not connected yet, its service keeps trying
+every 5 seconds and does no harm. The username `terryoroszi` is AL's; change it for another unit.
+
 ## Limits and notes
 - Eye brightness is capped at 30 percent of the lights' full power, in two places.
 - Photos are held in memory only and are never saved.

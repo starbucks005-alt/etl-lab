@@ -1,0 +1,12 @@
+[Unit]
+Description=AL eye rings
+After=al-panel.service
+
+[Service]
+WorkingDirectory=/home/terryoroszi/al_panel
+ExecStart=/usr/bin/python3 /home/terryoroszi/al_panel/al_eyes.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

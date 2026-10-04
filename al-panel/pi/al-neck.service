@@ -1,0 +1,13 @@
+[Unit]
+Description=AL neck motor
+After=al-panel.service
+
+[Service]
+User=terryoroszi
+WorkingDirectory=/home/terryoroszi/al_panel
+ExecStart=/usr/bin/python3 /home/terryoroszi/al_panel/al_neck.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
