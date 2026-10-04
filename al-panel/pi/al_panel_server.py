@@ -360,7 +360,7 @@ def personality():
         reply = al.get_al_reply(ask)
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
-    note = ("Now speaking as " + PERSONAS[pid]["name"] + ".") if pid else "Back to AL."
+    note = ("Now speaking as " + PERSONAS[pid]["name"] + ".") if pid else "Back to Astra-9 Lite."
     state["log"] += [{"who": "al", "text": note}, {"who": "al", "text": reply}]
     state["history"].append('You said "%s".' % reply)
     speak_async(reply)
