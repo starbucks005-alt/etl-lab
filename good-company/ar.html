@@ -248,6 +248,12 @@ body { position: relative; background: #000; }
   <p id="startBody">This uses your camera to put them in front of it, right on your own screen.
     Nothing is recorded, uploaded, or sent anywhere. It stays on this device, live, the whole time.</p>
   <button class="btn go" id="startBtn" type="button">Turn on the camera</button>
+  <!-- HOLOGRAM LINK, added 2026-10-04, Dr. O: "can you set it up so the GC AR companions can be
+       holograms". Opens hologram.html for this same companion. That page lays the phone flat and
+       needs a small clear pyramid on the screen, and it has not been tried with a real pyramid
+       yet (its own note says so). The href is filled in from the script below, once the companion
+       is known. -->
+  <p id="holoNote" style="font-size:.85rem;"><a id="holoLink" href="hologram.html" style="color:var(--ink-dim); text-decoration:underline;">Show as a hologram instead</a><br>For a phone laid flat under a small clear pyramid.</p>
   <p id="cameraError" style="display:none; color:#c0645a;"></p>
   <!-- Said before the camera is asked for, not after. An automatic cut is
        not a hand-cut one and somebody should know which they are looking
@@ -672,6 +678,7 @@ body { position: relative; background: #000; }
 
   document.title = 'Good Company: ' + companion.name + ', in your room';
   document.getElementById('startTitle').textContent = companion.name + ', in your room';
+  document.getElementById('holoLink').href = 'hologram.html?who=' + encodeURIComponent(COMPANIONS[askedFor] ? askedFor : 'tansy');
   /* THE BACKDROP, added 2026-09-10: the same portrait AR_FRAMES already shows for this companion
      on the AR floor itself, so the gate they land on afterward looks like part of the same place
      rather than a bare page it dropped them onto. No image invented for a companion with none on
