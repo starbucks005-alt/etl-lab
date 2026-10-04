@@ -500,6 +500,7 @@ def say():
 
 # ---- hands-free listening ----
 CONVERSE_SECONDS = 20     # after a hello, she keeps listening this long, and again after each thing she answers
+END_QUIET = 8            # tenths of a second of quiet that mean the person has finished
 MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
 NAME_RE = re.compile(r"\b(elle|astra|astro|astrid|al|8l)\b", re.I)   # speech to text often mishears her name
 
@@ -552,7 +553,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None):
                 speech += c
                 voiced += 1 if lvl > thr else 0
                 quiet = quiet + 1 if lvl < thr else 0
-                if quiet >= 10 or len(speech) / 32000.0 > max_seconds:
+                if quiet >= END_QUIET or len(speech) / 32000.0 > max_seconds:
                     break
         if not started or voiced < 3:          # a click or a cough is under a third of a second of sound
             return None
@@ -573,10 +574,13 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None):
 
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
+    t0 = time.time()
     reply = al.get_al_reply(context_for(text))
+    t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
     speak_now(reply)
+    print("TIMING reply %.1f s, voice made and spoken %.1f s" % (t1 - t0, time.time() - t1), flush=True)
     return reply
 
 
@@ -592,7 +596,9 @@ def converse(window=None):
             if not path:
                 break
             try:
+                t0 = time.time()
                 text = transcribe(path)
+                print("TIMING heard in %.1f s: %s" % (time.time() - t0, text[:60]), flush=True)
             except Exception as e:
                 print("LISTEN ERROR:", e, flush=True)
                 break
@@ -621,7 +627,9 @@ def watch_names():
         try:
             path = hear_one(wait_seconds=4)
             if path:
+                t0 = time.time()
                 text = transcribe(path)
+                print("TIMING heard in %.1f s: %s" % (time.time() - t0, text[:60]), flush=True)
         except Exception as e:
             print("LISTEN ERROR:", e, flush=True)
             time.sleep(5)
