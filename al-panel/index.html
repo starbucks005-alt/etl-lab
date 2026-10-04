@@ -316,11 +316,11 @@
   ];
   var LANGS = {robot:'en-US', american:'en-US', swedish:'sv-SE', british:'en-GB', indian:'en-IN'};
   var SAMPLE = {
-    robot:'Hi, I am AL. It is nice to meet you.',
-    american:'Hi, I am AL. It is great to meet you.',
-    swedish:'Hello, I am AL. It is nice to meet you.',
-    british:'Hello, I am AL. Lovely to meet you.',
-    indian:'Hello, I am AL. It is very nice to meet you.'
+    robot:'Hi, I am Astra-9 Lite. You can call me Elle. It is nice to meet you.',
+    american:'Hi, I am Astra-9 Lite. Call me Elle. It is great to meet you.',
+    swedish:'Hello, I am Astra-9 Lite. Call me Elle. It is nice to meet you.',
+    british:'Hello, I am Astra-9 Lite. Do call me Elle. Lovely to meet you.',
+    indian:'Hello, I am Astra-9 Lite. Please call me Elle. It is very nice to meet you.'
   };
 
   function $(id){return document.getElementById(id);}
@@ -594,7 +594,7 @@
     setTimeout(function(){ $('face').classList.remove('speaking'); }, 1800);
   }
   var DEMO = [
-    'Hello. I am AL. It is nice to meet you.',
+    'Hello. I am Astra-9 Lite. It is nice to meet you.',
     'That is a good question. Tell me more.',
     'I am still learning. What would you like to try?',
     'I like that. What else is on your mind?'
@@ -603,7 +603,7 @@
   function demoAnswer(t){
     var s = t.toLowerCase();
     if(/real person|human|are you a person|are you real/.test(s)){ return 'No. I am an android, not a person. I like talking with people, though.'; }
-    if(/your name|who are you/.test(s)){ return 'I am AL, short for Astra Lite.'; }
+    if(/your name|who are you/.test(s)){ return 'I am Astra-9 Lite. You can call me Elle.'; }
     if(/color|colour|eyes/.test(s)){ return 'Try the eye color panel. I can glow in any color you like.'; }
     return DEMO[demoIdx++ % DEMO.length];
   }
@@ -697,7 +697,7 @@
   state.welcome = load('welcome', state.welcome); paintWelcome();
   ['wGreet','wTurn','wEyes','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
-  addMsg('al', 'Hello. I am AL. Try changing my eyes, or ask me something.');
+  addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
   $('sayAddress').addEventListener('click', function(){
     if(!live){ addMsg('al', 'In demo mode I have no address of my own. Open this panel from AL to use this button.'); return; }
     api('/api/address').then(function(j){ addMsg('al', 'My address is ' + j.url + '. I am saying it out loud now.'); })

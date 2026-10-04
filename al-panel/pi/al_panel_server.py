@@ -76,10 +76,10 @@ NECK_FILE = "/tmp/al_neck.json"
 WAIT_CHOICES = (15, 30, 60, 300, 900)
 WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "wait": 60}
 GREETINGS = [
-    "Hello there. I am AL. Welcome.",
-    "Hi. I am AL. Come and say hello.",
-    "Welcome. I am AL. Ask me anything.",
-    "Hello. It is nice to have you here.",
+    "Hello there. I am Astra-9 Lite. Welcome.",
+    "Hi. I am Astra-9 Lite, but you can call me Elle. Come and say hello.",
+    "Welcome. I am Astra-9 Lite. Ask me anything.",
+    "Hello. It is nice to have you here. Call me Elle.",
 ]
 MOTION_PIN = 13          # GPIO13, the second signal pin of the HAT's GPIO12 socket
 MOTION_WARM_UP = 60      # seconds the sensor needs after power-up before it can be trusted

@@ -15,11 +15,11 @@ sys.path.insert(0, os.path.expanduser("~"))
 import al  # noqa: E402
 
 VOICES = {
-    "robot": ("weA4Q36twV5kwSaTEL0Q", "Hi, I am AL. It is nice to meet you."),
-    "american": ("lqgYrNyQrOY96N3mj3M9", "Hi, I am AL. It is great to meet you."),
-    "swedish": ("oVXQ3H21hRI9OtM4YH5K", "Hello, I am AL. It is nice to meet you."),
-    "british": ("k9kFjM4M02PYt2PvKMYq", "Hello, I am AL. Lovely to meet you."),
-    "indian": ("6qL48o1LBmtR94hIYAQh", "Hello, I am AL. It is very nice to meet you."),
+    "robot": ("weA4Q36twV5kwSaTEL0Q", "Hi, I am Astra-9 Lite. You can call me Elle. It is nice to meet you."),
+    "american": ("lqgYrNyQrOY96N3mj3M9", "Hi, I am Astra-9 Lite. Call me Elle. It is great to meet you."),
+    "swedish": ("oVXQ3H21hRI9OtM4YH5K", "Hello, I am Astra-9 Lite. Call me Elle. It is nice to meet you."),
+    "british": ("k9kFjM4M02PYt2PvKMYq", "Hello, I am Astra-9 Lite. Do call me Elle. Lovely to meet you."),
+    "indian": ("6qL48o1LBmtR94hIYAQh", "Hello, I am Astra-9 Lite. Please call me Elle. It is very nice to meet you."),
 }
 
 src = open(os.path.expanduser("~/al.py")).read()
