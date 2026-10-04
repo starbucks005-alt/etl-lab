@@ -22,7 +22,7 @@ import time
 
 from adafruit_servokit import ServoKit
 
-CHANNEL = 8         # found by trying each channel in turn: the motor moved on 8, with its plug on the pins nearest the board's far end
+CHANNEL = 8         # found by trying each channel in turn: the motor moved on 8
 MIDDLE = 90
 LIMIT = 60          # the most the head may ever turn from the middle, in degrees
 GLANCE = 25         # how far the glance goes each way
