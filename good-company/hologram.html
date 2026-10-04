@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Good Company: Hologram Mode</title>
+<meta name="description" content="Show a Good Company companion on a phone laid flat, under a small clear pyramid, so she appears to float.">
+
+<!-- Google tag (gtag.js), same snippet as every other Good Company page. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F7HTDVMJPZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-F7HTDVMJPZ');
+</script>
+
+<!-- HOLOGRAM MODE, added 2026-10-04, Dr. O: "how can I play a good company AR and project it
+     from my phone like a hologram". This is the small Pepper's ghost trick: the phone lies flat,
+     a clear pyramid stands on the screen, and each side reflects one copy of the companion.
+
+     SAME FILES AS ar.html. Each companion has a color video and a matching matte video. Here the
+     color is multiplied by the matte, which leaves the companion on pure black. Black does not
+     reflect, so only she shows in the pyramid. Nothing is uploaded and no camera is used.
+
+     THE LIST BELOW is a copy of the color/matte pairs in ar.html's COMPANIONS registry as of
+     2026-10-04. A companion added to ar.html later is not here until it is added here too.
+     The soft glow some companions have in ar.html (Cressida) is not drawn here.
+
+     NOT YET TRIED WITH A REAL PYRAMID. The way each copy is turned (head toward the middle, feet
+     toward the outside edge) comes from working out the reflection, not from watching it. If a
+     side looks upside down or backwards on the real thing, the "Turn the sides" button reverses
+     them and the "Mirror" button flips left and right. What the real pyramid shows is not known
+     yet. Whoever tries it first should write down which setting looked right. -->
+
+<style>
+  :root { --bg:#000; --ink:#f2efe8; --mute:#a7a398; --line:#3a3833; --accent:#e5c07b; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:#000; color:var(--ink);
+               font-family:'Public Sans', Arial, sans-serif; overflow:hidden; }
+  #stage { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:#000; }
+  #stage.on { display:flex; }
+  #view { background:#000; display:block; }
+  #start { position:fixed; inset:0; overflow-y:auto; padding:28px 20px 40px; background:#0c0b09; }
+  #start .box { max-width:560px; margin:0 auto; }
+  h1 { font-family:Spectral, Georgia, serif; font-weight:500; font-size:30px; margin:0 0 6px; }
+  p, li { font-size:15px; line-height:1.55; color:var(--mute); }
+  p.lead { color:var(--ink); font-size:16px; }
+  label { display:block; font-size:13px; color:var(--mute); margin:16px 0 6px; }
+  select, .btn { width:100%; padding:13px 14px; font-size:16px; border-radius:10px; border:1px solid var(--line);
+                 background:#16140f; color:var(--ink); font-family:inherit; }
+  .btn { cursor:pointer; text-align:center; }
+  .btn.go { background:var(--accent); color:#1a1710; border-color:var(--accent); font-weight:600; margin-top:22px; }
+  details { margin-top:22px; border-top:1px solid var(--line); padding-top:14px; }
+  summary { cursor:pointer; color:var(--ink); font-size:15px; }
+  ol { padding-left:20px; margin:10px 0 0; }
+  #err { color:#e58f84; display:none; margin-top:14px; }
+  #bar { position:fixed; left:0; right:0; bottom:0; padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+         display:flex; gap:8px; flex-wrap:wrap; justify-content:center; background:rgba(12,11,9,.92);
+         transition:opacity .4s; }
+  #bar.hide { opacity:0; pointer-events:none; }
+  #bar button { padding:9px 12px; font-size:14px; border-radius:9px; border:1px solid var(--line);
+                background:#16140f; color:var(--ink); font-family:inherit; cursor:pointer; }
+  #bar .rng { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--mute); }
+  #bar input[type=range] { width:90px; }
+  #tapHint { position:fixed; top:10px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; }
+  video { display:none; }
+</style>
+</head>
+<body>
+
+<div id="start">
+  <div class="box">
+    <h1>Hologram mode</h1>
+    <p class="lead">Lay your phone flat, stand a small clear pyramid on the screen, and the companion
+       appears to float inside it. Best in a dim room, with the screen brightness turned up.</p>
+
+    <label for="who">Who</label>
+    <select id="who" aria-label="Choose a companion"></select>
+
+    <label for="mode">Shape</label>
+    <select id="mode" aria-label="Choose a shape">
+      <option value="pyramid">Pyramid, four sides (a small clear pyramid on the screen)</option>
+      <option value="single">One view (a sheet of clear glass or plastic held at an angle)</option>
+    </select>
+
+    <p id="err" role="alert"></p>
+    <button class="btn go" id="go" type="button">Start</button>
+
+    <details>
+      <summary>How to make the pyramid</summary>
+      <ol>
+        <li>Cut four pieces from a clear, stiff, flat sheet (an old clear case, or a thick clear plastic folder).</li>
+        <li>Each piece is a trapezoid: 1 cm along the short top edge, 6 cm along the long bottom edge, and 3.5 cm tall.
+            That is a starting size for a phone. It has not been tried here, so change it if it looks wrong.</li>
+        <li>Tape the four pieces together along their slanted edges, long edges down, short edges at the top.
+            Clear tape on the outside edge is best.</li>
+        <li>Lay the phone flat on a table with this page running, and stand the pyramid on the middle of the screen.
+            Look at it from the side, not from above.</li>
+      </ol>
+      <p>If one side looks upside down, tap the screen and use "Turn the sides". If it looks backwards, use "Mirror".
+         Use "Middle gap" so the pyramid sits over the black centre, and "Size" until each side fills its face.</p>
+    </details>
+  </div>
+</div>
+
+<div id="stage"><canvas id="view"></canvas></div>
+<div id="tapHint" style="display:none">Tap the screen to show or hide the buttons</div>
+<div id="bar" class="hide">
+  <button id="bBack" type="button">Back</button>
+  <button id="bSound" type="button">Sound off</button>
+  <button id="bTurn" type="button">Turn the sides</button>
+  <button id="bMirror" type="button">Mirror</button>
+  <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="70"></span>
+  <span class="rng"><label for="rGap" style="margin:0">Middle gap</label><input id="rGap" type="range" min="0" max="40" value="12"></span>
+  <button id="bFull" type="button">Full screen</button>
+</div>
+
+<video id="colorVideo" playsinline muted loop></video>
+<video id="matteVideo" playsinline muted loop></video>
+
+<script>
+(function () {
+  /* Copy of the color/matte pairs in ar.html (see the note at the top of this file). */
+  var COMPANIONS = {
+    "tansy": [
+      "Tansy",
+      "video/tansy-ar-color.mp4",
+      "video/tansy-ar-matte.mp4"
+    ],
+    "poppy": [
+      "Poppy",
+      "video/poppy-ar-color.mp4",
+      "video/poppy-ar-matte.mp4"
+    ],
+    "blue": [
+      "Blue",
+      "video/blue-ar-color.mp4",
+      "video/blue-ar-matte.mp4"
+    ],
+    "cressida": [
+      "Cressida",
+      "video/cressida-ar-color.mp4",
+      "video/cressida-ar-matte.mp4"
+    ],
+    "terry": [
+      "Terry",
+      "video/terry-ar-color.mp4",
+      "video/terry-ar-matte.mp4"
+    ],
+    "cassius": [
+      "Cassius",
+      "video/cassius-ar-color.mp4",
+      "video/cassius-ar-matte.mp4"
+    ],
+    "nell": [
+      "Nell",
+      "video/nell-ar-color.mp4",
+      "video/nell-ar-matte.mp4"
+    ],
+    "clover": [
+      "Clover",
+      "video/clover-ar-color.mp4",
+      "video/clover-ar-matte.mp4"
+    ],
+    "nursery": [
+      "Bramble, Clover, Ozzie & Pearl",
+      "video/nursery-ar-color.mp4",
+      "video/nursery-ar-matte.mp4"
+    ],
+    "zoe": [
+      "Zoe",
+      "video/zoe-ar-color.mp4",
+      "video/zoe-ar-matte.mp4"
+    ],
+    "olivia": [
+      "Olivia",
+      "video/olivia-ar-color.mp4",
+      "video/olivia-ar-matte.mp4"
+    ],
+    "sarah": [
+      "Sarah",
+      "video/sarah-ar-color.mp4",
+      "video/sarah-ar-matte-v2.mp4"
+    ],
+    "meera": [
+      "Meera",
+      "video/meera-ar-color.mp4",
+      "video/meera-ar-matte.mp4"
+    ],
+    "alice": [
+      "A.L.I.C.E.",
+      "video/alice-ar-color.mp4",
+      "video/alice-ar-matte.mp4"
+    ],
+    "arch": [
+      "Arch",
+      "video/arch-ar-color.mp4",
+      "video/arch-ar-matte.mp4"
+    ],
+    "reggie": [
+      "Reggie",
+      "video/reggie-ar-color.mp4",
+      "video/reggie-ar-matte.mp4"
+    ],
+    "viv": [
+      "Viv",
+      "video/viv-ar-color.mp4",
+      "video/viv-ar-matte.mp4"
+    ],
+    "gc-m": [
+      "Geary",
+      "video/gc-m-ar-color.mp4",
+      "video/gc-m-ar-matte.mp4"
+    ],
+    "gc-f": [
+      "Gracie",
+      "video/gc-f-ar-color.mp4",
+      "video/gc-f-ar-matte.mp4"
+    ],
+    "astra9": [
+      "Astra-9",
+      "video/astra9-ar-color-v4.mp4",
+      "video/astra9-ar-matte-v4.mp4"
+    ],
+    "astrad": [
+      "Astrad",
+      "video/astrad-ar-color-v2.mp4",
+      "video/astrad-ar-matte-v2.mp4"
+    ]
+  };
+
+  var who = document.getElementById('who');
+  var asked = new URLSearchParams(location.search).get('who');
+  Object.keys(COMPANIONS).forEach(function (k) {
+    var o = document.createElement('option');
+    o.value = k; o.textContent = COMPANIONS[k][0];
+    who.appendChild(o);
+  });
+  if (asked && COMPANIONS[asked]) who.value = asked;
+  var askedMode = new URLSearchParams(location.search).get('mode');
+  if (askedMode === 'single' || askedMode === 'pyramid') document.getElementById('mode').value = askedMode;
+
+  var startEl = document.getElementById('start'), stage = document.getElementById('stage');
+  var view = document.getElementById('view'), vctx = view.getContext('2d');
+  var colorVideo = document.getElementById('colorVideo'), matteVideo = document.getElementById('matteVideo');
+  var bar = document.getElementById('bar'), tapHint = document.getElementById('tapHint');
+  var errEl = document.getElementById('err');
+
+  var fig = document.createElement('canvas'), fctx = fig.getContext('2d', { willReadFrequently: true });
+  var mat = document.createElement('canvas'), mctx = mat.getContext('2d', { willReadFrequently: true });
+  var bw = 0, bh = 0, ready = false, running = false;
+  var minX, minY, maxX, maxY;
+  var turn = 1, mirror = false, mode = 'pyramid', wake = null;
+
+  function size() {
+    var s = Math.min(window.innerWidth, window.innerHeight);
+    view.width = view.height = Math.round(s * (window.devicePixelRatio > 1 ? 1.5 : 1));
+    view.style.width = view.style.height = s + 'px';
+  }
+  window.addEventListener('resize', size);
+
+  function setupBuffers() {
+    if (ready || !colorVideo.videoWidth) return;
+    var sc = Math.min(1, 720 / Math.max(colorVideo.videoWidth, colorVideo.videoHeight));
+    bw = Math.round(colorVideo.videoWidth * sc); bh = Math.round(colorVideo.videoHeight * sc);
+    fig.width = mat.width = bw; fig.height = mat.height = bh;
+    minX = bw; minY = bh; maxX = 0; maxY = 0;
+    ready = true;
+  }
+
+  /* The companion on pure black: each color pixel times its matte brightness. The box that holds
+     her is the union of everywhere she has been on screen so far, so the crop stays steady. */
+  function makeFigure() {
+    fctx.drawImage(colorVideo, 0, 0, bw, bh);
+    var c = fctx.getImageData(0, 0, bw, bh), cp = c.data;
+    if (Math.abs(matteVideo.currentTime - colorVideo.currentTime) > 0.1) matteVideo.currentTime = colorVideo.currentTime;
+    if (matteVideo.paused) matteVideo.play().catch(function () {});
+    mctx.drawImage(matteVideo, 0, 0, bw, bh);
+    var mp = mctx.getImageData(0, 0, bw, bh).data;
+    for (var i = 0, p = 0, x = 0, y = 0; i < cp.length; i += 4, p++) {
+      var a = mp[i] / 255;
+      cp[i] = cp[i] * a; cp[i + 1] = cp[i + 1] * a; cp[i + 2] = cp[i + 2] * a; cp[i + 3] = 255;
+      if (mp[i] > 128) {
+        x = p % bw; y = (p / bw) | 0;
+        if (x < minX) minX = x; if (x > maxX) maxX = x;
+        if (y < minY) minY = y; if (y > maxY) maxY = y;
+      }
+    }
+    fctx.putImageData(c, 0, 0);
+  }
+
+  function drawView(cx, cy, box, rot) {
+    var sw = Math.max(8, maxX - minX + 1), sh = Math.max(8, maxY - minY + 1);
+    var k = Math.min(box / sw, box / sh);
+    vctx.save();
+    vctx.translate(cx, cy);
+    vctx.rotate(rot);
+    if (mirror) vctx.scale(-1, 1);
+    vctx.drawImage(fig, minX, minY, sw, sh, -sw * k / 2, -sh * k / 2, sw * k, sh * k);
+    vctx.restore();
+  }
+
+  function frame() {
+    if (!running) return;
+    setupBuffers();
+    if (ready && colorVideo.readyState >= 2 && !colorVideo.paused) {
+      makeFigure();
+      var S = view.width, size = +document.getElementById('rSize').value / 100;
+      var gap = +document.getElementById('rGap').value / 100 * S;
+      vctx.fillStyle = '#000'; vctx.fillRect(0, 0, S, S);
+      if (mode === 'single') {
+        drawView(S / 2, S / 2, S * 0.9 * size / 0.7, 0);
+      } else {
+        var B = S * 0.5 * size;           /* the box for one side */
+        var r = gap + B / 2;              /* distance from the middle to the centre of a side */
+        var t = Math.PI / 2 * turn;
+        /* head toward the middle, feet toward the outside edge (see the note at the top) */
+        drawView(S / 2,     S / 2 + r, B, 0);
+        drawView(S / 2,     S / 2 - r, B, Math.PI);
+        drawView(S / 2 - r, S / 2,     B, t);
+        drawView(S / 2 + r, S / 2,     B, -t);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function start() {
+    var c = COMPANIONS[who.value];
+    mode = document.getElementById('mode').value;
+    errEl.style.display = 'none';
+    ready = false;
+    colorVideo.src = c[1]; matteVideo.src = c[2];
+    colorVideo.muted = true; matteVideo.muted = true;
+    document.getElementById('bSound').textContent = 'Sound off';
+    document.title = 'Good Company: ' + c[0] + ', hologram mode';
+    startEl.style.display = 'none'; stage.classList.add('on'); size();
+    running = true;
+    var p1 = colorVideo.play(), p2 = matteVideo.play();
+    Promise.all([p1, p2]).catch(function () {
+      back();
+      errEl.textContent = 'The video did not start. Check the connection and try again.';
+      errEl.style.display = 'block';
+    });
+    if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (w) { wake = w; }).catch(function () {});
+    requestAnimationFrame(frame);
+    bar.classList.remove('hide'); tapHint.style.display = '';
+    setTimeout(function () { bar.classList.add('hide'); tapHint.style.display = 'none'; }, 5000);
+  }
+
+  function back() {
+    running = false; colorVideo.pause(); matteVideo.pause();
+    if (wake) { try { wake.release(); } catch (e) {} wake = null; }
+    stage.classList.remove('on'); startEl.style.display = ''; bar.classList.add('hide'); tapHint.style.display = 'none';
+    if (document.fullscreenElement) document.exitFullscreen();
+  }
+
+  document.getElementById('go').addEventListener('click', start);
+  document.getElementById('bBack').addEventListener('click', back);
+  document.getElementById('bTurn').addEventListener('click', function () { turn = -turn; });
+  document.getElementById('bMirror').addEventListener('click', function () { mirror = !mirror; });
+  document.getElementById('bSound').addEventListener('click', function () {
+    colorVideo.muted = !colorVideo.muted;
+    this.textContent = colorVideo.muted ? 'Sound off' : 'Sound on';
+  });
+  document.getElementById('bFull').addEventListener('click', function () {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {});
+  });
+  stage.addEventListener('click', function () { bar.classList.toggle('hide'); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && running && navigator.wakeLock) {
+      navigator.wakeLock.request('screen').then(function (w) { wake = w; }).catch(function () {});
+    }
+  });
+})();
+</script>
+</body>
+</html>
