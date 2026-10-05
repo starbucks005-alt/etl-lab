@@ -1,0 +1,293 @@
+<title>Astra-9 Lite Wiring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Layout: one wide figure that scrolls sideways inside its own box on a phone, then a wire table, then lessons for the full-size builds.
+   Color: blue-grey ground, wire colors drawn as the real wires; dashed means "as built, not re-checked". */
+:root {
+  --bg:#f1f4f6; --panel:#ffffff; --fg:#14202b; --muted:#4d5b67; --line:#9aa7b2; --edge:rgba(20,32,43,.55);
+  --accent:#1f5fbf; --plan:#b5651d;
+  --c-red:#d6342a; --c-black:#14202b; --c-white:#f4f6f7; --c-yellow:#e3b100; --c-orange:#f08a24; --c-brown:#7a4a2a; --c-green:#1f8a4c; --c-blue:#2f5fd0;
+  --bar-plus:#f6d9d6; --bar-minus:#dde3e8; --blk:#d9efe0;
+  --font-body:"Atkinson Hyperlegible", system-ui, sans-serif; --font-mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#0f151a; --panel:#172029; --fg:#e8eef2; --muted:#a2b0bb; --line:#5b6b78; --edge:rgba(232,238,242,.45);
+    --c-black:#e8eef2; --c-white:#ffffff; --bar-plus:#4a2623; --bar-minus:#2a343d; --blk:#1c3a29; --plan:#e0a15a; --accent:#7db2ff; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg:#0f151a; --panel:#172029; --fg:#e8eef2; --muted:#a2b0bb; --line:#5b6b78; --edge:rgba(232,238,242,.45);
+  --c-black:#e8eef2; --c-white:#ffffff; --bar-plus:#4a2623; --bar-minus:#2a343d; --blk:#1c3a29; --plan:#e0a15a; --accent:#7db2ff; color-scheme: dark; }
+body { background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:17px; line-height:1.5; }
+.wrap { max-width:1360px; margin:0 auto; padding-inline:16px; padding-block:24px 56px; display:grid; gap:24px; }
+h1 { font-size:clamp(1.7rem,5vw,2.3rem); line-height:1.15; margin:0; }
+h2 { font-size:1.25rem; margin:0 0 10px; }
+p { margin:0; max-width:70ch; }
+.sub { color:var(--muted); margin-top:6px; }
+.tag { font-family:var(--font-mono); font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:16px; min-width:0; }
+figure { margin:0; }
+.fig { overflow-x:auto; }
+.fig svg { display:block; min-width:1000px; width:100%; height:auto; color:var(--fg); }
+figcaption { color:var(--muted); font-size:.95rem; margin-top:10px; max-width:80ch; }
+table { border-collapse:collapse; width:100%; font-size:.93rem; }
+th, td { text-align:left; vertical-align:top; padding:7px 9px; border-bottom:1px solid var(--line); }
+th { font-family:var(--font-mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.tw { overflow-x:auto; }
+ul { margin:0; padding-left:1.2em; display:grid; gap:6px; max-width:78ch; }
+/* the drawing */
+.w .edge { stroke:var(--edge); stroke-width:5.5; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.w .core { stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.w.dash .edge, .w.dash .core { stroke-dasharray:7 5; }
+.w-red .core{stroke:var(--c-red)} .w-black .core{stroke:var(--c-black)} .w-white .core{stroke:var(--c-white)} .w-yellow .core{stroke:var(--c-yellow)}
+.w-orange .core{stroke:var(--c-orange)} .w-brown .core{stroke:var(--c-brown)} .w-green .core{stroke:var(--c-green)} .w-blue .core{stroke:var(--c-blue)}
+.plug { stroke:var(--edge); stroke-width:1.5; }
+.plug.w-red{fill:var(--c-red)} .plug.w-black{fill:var(--c-black)} .plug.w-white{fill:var(--c-white)} .plug.w-yellow{fill:var(--c-yellow)}
+.part { fill:var(--panel); stroke:var(--line); stroke-width:1.5; }
+.plan { fill:none; stroke:var(--plan); stroke-width:1.5; stroke-dasharray:8 5; }
+.blk { fill:var(--blk); stroke:var(--line); }
+.bar { stroke:var(--line); } .bar.plus{fill:var(--bar-plus)} .bar.minus{fill:var(--bar-minus)}
+.res { fill:var(--panel); stroke:var(--fg); stroke-width:1.5; }
+.pin, .dot { fill:var(--fg); }
+svg text { fill:var(--fg); font-family:var(--font-body); }
+.title { font-size:14px; font-weight:700; } .sub { font-size:12px; } svg .sub { fill:var(--muted); margin:0; }
+.lab { font-size:12px; } .pinlab { font-size:11px; fill:var(--muted); } .note { font-size:11px; font-style:italic; fill:var(--muted); }
+.band { font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; fill:var(--muted); } .barlab { font-family:var(--font-mono); font-size:11px; }
+</style>
+
+<main class="wrap">
+  <header>
+    <div class="tag">Astra-9 Lite &middot; as built, 5 October 2026</div>
+    <h1>What is wired to what</h1>
+    <p class="sub">Every wire on the first build, with its color and where it ends. Kept so Astra-9 and Astrad can be wired the same way without starting over.</p>
+  </header>
+
+  <section class="card">
+    <figure>
+      <div class="fig">
+<svg viewBox="0 0 1320 1010" role="img" aria-label="Wiring of Astra-9 Lite as built on 5 October 2026: one 5 volt supply feeds a plus strip and a minus strip, which power the servo board, eye rings, sensor and amplifier; the Raspberry Pi with its HAT sends I2C to the servo board, eye data and sensor signal on the GPIO12 plug, and audio to the amplifier." xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<text class="band" x="20" y="30">POWER</text>
+<rect class="part" x="20" y="46" width="180" height="86" rx="6"/>
+<text class="title" x="32" y="70">5 V / 6 A supply</text>
+<text class="sub" x="32" y="90">barrel plug, screw block</text>
+<text class="sub" x="32" y="106">reads 5.38 V</text>
+<rect class="bar plus" x="230" y="60" width="1060" height="16" rx="3"/><text class="barlab" x="238" y="72">PLUS STRIP  5.38 V</text>
+<rect class="bar minus" x="230" y="102" width="1060" height="16" rx="3"/><text class="barlab" x="238" y="114">MINUS STRIP  0 V</text>
+<g class="w w-red"><path class="edge" d="M200,68 L230,68"/><path class="core" d="M200,68 L230,68"/></g>
+<g class="w w-black"><path class="edge" d="M200,110 L230,110"/><path class="core" d="M200,110 L230,110"/></g>
+<rect class="res" x="1256" y="80" width="28" height="20" rx="3"/><text class="lab" x="1270" y="94" text-anchor="middle">cap</text>
+<text class="lab" x="1290" y="48" text-anchor="end">1000 µF 16 V capacitor across the strips</text>
+<text class="band" x="20" y="186">PARTS</text>
+<rect class="part" x="20" y="250" width="170" height="110" rx="6"/>
+<text class="title" x="32" y="274">Neck motor</text>
+<text class="sub" x="32" y="294">MG996R</text>
+<text class="sub" x="32" y="310">plugged into channel 8</text>
+<text class="sub" x="32" y="326">found by trying each</text>
+<rect class="part" x="250" y="200" width="280" height="160" rx="6"/>
+<text class="title" x="262" y="224">Servo board (PCA9685)</text>
+<text class="sub" x="262" y="244">address 0x40, logic 3.3 V from the Pi</text>
+<text class="sub" x="262" y="260">OE and V+ side pins left empty</text>
+<rect class="blk" x="340" y="194" width="70" height="14" rx="2"/><text class="pinlab" x="418" y="190" text-anchor="start">green block</text>
+<g class="w w-orange"><path class="edge" d="M358,76 L358,194"/><path class="core" d="M358,76 L358,194"/></g>
+<text class="lab" x="350" y="150" text-anchor="end">plus</text>
+<g class="w w-brown"><path class="edge" d="M392,118 L392,194"/><path class="core" d="M392,118 L392,194"/></g>
+<text class="lab" x="400" y="150" text-anchor="start">minus</text>
+<circle class="dot" cx="358" cy="68" r="4"/>
+<circle class="dot" cx="392" cy="110" r="4"/>
+<rect class="part" x="570" y="200" width="240" height="160" rx="6"/>
+<text class="title" x="582" y="224">Eye rings, 2 x 16 LEDs</text>
+<text class="sub" x="582" y="244">in the head, chained, 32 lights</text>
+<text class="sub" x="582" y="260">cap 30%, color resent every 2 s</text>
+<text class="sub" x="582" y="276">jumpers let the head come apart</text>
+<g class="w w-red dash"><path class="edge" d="M630,76 L630,200"/><path class="core" d="M630,76 L630,200"/></g>
+<text class="lab" x="636" y="180" text-anchor="start">5 V</text>
+<g class="w w-black dash"><path class="edge" d="M670,118 L670,200"/><path class="core" d="M670,118 L670,200"/></g>
+<text class="lab" x="676" y="180" text-anchor="start">ground</text>
+<circle class="dot" cx="630" cy="68" r="4"/>
+<circle class="dot" cx="670" cy="110" r="4"/>
+<rect class="part" x="850" y="200" width="180" height="160" rx="6"/>
+<text class="title" x="862" y="224">Motion sensor</text>
+<text class="sub" x="862" y="244">HC-SR501, dome on</text>
+<text class="sub" x="862" y="260">timer dial: shortest</text>
+<text class="sub" x="862" y="276">sensitivity: turned up</text>
+<text class="sub" x="862" y="292">power from the strips</text>
+<g class="w w-white"><path class="edge" d="M900,76 L900,200"/><path class="core" d="M900,76 L900,200"/></g>
+<text class="lab" x="892" y="150" text-anchor="end">VCC</text>
+<circle class="dot" cx="900" cy="68" r="4"/>
+<g class="w w-black"><path class="edge" d="M940,118 L940,200"/><path class="core" d="M940,118 L940,200"/></g>
+<text class="lab" x="948" y="150" text-anchor="start">GND</text>
+<circle class="dot" cx="940" cy="110" r="4"/>
+<rect class="part" x="1060" y="200" width="240" height="160" rx="6"/>
+<text class="title" x="1072" y="224">Amplifier (PAM8403)</text>
+<text class="sub" x="1072" y="244">3 W, knob sets loudness</text>
+<g class="w w-red"><path class="edge" d="M1100,76 L1100,200"/><path class="core" d="M1100,76 L1100,200"/></g>
+<text class="lab" x="1092" y="170" text-anchor="end">power +</text>
+<circle class="dot" cx="1100" cy="68" r="4"/>
+<g class="w w-black"><path class="edge" d="M1140,118 L1140,200"/><path class="core" d="M1140,118 L1140,200"/></g>
+<text class="lab" x="1148" y="170" text-anchor="start">power −</text>
+<circle class="dot" cx="1140" cy="110" r="4"/>
+<text class="band" x="20" y="560">BRAIN</text>
+<rect class="part" x="230" y="590" width="780" height="210" rx="6"/>
+<text class="title" x="242" y="694">Raspberry Pi 4 (astra9lite) with Keyestudio ReSpeaker 2-Mic HAT</text>
+<text class="sub" x="242" y="714">two microphones on the HAT; headphone jack is sound card 3 (wm8960)</text>
+<text class="sub" x="242" y="730">built-in audio must stay on, or the card numbers change</text>
+<text class="sub" x="242" y="746">own power through its USB-C, from its own supply</text>
+<g class="w w-black"><path class="edge" d="M160,700 L230,700"/><path class="core" d="M160,700 L230,700"/></g>
+<text class="lab" x="170" y="692" text-anchor="start">USB-C</text>
+<text class="lab" x="440" y="601">I2C plug, 4 pin</text>
+<rect class="plug w-black" x="287" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="300" y="622" text-anchor="middle">GND</text>
+<rect class="plug w-red" x="327" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="340" y="622" text-anchor="middle">3.3 V</text>
+<rect class="plug w-white" x="367" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="380" y="622" text-anchor="middle">SDA</text>
+<rect class="plug w-yellow" x="407" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="420" y="622" text-anchor="middle">SCL</text>
+<circle class="pin" cx="280" cy="360" r="4"/>
+<text class="pinlab" x="280" y="350" text-anchor="middle">GND</text>
+<circle class="pin" cx="340" cy="360" r="4"/>
+<text class="pinlab" x="340" y="350" text-anchor="middle">SCL</text>
+<circle class="pin" cx="400" cy="360" r="4"/>
+<text class="pinlab" x="400" y="350" text-anchor="middle">SDA</text>
+<circle class="pin" cx="460" cy="360" r="4"/>
+<text class="pinlab" x="460" y="350" text-anchor="middle">VCC</text>
+<g class="w w-black"><path class="edge" d="M300,590 L300,540 L280,540 L280,360"/><path class="core" d="M300,590 L300,540 L280,540 L280,360"/></g>
+<g class="w w-red"><path class="edge" d="M340,590 L340,520 L460,520 L460,360"/><path class="core" d="M340,590 L340,520 L460,520 L460,360"/></g>
+<g class="w w-white"><path class="edge" d="M380,590 L380,500 L400,500 L400,360"/><path class="core" d="M380,590 L380,500 L400,500 L400,360"/></g>
+<g class="w w-yellow"><path class="edge" d="M420,590 L420,480 L340,480 L340,360"/><path class="core" d="M420,590 L420,480 L340,480 L340,360"/></g>
+<g class="w w-black"><path class="edge" d="M190,300 L250,300"/><path class="core" d="M190,300 L250,300"/></g>
+<text class="lab" x="196" y="295" text-anchor="start">ground</text>
+<g class="w w-red"><path class="edge" d="M190,320 L250,320"/><path class="core" d="M190,320 L250,320"/></g>
+<text class="lab" x="196" y="315" text-anchor="start">power</text>
+<g class="w w-yellow"><path class="edge" d="M190,340 L250,340"/><path class="core" d="M190,340 L250,340"/></g>
+<text class="lab" x="196" y="335" text-anchor="start">signal</text>
+<text class="sub" x="258" y="320">channel 8 pins</text>
+<text class="lab" x="792" y="601">GPIO12 plug, 4 pin</text>
+<rect class="plug w-black" x="637" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="650" y="622" text-anchor="middle">GND (Pi)</text>
+<rect class="plug w-red" x="677" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="690" y="636" text-anchor="middle">3.3 V, unused</text>
+<rect class="plug w-yellow" x="717" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="730" y="622" text-anchor="middle">GPIO12</text>
+<rect class="plug w-white" x="757" y="590" width="26" height="12" rx="2"/>
+<text class="pinlab" x="770" y="636" text-anchor="middle">GPIO13</text>
+<g class="w w-yellow"><path class="edge" d="M730,590 L730,500 L760,500 L760,360"/><path class="core" d="M730,590 L730,500 L760,500 L760,360"/></g>
+<circle class="pin" cx="760" cy="360" r="4"/>
+<text class="pinlab" x="760" y="350" text-anchor="middle">data in</text>
+<rect class="res" x="754" y="426" width="12" height="28" rx="2"/>
+<text class="lab" x="772" y="444">470 Ω</text>
+<text class="lab" x="776" y="470">GPIO12</text>
+<g class="w w-white"><path class="edge" d="M770,590 L770,520 L960,520 L960,360"/><path class="core" d="M770,590 L770,520 L960,520 L960,360"/></g>
+<circle class="pin" cx="960" cy="360" r="4"/>
+<text class="pinlab" x="960" y="350" text-anchor="middle">OUT (orange)</text>
+<rect class="res" x="954" y="426" width="12" height="28" rx="2"/>
+<text class="lab" x="972" y="444">470 Ω</text>
+<text class="lab" x="976" y="470">GPIO13</text>
+<g class="w w-black dash"><path class="edge" d="M650,590 L650,566"/><path class="core" d="M650,590 L650,566"/></g>
+<g class="w w-red dash"><path class="edge" d="M690,590 L690,566"/><path class="core" d="M690,590 L690,566"/></g>
+<g class="w w-black"><path class="edge" d="M1010,690 L1070,690"/><path class="core" d="M1010,690 L1070,690"/></g>
+<text class="lab" x="1014" y="736">audio cable, 3.5 mm plug</text>
+<text class="lab" x="1014" y="752">pushed all the way into the HAT jack</text>
+<rect class="blk" x="1070" y="670" width="120" height="40" rx="3"/><text class="pinlab" x="1130" y="694" text-anchor="middle">green screw block</text>
+<text class="pinlab" x="1110" y="326" text-anchor="middle">input pads</text>
+<circle class="pin" cx="1090" cy="360" r="4"/>
+<text class="pinlab" x="1090" y="350" text-anchor="middle">G</text>
+<circle class="pin" cx="1130" cy="360" r="4"/>
+<text class="pinlab" x="1130" y="350" text-anchor="middle">R (B)</text>
+<g class="w w-green"><path class="edge" d="M1090,670 L1090,360"/><path class="core" d="M1090,670 L1090,360"/></g>
+<text class="lab" x="1084" y="650" text-anchor="end">green to G</text>
+<g class="w w-blue"><path class="edge" d="M1130,670 L1130,360"/><path class="core" d="M1130,670 L1130,360"/></g>
+<text class="lab" x="1138" y="650" text-anchor="start">blue to R</text>
+<text class="note" x="1170" y="600">left input pad:</text><text class="note" x="1170" y="615">orange wire removed,</text><text class="note" x="1170" y="630">it was loose</text>
+<g class="w w-red"><path class="edge" d="M1190,360 L1190,470"/><path class="core" d="M1190,360 L1190,470"/></g>
+<g class="w w-black"><path class="edge" d="M1215,360 L1215,470"/><path class="core" d="M1215,360 L1215,470"/></g>
+<circle class="pin" cx="1190" cy="360" r="4"/>
+<text class="pinlab" x="1190" y="350" text-anchor="middle">+</text>
+<circle class="pin" cx="1215" cy="360" r="4"/>
+<text class="pinlab" x="1215" y="350" text-anchor="middle">−</text>
+<g class="w w-red"><path class="edge" d="M1245,360 L1245,470"/><path class="core" d="M1245,360 L1245,470"/></g>
+<g class="w w-black"><path class="edge" d="M1270,360 L1270,470"/><path class="core" d="M1270,360 L1270,470"/></g>
+<circle class="pin" cx="1245" cy="360" r="4"/>
+<text class="pinlab" x="1245" y="350" text-anchor="middle">+</text>
+<circle class="pin" cx="1270" cy="360" r="4"/>
+<text class="pinlab" x="1270" y="350" text-anchor="middle">−</text>
+<text class="pinlab" x="1225" y="326" text-anchor="middle">speaker pads</text>
+<rect class="part" x="1170" y="470" width="55" height="46" rx="5"/><text class="pinlab" x="1197" y="490" text-anchor="middle">speaker</text><text class="pinlab" x="1197" y="504" text-anchor="middle">1</text>
+<rect class="part" x="1235" y="470" width="55" height="46" rx="5"/><text class="pinlab" x="1262" y="490" text-anchor="middle">speaker</text><text class="pinlab" x="1262" y="504" text-anchor="middle">2</text>
+<text class="note" x="1170" y="540">3 W, 8 Ω each. Their wires</text><text class="note" x="1170" y="555">are being rebuilt on</text><text class="note" x="1170" y="570">screw connectors.</text>
+<rect class="plan" x="560" y="830" width="450" height="150" rx="6"/>
+<text class="title" x="574" y="854">Arcade Talk button: planned, not wired yet</text>
+<text class="sub" x="574" y="876">between the GPIO12 plug red (3.3 V) and its white (GPIO13)</text>
+<g class="w w-red dash"><path class="edge" d="M590,930 L650,930"/><path class="core" d="M590,930 L650,930"/></g>
+<text class="lab" x="590" y="922" text-anchor="start">plug red</text>
+<rect class="res" x="650" y="918" width="60" height="24" rx="12"/><text class="pinlab" x="680" y="934" text-anchor="middle">button</text>
+<g class="w w-red dash"><path class="edge" d="M710,930 L760,930"/><path class="core" d="M710,930 L760,930"/></g>
+<rect class="res" x="776" y="924" width="28" height="12" rx="2"/>
+<text class="lab" x="802" y="934"></text>
+<text class="lab" x="790" y="954" text-anchor="middle">about 220 Ω</text>
+<g class="w w-white dash"><path class="edge" d="M804,930 L860,930"/><path class="core" d="M804,930 L860,930"/></g>
+<text class="lab" x="812" y="912" text-anchor="start">joins the white wire</text>
+<text class="sub" x="574" y="972">a tap under 1 s is Talk; a longer signal is the sensor</text>
+<g transform="translate(20,830)">
+<text class="band" x="0" y="0">HOW TO READ IT</text>
+<g class="w w-black"><path class="edge" d="M0,22 L50,22"/><path class="core" d="M0,22 L50,22"/></g><text class="lab" x="60" y="26">solid: measured or tested on the bench</text>
+<g class="w w-black dash"><path class="edge" d="M0,48 L50,48"/><path class="core" d="M0,48 L50,48"/></g><text class="lab" x="60" y="52">dashed: as built, colors or ends not re-checked</text>
+<text class="lab" x="0" y="82">Wires cross without joining unless a dot is shown.</text>
+<text class="lab" x="0" y="102">Eye jumper colors are not recorded;</text>
+<text class="lab" x="0" y="120">red and black are drawn by convention.</text>
+</g>
+</svg>
+      </div>
+      <figcaption>One 5 V supply feeds a plus strip and a minus strip. The strips power the servo board, eye rings, sensor and amplifier. The Pi, powered separately, talks to the servo board over the I2C plug, to the eyes and sensor over the GPIO12 plug, and to the amplifier through the audio cable. On a phone, slide the drawing sideways.</figcaption>
+    </figure>
+  </section>
+
+  <section class="card">
+    <h2>Every wire</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Group</th><th>From</th><th>To</th><th>Wire</th><th>Status</th></tr></thead>
+      <tbody>
+<tr><td>Power</td><td>5 V supply plus</td><td>plus strip</td><td>red</td><td>Measured 5.38 V</td></tr>
+<tr><td>Power</td><td>5 V supply minus</td><td>minus strip</td><td>black</td><td>0 V</td></tr>
+<tr><td>Power</td><td>1000 µF 16 V capacitor</td><td>across plus and minus strips</td><td>n/a</td><td>Present before the build notes began</td></tr>
+<tr><td>Power</td><td>plus strip</td><td>servo board green block, plus side</td><td>orange</td><td>5.38 V read at the block</td></tr>
+<tr><td>Power</td><td>minus strip</td><td>servo board green block, minus side</td><td>brown</td><td>Measured</td></tr>
+<tr><td>Power</td><td>plus strip</td><td>amplifier Power pad +</td><td>red</td><td>5.38 V read across the pads</td></tr>
+<tr><td>Power</td><td>minus strip</td><td>amplifier Power pad −</td><td>black</td><td>Reconnected 5 Oct; it had been missing</td></tr>
+<tr><td>Power</td><td>plus and minus strips</td><td>eye rings 5 V and ground (Dupont jumpers)</td><td>not recorded</td><td>Jumper colors not written down</td></tr>
+<tr><td>Power</td><td>plus strip</td><td>motion sensor VCC</td><td>white, taped VCC</td><td>From the 5 Oct photo</td></tr>
+<tr><td>Power</td><td>minus strip</td><td>motion sensor GND</td><td>black, taped GND</td><td>From the 5 Oct photo</td></tr>
+<tr><td>Pi</td><td>Pi USB-C</td><td>its own supply, not the strips</td><td>n/a</td><td>Switch on the Pi first, then the 5V strip</td></tr>
+<tr><td>I2C plug</td><td>black</td><td>servo board GND (side pin)</td><td>black</td><td>Plug measured 0 V</td></tr>
+<tr><td>I2C plug</td><td>red (3.3 V)</td><td>servo board VCC (side pin)</td><td>red</td><td>Plug measured 3.29 V</td></tr>
+<tr><td>I2C plug</td><td>white</td><td>servo board SDA</td><td>white</td><td>Board answers at 0x40 and 0x70</td></tr>
+<tr><td>I2C plug</td><td>yellow</td><td>servo board SCL</td><td>yellow</td><td>Board answers at 0x40 and 0x70</td></tr>
+<tr><td>Servo board</td><td>motor plug, channel 8</td><td>ground, power, signal pins</td><td>dark, red, yellow</td><td>Found by trying every channel; it moved on 8, not 0</td></tr>
+<tr><td>GPIO12 plug</td><td>black</td><td>Pi ground (0 V); the sensor does not use it</td><td>black</td><td>Measured; the strips and the Pi share ground through the audio cable (about 2 Ω)</td></tr>
+<tr><td>GPIO12 plug</td><td>red (3.29 V)</td><td>nothing: never connect</td><td>red</td><td>Measured; deliberately unused</td></tr>
+<tr><td>GPIO12 plug</td><td>yellow (GPIO12)</td><td>470 Ω, then eye ring data in</td><td>yellow</td><td>Tested: both rings light</td></tr>
+<tr><td>GPIO12 plug</td><td>white (GPIO13)</td><td>470 Ω (in the yellow heat shrink), then sensor OUT</td><td>white; orange taped OUT at the sensor</td><td>Tested: greeting on walking up</td></tr>
+<tr><td>Audio</td><td>HAT headphone jack</td><td>audio cable to green screw block</td><td>black cable</td><td>Plug must be pushed fully in</td></tr>
+<tr><td>Audio</td><td>screw block green</td><td>amplifier input G</td><td>green</td><td>Ground of the input</td></tr>
+<tr><td>Audio</td><td>screw block blue</td><td>amplifier input R (marked B)</td><td>blue</td><td>Her signal</td></tr>
+<tr><td>Audio</td><td>screw block orange</td><td>left input, removed</td><td>orange</td><td>Was loose from the start</td></tr>
+<tr><td>Speakers</td><td>amplifier speaker pads, pair 1</td><td>speaker 1, plus and minus</td><td>red, black</td><td>Being rebuilt on screw connectors</td></tr>
+<tr><td>Speakers</td><td>amplifier speaker pads, pair 2</td><td>speaker 2, plus and minus</td><td>red, black</td><td>Being rebuilt on screw connectors</td></tr>
+<tr><td>Planned</td><td>GPIO12 plug red</td><td>arcade button, about 220 Ω, then the white wire</td><td>red</td><td>Not wired yet</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>For Astra-9 and Astrad</h2>
+    <ul>
+      <li>The HAT sockets are 2.54 mm JST XH, 4 pin. Measure each plug before connecting anything: the red wire on the GPIO12 plug is 3.3 V and stays unused.</li>
+      <li>Do not assume the motor is on channel 0. Try each channel in turn with the motor connected and note where it moves.</li>
+      <li>Keep the Pi's built-in audio on. Her voice plays by card number, and switching it off silenced her.</li>
+      <li>Power the Pi first, then the 5 V strip, and shut down with the panel button before cutting power.</li>
+      <li>A buzz in the speakers followed the eye brightness and travelled along the audio cable. Its cause is not fully known. A ground loop isolator on the audio cable is the next thing to try, and it has not been tried yet.</li>
+      <li>Thin jumper wires and twisted joints came loose or frayed at the speakers and plugs. Use screw connectors or solder, support each wire, and leave a little slack.</li>
+      <li>Put a close-up photo of every board beside this page, with a tape flag on each wire, so the dashed lines can be made solid.</li>
+    </ul>
+  </section>
+</main>
