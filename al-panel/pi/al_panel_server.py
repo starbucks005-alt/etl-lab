@@ -233,13 +233,34 @@ def write_eyes(boost=False):
     os.replace(tmp, EYES_FILE)
 
 
+last_said = {"text": "", "t": 0.0}
+
+
+def settle():
+    """Wait until she has stopped speaking, then a moment more, so her microphones do not pick up her own voice."""
+    with speak_lock:
+        pass
+    time.sleep(0.8)
+
+
+def heard_herself(text):
+    """True when what the microphones heard is mostly what she just said (her own voice coming back in)."""
+    if not text or time.time() - last_said["t"] > 30:
+        return False
+    heard = re.findall(r"[a-z0-9']+", text.lower())
+    said = set(re.findall(r"[a-z0-9']+", last_said["text"].lower()))
+    return bool(heard) and sum(1 for w in heard if w in said) / len(heard) >= 0.6
+
+
 def speak_now(text, use_persona=True):
     """Say it and come back only when she has finished."""
     with speak_lock:
         try:
             persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
             al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
+            last_said["text"] = text
             al.speak(text)
+            last_said["t"] = time.time()
         except Exception as e:  # keep the server alive if sound fails
             print("SPEAK ERROR:", e, flush=True)
 
@@ -687,6 +708,7 @@ def converse(window=None):
         window = window or CONVERSE_SECONDS
         deadline = time.time() + window
         while time.time() < deadline:
+            settle()
             path = hear_one(wait_seconds=max(1.0, deadline - time.time()))
             if not path:
                 break
@@ -698,6 +720,9 @@ def converse(window=None):
                 print("LISTEN ERROR:", e, flush=True)
                 break
             if not text:
+                continue
+            if heard_herself(text):
+                print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
                 continue
             try:
                 answer_and_say(text)
@@ -720,6 +745,7 @@ def watch_names():
             continue
         text = ""
         try:
+            settle()
             path = hear_one(wait_seconds=4)
             if path:
                 t0 = time.time()
@@ -730,6 +756,9 @@ def watch_names():
             time.sleep(5)
         finally:
             listen_lock.release()
+        if text and heard_herself(text):
+            print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
+            continue
         if text and NAME_RE.search(text):
             try:
                 answer_and_say(text)
