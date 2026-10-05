@@ -884,7 +884,68 @@ def say_address_when_ready():
         time.sleep(2)
 
 
+# ---------- volume ----------
+# Added 2026-10-05, Dr. O: "need volume control on panel". This moves the HAT's own Headphone volume, the same
+# control that amixer showed, which sits in front of the amp's knob. The amp's knob still sets the top end.
+VOLUME_FILE = os.path.join(HERE, "volume.json")
+VOLUME_CARD = "wm8960soundcard"
+VOLUME_CONTROL = "Headphone"
+
+
+def get_volume():
+    """The HAT's current volume as 0 to 100, or None if it cannot be read."""
+    try:
+        out = subprocess.run(["amixer", "-c", VOLUME_CARD, "sget", VOLUME_CONTROL],
+                             capture_output=True, text=True, timeout=5).stdout
+        m = re.search(r"\[(\d+)%\]", out)
+        return int(m.group(1)) if m else None
+    except Exception:
+        return None
+
+
+def set_volume(pct):
+    pct = max(0, min(100, int(pct)))
+    r = subprocess.run(["amixer", "-c", VOLUME_CARD, "sset", VOLUME_CONTROL, str(pct) + "%"],
+                       capture_output=True, text=True, timeout=5)
+    if r.returncode != 0:
+        raise RuntimeError((r.stderr or r.stdout or "amixer failed").strip())
+    try:
+        with open(VOLUME_FILE, "w") as f:
+            json.dump({"volume": pct}, f)
+    except Exception:
+        pass
+    return pct
+
+
+@app.get("/api/volume")
+def volume_get():
+    return jsonify(volume=get_volume())
+
+
+@app.post("/api/volume")
+def volume_set():
+    d = request.get_json(silent=True) or {}
+    try:
+        v = int(d.get("volume"))
+    except (TypeError, ValueError):
+        return jsonify(error="volume must be a number from 0 to 100"), 400
+    try:
+        v = set_volume(v)
+    except Exception as e:
+        return jsonify(error="I could not change the volume: " + str(e)), 500
+    return jsonify(ok=True, volume=v)
+
+
+def restore_volume():
+    """Put back the volume she was left at, so a restart does not change it."""
+    try:
+        set_volume(json.load(open(VOLUME_FILE))["volume"])
+    except Exception:
+        pass
+
+
 if __name__ == "__main__":
+    restore_volume()
     write_eyes()
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()

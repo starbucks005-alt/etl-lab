@@ -244,6 +244,12 @@
         <button class="primary" id="send">Send</button>
       </div>
       <div class="row" style="margin-top:10px"><button id="sayAddress">Say my address</button></div>
+      <!-- VOLUME, added 2026-10-05, Dr. O: "need volume control on panel". Only on the real Astra-9 Lite. -->
+      <div class="row" id="volumeRow" style="margin-top:10px;display:none;align-items:center;gap:10px">
+        <label for="vol" style="margin:0">Volume</label>
+        <input type="range" id="vol" min="0" max="100" step="5" value="60" style="flex:1;min-width:160px">
+        <span id="volText" style="min-width:3.2em;text-align:right">60%</span>
+      </div>
       <!-- CONVERSATION STARTERS, added 2026-10-04, Dr. O: one tap to start a conversation at the event. Only on the real Astra-9 Lite. -->
       <div class="row" id="starters" style="margin-top:10px;display:none">
         <button data-q="What are you?">What are you?</button>
@@ -359,6 +365,8 @@
     $('demoNote').style.display = on ? 'none' : '';
     $('shutCard').style.display = on ? '' : 'none';
     $('listenRow').style.display = on ? '' : 'none';
+    $('volumeRow').style.display = on ? 'flex' : 'none';
+    if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
     $('statusText').textContent = on ? 'Connected to Astra-9 Lite' : 'Demo mode, no Astra-9 Lite connected';
@@ -766,6 +774,12 @@
   $('wNow').addEventListener('click', welcomeNow);
   addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
   // ---------- talk by voice: she listens for 6 seconds through her own microphones ----------
+  $('vol').addEventListener('input', function(){ $('volText').textContent = this.value + '%'; });
+  $('vol').addEventListener('change', function(){
+    var v = parseInt(this.value, 10);
+    api('/api/volume', {volume: v}).then(function(j){ $('volText').textContent = j.volume + '%'; })
+      .catch(function(e){ addMsg('al', '(I could not change the volume: ' + e.message + ')'); });
+  });
   $('listenBtn').addEventListener('click', function(){
     if(!live){ return; }
     var b = $('listenBtn'), msg = $('listenStatus'), left = 6;
