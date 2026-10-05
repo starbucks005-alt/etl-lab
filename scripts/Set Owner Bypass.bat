@@ -21,7 +21,7 @@ if "%KEY%"=="" (
 
 echo.
 echo Setting the bypass in each browser on this laptop.
-echo Each browser will open three pages for a moment. Let them load, then close them.
+echo Each browser will open four pages for a moment. Let them load, then close them.
 echo.
 
 set "EDGE=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
@@ -31,17 +31,17 @@ set "DONE=0"
 
 if exist "%EDGE%" (
   echo Edge found.
-  start "" "%EDGE%" "https://emerging-tech-lab.com/studio.html?key=%KEY%" "https://emerging-tech-lab.com/good-company/index.html?key=%KEY%" "https://emerging-tech-lab.com/almost-human.html?key=%KEY%"
+  start "" "%EDGE%" "https://emerging-tech-lab.com/studio.html?key=%KEY%" "https://emerging-tech-lab.com/good-company/index.html?key=%KEY%" "https://emerging-tech-lab.com/almost-human.html?key=%KEY%" "https://emerging-tech-lab.com/app.html?event=1"
   set "DONE=1"
 )
 if exist "%CHROME%" (
   echo Chrome found.
-  start "" "%CHROME%" "https://emerging-tech-lab.com/studio.html?key=%KEY%" "https://emerging-tech-lab.com/good-company/index.html?key=%KEY%" "https://emerging-tech-lab.com/almost-human.html?key=%KEY%"
+  start "" "%CHROME%" "https://emerging-tech-lab.com/studio.html?key=%KEY%" "https://emerging-tech-lab.com/good-company/index.html?key=%KEY%" "https://emerging-tech-lab.com/almost-human.html?key=%KEY%" "https://emerging-tech-lab.com/app.html?event=1"
   set "DONE=1"
 )
 if exist "%FIREFOX%" (
   echo Firefox found.
-  start "" "%FIREFOX%" "https://emerging-tech-lab.com/studio.html?key=%KEY%" "https://emerging-tech-lab.com/good-company/index.html?key=%KEY%" "https://emerging-tech-lab.com/almost-human.html?key=%KEY%"
+  start "" "%FIREFOX%" "https://emerging-tech-lab.com/studio.html?key=%KEY%" "https://emerging-tech-lab.com/good-company/index.html?key=%KEY%" "https://emerging-tech-lab.com/almost-human.html?key=%KEY%" "https://emerging-tech-lab.com/app.html?event=1"
   set "DONE=1"
 )
 

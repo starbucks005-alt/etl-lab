@@ -4554,6 +4554,18 @@ function goToOutput(type) {
   }
 }
 
+// Event link, added 2026-10-05 at Dr. O's request: app.html?event=1 opens the paywall in that browser,
+// app.html?event=0 closes it again. The flag below is the same one isActivated() already reads.
+// It does not carry any API key, so the AI steps still need the visitor's own key.
+(function () {
+  try {
+    var ev = new URLSearchParams(location.search).get('event');
+    if (ev === '1') { localStorage.setItem('slr_activated', 'true'); }
+    else if (ev === '0') { localStorage.removeItem('slr_activated'); }
+    if (ev === '1' || ev === '0') { history.replaceState(null, '', location.pathname + location.hash); }
+  } catch (e) {}
+})();
+
 function isActivated() {
   // Check window.SLR_USER (set by auth guard in deployed version)
   // In standalone mode (no auth), check localStorage flag
