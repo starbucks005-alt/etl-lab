@@ -972,19 +972,38 @@ let prof = currentProfile();
    ?visitor=1 still previews the free wing without spending anything, because
    seeing what a stranger sees is a thing worth being able to do. It hides the
    token for this page only and never deletes it. */
+/* LAB KEY: ?labkey=<key> is stored in localStorage (etl_lab_key) and stripped
+   from the address bar. It only ever rides along as the x-lab-key header; the
+   server (LAB_KEYS env var) alone decides whether it means anything. */
+(function labKeyPlanter(){
+  try {
+    const q = new URLSearchParams(location.search);
+    const k = (q.get('labkey') || '').trim();
+    if (!k) return;
+    localStorage.setItem('etl_lab_key', k);
+    q.delete('labkey');
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+  } catch (e) { /* storage unavailable; nothing to plant */ }
+})();
+function labKey(){
+  try { return (localStorage.getItem('etl_lab_key') || '').trim(); } catch (e) { return ''; }
+}
 function everlyToken(){
   try {
     if (new URLSearchParams(location.search).get('visitor') === '1') return '';
     return (localStorage.getItem('everly_token') || '').trim();
   } catch (e) { return ''; }
 }
-function isPaid(){ return !!everlyToken(); }
+function isPaid(){ return !!everlyToken() || (!!labKey() && new URLSearchParams(location.search).get('visitor') !== '1'); }
 
 /* The token rides in a header. Never a query string: a URL ends up in browser
    history, in server logs, and in the Referer sent to any other origin. */
 function paidHeaders(){
   const t = everlyToken();
-  return t ? { 'X-Everly-Token': t } : {};
+  const h = t ? { 'X-Everly-Token': t } : {};
+  const lk = labKey();
+  if (lk && new URLSearchParams(location.search).get('visitor') !== '1') h['x-lab-key'] = lk;
+  return h;
 }
 
 /* Checkout hands the token back on the welcome page; this catches it if a

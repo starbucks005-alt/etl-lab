@@ -68,6 +68,7 @@ const {
   GROUP_MESSAGE_COST, safeToken,
 } = require('./_ah-credits.js');
 const table = require('./_ah-table.js');
+const labKey = require('./_lab-key.js');
 const { isCrisis, crisisReply } = require('./_ah-safety.js');
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
@@ -559,8 +560,13 @@ exports.handler = async function (event) {
       ? await getCreditRowByRef(shared.room.host_credit_ref, serviceKey)
       : await getCreditRow(safeToken(body.access_token), serviceKey);
   }
-  const isSubscriber = Boolean(!freeRoom && creditsRow && creditsRow.subscription_active);
-  const hasEnoughForGroup = isSubscriber && creditsRow.balance >= GROUP_MESSAGE_COST;
+  /* LAB KEY: solo table only. A shared room is paid by its host's credit row
+     by reference, so a lab key never opens or spends against one. No credits
+     row, nothing deducted; the daily ceiling in _lab-key.js is the meter. */
+  const isLabPaid = !shared && !freeRoom && !(creditsRow && creditsRow.subscription_active)
+    && await labKey.labCallAllowed(event, event.headers || {});
+  const isSubscriber = isLabPaid || Boolean(!freeRoom && creditsRow && creditsRow.subscription_active);
+  const hasEnoughForGroup = isLabPaid || (isSubscriber && creditsRow.balance >= GROUP_MESSAGE_COST);
 
   if (!freeRoom && !hasEnoughForGroup) {
     if (isAmbient) {
@@ -832,7 +838,7 @@ sitting right there watching this happen, not being spoken to this turn.`;
   // shared room this charges the HOST, by reference, no matter which of the two
   // people asked — Dr. O's decision, and the reason the guest never needs an
   // account, a card, or a balance of her own.
-  if (!freeRoom && isSubscriber && !isAmbient) {
+  if (!freeRoom && isSubscriber && !isLabPaid && !isAmbient) {
     if (shared) await deductCreditsByRef(shared.room.host_credit_ref, GROUP_MESSAGE_COST, serviceKey);
     else await deductCredits(safeToken(body.access_token), GROUP_MESSAGE_COST, serviceKey);
   }

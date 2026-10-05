@@ -20,6 +20,7 @@ const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const { getCreditRow, deductCredits, ONE_TO_ONE_COST, safeToken } = require('./_ah-credits.js');
+const labKey = require('./_lab-key.js');
 const { isCrisis, crisisReply } = require('./_ah-safety.js');
 
 // Same blob store studio-auggie-chat.js persists to, same key shape
@@ -486,9 +487,15 @@ exports.handler = async function (event) {
   if (!isOwner && !isTester && accessToken && serviceKey) {
     creditsRow = await getCreditRow(accessToken, serviceKey);
   }
-  const isSubscriber = Boolean(!isOwner && !isTester && creditsRow && creditsRow.subscription_active);
+  /* LAB KEY: a valid x-lab-key (server env LAB_KEYS only) counts as a paid
+     subscriber for this one check. It has no credits row, so nothing is
+     deducted; the daily ceiling in _lab-key.js is its meter instead. Never
+     applies to owner/tester (they already bypass) and grants nothing else. */
+  const isLabPaid = !isOwner && !isTester && !(creditsRow && creditsRow.subscription_active)
+    && await labKey.labCallAllowed(event, event.headers || {});
+  const isSubscriber = isLabPaid || Boolean(!isOwner && !isTester && creditsRow && creditsRow.subscription_active);
 
-  if (isSubscriber && creditsRow.balance < ONE_TO_ONE_COST) {
+  if (isSubscriber && !isLabPaid && creditsRow.balance < ONE_TO_ONE_COST) {
     return json(200, { reply: "You're out of credits for this cycle. Add more, or wait for next month's top-up.", credits_exhausted: true });
   }
 
@@ -616,7 +623,7 @@ exports.handler = async function (event) {
 
   // Only a message that actually went through costs anything — never on a
   // blocked/capped attempt, which returns before this point.
-  if (isSubscriber) {
+  if (isSubscriber && !isLabPaid) {
     await deductCredits(accessToken, ONE_TO_ONE_COST, serviceKey);
   } else if (usingFreeDailyCap && dayKey) {
     try {

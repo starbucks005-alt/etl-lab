@@ -26,6 +26,7 @@
  */
 const { connectLambda, getStore } = require('@netlify/blobs');
 const crypto = require('crypto');
+const lab = require('./_lab-key');
 
 const STORE = 'everly-access';
 
@@ -74,6 +75,14 @@ async function tokenForSession(event, session_id) {
    including a missing token, a malformed one, or a cancelled subscription, is
    false. There is no third answer and no fallback. */
 async function isPaid(event, token) {
+  /* LAB KEY, the one sanctioned exception to "no back door" above. It is a
+     separate credential from the owner key (the owner key is still NOT
+     accepted as payment), it comes only from the LAB_KEYS env var, and it
+     only answers this one question. Each paid call counts against a daily
+     ceiling. If LAB_KEYS is unset no lab key is ever valid. */
+  if (event && event.headers && lab.isLabKey(event.headers)) {
+    if (await lab.labCallAllowed(event, event.headers)) return true;
+  }
   const t = String(token || '').trim();
   if (!t || !/^evr_[A-Za-z0-9_-]{10,}$/.test(t)) return false;
   let rec;

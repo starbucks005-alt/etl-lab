@@ -76,7 +76,7 @@ const MODEL = 'eleven_turbo_v2_5';
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, x-lab-key',
 };
 const json = (code, body) => ({
   statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
@@ -89,6 +89,7 @@ const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safe
    pooled ah_credits table, a real follow-up gap, not an oversight. */
 const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-companion-credits.js');
 const { ownerUser } = require('./_owner-auth.js');
+const { isLabKey, labCallAllowed } = require('./_lab-key.js');
 /* DUAL VISITOR+ADDRESS CAP, added 2026-08-30 -- same fix, same reasoning,
    same shared ah_daily_usage pool as gc-chat.js's own identical comment.
    A visitorId-only cap on the voice pool had the identical hole a
@@ -202,6 +203,16 @@ exports.handler = async function (event) {
   }
   const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= AUDIO_MESSAGE_COST);
 
+  /* LAB KEY: header x-lab-key, judged by _lab-key.js against the LAB_KEYS env
+     var. Counts as PAID and nothing else: never owner, never admin, never the
+     owner key. Metered per key per day by labCallAllowed, which fails CLOSED:
+     if the counter store errors or the ceiling is hit, the key is refused and
+     the normal paywall below applies. Nothing is deducted for a lab-paid call. */
+  let isLabPaid = false;
+  if (!isOwner && isLabKey(event.headers)) {
+    isLabPaid = await labCallAllowed(event, event.headers);
+  }
+
   let usingFreeDailyCap = false;
   let dailyCapResult = null;
 
@@ -209,7 +220,7 @@ exports.handler = async function (event) {
      the same day: a rejection here used to leave no trace at all, which is
      exactly how Reggie/Sophia/Tansy's broken is_demo flag went unnoticed
      for two days. Grep-able by "REJECTED". */
-  if (!isOwner && !isTester && !hasCredits) {
+  if (!isOwner && !isTester && !hasCredits && !isLabPaid) {
     if (!isDemo) {
       console.log(`[gc-voice] REJECTED credits_exhausted voice=${voiceId || '?'} is_demo=${isDemo} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
       return json(200, { error: 'credits_exhausted', credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected });
@@ -257,7 +268,7 @@ exports.handler = async function (event) {
   /* Billed only now, after ElevenLabs actually returned audio — never on a
      blocked check above, and never on a failed/unreachable call, which
      returned before this point. */
-  if (!isOwner) {
+  if (!isOwner && !isLabPaid) {
     if (hasCredits && serviceKey && usingPooledCredits && accessToken) {
       await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && !isDemo && accessToken && friendId) {

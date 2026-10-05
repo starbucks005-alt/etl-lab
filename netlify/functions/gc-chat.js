@@ -49,6 +49,7 @@ const sherlockCap = require('./_sherlock-cap.js');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
 const { ownerUser } = require('./_owner-auth.js');
+const { isLabKey, labCallAllowed } = require('./_lab-key.js');
 
 /* Sonnet for the friend, because this is the demo-facing surface and the whole
    product is whether they feel like a person. Haiku only for the classifier,
@@ -163,7 +164,7 @@ function headlinesNote(items) {
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, x-lab-key',
 };
 const json = (code, body) => ({
   statusCode: code,
@@ -1163,10 +1164,20 @@ exports.handler = async function (event) {
   }
   const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= TEXT_MESSAGE_COST);
 
+  /* LAB KEY: header x-lab-key, judged by _lab-key.js against the LAB_KEYS env
+     var. Counts as PAID and nothing else: never owner, never admin, never the
+     owner key. Metered per key per day by labCallAllowed, which fails CLOSED:
+     if the counter store errors or the ceiling is hit, the key is refused and
+     the normal paywall below applies. Nothing is deducted for a lab-paid call. */
+  let isLabPaid = false;
+  if (!isOwner && isLabKey(event.headers)) {
+    isLabPaid = await labCallAllowed(event, event.headers);
+  }
+
   let usingFreeDailyCap = false;
   let dailyCapResult = null;
 
-  if (!isOwner && !isTester && !hasCredits) {
+  if (!isOwner && !isTester && !hasCredits && !isLabPaid) {
     if (!isDemo) {
       /* A built, owned friend with no funded credits: no free fallback, ever,
          that rung is the paid one. An idle check (the friend deciding
@@ -1420,7 +1431,7 @@ exports.handler = async function (event) {
      Billed once here regardless of which of the three return shapes below
      this ends up taking (quiet, idle-declined, or a real reply): all three
      spent the same real API call. */
-  if (!isOwner) {
+  if (!isOwner && !isLabPaid) {
     if (hasCredits && serviceKey && usingPooledCredits && accessToken) {
       await deductCredits(accessToken, TEXT_MESSAGE_COST, serviceKey);
     } else if (hasCredits && serviceKey && !isDemo && accessToken && activeFriend.id) {

@@ -651,6 +651,29 @@ function testerKey() {
   } catch (e) {}
 })();
 
+/* LAB KEY: plants ?labkey=<key> into localStorage (etl_lab_key) and strips it
+   from the address bar, then rides along as the x-lab-key header. The server
+   (LAB_KEYS env var) is the only thing that decides whether it means anything;
+   an invalid key just gets the normal paywall response. */
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var lk = q.get('labkey');
+    if (lk) {
+      localStorage.setItem('etl_lab_key', lk);
+      q.delete('labkey');
+      history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+    }
+  } catch (e) {}
+})();
+function labKey() {
+  try { return localStorage.getItem('etl_lab_key') || ''; } catch (e) { return ''; }
+}
+function labHeaders() {
+  var k = labKey();
+  return k ? { 'x-lab-key': k } : {};
+}
+
 function startUpgradeCheckout() {
   fetch('/.netlify/functions/create-checkout-ah', {
     method: 'POST',
@@ -809,7 +832,7 @@ $('groupToggle').addEventListener('click', function () {
   // Owner key bypasses this client-side gate too, same as it bypasses the
   // server-side one, so the landlord isn't blocked from ever reaching the
   // picker just for lacking a real paid subscription token.
-  if (!accessToken() && !ownerKey()) {
+  if (!accessToken() && !ownerKey() && !labKey()) {
     $('groupPanel').classList.remove('open');
     $('groupGateUpsell').style.display = ($('groupGateUpsell').style.display === 'none') ? 'block' : 'none';
     return;
@@ -1774,7 +1797,7 @@ function runAmbientCheck() {
 
   fetch('/.netlify/functions/eq-room-group-ask', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, labHeaders()),
     body: JSON.stringify(payload),
   })
     .then(function (r) { if (!r.ok) throw new Error('server returned ' + r.status); return r.json(); })
@@ -1839,7 +1862,7 @@ $('table-form').addEventListener('submit', function (e) {
 
   fetch('/.netlify/functions/eq-room-group-ask', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, labHeaders()),
     body: JSON.stringify({
       active_agents: activeKeysBeforeSend,
       transcript: tableHistory,
@@ -2045,7 +2068,7 @@ $('room-form').addEventListener('submit', function (e) {
 
   fetch('/.netlify/functions/eq-room-ask', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, labHeaders()),
     body: JSON.stringify({
       agent_key: current.key,
       message: text,

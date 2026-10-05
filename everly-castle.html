@@ -981,6 +981,19 @@ document.getElementById('peekClose').addEventListener('click', () => peekDlg.clo
 /* The offer. Only ever shown to somebody who has already passed the gate, and
    hidden entirely once they have paid: a parent who is already paying should
    not be sold to every time they open the settings. */
+/* LAB KEY: ?labkey=<key> is stored in localStorage (etl_lab_key) and stripped
+   from the address bar. It only ever rides along as the x-lab-key header; the
+   server (LAB_KEYS env var) alone decides whether it means anything. */
+(function labKeyPlanter(){
+  try {
+    const q = new URLSearchParams(location.search);
+    const k = (q.get('labkey') || '').trim();
+    if (!k) return;
+    localStorage.setItem('etl_lab_key', k);
+    q.delete('labkey');
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+  } catch (e) { /* storage unavailable; nothing to plant */ }
+})();
 function everlyPaid(){
   try { return !!(localStorage.getItem('everly_token') || '').trim(); }
   catch (e) { return false; }

@@ -66,6 +66,9 @@ exports.handler = async function (event) {
      safeToken()/ownerUser(), same as every other caller of it. */
   const senderOwnerKey = String(body.owner_key || '').trim();
   const senderAccessToken = String(body.access_token || '').trim();
+  /* Lab key header from whoever is typing, forwarded to gc-chat.js untouched.
+     gc-chat.js is the only judge; this adds nothing by itself. */
+  const senderLabKey = String((event.headers && (event.headers['x-lab-key'] || event.headers['X-Lab-Key'])) || '').trim().slice(0, 200);
   /* tester_key, added 2026-08-29 -- same real gap as senderOwnerKey/
      senderAccessToken had before 2026-08-18: this function never passed a
      tester key through to gc-chat.js at all, so gc-chat.js's isTester
@@ -183,7 +186,7 @@ exports.handler = async function (event) {
     const base = process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://emerging-tech-lab.com';
     const res = await fetch(base + CHAT_FN, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, senderLabKey ? { 'x-lab-key': senderLabKey } : {}),
       body: JSON.stringify({
         friend,
         speaker: speakerObj,

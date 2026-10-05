@@ -44,11 +44,12 @@
 const Stripe = require('stripe');
 const { connectLambda, getStore } = require('@netlify/blobs');
 const { randomToken, safeToken, getCreditRow, STARTER_CREDITS, SUPABASE_URL } = require('./_ah-credits.js');
+const { isLabKey } = require('./_lab-key.js');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, x-lab-key',
 };
 
 const json = (status, obj) => ({
@@ -62,6 +63,17 @@ const FRIEND_CENTS = 999;
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
+
+  /* LAB KEY: a POST with a valid x-lab-key (LAB_KEYS env, see _lab-key.js) is
+     told the friend's room may open without payment. Nothing is minted,
+     granted, or stored; chat and voice judge the same header on every call.
+     A bad or absent key falls through to the normal Stripe checkout. */
+  if (event.httpMethod === 'POST' && isLabKey(event.headers)) {
+    let lb = {};
+    try { lb = JSON.parse(event.body || '{}'); } catch (_) {}
+    const lfid = String(lb.friend_id || '').trim();
+    if (lfid) return json(200, { lab_paid: true, friend_id: lfid });
+  }
 
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   if (!stripeKey) return json(500, { error: 'config', missing: 'STRIPE_SECRET_KEY' });
