@@ -688,9 +688,29 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None):
                 proc.kill()
 
 
+# Added 2026-10-06, Dr. O: at the event she asked "what is your address?" out loud and Astra answered in character
+# ("I am just visiting, find me at the event"). The real address only came from the Say my address button.
+ADDRESS_ASK = re.compile(r"\byour\s+(ip\s+)?(address|panel|web ?page|control panel)\b|\bthe\s+(control\s+)?panel\b|\bip address\b|\bhow (do|can|could) (i|we) (connect to you|open you|get to you|reach you|control you|open your)\b", re.I)
+
+
+def address_reply():
+    """What she says, and what shows in the chat, when somebody asks where her panel is."""
+    ip = my_address()
+    if not ip:
+        return "I am not on a network right now, so I have no address to give you yet.", None
+    return address_words(ip), "http://%s:8000" % ip
+
+
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
     t0 = time.time()
+    if ADDRESS_ASK.search(text or ""):
+        spoken, shown = address_reply()
+        reply = spoken if not shown else spoken + " That is " + shown
+        state["history"].append('They said "%s" and you said "%s".' % (text, spoken))
+        state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
+        speak_now(spoken)
+        return reply
     reply = al.get_al_reply(context_for(text))
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
