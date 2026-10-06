@@ -63,6 +63,12 @@
                 background:#16140f; color:var(--ink); font-family:inherit; cursor:pointer; }
   #bar .rng { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--mute); }
   #bar input[type=range] { width:90px; }
+  #holoReply { flex-basis:100%; text-align:center; font-size:14px; line-height:1.4; color:var(--ink); max-height:4.2em; overflow-y:auto; display:none; }
+  #holoChat { display:none; flex-basis:100%; gap:8px; justify-content:center; }
+  #holoChat.on { display:flex; }
+  #holoChat input { flex:1; max-width:340px; padding:9px 12px; font-size:16px; border-radius:9px; border:1px solid var(--line);
+                    background:#16140f; color:var(--ink); font-family:inherit; }
+  #bMic.listening { background:#c9a24b; color:#1a1408; border-color:#c9a24b; }
   #tapHint { position:fixed; top:10px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; }
   video { display:none; }
 </style>
@@ -107,8 +113,18 @@
 <div id="stage"><canvas id="view"></canvas></div>
 <div id="tapHint" style="display:none">Tap the screen to show or hide the buttons</div>
 <div id="bar" class="hide">
+  <!-- TALK TO THE HOLOGRAM, added 2026-10-06, Dr. O: "I would like to be able to speak to her
+       hologram but there is no option for this" (Wright Brothers AI and Innovation event). The
+       reply text lives in the bar, never on the black stage, so nothing is drawn over the video. -->
+  <div id="holoReply" aria-live="polite"></div>
+  <form id="holoChat" autocomplete="off">
+    <button id="bMic" type="button" aria-label="Speak your message" style="display:none">&#127908; Talk</button>
+    <input id="holoInput" type="text" placeholder="Or type to her" aria-label="Type your message">
+    <button id="holoSend" type="submit">Send</button>
+  </form>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
+  <button id="bVoice" type="button" style="display:none">Her voice: on</button>
   <button id="bTurn" type="button">Turn the sides</button>
   <button id="bMirror" type="button">Mirror</button>
   <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="70"></span>
@@ -119,6 +135,8 @@
 <video id="colorVideo" playsinline muted loop></video>
 <video id="matteVideo" playsinline muted loop></video>
 
+<script src="gc-friend.js"></script>
+<script src="gc-you.js"></script>
 <script>
 (function () {
   /* Copy of the color/matte pairs in ar.html (see the note at the top of this file). */
@@ -330,6 +348,7 @@
     mode = document.getElementById('mode').value;
     errEl.style.display = 'none';
     ready = false;
+    setupChat();
     colorVideo.src = c[1]; matteVideo.src = c[2];
     colorVideo.muted = true; matteVideo.muted = true;
     document.getElementById('bSound').textContent = 'Sound off';
@@ -353,6 +372,156 @@
     if (wake) { try { wake.release(); } catch (e) {} wake = null; }
     stage.classList.remove('on'); startEl.style.display = ''; bar.classList.add('hide'); tapHint.style.display = 'none';
     if (document.fullscreenElement) document.exitFullscreen();
+  }
+
+  /* TALK TO THE HOLOGRAM, added 2026-10-06. Same chat and voice endpoints, same payloads and same
+     voice boost as ar.html (copied, as that page and room.html are already copies of each other).
+     chatIdentity() is ar.html's, trimmed of its comments; see there for why each key maps as it does. */
+  function chatIdentity(key) {
+    if (key === 'tansy') return { friend: GC_TANSY, speaker: null };
+    if (key === 'poppy') return { friend: GC_TANSY, speaker: GC_TANSY.companions.poppy };
+    if (key === 'blue') return { friend: GC_TANSY, speaker: GC_TANSY.companions.blue };
+    if (key === 'cressida') return { friend: GC_CRESSIDA, speaker: null };
+    if (key === 'meera') return { friend: GC_MEERA, speaker: null };
+    if (key === 'alice') return { friend: GC_ALICE, speaker: null };
+    if (key === 'nell') return { friend: GC_PUPPETS, speaker: GC_PUPPETS.companions.nell };
+    if (key === 'clover') return { friend: GC_NURSERY, speaker: GC_NURSERY.companions.bunny };
+    if (key === 'nursery') return { friend: GC_NURSERY, speaker: null };
+    if (key === 'zoe') return { friend: GC_ZOE, speaker: null };
+    if (key === 'olivia') return { friend: GC_OLIVIA, speaker: null };
+    if (key === 'sarah') return { friend: GC_SARAH, speaker: null };
+    if (key === 'arch') return { friend: GC_DEMO, speaker: null };
+    if (key === 'reggie') return { friend: GC_REGGIE, speaker: null };
+    if (key === 'viv') return { friend: GC_VIV, speaker: null };
+    if (key === 'gc-m') {
+      GC_ROBOT.name = GC_ROBOT.nameMale; GC_ROBOT.gender = 'A man';
+      GC_ROBOT.voiceId = GC_ROBOT.voiceIdMale; GC_ROBOT.scenes = GC_ROBOT.scenesMale;
+      GC_ROBOT.hello = GC_ROBOT.helloMale;
+      return { friend: GC_ROBOT, speaker: null };
+    }
+    if (key === 'gc-f') {
+      GC_ROBOT.name = GC_ROBOT.nameFemale; GC_ROBOT.gender = 'A woman';
+      GC_ROBOT.voiceId = GC_ROBOT.voiceIdFemale; GC_ROBOT.scenes = GC_ROBOT.scenesFemale;
+      GC_ROBOT.hello = GC_ROBOT.helloFemale;
+      return { friend: GC_ROBOT, speaker: null };
+    }
+    if (key === 'astra9') return { friend: GC_ASTRA9, speaker: null };
+    if (key === 'astrad') return { friend: GC_ASTRA9, speaker: GC_ASTRA9.companions.astrad };
+    return null;   /* Cassius and Terry have no persona to answer as, same as ar.html */
+  }
+
+  var chatWho = null, chatHistory = [], chatBusy = false, voiceOn = true, YOU = null, GC_VOICE_CTX = null;
+  var chatForm = document.getElementById('holoChat'), chatInput = document.getElementById('holoInput');
+  var chatSend = document.getElementById('holoSend'), replyEl = document.getElementById('holoReply');
+  var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
+
+  function showReply(text) { replyEl.textContent = text; replyEl.style.display = text ? 'block' : 'none'; }
+
+  function gcBoostVoice(audioEl) {
+    try {
+      if (!GC_VOICE_CTX) GC_VOICE_CTX = new (window.AudioContext || window.webkitAudioContext)();
+      if (GC_VOICE_CTX.state === 'suspended') GC_VOICE_CTX.resume();
+      var source = GC_VOICE_CTX.createMediaElementSource(audioEl);
+      var gain = GC_VOICE_CTX.createGain();
+      gain.gain.value = 6.0;
+      var limiter = GC_VOICE_CTX.createDynamicsCompressor();
+      limiter.threshold.value = -12; limiter.knee.value = 4; limiter.ratio.value = 20;
+      limiter.attack.value = 0.002; limiter.release.value = 0.15;
+      source.connect(gain).connect(limiter).connect(GC_VOICE_CTX.destination);
+    } catch (e) { /* audioEl still plays at its own volume */ }
+  }
+
+  function speakReply(text) {
+    var voiceId = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
+    if (!voiceOn || !voiceId) return;
+    fetch('/.netlify/functions/gc-voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text, voice_id: voiceId, is_demo: true,
+        visitor_id: GC_visitorId(), access_token: GC_accessToken(),
+        owner_key: GC_ownerKey(), tester_key: GC_testerKey()
+      })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('voice_failed');
+      return r.json();
+    }).then(function (data) {
+      if (!data || !data.audio) return;
+      var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
+      gcBoostVoice(audio);
+      audio.play().catch(function () {});
+    }).catch(function () { /* the text reply already stands on its own */ });
+  }
+
+  function setupChat() {
+    chatWho = chatIdentity(who.value);
+    chatHistory = []; chatBusy = false; showReply('');
+    chatForm.classList.toggle('on', !!chatWho);
+    bVoice.style.display = chatWho ? '' : 'none';
+    if (chatWho) YOU = gcLoadYou();
+  }
+
+  chatForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = chatInput.value.trim();
+    if (!text || chatBusy || !chatWho) return;
+    chatBusy = true; chatSend.disabled = true;
+    chatInput.value = '';
+    var herName = COMPANIONS[who.value][0];
+    chatHistory.push({ who: YOU.name || 'You', text: text, mine: true });
+    showReply('...');
+    fetch('/.netlify/functions/gc-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        friend: chatWho.friend, speaker: chatWho.speaker,
+        you: { name: YOU.name, pronouns: YOU.pronouns },
+        messages: chatHistory, message: text, scene: null, guest_cameo: null, is_demo: true,
+        visitor_id: GC_visitorId(), access_token: GC_accessToken(),
+        owner_key: GC_ownerKey(), tester_key: GC_testerKey()
+      })
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      chatBusy = false; chatSend.disabled = false;
+      var reply = (res && res.reply) || "I'm not sure what to say to that.";
+      chatHistory.push({ who: herName, text: reply, mine: false });
+      showReply(reply);
+      speakReply(reply);
+    }).catch(function () {
+      chatBusy = false; chatSend.disabled = false;
+      showReply('That did not send. Try again in a moment.');
+    });
+  });
+
+  bVoice.addEventListener('click', function () {
+    voiceOn = !voiceOn;
+    bVoice.textContent = voiceOn ? 'Her voice: on' : 'Her voice: off';
+  });
+
+  /* The browser's own speech recognition: no audio leaves the device for the listening half, no
+     credit cost. Hidden entirely on a browser with none, same as ar.html. */
+  var Recognizer = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (Recognizer) {
+    bMic.style.display = '';
+    var recognizer = new Recognizer(), listening = false;
+    recognizer.lang = 'en-US'; recognizer.interimResults = false; recognizer.maxAlternatives = 1;
+    recognizer.addEventListener('result', function (e) {
+      var said = e.results[0][0].transcript.trim();
+      if (said) {
+        chatInput.value = said;
+        chatForm.requestSubmit ? chatForm.requestSubmit() : chatSend.click();
+      }
+    });
+    function micOff() { listening = false; bMic.classList.remove('listening'); }
+    recognizer.addEventListener('end', micOff);
+    recognizer.addEventListener('error', function (e) {
+      micOff();
+      if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed')) showReply('The microphone is blocked. Allow it for this site, or type instead.');
+    });
+    bMic.addEventListener('click', function () {
+      if (listening) { recognizer.stop(); return; }
+      listening = true; bMic.classList.add('listening');
+      try { recognizer.start(); } catch (_) { micOff(); }
+    });
   }
 
   document.getElementById('go').addEventListener('click', start);
