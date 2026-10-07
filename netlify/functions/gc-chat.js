@@ -46,6 +46,7 @@ const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-compan
    reset without tripping during ordinary use; it no longer leaves room
    for a second run at the free cap on purpose. */
 const sherlockCap = require('./_sherlock-cap.js');
+const { demoMemoryKey } = require('./_gc-demo-memory.js');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
 const { ownerUser } = require('./_owner-auth.js');
@@ -1216,7 +1217,8 @@ exports.handler = async function (event) {
      that is about to be rejected never spends a Supabase read on memory it
      will not use. See the file-level note above for the full reasoning. */
   const memoryIdentity = accessToken || visitorId;
-  const memoryAgentKey = activeFriend.id ? 'gc:' + activeFriend.id : null;
+  /* A HOUSE CHARACTER REMEMBERS TOO when the page asks (remember: true), 2026-10-07, Dr. O. See _gc-demo-memory.js. */
+  const memoryAgentKey = activeFriend.id ? 'gc:' + activeFriend.id : demoMemoryKey(activeFriend, body.remember);
   let visitorMemories = [];
   if (memoryAgentKey && memoryIdentity && serviceKey) {
     visitorMemories = await fetchVisitorMemories(memoryAgentKey, memoryIdentity, serviceKey);

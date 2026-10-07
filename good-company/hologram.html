@@ -124,6 +124,8 @@
     <button id="holoSend" type="submit">Send</button>
   </form>
   <!-- ALWAYS-ON MICROPHONE, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. -->
+  <!-- MEMORY, added 2026-10-07, Dr. O: house characters remember a visitor by their browser, as the built companions do. -->
+  <span id="holoMemory" style="display:none;font-size:.8rem;color:#b7ab98;"><span id="holoMemoryText"></span> <button id="bForget" type="button">Forget me</button></span>
   <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
   <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
   <button id="bBack" type="button">Back</button>
@@ -441,6 +443,8 @@
   }
 
   var chatWho = null, chatHistory = [], chatBusy = false, voiceOn = true, YOU = null, GC_VOICE_CTX = null;
+  /* She remembers a visitor by the browser's visitor id, the way built companions do (gc-chat.js, _gc-demo-memory.js). ?memory=off in the address turns it off, for a shared screen. */
+  var MEMORY_ON = !/[?&]memory=off\b/.test(location.search);
   var chatForm = document.getElementById('holoChat'), chatInput = document.getElementById('holoInput');
   var chatSend = document.getElementById('holoSend'), replyEl = document.getElementById('holoReply');
   var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
@@ -495,7 +499,19 @@
     bVoice.style.display = chatWho ? '' : 'none';
     hf.setAvailable(!!chatWho);
     if (chatWho) YOU = gcLoadYou();
+    var remembers = !!chatWho && MEMORY_ON && !(chatWho.speaker || chatWho.friend).id;
+    document.getElementById('holoMemory').style.display = remembers ? '' : 'none';
+    if (remembers) document.getElementById('holoMemoryText').textContent = COMPANIONS[who.value][0] + ' remembers you in this browser.';
   }
+
+  function forgetMe(done, failed) {
+    var who = chatWho.speaker || chatWho.friend;
+    fetch('/.netlify/functions/gc-forget', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_name: who.name, visitor_id: GC_visitorId(), access_token: GC_accessToken() })
+    }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.ok) done(); else failed(); }).catch(failed);
+  }
+
 
   chatForm.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -514,7 +530,8 @@
         you: { name: YOU.name, pronouns: YOU.pronouns },
         messages: chatHistory, message: text, scene: null, guest_cameo: null, is_demo: true,
         visitor_id: GC_visitorId(), access_token: GC_accessToken(),
-        owner_key: GC_ownerKey(), tester_key: GC_testerKey()
+        owner_key: GC_ownerKey(), tester_key: GC_testerKey(),
+        remember: MEMORY_ON
       })
     }).then(function (r) { return r.json(); }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
@@ -526,6 +543,12 @@
       chatBusy = false; chatSend.disabled = false;
       showReply('That did not send. Try again in a moment.');
     });
+  });
+
+  document.getElementById('bForget').addEventListener('click', function () {
+    if (!chatWho) return;
+    forgetMe(function () { chatHistory = []; showReply(COMPANIONS[who.value][0] + ' has forgotten you. You can start again.'); },
+             function () { showReply('That did not work. Try again in a moment.'); });
   });
 
   bVoice.addEventListener('click', function () {

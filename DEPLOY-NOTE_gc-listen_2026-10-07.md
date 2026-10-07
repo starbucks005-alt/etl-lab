@@ -51,3 +51,42 @@ two sentences sent, the click ignored, the steady noise not sent as speech, the 
 files, the guard while the character is talking, the fall back to the browser's listening when the endpoint is off or
 says it is off, and the daily cap. The endpoint's rules were tested with stand-ins for its helpers. **Not tested:** a real
 Android phone or tablet, a real speakerphone, and a real ElevenLabs call from this endpoint.
+
+---
+
+# Memory for house characters on the hologram and AR pages (2026-10-07)
+
+Dr. O: "can you make both have memories based on IP browsers like the companions".
+
+`gc-chat.js` has always remembered a visitor for a BUILT friend (one with an `.id`): every 4 turns a cheap model writes
+a few notes, stored in `etl_visitor_memories`, keyed by the person (the account token if there is one, else the
+browser's visitor id, `etl_visitor_id` in localStorage) and by `agent_key` `gc:<id>`. A house character (Alice, Reggie,
+Sophia, Tansy, Arch) has no `.id`, so nothing was ever kept.
+
+- `netlify/functions/_gc-demo-memory.js`: for a character with no `.id`, and only when the request says `remember: true`,
+  the key is `gcd:<name>` (Alice is `gcd:a-l-i-c-e`). It cannot collide with a built friend's `gc:` key. Every other caller
+  of gc-chat is unchanged.
+- `netlify/functions/gc-chat.js`: one line uses it. Memory is read and written exactly as for a built friend.
+- `netlify/functions/gc-forget.js`: "Forget me". Deletes this visitor's memories for that character, and only `gcd:` keys,
+  so it cannot touch a built friend's memory or anyone else's. The privacy draft promises "You can ask us to delete what
+  an agent remembers about you".
+- `hologram.html` and `ar.html`: send `remember: true`, show "<name> remembers you in this browser." and a Forget me
+  button. `?memory=off` in the address turns it off and hides both, for a shared screen.
+
+## Why the key is the browser, not the IP address
+
+The same visitor id is already how the site recognises a browser. An IP address is shared: a booth on campus Wi-Fi
+puts every visitor on one address, so everyone would share one memory and Alice would pass one visitor's words to the
+next. The browser id is per device and does not have that problem. A private window gets a new id each time.
+
+## A shared screen, such as the booth
+
+One phone or laptop used by many visitors is ONE browser to the site, so Alice would carry one visitor's words to the
+next. For a booth: open the page with `&memory=off`, or press Forget me between visitors, or use a private window and
+close it between visitors.
+
+## Not verified
+
+The table `etl_visitor_memories` is defined in Supabase, not in this repository, so I could not check that it accepts a
+`gcd:` key. If it has a constraint on `agent_key`, saving fails quietly (the chat carries on) and the log shows
+"gc-chat visitor memory insert non-ok". A real conversation of at least 4 turns, then a reload, is the test.
