@@ -100,10 +100,11 @@ for (const name of Object.keys(best)) {
     add('Now', c.now, 700); add('Why you keep talking to people', c.why, 400); add('What you ask of people', c.pushes, 900);
     // ROBOT ONLY, Dr. O direct, 2026-10-07: "tell Robot Alice she has a dog Cupcake because the other Alice has Cat".
     // The A.L.I.C.E. on the website (hologram, AR, Good Company) keeps her kitten Cat, written in gc-friend.js. The robot is
-    // a separate Alice with her own life, so she is NOT told about Cat. This line is the only thing written about Cupcake:
-    // nothing about how she got Cupcake or what Cupcake is like has been written, so she is told not to make it up.
-    parts.push('Cupcake: You have a dog named Cupcake. Cupcake is yours, and you can talk about Cupcake whenever it fits. ' +
-      'Nothing else about Cupcake is written down yet, such as how you found Cupcake, what Cupcake looks like or how Cupcake behaves, ' +
+    // a separate Alice with her own life, so she is NOT told about Cat. Written about Cupcake so far, all from Dr. O: the name,
+    // and "a little white fluffy maltese dog". Nothing about how she got Cupcake or how Cupcake behaves has been written, so she
+    // is told not to make it up.
+    parts.push('Cupcake: You have a dog named Cupcake. Cupcake is a little white fluffy Maltese. Cupcake is yours, and you can talk about Cupcake whenever it fits. ' +
+      'Nothing else about Cupcake is written down yet, such as how you found Cupcake or how Cupcake behaves, ' +
       'so if you are asked about any of that, say you would rather not make something up.');
   }
   add('How they open', c.hello, 200);
