@@ -504,6 +504,29 @@ def personas_list():
     return send_from_directory(HERE, "personas.json")
 
 
+# 2026-10-07, Dr. O: after installing A.L.I.C.E. she was Astra again. The character was only kept in memory, so every
+# restart or reboot put her back. The character now stays until another one (or Astra) is picked in the panel.
+PERSONA_FILE = os.path.join(HERE, "persona.json")
+
+
+def save_persona(pid):
+    try:
+        with open(PERSONA_FILE, "w") as f:
+            json.dump({"id": pid}, f)
+    except OSError as e:
+        print("PERSONA could not be saved:", e, flush=True)
+
+
+def restore_persona():
+    """Put back the character she was left as, so a restart does not turn her into Astra again."""
+    try:
+        pid = json.load(open(PERSONA_FILE)).get("id")
+    except (OSError, ValueError, AttributeError):
+        return
+    if pid in PERSONAS:
+        state["persona"] = pid
+
+
 @app.post("/api/personality")
 def personality():
     """Take on a character (id) or go back to being AL (id empty). Returns her first line in the new style."""
@@ -512,6 +535,7 @@ def personality():
     if pid is not None and pid not in PERSONAS:
         return jsonify(error="unknown personality"), 400
     state["persona"] = pid
+    save_persona(pid)
     state["history"] = []   # a new character should not inherit the last one's turns
     apply_prompt()
     ask = "Say hello to the visitor in one short sentence."
@@ -1011,6 +1035,7 @@ def restore_volume():
 
 if __name__ == "__main__":
     restore_volume()
+    restore_persona()
     write_eyes()
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()
