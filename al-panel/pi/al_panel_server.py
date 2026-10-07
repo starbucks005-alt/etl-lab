@@ -216,9 +216,17 @@ def settle(gap=0.5):
         time.sleep(wait)
 
 
-def heard_herself(text):
-    """True when what the microphones heard is mostly what she just said (her own voice coming back in)."""
+last_clip = {"start": None}      # when the speech in the clip hear_one just took began
+
+
+def heard_herself(text, started_at=None):
+    """True when what the microphones heard is mostly what she just said (her own voice coming back in).
+    2026-10-07: the words alone were not enough. A person repeating her question a few seconds after she answered it
+    was thrown away as her own voice three times in one minute. Her voice only comes back in right after she stops,
+    so a clip that began more than 1.5 s after she finished is a person."""
     if not text or time.time() - last_said["t"] > 30:
+        return False
+    if started_at is not None and started_at - last_said["t"] > 1.5:
         return False
     heard = re.findall(r"[a-z0-9']+", text.lower())
     said = set(re.findall(r"[a-z0-9']+", last_said["text"].lower()))
@@ -730,6 +738,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
                     pre.append(c)
                 if smooth is not None and smooth > thr:
                     started = True
+                    last_clip["start"] = time.time() - 0.1 * max(0, len(pre) - 1)
                     speech += b"".join(pre)
                     if on_start:
                         try:
@@ -784,6 +793,23 @@ def address_reply():
     return address_words(ip), "http://%s:8000" % ip
 
 
+def shorten(reply, sentences=3, chars=330):
+    """Keep what she says out loud to the first few sentences. 2026-10-07: spoken answers took 9 to 21 seconds
+    ('voice made and spoken'), far past the one to three short sentences her instructions ask for."""
+    reply = (reply or "").strip()
+    if len(reply) <= chars:
+        return reply
+    parts = re.split(r'(?<![A-Z]\.)(?<!Dr\.)(?<!Mr\.)(?<!Ms\.)(?<=[.!?])\s+(?=[A-Z"\'])', reply)
+    out = ""
+    for part in parts[:sentences]:
+        if out and len(out) + 1 + len(part) > chars:
+            break
+        out = (out + " " + part).strip()
+    if len(out) > chars:                       # a single very long sentence: cut at a word
+        out = out[:chars].rsplit(" ", 1)[0].rstrip(",;:") + "."
+    return out
+
+
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
     t0 = time.time()
@@ -794,7 +820,7 @@ def answer_and_say(text):
         state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
         speak_now(spoken)
         return reply
-    reply = al.get_al_reply(context_for(text))
+    reply = shorten(al.get_al_reply(context_for(text)))
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
@@ -825,7 +851,7 @@ def converse(window=None):
                 break
             if not text:
                 continue
-            if heard_herself(text):
+            if heard_herself(text, last_clip["start"]):
                 print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
                 continue
             try:
@@ -866,7 +892,7 @@ def watch_names():
         finally:
             idle_watch["on"] = False
             listen_lock.release()
-        if text and heard_herself(text):
+        if text and heard_herself(text, last_clip["start"]):
             print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
             continue
         if text and wake_name_re().search(text):
@@ -950,7 +976,7 @@ def listen_once():
         if not heard:
             return {"heard": "", "reply": ""}, 200
         try:
-            reply = al.get_al_reply(context_for(heard))
+            reply = shorten(al.get_al_reply(context_for(heard)))
         except Exception as e:
             return {"error": str(e)[:200], "heard": heard}, 502
         state["history"].append('They said "%s" and you said "%s".' % (heard, reply))
