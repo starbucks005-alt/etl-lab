@@ -861,6 +861,10 @@ def watch_names():
                 converse()
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)
+        elif text:
+            # 2026-10-07: "Alice, can you hear me?" was heard four times and not answered, and the log did not say why
+            who = PERSONAS[state["persona"]]["name"].split(",")[0] if state["persona"] else "Astra-9 Lite"
+            print("WAKE heard words but not her name. She is %s now. Heard: %s" % (who, text[:60]), flush=True)
 
 
 LISTEN_SECONDS = 6                     # how long she listens after Talk is pressed
