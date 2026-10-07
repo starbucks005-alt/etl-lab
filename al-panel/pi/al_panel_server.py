@@ -655,7 +655,7 @@ def level_of(buf):
 room_memory = {"floor": None}      # the room level from the listens before, so one voice or her own tail cannot move the bar far
 
 
-def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
+def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_start=None):
     """Wait for someone to start speaking, record until they stop, and return the wav path.
     Returns None if nobody spoke within wait_seconds, if abort() says stop, or if she begins to speak herself.
     She never listens while she is speaking.
@@ -725,6 +725,11 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
                 if loud >= 2:
                     started = True
                     speech += b"".join(pre)
+                    if on_start:
+                        try:
+                            on_start()                  # her eyes brighten the moment she hears someone, as they do for the Talk button
+                        except Exception:
+                            pass
                 elif time.time() - t0 > wait_seconds:
                     print("LISTEN quiet for %.0f s, loudest %.0f, bar %.0f" % (wait_seconds, peak, thr), flush=True)
                     return None
@@ -801,7 +806,8 @@ def converse(window=None):
         deadline = time.time() + window
         while time.time() < deadline:
             settle()
-            path = hear_one(wait_seconds=max(1.0, deadline - time.time()))
+            path = hear_one(wait_seconds=max(1.0, deadline - time.time()), on_start=lambda: write_eyes(boost=True))
+            write_eyes()
             if not path:
                 break
             try:
@@ -840,12 +846,14 @@ def watch_names():
             settle()
             # one long wait instead of a new four second listen each time, so there is no gap for a name to fall into
             idle_watch["on"] = True
-            path = hear_one(wait_seconds=60, abort=lambda: mic_wants["n"] > 0 or not state["welcome"].get("always"))
+            path = hear_one(wait_seconds=60, abort=lambda: mic_wants["n"] > 0 or not state["welcome"].get("always"),
+                            on_start=lambda: write_eyes(boost=True))
             idle_watch["on"] = False
             if path:
                 t0 = time.time()
                 text = transcribe(path)
                 print("TIMING heard in %.1f s: %s" % (time.time() - t0, text[:60]), flush=True)
+            write_eyes()
         except Exception as e:
             print("LISTEN ERROR:", e, flush=True)
             time.sleep(5)
