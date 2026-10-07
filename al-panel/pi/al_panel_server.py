@@ -962,7 +962,12 @@ def transcribe(path=None):
                           data={"model_id": "scribe_v1"}, files={"file": ("clip.wav", f, "audio/wav")}, timeout=60)
     if not r.ok:
         raise RuntimeError("the listening service said %s: %s" % (r.status_code, r.text[:160]))
-    return (r.json().get("text") or "").strip()
+    text = (r.json().get("text") or "").strip()
+    # The listening service writes "[outro jingle]", "[singing]" or "(background noise)" for sound that is not speech.
+    # 2026-10-07: she answered "[outro jingle]" as though it had been said.
+    if re.fullmatch(r"[\[(][^\])]*[\])]\.?", text):
+        return ""
+    return text
 
 
 def listen_once():

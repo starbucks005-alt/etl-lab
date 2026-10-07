@@ -69,6 +69,7 @@
   #holoChat input { flex:1; max-width:340px; padding:9px 12px; font-size:16px; border-radius:9px; border:1px solid var(--line);
                     background:#16140f; color:var(--ink); font-family:inherit; }
   #bMic.listening { background:#c9a24b; color:#1a1408; border-color:#c9a24b; }
+  #bHands.listening { background:#c9a24b; color:#1a1408; border-color:#c9a24b; }
   #tapHint { position:fixed; top:10px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; }
   video { display:none; }
 </style>
@@ -122,6 +123,8 @@
     <input id="holoInput" type="text" placeholder="Or type to her" aria-label="Type your message">
     <button id="holoSend" type="submit">Send</button>
   </form>
+  <!-- ALWAYS-ON MICROPHONE, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. -->
+  <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
   <button id="bVoice" type="button" style="display:none">Her voice: on</button>
@@ -138,6 +141,7 @@
 
 <script src="gc-friend.js"></script>
 <script src="gc-you.js"></script>
+<script src="gc-handsfree.js"></script>
 <script>
 (function () {
   /* Copy of the color/matte pairs in ar.html (see the note at the top of this file). */
@@ -439,6 +443,8 @@
   var chatForm = document.getElementById('holoChat'), chatInput = document.getElementById('holoInput');
   var chatSend = document.getElementById('holoSend'), replyEl = document.getElementById('holoReply');
   var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
+  var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
+                         isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); } });
 
   function showReply(text) { replyEl.textContent = text; replyEl.style.display = text ? 'block' : 'none'; }
 
@@ -474,6 +480,7 @@
       if (!data || !data.audio) return;
       var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
       gcBoostVoice(audio);
+      hf.speakingStart(audio);
       audio.play().catch(function () {});
     }).catch(function () { /* the text reply already stands on its own */ });
   }
@@ -483,6 +490,7 @@
     chatHistory = []; chatBusy = false; showReply('');
     chatForm.classList.toggle('on', !!chatWho);
     bVoice.style.display = chatWho ? '' : 'none';
+    hf.setAvailable(!!chatWho);
     if (chatWho) YOU = gcLoadYou();
   }
 

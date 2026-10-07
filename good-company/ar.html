@@ -90,6 +90,7 @@
 <script src="gc-friend.js"></script>
 <script src="gc-skin.js"></script>
 <script src="gc-you.js"></script>
+<script src="gc-handsfree.js"></script>
 <link rel="stylesheet" href="gc-skin.css">
 
 <style>
@@ -224,6 +225,13 @@ body { position: relative; background: #000; }
   border-radius: 999px; cursor: pointer;
 }
 #arChatMic.listening { background: #c9a24b; color: #1a1408; border-color: #c9a24b; }
+/* ALWAYS-ON MICROPHONE switch, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. */
+#arChatHands {
+  align-self: flex-start; margin: 0 0 .4rem; padding: .3rem .8rem; font-size: .85rem;
+  background: rgba(0,0,0,.55); color: #F4ECE0; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; cursor: pointer;
+}
+#arChatHands.listening { background: #c9a24b; color: #1a1408; border-color: #c9a24b; }
+#arChatMic:disabled { opacity: .45; cursor: default; }
 
 /* CALL-SOFTWARE INSTRUCTIONS, added 2026-09-07. Collapsed by default (a
    <details> element, no JS needed) since most visitors just want the
@@ -333,6 +341,7 @@ body { position: relative; background: #000; }
        COMPANIONS.meera's own `sessions` note. Empty and hidden for any companion with no
        `sessions` entry; renderSessionIcons() below fills it in only when there is one. -->
   <div id="arSessions" style="display:none;"></div>
+  <button id="arChatHands" type="button" style="display:none;">Mic: tap to talk</button>
   <form id="arChatRow">
     <button id="arChatMic" type="button" style="display:none;" aria-label="Speak your message">&#127908;</button>
     <input id="arChatInput" type="text" autocomplete="off" placeholder="Say something to them">
@@ -1299,6 +1308,9 @@ body { position: relative; background: #000; }
     var arChatSend = document.getElementById('arChatSend');
     var arChatMic = document.getElementById('arChatMic');
     var YOU = gcLoadYou();
+    var hf = gcHandsFree({ input: arChatInput, form: arChatRow, toggle: document.getElementById('arChatHands'), micButton: arChatMic,
+                           isBusy: function () { return chatBusy; }, say: function (t) { addChatLine(t, false); } });
+    hf.setAvailable(true);
     var voiceIdFor = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
 
     var chatHistory = [];
@@ -1372,6 +1384,7 @@ body { position: relative; background: #000; }
         if (!data || !data.audio) return;
         var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
         gcBoostVoice(audio);
+        hf.speakingStart(audio);
         audio.play().catch(function () {});
       }).catch(function () { /* text reply already stands on its own */ });
     }
