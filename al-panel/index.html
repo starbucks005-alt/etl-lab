@@ -231,7 +231,9 @@
       </div>
       <p class="pcount" id="pcount"></p>
       <div class="plist" id="plist"></div>
-      <div class="row" style="margin-top:12px"><button id="backToAl">Back to Astra-9 Lite</button><span class="hint" id="personaNow" style="margin:0"></span></div>
+      <div class="row" style="margin-top:12px"><button id="backToAl">Back to Astra-9 Lite for now</button><span class="hint" id="personaNow" style="margin:0"></span></div>
+      <div class="row" id="mainRow" style="margin-top:8px;display:none"><button class="primary" id="keepMain"></button><button id="astraMain">Make Astra-9 Lite her main personality</button></div>
+      <p class="hint" id="mainHint" style="margin:6px 0 0;display:none">Installing a personality is for now. Her main personality is the one she comes back to after she is switched off and on, or after Reset.</p>
     </section>
 
     <!-- 6. TALK -->
@@ -255,7 +257,6 @@
         <button data-q="What are you?">What are you?</button>
         <button data-q="Are you for sale?">Are you for sale?</button>
         <button data-q="Where would you put me?">Where would you put me?</button>
-        <button data-q="Tell me a fun fact about the Wright brothers.">Wright brothers fact</button>
         <button data-q="Tell me a joke.">Tell a joke</button>
         <button data-q="What can you do?">What can you do?</button>
       </div>
@@ -286,7 +287,6 @@
       <label class="wopt"><input type="checkbox" id="wEyes"> Brighten her eyes</label>
       <label class="wopt"><input type="checkbox" id="wChat"> Keep listening after the hello, so people can just talk to her</label>
       <label class="wopt"><input type="checkbox" id="wAlways"> Always listening: she answers when she hears her name, Elle or Astra</label>
-      <label class="wopt"><input type="checkbox" id="wEventNote"> Talk about today's event: Wright Brothers AI and Innovation, at Wright State</label>
       <p class="hint" id="wListenHint" style="margin:4px 0 10px">After the hello she listens for about 20 seconds and answers what is said, and keeps going while people keep talking. Always listening uses some speech service credit each time anyone speaks nearby, so switch it off when it is not needed. Only on Astra-9 Lite.</p>
       <label for="wWait">Wait this long before welcoming again</label>
       <select id="wWait" style="max-width:260px">
@@ -326,7 +326,7 @@
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by Astra-9 Lite and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, event:true, wait:60}};
+  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
 
   var SKILLS = [
     {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
@@ -383,7 +383,9 @@
       if(info.accent !== state.accent){ api('/api/accent', {accent:state.accent}).catch(quiet); }
       if(info.color !== state.color || info.brightness !== state.bright){ api('/api/eyes', {color:state.color, brightness:state.bright}).catch(quiet); }
       state.skills.forEach(function(id){ if((info.skills || []).indexOf(id) === -1){ api('/api/skill', {id:id}).catch(quiet); } });
-      if((info.persona || null) !== (state.persona || null)){ api('/api/personality', {id:state.persona}).catch(quiet); }
+      // who she is comes from her, not from this browser: another laptop or a private window must not turn her back into Astra
+      state.main = info.main || null;
+      if((info.persona || null) !== (state.persona || null)){ state.persona = info.persona || null; store('persona', state.persona); renderPersonas(); }
     }
     $('voiceNote').textContent = on
       ? 'Astra-9 Lite will say a sample in her own voice.'
@@ -489,6 +491,7 @@
 
   // ---------- skills ----------
   function money(p){ return p === 0 ? 'Included' : '$' + p.toFixed(2); }
+  function callName(n){ var m = /\(called ([^)]+)\)/.exec(String(n)); return m ? m[1] : shortName(n); }
   function shortName(n){ return String(n).replace(/\s*\(called [^)]*\)/, '').replace(/ \u2014 .*$/, ''); }
   function renderPersonas(){
     var box = $('plist'); if(!box){ return; }
@@ -524,7 +527,16 @@
       card.appendChild(row); box.appendChild(card);
     });
     var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
-    $('personaNow').textContent = cur ? 'Speaking as ' + shortName(cur.name) + '.' : 'Speaking as Astra-9 Lite.';
+    var mainP = PERSONAS.filter(function(p){ return p.id === state.main; })[0];
+    var mainName = mainP ? callName(mainP.name) : 'Astra-9 Lite';
+    $('personaNow').textContent = (cur ? 'Speaking as ' + callName(cur.name) + '.' : 'Speaking as Astra-9 Lite.') +
+      (live ? ' Her main personality is ' + mainName + '.' : '');
+    $('personaNow').textContent = $('personaNow').textContent.replace(/\.\./g, '.');
+    $('keepMain').style.display = (live && cur && state.main !== state.persona) ? '' : 'none';
+    if(cur){ $('keepMain').textContent = 'Make ' + callName(cur.name) + ' her main personality'; }
+    $('astraMain').style.display = (live && state.main) ? '' : 'none';
+    $('mainRow').style.display = (live && (cur && state.main !== state.persona || state.main)) ? '' : 'none';
+    $('mainHint').style.display = live ? '' : 'none';
   }
   function hearPersona(p, btn){
     if(pAudio){ pAudio.pause(); pAudio = null; }
@@ -681,7 +693,7 @@
   function paintWelcome(){
     var w = state.welcome;
     $('wGreet').checked = !!w.greet; $('wTurn').checked = !!w.turn; $('wEyes').checked = !!w.eyes;
-    $('wChat').checked = w.chat !== false; $('wAlways').checked = !!w.always; $('wEventNote').checked = w.event !== false;
+    $('wChat').checked = w.chat !== false; $('wAlways').checked = !!w.always;
     $('wWait').value = String(w.wait);
   }
   function ago(n){ return n < 90 ? n + ' seconds ago' : n < 5400 ? Math.round(n/60) + ' minutes ago' : Math.round(n/3600) + ' hours ago'; }
@@ -702,7 +714,7 @@
   }
   function saveWelcome(){
     var w = state.welcome;
-    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.chat = $('wChat').checked; w.always = $('wAlways').checked; w.event = $('wEventNote').checked; w.wait = parseInt($('wWait').value, 10);
+    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.chat = $('wChat').checked; w.always = $('wAlways').checked; w.wait = parseInt($('wWait').value, 10);
     store('welcome', w);
     if(live){ api('/api/welcome', w).catch(function(e){ addMsg('al', '(I could not save that choice: ' + e.message + ')'); }); }
   }
@@ -716,7 +728,7 @@
   function resetDemo(){
     state.skills = []; store('skills', []); $('log').innerHTML = ''; $('thumbs').innerHTML = '';
     state.color = '#1fb7c9'; state.bright = 40; state.accent = 'robot'; $('accent').value = 'robot';
-    state.persona = null; store('persona', null); $('bright').value = 40; paintEyes(); renderSkills(); renderPersonas();
+    state.persona = live ? state.main : null; store('persona', state.persona); $('bright').value = 40; paintEyes(); renderSkills(); renderPersonas();
     if(live){ api('/api/reset').catch(function(){}); }
   }
 
@@ -763,14 +775,13 @@
     $('wGreet').checked = true; $('wTurn').checked = true; $('wEyes').checked = true;
     $('wChat').checked = !e;          // at a crowded event she does not keep listening on her own
     $('wAlways').checked = !e;        // in the lab she listens for her name all the time
-    $('wEventNote').checked = e;      // the event note is for the event, not for the lab
     $('wWait').value = e ? '300' : '60';
     saveWelcome();
     $('wPreset').textContent = e ? 'Event settings are on.' : 'Lab settings are on.';
   }
   $('wEvent').addEventListener('click', function(){ preset('event'); });
   $('wLab').addEventListener('click', function(){ preset('lab'); });
-  ['wGreet','wTurn','wEyes','wChat','wAlways','wEventNote','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
+  ['wGreet','wTurn','wEyes','wChat','wAlways','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
   addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
   // ---------- talk by voice: she listens for 6 seconds through her own microphones ----------
@@ -821,6 +832,15 @@
   })();
   $('psearch').addEventListener('input', renderPersonas);
   $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
+  $('keepMain').addEventListener('click', function(){
+    var id = state.persona; if(!id){ return; }
+    api('/api/personality/main', {id:id}).then(function(){ state.main = id; renderPersonas(); addMsg('al', 'Saved. This is now her main personality.'); })
+      .catch(function(e){ addMsg('al', '(I could not save that: ' + e.message + ')'); });
+  });
+  $('astraMain').addEventListener('click', function(){
+    api('/api/personality/main', {id:null}).then(function(){ state.main = null; setPersona(null); })
+      .catch(function(e){ addMsg('al', '(I could not save that: ' + e.message + ')'); });
+  });
   buildGroups(); loadPersonas();
   tryConnect();
   setInterval(pollSensor, 3000);

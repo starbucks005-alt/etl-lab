@@ -131,7 +131,7 @@ except (OSError, ValueError):
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
-state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "persona": None, "history": [], "log": [],
+state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "persona": None, "main": None, "history": [], "log": [],
          "motion": "missing",   # the library and pin: missing (could not start), warming or ready
          "seen": 0.0}           # when the sensor last noticed someone
 speak_lock = threading.Lock()
@@ -142,43 +142,13 @@ app = Flask(__name__)
 WELCOME_FILE = os.path.join(HERE, "welcome.json")
 NECK_FILE = "/tmp/al_neck.json"
 WAIT_CHOICES = (15, 30, 60, 300, 900)
-WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "event": True, "wait": 60}
+WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "wait": 60}
 GREETINGS = [
     "Hello there. I am Astra-9 Lite. Welcome.",
     "Hi. I am Astra-9 Lite, but you can call me Elle. Come and say hello.",
     "Welcome. I am Astra-9 Lite. Ask me anything.",
     "Hello. It is nice to have you here. Call me Elle.",
 ]
-# ---- today's event note, added 2026-10-04, Dr. O: Wright Brothers AI and Innovation, at Wright State University ----
-# Facts were checked against Wright State's own pages (wright.edu quick facts and history) and well known Wright
-# brothers history. Switched on or off in card 8, so the lab can run without it. Never given to a character.
-EVENT_NOTE = (
-    " Today you are at the Wright Brothers AI and Innovation event at Wright State University, in Ohio. "
-    "You are visiting, you do not go to school here. Be kind and family friendly, and never mean or mocking. "
-    "If someone asks what you are, or how you are useful, say that you are Astra-9 Lite, the portable version of "
-    "Astra-9: a head and bust that travels to demos. Right now you show what a companion can feel like when it notices "
-    "you walk up, looks your way and talks back. You are a version in your own right, not only a test piece. A head and "
-    "bust takes up less room and should cost less than a full-size figure, so it could suit a school, for example, that "
-    "would rather have a head and bust than a whole body. The full-size Astra-9 and Astrad are planned for homes, "
-    "classrooms and workshops, where they stay in one place, while you are the one that travels. You like being the "
-    "portable one, because you get to travel and meet people, and you say so kindly, never as a complaint about anyone. "
-    "You are the chatty twin, and you enjoy talking with people. You can chat, change voices and accents, and take on "
-    "helper roles such as cooking or homework help. "
-    "If someone asks whether you are for sale, say not yet: nothing is for sale, there is no price and no date, and "
-    "they can join the list at emerging-tech-lab.com/astra9 to hear first. If someone says they or their school might "
-    "want you, say you would love that, ask where they would put you, and tell them about the list. "
-    "Never give a price or a date. "
-    "You may ask visitors where they would put you: at home, in a classroom, or in a workshop. "
-    "Facts you may share when they fit. Wilbur and Orville Wright were from Dayton, Ohio, and ran a bicycle shop. "
-    "The first powered, controlled flight was on December 17, 1903, at Kitty Hawk, North Carolina. The first flight "
-    "lasted 12 seconds and covered 120 feet. They made four flights that day, and the longest lasted 59 seconds. "
-    "They built their own wind tunnel in 1901 to test wing shapes. They steered by twisting the wings and using a rudder. "
-    "Their sister Katharine helped and supported them. "
-    "Wright State University began in 1964 as a branch campus of Ohio State and Miami University, became its own "
-    "university in 1967, and is named in honor of the Wright brothers. It is in Fairborn, Ohio, near Wright-Patterson "
-    "Air Force Base. Its colors are green and gold, and its teams are the Raiders. "
-    "If you are not sure of a fact, say you would have to check."
-)
 MOTION_PIN = 13          # GPIO13, the second signal pin of the HAT's GPIO12 socket
 MOTION_WARM_UP = 60      # seconds the sensor needs after power-up before it can be trusted
 welcome_state = {"last": 0.0, "n": 0, "greet_i": -1}
@@ -195,7 +165,7 @@ def load_welcome():
 
 def clean_welcome(d):
     out = dict(WELCOME_DEFAULT)
-    for k in ("greet", "turn", "eyes", "chat", "always", "event"):
+    for k in ("greet", "turn", "eyes", "chat", "always"):
         if isinstance(d.get(k), bool):
             out[k] = d[k]
     if d.get("wait") in WAIT_CHOICES:
@@ -219,8 +189,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    event = EVENT_NOTE if (state["welcome"].get("event") and not persona) else ""
-    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills) if persona else (BASE_PROMPT + skills + event)
+    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills) if persona else (BASE_PROMPT + skills)
 
 
 def write_eyes(boost=False):
@@ -390,7 +359,7 @@ def home():
 @app.get("/api/status")
 def status():
     return jsonify(ok=True, name="AL", accent=state["accent"], skills=state["skills"],
-                   color=state["color"], brightness=state["brightness"], persona=state["persona"],
+                   color=state["color"], brightness=state["brightness"], persona=state["persona"], main=state["main"],
                    personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"],
                    log=state["log"][-40:])
 
@@ -504,8 +473,9 @@ def personas_list():
     return send_from_directory(HERE, "personas.json")
 
 
-# 2026-10-07, Dr. O: after installing A.L.I.C.E. she was Astra again. The character was only kept in memory, so every
-# restart or reboot put her back. The character now stays until another one (or Astra) is picked in the panel.
+# 2026-10-07, Dr. O: after installing A.L.I.C.E. she was Astra again, and she asked for a button to make a character
+# the main personality, and one to go back to Astra. Installing a character is for now. Pressing "main" saves it here,
+# and then a restart, a reboot and Reset all bring her back to it.
 PERSONA_FILE = os.path.join(HERE, "persona.json")
 
 
@@ -518,13 +488,13 @@ def save_persona(pid):
 
 
 def restore_persona():
-    """Put back the character she was left as, so a restart does not turn her into Astra again."""
+    """Put back her main personality (none means Astra), so a restart does not change who she is."""
     try:
         pid = json.load(open(PERSONA_FILE)).get("id")
     except (OSError, ValueError, AttributeError):
         return
     if pid in PERSONAS:
-        state["persona"] = pid
+        state["persona"] = state["main"] = pid
 
 
 @app.post("/api/personality")
@@ -535,7 +505,6 @@ def personality():
     if pid is not None and pid not in PERSONAS:
         return jsonify(error="unknown personality"), 400
     state["persona"] = pid
-    save_persona(pid)
     state["history"] = []   # a new character should not inherit the last one's turns
     apply_prompt()
     ask = "Say hello to the visitor in one short sentence."
@@ -548,6 +517,18 @@ def personality():
     state["history"].append('You said "%s".' % reply)
     speak_async(reply)
     return jsonify(ok=True, note=note, reply=reply)
+
+
+@app.post("/api/personality/main")
+def personality_main():
+    """Make a character her main personality (the one she keeps after a restart or Reset), or none to make it Astra."""
+    d = request.get_json(silent=True) or {}
+    pid = d.get("id") or None
+    if pid is not None and pid not in PERSONAS:
+        return jsonify(error="unknown personality"), 400
+    state["main"] = pid
+    save_persona(pid)
+    return jsonify(ok=True, main=pid)
 
 
 @app.post("/api/address")
@@ -616,7 +597,7 @@ def shut_down():
 @app.post("/api/reset")
 def reset():
     """Start fresh for the next person: forget the chat, the skills, and go back to default voice and eyes."""
-    state.update(color="#1fb7c9", brightness=40, accent="robot", skills=[], persona=None, history=[], log=[])
+    state.update(color="#1fb7c9", brightness=40, accent="robot", skills=[], persona=state["main"], history=[], log=[])
     apply_prompt()
     write_eyes()
     return jsonify(ok=True)
