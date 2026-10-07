@@ -652,6 +652,9 @@ def level_of(buf):
     return (sum(x * x for x in a) / len(a)) ** 0.5 if a else 0.0
 
 
+room_memory = {"floor": None}      # the room level from the listens before, so one voice or her own tail cannot move the bar far
+
+
 def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
     """Wait for someone to start speaking, record until they stop, and return the wav path.
     Returns None if nobody spoke within wait_seconds, if abort() says stop, or if she begins to speak herself.
@@ -682,7 +685,20 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
             base.append(c)
         quiet3 = sorted(level_of(c) for c in base)[:3]
         floor = sum(quiet3) / 3.0                   # the quietest three of the first five tenths, so a voice already speaking does not set the bar
-        thr = max(MIN_LEVEL, min(floor * 3, 2500))
+        # 2026-10-07: the bar used to be three times the room, never above 2500. At 100% the room (3300) was above 2500,
+        # so noise counted as speech. At 60% the room was 650 but her voice only reached 900 to 2500, so most of it fell
+        # under the bar, and her own voice in the first half second pushed the bar to 2500. Now the bar is twice the
+        # room, the room level is kept between listens and rises only 15% a listen, and a pause is a stretch below one and a half times the room.
+        mem = room_memory["floor"]
+        if mem is None:
+            mem = floor
+        elif floor < mem:
+            mem = 0.5 * mem + 0.5 * floor                  # quieter: follow at once
+        else:
+            mem = min(floor, mem * 1.15)                   # louder: follow slowly, so a voice or her own tail cannot lift the bar
+        room_memory["floor"] = floor = mem
+        thr = max(MIN_LEVEL, min(floor * 2.2, 4000))
+        end_thr = max(MIN_LEVEL, floor * 1.6)
         print("LISTEN room %.0f, speech above %.0f" % (floor, thr), flush=True)
 
         def chunks():
@@ -696,7 +712,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
 
         pre = collections.deque(maxlen=8)
         speech = bytearray()
-        started, loud, quiet, voiced, t0, peak = False, 0, 0, 0, time.time(), 0.0
+        started, loud, quiet, voiced, t0, peak, lowest = False, 0, 0, 0, time.time(), 0.0, 1e9
         for k, c in enumerate(chunks()):
             if (live and speak_lock.locked()) or (abort and abort()):
                 return None
@@ -714,9 +730,17 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
                     return None
             else:
                 speech += c
+                lowest = min(lowest, lvl)
                 voiced += 1 if lvl > thr else 0
-                quiet = quiet + 1 if lvl < thr else 0
-                if quiet >= END_QUIET or len(speech) / 32000.0 > max_seconds:
+                quiet = quiet + 1 if lvl < end_thr else 0
+                if quiet >= END_QUIET:
+                    break
+                if len(speech) / 32000.0 > max_seconds:
+                    if lowest > end_thr:
+                        # a person pauses between words; a clip that never once dipped is the room having got louder
+                        room_memory["floor"] = lowest
+                        print("LISTEN no pause in %.0f s, so that was the room, now %.0f" % (max_seconds, lowest), flush=True)
+                        return None
                     break
         if not started or voiced < 3:          # a click or a cough is under a third of a second of sound
             return None
