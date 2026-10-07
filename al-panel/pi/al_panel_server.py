@@ -785,6 +785,19 @@ def level_of(buf):
     return (sum(x * x for x in a) / len(a)) ** 0.5 if a else 0.0
 
 
+try:
+    import al_bands                  # tells a voice from a steady hum by where in the sound the energy is (al_bands.py)
+except Exception:
+    al_bands = None
+band_memory = {"db": None}           # how loud each band normally is, kept between listens like the room level below
+
+
+def _samples(c):
+    a = array.array("h")
+    a.frombytes(c)
+    return a
+
+
 room_memory = {"floor": None}      # the room level from the listens before, so one voice or her own tail cannot move the bar far
 
 
@@ -806,7 +819,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
         wait = 0.2 - (time.time() - last_said["t"])      # let the room go quiet after she finishes
         if wait > 0:
             time.sleep(wait)
-        proc = subprocess.Popen(["arecord", "-q", "-D", MIC_DEVICE, "-f", "S16_LE", "-r", "16000", "-c", "1", "-t", "raw"],
+        proc = subprocess.Popen(["arecord", "-q", "-D", mic_device(), "-f", "S16_LE", "-r", "16000", "-c", "1", "-t", "raw"],
                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         stream = proc.stdout
     CH = 3200                                       # 0.1 second of 16 kHz mono 16 bit
@@ -837,6 +850,21 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
         end_thr = max(MIN_LEVEL, floor * 1.25)
         print("LISTEN room %.0f, speech above %.0f" % (floor, thr), flush=True)
 
+        # 2026-10-07, Dr. O: robot Alice heard her only about 15% of the time in a room with a steady hum, because judging by
+        # loudness alone leaves a loud hum most of the headroom. A hum is all low notes; a voice also has energy in the middle and
+        # high notes. So each tenth of a second is also checked band by band against how loud each band normally is, and counts
+        # as "voice pattern" when two of the upper bands are well above their own normal. This only adds ways to start and to
+        # carry on; the loudness rule is unchanged. Put a file called no_bands next to the server to turn it off.
+        bands = al_bands.Bands() if (al_bands and not os.path.exists(os.path.join(HERE, "no_bands"))) else None
+        base_db, floor_db, sp_recent = [], None, collections.deque(maxlen=4)
+        if bands:
+            for c in base:
+                base_db.append([al_bands.to_db(x) for x in bands.levels(_samples(c))])
+            seed = [sorted(base_db[j][i] for j in range(2, 5))[1] for i in range(len(al_bands.CENTERS))]   # the middle of three tenths, after the opening pop
+            old = band_memory["db"]
+            floor_db = list(seed) if old is None else [min(seed[i], old[i] + 3.0) for i in range(len(seed))]
+            band_memory["db"] = list(floor_db) if old is None else [0.8 * old[i] + 0.2 * floor_db[i] for i in range(len(seed))]
+
         def chunks():
             for c in base:
                 yield c
@@ -849,6 +877,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
         pre = collections.deque(maxlen=8)
         speech = bytearray()
         started, quiet, voiced, t0, peak, lowest = False, 0, 0, time.time(), 0.0, 1e9
+        how = "loudness"
         recent = collections.deque(maxlen=3)
         for k, c in enumerate(chunks()):
             if (live and speak_lock.locked()) or (abort and abort()):
@@ -860,11 +889,23 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
                 recent.append(lvl)
             avg = sum(recent) / len(recent) if recent else 0.0
             smooth = avg if len(recent) == 3 else None
+            sp = False
+            if bands:
+                db = base_db[k] if k < 5 else [al_bands.to_db(x) for x in bands.levels(_samples(c))]
+                if k >= 2:
+                    sp = al_bands.speechy(db, floor_db)
+                    sp_recent.append(sp)
+                    if not started and not sp and lvl < thr:       # nobody speaking: follow the room, down at once, up slowly
+                        for i, d in enumerate(db):
+                            floor_db[i] = 0.5 * floor_db[i] + 0.5 * d if d < floor_db[i] else floor_db[i] + min(d - floor_db[i], 0.2)
+            loud_start = smooth is not None and smooth > thr
+            pattern_start = len(sp_recent) == 4 and sum(sp_recent) >= 3
             if not started:
                 if k >= 2:
                     pre.append(c)
-                if smooth is not None and smooth > thr:
+                if loud_start or pattern_start:
                     started = True
+                    how = "loudness" if loud_start else "voice pattern"
                     last_clip["start"] = time.time() - 0.1 * max(0, len(pre) - 1)
                     speech += b"".join(pre)
                     if on_start:
@@ -878,14 +919,16 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
             else:
                 speech += c
                 lowest = min(lowest, avg)
-                voiced += 1 if lvl > thr else 0
-                quiet = quiet + 1 if avg < end_thr else 0
+                voiced += 1 if (lvl > thr or sp) else 0
+                quiet = quiet + 1 if (avg < end_thr and not sp) else 0
                 if quiet >= END_QUIET:
                     break
                 if len(speech) / 32000.0 > max_seconds:
                     if lowest > end_thr:
                         # a person pauses between words; a clip that never once dipped is the room having got louder
                         room_memory["floor"] = lowest
+                        if bands:
+                            band_memory["db"] = list(db)           # and each band's normal is now what it is
                         print("LISTEN no pause in %.0f s, so that was the room, now %.0f" % (max_seconds, lowest), flush=True)
                         last_clip["why"] = "noise"
                         return None
@@ -893,7 +936,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
         if not started or voiced < 3:          # a click or a cough is under a third of a second of sound
             last_clip["why"] = "spurious" if started else "quiet"
             return None
-        print("LISTEN took %.1f s of speech, loudest %.0f, bar %.0f" % (len(speech) / 32000.0, peak, thr), flush=True)
+        print("LISTEN took %.1f s of speech, loudest %.0f, bar %.0f, started by %s" % (len(speech) / 32000.0, peak, thr, how), flush=True)
         with wave.open(LISTEN_FILE, "wb") as w:
             w.setnchannels(1)
             w.setsampwidth(2)
@@ -1044,7 +1087,20 @@ def watch_names():
 
 
 LISTEN_SECONDS = 6                     # how long she listens after Talk is pressed
-MIC_DEVICE = "plughw:wm8960soundcard"  # the HAT's sound card, as aplay -l names it; the 5 second test through it worked
+MIC_DEVICE_DEFAULT = "plughw:wm8960soundcard"  # the HAT's sound card, as aplay -l names it; the 5 second test through it worked
+
+
+def mic_device():
+    """Which microphone she listens with. A file called mic_device next to this one, holding one line such as
+    plughw:CARD=Speakerphone,DEV=0, overrides the HAT's own microphones (2026-10-07, so a USB speakerphone can be her ears).
+    Delete the file to go back."""
+    try:
+        d = open(os.path.join(HERE, "mic_device")).read().strip()
+        if d:
+            return d
+    except OSError:
+        pass
+    return MIC_DEVICE_DEFAULT
 LISTEN_FILE = "/tmp/al_heard.wav"
 listen_lock = threading.Lock()
 idle_watch = {"on": False}         # true while she is only waiting to hear her name, which the button or a hello may interrupt
@@ -1074,7 +1130,7 @@ def grab_mic():
 
 def record_clip(path=None, seconds=None):
     """Record from the HAT's two microphones into a wav file."""
-    subprocess.run(["arecord", "-q", "-D", MIC_DEVICE, "-f", "S16_LE", "-r", "16000", "-c", "2",
+    subprocess.run(["arecord", "-q", "-D", mic_device(), "-f", "S16_LE", "-r", "16000", "-c", "2",
                     "-d", str(seconds or LISTEN_SECONDS), path or LISTEN_FILE],
                    check=True, timeout=(seconds or LISTEN_SECONDS) + 10)
 
