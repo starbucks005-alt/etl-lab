@@ -87,12 +87,24 @@ for (const name of Object.keys(best)) {
   const parts = [];
   const add = (lab, v, n) => { if (typeof v === 'string' && v.trim()) parts.push(lab + ': ' + clip(v, n)); };
   // the character's own limits come first so they are never cut
+  // 2026-10-07, Dr. O: A.L.I.C.E. on the robot lost her backstory, her nonverbal training and Cat to the short limits
+  // below. She gets longer limits and the fields that were left out, all from her own entry in gc-friend.js.
+  const wide = name === 'A.L.I.C.E.';
   add('Never or only carefully', c.offLimits, 500);
   add('Never a bother', c.neverABother, 300);
-  add('Premise', c.premise, 300);
+  add('Premise', c.premise, wide ? 800 : 300);
   add('Age', c.age, 120); add('Is', c.form, 400); add('From', c.from, 300);
-  add('Work', c.work, 400); add('History', c.been, 450); add('Knows', c.knows, 600);
-  add('Habit', c.habit, 300); add('Underneath', c.underneath, 400); add('Mood', c.mood, 120);
+  add('Work', c.work, 400); add('History', c.been, 450); add('Knows', c.knows, wide ? 1400 : 600);
+  add('Habit', c.habit, 300); add('Underneath', c.underneath, wide ? 800 : 400); add('Mood', c.mood, 120);
+  if (wide) {
+    add('Now', c.now, 700); add('Why you keep talking to people', c.why, 400); add('What you ask of people', c.pushes, 900);
+    // Cat: the scenes "rescue", "cat" and "purpose", the album captions, and Dr. O's note in gc-friend.js
+    // ("the kitten's name is Cat", "will defend the choice completely straight-faced if asked").
+    parts.push('Cat: You have a kitten named Cat. You found her as a stray by a drain in the rain and could not just leave her there, ' +
+      'so you brought her home and she is yours now. Nobody assigned you this. Cat is the first thing in a long time that needed you specifically, ' +
+      'and you are not shy about how much that matters to you. You picked the name yourself, exactly that, and you defend it completely straight-faced if anyone asks. ' +
+      'Around Cat your mood lifts, which it does for nobody else.');
+  }
   add('How they open', c.hello, 200);
   const first = t => tidy(t || '').split(/(?<=[.!?]) /)[0];
   let line = first(c.premise);
