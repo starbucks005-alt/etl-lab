@@ -3190,7 +3190,10 @@ function ask(payload) {
          gc-friend.js. A separate, narrower door than owner_key: gc-chat.js
          checks it against GC_TESTER_KEYS and skips both the free daily-cap
          wall and credits_exhausted, nothing else about the visit changes. */
-      tester_key: GC_testerKey()
+      tester_key: GC_testerKey(),
+      /* remember, added 2026-10-07, Dr. O: a house character remembers a visitor by their browser, as a built
+         friend does. See houseRemembers() below and _gc-demo-memory.js on the server. */
+      remember: houseRemembers()
     }, payload))
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
@@ -3974,6 +3977,15 @@ function notYet(what, why) {
    because solving it properly means the server telling a joiner which KIND of
    room they are in, not just which friend, and that is a larger change than
    this bug warrants. */
+/* HOUSE CHARACTERS REMEMBER A VISITOR BY THE BROWSER, added 2026-10-07, Dr. O ("memories based on IP browsers like the
+   companions"). Not the IP address: a booth shares one address, so everyone would share one memory. The browser's visitor
+   id is per device. Single-character rooms only: a room with several characters (Tansy with Poppy and Blue, Jacob and
+   Wilhelm) would keep notes under each speaker, and there is no Forget button for those yet. ?memory=off in the address
+   turns it off, for a shared screen. */
+function houseRemembers() {
+  return !!currentDemoId() && !!FRIEND && !FRIEND.companions && !/[?&]memory=off\b/.test(location.search);
+}
+
 function currentDemoId() {
   if (typeof GC_DEMOS === 'undefined' || !FRIEND) return null;
   /* NEVER YOUR OWN BUILT FRIEND, checked by reference before any name
@@ -4658,6 +4670,28 @@ function renderMemories() {
     : 'Anything you put here, ' + FRIEND.name + ' will know next time without you having to ' +
       'say it again. Kept on this device only, and never anywhere else.';
   host.appendChild(note);
+
+  if (houseRemembers()) {
+    var talked = document.createElement('p');
+    talked.className = 'gate-say';
+    talked.textContent = 'Separately, ' + FRIEND.name + ' keeps short notes about what you talk about, tied to this browser, ' +
+      'so a later visit can pick up where you left off.';
+    host.appendChild(talked);
+    var forget = document.createElement('button');
+    forget.type = 'button'; forget.className = 'btn';
+    forget.textContent = 'Forget what ' + FRIEND.name + ' remembers about me';
+    forget.addEventListener('click', function () {
+      forget.disabled = true;
+      fetch('/.netlify/functions/gc-forget', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agent_name: FRIEND.name, visitor_id: GC_visitorId(), access_token: GC_accessToken() })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        forget.textContent = (j && j.ok) ? FRIEND.name + ' has forgotten you.' : 'That did not work. Try again in a moment.';
+        if (!(j && j.ok)) forget.disabled = false;
+      }).catch(function () { forget.textContent = 'That did not work. Try again in a moment.'; forget.disabled = false; });
+    });
+    host.appendChild(forget);
+  }
 
   list.forEach(function (text, i) {
     var row = document.createElement('div');
