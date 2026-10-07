@@ -621,6 +621,22 @@ MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit uni
 NAME_RE = re.compile(r"\b(elle|astra|astro|astrid|al|8l)\b", re.I)   # speech to text often mishears her name
 
 
+def wake_name_re():
+    """Her own names, plus the name of the character she has taken on. 2026-10-07: with the A.L.I.C.E. character loaded,
+    "Hello, Alice" was heard three times in a row and ignored, because only the Astra names woke her."""
+    p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    if not p:
+        return NAME_RE
+    n = p.get("name", "")
+    m = re.search(r"\(called ([^)]+)\)", n)
+    n = m.group(1) if m else re.split(r"[,(]", n)[0]
+    n = re.sub(r"\b(dr|ms|mr|mrs|coach|lady)\b\.?", "", n.replace(".", ""), flags=re.I)
+    words = [w for w in re.sub(r"[^A-Za-z0-9 ]", "", n).split() if len(w) > 1]
+    if not words:
+        return NAME_RE
+    return re.compile(NAME_RE.pattern[:-3] + "|" + "|".join(re.escape(w) for w in words) + r")\b", re.I)
+
+
 def level_of(buf):
     a = array.array("h")
     a.frombytes(buf[: len(buf) // 2 * 2])
@@ -779,7 +795,7 @@ def watch_names():
         if text and heard_herself(text):
             print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
             continue
-        if text and NAME_RE.search(text):
+        if text and wake_name_re().search(text):
             try:
                 answer_and_say(text)
                 converse()
