@@ -183,16 +183,23 @@
       sync();
     };
     api.speakingStart = function (audio) {
-      speaking = audio; quietUntil = Date.now() + TAIL_MS;
+      /* 2026-10-07: "she is talking" used to start the moment the audio was made. If the browser then refused to play
+         it (or the voice failed), nothing ever said she had stopped, and the microphone stayed deaf for good. It now
+         starts when her audio really begins, ends on any way it can stop, and gives up by itself after 90 seconds. */
+      quietUntil = Date.now() + TAIL_MS;
       clearTimeout(pauseTimer); pending = ''; lastFinal = ''; pendingBefore = '';
       if (o.input) o.input.value = '';
+      var failsafe = null;
       var done = function () {
+        clearTimeout(failsafe);
         if (speaking === audio) speaking = null;
         quietUntil = Date.now() + TAIL_MS;                                // counted from when her audio really stops
       };
-      audio.addEventListener('ended', done);
-      audio.addEventListener('pause', done);
-      audio.addEventListener('error', done);
+      audio.addEventListener('playing', function () {
+        speaking = audio; quietUntil = Date.now() + TAIL_MS;
+        clearTimeout(failsafe); failsafe = setTimeout(done, 90000);
+      });
+      ['ended', 'pause', 'error', 'abort', 'emptied', 'stalled'].forEach(function (name) { audio.addEventListener(name, done); });
     };
 
     if (o.toggle) {
