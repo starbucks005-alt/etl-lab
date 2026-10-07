@@ -183,13 +183,108 @@ def save_welcome():
 state["welcome"] = load_welcome()
 
 
+# ---- robot A.L.I.C.E.'s own memory, added 2026-10-07, Dr. O ----
+# "They are twins, so it has to be separate": the hologram, AR and Good Company Alice remembers a visitor by their
+# browser, on the website. The robot cannot tell people apart (she hears voices and has no browser), so her memory is
+# her own: short notes in her own words about her conversations on this robot, kept in a file on the robot, never
+# sent to the website and never mixed with the website's. Only for the characters listed here.
+MEMORY_PERSONAS = {"gc-a-l-i-c-e"}
+MEMORY_CADENCE = 4          # a few notes are written after every fourth exchange
+MEMORY_MAX = 40             # the newest this many are kept and carried into her instructions
+memory_lock = threading.Lock()
+memory_turns = {"n": 0, "recent": []}
+
+
+def memory_path(pid):
+    return os.path.join(HERE, "memory_%s.json" % re.sub(r"[^a-z0-9-]", "", str(pid).lower()))
+
+
+def load_memory(pid):
+    try:
+        d = json.load(open(memory_path(pid)))
+    except (OSError, ValueError):
+        return []
+    return [n.strip() for n in d if isinstance(n, str) and n.strip()][-MEMORY_MAX:] if isinstance(d, list) else []
+
+
+def save_memory(pid, notes):
+    tmp = memory_path(pid) + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(notes[-MEMORY_MAX:], f)
+    os.replace(tmp, memory_path(pid))
+
+
+def memory_block(pid):
+    """What she remembers, as it goes into her instructions. Empty for a character that does not keep notes."""
+    if pid not in MEMORY_PERSONAS:
+        return ""
+    notes = load_memory(pid)
+    if not notes:
+        return ""
+    return ("\n\nWhat you remember from your own earlier conversations on this robot, as notes in your own words. "
+            "They are yours alone, so bring one up only when it fits, the way a person would, and never recite them:\n"
+            + "\n".join("- " + n for n in notes))
+
+
+def distill_memory(pid, exchanges):
+    """Write a few notes from the last few exchanges. Runs in the background so she is never slowed down."""
+    try:
+        name = (PERSONAS.get(pid) or {}).get("name", "A.L.I.C.E.").split(",")[0]
+        existing = load_memory(pid)
+        known = ("\n\nAlready in your memory, do not repeat any of these:\n" + "\n".join("- " + n for n in existing)) if existing else ""
+        talk = "\n".join('SOMEONE: %s\n%s: %s' % (a, name.upper(), b) for a, b in exchanges)
+        prompt = ("You are %s, talking with people through a robot body. Write 1 to 4 short, plain, first-person notes you would "
+                  "genuinely carry forward about the people you have been talking with and what you talked about: things they told you, "
+                  "what is going on in their life, how they seemed, and a thread still open that you might bring up next time. "
+                  "Write each the way you would carry it in your head, in your own words, not a transcript and not a direct quote. "
+                  "Do not use any dash characters. Return ONLY JSON, no code fences: {\"memories\": [\"...\", \"...\"]}. "
+                  "If honestly nothing new and memorable came up, return {\"memories\": []}.%s\n\nRecent conversation:\n%s") % (name, known, talk)
+        key = header_value("x-api-key")
+        r = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={"x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID,
+                     "content-type": "application/json"},
+            json={"model": "claude-sonnet-5", "max_tokens": 300, "messages": [{"role": "user", "content": prompt}]},
+            timeout=60,
+        )
+        if r.status_code != 200:
+            print("MEMORY could not write notes: the service said %d" % r.status_code, flush=True)
+            return
+        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
+        text = re.sub(r"^```(json)?", "", text).rstrip("`").strip()
+        new = [re.sub(r"\s*[\u2014\u2013]\s*", ", ", m).strip() for m in json.loads(text).get("memories", []) if isinstance(m, str) and m.strip()][:4]
+        with memory_lock:
+            have = load_memory(pid)
+            low = {h.lower() for h in have}
+            added = [m for m in new if m.lower() not in low]
+            have += added
+            if added:
+                save_memory(pid, have)
+        print("MEMORY wrote %d new note(s) for %s" % (len(added), pid), flush=True)
+        if added and state["persona"] == pid:
+            apply_prompt()
+    except Exception as e:                      # never let a memory problem touch a conversation
+        print("MEMORY problem:", str(e)[:160], flush=True)
+
+
+def remember_exchange(said, reply):
+    """Call after every ordinary exchange. Only the characters in MEMORY_PERSONAS keep notes."""
+    pid = state["persona"]
+    if pid not in MEMORY_PERSONAS or not said or not reply:
+        return
+    memory_turns["recent"] = (memory_turns["recent"] + [(said, reply)])[-MEMORY_CADENCE:]
+    memory_turns["n"] += 1
+    if memory_turns["n"] % MEMORY_CADENCE == 0:
+        threading.Thread(target=distill_memory, args=(pid, list(memory_turns["recent"])), daemon=True).start()
+
+
 def apply_prompt():
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"] if not (persona and s == "tour"))
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills) if persona else (BASE_PROMPT + skills)
+    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills + memory_block(state["persona"])) if persona else (BASE_PROMPT + skills)
 
 
 def write_eyes(boost=False):
@@ -519,6 +614,7 @@ def personality():
         return jsonify(error="unknown personality"), 400
     state["persona"] = pid
     state["history"] = []   # a new character should not inherit the last one's turns
+    memory_turns.update(n=0, recent=[])
     apply_prompt()
     ask = "Say hello to the visitor in one short sentence."
     try:
@@ -542,6 +638,33 @@ def personality_main():
     state["main"] = pid
     save_persona(pid)
     return jsonify(ok=True, main=pid)
+
+
+@app.get("/api/memory")
+def memory_get():
+    pid = state["persona"]
+    on = pid in MEMORY_PERSONAS
+    return jsonify(enabled=on, notes=load_memory(pid) if on else [])
+
+
+@app.post("/api/memory/forget")
+def memory_forget():
+    """Forget one note (index) or all of them, for the character she is now."""
+    pid = state["persona"]
+    if pid not in MEMORY_PERSONAS:
+        return jsonify(error="this character does not keep notes"), 400
+    d = request.get_json(silent=True) or {}
+    with memory_lock:
+        notes = load_memory(pid)
+        if isinstance(d.get("index"), int) and 0 <= d["index"] < len(notes):
+            del notes[d["index"]]
+        else:
+            notes = []
+        save_memory(pid, notes)
+        if not notes:
+            memory_turns.update(n=0, recent=[])
+    apply_prompt()
+    return jsonify(ok=True, left=len(notes))
 
 
 @app.post("/api/address")
@@ -628,6 +751,7 @@ def say():
         return jsonify(error=str(e)[:200]), 502
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
+    remember_exchange(text, reply)
     speak_async(reply)
     return jsonify(reply=reply)
 
@@ -829,6 +953,7 @@ def answer_and_say(text):
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
+    remember_exchange(text, reply)
     speak_now(reply)
     print("TIMING reply %.1f s, voice made and spoken %.1f s" % (t1 - t0, time.time() - t1), flush=True)
     return reply
@@ -996,6 +1121,7 @@ def listen_once():
         except Exception as e:
             return {"error": str(e)[:200], "heard": heard}, 502
         state["history"].append('They said "%s" and you said "%s".' % (heard, reply))
+        remember_exchange(heard, reply)
         state["log"] += [{"who": "you", "text": heard}, {"who": "al", "text": reply}]
         speak_async(reply)
         return {"heard": heard, "reply": reply}, 200

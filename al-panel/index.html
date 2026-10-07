@@ -233,6 +233,12 @@
       <div class="plist" id="plist"></div>
       <div class="row" style="margin-top:12px"><button id="backToAl">Back to Astra-9 Lite for now</button><span class="hint" id="personaNow" style="margin:0"></span></div>
       <div class="row" id="mainRow" style="margin-top:8px;display:none"><button class="primary" id="keepMain"></button><button id="astraMain">Make Astra-9 Lite her main personality</button></div>
+      <!-- HER OWN MEMORY, added 2026-10-07, Dr. O: the twins must not share one. The robot's notes stay on the robot. -->
+      <div id="memRow" style="margin-top:10px;display:none">
+        <span class="hint" id="memText" style="margin:0"></span>
+        <div class="row" style="margin-top:6px"><button id="memShow" type="button">Show what she remembers</button><button id="memForget" type="button">Forget all</button></div>
+        <ul id="memList" style="display:none;margin:8px 0 0;padding-left:1.2rem;font-size:13px"></ul>
+      </div>
       <p class="hint" id="mainHint" style="margin:6px 0 0;display:none">Installing a personality is for now. Her main personality is the one she comes back to after she is switched off and on, or after Reset.</p>
     </section>
 
@@ -386,6 +392,7 @@
       // who she is comes from her, not from this browser: another laptop or a private window must not turn her back into Astra
       state.main = info.main || null;
       if((info.persona || null) !== (state.persona || null)){ state.persona = info.persona || null; store('persona', state.persona); renderPersonas(); }
+      refreshMemory();
     }
     $('voiceNote').textContent = on
       ? 'Astra-9 Lite will say a sample in her own voice.'
@@ -565,11 +572,34 @@
       (p.voice ? 'This personality has its own voice.' : 'She keeps her own voice for this one.'),
       [['Cancel', null], ['Install', function(){ setPersona(p.id); }, true]]);
   }
+  function refreshMemory(){
+    if(!live){ $('memRow').style.display = 'none'; return; }
+    fetch('/api/memory').then(function(r){ return r.json(); }).then(function(j){
+      if(!j || !j.enabled){ $('memRow').style.display = 'none'; return; }
+      var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
+      var name = cur ? callName(cur.name) : 'She';
+      $('memRow').style.display = '';
+      $('memText').textContent = j.notes.length
+        ? name + ' keeps notes from her talks on this robot (' + j.notes.length + '). They stay on the robot, and are not shared with the hologram, the AR page or the website.'
+        : name + ' has no notes yet. She starts keeping them as she talks. They will stay on the robot, and will not be shared with the hologram, the AR page or the website.';
+      $('memShow').style.display = j.notes.length ? '' : 'none';
+      $('memForget').style.display = j.notes.length ? '' : 'none';
+      var ul = $('memList'); ul.innerHTML = '';
+      j.notes.forEach(function(n, i){
+        var li = document.createElement('li'); li.style.margin = '4px 0';
+        li.appendChild(document.createTextNode(n + ' '));
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Forget this one'; b.style.fontSize = '12px';
+        b.addEventListener('click', function(){ api('/api/memory/forget', {index:i}).then(refreshMemory).catch(function(){}); });
+        li.appendChild(b); ul.appendChild(li);
+      });
+      if(!j.notes.length){ ul.style.display = 'none'; $('memShow').textContent = 'Show what she remembers'; }
+    }).catch(function(){ $('memRow').style.display = 'none'; });
+  }
   function setPersona(id){
     state.persona = id; store('persona', id); renderPersonas();
     var p = PERSONAS.filter(function(x){ return x.id === id; })[0];
     if(live){
-      api('/api/personality', {id:id}).then(function(j){ addMsg('al', j.note); addMsg('al', j.reply); })
+      api('/api/personality', {id:id}).then(function(j){ addMsg('al', j.note); addMsg('al', j.reply); refreshMemory(); })
         .catch(function(e){ addMsg('al', '(I could not change my personality: ' + e.message + ')'); });
     } else {
       addMsg('al', id && p ? 'Demo: with a real Astra-9 Lite, she would now speak as ' + shortName(p.name) + '.' : 'Back to Astra-9 Lite.');
@@ -832,6 +862,14 @@
   })();
   $('psearch').addEventListener('input', renderPersonas);
   $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
+  $('memShow').addEventListener('click', function(){
+    var ul = $('memList'), open = ul.style.display === 'none';
+    ul.style.display = open ? '' : 'none'; $('memShow').textContent = open ? 'Hide' : 'Show what she remembers';
+  });
+  $('memForget').addEventListener('click', function(){
+    dialog('Forget everything?', 'She will forget all the notes she has kept from her talks on this robot. This cannot be undone.',
+      [['Cancel', null], ['Forget all', function(){ api('/api/memory/forget', {}).then(refreshMemory).catch(function(){}); }, true]]);
+  });
   $('keepMain').addEventListener('click', function(){
     var id = state.persona; if(!id){ return; }
     api('/api/personality/main', {id:id}).then(function(){ state.main = id; renderPersonas(); addMsg('al', 'Saved. This is now her main personality.'); })

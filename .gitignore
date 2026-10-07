@@ -15,3 +15,6 @@ sherlock-android/
 # so a card's screenshot can be re-cropped without re-capturing: 12MB of
 # 1280x800 originals whose only live use is a 640x400 compressed WebP.
 images/campus-hover/_raw/*.png
+
+# Robot A.L.I.C.E.'s own notes about her conversations. They stay on the robot and must never be committed.
+al-panel/pi/memory_*.json
