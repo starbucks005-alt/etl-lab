@@ -125,6 +125,7 @@
   </form>
   <!-- ALWAYS-ON MICROPHONE, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. -->
   <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
+  <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
   <button id="bVoice" type="button" style="display:none">Her voice: on</button>
@@ -444,7 +445,8 @@
   var chatSend = document.getElementById('holoSend'), replyEl = document.getElementById('holoReply');
   var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
-                         isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); } });
+                         isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); },
+                         state: function (t) { document.getElementById('bHandsState').textContent = t; } });
 
   function showReply(text) { replyEl.textContent = text; replyEl.style.display = text ? 'block' : 'none'; }
 

@@ -54,6 +54,8 @@
       else if (q === 'off') { pref = false; store(false); }
     } catch (_) {}
 
+    function state(t) { if (o.state) { try { o.state(t); } catch (_) {} } }
+
     function paint() {
       var on = pref && available;
       if (o.toggle) {
@@ -81,6 +83,7 @@
       pending = ''; lastFinal = ''; pendingBefore = '';
       if (!text) return;
       if (o.isBusy && o.isBusy()) { o.input.value = ''; return; }     // she is still working on the last thing said
+      state('Sent');
       if (o.form.requestSubmit) o.form.requestSubmit(); else o.form.dispatchEvent(new Event('submit', { cancelable: true }));
     }
 
@@ -94,8 +97,9 @@
 
       rec.onresult = function (e) {
         if (speaking) quietUntil = Date.now() + TAIL_MS;
-        if (speaking || Date.now() < quietUntil) return;                 // her own voice, or the tail of it
-        if (o.isBusy && o.isBusy()) return;
+        if (speaking || Date.now() < quietUntil) { state('Quiet while she talks'); return; }       // her own voice, or the tail of it
+        if (o.isBusy && o.isBusy()) { state('Waiting for her answer'); return; }
+        state('Hearing you');
         var gotFinal = false;
         for (var i = Math.max(e.resultIndex, taken); i < e.results.length; i++) {
           if (e.results[i].isFinal) {
@@ -139,6 +143,7 @@
       };
 
       rec.onerror = function (e) {
+        if (e && e.error && e.error !== 'no-speech' && e.error !== 'aborted') state('Microphone problem: ' + e.error);
         if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed')) {
           pref = false; store(false); paint();
           if (o.say) o.say('The microphone is blocked. Allow it for this site (the icon in the address bar), then press Mic again.');
@@ -153,10 +158,12 @@
       };
 
       restartAt = Date.now();
-      try { rec.start(); running = true; netErrors = 0; } catch (_) { running = false; }
+      try { rec.start(); running = true; netErrors = 0; state('Listening'); }
+      catch (err) { running = false; state('Could not start the microphone: ' + (err && err.name ? err.name : err)); }
     }
 
     function stop() {
+      state(pref ? 'Waiting' : '');
       clearTimeout(pauseTimer);
       if (rec) { try { rec.onend = null; rec.abort(); } catch (_) {} }
       running = false;

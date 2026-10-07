@@ -342,6 +342,7 @@ body { position: relative; background: #000; }
        `sessions` entry; renderSessionIcons() below fills it in only when there is one. -->
   <div id="arSessions" style="display:none;"></div>
   <button id="arChatHands" type="button" style="display:none;">Mic: tap to talk</button>
+  <span id="arChatHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;margin-left:.5rem;"></span>
   <form id="arChatRow">
     <button id="arChatMic" type="button" style="display:none;" aria-label="Speak your message">&#127908;</button>
     <input id="arChatInput" type="text" autocomplete="off" placeholder="Say something to them">
@@ -1309,7 +1310,8 @@ body { position: relative; background: #000; }
     var arChatMic = document.getElementById('arChatMic');
     var YOU = gcLoadYou();
     var hf = gcHandsFree({ input: arChatInput, form: arChatRow, toggle: document.getElementById('arChatHands'), micButton: arChatMic,
-                           isBusy: function () { return chatBusy; }, say: function (t) { addChatLine(t, false); } });
+                           isBusy: function () { return chatBusy; }, say: function (t) { addChatLine(t, false); },
+                           state: function (t) { document.getElementById('arChatHandsState').textContent = t; } });
     hf.setAvailable(true);
     var voiceIdFor = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
 
