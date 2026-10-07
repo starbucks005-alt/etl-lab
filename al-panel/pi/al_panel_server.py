@@ -205,11 +205,15 @@ def write_eyes(boost=False):
 last_said = {"text": "", "t": 0.0}
 
 
-def settle():
-    """Wait until she has stopped speaking, then a moment more, so her microphones do not pick up her own voice."""
+def settle(gap=0.5):
+    """Wait until she has stopped speaking, then a moment more, so her microphones do not pick up her own voice.
+    2026-10-07: the moment is only what is left of half a second since she stopped. It used to be 0.8 s every time,
+    which with the other pauses left her deaf for almost two seconds out of every six, right where a name is said."""
     with speak_lock:
         pass
-    time.sleep(0.8)
+    wait = gap - (time.time() - last_said["t"])
+    if wait > 0:
+        time.sleep(wait)
 
 
 def heard_herself(text):
@@ -648,36 +652,56 @@ def level_of(buf):
     return (sum(x * x for x in a) / len(a)) ** 0.5 if a else 0.0
 
 
-def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None):
+def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
     """Wait for someone to start speaking, record until they stop, and return the wav path.
-    Returns None if nobody spoke within wait_seconds. She never listens while she is speaking."""
-    with speak_lock:
-        pass
-    time.sleep(0.6 if stream is None else 0)       # let the room go quiet after she finishes
+    Returns None if nobody spoke within wait_seconds, if abort() says stop, or if she begins to speak herself.
+    She never listens while she is speaking.
+    2026-10-07, Dr. O: she did not answer to Astra or Alice. The two readings logged while she said them were her own
+    voice, so the first half second used to measure the room was taking the start of what she said, and the pauses
+    around it left her deaf for nearly two seconds of every six. Now the first half second is kept and checked for
+    speech like the rest (the room level comes from its quietest three tenths), the pause before listening is only
+    what is left since she stopped, and the clip starts 0.8 s before the speech does."""
+    live = stream is None
     proc = None
-    if stream is None:
+    if live:
+        with speak_lock:
+            pass
+        wait = 0.2 - (time.time() - last_said["t"])      # let the room go quiet after she finishes
+        if wait > 0:
+            time.sleep(wait)
         proc = subprocess.Popen(["arecord", "-q", "-D", MIC_DEVICE, "-f", "S16_LE", "-r", "16000", "-c", "1", "-t", "raw"],
                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         stream = proc.stdout
     CH = 3200                                       # 0.1 second of 16 kHz mono 16 bit
     try:
         base = []
-        for _ in range(5):                          # the first half second sets how noisy the room is
+        for _ in range(5):
             c = stream.read(CH)
             if len(c) < CH:
                 return None
-            base.append(level_of(c))
-        floor = sum(base) / len(base)
+            base.append(c)
+        quiet3 = sorted(level_of(c) for c in base)[:3]
+        floor = sum(quiet3) / 3.0                   # the quietest three of the first five tenths, so a voice already speaking does not set the bar
         thr = max(MIN_LEVEL, min(floor * 3, 2500))
         print("LISTEN room %.0f, speech above %.0f" % (floor, thr), flush=True)
-        pre = collections.deque(maxlen=3)
+
+        def chunks():
+            for c in base:
+                yield c
+            while True:
+                c = stream.read(CH)
+                if len(c) < CH:
+                    return
+                yield c
+
+        pre = collections.deque(maxlen=8)
         speech = bytearray()
-        started, loud, quiet, voiced, t0 = False, 0, 0, 0, time.time()
-        while True:
-            c = stream.read(CH)
-            if len(c) < CH:
-                break
+        started, loud, quiet, voiced, t0, peak = False, 0, 0, 0, time.time(), 0.0
+        for c in chunks():
+            if (live and speak_lock.locked()) or (abort and abort()):
+                return None
             lvl = level_of(c)
+            peak = max(peak, lvl)
             if not started:
                 pre.append(c)
                 loud = loud + 1 if lvl > thr else 0
@@ -685,6 +709,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None):
                     started = True
                     speech += b"".join(pre)
                 elif time.time() - t0 > wait_seconds:
+                    print("LISTEN quiet for %.0f s, loudest %.0f, bar %.0f" % (wait_seconds, peak, thr), flush=True)
                     return None
             else:
                 speech += c
@@ -694,6 +719,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None):
                     break
         if not started or voiced < 3:          # a click or a cough is under a third of a second of sound
             return None
+        print("LISTEN took %.1f s of speech, loudest %.0f, bar %.0f" % (len(speech) / 32000.0, peak, thr), flush=True)
         with wave.open(LISTEN_FILE, "wb") as w:
             w.setnchannels(1)
             w.setsampwidth(2)
@@ -743,7 +769,7 @@ def answer_and_say(text):
 
 def converse(window=None):
     """Keep listening and answering until nobody has spoken for a while."""
-    if not listen_lock.acquire(blocking=False):
+    if not grab_mic():
         return
     try:
         window = window or CONVERSE_SECONDS
@@ -781,13 +807,16 @@ def watch_names():
         if not state["welcome"].get("always"):
             time.sleep(1)
             continue
-        if not listen_lock.acquire(blocking=False):
-            time.sleep(0.5)
+        if mic_wants["n"] > 0 or not listen_lock.acquire(blocking=False):
+            time.sleep(0.2)
             continue
         text = ""
         try:
             settle()
-            path = hear_one(wait_seconds=4)
+            # one long wait instead of a new four second listen each time, so there is no gap for a name to fall into
+            idle_watch["on"] = True
+            path = hear_one(wait_seconds=60, abort=lambda: mic_wants["n"] > 0 or not state["welcome"].get("always"))
+            idle_watch["on"] = False
             if path:
                 t0 = time.time()
                 text = transcribe(path)
@@ -796,6 +825,7 @@ def watch_names():
             print("LISTEN ERROR:", e, flush=True)
             time.sleep(5)
         finally:
+            idle_watch["on"] = False
             listen_lock.release()
         if text and heard_herself(text):
             print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
@@ -812,6 +842,29 @@ LISTEN_SECONDS = 6                     # how long she listens after Talk is pres
 MIC_DEVICE = "plughw:wm8960soundcard"  # the HAT's sound card, as aplay -l names it; the 5 second test through it worked
 LISTEN_FILE = "/tmp/al_heard.wav"
 listen_lock = threading.Lock()
+idle_watch = {"on": False}         # true while she is only waiting to hear her name, which the button or a hello may interrupt
+mic_wants = {"n": 0}
+mic_wants_lock = threading.Lock()
+
+
+def take_mic(timeout=4.0):
+    """Ask the idle name listener to let go of the microphone, then take it."""
+    with mic_wants_lock:
+        mic_wants["n"] += 1
+    try:
+        return listen_lock.acquire(timeout=timeout)
+    finally:
+        with mic_wants_lock:
+            mic_wants["n"] -= 1
+
+
+def grab_mic():
+    """The microphone for a conversation or the Talk button. Waiting for her name gives way; another conversation does not."""
+    if listen_lock.acquire(blocking=False):
+        return True
+    if idle_watch["on"]:
+        return take_mic()
+    return False
 
 
 def record_clip(path=None, seconds=None):
@@ -835,7 +888,7 @@ def transcribe(path=None):
 def listen_once():
     """Listen for a few seconds, turn what was said into words, and answer it out loud like a typed message.
     Returns (what to send back, status). Her eyes brighten while she listens, so people can see she is."""
-    if not listen_lock.acquire(blocking=False):
+    if not grab_mic():
         return {"error": "She is already listening. Just speak to her."}, 409
     try:
         write_eyes(boost=True)
