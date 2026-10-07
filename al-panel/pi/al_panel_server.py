@@ -216,7 +216,8 @@ def settle(gap=0.5):
         time.sleep(wait)
 
 
-last_clip = {"start": None}      # when the speech in the clip hear_one just took began
+last_clip = {"start": None, "why": "quiet"}      # when the speech in the clip hear_one just took began, and why it returned nothing:
+# "quiet" (nobody spoke), "abort" (she began to speak or was told to stop), "spurious" (a start that was only a click or a tail), "noise"
 
 
 def heard_herself(text, started_at=None):
@@ -632,8 +633,8 @@ def say():
 
 
 # ---- hands-free listening ----
-CONVERSE_SECONDS = 20     # after a hello, she keeps listening this long, and again after each thing she answers
-END_QUIET = 8            # tenths of a second of quiet that mean the person has finished
+CONVERSE_SECONDS = 30     # after a hello, she keeps listening this long, and again after each thing she answers
+END_QUIET = 11           # tenths of a second of quiet that mean the person has finished (was 8: the last word of a sentence is softer and got cut off)
 MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
 NAME_RE = re.compile(r"\b(elle|astra|astro|astrid|al|8l)\b", re.I)   # speech to text often mishears her name
 
@@ -674,6 +675,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
     what is left since she stopped, and the clip starts 0.8 s before the speech does."""
     live = stream is None
     proc = None
+    last_clip["why"] = "quiet"
     if live:
         with speak_lock:
             pass
@@ -708,7 +710,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
             mem = min(floor, mem * 1.15)                   # louder: follow slowly, so a voice or her own tail cannot lift the bar
         room_memory["floor"] = floor = mem
         thr = max(MIN_LEVEL, min(floor * 1.6, 8000))
-        end_thr = max(MIN_LEVEL, floor * 1.3)
+        end_thr = max(MIN_LEVEL, floor * 1.25)
         print("LISTEN room %.0f, speech above %.0f" % (floor, thr), flush=True)
 
         def chunks():
@@ -726,6 +728,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
         recent = collections.deque(maxlen=3)
         for k, c in enumerate(chunks()):
             if (live and speak_lock.locked()) or (abort and abort()):
+                last_clip["why"] = "abort"
                 return None
             lvl = level_of(c)
             if k >= 2:                              # the first two tenths hold the pop the microphone makes when it opens
@@ -760,9 +763,11 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
                         # a person pauses between words; a clip that never once dipped is the room having got louder
                         room_memory["floor"] = lowest
                         print("LISTEN no pause in %.0f s, so that was the room, now %.0f" % (max_seconds, lowest), flush=True)
+                        last_clip["why"] = "noise"
                         return None
                     break
         if not started or voiced < 3:          # a click or a cough is under a third of a second of sound
+            last_clip["why"] = "spurious" if started else "quiet"
             return None
         print("LISTEN took %.1f s of speech, loudest %.0f, bar %.0f" % (len(speech) / 32000.0, peak, thr), flush=True)
         with wave.open(LISTEN_FILE, "wb") as w:
@@ -793,7 +798,7 @@ def address_reply():
     return address_words(ip), "http://%s:8000" % ip
 
 
-def shorten(reply, sentences=3, chars=330):
+def shorten(reply, sentences=2, chars=190):
     """Keep what she says out loud to the first few sentences. 2026-10-07: spoken answers took 9 to 21 seconds
     ('voice made and spoken'), far past the one to three short sentences her instructions ask for."""
     reply = (reply or "").strip()
@@ -836,11 +841,17 @@ def converse(window=None):
     try:
         window = window or CONVERSE_SECONDS
         deadline = time.time() + window
+        false_starts = 0
         while time.time() < deadline:
             settle()
             path = hear_one(wait_seconds=max(1.0, deadline - time.time()), on_start=lambda: write_eyes(boost=True))
             write_eyes()
             if not path:
+                # 2026-10-07: a click or the tail of her own voice used to end the whole conversation, so she went back to
+                # waiting for her name. Only a stretch of real quiet ends it.
+                if last_clip["why"] in ("spurious", "noise") and false_starts < 8 and time.time() < deadline:
+                    false_starts += 1
+                    continue
                 break
             try:
                 t0 = time.time()
