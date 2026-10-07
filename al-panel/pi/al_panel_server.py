@@ -697,11 +697,12 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None):
         pre = collections.deque(maxlen=8)
         speech = bytearray()
         started, loud, quiet, voiced, t0, peak = False, 0, 0, 0, time.time(), 0.0
-        for c in chunks():
+        for k, c in enumerate(chunks()):
             if (live and speak_lock.locked()) or (abort and abort()):
                 return None
             lvl = level_of(c)
-            peak = max(peak, lvl)
+            if k >= 2:                              # the first two tenths hold the pop the microphone makes when it opens
+                peak = max(peak, lvl)
             if not started:
                 pre.append(c)
                 loud = loud + 1 if lvl > thr else 0
