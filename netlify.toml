@@ -48,6 +48,10 @@
 [functions."gc-voice"]
   timeout = 30
 
+# The friend listens: one short recording in, the words out. See gc-listen.js. Off until GC_LISTEN_ENABLED is 1.
+[functions."gc-listen"]
+  timeout = 30
+
 # One face per invocation, deliberately: the browser fires four of these at
 # once rather than asking one function to await four image generations, which
 # would sit on the platform's real synchronous ceiling described further down.

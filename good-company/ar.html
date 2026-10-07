@@ -1311,7 +1311,8 @@ body { position: relative; background: #000; }
     var YOU = gcLoadYou();
     var hf = gcHandsFree({ input: arChatInput, form: arChatRow, toggle: document.getElementById('arChatHands'), micButton: arChatMic,
                            isBusy: function () { return chatBusy; }, say: function (t) { addChatLine(t, false); },
-                           state: function (t) { document.getElementById('arChatHandsState').textContent = t; } });
+                           state: function (t) { document.getElementById('arChatHandsState').textContent = t; },
+                           identity: function () { return { visitor_id: GC_visitorId(), access_token: GC_accessToken(), owner_key: GC_ownerKey(), tester_key: GC_testerKey() }; } });
     hf.setAvailable(true);
     var voiceIdFor = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
 

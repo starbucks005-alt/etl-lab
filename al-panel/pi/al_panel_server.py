@@ -959,7 +959,7 @@ def transcribe(path=None):
     key = header_value("xi-api-key")
     with open(path or LISTEN_FILE, "rb") as f:
         r = requests.post("https://api.elevenlabs.io/v1/speech-to-text", headers={"xi-api-key": key},
-                          data={"model_id": "scribe_v1"}, files={"file": ("clip.wav", f, "audio/wav")}, timeout=60)
+                          data={"model_id": "scribe_v1", "tag_audio_events": "false"}, files={"file": ("clip.wav", f, "audio/wav")}, timeout=60)
     if not r.ok:
         raise RuntimeError("the listening service said %s: %s" % (r.status_code, r.text[:160]))
     text = (r.json().get("text") or "").strip()

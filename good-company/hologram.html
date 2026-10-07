@@ -446,7 +446,8 @@
   var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
                          isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); },
-                         state: function (t) { document.getElementById('bHandsState').textContent = t; } });
+                         state: function (t) { document.getElementById('bHandsState').textContent = t; },
+                         identity: function () { return { visitor_id: GC_visitorId(), access_token: GC_accessToken(), owner_key: GC_ownerKey(), tester_key: GC_testerKey() }; } });
 
   function showReply(text) { replyEl.textContent = text; replyEl.style.display = text ? 'block' : 'none'; }
 
