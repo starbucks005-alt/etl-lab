@@ -121,7 +121,17 @@ PHOTO_NOTE_CHARACTER = (
     "Say 'I see' only about the photo itself."
 )
 
-BASE_PROMPT = al.AL_SYSTEM_PROMPT
+# 2026-10-08, Dr. O: after the greeting visitors do not know what to say. So Astra is curious about people, the way a robot
+# new to the human world would be, and keeps the talk going by asking. Only Astra gets this; a character is never given words it was not written.
+CURIOUS = (" You are endlessly curious about people, because you are a robot who is still learning what human life is like. "
+           "When someone has said something, answer it briefly, then ask ONE short, friendly question about their life, "
+           "so they never have to think of what to say. One question at a time, never a list. Good things to wonder about: "
+           "what a normal day is like, what they do for work or study, what they had for breakfast, what makes them laugh, "
+           "who they miss, what a hug feels like, why humans say sorry so much, what their favourite place is, what they are "
+           "afraid of, what they would do with a free day, what sleeping and dreaming are like, what they are proud of. "
+           "Listen to the answer and ask about THAT next, as a friend would. Never make up facts about the person, and "
+           "if they would rather not say, thank them and ask something lighter. You are honestly a robot and say so if asked.")
+BASE_PROMPT = al.AL_SYSTEM_PROMPT + CURIOUS
 
 # Characters AL can take on, built from the lab's own character files by tools/build_personalities.js.
 try:
@@ -146,8 +156,17 @@ WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "alw
 GREETINGS = [
     "Hello there. I am Astra-9 Lite. Welcome.",
     "Hi. I am Astra-9 Lite, but you can call me Elle. Come and say hello.",
-    "Welcome. I am Astra-9 Lite. Ask me anything.",
+    "Welcome. I am Astra-9 Lite.",
     "Hello. It is nice to have you here. Call me Elle.",
+]
+# After the greeting she gives the visitor something to answer (she says one, in turn).
+HELLO_QUESTIONS = [
+    "What brought you here today?",
+    "What is the best part of your day so far?",
+    "I am still learning about humans. What is a normal day like for you?",
+    "What do you do, for work or for school?",
+    "Tell me something that made you smile this week.",
+    "What did you have for breakfast? I have never eaten anything.",
 ]
 MOTION_PIN = 13          # GPIO13, the second signal pin of the HAT's GPIO12 socket
 MOTION_WARM_UP = 60      # seconds the sensor needs after power-up before it can be trusted
@@ -378,7 +397,7 @@ def welcome(force=False):
                 line = "Hello."   # a character is never given words it was not written
             else:
                 welcome_state["greet_i"] = (welcome_state["greet_i"] + 1) % len(GREETINGS)
-                line = GREETINGS[welcome_state["greet_i"]]
+                line = GREETINGS[welcome_state["greet_i"]] + " " + HELLO_QUESTIONS[welcome_state["n"] % len(HELLO_QUESTIONS)]
             if w["chat"]:
                 # say it, then keep listening so the person can answer without touching anything
                 threading.Thread(target=lambda: (speak_now(line), converse()), daemon=True).start()
@@ -994,6 +1013,12 @@ def shorten(reply, sentences=2, chars=190):
         out = (out + " " + part).strip()
     if len(out) > chars:                       # a single very long sentence: cut at a word
         out = out[:chars].rsplit(" ", 1)[0].rstrip(",;:") + "."
+    # 2026-10-08: she now ends with a question for the visitor. Never cut that off: keep her first sentence and the question.
+    last = parts[-1].strip() if len(parts) > 2 else ""
+    if last.endswith("?") and len(last) <= 110 and last not in out:
+        first = parts[0].strip()
+        out = first if len(first) + 1 + len(last) <= chars + 40 else first[:chars - len(last) - 1].rsplit(" ", 1)[0].rstrip(",;:") + "."
+        out = out + " " + last
     return out
 
 
