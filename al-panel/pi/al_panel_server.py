@@ -1254,7 +1254,9 @@ def my_address():
 
 
 def address_words(ip):
-    return "I am ready. To open my panel, go to " + " dot ".join(" ".join(part) for part in ip.split(".")) + " colon eight thousand."
+    once = ", dot, ".join(", ".join(part) for part in ip.split("."))   # commas make her pause between the digits
+    return ("I am ready. My address is, " + once + ", colon, eight thousand. I will say it once more. " + once
+            + ", colon, eight thousand. You can also try astra nine lite dot local, colon eight thousand.")
 
 
 def say_address_when_ready():
