@@ -1188,6 +1188,36 @@ def listen_once():
         listen_lock.release()
 
 
+@app.post("/api/listen/now")
+def listen_now():
+    """The Listen now button, added 2026-10-08, Dr. O: in a crowd her name is lost under the other voices. This needs no name:
+    she listens for ONE question, ends it when the person stops, answers it, and goes back to what she was doing."""
+    if not grab_mic():
+        return jsonify(error="She is already listening. Just speak to her."), 409
+    try:
+        settle()
+        write_eyes(boost=True)
+        try:
+            path = hear_one(wait_seconds=15, on_start=lambda: write_eyes(boost=True))
+        finally:
+            write_eyes()
+        if not path:
+            return jsonify(heard="", reply=""), 200
+        try:
+            text = transcribe(path)
+        except Exception as e:
+            return jsonify(error=str(e)[:200]), 502
+        if not text:
+            return jsonify(heard="", reply=""), 200
+        try:
+            reply = answer_and_say(text)
+        except Exception as e:
+            return jsonify(error=str(e)[:200], heard=text), 502
+        return jsonify(heard=text, reply=reply), 200
+    finally:
+        listen_lock.release()
+
+
 @app.post("/api/listen")
 def listen():
     payload, status = listen_once()

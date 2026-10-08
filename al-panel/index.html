@@ -267,7 +267,7 @@
         <button data-q="What can you do?">What can you do?</button>
       </div>
       <!-- TALK BY VOICE, added 2026-10-04: the microphones on her HAT. Only shown when this page is served by the Pi. -->
-      <div class="row" id="listenRow" style="margin-top:10px;display:none"><button class="primary" id="listenBtn">Talk to her</button><span class="hint" id="listenStatus" style="margin:0">Press, then speak. She listens for 6 seconds.</span></div>
+      <div class="row" id="listenRow" style="margin-top:10px;display:none"><button class="primary" id="listenBtn" style="font-size:1.15rem;padding:14px 26px">Listen now</button><span class="hint" id="listenStatus" style="margin:0">Press, then ask one question. She waits for you to start and stops when you finish. No name needed.</span></div>
     </section>
 
     <!-- 6. PHOTOS -->
@@ -824,25 +824,25 @@
   });
   $('listenBtn').addEventListener('click', function(){
     if(!live){ return; }
-    var b = $('listenBtn'), msg = $('listenStatus'), left = 6;
+    var b = $('listenBtn'), msg = $('listenStatus'), left = 15;
     b.disabled = true; b.textContent = 'Listening';
-    msg.textContent = 'Speak now. ' + left + ' seconds.';
+    msg.textContent = 'Ask now. She waits up to ' + left + ' seconds.';
     var tick = setInterval(function(){
       left -= 1;
-      if(left > 0){ msg.textContent = 'Speak now. ' + left + ' seconds.'; }
+      if(left > 0){ msg.textContent = 'Ask now. She waits up to ' + left + ' seconds.'; }
       else { clearInterval(tick); msg.textContent = 'One moment.'; }
     }, 1000);
-    fetch('/api/listen', {method:'POST'}).then(function(r){
+    fetch('/api/listen/now', {method:'POST'}).then(function(r){
       return r.json().then(function(j){ return {ok:r.ok, j:j}; });
     }).then(function(x){
       if(!x.ok){ throw new Error(x.j.error || 'I could not listen just now.'); }
-      if(!x.j.heard){ msg.textContent = 'I did not hear anything. Press again and speak a little closer.'; return; }
+      if(!x.j.heard){ msg.textContent = 'I did not hear a question. Press again and ask a little closer.'; return; }
       addMsg('you', x.j.heard); addMsg('al', x.j.reply || '...');
-      msg.textContent = 'Press, then speak. She listens for 6 seconds.';
+      msg.textContent = 'Press, then ask one question. She waits for you to start and stops when you finish. No name needed.';
     }).catch(function(e){
       msg.textContent = e.message;
     }).then(function(){
-      clearInterval(tick); b.disabled = false; b.textContent = 'Talk to her';
+      clearInterval(tick); b.disabled = false; b.textContent = 'Listen now';
     });
   });
   document.querySelectorAll('#starters button').forEach(function(b){
