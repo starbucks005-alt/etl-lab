@@ -191,6 +191,21 @@ try:
     PERSONAS = json.load(open(os.path.join(HERE, "personalities.json")))
 except (OSError, ValueError):
     PERSONAS = {}
+
+# 2026-10-08, Dr. O: a character made for one person (David's Echo) must not go in the public repository, which this file is
+# fetched from. A file called personalities_private.json next to the server holds them, in the same shape as personalities.json
+# with one added line, "line", for the card. It is kept out of git. Delete the file and restart her to remove them.
+PRIVATE_LIST = []
+try:
+    _priv = json.load(open(os.path.join(HERE, "personalities_private.json")))
+    for _pid, _p in _priv.items():
+        if re.fullmatch(r"[a-z0-9-]+", _pid) and isinstance(_p, dict) and _p.get("name") and _p.get("prompt") and _pid not in PERSONAS:
+            PERSONAS[_pid] = {k: _p[k] for k in ("name", "group", "voice", "say", "prompt") if k in _p}
+            PERSONAS[_pid].setdefault("group", "Private")
+            PRIVATE_LIST.append({"id": _pid, "name": _p["name"], "group": PERSONAS[_pid]["group"], "sub": "Made for one person",
+                                 "line": _p.get("line", ""), "price": 0, "voice": bool(_p.get("voice")), "gender": _p.get("gender", "")})
+except (OSError, ValueError):
+    pass
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
@@ -615,6 +630,11 @@ def make_preview(pid):
             f.write(r.content)
         os.replace(path + ".tmp", path)
     return path
+
+
+@app.get("/api/private-personas")
+def private_personas():
+    return jsonify(PRIVATE_LIST)
 
 
 @app.get("/previews/<pid>.mp3")

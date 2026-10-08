@@ -18,3 +18,6 @@ images/campus-hover/_raw/*.png
 
 # Robot A.L.I.C.E.'s own notes about her conversations. They stay on the robot and must never be committed.
 al-panel/pi/memory_*.json
+
+# A character made for one person, kept on the robot only (al-panel/pi/al_panel_server.py)
+al-panel/pi/personalities_private.json
