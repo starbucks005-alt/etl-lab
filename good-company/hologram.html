@@ -338,16 +338,23 @@
     vctx.restore();
   }
 
+  /* HEAD AND SHOULDERS, added 2026-10-08, Dr. O: the hologram box is sized for a 10.5 inch picture and Astra is 17 inches high, so Alice
+     should be bigger on the same screen. ?top=0.5 shows only the top half of her, filling the screen. Any value from 0.2 to 1 works;
+     1 (the default) is the whole figure. Not yet tried behind real glass. */
+  var topFrac = parseFloat(new URLSearchParams(location.search).get('top'));
+  if (!(topFrac >= 0.2 && topFrac < 1)) topFrac = 1;
+
   function drawSingle(size) {
     var W = view.width, H = view.height;
     var sw = Math.max(8, maxX - minX + 1), sh = Math.max(8, maxY - minY + 1);
+    var shv = Math.max(8, Math.round(sh * topFrac));
     var f = 0.95 * size / 0.7, odd = rotQ & 1;
-    var k = odd ? Math.min(W * f / sh, H * f / sw) : Math.min(W * f / sw, H * f / sh);
+    var k = odd ? Math.min(W * f / shv, H * f / sw) : Math.min(W * f / sw, H * f / shv);
     vctx.save();
     vctx.translate(W / 2, H / 2);
     vctx.rotate(rotQ * Math.PI / 2);
     if (mirror) vctx.scale(-1, 1);
-    vctx.drawImage(fig, minX, minY, sw, sh, -sw * k / 2, -sh * k / 2, sw * k, sh * k);
+    vctx.drawImage(fig, minX, minY, sw, shv, -sw * k / 2, -shv * k / 2, sw * k, shv * k);
     vctx.restore();
   }
 
