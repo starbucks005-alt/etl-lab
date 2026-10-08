@@ -1005,7 +1005,12 @@ def answer_and_say(text):
 def converse(window=None):
     """Keep listening and answering until nobody has spoken for a while."""
     if not grab_mic():
-        return
+        # 2026-10-08, Dr. O: right after the welcome she did not answer someone standing next to her. grab_mic only gives up the
+        # name listener while it is WAITING; for the moment it is turning a clip into words it holds the microphone and this
+        # returned without a word. Wait for it instead, and say in the log if the microphone never came.
+        if not take_mic(timeout=8.0):
+            print("CONVERSE could not get the microphone after the hello, so she did not listen.", flush=True)
+            return
     try:
         window = window or CONVERSE_SECONDS
         deadline = time.time() + window
