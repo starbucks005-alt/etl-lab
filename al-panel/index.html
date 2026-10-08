@@ -520,7 +520,8 @@
       var v = document.createElement('span'); v.className = 'tag'; v.textContent = p.voice ? 'own voice' : 'uses Astra-9 Lite\'s voice'; meta.appendChild(v);
       card.appendChild(meta);
       var d = document.createElement('p'); d.textContent = p.line || p.role || ''; card.appendChild(d);
-      var pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(p.price) + '  (example price)'; card.appendChild(pr);
+      var priv = p.group === 'Private';
+      if(!priv){ var pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(p.price) + '  (example price)'; card.appendChild(pr); }
       var row = document.createElement('div'); row.className = 'row';
       if(p.voice){
         var hv = document.createElement('button'); hv.textContent = 'Hear voice'; hv.setAttribute('aria-label', 'Hear the voice of ' + shortName(p.name));
@@ -529,7 +530,7 @@
       if(state.persona === p.id){
         var on = document.createElement('span'); on.className = 'tag'; on.textContent = 'Installed'; row.appendChild(on);
       } else {
-        var g = document.createElement('button'); g.className = 'primary'; g.textContent = 'Get for ' + money(p.price);
+        var g = document.createElement('button'); g.className = 'primary'; g.textContent = priv ? 'Install' : 'Get for ' + money(p.price);
         g.addEventListener('click', function(){ confirmPersona(p); }); row.appendChild(g);
       }
       card.appendChild(row); box.appendChild(card);
@@ -558,7 +559,7 @@
   }
   function buildGroups(){
     var bar = $('pfilters'); Array.prototype.slice.call(bar.querySelectorAll('button')).forEach(function(b){ b.remove(); });
-    ['All', 'The Dose', 'The Gym', 'Almost Human', 'Good Company'].forEach(function(g){
+    ['All', 'The Dose', 'The Gym', 'Almost Human', 'Good Company'].concat(PERSONAS.some(function(p){ return p.group === 'Private'; }) ? ['Private'] : []).forEach(function(g){
       var b = document.createElement('button'); b.textContent = g; b.className = g === pGroup ? 'on' : '';
       b.addEventListener('click', function(){ pGroup = g; buildGroups(); renderPersonas(); }); bar.appendChild(b);
     });
@@ -568,6 +569,11 @@
     });
   }
   function confirmPersona(p){
+    if(p.group === 'Private'){
+      dialog('Install ' + shortName(p.name) + '?', 'Made for one person and kept only on this robot. Nothing is charged. Switch back to Astra-9 Lite any time.',
+        [['Cancel', null], ['Install', function(){ setPersona(p.id); }, true]]);
+      return;
+    }
     dialog('Get ' + shortName(p.name) + '?',
       'Demo only: no payment is taken. In a real purchase, ' + money(p.price) + ' would be charged here. ' +
       (p.voice ? 'This personality has its own voice.' : 'She keeps her own voice for this one.'),
