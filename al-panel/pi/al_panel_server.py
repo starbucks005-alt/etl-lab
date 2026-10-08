@@ -142,7 +142,7 @@ app = Flask(__name__)
 WELCOME_FILE = os.path.join(HERE, "welcome.json")
 NECK_FILE = "/tmp/al_neck.json"
 WAIT_CHOICES = (15, 30, 60, 300, 900)
-WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "wait": 60}
+WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "crowd": False, "wait": 60}
 GREETINGS = [
     "Hello there. I am Astra-9 Lite. Welcome.",
     "Hi. I am Astra-9 Lite, but you can call me Elle. Come and say hello.",
@@ -165,7 +165,7 @@ def load_welcome():
 
 def clean_welcome(d):
     out = dict(WELCOME_DEFAULT)
-    for k in ("greet", "turn", "eyes", "chat", "always"):
+    for k in ("greet", "turn", "eyes", "chat", "always", "crowd"):
         if isinstance(d.get(k), bool):
             out[k] = d[k]
     if d.get("wait") in WAIT_CHOICES:
@@ -1033,6 +1033,9 @@ def converse(window=None):
             if heard_herself(text, last_clip["start"]):
                 print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
                 continue
+            if state["welcome"].get("crowd") and not wake_name_re().search(text):
+                print("CROWD mode: no name in it, not answering. Heard: %s" % text[:60], flush=True)
+                continue
             try:
                 answer_and_say(text)
             except Exception as e:
@@ -1077,7 +1080,7 @@ def watch_names():
         if text and wake_name_re().search(text):
             try:
                 answer_and_say(text)
-                converse()
+                converse(window=8 if state["welcome"].get("crowd") else None)   # crowd mode: a short wait for a follow up with her name, not 30 s open
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)
         elif text:
