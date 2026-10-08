@@ -812,6 +812,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
     what is left since she stopped, and the clip starts 0.8 s before the speech does."""
     live = stream is None
     proc = None
+    guard = None
     last_clip["why"] = "quiet"
     if live:
         with speak_lock:
@@ -822,6 +823,18 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
         proc = subprocess.Popen(["arecord", "-q", "-D", mic_device(), "-f", "S16_LE", "-r", "16000", "-c", "1", "-t", "raw"],
                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         stream = proc.stdout
+        # 2026-10-08, Dr. O: she went deaf with the panel saying "She is already listening" and nothing in the log for minutes, so a
+        # read was stuck holding the microphone. The cause is not known. This only stops it lasting: if this listen is still going
+        # long after it could possibly finish, the recorder is stopped, the read ends, and the log says so.
+        def _stuck(pr=proc):
+            print("LISTEN WATCHDOG: the microphone read did not finish in time, stopping the recorder.", flush=True)
+            try:
+                pr.kill()
+            except OSError:
+                pass
+        guard = threading.Timer(wait_seconds + max_seconds + 20, _stuck)
+        guard.daemon = True
+        guard.start()
     CH = 3200                                       # 0.1 second of 16 kHz mono 16 bit
     try:
         base = []
@@ -944,6 +957,8 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
             w.writeframes(bytes(speech))
         return LISTEN_FILE
     finally:
+        if guard:
+            guard.cancel()
         if proc:
             proc.terminate()
             try:
