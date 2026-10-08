@@ -275,7 +275,17 @@ state["welcome"] = load_welcome()
 # browser, on the website. The robot cannot tell people apart (she hears voices and has no browser), so her memory is
 # her own: short notes in her own words about her conversations on this robot, kept in a file on the robot, never
 # sent to the website and never mixed with the website's. Only for the characters listed here.
-MEMORY_PERSONAS = {"gc-a-l-i-c-e"}
+# 2026-10-08, Dr. O: "we have to make sure each personality, especially Astra-9 Lite, has memory and emotion. Almost human." Every character
+# now keeps notes, Astra-9 Lite herself under the name "astra", each in its own file. `touch ~/al_panel/no_memory` turns all of it off, and the
+# panel's Forget buttons clear one character's notes.
+def mkey(pid):
+    return pid or "astra"
+
+
+def memory_on():
+    return not os.path.exists(os.path.join(HERE, "no_memory"))
+
+
 MEMORY_CADENCE = 4          # a few notes are written after every fourth exchange
 MEMORY_MAX = 40             # the newest this many are kept and carried into her instructions
 memory_lock = threading.Lock()
@@ -283,7 +293,7 @@ memory_turns = {"n": 0, "recent": []}
 
 
 def memory_path(pid):
-    return os.path.join(HERE, "memory_%s.json" % re.sub(r"[^a-z0-9-]", "", str(pid).lower()))
+    return os.path.join(HERE, "memory_%s.json" % re.sub(r"[^a-z0-9-]", "", mkey(pid).lower()))
 
 
 def load_memory(pid):
@@ -303,7 +313,7 @@ def save_memory(pid, notes):
 
 def memory_block(pid):
     """What she remembers, as it goes into her instructions. Empty for a character that does not keep notes."""
-    if pid not in MEMORY_PERSONAS:
+    if not memory_on():
         return ""
     notes = load_memory(pid)
     if not notes:
@@ -316,7 +326,7 @@ def memory_block(pid):
 def distill_memory(pid, exchanges):
     """Write a few notes from the last few exchanges. Runs in the background so she is never slowed down."""
     try:
-        name = (PERSONAS.get(pid) or {}).get("name", "A.L.I.C.E.").split(",")[0]
+        name = (PERSONAS.get(pid) or {}).get("name", "Astra-9 Lite").split(",")[0]
         existing = load_memory(pid)
         known = ("\n\nAlready in your memory, do not repeat any of these:\n" + "\n".join("- " + n for n in existing)) if existing else ""
         talk = "\n".join('SOMEONE: %s\n%s: %s' % (a, name.upper(), b) for a, b in exchanges)
@@ -355,9 +365,9 @@ def distill_memory(pid, exchanges):
 
 
 def remember_exchange(said, reply):
-    """Call after every ordinary exchange. Only the characters in MEMORY_PERSONAS keep notes."""
+    """Call after every ordinary exchange. Every character keeps notes, in its own file."""
     pid = state["persona"]
-    if pid not in MEMORY_PERSONAS or not said or not reply:
+    if not memory_on() or not said or not reply:
         return
     memory_turns["recent"] = (memory_turns["recent"] + [(said, reply)])[-MEMORY_CADENCE:]
     memory_turns["n"] += 1
@@ -374,7 +384,7 @@ try:
     MOODS = {k: v for k, v in json.load(open(os.path.join(HERE, "moods.json"))).items() if not k.startswith("_")}
 except (OSError, ValueError):
     MOODS = {}
-mood = {"pid": None, "i": 0, "since": 0.0, "last": 0.0, "turns": 0, "reason": "", "prev": "", "new": False}
+mood = {"pid": "?", "i": 0, "since": 0.0, "last": 0.0, "turns": 0, "reason": "", "prev": "", "new": False}
 MOOD_IDLE_RESET = 600      # seconds of nobody talking before the mood starts over
 MOOD_DRIFT = 150           # seconds in one mood, with at least two exchanges, before it climbs on its own
 MOOD_PEAK_HOLD = 120       # seconds at the top before she falls back a step
@@ -384,14 +394,40 @@ WARM_KIND = re.compile(r"\b(thank you|thanks|i love (you|that|it)|i like (you|th
 COOL_RUDE = re.compile(r"\b(boring|stupid|shut up|go away|whatever|don'?t care|who cares)\b", re.I)
 
 
+def mood_cfg(pid):
+    """The mood ladder for this character: the one written in moods.json, or a general one built around the mood and habit in her own file."""
+    key = mkey(pid)
+    if key in MOODS:
+        return MOODS[key]
+    cfg = MOOD_CACHE.get(key)
+    if cfg:
+        return cfg
+    prompt = (PERSONAS.get(pid) or {}).get("prompt", "")
+    own = re.search(r"Mood: (.*?)(?= How they open:| Now: | Why you keep| What you ask| Habit:|$)", prompt, re.S)
+    own = own.group(1).strip().rstrip(".") + "." if own else "Yourself, as written above."
+    hab = re.search(r"Habit: (.*?)(?= Underneath:| Mood:|$)", prompt, re.S)
+    hab = hab.group(1).strip() if hab else ""
+    cfg = {"habit": hab, "start": 1, "peak": 3, "fall": 2, "fall_reason": "the moment got a little too open and you settle yourself",
+           "stages": [
+               {"name": "guarded", "feel": "Cooler and more guarded than usual, a little hurt. Shorter answers. Still entirely yourself."},
+               {"name": "as written", "feel": own},
+               {"name": "opening up", "feel": "Warming up. More open than at first, in your own way. Pick up on something the visitor said earlier."},
+               {"name": "enjoying them", "feel": "Genuinely enjoying this person. Show it in your own way, bring up something that matters to you, and ask them something real."}]}
+    MOOD_CACHE[key] = cfg
+    return cfg
+
+
+MOOD_CACHE = {}
+
+
 def mood_reset(pid=None):
-    mood.update(pid=pid, i=(MOODS.get(pid) or {}).get("start", 0), since=time.time(), last=0.0, turns=0, reason="", prev="", new=False)
+    mood.update(pid=pid, i=mood_cfg(pid).get("start", 0), since=time.time(), last=0.0, turns=0, reason="", prev="", new=False)
 
 
 def mood_tick(text):
-    """Move the mood for this exchange. Returns True if the character has a mood ladder."""
+    """Move the mood for this exchange. Every character has a ladder, and Astra-9 Lite too."""
     pid = state["persona"]
-    cfg = MOODS.get(pid) if pid else None
+    cfg = mood_cfg(pid)
     if not cfg:
         return False
     now = time.time()
@@ -420,7 +456,7 @@ def mood_tick(text):
         mood["i"] += 1; why = "you cooled off with a little time"
     if mood["i"] != i0:
         mood.update(since=now, turns=0, reason=why, new=True)
-        print("MOOD %s: %s -> %s because %s" % (pid, cfg["stages"][i0]["name"], cfg["stages"][mood["i"]]["name"], why), flush=True)
+        print("MOOD %s: %s -> %s because %s" % (mkey(pid), cfg["stages"][i0]["name"], cfg["stages"][mood["i"]]["name"], why), flush=True)
     else:
         mood["new"] = False
     mood["turns"] += 1
@@ -429,14 +465,15 @@ def mood_tick(text):
 
 
 def mood_block(pid):
-    cfg = MOODS.get(pid) if pid else None
+    cfg = mood_cfg(pid)
     if not cfg or mood["pid"] != pid:
         return ""
     st = cfg["stages"][min(mood["i"], len(cfg["stages"]) - 1)]
     out = " Your mood right now: " + st["feel"]
     if mood["reason"] and mood["new"]:
         out += " It just changed because " + mood["reason"] + "."
-    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it. Your habit: " + cfg.get("habit", "") + " Let it come out when the mood fits it."
+    hab = cfg.get("habit", "")
+    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it." + (" Your habit: " + hab + " Let it come out when the mood fits it." if hab else "")
 
 
 def apply_prompt():
@@ -445,7 +482,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills)
+    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + mood_block(None))
 
 
 def write_eyes(boost=False):
@@ -812,7 +849,7 @@ def personality_main():
 @app.get("/api/memory")
 def memory_get():
     pid = state["persona"]
-    on = pid in MEMORY_PERSONAS
+    on = memory_on()
     return jsonify(enabled=on, notes=load_memory(pid) if on else [])
 
 
@@ -820,8 +857,8 @@ def memory_get():
 def memory_forget():
     """Forget one note (index) or all of them, for the character she is now."""
     pid = state["persona"]
-    if pid not in MEMORY_PERSONAS:
-        return jsonify(error="this character does not keep notes"), 400
+    if not memory_on():
+        return jsonify(error="notes are switched off on this robot"), 400
     d = request.get_json(silent=True) or {}
     with memory_lock:
         notes = load_memory(pid)

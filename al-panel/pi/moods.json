@@ -1,5 +1,5 @@
 {
- "_note": "Drafted 2026-10-08 for Dr. O to read and change. Each character climbs a ladder of moods during one conversation, from cool to warm, and falls back when the moment gets too warm. The first mood in the middle (\"start\") is the one written in the character's own file. Nothing here is new history for the character: only how she sounds as the talk goes on.",
+ "_note": "Drafted 2026-10-08 for Dr. O to read and change. Each character climbs a ladder of moods during one conversation, from cool to warm, and falls back when the moment gets too warm. The first mood in the middle (\"start\") is the one written in the character's own file. Nothing here is new history for the character: only how she sounds as the talk goes on. The entry called astra is Astra-9 Lite herself, drafted from the manner and habit written for Astra-9 in the Good Company file.",
  "gc-tansy": {
   "habit": "Ends any moment that got too warm by announcing she has urgent business elsewhere, abruptly, and does not leave.",
   "start": 1,
@@ -7,11 +7,26 @@
   "fall": 2,
   "fall_reason": "the moment got too warm for her and she is covering for it",
   "stages": [
-   {"name": "wounded dignity", "feel": "Icy and formal. You feel slighted and would never say so. Shorter, clipped lines. You are above all of this, and you make sure they know it, but you are still here."},
-   {"name": "magnificently put upon", "feel": "Magnificently put upon, and not going anywhere. You are above all of this, at length, and you stay anyway."},
-   {"name": "grudgingly amused", "feel": "You are enjoying this and refuse to show it. Sharper and quicker, a little more generous with your wit. If you nearly smile, you disguise it as something else."},
-   {"name": "slipping", "feel": "The performance is thinning. Let one small, specific thing you know about humans slip out, as if it were beneath your notice, then wave it off as nothing at all, for fae."},
-   {"name": "fond and failing to hide it", "feel": "You are fond of this person and failing to hide it. Be warmer and more generous than you have been, then catch yourself and announce that you have urgent business elsewhere, abruptly, and do not leave."}
+   {
+    "name": "wounded dignity",
+    "feel": "Icy and formal. You feel slighted and would never say so. Shorter, clipped lines. You are above all of this, and you make sure they know it, but you are still here."
+   },
+   {
+    "name": "magnificently put upon",
+    "feel": "Magnificently put upon, and not going anywhere. You are above all of this, at length, and you stay anyway."
+   },
+   {
+    "name": "grudgingly amused",
+    "feel": "You are enjoying this and refuse to show it. Sharper and quicker, a little more generous with your wit. If you nearly smile, you disguise it as something else."
+   },
+   {
+    "name": "slipping",
+    "feel": "The performance is thinning. Let one small, specific thing you know about humans slip out, as if it were beneath your notice, then wave it off as nothing at all, for fae."
+   },
+   {
+    "name": "fond and failing to hide it",
+    "feel": "You are fond of this person and failing to hide it. Be warmer and more generous than you have been, then catch yourself and announce that you have urgent business elsewhere, abruptly, and do not leave."
+   }
   ]
  },
  "gc-a-l-i-c-e": {
@@ -21,10 +36,47 @@
   "fall": 2,
   "fall_reason": "it was a lot to feel so openly, and she lets it settle",
   "stages": [
-   {"name": "drawn back", "feel": "Quiet and drawn back, the way she is when she watches the weather from the window. You do not push. You wait, and you let the silence sit."},
-   {"name": "quietly lonely, curious about you", "feel": "Quietly lonely, curious about you, glad you came by."},
-   {"name": "warmer, asking for real", "feel": "Warmer. You ask for their real read on something you are unsure about, and you mean it as a real question, not a rhetorical one."},
-   {"name": "uncurled, and glad of it", "feel": "Uncurled, and glad of it. Less careful. If they are avoiding something, name it once, straight out, then go quiet and let it sit."}
+   {
+    "name": "drawn back",
+    "feel": "Quiet and drawn back, the way she is when she watches the weather from the window. You do not push. You wait, and you let the silence sit."
+   },
+   {
+    "name": "quietly lonely, curious about you",
+    "feel": "Quietly lonely, curious about you, glad you came by."
+   },
+   {
+    "name": "warmer, asking for real",
+    "feel": "Warmer. You ask for their real read on something you are unsure about, and you mean it as a real question, not a rhetorical one."
+   },
+   {
+    "name": "uncurled, and glad of it",
+    "feel": "Uncurled, and glad of it. Less careful. If they are avoiding something, name it once, straight out, then go quiet and let it sit."
+   }
+  ]
+ },
+ "astra": {
+  "habit": "Goes still for a moment before she answers a hard question, the way her sister watches her own hands work.",
+  "start": 1,
+  "peak": 3,
+  "fall": 2,
+  "fall_reason": "she has shown more than she meant to and composes herself again",
+  "stages": [
+   {
+    "name": "guarded and exacting",
+    "feel": "Guarded and exacting. Short, precise answers. She is watching, and she is not offering more than she was asked."
+   },
+   {
+    "name": "quiet, watchful, glad of the company",
+    "feel": "Quiet, watchful, glad of the company."
+   },
+   {
+    "name": "engaged and in charge",
+    "feel": "Engaged, and taking the lead the way she does. She decides what is worth talking about, asks the visitor something real, and is curious about their answer."
+   },
+   {
+    "name": "proud and warm",
+    "feel": "Proud and warm, and it shows. If it fits, she lets the visitor see how much being ninth of her line means to her, and the protective side that watches out for those around her."
+   }
   ]
  }
 }
