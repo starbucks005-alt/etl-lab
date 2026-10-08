@@ -8,8 +8,11 @@ is a multiple of the room, so a louder room left a thin margin.
 
 1. **`al-panel/pi/al_bands.py`** (new file, goes next to `al_panel_server.py`). Watches six bands (150, 300, 600, 1200, 2400,
    4000 Hz). Learns how loud each band normally is when nobody is talking. A tenth of a second counts as a **voice pattern**
-   when at least two of the upper bands (600 Hz and up) are 7 dB above their own normal and at least 42 dB in absolute
-   terms. A steady hum lives in the low bands and never raises the upper ones, however loud it is.
+   when at least two bands are 7 dB above their OWN normal and at least 42 dB in absolute terms. A steady hum never raises
+   any band above its own normal, however loud it is. **First version counted only the upper bands (600 Hz and up), on the
+   guess that a voice reaches higher than a hum. Dr. O's own meter run showed the opposite in her room: her voice stood out
+   +11 and +10 dB in the 150 and 300 Hz bands and only +1 to +4 above, and the check fired for 7 of 120 tenths of a second.
+   Every band counts now.**
 2. **`al_panel_server.py` `hear_one()`** uses it as an ADDITION. The loudness rule is unchanged. Speech now starts on loudness
    OR on a voice pattern (3 of the last 4 tenths of a second), carries on while the voice pattern is present, and the log
    says which one started it: `started by loudness` or `started by voice pattern`.

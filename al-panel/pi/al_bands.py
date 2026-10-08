@@ -1,11 +1,11 @@
 """al_bands: tells a voice from a steady hum by WHERE in the sound the energy is, added 2026-10-07, Dr. O.
 
 Robot Alice heard her only about 15% of the time with a room that had a steady hum. Her ears judged "is someone speaking" by
-loudness against the room, and a hum that is loud takes most of the headroom. A hum lives in the low notes (about 100 to
-500 Hz). A voice has plenty of energy up in the middle and high notes (1,000 to 4,000 Hz), where a hum has almost none.
-So this watches six bands separately, learns how loud each is when nobody is talking, and calls a tenth of a second
-"speechy" when at least two of the upper bands are well above their own normal. A steady hum never raises the upper bands,
-however loud it is.
+loudness against the room, and a hum that is loud takes most of the headroom. A hum lives in a few bands (often the low notes, about 100 to
+500 Hz). A voice spreads over several. So this watches six bands separately, learns how loud each is when nobody is talking,
+and calls a tenth of a second "speechy" when at least two bands are well above their OWN normal. A steady hum never raises
+any band above its own normal, however loud it is or wherever it sits. (First version counted only the upper bands; the real
+meter run in Dr. O's room showed her voice stands out in the LOW bands there, so every band counts now.)
 
 Tried and rejected first: the speech detector used in web calls (webrtcvad). On a test with a steady hum it called the hum
 "speech" in every frame at every strictness setting, because a hum has the same repeating pattern as a voice.
@@ -15,7 +15,7 @@ Pure Python, no extra packages: a second order band pass filter per band, with i
 import math
 
 CENTERS = (150, 300, 600, 1200, 2400, 4000)     # Hz, about an octave apart
-UPPER = 2                                        # bands from this index up (600 Hz and above) are the ones that count
+UPPER = 0                                        # bands from this index up are the ones that count. Was 2 (600 Hz and up), on the guess that a hum sits low and a voice reaches high. Dr. O's own meter run in her room showed the opposite: her voice stood out +11 and +10 dB in the 150 and 300 Hz bands and only +1 to +4 above. Each band is compared with its OWN normal, so a steady hum raises nothing wherever it sits, and any band can count.
 EXCESS_DB = 7.0                                  # how far above its own normal a band must be
 NEEDED = 2                                       # how many upper bands must be raised at once
 MIN_DB = 42.0                                    # and a band must be at least this loud to count (about 125 on the 16 bit scale), so near silence never looks like speech
@@ -53,5 +53,5 @@ def to_db(ms):
 
 
 def speechy(db, floor_db):
-    """True when enough of the upper bands are well above their own normal."""
+    """True when enough bands are well above their own normal."""
     return sum(1 for i in range(UPPER, len(CENTERS)) if db[i] - floor_db[i] >= EXCESS_DB and db[i] >= MIN_DB) >= NEEDED
