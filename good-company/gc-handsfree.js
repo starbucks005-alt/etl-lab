@@ -193,7 +193,14 @@
       forced = String(params.get('listen') || '').toLowerCase();
     } catch (_) {}
 
-    function state(t) { if (o.state) { try { o.state(t); } catch (_) {} } }
+    /* 2026-10-08, Dr. O: the beeping was fixed on the hologram page and not on AR. The code is the same on both, so the status line now
+       says which way of listening this page chose: "site ears" (no beep) or "browser ears" (the Android beep). */
+    function state(t) {
+      if (t && o.state) {
+        var tag = engine === 'server' ? ' (site ears)' : engine === 'browser' ? ' (browser ears)' : '';
+        try { o.state(t + tag); } catch (_) {}
+      } else if (o.state) { try { o.state(t); } catch (_) {} }
+    }
     function say(t) { if (o.say) o.say(t); }
     function gated() { return !!speaking || Date.now() < quietUntil || !!(o.isBusy && o.isBusy()); }
 
