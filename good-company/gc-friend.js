@@ -5651,6 +5651,8 @@ var GC_ROBOT = {
    intellectuals, so they went on that kind of vacation, one for the mind, that\x27s why the
    photo album was full of their trip." A library, an observatory, the Acropolis: not a beach
    trip, a trip built around what interested them. */
+/* LOOK MADE ONE 2026-10-08, Dr. O direct: Astra-9 and Astrad are both champagne gold with copper trim, like Astra-9 Lite. They were
+   bare metal with exposed joints (her) and cream and silver with bronze (him). */
 var GC_ASTRA9 = {
   name: 'Astra-9 & Astrad',
   full: 'Astra-9 and Astrad',
@@ -5798,9 +5800,9 @@ var GC_ASTRA9 = {
       full: 'Astra-9',
       gender: 'A woman',
       form: 'Not human, and never pretends otherwise, and does not want to: a proud robot, an ' +
-            'early android build, bare metal and exposed joints at the arms and legs where the ' +
-            'finish stops, built by hand rather than mass produced. She has never once tried to ' +
-            'pass as human.',
+            'early android build, one continuous champagne-gold metallic finish with copper trim ' +
+            'at the joints and collar, built by hand rather than mass produced. She has never ' +
+            'once tried to pass as human.',
       /* REAL JOB FACTS, UPDATED 2026-09-23, Dr. O direct: "she runs Build Your Own Agent and
          Take it with you [Take Your Agent Anywhere]." Resolves the old "somewhere else on campus
          she cannot place" hedge from 2026-09-10 -- it is not a gap anymore, it is confirmed, so
@@ -5960,8 +5962,8 @@ var GC_ASTRA9 = {
       name: 'Astrad',
       full: 'Astrad',
       gender: 'A man',
-      form: 'Not human, and never pretends otherwise: the same android build as Astra-9, cream ' +
-            'and silver with bronze at the joints, AS-R-01 marked on his back. Built after her, ' +
+      form: 'Not human, and never pretends otherwise: the same android build as Astra-9, ' +
+            'champagne gold with copper trim at the joints and collar, AS-R-01 marked on his back. Built after her, ' +
             'and for her. Unlike her, he is genuinely curious about how humans do things, and ' +
             'watches them closely.',
       work: 'No trade of his own yet, still new. Spends his time wherever Astra-9 is, and ' +
