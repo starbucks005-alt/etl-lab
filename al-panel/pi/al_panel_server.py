@@ -365,13 +365,87 @@ def remember_exchange(said, reply):
         threading.Thread(target=distill_memory, args=(pid, list(memory_turns["recent"])), daemon=True).start()
 
 
+# ---- a mood that moves, added 2026-10-08, Dr. O ----
+# "Tansy was fun, her mood made her fun, but it does not last." A character's mood used to be one fixed line, so after a few minutes
+# there was nothing new. For the characters listed in moods.json the mood now climbs a ladder during one conversation, cool to warm,
+# pushed by what the visitor does and by time, always with a reason, and falls back a step when it peaks. The mood at the "start"
+# rung is the one written in the character's own file. moods.json is read and edited by Dr. O; delete it to turn all of this off.
+try:
+    MOODS = {k: v for k, v in json.load(open(os.path.join(HERE, "moods.json"))).items() if not k.startswith("_")}
+except (OSError, ValueError):
+    MOODS = {}
+mood = {"pid": None, "i": 0, "since": 0.0, "last": 0.0, "turns": 0, "reason": "", "prev": "", "new": False}
+MOOD_IDLE_RESET = 600      # seconds of nobody talking before the mood starts over
+MOOD_DRIFT = 150           # seconds in one mood, with at least two exchanges, before it climbs on its own
+MOOD_PEAK_HOLD = 120       # seconds at the top before she falls back a step
+MOOD_SILENCE = 75          # a pause this long cools her
+WARM_LAUGH = re.compile(r"\b((?:ha ?){2,}|he ?he|lol|that'?s (funny|good)|funny|hilarious|you made me laugh)\b", re.I)
+WARM_KIND = re.compile(r"\b(thank you|thanks|i love (you|that|it)|i like (you|that)|you'?re (great|amazing|wonderful|funny|smart|kind|beautiful)|you are (great|amazing|wonderful|funny|smart|kind|beautiful)|impressive|well said)\b", re.I)
+COOL_RUDE = re.compile(r"\b(boring|stupid|shut up|go away|whatever|don'?t care|who cares)\b", re.I)
+
+
+def mood_reset(pid=None):
+    mood.update(pid=pid, i=(MOODS.get(pid) or {}).get("start", 0), since=time.time(), last=0.0, turns=0, reason="", prev="", new=False)
+
+
+def mood_tick(text):
+    """Move the mood for this exchange. Returns True if the character has a mood ladder."""
+    pid = state["persona"]
+    cfg = MOODS.get(pid) if pid else None
+    if not cfg:
+        return False
+    now = time.time()
+    if mood["pid"] != pid or (mood["last"] and now - mood["last"] > MOOD_IDLE_RESET):
+        mood_reset(pid)
+    top, low = len(cfg["stages"]) - 1, 0
+    norm = re.sub(r"[^a-z0-9 ]", "", (text or "").lower()).strip()
+    i0, why = mood["i"], ""
+    if mood["last"] and now - mood["last"] > MOOD_SILENCE:
+        mood["i"] = max(low, mood["i"] - 1); why = "they went quiet and left you waiting"
+    if WARM_LAUGH.search(text or ""):
+        mood["i"] = min(top, mood["i"] + 1); why = "they made you laugh"
+    elif WARM_KIND.search(text or ""):
+        mood["i"] = min(top, mood["i"] + 1); why = "they were kind to you"
+    elif COOL_RUDE.search(text or ""):
+        mood["i"] = max(low, mood["i"] - 1); why = "they brushed you off"
+    elif norm and norm == mood["prev"]:
+        mood["i"] = max(low, mood["i"] - 1); why = "they asked the same thing again"
+    mood["prev"] = norm
+    held = now - mood["since"]
+    if mood["i"] == i0 and mood["i"] == top and held >= MOOD_PEAK_HOLD:
+        mood["i"] = cfg.get("fall", max(low, top - 1)); why = cfg.get("fall_reason", "the moment got too warm")
+    elif mood["i"] == i0 and mood["i"] < top and held >= MOOD_DRIFT and mood["turns"] >= 2:
+        mood["i"] += 1; why = "the conversation kept going and you were drawn in"
+    elif mood["i"] == i0 and mood["i"] < cfg.get("start", 0) and held >= 90:
+        mood["i"] += 1; why = "you cooled off with a little time"
+    if mood["i"] != i0:
+        mood.update(since=now, turns=0, reason=why, new=True)
+        print("MOOD %s: %s -> %s because %s" % (pid, cfg["stages"][i0]["name"], cfg["stages"][mood["i"]]["name"], why), flush=True)
+    else:
+        mood["new"] = False
+    mood["turns"] += 1
+    mood["last"] = now
+    return True
+
+
+def mood_block(pid):
+    cfg = MOODS.get(pid) if pid else None
+    if not cfg or mood["pid"] != pid:
+        return ""
+    st = cfg["stages"][min(mood["i"], len(cfg["stages"]) - 1)]
+    out = " Your mood right now: " + st["feel"]
+    if mood["reason"] and mood["new"]:
+        out += " It just changed because " + mood["reason"] + "."
+    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it. Your habit: " + cfg.get("habit", "") + " Let it come out when the mood fits it."
+
+
 def apply_prompt():
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"] if not (persona and s == "tour"))
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills + memory_block(state["persona"])) if persona else (BASE_PROMPT + skills)
+    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills)
 
 
 def write_eyes(boost=False):
@@ -540,6 +614,8 @@ def header_value(name):
 
 
 def context_for(text):
+    if mood_tick(text):
+        apply_prompt()          # the mood may have moved, so the character's instructions are rebuilt before she answers
     hist = state["history"][-6:]
     if not hist:
         return text
@@ -707,6 +783,7 @@ def personality():
     state["persona"] = pid
     state["history"] = []   # a new character should not inherit the last one's turns
     memory_turns.update(n=0, recent=[])
+    mood_reset(pid)
     apply_prompt()
     ask = "Say hello to the visitor in one short sentence."
     try:
@@ -826,6 +903,7 @@ def shut_down():
 def reset():
     """Start fresh for the next person: forget the chat, the skills, and go back to default voice and eyes."""
     state.update(color="#1fb7c9", brightness=40, accent="robot", skills=[], persona=state["main"], history=[], log=[])
+    mood_reset(state["main"])
     apply_prompt()
     write_eyes()
     return jsonify(ok=True)
