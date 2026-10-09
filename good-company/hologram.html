@@ -106,7 +106,7 @@
             Look at it from the side, not from above.</li>
       </ol>
       <p>If one side looks upside down, tap the screen and use "Turn the sides". If it looks backwards, use "Mirror".
-         Use "Middle gap" so the pyramid sits over the black centre, and "Size" until each side fills its face.</p>
+         Use "Middle gap" so the pyramid sits over the black center, and "Size" until each side fills its face.</p>
     </details>
   </div>
 </div>
@@ -130,7 +130,7 @@
   <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
-  <button id="bVoice" type="button" style="display:none">Her voice: on</button>
+  <button id="bVoice" type="button" style="display:none">Voice: on</button>
   <button id="bTurn" type="button">Turn the sides</button>
   <button id="bMirror" type="button">Mirror</button>
   <button id="bRot" type="button">Turn her</button>
@@ -253,6 +253,15 @@
       "Astrad",
       "video/astrad-ar-color-v2.mp4",
       "video/astrad-ar-matte-v2.mp4"
+    ],
+    /* DR. DUFFY (Kevin Duffy), added 2026-10-09. A My Echo person, not a Good Company companion. These
+       two files are copies of MY_ECHO/video/kevin-duffy-ar-color.mp4 and -matte.mp4 (checked identical).
+       The My Echo site does not let other sites read its videos, so this page cannot load them from
+       there. If he is ever re-exported, update both places. Key 'duffy' is what button 4 sends. */
+    "duffy": [
+      "Dr. Duffy",
+      "video/kevin-duffy-ar-color.mp4",
+      "video/kevin-duffy-ar-matte.mp4"
     ]
   };
 
@@ -370,7 +379,7 @@
         drawSingle(size);
       } else {
         var B = S * 0.5 * size;           /* the box for one side */
-        var r = gap + B / 2;              /* distance from the middle to the centre of a side */
+        var r = gap + B / 2;              /* distance from the middle to the center of a side */
         var t = Math.PI / 2 * turn;
         /* head toward the middle, feet toward the outside edge (see the note at the top) */
         drawView(S / 2,     S / 2 + r, B, 0);
@@ -452,6 +461,23 @@
   var chatWho = null, chatHistory = [], chatBusy = false, voiceOn = true, YOU = null, GC_VOICE_CTX = null;
   /* She remembers a visitor by the browser's visitor id, the way built companions do (gc-chat.js, _gc-demo-memory.js). ?memory=off in the address turns it off, for a shared screen. */
   var MEMORY_ON = !/[?&]memory=off\b/.test(location.search);
+  /* TERRY AND DR. DUFFY, added 2026-10-09, Dr. O: "add both Kevin and terry there" and "they ALL get talk
+     controls". They are My Echo people, so their chat and voice go to My Echo's own me-chat and me-voice
+     (my-echo.me), the same calls My Echo's ar.html makes with client_key. Both functions already answer
+     other sites (the Greylander Living Library calls me-chat the same way). My Echo keeps its own memory
+     of a visitor, so the Good Company memory line and Forget button stay off for them. */
+  var ME_BASE = 'https://my-echo.me/.netlify/functions/';
+  var ECHO_KEY = { terry: 'terry', duffy: 'kevin-duffy' };
+  var meScales = null, TESTER_KEY = '';
+  /* TESTER KEY, same shape and localStorage slot as My Echo's own ar.html. Open this page once on the tablet
+     as hologram.html?testkey=THEKEY and it is remembered there. It is never in the page or the repository.
+     With it My Echo does not count Terry's messages against her free daily limit. Without it nothing breaks,
+     the limit simply applies (see sendEcho). */
+  try {
+    var tkParam = new URLSearchParams(location.search).get('testkey');
+    if (tkParam) { TESTER_KEY = tkParam.trim(); localStorage.setItem('me_tester_key', TESTER_KEY); }
+    else { TESTER_KEY = localStorage.getItem('me_tester_key') || ''; }
+  } catch (_) {}
   var chatForm = document.getElementById('holoChat'), chatInput = document.getElementById('holoInput');
   var chatSend = document.getElementById('holoSend'), replyEl = document.getElementById('holoReply');
   var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
@@ -477,6 +503,7 @@
   }
 
   function speakReply(text) {
+    if (chatWho && chatWho.echo) return speakEcho(text);
     var voiceId = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
     if (!voiceOn || !voiceId) return;
     fetch('/.netlify/functions/gc-voice', {
@@ -500,13 +527,13 @@
   }
 
   function setupChat() {
-    chatWho = chatIdentity(who.value);
-    chatHistory = []; chatBusy = false; showReply('');
+    chatWho = ECHO_KEY[who.value] ? { echo: ECHO_KEY[who.value] } : chatIdentity(who.value);
+    chatHistory = []; chatBusy = false; meScales = null; showReply('');
     chatForm.classList.toggle('on', !!chatWho);
     bVoice.style.display = chatWho ? '' : 'none';
     hf.setAvailable(!!chatWho);
-    if (chatWho) YOU = gcLoadYou();
-    var remembers = !!chatWho && MEMORY_ON && !(chatWho.speaker || chatWho.friend).id;
+    if (chatWho && !chatWho.echo) YOU = gcLoadYou();
+    var remembers = !!chatWho && !chatWho.echo && MEMORY_ON && !(chatWho.speaker || chatWho.friend).id;
     document.getElementById('holoMemory').style.display = remembers ? '' : 'none';
     if (remembers) document.getElementById('holoMemoryText').textContent = COMPANIONS[who.value][0] + ' remembers you in this browser.';
   }
@@ -520,12 +547,109 @@
   }
 
 
+  /* MY ECHO'S SPOKEN REPLY, in short pieces: a long reply takes its voice past the server's 8 second wall
+     and comes back silent (see MY_ECHO/ar.html splitForVoice for the whole story). Every piece goes
+     through the same boost and the same hands-free "she is talking" hook as the Good Company voices, so
+     switching person does not change how loud they are and the mic stays quiet while they speak. */
+  function splitForVoice(text) {
+    var MAX = 90;
+    text = String(text || '').trim();
+    if (text.length <= MAX) return [text];
+    var sentences = text.match(/[^.!?\u2026]+[.!?\u2026]+["'\u201d\u2019)]*\s*|[^.!?\u2026]+$/g) || [text];
+    var out = [], cur = '';
+    sentences.forEach(function (s) {
+      if (cur && (cur + s).length > MAX) { out.push(cur.trim()); cur = ''; }
+      cur += s;
+    });
+    if (cur.trim()) out.push(cur.trim());
+    var parts = [];
+    out.forEach(function (c) {
+      while (c.length > MAX * 1.2) {
+        var cut = c.lastIndexOf(', ', MAX);
+        if (cut < 40) cut = c.lastIndexOf(' ', MAX);
+        if (cut < 40) cut = MAX;
+        parts.push(c.slice(0, cut + 1).trim());
+        c = c.slice(cut + 1);
+      }
+      if (c.trim()) parts.push(c.trim());
+    });
+    return parts;
+  }
+
+  var echoVoiceGen = 0;
+  function speakEcho(text) {
+    if (!voiceOn || !chatWho || !chatWho.echo) return;
+    var gen = ++echoVoiceGen, key = chatWho.echo, pieces = splitForVoice(text);
+    function fetchPiece(i, isRetry) {
+      return fetch(ME_BASE + 'me-voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: pieces[i], chunk: i, client_key: key })
+      }).then(function (r) {
+        if (!r.ok) throw new Error('voice_failed');
+        return r.blob();
+      }).catch(function (err) {
+        if (!isRetry) return fetchPiece(i, true);
+        throw err;
+      });
+    }
+    var fetched = pieces.map(function (_, i) { var p = fetchPiece(i, false); p.catch(function () {}); return p; });
+    function playPiece(i) {
+      if (gen !== echoVoiceGen || i >= pieces.length) return;
+      fetched[i].then(function (blob) {
+        if (gen !== echoVoiceGen) return;
+        var url = URL.createObjectURL(blob), a = new Audio(url), fired = false;
+        function next() { if (fired) return; fired = true; URL.revokeObjectURL(url); playPiece(i + 1); }
+        gcBoostVoice(a);
+        hf.speakingStart(a);
+        a.addEventListener('ended', next); a.addEventListener('error', next);
+        a.play().catch(next);
+      }).catch(function () { /* a piece that will not come back ends the spoken reply there */ });
+    }
+    playPiece(0);
+  }
+
+  function sendEcho(text) {
+    /* NO VISITOR ID IS SENT, ON PURPOSE. My Echo treats it as the name the guest gave ("they introduced
+       themselves as ..."), so a made-up id has Terry greeting somebody as "holo-7yzgrz8o". Found by
+       sending one real test message on 2026-10-09. The cost: with no id My Echo counts a public Echo's
+       free daily messages per connection, and at an event every guest shares the venue's Wi-Fi, so
+       Terry has one shared allowance for the whole room. Dr. Duffy's Echo is uncapped. The tester key
+       (see TESTER_KEY above) lifts it for Terry on this tablet. */
+    chatHistory.push({ role: 'user', content: text });
+    fetch(ME_BASE + 'me-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_key: chatWho.echo, message: text, history: chatHistory.slice(-20),
+        scales: meScales, tester_key: TESTER_KEY || undefined
+      })
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      chatBusy = false; chatSend.disabled = false;
+      var raw = (res && res.reply) || "I'm not sure what to say to that.";
+      /* Plumbing, not words: a reply can carry [[NEXT]] and [[SPEAKER:x]] markers, same strip as ar.html. */
+      var parts = raw.split(/\n?\[\[NEXT\]\]\n?/).map(function (p) {
+        return p.replace(/^\s*\[\[SPEAKER:[a-z0-9_-]+\]\]\s*/i, '').trim();
+      }).filter(Boolean);
+      if (!parts.length) parts = [raw];
+      var reply = parts.join(' ');
+      chatHistory.push({ role: 'assistant', content: reply });
+      if (res && res.scales) meScales = res.scales;
+      showReply(reply);
+      speakReply(reply);
+    }).catch(function () {
+      chatBusy = false; chatSend.disabled = false;
+      showReply('That did not send. Try again in a moment.');
+    });
+  }
+
   chatForm.addEventListener('submit', function (e) {
     e.preventDefault();
     var text = chatInput.value.trim();
     if (!text || chatBusy || !chatWho) return;
     chatBusy = true; chatSend.disabled = true;
     chatInput.value = '';
+    if (chatWho.echo) return sendEcho(text);
     var herName = COMPANIONS[who.value][0];
     chatHistory.push({ who: YOU.name || 'You', text: text, mine: true });
     showReply('...');
@@ -560,7 +684,8 @@
 
   bVoice.addEventListener('click', function () {
     voiceOn = !voiceOn;
-    bVoice.textContent = voiceOn ? 'Her voice: on' : 'Her voice: off';
+    if (!voiceOn) echoVoiceGen++;
+    bVoice.textContent = voiceOn ? 'Voice: on' : 'Voice: off';
   });
 
   /* The browser's own speech recognition: no audio leaves the device for the listening half, no
@@ -591,8 +716,8 @@
   }
 
   /* BUTTONS ON THE BOX, added 2026-10-09, Dr. O: five physical buttons, wired to a small board that types a key, each choosing one hologram.
-     1 = A.L.I.C.E., 2 = Tansy, 3 = Reggie, 4 = Dr. Duffy, 5 = Terry (the lab). Dr. Duffy has no hologram videos on this page yet, so button 4
-     says so instead of doing nothing. Pressing the key for the one already showing does nothing. Not tried with the real board. */
+     1 = A.L.I.C.E., 2 = Tansy, 3 = Reggie, 4 = Dr. Duffy, 5 = Terry (the lab). Dr. Duffy's two videos were added here
+     2026-10-09 (see COMPANIONS), so button 4 now plays him. Pressing the key for the one already showing does nothing. Not tried with the real board. */
   var KEYS = { '1': 'alice', '2': 'tansy', '3': 'reggie', '4': 'duffy', '5': 'terry' };
   document.addEventListener('keydown', function (e) {
     var t = e.target && e.target.tagName;
