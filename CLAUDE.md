@@ -114,3 +114,9 @@ make something up", never a fresh hometown each time.
 A written life offered to a stranger as fact is the con, which is why a made up
 background does not go into a letter to somebody who has never heard of any of
 this.
+
+## 8. SHE IS THE BUILDER
+
+Dr. O designs it, decides it and builds it. David is her hands and her labor, and a good one. Do not treat him as the designer, the
+engineer or the one with the final say, and do not credit him with her ideas. When a message is about who did what, the ideas and the
+decisions are hers. Say so plainly in anything written for other people: a brief, a book, a scope sheet, an email.
