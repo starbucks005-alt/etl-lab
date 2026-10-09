@@ -590,6 +590,25 @@
     });
   }
 
+  /* BUTTONS ON THE BOX, added 2026-10-09, Dr. O: five physical buttons, wired to a small board that types a key, each choosing one hologram.
+     1 = A.L.I.C.E., 2 = Tansy, 3 = Reggie, 4 = Dr. Duffy, 5 = Terry (the lab). Dr. Duffy has no hologram videos on this page yet, so button 4
+     says so instead of doing nothing. Pressing the key for the one already showing does nothing. Not tried with the real board. */
+  var KEYS = { '1': 'alice', '2': 'tansy', '3': 'reggie', '4': 'duffy', '5': 'terry' };
+  document.addEventListener('keydown', function (e) {
+    var t = e.target && e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || e.ctrlKey || e.altKey || e.metaKey) return;
+    var k = KEYS[e.key];
+    if (!k) return;
+    if (!COMPANIONS[k]) {
+      if (running) { showReply('That hologram is not made yet.'); setTimeout(function () { showReply(''); }, 4000); }
+      return;
+    }
+    if (running && who.value === k) return;
+    who.value = k;
+    if (running) back();
+    start();
+  });
+
   document.getElementById('go').addEventListener('click', start);
   document.getElementById('bBack').addEventListener('click', back);
   document.getElementById('bTurn').addEventListener('click', function () { turn = -turn; });
