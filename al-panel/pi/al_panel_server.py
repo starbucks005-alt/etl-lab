@@ -1053,7 +1053,7 @@ def say():
     if not text:
         return jsonify(error="empty"), 400
     try:
-        reply = al.get_al_reply(context_for(text))
+        reply = get_reply(context_for(text), short=False)
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
@@ -1317,6 +1317,55 @@ def shorten(reply, sentences=2, chars=190):
     return out
 
 
+# 2026-10-10, Dr. O: "I hate repeated anything." The prompts ask for variety and the model still slips, so this checks the reply
+# before it is spoken: any run of three words that already appeared in her last few replies, or an opening word she has used
+# on most of her last few turns, sends it back once to be said differently. One retry, so it costs time only when it repeats.
+REPEAT_WORDS = re.compile(r"[a-z0-9']+")
+FILLER = {"the", "and", "you", "that", "this", "with", "for", "are", "was", "but", "not", "have", "what", "your", "its", "it's", "i'm", "i", "a", "to", "of", "in", "is", "it", "me", "my", "do", "so", "on", "as", "at", "be", "we", "he", "she", "they"}
+
+
+def _words(t):
+    return REPEAT_WORDS.findall((t or "").lower())
+
+
+def repeated_bits(reply, recent=None, k=3):
+    """Phrases (k words) in this reply that were already said in her last replies, and her opening word if she keeps using it."""
+    if recent is None:
+        recent = [e["text"] for e in state["log"] if e.get("who") == "al"][-6:]
+    seen = set()
+    for r in recent:
+        w = _words(r)
+        for i in range(len(w) - k + 1):
+            seen.add(tuple(w[i:i + k]))
+    w, out = _words(reply), []
+    for i in range(len(w) - k + 1):
+        g = tuple(w[i:i + k])
+        if g in seen and sum(1 for x in g if x not in FILLER) >= 2 and " ".join(g) not in out:
+            out.append(" ".join(g))
+    first = w[0] if w else ""
+    openings = [(_words(r) or [""])[0] for r in recent[-4:]]
+    if first and first not in FILLER and openings.count(first) >= 2:
+        out.append(first)
+    return out[:4]
+
+
+def get_reply(ask, short=True):
+    """al.get_al_reply, once more with the repeats named if the first answer repeated her."""
+    reply = al.get_al_reply(ask)
+    reply = shorten(reply) if short else reply
+    bad = repeated_bits(reply)
+    if bad:
+        try:
+            again = al.get_al_reply(ask + " (Say it a different way. You already used these words or phrases, so do not use them again: " + "; ".join('"%s"' % b for b in bad) + ".)")
+            again = shorten(again) if short else again
+            if len(repeated_bits(again)) < len(bad):
+                print("REPEAT sent back once, was: %s" % "; ".join(bad), flush=True)
+                return again
+        except Exception as e:
+            print("REPEAT retry failed:", e, flush=True)
+    return reply
+
+
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
     t0 = time.time()
@@ -1327,7 +1376,7 @@ def answer_and_say(text):
         state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
         speak_now(spoken)
         return reply
-    reply = shorten(al.get_al_reply(context_for(text)))
+    reply = get_reply(context_for(text))
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
@@ -1538,7 +1587,7 @@ def listen_once():
         if not heard:
             return {"heard": "", "reply": ""}, 200
         try:
-            reply = shorten(al.get_al_reply(context_for(heard)))
+            reply = get_reply(context_for(heard))
         except Exception as e:
             return {"error": str(e)[:200], "heard": heard}, 502
         state["history"].append('They said "%s" and you said "%s".' % (heard, reply))

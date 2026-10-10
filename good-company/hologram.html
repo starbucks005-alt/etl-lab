@@ -11,6 +11,20 @@
 <script>
 /* WHY THERE IS NO ANSWER, added 2026-10-10, Dr. O: "I am not sure what to say to that" hid the real reason for an hour. The site says why
    (owner key refused, free messages used up, a fault); this puts that in words, and still falls back to the old line when it says nothing. */
+function gcRepeatedBits(reply, recent) {
+  var FILLER = {the:1,and:1,you:1,that:1,this:1,with:1,for:1,are:1,was:1,but:1,not:1,have:1,what:1,your:1,its:1,"it's":1,"i'm":1,i:1,a:1,to:1,of:1,"in":1,is:1,it:1,me:1,my:1,"do":1,so:1,on:1,as:1,at:1,be:1,we:1,he:1,she:1,they:1};
+  function words(t) { return (String(t || '').toLowerCase().match(/[a-z0-9']+/g)) || []; }
+  var seen = {}, i, k = 3;
+  recent.forEach(function (r) { var w = words(r); for (i = 0; i + k <= w.length; i++) seen[w.slice(i, i + k).join(' ')] = 1; });
+  var w2 = words(reply), out = [];
+  for (i = 0; i + k <= w2.length; i++) {
+    var g = w2.slice(i, i + k), key = g.join(' ');
+    if (seen[key] && g.filter(function (x) { return !FILLER[x]; }).length >= 2 && out.indexOf(key) < 0) out.push(key);
+  }
+  var first = w2[0] || '', opens = recent.slice(-4).map(function (r) { return words(r)[0] || ''; });
+  if (first && !FILLER[first] && opens.filter(function (o) { return o === first; }).length >= 2) out.push(first);
+  return out.slice(0, 4);
+}
 function gcNoReplyWhy(res) {
   if (!res) return "I did not get an answer from the site. Check the connection and try again.";
   if (res.owner_key_rejected) return "The site did not accept the owner key saved in this browser, so it counted you as a visitor. Open this page once with ?key= and your key on the end.";
@@ -717,18 +731,31 @@ function gcNoReplyWhy(res) {
     var herName = COMPANIONS[who.value][0];
     chatHistory.push({ who: YOU.name || 'You', text: text, mine: true });
     showReply('...');
-    fetch('/.netlify/functions/gc-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        friend: chatWho.friend, speaker: chatWho.speaker,
-        you: { name: YOU.name, pronouns: YOU.pronouns },
-        messages: chatHistory, message: text + sisNote, scene: null, guest_cameo: null, is_demo: true,
-        visitor_id: GC_visitorId(), access_token: GC_accessToken(),
-        owner_key: GC_ownerKey(), tester_key: GC_testerKey(),
-        remember: MEMORY_ON
-      })
-    }).then(function (r) { return r.json(); }).then(function (res) {
+    var sentHistory = chatHistory.slice();
+    function postChat(msg) {
+      return fetch('/.netlify/functions/gc-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          friend: chatWho.friend, speaker: chatWho.speaker,
+          you: { name: YOU.name, pronouns: YOU.pronouns },
+          messages: sentHistory, message: msg, scene: null, guest_cameo: null, is_demo: true,
+          visitor_id: GC_visitorId(), access_token: GC_accessToken(),
+          owner_key: GC_ownerKey(), tester_key: GC_testerKey(),
+          remember: MEMORY_ON
+        })
+      }).then(function (r) { return r.json(); });
+    }
+    /* NO REPEATS, added 2026-10-10, Dr. O: "I hate repeated anything." A reply that repeats words from her last few replies is sent back
+       once to be said differently. Same rule as Astra Lite's own check; the retry is used only if it repeats less. */
+    var heardBefore = chatHistory.filter(function (m) { return !m.mine; }).slice(-6).map(function (m) { return m.text; });
+    postChat(text + sisNote).then(function (res) {
+      var bad = res && res.reply ? gcRepeatedBits(res.reply, heardBefore) : [];
+      if (!bad.length) return res;
+      return postChat(text + sisNote + '\n\n[Say it a different way. You already used these words or phrases, so do not use them again: ' + bad.map(function (b) { return '"' + b + '"'; }).join('; ') + '.]')
+        .then(function (again) { return (again && again.reply && gcRepeatedBits(again.reply, heardBefore).length < bad.length) ? again : res; })
+        .catch(function () { return res; });
+    }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
       var reply = (res && res.reply) || gcNoReplyWhy(res);
       chatHistory.push({ who: herName, text: reply, mine: false });
