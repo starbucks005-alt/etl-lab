@@ -127,7 +127,7 @@
   <!-- MEMORY, added 2026-10-07, Dr. O: house characters remember a visitor by their browser, as the built companions do. -->
   <span id="holoMemory" style="display:none;font-size:.8rem;color:#b7ab98;"><span id="holoMemoryText"></span> <button id="bForget" type="button">Forget me</button></span>
   <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
-  <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Elle names who is with her. -->
+  <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Name1,Name2 names who is with her (it asks when you start if the address has none). -->
   <button id="bSisters" type="button" style="display:none">Let them talk</button>
   <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
   <button id="bBack" type="button">Back</button>
@@ -487,10 +487,10 @@
      a reply ends by speaking to one of them, and only the one named answers. This page also waits a beat (YIELD_MS) before it
      answers, and drops the answer if it hears someone start talking in that beat, so Astra (who does not wait) keeps the floor.
      Not tried with the real speakers yet. */
-  var SIS = { on: false, turns: 0, max: 12, others: ['Elle'], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
+  var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
   var YIELD_MS = 1500, SIS_GAP_MS = 9000;
   var SIS_STOP = /\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b/i;
-  try { var wParam = new URLSearchParams(location.search).get('with'); if (wParam) SIS.others = wParam.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4); } catch (_) {}
+  try { var wParam = new URLSearchParams(location.search).get('with'); if (wParam) { SIS.others = wParam.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4); SIS.fixed = true; } } catch (_) {}
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
                          isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); },
                          state: function (t) { document.getElementById('bHandsState').textContent = t; if (/^Hearing/.test(t)) { SIS.hearingAt = Date.now(); SIS.lastActive = Date.now(); } },
@@ -674,7 +674,7 @@
         return;
       }
       SIS.release = false; SIS.turns++;
-      sisNote = '\n\n[Right now you are talking with ' + SIS.others.join(' and ') + ', who are other characters in the room, not visitors. The robot sister is called Elle. Reply in one or two short sentences. Say something new: a question, a small story, a gentle disagreement. End by speaking to one of them by name, because only the one you name will answer.]';
+      sisNote = '\n\n[Right now you are talking with ' + SIS.others.join(' and ') + ', who are other characters in the room, not visitors. Reply in one or two short sentences. Say something new: a question, a small story, a gentle disagreement. End by speaking to one of them by name, because only the one you name will answer.]';
       if (SIS.turns >= SIS.max) setTimeout(function () { sisStop('turn limit'); }, 20000);   // after this last line has been spoken
     }
     chatBusy = true; chatSend.disabled = true;
@@ -757,11 +757,19 @@
   function sisPaint() { bSisters.textContent = SIS.on ? 'End the talk' : 'Let them talk'; bSisters.classList.toggle('listening', SIS.on); }
   function sisStop(why) {
     if (!SIS.on) return;
+    if (!SIS.fixed) SIS.others = [];
     SIS.on = false; SIS.wait = false; SIS.release = false; clearInterval(SIS.timer); sisPaint();
     document.getElementById('bHandsState').textContent = 'The talk ended (' + why + ')';
   }
   function sisStart() {
     if (!chatWho || chatWho.echo) { showReply('This one talks through My Echo, so it cannot join the sisters yet.'); return; }
+    if (!SIS.others.length) {                                          // asked, not fixed: any characters can be in the talk
+      var saved = ''; try { saved = localStorage.getItem('gc_sisters_with') || ''; } catch (_) {}
+      var ans = window.prompt('Who is talking with her? Use the names they answer to, separated by commas.', saved);
+      if (!ans) return;
+      SIS.others = ans.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4);
+      try { localStorage.setItem('gc_sisters_with', SIS.others.join(', ')); } catch (_) {}
+    }
     SIS.on = true; SIS.turns = 0; SIS.lastActive = Date.now(); SIS.hearingAt = 0; sisPaint();
     if (!bHands.classList.contains('listening')) bHands.click();       // the ears have to be on for this
     SIS.timer = setInterval(function () {                              // nobody has spoken for a while: she says something to the next one

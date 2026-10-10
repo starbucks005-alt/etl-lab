@@ -499,7 +499,7 @@ def mood_block(pid):
 # the one named answers. If nobody has spoken for SISTER_GAP seconds, Astra (first in the order) speaks into the silence.
 # Not tested with the real speakers yet; the first run on the real devices is the test.
 SISTER_GAP = 6.0
-sisters = {"on": False, "others": [], "turns": 0, "max": 12, "started": 0.0}
+sisters = {"on": False, "me": "Elle", "others": [], "turns": 0, "max": 12, "started": 0.0}
 STOP_TALK_RE = re.compile(r"\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b", re.I)
 
 
@@ -510,7 +510,7 @@ def sisters_block():
     names = ", ".join(others) if others else "the others"
     return (" Right now you are talking with " + names + ", who are other characters in the room, not visitors. Keep every turn to one or two "
             "short sentences. Say something new each time: a question, a small story, a gentle disagreement, something you noticed. "
-            "Your sisters call you Elle, so speak to them by the names given here and expect to be called Elle. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said.")
+            "In this talk you are called " + sisters["me"] + ", so expect to be called that, and speak to the others by the names given here. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said.")
 
 
 def apply_prompt():
@@ -956,25 +956,26 @@ def sisters_stop(why=""):
 
 @app.get("/api/sisters")
 def sisters_get():
-    return jsonify(on=sisters["on"], others=sisters["others"], turns=sisters["turns"], max=sisters["max"])
+    return jsonify(on=sisters["on"], name=sisters["me"], others=sisters["others"], turns=sisters["turns"], max=sisters["max"])
 
 
 @app.post("/api/sisters")
 def sisters_set():
-    """Start or stop the talk between her and the other characters. Body: {on: true, with: ["Alice"], max: 12}."""
+    """Start or stop the talk between her and the other characters. Body: {on: true, name: "Elle", with: ["Alice"], max: 12}."""
     d = request.get_json(silent=True) or {}
     if not d.get("on"):
         sisters_stop("stopped from the panel")
         return jsonify(ok=True, on=False)
+    me = re.sub(r"[^A-Za-z0-9 .\-]", "", str(d.get("name") or "Elle")).strip()[:30] or "Elle"
     others = [re.sub(r"[^A-Za-z0-9 .\-]", "", str(n)).strip()[:30] for n in (d.get("with") or [])]
-    others = [n for n in others if n][:4]
+    others = [n for n in others if n and n.lower() != me.lower()][:4]
     if not others:
-        return jsonify(error="Say who she is talking with"), 400
+        return jsonify(error="Say who she is talking with, and give them a different name from hers"), 400
     try:
         mx = max(2, min(40, int(d.get("max") or 12)))
     except (TypeError, ValueError):
         mx = 12
-    sisters.update(on=True, others=others, turns=0, max=mx, started=time.time())
+    sisters.update(on=True, me=me, others=others, turns=0, max=mx, started=time.time())
     apply_prompt()
 
     def go():
@@ -1055,9 +1056,13 @@ def wake_name_re():
     """Her own names, plus the name of the character she has taken on. 2026-10-07: with the A.L.I.C.E. character loaded,
     "Hello, Alice" was heard three times in a row and ignored, because only the Astra names woke her."""
     p = PERSONAS.get(state["persona"]) if state["persona"] else None
-    # 2026-10-10: while she talks with her sisters only "Elle" is HER name. "Astra" belongs to the hologram (Astra-9), so a
-    # name said to a sister does not wake both of them.
-    base = re.compile(r"\b(elle|8l|al)\b", re.I) if sisters["on"] else NAME_RE
+    # 2026-10-10: while she talks with the others only the name chosen for the talk is HER name, so a name said to one of them
+    # does not wake all of them. The names are picked when the talk starts, so any pair or trio of characters can use it.
+    if sisters["on"]:
+        mine = [w for w in re.sub(r"[^A-Za-z0-9 ]", " ", sisters["me"]).split() if len(w) > 1] or ["Elle"]
+        base = re.compile(r"\b(" + "|".join(re.escape(w) for w in mine) + r")\b", re.I)
+    else:
+        base = NAME_RE
     if not p:
         return base
     n = p.get("name", "")

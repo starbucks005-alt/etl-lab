@@ -271,9 +271,9 @@
       <!-- LET THEM TALK, added 2026-10-10: she talks with the other characters (the hologram, later Astrad and Astra-9) without anyone stepping in.
            Nothing connects the devices; they hear each other, and the one named answers. Say "that's enough" to end it. -->
       <div class="row" id="sistersRow" style="margin-top:10px;display:none">
-        <input id="sistersWith" type="text" value="Alice" style="max-width:220px" aria-label="Who is she talking with">
+        <label class="hint" style="margin:0">Her name in the talk <input id="sistersMe" type="text" value="Elle" style="max-width:120px"></label> <label class="hint" style="margin:0">Talking with <input id="sistersWith" type="text" value="Alice" style="max-width:220px" aria-label="Who is she talking with"></label>
         <button id="sistersBtn">Let them talk</button>
-        <span class="hint" id="sistersStatus" style="margin:0">Type who is with her (for example Alice, or Alice and Astrad). She opens, and they pass the turn by name. Say "that's enough" or press again to end it.</span>
+        <span class="hint" id="sistersStatus" style="margin:0">Give each one a different name, and use the same names on the other devices. She opens, and they pass the turn by name. Say "that's enough" or press again to end it.</span>
       </div>
     </section>
 
@@ -864,7 +864,7 @@
     var on = false, b = $('sistersBtn'), msg = $('sistersStatus');
     function paint(){ b.textContent = on ? 'End the talk' : 'Let them talk'; }
     b.addEventListener('click', function(){
-      var body = on ? {on:false} : {on:true, 'with': $('sistersWith').value.split(/,| and /i).map(function(x){ return x.trim(); }).filter(Boolean)};
+      var body = on ? {on:false} : {on:true, name:$('sistersMe').value.trim(), 'with': $('sistersWith').value.split(/,| and /i).map(function(x){ return x.trim(); }).filter(Boolean)};
       fetch('/api/sisters', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
         .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
         .then(function(x){
