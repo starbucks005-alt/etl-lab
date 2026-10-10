@@ -139,6 +139,8 @@ function gcNoReplyWhy(res) {
   <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
   <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Name1,Name2 names who is with her (it asks when you start if the address has none). -->
   <button id="bSisters" type="button" style="display:none">Let them talk</button>
+  <!-- ACCENT, added 2026-10-10, Dr. O: "can the hologram Astra change her accent?" The same five voices and the same saved choice as the room page (gc_voice_style). Only shown for a character that has them (Astra-9, Astrad). -->
+  <button id="bAccent" type="button" style="display:none">Voice: Robot</button>
   <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
@@ -522,10 +524,32 @@ function gcNoReplyWhy(res) {
     } catch (e) { /* audioEl still plays at its own volume */ }
   }
 
+  var ACCENTS = ['robot', 'american', 'swedish', 'british', 'indian'];
+  var ACCENT_LABELS = { robot: 'Robot', american: 'American', swedish: 'Swedish', british: 'British', indian: 'Indian' };
+  function getAccent() { try { var a = localStorage.getItem('gc_voice_style'); return ACCENTS.indexOf(a) > -1 ? a : 'robot'; } catch (_) { return 'robot'; } }
+  function accentOptions() {
+    if (!chatWho || chatWho.echo) return null;
+    var id = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
+    var maps = [chatWho.speaker && chatWho.speaker.voiceOptions, chatWho.friend && chatWho.friend.voiceOptions];
+    for (var i = 0; i < maps.length; i++) { if (maps[i] && maps[i].robot === id) return maps[i]; }
+    var cs = (chatWho.friend && chatWho.friend.companions) || {};           // Astra-9's own voices sit on her companion entry
+    for (var k in cs) { if (cs[k] && cs[k].voiceOptions && cs[k].voiceOptions.robot === id) return cs[k].voiceOptions; }
+    return null;
+  }
+  function accentVoice(id) { var o = accentOptions(), a = getAccent(); return (o && a !== 'robot' && o[a]) || id; }
+  function accentPaint() { var b = document.getElementById('bAccent'); b.style.display = accentOptions() ? '' : 'none'; b.textContent = 'Voice: ' + ACCENT_LABELS[getAccent()]; }
+  document.getElementById('bAccent').addEventListener('click', function () {
+    var n = ACCENTS[(ACCENTS.indexOf(getAccent()) + 1) % ACCENTS.length];
+    try { localStorage.setItem('gc_voice_style', n); } catch (_) {}
+    accentPaint();
+  });
+  setInterval(accentPaint, 1000);
+
   function speakReply(text) {
     if (chatWho && chatWho.echo) return speakEcho(text);
     var voiceId = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
     if (!voiceOn || !voiceId) return;
+    voiceId = accentVoice(voiceId);
     fetch('/.netlify/functions/gc-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
