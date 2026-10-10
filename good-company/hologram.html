@@ -127,6 +127,8 @@
   <!-- MEMORY, added 2026-10-07, Dr. O: house characters remember a visitor by their browser, as the built companions do. -->
   <span id="holoMemory" style="display:none;font-size:.8rem;color:#b7ab98;"><span id="holoMemoryText"></span> <button id="bForget" type="button">Forget me</button></span>
   <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
+  <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Elle names who is with her. -->
+  <button id="bSisters" type="button" style="display:none">Let them talk</button>
   <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
@@ -481,9 +483,17 @@
   var chatForm = document.getElementById('holoChat'), chatInput = document.getElementById('holoInput');
   var chatSend = document.getElementById('holoSend'), replyEl = document.getElementById('holoReply');
   var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
+  /* SISTERS state. The page and Astra's robot hear each other through the air; nothing connects them. The turn is passed by NAME:
+     a reply ends by speaking to one of them, and only the one named answers. This page also waits a beat (YIELD_MS) before it
+     answers, and drops the answer if it hears someone start talking in that beat, so Astra (who does not wait) keeps the floor.
+     Not tried with the real speakers yet. */
+  var SIS = { on: false, turns: 0, max: 12, others: ['Elle'], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
+  var YIELD_MS = 1500, SIS_GAP_MS = 9000;
+  var SIS_STOP = /\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b/i;
+  try { var wParam = new URLSearchParams(location.search).get('with'); if (wParam) SIS.others = wParam.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4); } catch (_) {}
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
                          isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); },
-                         state: function (t) { document.getElementById('bHandsState').textContent = t; },
+                         state: function (t) { document.getElementById('bHandsState').textContent = t; if (/^Hearing/.test(t)) { SIS.hearingAt = Date.now(); SIS.lastActive = Date.now(); } },
                          identity: function () { return { visitor_id: GC_visitorId(), access_token: GC_accessToken(), owner_key: GC_ownerKey(), tester_key: GC_testerKey() }; } });
 
   function showReply(text) { replyEl.textContent = text; replyEl.style.display = text ? 'block' : 'none'; }
@@ -522,6 +532,8 @@
       var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
       gcBoostVoice(audio);
       hf.speakingStart(audio);
+      audio.addEventListener('playing', function () { SIS.talking = true; });
+      ['ended', 'pause', 'error', 'abort', 'emptied', 'stalled'].forEach(function (n) { audio.addEventListener(n, function () { SIS.talking = false; SIS.lastActive = Date.now(); }); });
       audio.play().catch(function () {});
     }).catch(function () { /* the text reply already stands on its own */ });
   }
@@ -647,6 +659,24 @@
     e.preventDefault();
     var text = chatInput.value.trim();
     if (!text || chatBusy || !chatWho) return;
+    var sisNote = '';
+    if (SIS.on && !chatWho.echo) {
+      if (!SIS.release) {
+        chatInput.value = '';
+        if (SIS_STOP.test(text)) { sisStop('told to stop'); return; }
+        if (!sisNameRe().test(text) || SIS.wait) return;            // not meant for her: stay quiet and let the one named answer
+        SIS.wait = true; var t0 = Date.now();
+        setTimeout(function () {                                    // a beat first; if someone has started talking, they keep the floor
+          SIS.wait = false;
+          if (!SIS.on || SIS.hearingAt > t0 || chatBusy) return;
+          SIS.release = true; chatInput.value = text; chatForm.requestSubmit ? chatForm.requestSubmit() : chatSend.click();
+        }, YIELD_MS);
+        return;
+      }
+      SIS.release = false; SIS.turns++;
+      sisNote = '\n\n[Right now you are talking with ' + SIS.others.join(' and ') + ', who are other characters in the room, not visitors. The robot sister is called Elle. Reply in one or two short sentences. Say something new: a question, a small story, a gentle disagreement. End by speaking to one of them by name, because only the one you name will answer.]';
+      if (SIS.turns >= SIS.max) setTimeout(function () { sisStop('turn limit'); }, 20000);   // after this last line has been spoken
+    }
     chatBusy = true; chatSend.disabled = true;
     chatInput.value = '';
     if (chatWho.echo) return sendEcho(text);
@@ -659,7 +689,7 @@
       body: JSON.stringify({
         friend: chatWho.friend, speaker: chatWho.speaker,
         you: { name: YOU.name, pronouns: YOU.pronouns },
-        messages: chatHistory, message: text, scene: null, guest_cameo: null, is_demo: true,
+        messages: chatHistory, message: text + sisNote, scene: null, guest_cameo: null, is_demo: true,
         visitor_id: GC_visitorId(), access_token: GC_accessToken(),
         owner_key: GC_ownerKey(), tester_key: GC_testerKey(),
         remember: MEMORY_ON
@@ -714,6 +744,38 @@
       try { recognizer.start(); } catch (_) { micOff(); }
     });
   }
+
+  /* SISTERS: start, stop, the names she answers to, and the nudge into silence. */
+  var bSisters = document.getElementById('bSisters');
+  function sisNameRe() {
+    var n = (COMPANIONS[who.value] && COMPANIONS[who.value][0]) || '';
+    var words = n.replace(/\b(dr|ms|mr|mrs)\b\.?/ig, '').split(/[^A-Za-z0-9.]+/).filter(function (w) { return w.length > 1; });
+    var all = words.map(function (w) { return w.replace(/\./g, ''); }).filter(function (w) { return w.length > 1; });
+    if (!all.length) all = ['nobody-has-this-name'];
+    return new RegExp('\\b(' + all.join('|') + ')\\b', 'i');
+  }
+  function sisPaint() { bSisters.textContent = SIS.on ? 'End the talk' : 'Let them talk'; bSisters.classList.toggle('listening', SIS.on); }
+  function sisStop(why) {
+    if (!SIS.on) return;
+    SIS.on = false; SIS.wait = false; SIS.release = false; clearInterval(SIS.timer); sisPaint();
+    document.getElementById('bHandsState').textContent = 'The talk ended (' + why + ')';
+  }
+  function sisStart() {
+    if (!chatWho || chatWho.echo) { showReply('This one talks through My Echo, so it cannot join the sisters yet.'); return; }
+    SIS.on = true; SIS.turns = 0; SIS.lastActive = Date.now(); SIS.hearingAt = 0; sisPaint();
+    if (!bHands.classList.contains('listening')) bHands.click();       // the ears have to be on for this
+    SIS.timer = setInterval(function () {                              // nobody has spoken for a while: she says something to the next one
+      if (!SIS.on) return;
+      if (chatBusy || SIS.wait || SIS.talking || SIS.turns >= SIS.max) return;
+      if (Date.now() - SIS.lastActive < SIS_GAP_MS) return;
+      SIS.release = true;
+      chatInput.value = '(Nobody has spoken for a few seconds. Say something new to ' + SIS.others[SIS.turns % SIS.others.length] + '.)';
+      chatForm.requestSubmit ? chatForm.requestSubmit() : chatSend.click();
+    }, 1000);
+  }
+  var bHands = document.getElementById('bHands');
+  bSisters.addEventListener('click', function () { if (SIS.on) sisStop('ended by you'); else sisStart(); });
+  setInterval(function () { bSisters.style.display = (chatWho && !chatWho.echo && chatForm.classList.contains('on')) ? '' : 'none'; }, 1000);
 
   /* BUTTONS ON THE BOX, added 2026-10-09, Dr. O: five physical buttons, wired to a small board that types a key, each choosing one hologram.
      1 = A.L.I.C.E., 2 = Tansy, 3 = Reggie, 4 = Dr. Duffy, 5 = Terry (the lab). Dr. Duffy's two videos were added here

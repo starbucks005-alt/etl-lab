@@ -494,13 +494,32 @@ def mood_block(pid):
     return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it." + (" Your habit: " + hab + " Let it come out when the mood fits it." if hab else "")
 
 
+# 2026-10-10, Dr. O: Astra, the hologram and later Astrad and Astra-9 talk to each other without her. Nothing connects the devices.
+# Each one hears the others through the air, so the floor is passed by NAME: a turn ends by speaking to one sister, and only
+# the one named answers. If nobody has spoken for SISTER_GAP seconds, Astra (first in the order) speaks into the silence.
+# Not tested with the real speakers yet; the first run on the real devices is the test.
+SISTER_GAP = 6.0
+sisters = {"on": False, "others": [], "turns": 0, "max": 12, "started": 0.0}
+STOP_TALK_RE = re.compile(r"\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b", re.I)
+
+
+def sisters_block():
+    if not sisters["on"]:
+        return ""
+    others = sisters["others"]
+    names = ", ".join(others) if others else "the others"
+    return (" Right now you are talking with " + names + ", who are other characters in the room, not visitors. Keep every turn to one or two "
+            "short sentences. Say something new each time: a question, a small story, a gentle disagreement, something you noticed. "
+            "Your sisters call you Elle, so speak to them by the names given here and expect to be called Elle. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said.")
+
+
 def apply_prompt():
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"] if not (persona and s == "tour"))
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + mood_block(None))
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + mood_block(None))) + sisters_block()
 
 
 def write_eyes(boost=False):
@@ -928,6 +947,47 @@ def welcome_now():
     return jsonify(ok=True, did=did)
 
 
+def sisters_stop(why=""):
+    if sisters["on"]:
+        sisters["on"] = False
+        print("SISTERS stopped (%s) after %d turns" % (why, sisters["turns"]), flush=True)
+        apply_prompt()
+
+
+@app.get("/api/sisters")
+def sisters_get():
+    return jsonify(on=sisters["on"], others=sisters["others"], turns=sisters["turns"], max=sisters["max"])
+
+
+@app.post("/api/sisters")
+def sisters_set():
+    """Start or stop the talk between her and the other characters. Body: {on: true, with: ["Alice"], max: 12}."""
+    d = request.get_json(silent=True) or {}
+    if not d.get("on"):
+        sisters_stop("stopped from the panel")
+        return jsonify(ok=True, on=False)
+    others = [re.sub(r"[^A-Za-z0-9 .\-]", "", str(n)).strip()[:30] for n in (d.get("with") or [])]
+    others = [n for n in others if n][:4]
+    if not others:
+        return jsonify(error="Say who she is talking with"), 400
+    try:
+        mx = max(2, min(40, int(d.get("max") or 12)))
+    except (TypeError, ValueError):
+        mx = 12
+    sisters.update(on=True, others=others, turns=0, max=mx, started=time.time())
+    apply_prompt()
+
+    def go():
+        try:
+            answer_and_say("(The talk with " + ", ".join(others) + " begins now. Open it by saying something to " + others[0] + ".)")
+        except Exception as e:
+            print("ANSWER ERROR:", e, flush=True)
+            return
+        converse()
+    threading.Thread(target=go, daemon=True).start()
+    return jsonify(ok=True, on=True, others=others, max=mx)
+
+
 SHUTDOWN_CMD = ["sudo", "-n", "/usr/sbin/shutdown", "-h", "now"]
 SUDOERS_LINE = ("echo 'terryoroszi ALL=(root) NOPASSWD: /usr/sbin/shutdown' | sudo tee /etc/sudoers.d/al-shutdown "
                 "&& sudo chmod 440 /etc/sudoers.d/al-shutdown && sudo visudo -c")
@@ -995,16 +1055,19 @@ def wake_name_re():
     """Her own names, plus the name of the character she has taken on. 2026-10-07: with the A.L.I.C.E. character loaded,
     "Hello, Alice" was heard three times in a row and ignored, because only the Astra names woke her."""
     p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    # 2026-10-10: while she talks with her sisters only "Elle" is HER name. "Astra" belongs to the hologram (Astra-9), so a
+    # name said to a sister does not wake both of them.
+    base = re.compile(r"\b(elle|8l|al)\b", re.I) if sisters["on"] else NAME_RE
     if not p:
-        return NAME_RE
+        return base
     n = p.get("name", "")
     m = re.search(r"\(called ([^)]+)\)", n)
     n = m.group(1) if m else re.split(r"[,(]", n)[0]
     n = re.sub(r"\b(dr|ms|mr|mrs|coach|lady)\b\.?", "", n.replace(".", ""), flags=re.I)
     words = [w for w in re.sub(r"[^A-Za-z0-9 ]", "", n).split() if len(w) > 1]
     if not words:
-        return NAME_RE
-    return re.compile(NAME_RE.pattern[:-3] + "|" + "|".join(re.escape(w) for w in words) + r")\b", re.I)
+        return base
+    return re.compile(base.pattern[:-3] + "|" + "|".join(re.escape(w) for w in words) + r")\b", re.I)
 
 
 def level_of(buf):
@@ -1266,8 +1329,25 @@ def converse(window=None):
         false_starts = 0
         while time.time() < deadline:
             settle()
-            path = hear_one(wait_seconds=max(1.0, deadline - time.time()), on_start=lambda: write_eyes(boost=True))
+            if sisters["on"]:
+                deadline = time.time() + window        # the sisters' talk ends on its own turn count or a stop phrase, not on quiet
+                path = hear_one(wait_seconds=SISTER_GAP, on_start=lambda: write_eyes(boost=True))
+            else:
+                path = hear_one(wait_seconds=max(1.0, deadline - time.time()), on_start=lambda: write_eyes(boost=True))
             write_eyes()
+            if sisters["on"] and sisters["turns"] >= sisters["max"]:
+                sisters_stop("turn limit")
+                break
+            if not path and sisters["on"] and last_clip["why"] == "quiet":
+                # nobody has spoken for a while: Astra is first in the order, so she picks it up again
+                nxt = sisters["others"][sisters["turns"] % len(sisters["others"])] if sisters["others"] else "the others"
+                try:
+                    sisters["turns"] += 1
+                    answer_and_say("(Nobody has spoken for a few seconds. Say something new to " + nxt + ".)")
+                except Exception as e:
+                    print("ANSWER ERROR:", e, flush=True)
+                    break
+                continue
             if not path:
                 # 2026-10-07: a click or the tail of her own voice used to end the whole conversation, so she went back to
                 # waiting for her name. Only a stretch of real quiet ends it.
@@ -1287,10 +1367,15 @@ def converse(window=None):
             if heard_herself(text, last_clip["start"]):
                 print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
                 continue
-            if state["welcome"].get("crowd") and not wake_name_re().search(text):
+            if sisters["on"] and STOP_TALK_RE.search(text):
+                sisters_stop("told to stop")
+                break
+            if (state["welcome"].get("crowd") or sisters["on"]) and not wake_name_re().search(text):
                 print("CROWD mode: no name in it, not answering. Heard: %s" % text[:60], flush=True)
                 continue
             try:
+                if sisters["on"]:
+                    sisters["turns"] += 1
                 answer_and_say(text)
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)

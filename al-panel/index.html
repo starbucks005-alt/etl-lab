@@ -268,6 +268,13 @@
       </div>
       <!-- TALK BY VOICE, added 2026-10-04: the microphones on her HAT. Only shown when this page is served by the Pi. -->
       <div class="row" id="listenRow" style="margin-top:10px;display:none"><button class="primary" id="listenBtn" style="font-size:1.15rem;padding:14px 26px">Listen now</button><span class="hint" id="listenStatus" style="margin:0">Press, then ask one question. She waits for you to start and stops when you finish. No name needed.</span></div>
+      <!-- LET THEM TALK, added 2026-10-10: she talks with the other characters (the hologram, later Astrad and Astra-9) without anyone stepping in.
+           Nothing connects the devices; they hear each other, and the one named answers. Say "that's enough" to end it. -->
+      <div class="row" id="sistersRow" style="margin-top:10px;display:none">
+        <input id="sistersWith" type="text" value="Alice" style="max-width:220px" aria-label="Who is she talking with">
+        <button id="sistersBtn">Let them talk</button>
+        <span class="hint" id="sistersStatus" style="margin:0">Type who is with her (for example Alice, or Alice and Astrad). She opens, and they pass the turn by name. Say "that's enough" or press again to end it.</span>
+      </div>
     </section>
 
     <!-- 6. PHOTOS -->
@@ -371,7 +378,7 @@
     live = on;
     $('demoNote').style.display = on ? 'none' : '';
     $('shutCard').style.display = on ? '' : 'none';
-    $('listenRow').style.display = on ? '' : 'none';
+    $('listenRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none';
     $('volumeRow').style.display = on ? 'flex' : 'none';
     if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
@@ -853,6 +860,24 @@
       clearInterval(tick); b.disabled = false; b.textContent = 'Listen now';
     });
   });
+  (function(){
+    var on = false, b = $('sistersBtn'), msg = $('sistersStatus');
+    function paint(){ b.textContent = on ? 'End the talk' : 'Let them talk'; }
+    b.addEventListener('click', function(){
+      var body = on ? {on:false} : {on:true, 'with': $('sistersWith').value.split(/,| and /i).map(function(x){ return x.trim(); }).filter(Boolean)};
+      fetch('/api/sisters', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
+        .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+        .then(function(x){
+          if(!x.ok){ msg.textContent = x.j.error || 'I could not start it.'; return; }
+          on = !!x.j.on; paint();
+          msg.textContent = on ? 'They are talking. Say "that\'s enough" or press End the talk.' : 'The talk has ended.';
+        }).catch(function(e){ msg.textContent = 'I could not reach her: ' + e.message; });
+    });
+    setInterval(function(){
+      if(!on) return;
+      fetch('/api/sisters').then(function(r){ return r.json(); }).then(function(j){ if(!j.on){ on = false; paint(); msg.textContent = 'The talk ended on its own.'; } }).catch(function(){});
+    }, 4000);
+  })();
   document.querySelectorAll('#starters button').forEach(function(b){
     b.addEventListener('click', function(){ $('say').value = b.getAttribute('data-q'); send(); });
   });
