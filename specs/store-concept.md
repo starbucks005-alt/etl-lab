@@ -55,6 +55,18 @@ home if possible.
 - A real unit on a plinth beside her, and a sign with the waitlist QR code.
 - If a home version is not ready, the sign says coming, not buy.
 
+## The hologram pod (cardboard mockup, 2026-10-10)
+
+Dr. O made a cardboard mockup of a hologram pod that can hold 5 holograms. Her
+photo shows it beside a bust with lit eyes, a chest sensor and speaker holes. The
+box is open at the front, has an angled panel inside on the right, and five
+squares drawn on the lower front panel.
+- What the five squares and the angled panel are for is not written down yet.
+- `good-company/hologram.html` plays a companion on black, for a phone under a
+  small clear pyramid. It has not been tried on a real pyramid or in this pod.
+- Open: does each of the five spaces show a different friend, so a customer sees a
+  small collection at once?
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
@@ -82,6 +94,13 @@ home if possible.
 
 ## What is done so far
 
+- Astra-9 Lite had its first public demo at a university AI and Innovation
+  exhibition (planned for Tuesday 2026-10-06). Dr. O, 2026-10-10: "Astra light huge
+  success the ai event." No numbers are recorded. Sign-ups from the handout's QR
+  code are tagged `uni-expo`, so they can be counted once the Supabase step below
+  is done.
+
 - `astra9.html` waitlist can count sign-ups by where they came from (`?src=`).
 - `astra9-handout.html`: a one page handout with a QR code to `/astra9?src=uni-expo`.
+- `good-company/hologram.html`: hologram mode for a phone laid flat.
 - Run `supabase_astra9_waitlist_source_migration.sql` in Supabase for the count.
