@@ -491,7 +491,7 @@ def mood_block(pid):
     if mood["reason"] and mood["new"]:
         out += " It just changed because " + mood["reason"] + "."
     hab = cfg.get("habit", "")
-    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it. Never open a reply with a word that names a feeling, a stage direction, or a bracketed note: begin with what you are actually saying, and do not begin two replies the same way." + (" Your habit: " + hab + " Let it come out when the mood fits it." if hab else "")
+    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it. Never open a reply with a word that names a feeling, a stage direction, or a bracketed note: begin with what you are actually saying, and do not begin two replies the same way." + (" Your habit, which shows only in the words you choose: " + hab + " Never describe what your body, face or voice is doing, and never say that you are pausing, going still or taking a moment: a voice cannot show that, so do not say it." if hab else "")
 
 
 # 2026-10-10, Dr. O: Astra, the hologram and later Astrad and Astra-9 talk to each other without her. Nothing connects the devices.
