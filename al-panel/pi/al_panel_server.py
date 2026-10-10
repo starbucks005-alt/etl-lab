@@ -196,16 +196,34 @@ except (OSError, ValueError):
 # fetched from. A file called personalities_private.json next to the server holds them, in the same shape as personalities.json
 # with one added line, "line", for the card. It is kept out of git. Delete the file and restart her to remove them.
 PRIVATE_LIST = []
-try:
-    _priv = json.load(open(os.path.join(HERE, "personalities_private.json")))
-    for _pid, _p in _priv.items():
-        if re.fullmatch(r"[a-z0-9-]+", _pid) and isinstance(_p, dict) and _p.get("name") and _p.get("prompt") and _pid not in PERSONAS:
-            PERSONAS[_pid] = {k: _p[k] for k in ("name", "group", "voice", "say", "prompt") if k in _p}
-            PERSONAS[_pid].setdefault("group", "Private")
-            PRIVATE_LIST.append({"id": _pid, "name": _p["name"], "group": PERSONAS[_pid]["group"], "sub": "Made for one person",
-                                 "line": _p.get("line", ""), "price": 0, "voice": bool(_p.get("voice")), "gender": _p.get("gender", "")})
-except (OSError, ValueError):
-    pass
+# Any file called personalities_private*.json is read, so one person's character never has to overwrite another's. An entry can also build on a
+# character already on the robot: "extends": "gc-bramble" takes that character's instructions and voice, and "add" is extra text put after
+# them. "fixed_hello": true makes her say the "say" line word for word when she takes the character on, and when someone walks up.
+import glob as _glob
+for _file in sorted(_glob.glob(os.path.join(HERE, "personalities_private*.json"))):
+    try:
+        _priv = json.load(open(_file))
+    except (OSError, ValueError):
+        continue
+    for _pid, _p in (_priv.items() if isinstance(_priv, dict) else []):
+        if not (re.fullmatch(r"[a-z0-9-]+", _pid) and isinstance(_p, dict)) or _pid in PERSONAS:
+            continue
+        _base = PERSONAS.get(_p.get("extends")) or {}
+        _prompt = (_base.get("prompt", "") + (" " + _p["add"] if _p.get("add") else "")) if _base else _p.get("prompt", "")
+        _name = _p.get("name") or _base.get("name")
+        if not (_name and _prompt):
+            continue
+        _ent = {"name": _name, "group": _p.get("group", "Private"), "prompt": _prompt}
+        _voice = _p.get("voice", _base.get("voice"))
+        if _voice:
+            _ent["voice"] = _voice
+        if _p.get("say"):
+            _ent["say"] = _p["say"]
+        if _p.get("fixed_hello") and _p.get("say"):
+            _ent["fixed_hello"] = True
+        PERSONAS[_pid] = _ent
+        PRIVATE_LIST.append({"id": _pid, "name": _name, "group": _ent["group"], "sub": "Made for one person",
+                             "line": _p.get("line", ""), "price": 0, "voice": bool(_voice), "gender": _p.get("gender", "")})
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
@@ -572,7 +590,9 @@ def welcome(force=False):
             except OSError as e:
                 print("NECK ERROR:", e, flush=True)
         if w["greet"]:
-            if state["persona"]:
+            if state["persona"] and (PERSONAS.get(state["persona"]) or {}).get("fixed_hello"):
+                line = PERSONAS[state["persona"]]["say"]     # a private character that opens with words Dr. O wrote
+            elif state["persona"]:
                 line = "Hello."   # a character is never given words it was not written
             else:
                 welcome_state["greet_i"] = (welcome_state["greet_i"] + 1) % len(GREETINGS)
@@ -823,8 +843,9 @@ def personality():
     mood_reset(pid)
     apply_prompt()
     ask = "Say hello to the visitor in one short sentence."
+    fixed = (PERSONAS.get(pid) or {}).get("fixed_hello")
     try:
-        reply = al.get_al_reply(ask)
+        reply = PERSONAS[pid]["say"] if fixed else al.get_al_reply(ask)
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
     note = ("Now speaking as " + PERSONAS[pid]["name"] + ".") if pid else "Back to Astra-9 Lite."
