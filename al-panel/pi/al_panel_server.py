@@ -491,14 +491,14 @@ def mood_block(pid):
     if mood["reason"] and mood["new"]:
         out += " It just changed because " + mood["reason"] + "."
     hab = cfg.get("habit", "")
-    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it." + (" Your habit: " + hab + " Let it come out when the mood fits it." if hab else "")
+    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it. Never open a reply with a word that names a feeling, a stage direction, or a bracketed note: begin with what you are actually saying, and do not begin two replies the same way." + (" Your habit: " + hab + " Let it come out when the mood fits it." if hab else "")
 
 
 # 2026-10-10, Dr. O: Astra, the hologram and later Astrad and Astra-9 talk to each other without her. Nothing connects the devices.
 # Each one hears the others through the air, so the floor is passed by NAME: a turn ends by speaking to one sister, and only
 # the one named answers. If nobody has spoken for SISTER_GAP seconds, Astra (first in the order) speaks into the silence.
 # Not tested with the real speakers yet; the first run on the real devices is the test.
-SISTER_GAP = 6.0
+SISTER_GAP = 4.0
 sisters = {"on": False, "me": "Elle", "others": [], "turns": 0, "max": 12, "started": 0.0}
 STOP_TALK_RE = re.compile(r"\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b", re.I)
 
@@ -510,7 +510,7 @@ def sisters_block():
     names = ", ".join(others) if others else "the others"
     return (" Right now you are talking with " + names + ", who are other characters in the room, not visitors. Keep every turn to one or two "
             "short sentences. Say something new each time: a question, a small story, a gentle disagreement, something you noticed. "
-            "In this talk you are called " + sisters["me"] + ", so expect to be called that, and speak to the others by the names given here. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said.")
+            "In this talk you are called " + sisters["me"] + ", so expect to be called that, and speak to the others by the names given here. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said, and never open a turn with a word that names a feeling.")
 
 
 def apply_prompt():

@@ -498,7 +498,7 @@ function gcNoReplyWhy(res) {
      answers, and drops the answer if it hears someone start talking in that beat, so Astra (who does not wait) keeps the floor.
      Not tried with the real speakers yet. */
   var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
-  var YIELD_MS = 1500, SIS_GAP_MS = 9000;
+  var YIELD_MS = 900, SIS_GAP_MS = 6000;
   var SIS_STOP = /\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b/i;
   try { var wParam = new URLSearchParams(location.search).get('with'); if (wParam) { SIS.others = wParam.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4); SIS.fixed = true; } } catch (_) {}
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
