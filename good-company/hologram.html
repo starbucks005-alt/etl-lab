@@ -9,6 +9,16 @@
 <!-- Google tag (gtag.js), same snippet as every other Good Company page. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F7HTDVMJPZ"></script>
 <script>
+/* WHY THERE IS NO ANSWER, added 2026-10-10, Dr. O: "I am not sure what to say to that" hid the real reason for an hour. The site says why
+   (owner key refused, free messages used up, a fault); this puts that in words, and still falls back to the old line when it says nothing. */
+function gcNoReplyWhy(res) {
+  if (!res) return "I did not get an answer from the site. Check the connection and try again.";
+  if (res.owner_key_rejected) return "The site did not accept the owner key saved in this browser, so it counted you as a visitor. Open this page once with ?key= and your key on the end.";
+  if (res.daily_capped) return "The free messages for today are used up in this browser. The owner key lifts that: open this page once with ?key= and your key on the end.";
+  if (res.credits_exhausted) return "This character has no credits left.";
+  if (res.error) return "The site answered with a problem (" + String(res.error).slice(0, 40) + "). Try again in a moment.";
+  return "I'm not sure what to say to that.";
+}
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -638,7 +648,7 @@
       })
     }).then(function (r) { return r.json(); }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
-      var raw = (res && res.reply) || "I'm not sure what to say to that.";
+      var raw = (res && res.reply) || gcNoReplyWhy(res);
       /* Plumbing, not words: a reply can carry [[NEXT]] and [[SPEAKER:x]] markers, same strip as ar.html. */
       var parts = raw.split(/\n?\[\[NEXT\]\]\n?/).map(function (p) {
         return p.replace(/^\s*\[\[SPEAKER:[a-z0-9_-]+\]\]\s*/i, '').trim();
@@ -696,7 +706,7 @@
       })
     }).then(function (r) { return r.json(); }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
-      var reply = (res && res.reply) || "I'm not sure what to say to that.";
+      var reply = (res && res.reply) || gcNoReplyWhy(res);
       chatHistory.push({ who: herName, text: reply, mine: false });
       showReply(reply);
       speakReply(reply);
