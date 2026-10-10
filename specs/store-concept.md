@@ -67,6 +67,35 @@ squares drawn on the lower front panel.
 - Open: does each of the five spaces show a different friend, so a customer sees a
   small collection at once?
 
+## Dolls on a plinth (idea, 2026-10-10)
+
+Dr. O's idea: dolls, something like Barbie dolls, that talk when placed on a plinth
+with a Raspberry Pi inside it. Her words: "No, cannot work without plinth."
+- The doll is a collectable with no electronics of its own, apart from a small tag.
+  The plinth holds the Pi, speaker and power, and reads the tag to know which
+  character this is. Lift her off and she is silent.
+- The plinth is the starter product. Each doll after that is a smaller purchase.
+- One friend talks at a time on one plinth, which keeps the running cost down.
+  Whether that is true is not known yet and needs the monthly cost measured.
+- Children or adults depends on how the doll is designed, in Dr. O's words. A
+  suggestion, not a decision: the tag says which line a doll belongs to and the
+  plinth sets its behaviour to match, so one plinth can serve both.
+  - Children's line: soft, safe and story-led. Does not ask for a name, address or
+    school, and keeps no record of a child's voice. A parent can switch it off.
+  - Adult line: open conversation with the Good Company personalities, and the
+    goodnight ritual.
+- The doll needs its own name and look. Barbie is Mattel's trademark and this
+  should not copy it.
+
+Open questions for the dolls:
+1. Which line first, children's or adult?
+2. Does the plinth ship with one doll, or is the first doll chosen at the counter?
+3. Does a doll work on any plinth, or is it paired to the buyer's?
+4. How long is a plinth supported? Collectors will ask.
+5. What stops a doll's tag from being copied, if limited editions matter?
+6. A children's doll needs a lawyer to check toy safety rules and the rules on
+   collecting information from children (COPPA in the US) before it is sold.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
