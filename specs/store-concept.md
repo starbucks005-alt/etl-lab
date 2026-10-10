@@ -73,7 +73,7 @@ Dr. O's idea: dolls, something like Barbie dolls, that talk when placed on a pli
 with a Raspberry Pi inside it. Her words: "No, cannot work without plinth."
 - The doll is a collectable with no electronics of its own, apart from a small tag.
   The plinth holds the Pi, speaker and power, and reads the tag to know which
-  character this is. Lift her off and she is silent.
+  character this is. Take her off and she is silent.
 - The plinth is the starter product. Each doll after that is a smaller purchase.
 - One friend talks at a time on one plinth, which keeps the running cost down.
   Whether that is true is not known yet and needs the monthly cost measured.
