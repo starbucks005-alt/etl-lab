@@ -564,6 +564,24 @@ def heard_herself(text, started_at=None):
     return bool(heard) and sum(1 for w in heard if w in said) / len(heard) >= 0.6
 
 
+PRONOUNCE_FILE = os.path.join(HERE, "pronounce.json")
+
+
+def for_the_voice(text):
+    """How a word is SPELLED for the voice, when the voice says it wrong. 2026-10-10: Astra Lite said "Elle" like the letter L.
+    pronounce.json is {"written": "spelled for the voice"}. Only what is sent to the voice changes; the chat, the log and
+    the check that she is not hearing herself keep her real words. Whether a spelling sounds right is settled by listening."""
+    try:
+        with open(PRONOUNCE_FILE) as f:
+            table = json.load(f)
+    except (OSError, ValueError):
+        return text
+    for written, spelled in table.items():
+        if written and isinstance(spelled, str):
+            text = re.sub(r"\b" + re.escape(written) + r"\b", spelled, text, flags=re.I)
+    return text
+
+
 def speak_now(text, use_persona=True):
     """Say it and come back only when she has finished."""
     with speak_lock:
@@ -571,7 +589,7 @@ def speak_now(text, use_persona=True):
             persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
             al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
             last_said["text"] = text
-            al.speak(text)
+            al.speak(for_the_voice(text))
             last_said["t"] = time.time()
         except Exception as e:  # keep the server alive if sound fails
             print("SPEAK ERROR:", e, flush=True)
