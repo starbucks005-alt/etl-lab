@@ -180,6 +180,22 @@ Open questions:
   is not answered. Notes given: avoid a police-style badge and belt, and avoid body
   armour. An "AI front desk assistant" tag was suggested.
 
+## Partners (2026-10-11, nothing signed)
+
+Dr. O has not signed anything yet.
+- The business school at WSU. The dean wants her to partner on all of her ideas.
+  Her thoughts so far: give them several ideas, maybe build the shop with them, let
+  students help run it, give some proceeds to the school (some, not all).
+- Vikram, a professor in the business school, has a college in India. His interns
+  there would make the robots for commercialization.
+- The ideas, designs, characters and decisions are Dr. O's. Any agreement should say
+  so, and that what is built for her stays hers.
+- Things to settle in writing before anything is signed: who owns what, what "some
+  proceeds" means (revenue or profit, for how long), who is responsible if a unit
+  fails or someone is hurt, rules on collecting data, and what applies to designs
+  shared with a college in India. Safety certification and shipping are separate
+  questions. A lawyer should read any agreement first. None of this is known yet.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
@@ -207,9 +223,11 @@ Open questions:
 
 ## What is done so far
 
-- Astra-9 Lite had its first public demo at a university AI and Innovation
-  exhibition (planned for Tuesday 2026-10-06). Dr. O, 2026-10-10: "Astra light huge
-  success the ai event." No numbers are recorded. Sign-ups from the handout's QR
+- Astra-9 Lite had its first public demo on Monday 2026-10-05 at the Wright
+  Brothers AI and Innovation event at WSU, put on by the business school. Dr. O,
+  2026-10-10: "Astra light huge success the ai event." Dr. O, 2026-10-11: her booth
+  was the most AI advanced booth there. Both are her account, not a measured result.
+  No numbers are recorded. Sign-ups from the handout's QR
   code are tagged `uni-expo`, so they can be counted once the Supabase step below
   is done.
 
