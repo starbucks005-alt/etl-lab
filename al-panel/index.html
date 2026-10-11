@@ -411,7 +411,12 @@
     if(isForm){opts.body = body;}
     else{opts.headers = {'Content-Type':'application/json'}; opts.body = JSON.stringify(body||{});}
     return fetch(path, opts).then(function(r){
-      if(!r.ok){throw new Error('Astra-9 Lite answered with an error ('+r.status+')');}
+      if(!r.ok){
+        // 2026-10-11: the real reason was thrown away, so a photo that failed only said 502. Show what she said, when she said anything.
+        return r.json().catch(function(){ return {}; }).then(function(j){
+          throw new Error((j && j.error) ? j.error : 'Astra-9 Lite answered with an error ('+r.status+')');
+        });
+      }
       return r.json();
     });
   }
@@ -718,6 +723,23 @@
   function pickPhoto(){
     var f = this.files && this.files[0]; chosen = f || null; $('showPhoto').disabled = !f;
   }
+  function shrinkPhoto(file){
+    return new Promise(function(resolve){
+      try{
+        var im = new Image(), u = URL.createObjectURL(file);
+        im.onload = function(){
+          try{
+            var max = 1600, w = im.naturalWidth, h = im.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+            var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+            c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+            c.toBlob(function(b){ URL.revokeObjectURL(u); resolve(b || file); }, 'image/jpeg', 0.85);
+          }catch(e){ resolve(file); }
+        };
+        im.onerror = function(){ resolve(file); };
+        im.src = u;
+      }catch(e){ resolve(file); }
+    });
+  }
   function showPhoto(){
     if(!chosen){ return; }
     var f = chosen; var cap = $('caption').value.trim();
@@ -725,9 +747,13 @@
     var img = document.createElement('img'); img.src = url; img.alt = cap || 'A photo shared with Astra-9 Lite'; $('thumbs').appendChild(img);
     addMsg('you', '(shared a photo' + (cap ? ': ' + cap : '') + ')');
     if(live){
-      var fd = new FormData(); fd.append('photo', f); fd.append('caption', cap);
       $('face').classList.add('speaking');
-      api('/api/photo', fd, true).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); })
+      // A phone photo can be several megabytes; the picture service takes about 5 MB once it is encoded, so it is shrunk first.
+      // If shrinking fails for any reason the original goes up as before.
+      shrinkPhoto(f).then(function(small){
+        var fd = new FormData(); fd.append('photo', small, 'photo.jpg'); fd.append('caption', cap);
+        return api('/api/photo', fd, true);
+      }).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); })
         .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al', '(I could not look at that: ' + e.message + ')'); });
     } else {
       setTimeout(function(){ reply(cap ? 'Thank you for showing me this. ' + cap + '. Tell me more about it.' : 'Thank you for showing me this. What is happening in it?'); }, 600);

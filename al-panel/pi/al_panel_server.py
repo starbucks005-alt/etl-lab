@@ -1680,7 +1680,8 @@ def photo():
     except requests.RequestException as e:
         return jsonify(error=str(e)[:200]), 502
     if r.status_code != 200:
-        return jsonify(error="photo service answered %d" % r.status_code), 502
+        print("PHOTO the picture service said %d: %s (photo %d bytes, %s)" % (r.status_code, r.text[:300], len(raw), mt), flush=True)
+        return jsonify(error="photo service answered %d: %s" % (r.status_code, r.text[:140])), 502
     reply = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text") or "Thank you for showing me that."
     state["history"].append("They showed you a photo and you said \"%s\"." % reply)
     state["log"].append({"who": "al", "text": reply})
