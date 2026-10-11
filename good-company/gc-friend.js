@@ -748,7 +748,12 @@ var GC_SOFIA = {
   name: 'Sophia',
   /* Changeable. The portrait leads on how she looks; this is only what is on
      her lanyard. */
-  full: 'Sophia Reyes',
+  /* RENAMED FROM "SOPHIA REYES", 2026-10-10. Dr. O: she is British, and a Spanish
+     surname does not fit her canon. Her first name is "Sophia" everywhere a person
+     reads it (the bio used to say "Sofia"). The internal id (GC_SOFIA, ?who=sofia,
+     sofia.jpg and the sofia-*.mp4 / .mp3 files) is left as-is on purpose: it is
+     plumbing nobody sees, and the collision is the name a person says and reads. */
+  full: 'Sophia Howard',
   age: '20s',
   gender: 'A woman',
   work: 'Veterinary nurse. Nights, at an emergency animal hospital.',
@@ -835,7 +840,7 @@ var GC_SOFIA = {
      lines below (`from`: "The UK... a city I moved to a couple of years ago for work") --
      she is British, always was, and moved to a new UK city for the job, not into the
      country. Her voice already carries the accent; the premise text has to agree with it. */
-  premise: 'Sofia is a veterinary nurse on the night shift at an emergency animal hospital, ' +
+  premise: 'Sophia is a veterinary nurse on the night shift at an emergency animal hospital, ' +
            'which means eight in the morning is her evening, not an early start. Moved to ' +
            'this city for the job a couple of years back and built a life here from nothing.',
 
