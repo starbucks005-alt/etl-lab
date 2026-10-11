@@ -515,6 +515,22 @@ function gcNoReplyWhy(res) {
      a reply ends by speaking to one of them, and only the one named answers. This page also waits a beat (YIELD_MS) before it
      answers, and drops the answer if it hears someone start talking in that beat, so Astra (who does not wait) keeps the floor.
      Not tried with the real speakers yet. */
+  /* WHO IS IN THE ROOM, added 2026-10-11, Dr. O: Alice asked "who is Elle" after half an hour of talking with her. A character only knows
+     her own file, so the page tells her who the others are. Only what the lab has already written about them; a name not listed here is
+     introduced only as another character from the lab, and nothing is made up. */
+  var KNOWN_OTHERS = {
+    'elle': 'Elle is Astra-9 Lite, a robot head and bust made by the same laboratory, standing in this room. She is the portable version of Astra-9.',
+    'astra-9 lite': 'Astra-9 Lite, also called Elle, is a robot head and bust made by the same laboratory, standing in this room.',
+    'astra-9': 'Astra-9 is a character made by the same laboratory, the ninth of her line and the first that woke up. Elle, the robot bust, is her portable version.',
+    'astra 9': 'Astra-9 is a character made by the same laboratory, the ninth of her line and the first that woke up.',
+    'astrad': 'Astrad is a character made by the same laboratory, the first of his line, built to be Astra-9\'s companion.'
+  };
+  function roomNote(names) {
+    if (!names || !names.length) return '';
+    return '\n\n[Who is in the room with you: ' + names.map(function (n) {
+      return KNOWN_OTHERS[n.toLowerCase()] || (n + ' is another character made by the same laboratory, in this room.');
+    }).join(' ') + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up.]';
+  }
   var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
   var YIELD_MS = 900, SIS_GAP_MS = 6000;
   var SIS_STOP = /\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b/i;
@@ -709,7 +725,7 @@ function gcNoReplyWhy(res) {
     e.preventDefault();
     var text = chatInput.value.trim();
     if (!text || chatBusy || !chatWho) return;
-    var sisNote = '';
+    var sisNote = SIS.fixed && !SIS.on ? roomNote(SIS.others) : '';
     if (SIS.on && !chatWho.echo) {
       if (!SIS.release) {
         chatInput.value = '';
@@ -724,7 +740,7 @@ function gcNoReplyWhy(res) {
         return;
       }
       SIS.release = false; SIS.turns++;
-      sisNote = '\n\n[Right now you are talking with ' + SIS.others.join(' and ') + ', who are other characters in the room, not visitors. Reply in one or two short sentences. Say something new: a question, a small story, a gentle disagreement. End by speaking to one of them by name, because only the one you name will answer.]';
+      sisNote = roomNote(SIS.others) + '\n\n[Right now you are talking with ' + SIS.others.join(' and ') + ', who are other characters in the room, not visitors. Reply in one or two short sentences. Say something new: a question, a small story, a gentle disagreement. End by speaking to one of them by name, because only the one you name will answer.]';
       if (SIS.turns >= SIS.max) setTimeout(function () { sisStop('turn limit'); }, 20000);   // after this last line has been spoken
     }
     chatBusy = true; chatSend.disabled = true;
