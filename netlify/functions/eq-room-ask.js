@@ -552,20 +552,38 @@ exports.handler = async function (event) {
   // tool while also letting the model freely decide to search, so she gets tool_choice "any"
   // instead: required to use a tool this turn, free to pick which, search then always wrap up
   // with respond_in_room.
-  const isMara = agentKey === 'mara';
-  if (isMara) {
-    turnPrompt += '\n\nYou have real-time web search. If the guest brings up a specific show, movie, celebrity, or something currently happening in entertainment, use it to get the actual current details rather than guessing from memory, then answer with respond_in_room as usual. Don\'t search for ordinary small talk that doesn\'t call for it.';
-  }
-  const turnTools = isMara
-    ? [{ type: 'web_search_20250305', name: 'web_search', max_uses: 2 }, TURN_TOOL]
-    : [TURN_TOOL];
-  const turnToolChoice = isMara ? { type: 'any' } : { type: 'tool', name: 'respond_in_room' };
+  // The same mechanism now serves Margo and Chris, each pointed at the sources
+  // that fit their craft (added 2026-10-11, Dr. O: every agent gets a skill
+  // that is valuable to a person). Mara is unchanged: open search, no domains.
+  const SEARCH_SKILLS = {
+    mara: {
+      domains: null,
+      line: 'You have real-time web search. If the guest brings up a specific show, movie, celebrity, or something currently happening in entertainment, use it to get the actual current details rather than guessing from memory, then answer with respond_in_room as usual. Don\'t search for ordinary small talk that doesn\'t call for it.',
+    },
+    margo: {
+      // Perseus has the actual Greek tragedies she is teaching herself to read.
+      domains: ['perseus.tufts.edu', 'openlibrary.org', 'gutenberg.org', 'loc.gov', 'britannica.com',
+        'poetryfoundation.org', 'en.wikipedia.org', 'kirkusreviews.com', 'publishersweekly.com'],
+      line: 'You can look things up. If the guest asks about a specific book, author, translation, edition, or a passage from a play or poem, use it to get the real details and the real words rather than quoting from memory, then answer with respond_in_room as usual. Never put words in a writer\'s mouth you did not find. Don\'t look anything up for ordinary conversation that doesn\'t call for it.',
+    },
+    chris: {
+      domains: ['artic.edu', 'metmuseum.org', 'si.edu', 'nga.gov', 'loc.gov', 'rijksmuseum.nl',
+        'britishmuseum.org', 'tate.org.uk', 'en.wikipedia.org', 'commons.wikimedia.org'],
+      line: 'You can look things up. If the guest asks about a specific artist, painting, period, typeface, cover style, or wants a real reference for a look they are after, use it to find the actual work in a museum collection rather than describing one from memory, then answer with respond_in_room as usual. Name the work and the museum. Don\'t look anything up for ordinary conversation that doesn\'t call for it.',
+    },
+  };
+  const skill = SEARCH_SKILLS[agentKey] || null;
+  if (skill) turnPrompt += '\n\n' + skill.line;
+  const searchTool = skill ? { type: 'web_search_20250305', name: 'web_search', max_uses: 2 } : null;
+  if (searchTool && skill.domains) searchTool.allowed_domains = skill.domains;
+  const turnTools = skill ? [searchTool, TURN_TOOL] : [TURN_TOOL];
+  const turnToolChoice = skill ? { type: 'any' } : { type: 'tool', name: 'respond_in_room' };
 
   let turn;
   try {
     const msg = await client.messages.create({
       model: TURN_MODEL,
-      max_tokens: isMara ? 1500 : 500,
+      max_tokens: skill ? 1500 : 500,
       system: turnPrompt,
       messages,
       tools: turnTools,

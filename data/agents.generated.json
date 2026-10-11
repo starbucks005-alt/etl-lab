@@ -3,8 +3,8 @@
   "total": 212,
   "staff": 86,
   "safe_floor": "200+",
-  "backpack": 115,
-  "backpack_pct": 54,
+  "backpack": 123,
+  "backpack_pct": 58,
   "agents": [
     {
       "name": "August \"Auggie\" Vidal",
@@ -69,7 +69,7 @@
         "Founder Studio",
         "ETL Classrooms · Leadership (PTX 7006)"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Jax Rivera",
@@ -674,7 +674,7 @@
       "platforms": [
         "The Gym"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Dr. Sana Qureshi",
@@ -947,7 +947,7 @@
       "platforms": [
         "City Solutions Lab"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Desmond \"Dez\" Quigley",
@@ -963,7 +963,7 @@
       "platforms": [
         "City Talent Reserve"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Priscilla Okeke",
@@ -987,7 +987,7 @@
       "platforms": [
         "City Talent Reserve"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Heidi Kingstone",
@@ -1020,7 +1020,7 @@
       "platforms": [
         "The Harvest Circuit"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Camille Lefèvre",
@@ -1028,7 +1028,7 @@
       "platforms": [
         "The Harvest Circuit"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Luca Brunner",
@@ -1036,7 +1036,7 @@
       "platforms": [
         "The Harvest Circuit"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Von Gupta",
