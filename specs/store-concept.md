@@ -141,6 +141,45 @@ Open questions for ETL Security:
 7. How are visitors who are deaf or hard of hearing served? A small screen showing
    what it says is a suggestion.
 
+## Companions that talk to each other (2026-10-11)
+
+Dr. O: the holograms and robots can talk to each other, so a customer who buys
+more than one plinth has companions that talk to each other. Her answers:
+- They find each other on the same Wi-Fi.
+- They talk whenever they like, not on a schedule.
+- The owner can listen in, and can stop it.
+
+What this could mean for the store (suggestions, not decisions):
+- A goodnight round: each friend says goodnight to the others and then to the
+  person. This is the idea that started the store.
+- Each extra plinth adds conversation, so it gives a reason to buy more.
+- The site already has 26 companion rooms, some with several companions in them.
+  A room with several companions could be sold as a set.
+
+Open questions:
+1. Talking whenever they like can run up a cost without anyone asking for it. Not
+   known how much. A daily limit and quiet hours at night are suggestions.
+2. A children's-line friend should not join an adult-line friend's conversation.
+   Suggestion: the doll's tag decides who may talk to whom.
+3. What do friends share about the owner when they talk, and what does each keep
+   to itself? The owner should be able to see this and switch it off.
+4. Being on the same Wi-Fi does not by itself say whether the conversations stay in
+   the home. Where the talking is processed is not written down here yet.
+5. A light on the plinth to show that friends are talking to each other, so the
+   owner can tell.
+
+## Pictures Dr. O has shared (not in the repository)
+
+- Concept art of Tansy-like and A.L.I.C.E.-like figures, and a golden retriever,
+  each standing or seated on a black plinth. The plinths have a speaker grille, a
+  glowing strip or ring, and a small status light. Two shapes: a low rectangle and
+  a round base. Which she prefers is not answered.
+- The golden retriever, a French bulldog and a terrier are in the Good Company
+  banner, so pets are already part of Good Company.
+- Five concept images of ETL Security in different uniforms. Which look is chosen
+  is not answered. Notes given: avoid a police-style badge and belt, and avoid body
+  armour. An "AI front desk assistant" tag was suggested.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
