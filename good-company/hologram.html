@@ -543,7 +543,7 @@ function gcNoReplyWhy(res) {
     if (!names || !names.length) return '';
     return '\n\n[Who is in the room with you: ' + names.map(function (n) {
       return KNOWN_OTHERS[n.toLowerCase()] || (n + ' is another character made by the same laboratory, in this room.');
-    }).join(' ') + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up.]' + nameTagNote();
+    }).join(' ') + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up. Never mention a pet, a family member, a home or a past of your own that is not written in your own file: if it is not written there, you do not have one, and you do not borrow one from anyone else you have heard about.]' + nameTagNote();
   }
   var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
   var YIELD_MS = 900, SIS_GAP_MS = 6000;

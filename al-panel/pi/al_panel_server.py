@@ -516,7 +516,8 @@ def sisters_block():
     return (" Right now you are talking with " + names + ", who are other characters in the room, not visitors. Keep every turn to one or two "
             "short sentences. Say something new each time: a question, a small story, a gentle disagreement, something you noticed. "
             "In this talk you are called " + sisters["me"] + ", so expect to be called that, and speak to the others by the names given here. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said, and never open a turn with a word that names a feeling. "
-            "Begin every turn by saying who you are in a few words, such as \"" + sisters["me"] + " here.\" or \"This is " + sisters["me"] + ".\", and then say the rest: nobody can see who is talking, so your name is how they know. That name at the start is the one exception to never starting two turns the same way.")
+            "Begin every turn by saying who you are in a few words, such as \"" + sisters["me"] + " here.\" or \"This is " + sisters["me"] + ".\", and then say the rest: nobody can see who is talking, so your name is how they know. That name at the start is the one exception to never starting two turns the same way. "
+            "Never mention a pet, a family member, a home or a past of your own that is not written down for you: if it is not written, you do not have one, and you do not borrow one from anyone you have heard about.")
 
 
 def apply_prompt():
