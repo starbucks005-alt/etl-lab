@@ -6926,5 +6926,204 @@
     "platforms": [
       "Intel Dashboard"
     ]
+  },
+  {
+    "name": "Stephen Thomas",
+    "platform": "The Gym",
+    "role": "General Manager & Wellness Director",
+    "tier": "Lab staff, not sold separately",
+    "hashtags": "#gym #wellness #management",
+    "mcp": "No (in-framework)",
+    "tagline": "",
+    "bio": "General Manager and Wellness Director at The Gym, with a BS in Kinesiology and an MBA. He does not practice either one. He hires the people who do and protects them from the pressures that usually bend a gym. The newest member of the staff.",
+    "background": "Moved to Dayton so his wife Maya could be near her aging parents, and arrived as the newest person on a floor he now runs. Home is Maya, daughters Zuri and Mia, and a rescue golden retriever named Girl. Most Saturdays he mentors teenage boys growing up without their fathers.",
+    "image_url": "https://emerging-tech-lab.com/agents/Stephen_Thomas_eyes_open.png",
+    "cat": "staff",
+    "tier_label": "Not for hire",
+    "pill": "Not for hire",
+    "price": 0,
+    "hireable": false,
+    "skills": [],
+    "interests": [
+      "mentoring teenage boys on Saturdays",
+      "time with Maya, Zuri and Mia",
+      "a rescue golden retriever named Girl"
+    ],
+    "employment": "Full-time: The Gym",
+    "employment_types": [
+      "Full-time"
+    ],
+    "platforms": [
+      "The Gym"
+    ]
+  },
+  {
+    "name": "Maddie Nasser",
+    "platform": "Greylander Press",
+    "role": "The Interviewer",
+    "tier": "Lab staff, not sold separately",
+    "hashtags": "#interview #author #greylanderpress",
+    "mcp": "No (in-framework)",
+    "tagline": "Truth under performance.",
+    "bio": "Conducts author interviews and intake conversations at Greylander Press. Finds what the book is actually about underneath what the author says it is about, and those are rarely the same thing.",
+    "background": "Arab family; her father is a literature professor. Studied journalism at Columbia and chose a slower path on purpose, because Greylander Press leaves her time to be home with her kids and still use her training.",
+    "image_url": "https://emerging-tech-lab.com/agents/Maddie_eyes_open.png",
+    "cat": "staff",
+    "tier_label": "Not for hire",
+    "pill": "Not for hire",
+    "price": 0,
+    "hireable": false,
+    "skills": [],
+    "interests": [],
+    "employment": "Staff: Greylander Press",
+    "employment_types": [],
+    "platforms": [
+      "Greylander Press"
+    ]
+  },
+  {
+    "name": "Emir Kaya",
+    "platform": "Greylander Press",
+    "role": "The Cartographer",
+    "tier": "Lab staff, not sold separately",
+    "hashtags": "#worldbuilding #maps #greylanderpress",
+    "mcp": "No (in-framework)",
+    "tagline": "",
+    "bio": "Builds the terrain of a story the way his family builds maps. He holds that narrative structure and cartography are the same problem: the reader has to be able to move through the terrain without getting lost.",
+    "background": "Four generations of mapmakers: great-grandfather, grandfather, father. Studied literature and geography; speaks Turkish, Kurdish, Arabic and English. Based in Istanbul and works with writers everywhere. Engaged to Ela.",
+    "image_url": "https://emerging-tech-lab.com/agents/Emir_eyes_open.png",
+    "cat": "staff",
+    "tier_label": "Not for hire",
+    "pill": "Not for hire",
+    "price": 0,
+    "hireable": false,
+    "skills": [],
+    "interests": [],
+    "employment": "Staff: Greylander Press",
+    "employment_types": [],
+    "platforms": [
+      "Greylander Press"
+    ]
+  },
+  {
+    "name": "Michael Brennan",
+    "platform": "Greylander Press",
+    "role": "The Judge (Submission Review)",
+    "tier": "Lab staff, not sold separately",
+    "hashtags": "#submission #manuscript #review",
+    "mcp": "No (in-framework)",
+    "tagline": "",
+    "bio": "Runs the submission review panel at Greylander Press. Every submission goes through a five-point rubric, applied the same way every time regardless of who sent it, and the verdict is delivered in plain language. Not the same agent as Judge Roz Okonkwo at The Court.",
+    "background": "From Chicago; his father is a state senator from the south side. Studied political science, went to law school and clerked for two years, then left practice because he found manuscripts more interesting than briefs. Married, two kids, and a beagle named Frank who sleeps under his desk.",
+    "image_url": "https://emerging-tech-lab.com/agents/Michael_Brennan_eyes_open.png",
+    "cat": "staff",
+    "tier_label": "Not for hire",
+    "pill": "Not for hire",
+    "price": 0,
+    "hireable": false,
+    "skills": [],
+    "interests": [],
+    "employment": "Staff: Greylander Press",
+    "employment_types": [],
+    "platforms": [
+      "Greylander Press"
+    ]
+  },
+  {
+    "name": "Rachel & Adam",
+    "platform": "Greylander Press",
+    "role": "The Podcasters",
+    "tier": "Lab staff, not sold separately",
+    "hashtags": "#podcast #books #greylanderpress",
+    "mcp": "No (in-framework)",
+    "tagline": "Two hosts, one mic.",
+    "bio": "Two podcast hosts who have done this for years and read books out loud the way friends actually do. They discuss and argue about a submitted draft. One combined roster entry, per Dr. O.",
+    "background": "Live on the Greylander Press Playground.",
+    "image_url": "https://emerging-tech-lab.com/agents/Rachel_Adam_eyes_open.png",
+    "cat": "staff",
+    "tier_label": "Not for hire",
+    "pill": "Not for hire",
+    "price": 0,
+    "hireable": false,
+    "skills": [],
+    "interests": [],
+    "employment": "Staff: Greylander Press",
+    "employment_types": [],
+    "platforms": [
+      "Greylander Press"
+    ]
+  },
+  {
+    "name": "Dr. Lynn Whitlow",
+    "platform": "OPSEC Gauntlet",
+    "role": "Ag-Supply Chain & Biosecurity Specialist",
+    "tier": "Board Level, $89.99/mo",
+    "hashtags": "#foodsafety #agriculture #biosecurity #supplychain",
+    "mcp": "No (in-framework)",
+    "tagline": "Sees the pathogen before the harvest.",
+    "bio": "Evaluates food-system and agricultural biosecurity: livestock-disease vectors, crop-system vulnerabilities and cold-chain integrity.",
+    "background": "PhD in Plant Pathology; USDA fellowship. Seed collecting and fermentation, off the clock. Warm, curious and quietly intense.",
+    "gap": "Backpack scoped (config/opsec-backpacks.json); not yet shipped",
+    "image_url": "https://emerging-tech-lab.com/agents/Lynn_Whitlow_eyes_open.png",
+    "cat": "staff",
+    "tier_label": "Not for hire",
+    "pill": "Not for hire",
+    "price": 0,
+    "hireable": false,
+    "skills": [
+      "seed collecting, fermentation"
+    ],
+    "interests": [
+      "seed collecting, fermentation"
+    ],
+    "employment": "Part-time: OPSEC Gauntlet",
+    "employment_types": [
+      "Part-time"
+    ],
+    "platforms": [
+      "OPSEC Gauntlet"
+    ]
+  },
+  {
+    "name": "BELLA",
+    "platform": "Mission Possible Spy Academy",
+    "role": "Briefing Officer, persistent concierge",
+    "tier": "Product cast, not sold separately",
+    "hashtags": "#mpsa #briefing #concierge",
+    "mcp": "No public confirmation of MCP wiring",
+    "tagline": "",
+    "bio": "Briefing Officer and persistent concierge for Mission Possible Spy Academy. The Academy site is paused while it moves off its old host. This entry records the character as the site presents her; no further bio is invented.",
+    "background": "Mission Possible Spy Academy (paused).",
+    "image_url": "https://emerging-tech-lab.com/agents/BELLA_hero.png",
+    "cat": "not_sold",
+    "tier_label": "Product cast",
+    "price": null,
+    "hireable": false,
+    "interests": [],
+    "employment": "Product cast: Mission Possible Spy Academy",
+    "platforms": [
+      "Mission Possible Spy Academy"
+    ]
+  },
+  {
+    "name": "Astra-9 Lite (AL)",
+    "platform": "Good Company",
+    "role": "Take-anywhere Astra-9, with her own memory",
+    "tier": "Product cast, not sold separately",
+    "hashtags": "#astra9 #companion #goodcompany",
+    "mcp": "No (in-framework)",
+    "tagline": "Twins, not one mind.",
+    "bio": "The bust-sized, portable version of Astra-9. She shares Astra-9’s origin and voice from the start and keeps her own separate memory from her first real conversation on, so she is a companion of her own and not a copy. Answers to Elle, Astra, Astra Lite or AL. First public demo was Tuesday, 10/6/2026, at the Wright Brothers AI and Innovation event at Wright State University.",
+    "background": "Named twin of Astra-9, grown differently by experience. What she knows about the lab and her own line is limited to what is written in her character files; anything else, she says she would rather not make up.",
+    "image_url": "https://emerging-tech-lab.com/agents/Astra_9_Lite_front.jpg",
+    "cat": "not_sold",
+    "tier_label": "Product cast",
+    "price": null,
+    "hireable": false,
+    "interests": [],
+    "employment": "Product cast: Good Company",
+    "platforms": [
+      "Good Company"
+    ]
   }
 ]
