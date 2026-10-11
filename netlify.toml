@@ -227,6 +227,37 @@
   to = "/.netlify/functions/studio-slick-view?slug=:splat"
   status = 200
 
+# ─── The Gym lives at its own site ────────────────────────────────────────
+# emerging-tech-lab.com/gym used to serve a copy of the Gym that stopped
+# getting updates in June (no Stephen Thomas, none of the later pages). The
+# real Gym is https://the-gym.net/. Dr. O, 2026-10-11: send /gym there and
+# delete the old copy. force = true so the redirect wins even if a static
+# page of the same name is ever added back. A visit to the old staff-profile
+# page lands on the Gym's home page, where the cast is.
+[[redirects]]
+  from = "/gym"
+  to = "https://the-gym.net/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/gym.html"
+  to = "https://the-gym.net/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/gym-profile"
+  to = "https://the-gym.net/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/gym-profile.html"
+  to = "https://the-gym.net/"
+  status = 301
+  force = true
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap
