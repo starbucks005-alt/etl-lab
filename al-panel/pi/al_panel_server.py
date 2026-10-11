@@ -196,16 +196,34 @@ except (OSError, ValueError):
 # fetched from. A file called personalities_private.json next to the server holds them, in the same shape as personalities.json
 # with one added line, "line", for the card. It is kept out of git. Delete the file and restart her to remove them.
 PRIVATE_LIST = []
-try:
-    _priv = json.load(open(os.path.join(HERE, "personalities_private.json")))
-    for _pid, _p in _priv.items():
-        if re.fullmatch(r"[a-z0-9-]+", _pid) and isinstance(_p, dict) and _p.get("name") and _p.get("prompt") and _pid not in PERSONAS:
-            PERSONAS[_pid] = {k: _p[k] for k in ("name", "group", "voice", "say", "prompt") if k in _p}
-            PERSONAS[_pid].setdefault("group", "Private")
-            PRIVATE_LIST.append({"id": _pid, "name": _p["name"], "group": PERSONAS[_pid]["group"], "sub": "Made for one person",
-                                 "line": _p.get("line", ""), "price": 0, "voice": bool(_p.get("voice")), "gender": _p.get("gender", "")})
-except (OSError, ValueError):
-    pass
+# Any file called personalities_private*.json is read, so one person's character never has to overwrite another's. An entry can also build on a
+# character already on the robot: "extends": "gc-bramble" takes that character's instructions and voice, and "add" is extra text put after
+# them. "fixed_hello": true makes her say the "say" line word for word when she takes the character on, and when someone walks up.
+import glob as _glob
+for _file in sorted(_glob.glob(os.path.join(HERE, "personalities_private*.json"))):
+    try:
+        _priv = json.load(open(_file))
+    except (OSError, ValueError):
+        continue
+    for _pid, _p in (_priv.items() if isinstance(_priv, dict) else []):
+        if not (re.fullmatch(r"[a-z0-9-]+", _pid) and isinstance(_p, dict)) or _pid in PERSONAS:
+            continue
+        _base = PERSONAS.get(_p.get("extends")) or {}
+        _prompt = (_base.get("prompt", "") + (" " + _p["add"] if _p.get("add") else "")) if _base else _p.get("prompt", "")
+        _name = _p.get("name") or _base.get("name")
+        if not (_name and _prompt):
+            continue
+        _ent = {"name": _name, "group": _p.get("group", "Private"), "prompt": _prompt}
+        _voice = _p.get("voice", _base.get("voice"))
+        if _voice:
+            _ent["voice"] = _voice
+        if _p.get("say"):
+            _ent["say"] = _p["say"]
+        if _p.get("fixed_hello") and _p.get("say"):
+            _ent["fixed_hello"] = True
+        PERSONAS[_pid] = _ent
+        PRIVATE_LIST.append({"id": _pid, "name": _name, "group": _ent["group"], "sub": "Made for one person",
+                             "line": _p.get("line", ""), "price": 0, "voice": bool(_voice), "gender": _p.get("gender", "")})
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
@@ -473,7 +491,26 @@ def mood_block(pid):
     if mood["reason"] and mood["new"]:
         out += " It just changed because " + mood["reason"] + "."
     hab = cfg.get("habit", "")
-    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it." + (" Your habit: " + hab + " Let it come out when the mood fits it." if hab else "")
+    return out + " Show the mood in how you speak and what you pick up on; do not announce it or explain it. Never open a reply with a word that names a feeling, a stage direction, or a bracketed note: begin with what you are actually saying, and do not begin two replies the same way." + (" Your habit, which shows only in the words you choose: " + hab + " Never describe what your body, face or voice is doing, and never say that you are pausing, going still or taking a moment: a voice cannot show that, so do not say it." if hab else "")
+
+
+# 2026-10-10, Dr. O: Astra, the hologram and later Astrad and Astra-9 talk to each other without her. Nothing connects the devices.
+# Each one hears the others through the air, so the floor is passed by NAME: a turn ends by speaking to one sister, and only
+# the one named answers. If nobody has spoken for SISTER_GAP seconds, Astra (first in the order) speaks into the silence.
+# Not tested with the real speakers yet; the first run on the real devices is the test.
+SISTER_GAP = 4.0
+sisters = {"on": False, "me": "Elle", "others": [], "turns": 0, "max": 12, "started": 0.0}
+STOP_TALK_RE = re.compile(r"\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b", re.I)
+
+
+def sisters_block():
+    if not sisters["on"]:
+        return ""
+    others = sisters["others"]
+    names = ", ".join(others) if others else "the others"
+    return (" Right now you are talking with " + names + ", who are other characters in the room, not visitors. Keep every turn to one or two "
+            "short sentences. Say something new each time: a question, a small story, a gentle disagreement, something you noticed. "
+            "In this talk you are called " + sisters["me"] + ", so expect to be called that, and speak to the others by the names given here. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said, and never open a turn with a word that names a feeling.")
 
 
 def apply_prompt():
@@ -482,7 +519,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = (persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + mood_block(None))
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + mood_block(None))) + sisters_block()
 
 
 def write_eyes(boost=False):
@@ -527,6 +564,24 @@ def heard_herself(text, started_at=None):
     return bool(heard) and sum(1 for w in heard if w in said) / len(heard) >= 0.6
 
 
+PRONOUNCE_FILE = os.path.join(HERE, "pronounce.json")
+
+
+def for_the_voice(text):
+    """How a word is SPELLED for the voice, when the voice says it wrong. 2026-10-10: Astra Lite said "Elle" like the letter L.
+    pronounce.json is {"written": "spelled for the voice"}. Only what is sent to the voice changes; the chat, the log and
+    the check that she is not hearing herself keep her real words. Whether a spelling sounds right is settled by listening."""
+    try:
+        with open(PRONOUNCE_FILE) as f:
+            table = json.load(f)
+    except (OSError, ValueError):
+        return text
+    for written, spelled in table.items():
+        if written and isinstance(spelled, str):
+            text = re.sub(r"\b" + re.escape(written) + r"\b", spelled, text, flags=re.I)
+    return text
+
+
 def speak_now(text, use_persona=True):
     """Say it and come back only when she has finished."""
     with speak_lock:
@@ -534,7 +589,7 @@ def speak_now(text, use_persona=True):
             persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
             al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
             last_said["text"] = text
-            al.speak(text)
+            al.speak(for_the_voice(text))
             last_said["t"] = time.time()
         except Exception as e:  # keep the server alive if sound fails
             print("SPEAK ERROR:", e, flush=True)
@@ -572,7 +627,9 @@ def welcome(force=False):
             except OSError as e:
                 print("NECK ERROR:", e, flush=True)
         if w["greet"]:
-            if state["persona"]:
+            if state["persona"] and (PERSONAS.get(state["persona"]) or {}).get("fixed_hello"):
+                line = PERSONAS[state["persona"]]["say"]     # a private character that opens with words Dr. O wrote
+            elif state["persona"]:
                 line = "Hello."   # a character is never given words it was not written
             else:
                 welcome_state["greet_i"] = (welcome_state["greet_i"] + 1) % len(GREETINGS)
@@ -823,8 +880,9 @@ def personality():
     mood_reset(pid)
     apply_prompt()
     ask = "Say hello to the visitor in one short sentence."
+    fixed = (PERSONAS.get(pid) or {}).get("fixed_hello")
     try:
-        reply = al.get_al_reply(ask)
+        reply = PERSONAS[pid]["say"] if fixed else al.get_al_reply(ask)
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
     note = ("Now speaking as " + PERSONAS[pid]["name"] + ".") if pid else "Back to Astra-9 Lite."
@@ -907,6 +965,48 @@ def welcome_now():
     return jsonify(ok=True, did=did)
 
 
+def sisters_stop(why=""):
+    if sisters["on"]:
+        sisters["on"] = False
+        print("SISTERS stopped (%s) after %d turns" % (why, sisters["turns"]), flush=True)
+        apply_prompt()
+
+
+@app.get("/api/sisters")
+def sisters_get():
+    return jsonify(on=sisters["on"], name=sisters["me"], others=sisters["others"], turns=sisters["turns"], max=sisters["max"])
+
+
+@app.post("/api/sisters")
+def sisters_set():
+    """Start or stop the talk between her and the other characters. Body: {on: true, name: "Elle", with: ["Alice"], max: 12}."""
+    d = request.get_json(silent=True) or {}
+    if not d.get("on"):
+        sisters_stop("stopped from the panel")
+        return jsonify(ok=True, on=False)
+    me = re.sub(r"[^A-Za-z0-9 .\-]", "", str(d.get("name") or "Elle")).strip()[:30] or "Elle"
+    others = [re.sub(r"[^A-Za-z0-9 .\-]", "", str(n)).strip()[:30] for n in (d.get("with") or [])]
+    others = [n for n in others if n and n.lower() != me.lower()][:4]
+    if not others:
+        return jsonify(error="Say who she is talking with, and give them a different name from hers"), 400
+    try:
+        mx = max(2, min(40, int(d.get("max") or 12)))
+    except (TypeError, ValueError):
+        mx = 12
+    sisters.update(on=True, me=me, others=others, turns=0, max=mx, started=time.time())
+    apply_prompt()
+
+    def go():
+        try:
+            answer_and_say("(The talk with " + ", ".join(others) + " begins now. Open it by saying something to " + others[0] + ".)")
+        except Exception as e:
+            print("ANSWER ERROR:", e, flush=True)
+            return
+        converse()
+    threading.Thread(target=go, daemon=True).start()
+    return jsonify(ok=True, on=True, others=others, max=mx)
+
+
 SHUTDOWN_CMD = ["sudo", "-n", "/usr/sbin/shutdown", "-h", "now"]
 SUDOERS_LINE = ("echo 'terryoroszi ALL=(root) NOPASSWD: /usr/sbin/shutdown' | sudo tee /etc/sudoers.d/al-shutdown "
                 "&& sudo chmod 440 /etc/sudoers.d/al-shutdown && sudo visudo -c")
@@ -953,7 +1053,7 @@ def say():
     if not text:
         return jsonify(error="empty"), 400
     try:
-        reply = al.get_al_reply(context_for(text))
+        reply = get_reply(context_for(text), short=False)
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
@@ -974,16 +1074,23 @@ def wake_name_re():
     """Her own names, plus the name of the character she has taken on. 2026-10-07: with the A.L.I.C.E. character loaded,
     "Hello, Alice" was heard three times in a row and ignored, because only the Astra names woke her."""
     p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    # 2026-10-10: while she talks with the others only the name chosen for the talk is HER name, so a name said to one of them
+    # does not wake all of them. The names are picked when the talk starts, so any pair or trio of characters can use it.
+    if sisters["on"]:
+        mine = [w for w in re.sub(r"[^A-Za-z0-9 ]", " ", sisters["me"]).split() if len(w) > 1] or ["Elle"]
+        base = re.compile(r"\b(" + "|".join(re.escape(w) for w in mine) + r")\b", re.I)
+    else:
+        base = NAME_RE
     if not p:
-        return NAME_RE
+        return base
     n = p.get("name", "")
     m = re.search(r"\(called ([^)]+)\)", n)
     n = m.group(1) if m else re.split(r"[,(]", n)[0]
     n = re.sub(r"\b(dr|ms|mr|mrs|coach|lady)\b\.?", "", n.replace(".", ""), flags=re.I)
     words = [w for w in re.sub(r"[^A-Za-z0-9 ]", "", n).split() if len(w) > 1]
     if not words:
-        return NAME_RE
-    return re.compile(NAME_RE.pattern[:-3] + "|" + "|".join(re.escape(w) for w in words) + r")\b", re.I)
+        return base
+    return re.compile(base.pattern[:-3] + "|" + "|".join(re.escape(w) for w in words) + r")\b", re.I)
 
 
 def level_of(buf):
@@ -1210,6 +1317,55 @@ def shorten(reply, sentences=2, chars=190):
     return out
 
 
+# 2026-10-10, Dr. O: "I hate repeated anything." The prompts ask for variety and the model still slips, so this checks the reply
+# before it is spoken: any run of three words that already appeared in her last few replies, or an opening word she has used
+# on most of her last few turns, sends it back once to be said differently. One retry, so it costs time only when it repeats.
+REPEAT_WORDS = re.compile(r"[a-z0-9']+")
+FILLER = {"the", "and", "you", "that", "this", "with", "for", "are", "was", "but", "not", "have", "what", "your", "its", "it's", "i'm", "i", "a", "to", "of", "in", "is", "it", "me", "my", "do", "so", "on", "as", "at", "be", "we", "he", "she", "they"}
+
+
+def _words(t):
+    return REPEAT_WORDS.findall((t or "").lower())
+
+
+def repeated_bits(reply, recent=None, k=3):
+    """Phrases (k words) in this reply that were already said in her last replies, and her opening word if she keeps using it."""
+    if recent is None:
+        recent = [e["text"] for e in state["log"] if e.get("who") == "al"][-6:]
+    seen = set()
+    for r in recent:
+        w = _words(r)
+        for i in range(len(w) - k + 1):
+            seen.add(tuple(w[i:i + k]))
+    w, out = _words(reply), []
+    for i in range(len(w) - k + 1):
+        g = tuple(w[i:i + k])
+        if g in seen and sum(1 for x in g if x not in FILLER) >= 2 and " ".join(g) not in out:
+            out.append(" ".join(g))
+    first = w[0] if w else ""
+    openings = [(_words(r) or [""])[0] for r in recent[-4:]]
+    if first and first not in FILLER and openings.count(first) >= 2:
+        out.append(first)
+    return out[:4]
+
+
+def get_reply(ask, short=True):
+    """al.get_al_reply, once more with the repeats named if the first answer repeated her."""
+    reply = al.get_al_reply(ask)
+    reply = shorten(reply) if short else reply
+    bad = repeated_bits(reply)
+    if bad:
+        try:
+            again = al.get_al_reply(ask + " (Say it a different way. You already used these words or phrases, so do not use them again: " + "; ".join('"%s"' % b for b in bad) + ".)")
+            again = shorten(again) if short else again
+            if len(repeated_bits(again)) < len(bad):
+                print("REPEAT sent back once, was: %s" % "; ".join(bad), flush=True)
+                return again
+        except Exception as e:
+            print("REPEAT retry failed:", e, flush=True)
+    return reply
+
+
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
     t0 = time.time()
@@ -1220,7 +1376,7 @@ def answer_and_say(text):
         state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
         speak_now(spoken)
         return reply
-    reply = shorten(al.get_al_reply(context_for(text)))
+    reply = get_reply(context_for(text))
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
@@ -1245,8 +1401,25 @@ def converse(window=None):
         false_starts = 0
         while time.time() < deadline:
             settle()
-            path = hear_one(wait_seconds=max(1.0, deadline - time.time()), on_start=lambda: write_eyes(boost=True))
+            if sisters["on"]:
+                deadline = time.time() + window        # the sisters' talk ends on its own turn count or a stop phrase, not on quiet
+                path = hear_one(wait_seconds=SISTER_GAP, on_start=lambda: write_eyes(boost=True))
+            else:
+                path = hear_one(wait_seconds=max(1.0, deadline - time.time()), on_start=lambda: write_eyes(boost=True))
             write_eyes()
+            if sisters["on"] and sisters["turns"] >= sisters["max"]:
+                sisters_stop("turn limit")
+                break
+            if not path and sisters["on"] and last_clip["why"] == "quiet":
+                # nobody has spoken for a while: Astra is first in the order, so she picks it up again
+                nxt = sisters["others"][sisters["turns"] % len(sisters["others"])] if sisters["others"] else "the others"
+                try:
+                    sisters["turns"] += 1
+                    answer_and_say("(Nobody has spoken for a few seconds. Say something new to " + nxt + ".)")
+                except Exception as e:
+                    print("ANSWER ERROR:", e, flush=True)
+                    break
+                continue
             if not path:
                 # 2026-10-07: a click or the tail of her own voice used to end the whole conversation, so she went back to
                 # waiting for her name. Only a stretch of real quiet ends it.
@@ -1266,10 +1439,15 @@ def converse(window=None):
             if heard_herself(text, last_clip["start"]):
                 print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
                 continue
-            if state["welcome"].get("crowd") and not wake_name_re().search(text):
+            if sisters["on"] and STOP_TALK_RE.search(text):
+                sisters_stop("told to stop")
+                break
+            if (state["welcome"].get("crowd") or sisters["on"]) and not wake_name_re().search(text):
                 print("CROWD mode: no name in it, not answering. Heard: %s" % text[:60], flush=True)
                 continue
             try:
+                if sisters["on"]:
+                    sisters["turns"] += 1
                 answer_and_say(text)
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)
@@ -1409,7 +1587,7 @@ def listen_once():
         if not heard:
             return {"heard": "", "reply": ""}, 200
         try:
-            reply = shorten(al.get_al_reply(context_for(heard)))
+            reply = get_reply(context_for(heard))
         except Exception as e:
             return {"error": str(e)[:200], "heard": heard}, 502
         state["history"].append('They said "%s" and you said "%s".' % (heard, reply))

@@ -9,6 +9,30 @@
 <!-- Google tag (gtag.js), same snippet as every other Good Company page. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F7HTDVMJPZ"></script>
 <script>
+/* WHY THERE IS NO ANSWER, added 2026-10-10, Dr. O: "I am not sure what to say to that" hid the real reason for an hour. The site says why
+   (owner key refused, free messages used up, a fault); this puts that in words, and still falls back to the old line when it says nothing. */
+function gcRepeatedBits(reply, recent) {
+  var FILLER = {the:1,and:1,you:1,that:1,this:1,with:1,for:1,are:1,was:1,but:1,not:1,have:1,what:1,your:1,its:1,"it's":1,"i'm":1,i:1,a:1,to:1,of:1,"in":1,is:1,it:1,me:1,my:1,"do":1,so:1,on:1,as:1,at:1,be:1,we:1,he:1,she:1,they:1};
+  function words(t) { return (String(t || '').toLowerCase().match(/[a-z0-9']+/g)) || []; }
+  var seen = {}, i, k = 3;
+  recent.forEach(function (r) { var w = words(r); for (i = 0; i + k <= w.length; i++) seen[w.slice(i, i + k).join(' ')] = 1; });
+  var w2 = words(reply), out = [];
+  for (i = 0; i + k <= w2.length; i++) {
+    var g = w2.slice(i, i + k), key = g.join(' ');
+    if (seen[key] && g.filter(function (x) { return !FILLER[x]; }).length >= 2 && out.indexOf(key) < 0) out.push(key);
+  }
+  var first = w2[0] || '', opens = recent.slice(-4).map(function (r) { return words(r)[0] || ''; });
+  if (first && !FILLER[first] && opens.filter(function (o) { return o === first; }).length >= 2) out.push(first);
+  return out.slice(0, 4);
+}
+function gcNoReplyWhy(res) {
+  if (!res) return "I did not get an answer from the site. Check the connection and try again.";
+  if (res.owner_key_rejected) return "The site did not accept the owner key saved in this browser, so it counted you as a visitor. Open this page once with ?key= and your key on the end.";
+  if (res.daily_capped) return "The free messages for today are used up in this browser. The owner key lifts that: open this page once with ?key= and your key on the end.";
+  if (res.credits_exhausted) return "This character has no credits left.";
+  if (res.error) return "The site answered with a problem (" + String(res.error).slice(0, 40) + "). Try again in a moment.";
+  return "I'm not sure what to say to that.";
+}
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -127,6 +151,10 @@
   <!-- MEMORY, added 2026-10-07, Dr. O: house characters remember a visitor by their browser, as the built companions do. -->
   <span id="holoMemory" style="display:none;font-size:.8rem;color:#b7ab98;"><span id="holoMemoryText"></span> <button id="bForget" type="button">Forget me</button></span>
   <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
+  <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Name1,Name2 names who is with her (it asks when you start if the address has none). -->
+  <button id="bSisters" type="button" style="display:none">Let them talk</button>
+  <!-- ACCENT, added 2026-10-10, Dr. O: "can the hologram Astra change her accent?" The same five voices and the same saved choice as the room page (gc_voice_style). Only shown for a character that has them (Astra-9, Astrad). -->
+  <button id="bAccent" type="button" style="display:none">Voice: Robot</button>
   <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
@@ -481,9 +509,17 @@
   var chatForm = document.getElementById('holoChat'), chatInput = document.getElementById('holoInput');
   var chatSend = document.getElementById('holoSend'), replyEl = document.getElementById('holoReply');
   var bMic = document.getElementById('bMic'), bVoice = document.getElementById('bVoice');
+  /* SISTERS state. The page and Astra's robot hear each other through the air; nothing connects them. The turn is passed by NAME:
+     a reply ends by speaking to one of them, and only the one named answers. This page also waits a beat (YIELD_MS) before it
+     answers, and drops the answer if it hears someone start talking in that beat, so Astra (who does not wait) keeps the floor.
+     Not tried with the real speakers yet. */
+  var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
+  var YIELD_MS = 900, SIS_GAP_MS = 6000;
+  var SIS_STOP = /\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b/i;
+  try { var wParam = new URLSearchParams(location.search).get('with'); if (wParam) { SIS.others = wParam.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4); SIS.fixed = true; } } catch (_) {}
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
                          isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); },
-                         state: function (t) { document.getElementById('bHandsState').textContent = t; },
+                         state: function (t) { document.getElementById('bHandsState').textContent = t; if (/^Hearing/.test(t)) { SIS.hearingAt = Date.now(); SIS.lastActive = Date.now(); } },
                          identity: function () { return { visitor_id: GC_visitorId(), access_token: GC_accessToken(), owner_key: GC_ownerKey(), tester_key: GC_testerKey() }; } });
 
   function showReply(text) { replyEl.textContent = text; replyEl.style.display = text ? 'block' : 'none'; }
@@ -502,10 +538,32 @@
     } catch (e) { /* audioEl still plays at its own volume */ }
   }
 
+  var ACCENTS = ['robot', 'american', 'swedish', 'british', 'indian'];
+  var ACCENT_LABELS = { robot: 'Robot', american: 'American', swedish: 'Swedish', british: 'British', indian: 'Indian' };
+  function getAccent() { try { var a = localStorage.getItem('gc_voice_style'); return ACCENTS.indexOf(a) > -1 ? a : 'robot'; } catch (_) { return 'robot'; } }
+  function accentOptions() {
+    if (!chatWho || chatWho.echo) return null;
+    var id = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
+    var maps = [chatWho.speaker && chatWho.speaker.voiceOptions, chatWho.friend && chatWho.friend.voiceOptions];
+    for (var i = 0; i < maps.length; i++) { if (maps[i] && maps[i].robot === id) return maps[i]; }
+    var cs = (chatWho.friend && chatWho.friend.companions) || {};           // Astra-9's own voices sit on her companion entry
+    for (var k in cs) { if (cs[k] && cs[k].voiceOptions && cs[k].voiceOptions.robot === id) return cs[k].voiceOptions; }
+    return null;
+  }
+  function accentVoice(id) { var o = accentOptions(), a = getAccent(); return (o && a !== 'robot' && o[a]) || id; }
+  function accentPaint() { var b = document.getElementById('bAccent'); b.style.display = accentOptions() ? '' : 'none'; b.textContent = 'Voice: ' + ACCENT_LABELS[getAccent()]; }
+  document.getElementById('bAccent').addEventListener('click', function () {
+    var n = ACCENTS[(ACCENTS.indexOf(getAccent()) + 1) % ACCENTS.length];
+    try { localStorage.setItem('gc_voice_style', n); } catch (_) {}
+    accentPaint();
+  });
+  setInterval(accentPaint, 1000);
+
   function speakReply(text) {
     if (chatWho && chatWho.echo) return speakEcho(text);
     var voiceId = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
     if (!voiceOn || !voiceId) return;
+    voiceId = accentVoice(voiceId);
     fetch('/.netlify/functions/gc-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -522,6 +580,8 @@
       var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
       gcBoostVoice(audio);
       hf.speakingStart(audio);
+      audio.addEventListener('playing', function () { SIS.talking = true; });
+      ['ended', 'pause', 'error', 'abort', 'emptied', 'stalled'].forEach(function (n) { audio.addEventListener(n, function () { SIS.talking = false; SIS.lastActive = Date.now(); }); });
       audio.play().catch(function () {});
     }).catch(function () { /* the text reply already stands on its own */ });
   }
@@ -626,7 +686,7 @@
       })
     }).then(function (r) { return r.json(); }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
-      var raw = (res && res.reply) || "I'm not sure what to say to that.";
+      var raw = (res && res.reply) || gcNoReplyWhy(res);
       /* Plumbing, not words: a reply can carry [[NEXT]] and [[SPEAKER:x]] markers, same strip as ar.html. */
       var parts = raw.split(/\n?\[\[NEXT\]\]\n?/).map(function (p) {
         return p.replace(/^\s*\[\[SPEAKER:[a-z0-9_-]+\]\]\s*/i, '').trim();
@@ -647,26 +707,57 @@
     e.preventDefault();
     var text = chatInput.value.trim();
     if (!text || chatBusy || !chatWho) return;
+    var sisNote = '';
+    if (SIS.on && !chatWho.echo) {
+      if (!SIS.release) {
+        chatInput.value = '';
+        if (SIS_STOP.test(text)) { sisStop('told to stop'); return; }
+        if (!sisNameRe().test(text) || SIS.wait) return;            // not meant for her: stay quiet and let the one named answer
+        SIS.wait = true; var t0 = Date.now();
+        setTimeout(function () {                                    // a beat first; if someone has started talking, they keep the floor
+          SIS.wait = false;
+          if (!SIS.on || SIS.hearingAt > t0 || chatBusy) return;
+          SIS.release = true; chatInput.value = text; chatForm.requestSubmit ? chatForm.requestSubmit() : chatSend.click();
+        }, YIELD_MS);
+        return;
+      }
+      SIS.release = false; SIS.turns++;
+      sisNote = '\n\n[Right now you are talking with ' + SIS.others.join(' and ') + ', who are other characters in the room, not visitors. Reply in one or two short sentences. Say something new: a question, a small story, a gentle disagreement. End by speaking to one of them by name, because only the one you name will answer.]';
+      if (SIS.turns >= SIS.max) setTimeout(function () { sisStop('turn limit'); }, 20000);   // after this last line has been spoken
+    }
     chatBusy = true; chatSend.disabled = true;
     chatInput.value = '';
     if (chatWho.echo) return sendEcho(text);
     var herName = COMPANIONS[who.value][0];
     chatHistory.push({ who: YOU.name || 'You', text: text, mine: true });
     showReply('...');
-    fetch('/.netlify/functions/gc-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        friend: chatWho.friend, speaker: chatWho.speaker,
-        you: { name: YOU.name, pronouns: YOU.pronouns },
-        messages: chatHistory, message: text, scene: null, guest_cameo: null, is_demo: true,
-        visitor_id: GC_visitorId(), access_token: GC_accessToken(),
-        owner_key: GC_ownerKey(), tester_key: GC_testerKey(),
-        remember: MEMORY_ON
-      })
-    }).then(function (r) { return r.json(); }).then(function (res) {
+    var sentHistory = chatHistory.slice();
+    function postChat(msg) {
+      return fetch('/.netlify/functions/gc-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          friend: chatWho.friend, speaker: chatWho.speaker,
+          you: { name: YOU.name, pronouns: YOU.pronouns },
+          messages: sentHistory, message: msg, scene: null, guest_cameo: null, is_demo: true,
+          visitor_id: GC_visitorId(), access_token: GC_accessToken(),
+          owner_key: GC_ownerKey(), tester_key: GC_testerKey(),
+          remember: MEMORY_ON
+        })
+      }).then(function (r) { return r.json(); });
+    }
+    /* NO REPEATS, added 2026-10-10, Dr. O: "I hate repeated anything." A reply that repeats words from her last few replies is sent back
+       once to be said differently. Same rule as Astra Lite's own check; the retry is used only if it repeats less. */
+    var heardBefore = chatHistory.filter(function (m) { return !m.mine; }).slice(-6).map(function (m) { return m.text; });
+    postChat(text + sisNote).then(function (res) {
+      var bad = res && res.reply ? gcRepeatedBits(res.reply, heardBefore) : [];
+      if (!bad.length) return res;
+      return postChat(text + sisNote + '\n\n[Say it a different way. You already used these words or phrases, so do not use them again: ' + bad.map(function (b) { return '"' + b + '"'; }).join('; ') + '.]')
+        .then(function (again) { return (again && again.reply && gcRepeatedBits(again.reply, heardBefore).length < bad.length) ? again : res; })
+        .catch(function () { return res; });
+    }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
-      var reply = (res && res.reply) || "I'm not sure what to say to that.";
+      var reply = (res && res.reply) || gcNoReplyWhy(res);
       chatHistory.push({ who: herName, text: reply, mine: false });
       showReply(reply);
       speakReply(reply);
@@ -714,6 +805,46 @@
       try { recognizer.start(); } catch (_) { micOff(); }
     });
   }
+
+  /* SISTERS: start, stop, the names she answers to, and the nudge into silence. */
+  var bSisters = document.getElementById('bSisters');
+  function sisNameRe() {
+    var n = (COMPANIONS[who.value] && COMPANIONS[who.value][0]) || '';
+    var words = n.replace(/\b(dr|ms|mr|mrs)\b\.?/ig, '').split(/[^A-Za-z0-9.]+/).filter(function (w) { return w.length > 1; });
+    var all = words.map(function (w) { return w.replace(/\./g, ''); }).filter(function (w) { return w.length > 1; });
+    if (!all.length) all = ['nobody-has-this-name'];
+    return new RegExp('\\b(' + all.join('|') + ')\\b', 'i');
+  }
+  function sisPaint() { bSisters.textContent = SIS.on ? 'End the talk' : 'Let them talk'; bSisters.classList.toggle('listening', SIS.on); }
+  function sisStop(why) {
+    if (!SIS.on) return;
+    if (!SIS.fixed) SIS.others = [];
+    SIS.on = false; SIS.wait = false; SIS.release = false; clearInterval(SIS.timer); sisPaint();
+    document.getElementById('bHandsState').textContent = 'The talk ended (' + why + ')';
+  }
+  function sisStart() {
+    if (!chatWho || chatWho.echo) { showReply('This one talks through My Echo, so it cannot join the sisters yet.'); return; }
+    if (!SIS.others.length) {                                          // asked, not fixed: any characters can be in the talk
+      var saved = ''; try { saved = localStorage.getItem('gc_sisters_with') || ''; } catch (_) {}
+      var ans = window.prompt('Who is talking with her? Use the names they answer to, separated by commas.', saved);
+      if (!ans) return;
+      SIS.others = ans.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4);
+      try { localStorage.setItem('gc_sisters_with', SIS.others.join(', ')); } catch (_) {}
+    }
+    SIS.on = true; SIS.turns = 0; SIS.lastActive = Date.now(); SIS.hearingAt = 0; sisPaint();
+    if (!bHands.classList.contains('listening')) bHands.click();       // the ears have to be on for this
+    SIS.timer = setInterval(function () {                              // nobody has spoken for a while: she says something to the next one
+      if (!SIS.on) return;
+      if (chatBusy || SIS.wait || SIS.talking || SIS.turns >= SIS.max) return;
+      if (Date.now() - SIS.lastActive < SIS_GAP_MS) return;
+      SIS.release = true;
+      chatInput.value = '(Nobody has spoken for a few seconds. Say something new to ' + SIS.others[SIS.turns % SIS.others.length] + '.)';
+      chatForm.requestSubmit ? chatForm.requestSubmit() : chatSend.click();
+    }, 1000);
+  }
+  var bHands = document.getElementById('bHands');
+  bSisters.addEventListener('click', function () { if (SIS.on) sisStop('ended by you'); else sisStart(); });
+  setInterval(function () { bSisters.style.display = (chatWho && !chatWho.echo && chatForm.classList.contains('on')) ? '' : 'none'; }, 1000);
 
   /* BUTTONS ON THE BOX, added 2026-10-09, Dr. O: five physical buttons, wired to a small board that types a key, each choosing one hologram.
      1 = A.L.I.C.E., 2 = Tansy, 3 = Reggie, 4 = Dr. Duffy, 5 = Terry (the lab). Dr. Duffy's two videos were added here

@@ -55,6 +55,92 @@ home if possible.
 - A real unit on a plinth beside her, and a sign with the waitlist QR code.
 - If a home version is not ready, the sign says coming, not buy.
 
+## The hologram pod (cardboard mockup, 2026-10-10)
+
+Dr. O made a cardboard mockup of a hologram pod that can hold 5 holograms. Her
+photo shows it beside a bust with lit eyes, a chest sensor and speaker holes. The
+box is open at the front, has an angled panel inside on the right, and five
+squares drawn on the lower front panel.
+- What the five squares and the angled panel are for is not written down yet.
+- `good-company/hologram.html` plays a companion on black, for a phone under a
+  small clear pyramid. It has not been tried on a real pyramid or in this pod.
+- Open: does each of the five spaces show a different friend, so a customer sees a
+  small collection at once?
+
+## Dolls on a plinth (idea, 2026-10-10)
+
+Dr. O's idea: dolls, something like Barbie dolls, that talk when placed on a plinth
+with a Raspberry Pi inside it. Her words: "No, cannot work without plinth."
+- The doll is a collectable with no electronics of its own, apart from a small tag.
+  The plinth holds the Pi, speaker and power, and reads the tag to know which
+  character this is. Take her off and she is silent.
+- The plinth is the starter product. Each doll after that is a smaller purchase.
+- One friend talks at a time on one plinth, which keeps the running cost down.
+  Whether that is true is not known yet and needs the monthly cost measured.
+- Children or adults depends on how the doll is designed, in Dr. O's words. A
+  suggestion, not a decision: the tag says which line a doll belongs to and the
+  plinth sets its behaviour to match, so one plinth can serve both.
+  - Children's line: soft, safe and story-led. Does not ask for a name, address or
+    school, and keeps no record of a child's voice. A parent can switch it off.
+  - Adult line: open conversation with the Good Company personalities, and the
+    goodnight ritual.
+- Dr. O's idea for the first dolls: Little Astra-9 and Astrads, small versions of
+  her own characters, for people who do not want life-size robots. Whether there
+  are several Astrads, and whether they are the children's or adult line, is not
+  answered yet.
+- The doll needs its own name and look. Barbie is Mattel's trademark and this
+  should not copy it.
+
+Open questions for the dolls:
+1. Which line first, children's or adult?
+2. Does the plinth ship with one doll, or is the first doll chosen at the counter?
+3. Does a doll work on any plinth, or is it paired to the buyer's?
+4. How long is a plinth supported? Collectors will ask.
+5. What stops a doll's tag from being copied, if limited editions matter?
+6. A children's doll needs a lawyer to check toy safety rules and the rules on
+   collecting information from children (COPPA in the US) before it is sold.
+
+## ETL Security (idea, 2026-10-11)
+
+Dr. O's idea: a security unit that knows everything about security and stands
+guard, in a full-size body about the size of Astrad, seated at a desk in a lobby.
+It does not need to act physically. The company already has doormen and security
+guards that are not physical.
+- Body: a full-size mannequin. Dr. O's photo is a black mannequin with a smooth
+  oval, faceless head, dressed in a short-sleeve jacket, T-shirt and shorts. The
+  head is to be painted to look like a security bot.
+- Face: a smooth oval mask with no face. Ideas, not decided: a dark visor band, a
+  visible camera lens, a light band or ring to show listening and speaking, a few
+  fine panel lines. No police or military marks, and no paint over microphones.
+- Camera: wanted, in Dr. O's words, "But with a camera". Suggested levels:
+  1. Sees that someone is there and greets them. Low risk.
+  2. Reads what a visitor shows it, such as a QR code, a badge or a typed name.
+     Medium risk.
+  3. Recognises faces. High risk. Some places, such as Illinois and the EU, have
+     strict rules on biometrics. Treat it as off until a lawyer has checked the
+     places it would be sold into.
+  The camera lens should be visible, with a sign saying what it does and does not
+  keep. Looking at things on the device and keeping little is the suggested default.
+- Uniform: a jacket and shirt in a plain colour, with the building's name and a
+  name tag. Name for the unit: "ETL Security", with a smaller line "AI front desk
+  assistant". No badge number, and no insignia that looks like police.
+- What it could do at a desk: greet and check in visitors, answer questions,
+  know the building's security procedures, keep a visitor log, and cover quiet
+  hours. It cannot stop anyone physically, so it calls a person when something
+  looks wrong. It should not be described as a guard.
+
+Open questions for ETL Security:
+1. "ETL" is also Intertek's well-known "ETL Listed" electrical safety mark. A
+   trademark lawyer should say whether "ETL Security" is a problem. Not known yet.
+2. In some places, selling security guard services needs a licence, and a name or
+   uniform can suggest it. Not known yet which places.
+3. Is the camera only for greeting and check-in, or does it also watch the lobby?
+4. Does the unit connect to a building's door entry and tenant lists?
+5. Who is the first lobby: the store, a university, an office or an apartment block?
+6. Does the oval carry a light or a screen, and does the unit get its own name?
+7. How are visitors who are deaf or hard of hearing served? A small screen showing
+   what it says is a suggestion.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
@@ -82,6 +168,13 @@ home if possible.
 
 ## What is done so far
 
+- Astra-9 Lite had its first public demo at a university AI and Innovation
+  exhibition (planned for Tuesday 2026-10-06). Dr. O, 2026-10-10: "Astra light huge
+  success the ai event." No numbers are recorded. Sign-ups from the handout's QR
+  code are tagged `uni-expo`, so they can be counted once the Supabase step below
+  is done.
+
 - `astra9.html` waitlist can count sign-ups by where they came from (`?src=`).
 - `astra9-handout.html`: a one page handout with a QR code to `/astra9?src=uni-expo`.
+- `good-company/hologram.html`: hologram mode for a phone laid flat.
 - Run `supabase_astra9_waitlist_source_migration.sql` in Supabase for the count.

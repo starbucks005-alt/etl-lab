@@ -378,11 +378,17 @@
       if (forced === 'browser') { browser(); return; }
       if (!canRecord) { browser(); return; }
       if (forced === 'site') { cb('server'); return; }
-      var done = false, t = setTimeout(function () { if (!done) { done = true; browser(); } }, 4000);
+      /* 2026-10-10, Dr. O: "fix the beeping for all holograms". When the site's own listening is off or cannot be reached, an
+         Android tablet used to fall back to the browser's listening, which beeps every time it restarts, all day. It now does
+         not: always-on stays off there and says why. The Talk button (one press, one question) is not affected. ?listen=browser
+         still forces the beeping kind, for testing. Other devices fall back as before. */
+      var android = /Android/i.test(navigator.userAgent || '');
+      function noSiteEars() { if (android && Rec) cb('beepy'); else browser(); }
+      var done = false, t = setTimeout(function () { if (!done) { done = true; noSiteEars(); } }, 4000);
       fetch(LISTEN_URL, { method: 'GET' })
         .then(function (r) { return r.json(); })
-        .then(function (j) { if (done) return; done = true; clearTimeout(t); if (j && j.enabled) cb('server'); else browser(); })
-        .catch(function () { if (done) return; done = true; clearTimeout(t); browser(); });
+        .then(function (j) { if (done) return; done = true; clearTimeout(t); if (j && j.enabled) cb('server'); else noSiteEars(); })
+        .catch(function () { if (done) return; done = true; clearTimeout(t); noSiteEars(); });
     }
 
     function start() {
@@ -395,6 +401,7 @@
       chooseEngine(function (e) {
         asking = false; engine = e;
         if (e === 'none') { turnOff('This browser cannot listen. Type instead.'); return; }
+        if (e === 'beepy') { engine = null; turnOff('Always-on listening is off here because this tablet would beep every few seconds. The site\'s quiet listening is not switched on yet. Use the Talk button, or ask for it to be switched on.'); return; }
         sync();
       });
     }
