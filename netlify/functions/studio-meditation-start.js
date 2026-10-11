@@ -131,11 +131,17 @@ exports.handler = async (event) => {
   }
 
   const bgUrl = `${process.env.URL || ''}/.netlify/functions/studio-meditation-generate-background`;
-  fetch(bgUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jobId, leader, length: parseInt(length, 10) }),
-  }).catch((err) => console.error('[studio-meditation-start] bg trigger failed:', err));
+  // Wait for the worker to ACCEPT the job (a background function answers 202 at
+  // once). Returning first freezes this function with the request unsent and
+  // the worker is never started; found 2026-10-11 on the city dispatchers.
+  await Promise.race([
+    fetch(bgUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobId, leader, length: parseInt(length, 10) }),
+    }).catch((err) => console.error('[studio-meditation-start] bg trigger failed:', err)),
+    new Promise((resolve) => setTimeout(resolve, 5000)),
+  ]);
 
   return json(202, { jobId, status: 'pending' });
 };
