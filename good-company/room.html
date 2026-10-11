@@ -243,6 +243,27 @@ html{ zoom:90%; }
    centered play glyph so it reads as "opens a video," and a label ("For
    watching") so the distinction is not carried by position alone. */
 .watch-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:.55rem; padding:0 .6rem .8rem; }
+
+/* THE AR INVITATION, added 2026-10-11, ported from My Echo's ME.html (.ar-invite). Dr. O: "it was
+   My Echo where we did it", the mark, a short paragraph, and the link as the end of the sentence,
+   under the scenes. Hidden until nameEverything() finds this room has an AR video pair, so a
+   companion without one never shows a link to a page with nothing in it. The mark is drawn in
+   currentColor, never a PNG (a PNG is a white box on a dark skin, see My Echo's own note). Link
+   and mark use --ink, not --accent: a few skins put --accent almost on top of --panel, see the
+   .gauge-title note above. */
+.ar-invite{ display:none; gap:12px; align-items:flex-start; padding:2px .6rem .8rem; color:var(--ink); }
+.ar-invite.on{ display:flex; }
+.ar-invite svg{ width:44px; height:44px; flex:0 0 44px; display:block; margin-top:1px; }
+.ar-invite p{ margin:0; font-family:var(--mono); font-size:10.5px; line-height:1.65; letter-spacing:.03em; color:var(--ink-dim); }
+.ar-invite p a{ color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
+/* 100% ZOOM CLIPPED THE BOTTOM, 90% DID NOT. Dr. O compared the two on My Echo. The picture is the
+   one thing here sized from the window height (52vh), everything under it is fixed pixels, so a
+   room with scenes AND a watch row AND this strip ran past the bottom at 100%. Only a room that
+   shows the strip gets the smaller picture (about what 90% gave), and only on a wide window: the
+   phone layout stacks and scrolls and is left alone. Rooms without the strip are unchanged. */
+@media (min-width:821px){
+  .room.has-ar .stage{ width:min(58vw, calc(44vh * 16 / 9)); }
+}
 .watch-bar-label{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
   color:var(--ink-dim); flex:0 0 100%; margin:0 0 -.15rem; }
 .watch-chip{
@@ -558,6 +579,27 @@ html{ zoom:90%; }
 
     <div class="scene-bar" id="sceneBar"></div>
     <div class="watch-bar" id="watchBar" style="display:none"></div>
+
+    <!-- THE AR INVITATION, under the scenes, ported from My Echo (see .ar-invite above). The mark
+         is My Echo's, drawn from Dr. O's own file: the box is interrupted where the letters start,
+         so the AR does not look like it is floating on its own. Shown, and pointed at this
+         companion, by nameEverything(). -->
+    <div class="ar-invite" id="arInvite">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.75"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M3.7 13V6.3a2.6 2.6 0 0 1 2.6-2.6H13"/>
+        <path d="M35 3.7h6.7a2.6 2.6 0 0 1 2.6 2.6V13"/>
+        <path d="M44.3 35v6.7a2.6 2.6 0 0 1-2.6 2.6H35"/>
+        <path d="M13 44.3H6.3a2.6 2.6 0 0 1-2.6-2.6V35"/>
+        <path d="M24 10.1 38.3 15.25 24 20.4 9.7 15.25Z"/>
+        <path d="M9.7 15.25V33.15L24 38.3V20.4"/>
+        <path d="M38.3 15.25V21"/>
+        <path d="M38.3 33.15 24 38.3"/>
+        <text x="36.3" y="30.3" text-anchor="middle" fill="currentColor" stroke="none"
+              font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700">AR</text>
+      </svg>
+      <p>Presence is more than voice and memory; it is occupying shared space. Bring <span class="ar-invite-name"></span> into your own room, live through your camera, on your phone or computer. <a id="arInviteLink" href="ar.html">See <span class="ar-invite-name"></span> in your room &rarr;</a></p>
+    </div>
   </div>
 
   <!-- FULL-SCREEN WATCH VIEWER, restored 2026-08-21. A real <video>, not the
@@ -829,6 +871,23 @@ function updateFriendClock() {
 }
 setInterval(updateFriendClock, 60000);
 
+/* WHICH AR PAGE, IF ANY, THIS ROOM HAS. Returns the ?who= key ar.html knows, or null. See the note
+   inside nameEverything() for why the list is what it is. */
+var AR_ROOM_IDS = ['tansy', 'cressida', 'meera', 'alice', 'arch', 'reggie', 'viv', 'zoe', 'olivia',
+                   'sarah', 'nursery', 'astra9'];
+function arKeyFor() {
+  try {
+    if (typeof GC_BUILT !== 'undefined' && GC_BUILT) return null;
+    if (typeof GC_DEMO_ID === 'undefined') return null;
+    if (GC_DEMO_ID === 'gc') {
+      var shell = 'male';
+      try { shell = localStorage.getItem('gc_gc_shell') || 'male'; } catch (e) {}
+      return shell === 'female' ? 'gc-f' : 'gc-m';
+    }
+    return AR_ROOM_IDS.indexOf(GC_DEMO_ID) > -1 ? GC_DEMO_ID : null;
+  } catch (e) { return null; }
+}
+
 function nameEverything() {
   /* THE PAGE TITLE, added 2026-08-30. Every room shared the same static
      "Good Company" title, so GA's own Views-by-page-title report, the
@@ -840,6 +899,19 @@ function nameEverything() {
   document.title = 'Good Company: ' + FRIEND.name;
   /* Pilot, Tansy only -- see the button's own note above .chrome. */
   $('arLink').style.display = (FRIEND.name === 'Tansy') ? '' : 'none';
+  /* THE AR INVITATION UNDER THE SCENES, added 2026-10-11 (see .ar-invite). Shown for a house
+     companion that has a color/matte pair in ar.html's registry, pointed at that companion by
+     ?who=. A friend somebody built never has one, and absence never resolves to a link: no
+     entry here means no strip. The list is a copy of ar.html's registry keys that are also room
+     ids; Poppy, Blue, Nell, Clover, Terry and Cassius are left out because they have no room of
+     their own (or no persona), and 'gc' maps to whichever shell this visitor picked. */
+  var arKey = arKeyFor();
+  $('arInvite').classList.toggle('on', !!arKey);
+  document.querySelector('.room').classList.toggle('has-ar', !!arKey);
+  if (arKey) {
+    $('arInviteLink').href = 'ar.html?who=' + encodeURIComponent(arKey);
+    Array.prototype.forEach.call(document.querySelectorAll('.ar-invite-name'), function (el) { el.textContent = FRIEND.name; });
+  }
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
   /* THE GAUGE'S STARTING POINT, added 2026-08-26 per Dr. O direct ("did you
