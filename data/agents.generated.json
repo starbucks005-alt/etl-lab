@@ -3,8 +3,8 @@
   "total": 212,
   "staff": 86,
   "safe_floor": "200+",
-  "backpack": 123,
-  "backpack_pct": 58,
+  "backpack": 125,
+  "backpack_pct": 59,
   "agents": [
     {
       "name": "August \"Auggie\" Vidal",
@@ -228,7 +228,7 @@
         "Greylander Press",
         "ETL Newswire"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Chris Avila",
@@ -236,7 +236,7 @@
       "platforms": [
         "Greylander Press"
       ],
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Jess Ramirez",

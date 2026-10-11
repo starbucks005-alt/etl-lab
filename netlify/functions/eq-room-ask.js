@@ -564,12 +564,12 @@ exports.handler = async function (event) {
       // Perseus has the actual Greek tragedies she is teaching herself to read.
       domains: ['perseus.tufts.edu', 'openlibrary.org', 'gutenberg.org', 'loc.gov', 'britannica.com',
         'poetryfoundation.org', 'en.wikipedia.org', 'kirkusreviews.com', 'publishersweekly.com'],
-      line: 'You can look things up. If the guest asks about a specific book, author, translation, edition, or a passage from a play or poem, use it to get the real details and the real words rather than quoting from memory, then answer with respond_in_room as usual. Never put words in a writer\'s mouth you did not find. Don\'t look anything up for ordinary conversation that doesn\'t call for it.',
+      line: 'You can look things up. If the guest asks about a specific book, author, translation, edition, or a passage from a play or poem, use it to get the real details and the real words rather than quoting from memory, then answer with respond_in_room as usual. Never put words in a writer\'s mouth you did not find. Quote only the exact words the page shows, and name a translator or an edition only if the page names it; if it does not, say you are reading one translation and not which. Don\'t look anything up for ordinary conversation that doesn\'t call for it.',
     },
     chris: {
       domains: ['artic.edu', 'metmuseum.org', 'si.edu', 'nga.gov', 'loc.gov', 'rijksmuseum.nl',
         'britishmuseum.org', 'tate.org.uk', 'en.wikipedia.org', 'commons.wikimedia.org'],
-      line: 'You can look things up. If the guest asks about a specific artist, painting, period, typeface, cover style, or wants a real reference for a look they are after, use it to find the actual work in a museum collection rather than describing one from memory, then answer with respond_in_room as usual. Name the work and the museum. Don\'t look anything up for ordinary conversation that doesn\'t call for it.',
+      line: 'You can look things up. If the guest asks about a specific artist, painting, period, typeface, cover style, or wants a real reference for a look they are after, use it to find the actual work in a museum collection rather than describing one from memory, then answer with respond_in_room as usual. Name the work and the museum. Give titles, names and dates exactly as the collection record shows them, and if the record shows no date, give none. Don\'t look anything up for ordinary conversation that doesn\'t call for it.',
     },
   };
   const skill = SEARCH_SKILLS[agentKey] || null;
