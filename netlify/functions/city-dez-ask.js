@@ -43,13 +43,20 @@ exports.handler = async function(event) {
   if (!base) return { statusCode: 500, body: JSON.stringify({ error: 'no_base_url' }) };
   const bgUrl = base + '/.netlify/functions/city-dez-background';
 
+  // Wait for the worker to ACCEPT the job. A background function answers 202
+  // almost at once, so this costs a fraction of a second. Returning before the
+  // request has left freezes this function with the request still unsent, and
+  // the worker is then never started (found 2026-10-11: the job never appeared).
   try {
-    fetch(bgUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: jobId, question, zip }),
-      keepalive: true,
-    }).catch(() => {});
+    await Promise.race([
+      fetch(bgUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_id: jobId, question, zip }),
+        keepalive: true,
+      }).catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
   } catch (_) {}
 
   return {
