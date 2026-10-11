@@ -4563,13 +4563,13 @@
     "use_cases": "• Managing permit intake questions\n• Handling seasonal surges in public inquiries\n• Routing requests to the right department\n• Reducing call volume for overworked staff\n• Improving public satisfaction",
     "image_url": "https://emerging-tech-lab.com/agents/Tessa_eyes_open.png",
     "cat": "staff",
-    "tier_label": "Not for hire",
-    "pill": "Not for hire",
-    "price": 0,
+    "tier_label": "Add-on, ~$49/mo",
+    "pill": "",
+    "price": 49,
     "skills": [
       "Baking, community theater, organizing neighborhood events."
     ],
-    "hireable": false,
+    "hireable": true,
     "interests": [
       "Baking, community theater, organizing neighborhood events."
     ],
