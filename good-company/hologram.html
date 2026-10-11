@@ -150,6 +150,8 @@ function gcNoReplyWhy(res) {
   <!-- ALWAYS-ON MICROPHONE, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. -->
   <!-- MEMORY, added 2026-10-07, Dr. O: house characters remember a visitor by their browser, as the built companions do. -->
   <span id="holoMemory" style="display:none;font-size:.8rem;color:#b7ab98;"><span id="holoMemoryText"></span> <button id="bForget" type="button">Forget me</button></span>
+  <!-- WHO IS TALKING, added 2026-10-11, Dr. O: Alice took her for David on a phone that had his name saved. The characters go by the name saved in this browser, not by voice. -->
+  <button id="bWho" type="button" style="display:none">Not me? Change name</button>
   <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
   <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Name1,Name2 names who is with her (it asks when you start if the address has none). -->
   <button id="bSisters" type="button" style="display:none">Let them talk</button>
@@ -766,6 +768,18 @@ function gcNoReplyWhy(res) {
       showReply('That did not send. Try again in a moment.');
     });
   });
+
+  var bWho = document.getElementById('bWho');
+  bWho.addEventListener('click', function () {
+    var cur = gcLoadYou();
+    var n = window.prompt('Who is talking now? The characters will call you this, and use it with what they remember.', cur.name || '');
+    if (n === null) return;
+    n = n.trim().slice(0, 40);
+    gcSaveYou(Object.assign({}, cur, { name: n }));
+    YOU = gcLoadYou();
+    showReply(n ? 'Hello, ' + n + '. I will call you that.' : 'I will not use a name for you.');
+  });
+  setInterval(function () { bWho.style.display = (chatWho && !chatWho.echo && chatForm.classList.contains('on')) ? '' : 'none'; }, 1000);
 
   document.getElementById('bForget').addEventListener('click', function () {
     if (!chatWho) return;
