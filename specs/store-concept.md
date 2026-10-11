@@ -84,6 +84,10 @@ with a Raspberry Pi inside it. Her words: "No, cannot work without plinth."
     school, and keeps no record of a child's voice. A parent can switch it off.
   - Adult line: open conversation with the Good Company personalities, and the
     goodnight ritual.
+- Dr. O's idea for the first dolls: Little Astra-9 and Astrads, small versions of
+  her own characters, for people who do not want life-size robots. Whether there
+  are several Astrads, and whether they are the children's or adult line, is not
+  answered yet.
 - The doll needs its own name and look. Barbie is Mattel's trademark and this
   should not copy it.
 
@@ -95,6 +99,47 @@ Open questions for the dolls:
 5. What stops a doll's tag from being copied, if limited editions matter?
 6. A children's doll needs a lawyer to check toy safety rules and the rules on
    collecting information from children (COPPA in the US) before it is sold.
+
+## ETL Security (idea, 2026-10-11)
+
+Dr. O's idea: a security unit that knows everything about security and stands
+guard, in a full-size body about the size of Astrad, seated at a desk in a lobby.
+It does not need to act physically. The company already has doormen and security
+guards that are not physical.
+- Body: a full-size mannequin. Dr. O's photo is a black mannequin with a smooth
+  oval, faceless head, dressed in a short-sleeve jacket, T-shirt and shorts. The
+  head is to be painted to look like a security bot.
+- Face: a smooth oval mask with no face. Ideas, not decided: a dark visor band, a
+  visible camera lens, a light band or ring to show listening and speaking, a few
+  fine panel lines. No police or military marks, and no paint over microphones.
+- Camera: wanted, in Dr. O's words, "But with a camera". Suggested levels:
+  1. Sees that someone is there and greets them. Low risk.
+  2. Reads what a visitor shows it, such as a QR code, a badge or a typed name.
+     Medium risk.
+  3. Recognises faces. High risk. Some places, such as Illinois and the EU, have
+     strict rules on biometrics. Treat it as off until a lawyer has checked the
+     places it would be sold into.
+  The camera lens should be visible, with a sign saying what it does and does not
+  keep. Looking at things on the device and keeping little is the suggested default.
+- Uniform: a jacket and shirt in a plain colour, with the building's name and a
+  name tag. Name for the unit: "ETL Security", with a smaller line "AI front desk
+  assistant". No badge number, and no insignia that looks like police.
+- What it could do at a desk: greet and check in visitors, answer questions,
+  know the building's security procedures, keep a visitor log, and cover quiet
+  hours. It cannot stop anyone physically, so it calls a person when something
+  looks wrong. It should not be described as a guard.
+
+Open questions for ETL Security:
+1. "ETL" is also Intertek's well-known "ETL Listed" electrical safety mark. A
+   trademark lawyer should say whether "ETL Security" is a problem. Not known yet.
+2. In some places, selling security guard services needs a licence, and a name or
+   uniform can suggest it. Not known yet which places.
+3. Is the camera only for greeting and check-in, or does it also watch the lobby?
+4. Does the unit connect to a building's door entry and tenant lists?
+5. Who is the first lobby: the store, a university, an office or an apartment block?
+6. Does the oval carry a light or a screen, and does the unit get its own name?
+7. How are visitors who are deaf or hard of hearing served? A small screen showing
+   what it says is a suggestion.
 
 ## Open questions
 
