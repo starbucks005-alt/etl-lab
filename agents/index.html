@@ -156,8 +156,8 @@
 <div class="doc-header">
   <h1>AI Agent Characters — Master Reference</h1>
   <p>Dr. Terry L. Oroszi &nbsp;·&nbsp; Emerging Technologies Laboratory</p>
-  <p style="font-size:13px;color:#555;margin-top:10px;font-weight:500;">223 agent characters across the ETL campus, as of 2026-09-14</p>
-  <p style="font-size:11px;color:#aaa;margin-top:2px;">159 verified against <code>roster.json</code> via <code>tools/cast-sync.js</code> (the roster of record; roster.json itself still bundles Kronborg 1588's Hans and Bodil as a single record, so its own count reads 158 &mdash; this page counts them as the 2 named children they are; flagged for whoever next regenerates roster.json, not hand-edited here. The retired <code>ETL_Agent_Roster.xlsx</code> / <code>count_agents.py</code> pipeline, last run 2026-06-08, undercounts and should not be used) &nbsp;+&nbsp; 64 identified this review that are live on the public site but not yet entered in <code>roster.json</code>: Good Company's 47 companions (counting every named companion and every member of a group card &mdash; Reggie plus Biscuit and Mochi; Tansy plus Poppy and Blue; Marion, Walter, Sam, Edith, Henry, and Daisy; puppets Eli, Nell, Jem, and Wren; nursery toys Bramble, Clover, Ozzie, and Pearl), Mission Possible Spy Academy's 4 Syn Faculty, the Leadership Classroom (PTX 7006) &mdash; ten leaders plus Colin Powell as an eleventh, capstone figure &mdash; and SLR Studio's and Intel Dashboard's platform guides, Cleo and Intel. A few names appear twice below where the page already cross-lists one person under two teams (e.g. Jaque, Jules, and now Marie Curie under both PTX 4990 and Leadership) &mdash; see <code>agents/NEW-AGENTS-FOUND.md</code> for full sourcing.</p>
+  <p style="font-size:13px;color:#555;margin-top:10px;font-weight:500;"><span id="agentTotal">All the</span> agent characters in the roster of record across the ETL campus</p>
+  <p style="font-size:11px;color:#aaa;margin-top:2px;">Counted from <code>roster.json</code> on every deploy through <code>tools/cast-sync.js</code>. Characters that are live on the public site but not yet entered in it appear on the cards below, and <code>agents/NEW-AGENTS-FOUND.md</code> has the sourcing. A few names appear twice where the page cross-lists one person under two teams (for example Jaque, Jules, and Marie Curie).</p>
   <p style="font-size:11px;color:#999;margin-top:8px;">Dr. Oroszi is Wright State University faculty. Emerging Technologies Laboratory is her independent project, not affiliated with or funded by Wright State University.</p>
 </div>
 
@@ -1985,5 +1985,14 @@
   Dr. Oroszi is faculty at Wright State University Boonshoft School of Medicine. Emerging Technologies Laboratory is her independent project, not affiliated with or funded by Wright State University.
 </div>
 
+<script>
+/* The total is read from the roster on every load. Do not type it here. */
+(function(){
+  fetch("/data/agents.generated.json",{cache:"no-store"})
+    .then(function(r){return r.json();})
+    .then(function(d){var e=document.getElementById("agentTotal");if(e&&d&&d.total)e.textContent=d.total;})
+    .catch(function(){});
+})();
+</script>
 </body>
 </html>

@@ -341,7 +341,8 @@ function normalize(rows){return rows.map(a=>{const n=a.name||a.Name||"";const ti
   else if(t.includes("owner")||t.includes("not an employee")){cat="owner";price=0;label="Owner / PI"}
   else if(t.includes("premium")||t.includes("549")){cat="premium";price=549;label="Premium · SLR"}
   else if(t.includes("inquiry")||t.includes("ai twin")||t.includes("patron")||t.includes("founding sponsor")){cat="inquire";price=0;label="By inquiry"}
-  const _mcpYes=/^\s*yes/i.test((a.mcp||a['MCP / Live tools']||""));
+  /* Live Tools means the hire reaches live sources wherever it works. "Yes (in <product>)" is live only inside that one product, and Iris reads a reference document, so neither is sold as Live Tools. */
+  const _mcpYes=/^\s*yes(?!\s*\(in )/i.test((a.mcp||a['MCP / Live tools']||""))&&n!=="Iris S. King";
   if(cat==="addon"&&_mcpYes){cat="mcp";price=35;label="Live Tools";}
   if(cat==="board"&&_mcpYes){cat="board_mcp";price=119;label="C-suite \u00b7 Live Tools";}
   const hs=(a.hashtags||a['# Hashtags (business areas)']||"").toString();

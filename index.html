@@ -3031,13 +3031,13 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="hero">
   <div class="wrap">
     <div class="eyebrow"><span class="dot">&#9670;</span> EMERGING TECHNOLOGIES LABORATORY &nbsp;&middot;&nbsp; DR. TERRY OROSZI</div>
-    <h1>The lab never closes. <span class="alive" id="etlAllIn">All 157 are in.</span></h1>
+    <h1>The lab never closes. <span class="alive" id="etlAllIn">All are in.</span></h1>
     <div class="sub">A living campus of AI specialists you can actually talk to. Pick a building, read over their shoulders, or <b>talk to any one of them yourself</b>. Free at the lab.</div>
     <!-- Travel count (67) is hand-audited, not fetched: it comes from cross-referencing
          each building's real cast files against agents.generated.json's platforms field, which
          undercounts on its own. Re-audit before bumping this if new agents or buildings ship. -->
     <div class="readout">
-      <div class="cell"><div class="n" id="etlAgentsN">157</div><div class="k"><span class="pulse"></span>Agents on staff</div></div>
+      <div class="cell"><div class="n" id="etlAgentsN">&ndash;</div><div class="k"><span class="pulse"></span>Agents on staff</div></div>
       <div class="cell"><div class="n">67</div><div class="k">Travel between buildings (11 websites)</div></div>
       <div class="cell"><div class="n small">21</div><div class="k">Live buildings</div></div>
     </div>
@@ -3078,7 +3078,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 <script>
 /* Single source: the agent total on this page derives from data/agents.generated.json
-   (built from ETL_Agent_Roster.xlsx by build_agent_data.py). Do not hand-type the count. */
+   (built from roster.json by tools/cast-sync.js on every deploy). Do not hand-type the count. */
 (function(){
   fetch('/data/agents.generated.json',{cache:'no-store'})
     .then(function(r){return r.json();})
@@ -3101,7 +3101,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <span><span class="sw" style="background:var(--gold)"></span>Free on WSU campus &middot; paid off it</span>
       <span><span class="sw" style="background:var(--cyan)"></span>Engine &mdash; leads with tools</span>
       <span><span class="sw" style="background:var(--rose)"></span>Traveler thread</span>
-      <span><span class="sw" style="background:var(--mute)"></span>Pending &mdash; not in the live 122</span>
+      <span><span class="sw" style="background:var(--mute)"></span>Pending &mdash; not yet live</span>
     </div>
   </div>
 
@@ -3142,7 +3142,7 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'Almost Human',      url:'/almost-human',                                    role:'The friend experience, and so much more', dom:'friends', type:'count', n:20, access:'free', travel:'private room in the Harvest Circuit &middot; borrows 20 agents campus-wide'},
     {name:'Good Company',      url:'/good-company/',                                   role:'12 to meet, or build your own',            dom:'friends', type:'count', n:12,  access:'free', travel:'Arch is on loan from The Concourse &middot; the rest are new to Good Company'},
     {name:'Greylander Press',  url:'https://greylanderpress.com/',                     role:'Independent imprint',        dom:'news',    type:'count',  n:13,  access:'paid', price:'$19.99/mo'},
-    {name:'The Gym',           url:'/gym',                                             role:'Movement & wellness',        dom:'health',  type:'count',  n:10,  access:'free'},
+    {name:'The Gym',           url:'https://the-gym.net/',                                           role:'Movement & wellness',        dom:'health',  type:'count',  n:10,  access:'free'},
     {name:'City Government',   url:'/city-government',                                  role:'For residents',              dom:'gov',     type:'count',  n:5,  access:'free'},
     {name:'The Court of Judge Roz', url:'/court',                                       role:'You thought Judge Judy was tough', dom:'gov', type:'count', n:1, access:'free', travel:'a real citation under every ruling'},
     {name:'Gandhi-King Center',url:'https://gandhi-king-center-for-nonviolence.org/',  role:'Peace & civic leadership',   dom:'mission', type:'count',  n:4,  access:'free'},

@@ -43,13 +43,33 @@ async function fetchEtlKnowledge() {
     return _etlKnowledgeCache.text || '';
   }
 }
+const AGENT_COUNT_URL = 'https://emerging-tech-lab.com/data/agents.generated.json';
+let _agentCountCache = { n: 0, fetchedAt: 0 };
+async function fetchAgentCount() {
+  const now = Date.now();
+  if (_agentCountCache.n && (now - _agentCountCache.fetchedAt) < 30 * 60 * 1000) return _agentCountCache.n;
+  try {
+    const r = await fetch(AGENT_COUNT_URL);
+    if (!r.ok) throw new Error('agent count fetch ' + r.status);
+    const d = await r.json();
+    const n = d && Number(d.total);
+    if (n > 0) { _agentCountCache = { n, fetchedAt: now }; return n; }
+  } catch (e) { /* fall through to the last good value */ }
+  return _agentCountCache.n || 0;
+}
+
 async function etlKnowledgeNote(agentKey) {
   if (!ETL_KNOWLEDGE_AGENTS.includes(agentKey)) return '';
   const knowledge = await fetchEtlKnowledge();
   if (!knowledge) return '';
+  const liveCount = await fetchAgentCount();
+  const live = liveCount
+    ? "\n\nLIVE COUNT, read from the campus roster just now: " + liveCount + " characters are on staff. "
+      + "If a number in the reference text above differs, this one is current and the older figure is history."
+    : '';
   return "\n\nETL CAMPUS KNOWLEDGE, for questions about ETL itself, Dr. Oroszi's background, "
     + "other products, agent counts, or the underlying moat/IP, use this and speak with real "
-    + "specifics, not vague marketing language:\n" + knowledge;
+    + "specifics, not vague marketing language:\n" + knowledge + live;
 }
 
 const ROOM_CONTEXT = `You are sitting with a guest in the private room at the Harvest Circuit, \
