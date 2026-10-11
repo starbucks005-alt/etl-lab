@@ -525,11 +525,25 @@ function gcNoReplyWhy(res) {
     'astra 9': 'Astra-9 is a character made by the same laboratory, the ninth of her line and the first that woke up.',
     'astrad': 'Astrad is a character made by the same laboratory, the first of his line, built to be Astra-9\'s companion.'
   };
+  function spokenName(n) {                          // "A.L.I.C.E." is said Alice
+    var t = String(n || '').replace(/\b(dr|ms|mr|mrs)\./ig, '$1').trim();
+    if (/^([A-Za-z]\.){2,}$/.test(t)) { t = t.replace(/\./g, '').toLowerCase(); t = t.charAt(0).toUpperCase() + t.slice(1); }
+    return t;
+  }
+  function nameTagNote() {
+    var me = spokenName((COMPANIONS[who.value] && COMPANIONS[who.value][0]) || '');
+    if (!me) return '';
+    return '\n\n[Begin every reply by saying who you are in a few words, such as "' + me + ' here." or "This is ' + me + '.", and then say the rest: nobody can see who is talking, so your name is how they know. That is the one exception to never starting two replies the same way.]';
+  }
+  function stripTag(t) {
+    var me = spokenName((COMPANIONS[who.value] && COMPANIONS[who.value][0]) || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return me ? String(t || '').replace(new RegExp('^\\s*(?:this is\\s+)?' + me + '(?:\\s+here)?\\s*[.,:!\\-]*\\s*', 'i'), '') : String(t || '');
+  }
   function roomNote(names) {
     if (!names || !names.length) return '';
     return '\n\n[Who is in the room with you: ' + names.map(function (n) {
       return KNOWN_OTHERS[n.toLowerCase()] || (n + ' is another character made by the same laboratory, in this room.');
-    }).join(' ') + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up.]';
+    }).join(' ') + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up.]' + nameTagNote();
   }
   var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
   var YIELD_MS = 900, SIS_GAP_MS = 6000;
@@ -768,10 +782,10 @@ function gcNoReplyWhy(res) {
        once to be said differently. Same rule as Astra Lite's own check; the retry is used only if it repeats less. */
     var heardBefore = chatHistory.filter(function (m) { return !m.mine; }).slice(-6).map(function (m) { return m.text; });
     postChat(text + sisNote).then(function (res) {
-      var bad = res && res.reply ? gcRepeatedBits(res.reply, heardBefore) : [];
+      var tagged = SIS.on || SIS.fixed; var bad = res && res.reply ? gcRepeatedBits(tagged ? stripTag(res.reply) : res.reply, tagged ? heardBefore.map(stripTag) : heardBefore) : [];
       if (!bad.length) return res;
       return postChat(text + sisNote + '\n\n[Say it a different way. You already used these words or phrases, so do not use them again: ' + bad.map(function (b) { return '"' + b + '"'; }).join('; ') + '.]')
-        .then(function (again) { return (again && again.reply && gcRepeatedBits(again.reply, heardBefore).length < bad.length) ? again : res; })
+        .then(function (again) { return (again && again.reply && gcRepeatedBits(tagged ? stripTag(again.reply) : again.reply, tagged ? heardBefore.map(stripTag) : heardBefore).length < bad.length) ? again : res; })
         .catch(function () { return res; });
     }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;

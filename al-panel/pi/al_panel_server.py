@@ -515,7 +515,8 @@ def sisters_block():
     names = ", ".join(others) if others else "the others"
     return (" Right now you are talking with " + names + ", who are other characters in the room, not visitors. Keep every turn to one or two "
             "short sentences. Say something new each time: a question, a small story, a gentle disagreement, something you noticed. "
-            "In this talk you are called " + sisters["me"] + ", so expect to be called that, and speak to the others by the names given here. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said, and never open a turn with a word that names a feeling.")
+            "In this talk you are called " + sisters["me"] + ", so expect to be called that, and speak to the others by the names given here. End every turn by speaking to one of them by name, because only the one you name will answer. Do not repeat what was just said, and never open a turn with a word that names a feeling. "
+            "Begin every turn by saying who you are in a few words, such as \"" + sisters["me"] + " here.\" or \"This is " + sisters["me"] + ".\", and then say the rest: nobody can see who is talking, so your name is how they know. That name at the start is the one exception to never starting two turns the same way.")
 
 
 def apply_prompt():
@@ -1333,10 +1334,19 @@ def _words(t):
     return REPEAT_WORDS.findall((t or "").lower())
 
 
+def strip_name_tag(t):
+    """Take off "Elle here." or "This is Elle." at the start of a line, whatever name she goes by in the talk."""
+    n = re.escape((sisters.get("me") or "Elle").strip())
+    return re.sub(r"^\s*(?:this is\s+)?%s(?:\s+here)?\s*[.,:!\-]*\s*" % n, "", t or "", flags=re.I)
+
+
 def repeated_bits(reply, recent=None, k=3):
     """Phrases (k words) in this reply that were already said in her last replies, and her opening word if she keeps using it."""
     if recent is None:
         recent = [e["text"] for e in state["log"] if e.get("who") == "al"][-6:]
+    if sisters["on"]:       # the name she begins every turn with is meant to repeat
+        recent = [strip_name_tag(r) for r in recent]
+        reply = strip_name_tag(reply)
     seen = set()
     for r in recent:
         w = _words(r)
