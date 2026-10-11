@@ -35,6 +35,12 @@
 [functions."proxy-ai"]
   timeout = 60
 
+# THE HARVEST CIRCUIT. A partner now checks a real source before answering
+# (up to a few seconds), and Vic's wine-list photo turns run on Sonnet. Past the
+# default ten seconds that surfaces as a 504, so give it the same room.
+[functions."harvest-ask"]
+  timeout = 30
+
 # GOOD COMPANY. A friend answering is a full Sonnet turn with a long system
 # prompt behind it, and the default ten seconds is not enough: it surfaced in
 # the room as "Could not reach Arch. Failed to fetch", intermittently, on the

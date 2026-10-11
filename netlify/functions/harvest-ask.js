@@ -32,6 +32,21 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
+const { lookup, lookupBlock, worthLooking } = require('./_sources.cjs');
+
+// Each partner checks a real source before answering a craft or provenance
+// question: the opening of the matching encyclopedia article, searched inside
+// their own subject so "tempering" means chocolate here and not metal. Nothing
+// found, or the source down, and they answer exactly as before. Photo turns
+// (Vic reading a wine list) skip it.
+// hint is added to the search; family is the set of words that mark an article
+// as belonging to the partner's subject, so an unrelated page is turned away.
+const LOOKUPS = {
+  ruben:   { hint: 'cooking',   family: ['cook', 'culinary', 'recipe', 'sauce', 'dish', 'food', 'kitchen', 'chef', 'bak', 'butter', 'meat', 'vegetable', 'technique', 'stock', 'braise', 'roast'] },
+  camille: { hint: 'cheese',    family: ['cheese', 'milk', 'dairy', 'curd', 'rind', 'affinage'] },
+  luca:    { hint: 'chocolate', family: ['chocolate', 'cocoa', 'cacao', 'confection', 'praline', 'ganache'] },
+  vic:     { hint: 'wine',      family: ['wine', 'grape', 'vineyard', 'winery', 'vintage', 'viticulture', 'appellation', 'sommelier', 'varietal'] },
+};
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
@@ -305,6 +320,16 @@ exports.handler = async function(event) {
     systemPrompt += '\n\nWhat you remember about this guest from earlier visits. Weave it in naturally when it is relevant, the way a regular\'s favorite bartender would. If their name or nickname is here, use it. Never recite the list, never explain how you remember:\n- ' + facts.join('\n- ');
   }
 
+  // Check a real source for craft and provenance questions (text turns only).
+  let found = [];
+  const plan = LOOKUPS[partner];
+  if (plan && !images.length && worthLooking(question)) {
+    try {
+      found = await lookup(question, ['wikipedia'], { wikipedia: { hint: plan.hint, family: plan.family, chars: 1400 }, deadlineMs: 3500 });
+    } catch (_) { found = []; }
+    systemPrompt += lookupBlock(found);
+  }
+
   let text;
   const client = new Anthropic({ apiKey: process.env.THE_HARVEST_CIRCUIT_API_KEY });
   try {
@@ -345,6 +370,9 @@ exports.handler = async function(event) {
   return {
     statusCode: 200,
     headers:    { ...CORS, 'Content-Type': 'application/json' },
-    body:       JSON.stringify({ answer: houseTypography(text) }),
+    body:       JSON.stringify({
+      answer: houseTypography(text),
+      sources: found.map(s => ({ title: s.title, source: s.source, url: s.url })),
+    }),
   };
 };
