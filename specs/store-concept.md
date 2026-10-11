@@ -223,7 +223,7 @@ Dr. O has not signed anything yet.
 
 ## What is done so far
 
-- Astra-9 Lite had its first public demo on Monday 2026-10-05 at the Wright
+- Astra-9 Lite had its first public demo on Tuesday 2026-10-06 at the Wright
   Brothers AI and Innovation event at WSU, put on by the business school. Dr. O,
   2026-10-10: "Astra light huge success the ai event." Dr. O, 2026-10-11: her booth
   was the most AI advanced booth there. Both are her account, not a measured result.
