@@ -562,7 +562,11 @@ function gcNoReplyWhy(res) {
       if (GC_VOICE_CTX.state === 'suspended') GC_VOICE_CTX.resume();
       var source = GC_VOICE_CTX.createMediaElementSource(audioEl);
       var gain = GC_VOICE_CTX.createGain();
-      gain.gain.value = 6.0;
+      /* LOUDNESS, 2026-10-12, Dr. O: Alice and Astra Lite were both loud, and a voice that loud overloads the other one's microphone.
+         The boost is still 6 by default; ?gain=3 in the address makes her about half as loud, ?gain=1 is her natural volume. */
+      var g = 6.0;
+      try { var gp = parseFloat(new URLSearchParams(location.search).get('gain')); if (gp >= 0.5 && gp <= 8) g = gp; } catch (_) {}
+      gain.gain.value = g;
       var limiter = GC_VOICE_CTX.createDynamicsCompressor();
       limiter.threshold.value = -12; limiter.knee.value = 4; limiter.ratio.value = 20;
       limiter.attack.value = 0.002; limiter.release.value = 0.15;
