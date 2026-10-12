@@ -21,3 +21,5 @@ al-panel/pi/memory_*.json
 
 # A character made for one person, kept on the robot only (al-panel/pi/al_panel_server.py)
 al-panel/pi/personalities_private.json
+al-panel/pi/alarms.json
+al-panel/pi/alarm_chime.wav

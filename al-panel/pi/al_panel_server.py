@@ -1152,6 +1152,11 @@ def say():
     text = str(d.get("text", "")).strip()[:1000]
     if not text:
         return jsonify(error="empty"), 400
+    said_clock = clock_reply(text)
+    if said_clock:
+        state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said_clock}]
+        speak_async(said_clock)
+        return jsonify(reply=said_clock)
     try:
         reply = get_reply(context_for(text), short=False)
     except Exception as e:
@@ -1476,9 +1481,307 @@ def get_reply(ask, short=True):
     return reply
 
 
+
+# ---- timers and alarms, added 2026-10-12, Dr. O ----
+# "Elle, set a timer for ten minutes" / "set an alarm for 3 pm". Caught by matching the phrases directly, before they go to the model, so it is quick and
+# does not depend on her thinking about it. Only for Elle herself (never a character). It rings with a chime and her voice, then listens for "stop".
+# Alarms are saved in alarms.json so a restart does not lose them; one that went off while she was switched off is dropped, not rung late.
+CLOCK_FILE = os.path.join(HERE, "alarms.json")
+CHIME_FILE = os.path.join(HERE, "alarm_chime.wav")
+clock = {"items": [], "ringing": False, "stop": False, "pending": None, "lock": threading.Lock()}
+_UNITS = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+          "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19}
+_TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+STOP_RING_RE = re.compile(r"\b(stop|okay|ok|thanks|thank you|got it|i'?m up|turn (it )?off|quiet|enough|silence|dismiss)\b", re.I)
+
+
+def words_to_digits(t):
+    t = (t or "").lower().replace("a.m.", "am").replace("p.m.", "pm").replace("a. m.", "am").replace("p. m.", "pm")
+    t = re.sub(r"\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[ -](one|two|three|four|five|six|seven|eight|nine)\b",
+               lambda m: str(_TENS[m.group(1)] + _UNITS[m.group(2)]), t)
+    t = re.sub(r"\b(" + "|".join(sorted(list(_UNITS) + list(_TENS), key=len, reverse=True)) + r")\b",
+               lambda m: str(_UNITS.get(m.group(1), _TENS.get(m.group(1)))), t)
+    t = re.sub(r"\ban hour and a half\b|\bhour and a half\b", "90 minutes", t)
+    t = re.sub(r"\ba minute and a half\b", "90 seconds", t)
+    t = re.sub(r"\bhalf an hour\b|\ba half hour\b|\bhalf hour\b", "30 minutes", t)
+    t = re.sub(r"\b(?:a )?quarter of an hour\b|\ba quarter hour\b", "15 minutes", t)
+    t = re.sub(r"\b(\d+) and a half hours?\b", lambda m: "%d minutes" % (int(m.group(1)) * 60 + 30), t)
+    t = re.sub(r"\b(\d+) and a half minutes?\b", lambda m: "%d seconds" % (int(m.group(1)) * 60 + 30), t)
+    t = re.sub(r"\b(?:a|an) (second|minute|hour)\b", r"1 \1", t)
+    return t
+
+
+def parse_duration(text):
+    """Seconds in a phrase like "ten minutes" or "an hour and a half", or None."""
+    t = words_to_digits(text)
+    total, found = 0.0, False
+    for num, unit in re.findall(r"(\d+(?:\.\d+)?)\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?)\b", t):
+        n = float(num)
+        total += n * (1 if unit.startswith("sec") else 60 if unit.startswith("min") else 3600)
+        found = True
+    return int(total) if found and total > 0 else None
+
+
+def parse_clock_time(text, now=None):
+    """The next time of day in a phrase like "3 pm" or "seven thirty", as (epoch, label), or None."""
+    t = words_to_digits(text)
+    now = now or time.time()
+    hh = mm = ap = None
+    if re.search(r"\bnoon\b", t):
+        hh, mm, ap = 12, 0, "pm"
+    elif re.search(r"\bmidnight\b", t):
+        hh, mm, ap = 12, 0, "am"
+    else:
+        m = (re.search(r"\b(?:at|for|by)\s+(\d{1,2})(?::|\s)(\d{2})\s*(am|pm)?\b", t) or re.search(r"\b(\d{1,2}):(\d{2})\s*(am|pm)?\b", t))
+        if m:
+            hh, mm, ap = int(m.group(1)), int(m.group(2)), m.group(3)
+        else:
+            m = (re.search(r"\b(?:at|for|by)\s+(\d{1,2})\s*(am|pm)\b", t) or re.search(r"\b(\d{1,2})\s*(am|pm)\b", t)
+                 or re.search(r"\b(\d{1,2})\s*o'?clock\b", t) or re.search(r"\b(?:at|for|by)\s+(\d{1,2})\b(?!\s*(?:minutes?|seconds?|hours?))", t))
+            if m:
+                hh, mm = int(m.group(1)), 0
+                ap = m.group(2) if m.lastindex and m.lastindex >= 2 else None
+    if hh is None or mm is None or mm > 59 or hh > 24:
+        return None
+    if ap is None:
+        if hh > 12 or hh == 0:
+            ap = "24"
+        elif re.search(r"\b(afternoon|evening|tonight|night)\b", t):
+            ap = "pm"
+        elif re.search(r"\bmorning\b", t):
+            ap = "am"
+    if ap == "pm" and hh < 12:
+        hh += 12
+    elif ap == "am" and hh == 12:
+        hh = 0
+    if hh > 23:
+        return None
+    lt = time.localtime(now)
+    cands = [hh] if ap else [hh % 12, hh % 12 + 12]       # no am or pm said: the soonest one that is still ahead
+    best = None
+    for h in cands:
+        at = time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, h, mm, 0, 0, 0, -1))
+        if at <= now + 5:
+            at += 86400
+        best = at if best is None or at < best else best
+    tm = time.localtime(best)
+    h12 = tm.tm_hour % 12 or 12
+    label = "%d%s %s" % (h12, (":%02d" % tm.tm_min) if tm.tm_min else "", "PM" if tm.tm_hour >= 12 else "AM")
+    if tm.tm_mday != lt.tm_mday:
+        label += " tomorrow"
+    return best, label
+
+
+def human_duration(sec):
+    sec = int(round(sec))
+    h, rem = divmod(sec, 3600)
+    m, s = divmod(rem, 60)
+    parts = []
+    if h:
+        parts.append("%d hour%s" % (h, "" if h == 1 else "s"))
+    if m:
+        parts.append("%d minute%s" % (m, "" if m == 1 else "s"))
+    if s and not h:
+        parts.append("%d second%s" % (s, "" if s == 1 else "s"))
+    return " and ".join(parts) if parts else "0 seconds"
+
+
+def save_clock():
+    try:
+        tmp = CLOCK_FILE + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(clock["items"], f)
+        os.replace(tmp, CLOCK_FILE)
+    except OSError as e:
+        print("ALARM could not save:", e, flush=True)
+
+
+def load_clock():
+    try:
+        items = json.load(open(CLOCK_FILE))
+    except (OSError, ValueError):
+        items = []
+    now = time.time()
+    clock["items"] = [i for i in items if isinstance(i, dict) and i.get("at", 0) > now - 120]    # one that went off while she was off is dropped
+
+
+def add_clock(kind, at, label, spoken):
+    with clock["lock"]:
+        clock["items"].append({"id": int(time.time() * 1000), "kind": kind, "at": at, "label": label, "spoken": spoken})
+        clock["items"].sort(key=lambda i: i["at"])
+        save_clock()
+
+
+def clock_reply(text):
+    """What she says back when this was a timer or alarm request, or None when it was not."""
+    if state["persona"] or not text:
+        return None
+    t = words_to_digits(text)
+    if clock["ringing"] and STOP_RING_RE.search(t):
+        clock["stop"] = True
+        return "Okay."
+    pend = clock["pending"]
+    if pend and time.time() - pend[1] > 25:
+        pend = clock["pending"] = None
+    kind_word = re.search(r"\b(timer|alarm|wake me|remind me)\b", t)
+    if re.search(r"\b(cancel|clear|delete|remove|turn off|stop|forget)\b.*\b(timers?|alarms?)\b", t):
+        which = "timer" if "timer" in t and "alarm" not in t else "alarm" if "alarm" in t and "timer" not in t else None
+        with clock["lock"]:
+            gone = [i for i in clock["items"] if which is None or i["kind"] == which]
+            clock["items"] = [i for i in clock["items"] if i not in gone]
+            save_clock()
+        return ("Okay, I cancelled it." if len(gone) == 1 else "Okay, I cancelled them all.") if gone else "You do not have one set."
+    if re.search(r"\b(how (much|long)( time)?( is)? (left|remaining)|how long (until|till)|what (timers|alarms)|when('s| is) my (alarm|timer)|do i have (a|an|any) (timer|alarm))", t):
+        with clock["lock"]:
+            items = list(clock["items"])
+        if not items:
+            return "You do not have a timer or an alarm set."
+        bits = []
+        for i in items[:3]:
+            left = i["at"] - time.time()
+            bits.append(("%s left on your timer" % human_duration(left)) if i["kind"] == "timer" else ("your alarm is set for " + i["label"]))
+        return "You have " + ", and ".join(bits) + "."
+    wants_alarm = bool(re.search(r"\b(alarm|wake me|remind me)\b", t))
+    wants_timer = bool(re.search(r"\btimer\b", t))
+    if not (kind_word or pend):
+        return None
+    dur = parse_duration(t)
+    when = parse_clock_time(t) if (wants_alarm or (pend and pend[0] == "alarm")) else None
+    if wants_alarm and dur and not when:                     # "remind me in ten minutes" is a timer
+        wants_timer, wants_alarm = True, False
+    if (wants_timer or (pend and pend[0] == "timer")) and dur:
+        clock["pending"] = None
+        if dur > 24 * 3600:
+            return "That is more than a day. Please give me a timer under a day."
+        hd = human_duration(dur)
+        if " and " in hd:
+            said = "Your timer for %s is up." % hd
+        else:
+            said = "Your %s timer is up." % re.sub(r"(hour|minute|second)s\b", r"\1", hd)       # "10 minute timer", not "10 minutes timer"
+        add_clock("timer", time.time() + dur, hd + " timer", said)
+        print("ALARM timer set for %d s" % dur, flush=True)
+        return "Okay, %s. I will tell you when it is up." % human_duration(dur)
+    if (wants_alarm or (pend and pend[0] == "alarm")) and when:
+        clock["pending"] = None
+        at, label = when
+        add_clock("alarm", at, label, "It is %s. This is your alarm." % label.replace(" tomorrow", ""))
+        print("ALARM set for %s" % label, flush=True)
+        return "Okay, an alarm for %s." % label
+    if wants_timer:
+        clock["pending"] = ("timer", time.time())
+        return "For how long?"
+    if wants_alarm:
+        clock["pending"] = ("alarm", time.time())
+        return "What time should I set it for?"
+    return None
+
+
+def make_chime():
+    if os.path.exists(CHIME_FILE):
+        return
+    import math, struct, wave
+    rate, out = 22050, []
+    for freq, secs in ((880.0, 0.28), (1175.0, 0.28), (1568.0, 0.5)):
+        n = int(rate * secs)
+        for k in range(n):
+            env = (1 - k / n) ** 1.5
+            out.append(int(9000 * env * math.sin(2 * math.pi * freq * k / rate)))
+    with wave.open(CHIME_FILE, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate)
+        w.writeframes(b"".join(struct.pack("<h", v) for v in out))
+
+
+def play_chime():
+    try:
+        make_chime()
+    except Exception as e:
+        print("ALARM could not make the chime:", e, flush=True)
+        return
+    for dev in (MIC_DEVICE_DEFAULT, None):
+        cmd = ["aplay", "-q"] + (["-D", dev] if dev else []) + [CHIME_FILE]
+        try:
+            if subprocess.run(cmd, capture_output=True, timeout=10).returncode == 0:
+                return
+        except Exception:
+            pass
+    print("ALARM the chime would not play", flush=True)
+
+
+def ring(due):
+    """Chime, then her voice, then listen for stop. Repeats about every 12 seconds for up to five minutes."""
+    msg = " ".join(i.get("spoken") or "Time is up." for i in due)
+    clock["ringing"], clock["stop"] = True, False
+    print("ALARM ringing: %s" % msg, flush=True)
+    try:
+        for _ in range(25):
+            if clock["stop"]:
+                break
+            write_eyes(boost=True)
+            play_chime()
+            speak_now(msg, use_persona=False)
+            if clock["stop"]:
+                break
+            settle()
+            if take_mic(timeout=3.0):
+                try:
+                    path = hear_one(wait_seconds=5.0, max_seconds=4.0)
+                    if path:
+                        heard = transcribe(path)
+                        print("ALARM heard: %s" % heard[:50], flush=True)
+                        if STOP_RING_RE.search(words_to_digits(heard)):
+                            clock["stop"] = True
+                except Exception as e:
+                    print("ALARM listening problem:", str(e)[:100], flush=True)
+                finally:
+                    listen_lock.release()
+        if clock["stop"]:
+            speak_now("Okay.", use_persona=False)
+        else:
+            print("ALARM nobody stopped it, so it stopped itself", flush=True)
+    finally:
+        clock["ringing"] = False
+        write_eyes()
+
+
+def clock_watcher():
+    load_clock()
+    while True:
+        time.sleep(1)
+        now = time.time()
+        with clock["lock"]:
+            due = [i for i in clock["items"] if i["at"] <= now]
+            if due:
+                clock["items"] = [i for i in clock["items"] if i not in due]
+                save_clock()
+        if due and not clock["ringing"]:
+            try:
+                ring(due)
+            except Exception as e:
+                print("ALARM problem:", str(e)[:120], flush=True)
+                clock["ringing"] = False
+
+
+@app.get("/api/clock")
+def clock_get():
+    with clock["lock"]:
+        return jsonify(items=[{"kind": i["kind"], "label": i["label"], "in_seconds": int(i["at"] - time.time())} for i in clock["items"]], ringing=clock["ringing"])
+
+
+@app.post("/api/clock/stop")
+def clock_stop():
+    clock["stop"] = True
+    return jsonify(ok=True)
+
+
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
     t0 = time.time()
+    said_clock = clock_reply(text)
+    if said_clock:
+        state["history"].append('They said "%s" and you said "%s".' % (text, said_clock))
+        state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said_clock}]
+        speak_now(said_clock)
+        return said_clock
     if ADDRESS_ASK.search(text or ""):
         spoken, shown = address_reply()
         reply = spoken if not shown else spoken + " That is " + shown
@@ -1714,7 +2017,7 @@ def listen_once():
         if not heard:
             return {"heard": "", "reply": ""}, 200
         try:
-            reply = get_reply(context_for(heard))
+            reply = clock_reply(heard) or get_reply(context_for(heard))
         except Exception as e:
             return {"error": str(e)[:200], "heard": heard}, 502
         state["history"].append('They said "%s" and you said "%s".' % (heard, reply))
@@ -1917,4 +2220,5 @@ if __name__ == "__main__":
     threading.Thread(target=watch_motion, daemon=True).start()
     threading.Thread(target=watch_names, daemon=True).start()
     prepare_opening()          # her first greeting from the notes is ready before anyone walks up
+    threading.Thread(target=clock_watcher, daemon=True).start()     # timers and alarms
     app.run(host="0.0.0.0", port=8000, threaded=True)
