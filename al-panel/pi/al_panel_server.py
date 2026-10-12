@@ -13,6 +13,7 @@ import base64
 import collections
 import json
 import os
+import random
 import re
 import subprocess
 import sys
@@ -608,6 +609,62 @@ def speak_async(text, use_persona=True):
     threading.Thread(target=speak_now, args=(text, use_persona), daemon=True).start()
 
 
+
+# ---- an opening that uses her memory, added 2026-10-12, Dr. O: "almost human in action" ----
+# She cannot recognize anyone, so she never says welcome back. Instead she picks up one thing from her own notes, from "someone", and asks
+# whether it was them. The line is made ahead of time, in the background, so the person who walks up never waits for it. With no notes,
+# or with memory switched off, she uses the ordinary greeting.
+prepared_opening = {"line": "", "busy": False}
+OPENING_DASH = re.compile(r"\s*[\u2014\u2013\u2011]\s*")
+
+
+def make_opening():
+    """One short greeting built from her notes, or "" when there is nothing honest to say."""
+    if not memory_on() or state["persona"]:
+        return ""
+    notes = load_memory(None)[-12:]
+    if not notes:
+        return ""
+    pick = random.sample(notes, min(3, len(notes)))
+    prompt = ("You are Astra-9 Lite, a robot head and shoulders who goes by Elle. Someone has just walked up to you. Write ONE short greeting, "
+              "at most 35 words, that picks up one thing from your notes below and ends with a question that invites them to talk.\n"
+              "RULES: You cannot recognize anyone, so you do not know whether the person is someone you have met. Never say welcome back, "
+              "never say last time we talked, never use their name. Speak of what \"someone\" told you, or of something you have been "
+              "thinking about, and ask whether it was them or tell you about their own. Use only what the notes say and invent nothing "
+              "at all. Do not begin with a word naming a feeling. Do not use dash characters. Say Hello or Hi once, near the start. "
+              "Return only the greeting.\n\nYour notes:\n" + "\n".join("- " + n for n in pick))
+    try:
+        r = requests.post("https://api.anthropic.com/v1/messages",
+                          headers={"x-api-key": header_value("x-api-key"), "anthropic-version": "2023-06-01",
+                                   "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID, "content-type": "application/json"},
+                          json={"model": "claude-sonnet-5", "max_tokens": 120, "messages": [{"role": "user", "content": prompt}]}, timeout=30)
+        if r.status_code != 200:
+            print("OPENING the service said %d" % r.status_code, flush=True)
+            return ""
+        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip().strip('"')
+    except Exception as e:
+        print("OPENING problem:", str(e)[:120], flush=True)
+        return ""
+    text = OPENING_DASH.sub(", ", text)
+    low = text.lower()
+    if not text or len(text) > 260 or "?" not in text or "welcome back" in low or "last time" in low:
+        return ""
+    return text
+
+
+def prepare_opening():
+    if prepared_opening["busy"]:
+        return
+    prepared_opening["busy"] = True
+
+    def go():
+        try:
+            prepared_opening["line"] = make_opening()
+        finally:
+            prepared_opening["busy"] = False
+    threading.Thread(target=go, daemon=True).start()
+
+
 def welcome(force=False):
     """Do whichever of the three the owner has switched on. Returns what was done.
     The sensor path respects the wait; the Welcome now button (force) does not.
@@ -640,9 +697,16 @@ def welcome(force=False):
                 line = PERSONAS[state["persona"]]["say"]     # a private character that opens with words Dr. O wrote
             elif state["persona"]:
                 line = "Hello."   # a character is never given words it was not written
+            elif prepared_opening["line"] and welcome_state["n"] % 3 != 0:      # two greetings in three come from her notes; the rest are the usual ones
+                line = prepared_opening["line"]
+                prepared_opening["line"] = ""
+                prepare_opening()                                             # the next one is made while she talks
+                print("OPENING from her notes: %s" % line[:80], flush=True)
             else:
                 welcome_state["greet_i"] = (welcome_state["greet_i"] + 1) % len(GREETINGS)
                 line = GREETINGS[welcome_state["greet_i"]] + " " + HELLO_QUESTIONS[welcome_state["n"] % len(HELLO_QUESTIONS)]
+                if not prepared_opening["line"]:
+                    prepare_opening()
             if w["chat"]:
                 # say it, then keep listening so the person can answer without touching anything
                 threading.Thread(target=lambda: (speak_now(line), converse()), daemon=True).start()
@@ -1807,4 +1871,5 @@ if __name__ == "__main__":
     threading.Thread(target=say_address_when_ready, daemon=True).start()
     threading.Thread(target=watch_motion, daemon=True).start()
     threading.Thread(target=watch_names, daemon=True).start()
+    prepare_opening()          # her first greeting from the notes is ready before anyone walks up
     app.run(host="0.0.0.0", port=8000, threaded=True)
