@@ -1,0 +1,8 @@
+[
+  { "id": "open", "name": "Cold open", "who": "Host", "what": "The host states the topic and the record." },
+  { "id": "statements", "name": "Opening statements", "who": "Each leader", "what": "Each leader speaks from inside their own conviction." },
+  { "id": "crossfire", "name": "Crossfire", "who": "The leaders", "what": "The leaders respond to each other." },
+  { "id": "record", "name": "The record", "who": "Host", "what": "The host puts the documented facts on the table." },
+  { "id": "question", "name": "Your question", "who": "You", "what": "You interrogate the table: position, audit, interrogate, demand." },
+  { "id": "closing", "name": "Closing statements", "who": "Each leader", "what": "Each leader has the last word." }
+]

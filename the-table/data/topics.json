@@ -1,0 +1,29 @@
+[
+  {
+    "id": "gender-family",
+    "name": "Gender and Family",
+    "topics": [
+      "Conscription", "Surrogacy", "Honor Violence", "Guardianship", "Quotas",
+      "Reproductive Control", "Unpaid Work", "Dress Codes", "Sex Work",
+      "Women Clergy", "Female Terrorism", "Self-Defense", "Inheritance"
+    ]
+  },
+  {
+    "id": "power-necessity",
+    "name": "Power and Necessity",
+    "topics": [
+      "Greater Good", "Emergency Powers", "Censorship", "Torture",
+      "Collective Punishment", "Traitors", "Succession", "Famine",
+      "Relocation", "Conscience", "Eugenics"
+    ]
+  },
+  {
+    "id": "modern",
+    "name": "Modern",
+    "topics": [
+      "AI Use", "AI Companions", "Surveillance", "Deepfakes", "Radicalization",
+      "Autonomous Weapons", "Automation", "Cyberwar", "Pandemic Powers",
+      "Climate Migration", "Gene Editing"
+    ]
+  }
+]

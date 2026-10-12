@@ -1,0 +1,10 @@
+{
+  "updated": "2026-10-12",
+  "stages": [
+    { "label": "Cast, topics, hosts, and show format written", "state": "done" },
+    { "label": "Landing page, topic board, and table scene built", "state": "done" },
+    { "label": "Portraits and hero image", "state": "next" },
+    { "label": "Live rounds", "state": "later" },
+    { "label": "Recorded rounds and replay", "state": "later" }
+  ]
+}

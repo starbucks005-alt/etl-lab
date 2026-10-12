@@ -1,0 +1,15 @@
+[
+  { "id": "nakamura", "file": "Grace", "name": "Admiral Grace Nakamura (Ret.)", "title": "Judge, The Gauntlet. Government, policy and national security.", "default": true },
+  { "id": "roosevelt", "file": "Roosevelt", "name": "Eleanor Roosevelt", "title": "Visionary leadership.", "alsoLeader": "eleanor" },
+  { "id": "curie", "file": "Curie", "name": "Marie Curie", "title": "Physicist and chemist. Not a leader at the table." },
+  { "id": "einstein", "file": "Einstein", "name": "Albert Einstein", "title": "Theoretical physicist." },
+  { "id": "wooden", "file": "Wooden", "name": "John Wooden", "title": "Coaching leadership." },
+  { "id": "perkins", "file": "Perkins", "name": "Frances Perkins", "title": "Democratic and coalition leadership." },
+  { "id": "gandhi", "file": "Gandhi", "name": "Mohandas Gandhi", "title": "Affiliative and nonviolent leadership.", "alsoLeader": "gandhi" },
+  { "id": "csking", "file": "CorettaKing", "name": "Coretta Scott King", "title": "Affiliative and nonviolent leadership." },
+  { "id": "mlk", "file": "MLK", "name": "Martin Luther King Jr.", "title": "Nonviolent and persuasive leadership." },
+  { "id": "truth", "file": "Truth", "name": "Sojourner Truth", "title": "Persuasive rhetoric." },
+  { "id": "tubman", "file": "Tubman", "name": "Harriet Tubman", "title": "Crisis and commanding leadership." },
+  { "id": "shackleton", "file": "Shackleton", "name": "Ernest Shackleton", "title": "Crisis and commanding leadership." },
+  { "id": "powell", "file": "Powell", "name": "Colin Powell", "title": "Service leadership." }
+]

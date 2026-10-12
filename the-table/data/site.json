@@ -1,0 +1,12 @@
+{
+  "title": "THE TABLE",
+  "titleNote": "Working title. Change it here and every page follows.",
+  "tagline": "Leaders who did whatever it took. Leaders who held a line. One table.",
+  "intro": "Pick a topic, choose who sits at the table, and put your question to all of them. A host keeps order and puts the documented record in front of everyone.",
+  "maxSeats": 6,
+  "maxSeatsNote": "Set at setup, not at runtime. A seat limit never produces a stopped conversation.",
+  "disclosureTag": "AI agent, built from the historical record. Not the real person.",
+  "openingCard": "The following leaders are AI agents built from the historical record.",
+  "defaultHost": "nakamura",
+  "heroImage": "Hero/table.jpg"
+}
