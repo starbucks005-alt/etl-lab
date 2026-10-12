@@ -1176,6 +1176,13 @@ def say():
 # ---- hands-free listening ----
 CONVERSE_SECONDS = 30     # after a hello, she keeps listening this long, and again after each thing she answers
 END_QUIET = 9            # tenths of a second of quiet that mean the person has finished. 8 cut off the soft last word, 11 made her slow to answer: 9 is the middle (2026-10-12)
+
+TALK_END_QUIET = 14      # 2026-10-12, Dr. O: in a talk with Alice a voice pauses about a second between sentences, and at 0.9 s Elle took the first gap for the end,
+                         # cut the clip and talked over the rest. In a talk she waits 1.4 s; with people it stays at END_QUIET.
+
+
+def end_quiet():
+    return TALK_END_QUIET if sisters["on"] else END_QUIET
 MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
 # speech to text often mishears her name. 2026-10-12: she now goes by Elle, which it writes as Ella, Ellie, Elly, El or Ell, so those wake her too.
 NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|astra|astro|astrid|al|8l)\b", re.I)
@@ -1359,7 +1366,7 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
                 lowest = min(lowest, avg)
                 voiced += 1 if (lvl > thr or sp) else 0
                 quiet = quiet + 1 if (avg < end_thr and not sp) else 0
-                if quiet >= END_QUIET:
+                if quiet >= end_quiet():
                     break
                 if len(speech) / 32000.0 > max_seconds:
                     if lowest > end_thr:
