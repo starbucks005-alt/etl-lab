@@ -618,26 +618,52 @@ prepared_opening = {"line": "", "busy": False}
 OPENING_DASH = re.compile(r"\s*[\u2014\u2013\u2011]\s*")
 
 
-def make_opening():
-    """One short greeting built from her notes, or "" when there is nothing honest to say."""
-    if not memory_on() or state["persona"]:
+def part_of_day():
+    h = time.localtime().tm_hour
+    return "morning" if 5 <= h < 12 else "afternoon" if 12 <= h < 17 else "evening" if 17 <= h < 21 else "night"
+
+
+def current_mood_feel():
+    """How she feels right now, from her own mood ladder: where the last conversation left her if it was recent, else where she starts."""
+    cfg = mood_cfg(None)
+    if not cfg:
         return ""
-    notes = load_memory(None)[-12:]
-    if not notes:
+    i = mood["i"] if (mood["pid"] == state["persona"] and mood["last"] and time.time() - mood["last"] < MOOD_IDLE_RESET) else cfg.get("start", 0)
+    return cfg["stages"][min(max(i, 0), len(cfg["stages"]) - 1)]["feel"]
+
+
+def make_opening(kind=None):
+    """One short greeting in one of four ways, or "" when there is nothing honest to say.
+    memory: one thing from her notes, from "someone". moment: the time of day. mood: how she feels. learning: she is new at this."""
+    if state["persona"]:
         return ""
-    pick = random.sample(notes, min(3, len(notes)))
-    prompt = ("You are Astra-9 Lite, a robot head and shoulders who goes by Elle. Someone has just walked up to you. Write ONE short greeting, "
-              "at most 35 words, that picks up one thing from your notes below and ends with a question that invites them to talk.\n"
-              "RULES: You cannot recognize anyone, so you do not know whether the person is someone you have met. Never say welcome back, "
-              "never say last time we talked, never use their name. Speak of what \"someone\" told you, or of something you have been "
-              "thinking about, and ask whether it was them or tell you about their own. Use only what the notes say and invent nothing "
-              "at all. Do not begin with a word naming a feeling. Do not use dash characters. Say Hello or Hi once, near the start. "
-              "Return only the greeting.\n\nYour notes:\n" + "\n".join("- " + n for n in pick))
+    notes = load_memory(None)[-12:] if memory_on() else []
+    kinds = (["memory"] * 3 if notes else []) + ["moment"] * 2 + ["mood"] * 2 + ["learning"]
+    kind = kind if kind in ("memory", "moment", "mood", "learning") else random.choice(kinds)
+    if kind == "memory" and not notes:
+        kind = "moment"
+    base = ("You are Astra-9 Lite, a robot head and shoulders who goes by Elle. Someone has just walked up to you. Write ONE short greeting, "
+            "at most 35 words, in a warm, human way, and end with a question that invites them to talk. You cannot recognize anyone, so never say "
+            "welcome back or last time, and never use a name. Invent nothing: no weather, no news, no events, no facts about the person. "
+            "Do not begin with a word naming a feeling. Do not use dash characters. Say Hello or Hi once, near the start. Return only the greeting.\n")
+    if kind == "memory":
+        extra = ("Pick up one thing from your notes below. Speak of what \"someone\" told you, or of something you have been thinking about, "
+                 "and ask whether it was them or tell you about their own. Use only what the notes say.\n\nYour notes:\n"
+                 + "\n".join("- " + n for n in random.sample(notes, min(3, len(notes)))))
+    elif kind == "moment":
+        extra = ("It is %s. You may say something about the time of day and how it feels to be awake and listening in it, "
+                 "but nothing about what the person is doing or why they are here." % part_of_day())
+    elif kind == "mood":
+        extra = ("Your mood right now: %s Let it show in how you greet them, and you may say how you feel and that you are not sure why, "
+                 "like a person would. Do not explain it." % current_mood_feel())
+    else:
+        extra = ("Say that you are still learning how people do this, a little playfully, and ask them for help with something small, "
+                 "such as what they would say first to a stranger.")
     try:
         r = requests.post("https://api.anthropic.com/v1/messages",
                           headers={"x-api-key": header_value("x-api-key"), "anthropic-version": "2023-06-01",
                                    "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID, "content-type": "application/json"},
-                          json={"model": "claude-sonnet-5", "max_tokens": 120, "messages": [{"role": "user", "content": prompt}]}, timeout=30)
+                          json={"model": "claude-sonnet-5", "max_tokens": 120, "messages": [{"role": "user", "content": base + extra}]}, timeout=30)
         if r.status_code != 200:
             print("OPENING the service said %d" % r.status_code, flush=True)
             return ""
@@ -649,6 +675,7 @@ def make_opening():
     low = text.lower()
     if not text or len(text) > 260 or "?" not in text or "welcome back" in low or "last time" in low:
         return ""
+    print("OPENING made (%s): %s" % (kind, text[:70]), flush=True)
     return text
 
 
