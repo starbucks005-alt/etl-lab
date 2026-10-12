@@ -1165,7 +1165,7 @@ def say():
 
 # ---- hands-free listening ----
 CONVERSE_SECONDS = 30     # after a hello, she keeps listening this long, and again after each thing she answers
-END_QUIET = 11           # tenths of a second of quiet that mean the person has finished (was 8: the last word of a sentence is softer and got cut off)
+END_QUIET = 9            # tenths of a second of quiet that mean the person has finished. 8 cut off the soft last word, 11 made her slow to answer: 9 is the middle (2026-10-12)
 MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
 # speech to text often mishears her name. 2026-10-12: she now goes by Elle, which it writes as Ella, Ellie, Elly, El or Ell, so those wake her too.
 NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|astra|astro|astrid|al|8l)\b", re.I)
@@ -1516,7 +1516,10 @@ def converse(window=None):
                 path = hear_one(wait_seconds=SISTER_GAP, on_start=lambda: write_eyes(boost=True))
             else:
                 path = hear_one(wait_seconds=max(1.0, deadline - time.time()), on_start=lambda: write_eyes(boost=True))
-            write_eyes()
+            # 2026-10-12, Dr. O: people think she is not going to answer. Her eyes now stay bright while she works out the answer,
+            # and dim only when she is done, so the pause looks like thinking.
+            if not path:
+                write_eyes()
             if sisters["on"] and sisters["turns"] >= sisters["max"]:
                 sisters_stop("turn limit")
                 break
@@ -1543,17 +1546,22 @@ def converse(window=None):
                 print("TIMING heard in %.1f s: %s" % (time.time() - t0, text[:60]), flush=True)
             except Exception as e:
                 print("LISTEN ERROR:", e, flush=True)
+                write_eyes()
                 break
             if not text:
+                write_eyes()
                 continue
             if heard_herself(text, last_clip["start"]):
                 print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
+                write_eyes()
                 continue
             if sisters["on"] and STOP_TALK_RE.search(text):
                 sisters_stop("told to stop")
+                write_eyes()
                 break
             if (state["welcome"].get("crowd") or sisters["on"]) and not wake_name_re().search(text):
                 print("CROWD mode: no name in it, not answering. Heard: %s" % text[:60], flush=True)
+                write_eyes()
                 continue
             try:
                 if sisters["on"]:
@@ -1561,7 +1569,9 @@ def converse(window=None):
                 answer_and_say(text)
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)
+                write_eyes()
                 break
+            write_eyes()
             deadline = time.time() + window        # keep going while people keep talking
     finally:
         listen_lock.release()
@@ -1588,15 +1598,20 @@ def watch_names():
                 t0 = time.time()
                 text = transcribe(path)
                 print("TIMING heard in %.1f s: %s" % (time.time() - t0, text[:60]), flush=True)
-            write_eyes()
+            if not path:
+                write_eyes()
         except Exception as e:
             print("LISTEN ERROR:", e, flush=True)
+            write_eyes()
             time.sleep(5)
         finally:
             idle_watch["on"] = False
             listen_lock.release()
+        if not text:
+            write_eyes()
         if text and heard_herself(text, last_clip["start"]):
             print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
+            write_eyes()
             continue
         if text and wake_name_re().search(text):
             try:
@@ -1604,7 +1619,9 @@ def watch_names():
                 converse(window=8 if state["welcome"].get("crowd") else None)   # crowd mode: a short wait for a follow up with her name, not 30 s open
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)
+            write_eyes()
         elif text:
+            write_eyes()
             # 2026-10-07: "Alice, can you hear me?" was heard four times and not answered, and the log did not say why
             who = PERSONAS[state["persona"]]["name"].split(",")[0] if state["persona"] else "Astra-9 Lite"
             print("WAKE heard words but not her name. She is %s now. Heard: %s" % (who, text[:60]), flush=True)
