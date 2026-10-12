@@ -190,8 +190,8 @@
       <p class="hint">Pick how she sounds, then press Hear it.</p>
       <label for="accent">Accent</label>
       <select id="accent">
-        <option value="robot">Robot (her default voice)</option>
-        <option value="american">American</option>
+        <option value="robot">Robot (her old voice)</option>
+        <option value="american">American (her default voice)</option>
         <option value="swedish">Swedish</option>
         <option value="british">British</option>
         <option value="indian">Indian</option>
@@ -340,7 +340,7 @@
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by Astra-9 Lite and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'robot', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
+  var state = {color:'#1fb7c9', bright:40, accent:'american', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
 
   var SKILLS = [
     {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
@@ -799,7 +799,7 @@
 
   function resetDemo(){
     state.skills = []; store('skills', []); $('log').innerHTML = ''; $('thumbs').innerHTML = '';
-    state.color = '#1fb7c9'; state.bright = 40; state.accent = 'robot'; $('accent').value = 'robot';
+    state.color = '#1fb7c9'; state.bright = 40; state.accent = 'american'; $('accent').value = 'american';
     state.persona = live ? state.main : null; store('persona', state.persona); $('bright').value = 40; paintEyes(); renderSkills(); renderPersonas();
     if(live){ api('/api/reset').catch(function(){}); }
   }
@@ -831,7 +831,7 @@
   // ---------- start ----------
   buildSwatches();
   var saved = load('eyes', null); if(saved){ state.color = saved.color; state.bright = saved.bright; $('bright').value = saved.bright; }
-  state.persona = load('persona', null); state.skills = load('skills', []); state.accent = load('accent', 'robot'); if(!SAMPLE[state.accent]){ state.accent = 'robot'; } $('accent').value = state.accent;
+  state.persona = load('persona', null); state.skills = load('skills', []); state.accent = load('accent', 'american'); if(!SAMPLE[state.accent]){ state.accent = 'american'; } $('accent').value = state.accent;
   paintEyes(); renderSkills(); setLive(false);
   $('hear').addEventListener('click', hearIt);
   $('shutBtn').addEventListener('click', shutDown);

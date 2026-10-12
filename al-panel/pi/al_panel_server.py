@@ -232,7 +232,9 @@ for _file in sorted(_glob.glob(os.path.join(HERE, "personalities_private*.json")
 EYES_FILE = "/tmp/al_eyes.json"
 MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
-state = {"color": "#1fb7c9", "brightness": 40, "accent": "robot", "skills": [], "persona": None, "main": None, "history": [], "log": [],
+# 2026-10-12, Dr. O: Astra-9 Lite's default voice is the American one. "It is the most shocking for humans to hear her communicate
+# sounding this human." The robot voice is still one tap away, under Accent.
+state = {"color": "#1fb7c9", "brightness": 40, "accent": "american", "skills": [], "persona": None, "main": None, "history": [], "log": [],
          "motion": "missing",   # the library and pin: missing (could not start), warming or ready
          "seen": 0.0}           # when the sensor last noticed someone
 speak_lock = threading.Lock()
@@ -1046,7 +1048,7 @@ def shut_down():
 @app.post("/api/reset")
 def reset():
     """Start fresh for the next person: forget the chat, the skills, and go back to default voice and eyes."""
-    state.update(color="#1fb7c9", brightness=40, accent="robot", skills=[], persona=state["main"], history=[], log=[])
+    state.update(color="#1fb7c9", brightness=40, accent="american", skills=[], persona=state["main"], history=[], log=[])
     mood_reset(state["main"])
     apply_prompt()
     write_eyes()
