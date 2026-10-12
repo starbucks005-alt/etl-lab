@@ -1167,7 +1167,8 @@ def say():
 CONVERSE_SECONDS = 30     # after a hello, she keeps listening this long, and again after each thing she answers
 END_QUIET = 11           # tenths of a second of quiet that mean the person has finished (was 8: the last word of a sentence is softer and got cut off)
 MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
-NAME_RE = re.compile(r"\b(elle|astra|astro|astrid|al|8l)\b", re.I)   # speech to text often mishears her name
+# speech to text often mishears her name. 2026-10-12: she now goes by Elle, which it writes as Ella, Ellie, Elly, El or Ell, so those wake her too.
+NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|astra|astro|astrid|al|8l)\b", re.I)
 
 
 def wake_name_re():
