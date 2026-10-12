@@ -1712,33 +1712,48 @@ def play_chime():
     print("ALARM the chime would not play", flush=True)
 
 
+def listen_for_stop(seconds):
+    """Open the microphone for a few seconds and see whether someone said stop. Any very short reply counts too, since a person who is
+    answering an alarm is nearly always saying stop, okay or thanks."""
+    settle()
+    if not take_mic(timeout=8.0):
+        print("ALARM could not get the microphone to listen for stop", flush=True)
+        return clock["stop"]
+    try:
+        write_eyes(boost=True)
+        path = hear_one(wait_seconds=seconds, max_seconds=4.0)
+        if path:
+            heard = transcribe(path)
+            print("ALARM heard: %s" % heard[:50], flush=True)
+            w = words_to_digits(heard)
+            if heard.strip() and (STOP_RING_RE.search(w) or len(w.split()) <= 3):
+                clock["stop"] = True
+    except Exception as e:
+        print("ALARM listening problem:", str(e)[:100], flush=True)
+    finally:
+        listen_lock.release()
+    return clock["stop"]
+
+
 def ring(due):
-    """Chime, then her voice, then listen for stop. Repeats about every 12 seconds for up to five minutes."""
+    """Chime, listen for stop, and every other round say what it is for, listening again after. About 5 minutes at most.
+    2026-10-12: the first version spoke for several seconds before it listened, and she cannot hear while she speaks, so "stop" said while she talked
+    was missed. Now the listening window opens right after the chime."""
     msg = " ".join(i.get("spoken") or "Time is up." for i in due)
     clock["ringing"], clock["stop"] = True, False
     print("ALARM ringing: %s" % msg, flush=True)
     try:
-        for _ in range(25):
+        for n in range(40):
             if clock["stop"]:
                 break
             write_eyes(boost=True)
             play_chime()
-            speak_now(msg, use_persona=False)
-            if clock["stop"]:
+            if listen_for_stop(5.0):
                 break
-            settle()
-            if take_mic(timeout=3.0):
-                try:
-                    path = hear_one(wait_seconds=5.0, max_seconds=4.0)
-                    if path:
-                        heard = transcribe(path)
-                        print("ALARM heard: %s" % heard[:50], flush=True)
-                        if STOP_RING_RE.search(words_to_digits(heard)):
-                            clock["stop"] = True
-                except Exception as e:
-                    print("ALARM listening problem:", str(e)[:100], flush=True)
-                finally:
-                    listen_lock.release()
+            if n % 2 == 0:
+                speak_now(msg, use_persona=False)
+                if listen_for_stop(5.0):
+                    break
         if clock["stop"]:
             speak_now("Okay.", use_persona=False)
         else:

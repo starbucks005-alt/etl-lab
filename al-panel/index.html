@@ -270,6 +270,7 @@
       <div class="row" id="listenRow" style="margin-top:10px;display:none"><button class="primary" id="listenBtn" style="font-size:1.15rem;padding:14px 26px">Listen now</button><span class="hint" id="listenStatus" style="margin:0">Press, then ask one question. She waits for you to start and stops when you finish. No name needed.</span></div>
       <!-- LET THEM TALK, added 2026-10-10: she talks with the other characters (the hologram, later Astrad and Astra-9) without anyone stepping in.
            Nothing connects the devices; they hear each other, and the one named answers. Say "that's enough" to end it. -->
+      <div class="row" id="stopAlarmRow" style="margin-top:10px;display:none"><button id="stopAlarmBtn">Stop the alarm or timer</button><span class="hint" id="stopAlarmMsg" style="margin:0">If a timer or alarm is ringing and saying stop does not work, press this.</span></div>
       <div class="row" id="sistersRow" style="margin-top:10px;display:none">
         <label class="hint" style="margin:0">Her name in the talk <input id="sistersMe" type="text" value="Elle" style="max-width:120px"></label> <label class="hint" style="margin:0">Talking with <input id="sistersWith" type="text" value="Alice" style="max-width:220px" aria-label="Who is she talking with"></label>
         <button id="sistersBtn">Let them talk</button>
@@ -380,7 +381,7 @@
     live = on;
     $('demoNote').style.display = on ? 'none' : '';
     $('shutCard').style.display = on ? '' : 'none';
-    $('listenRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none';
+    $('listenRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none'; $('stopAlarmRow').style.display = on ? '' : 'none';
     $('volumeRow').style.display = on ? 'flex' : 'none';
     if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
@@ -906,6 +907,10 @@
       fetch('/api/sisters').then(function(r){ return r.json(); }).then(function(j){ if(!j.on){ on = false; paint(); msg.textContent = 'The talk ended on its own.'; } }).catch(function(){});
     }, 4000);
   })();
+  $('stopAlarmBtn').addEventListener('click', function(){
+    fetch('/api/clock/stop', {method:'POST'}).then(function(r){ $('stopAlarmMsg').textContent = r.ok ? 'Stopped.' : 'I could not reach her.'; })
+      .catch(function(){ $('stopAlarmMsg').textContent = 'I could not reach her.'; });
+  });
   document.querySelectorAll('#starters button').forEach(function(b){
     b.addEventListener('click', function(){ $('say').value = b.getAttribute('data-q'); send(); });
   });
