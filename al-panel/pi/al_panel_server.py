@@ -103,6 +103,7 @@ TOUR_TEXT = (
 )
 
 SKILL_TEXT = {
+    "clock": "You can set timers and alarms by voice, say how much time is left, cancel them, and ring with a chime and your voice when it is time.",
     "spanish": "You can act as a Spanish conversation partner: speak simple Spanish, keep it slow, and gently correct mistakes.",
     "story": "You can tell a short, calm story with the listener as the hero.",
     "study": "You can be a study buddy: ask three short questions on a topic the person picks, then explain the answers.",
@@ -190,7 +191,11 @@ LAB_FACTS = (" What you know about the lab and your line, and may talk about fre
              "hers. A.L.I.C.E. is another character from the same lab, one of the Good Company, who also appears on a hologram. She was "
              "built in a university psychology lab to study human connection, was let go, and is looking for family shaped connection. "
              "You may mention her by name when she comes up, and you know nothing more about her than that.")
-BASE_PROMPT = al.AL_SYSTEM_PROMPT + CURIOUS + LAB_FACTS
+# 2026-10-12, Dr. O: Elle said she could not set a timer or alarm. The setting itself is done in code (see clock_reply), but she has to know she can.
+CLOCK_TEXT = (" You can set timers and alarms. A person just asks, for example, set a timer for ten minutes, or set an alarm for 3 pm. You can also say how "
+              "much time is left and cancel one. When it is time you chime, say so out loud, and listen for the word stop. If a request is unclear, ask for "
+              "how long or what time. Never say that you cannot set a timer or an alarm.")
+BASE_PROMPT = al.AL_SYSTEM_PROMPT + CURIOUS + LAB_FACTS + CLOCK_TEXT
 
 # Characters AL can take on, built from the lab's own character files by tools/build_personalities.js.
 try:
