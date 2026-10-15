@@ -895,9 +895,10 @@ function gcNoReplyWhy(res) {
   setInterval(function () { bSisters.style.display = (chatWho && !chatWho.echo && chatForm.classList.contains('on')) ? '' : 'none'; }, 1000);
 
   /* BUTTONS ON THE BOX, added 2026-10-09, Dr. O: five physical buttons, wired to a small board that types a key, each choosing one hologram.
-     1 = A.L.I.C.E., 2 = Tansy, 3 = Reggie, 4 = Dr. Duffy, 5 = Terry (the lab). Dr. Duffy's two videos were added here
-     2026-10-09 (see COMPANIONS), so button 4 now plays him. Pressing the key for the one already showing does nothing. Not tried with the real board. */
-  var KEYS = { '1': 'alice', '2': 'tansy', '3': 'reggie', '4': 'duffy', '5': 'terry' };
+     Order changed 2026-10-15, Dr. O: left to right is 1 = A.L.I.C.E., 2 = Reggie, 3 = Tansy, 4 = Kevin (Dr. Duffy), 5 = Terry (the lab,
+     last). Dr. Duffy's two videos were added here 2026-10-09 (see COMPANIONS). Pressing the key for the one already showing does nothing.
+     Not tried with the real board. The board program is in good-company/box-buttons/. */
+  var KEYS = { '1': 'alice', '2': 'reggie', '3': 'tansy', '4': 'duffy', '5': 'terry' };
   document.addEventListener('keydown', function (e) {
     var t = e.target && e.target.tagName;
     if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || e.ctrlKey || e.altKey || e.metaKey) return;
