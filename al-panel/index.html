@@ -111,6 +111,12 @@
   .phead{grid-column:1/-1;margin:14px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:19px;color:var(--ink)}
   .phead:first-child{margin-top:0}
   .phead span{font-family:var(--mono);font-size:12px;color:var(--mute);margin-left:8px}
+  .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .mode{text-align:left;display:flex;flex-direction:column;gap:6px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--text)}
+  .mode b{color:var(--ink);font-size:16px;display:flex;align-items:center;gap:8px}
+  .mode i{display:inline-block;width:12px;height:12px;border-radius:50%}
+  .mode span{font-size:13px;color:var(--mute)}
+  .mode.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
   .twocol{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:22px;align-items:start}
   .persona{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--field);display:flex;flex-direction:column;gap:6px}
   .persona h3{margin:0;font-size:15px;color:var(--ink)}
@@ -161,6 +167,21 @@
   </figure>
 
   <div class="grid">
+
+    <!-- MODE, added 2026-10-15, Dr. O: companion, science, children's friend, event and front desk, bench and workshop. A mode is a set of rules, what she keeps, how she
+         listens and her eye color. Children's friend mode offers only the characters and skills chosen for everyone under 13, and keeps notes a parent can read. -->
+    <section class="card wide" id="modeCard">
+      <h2>Mode: how should she act?</h2>
+      <p class="hint">A mode sets her rules, what she remembers, how she listens and her eye color. Pick one, and you can still change anything after.</p>
+      <div class="modes" id="modes"></div>
+      <p class="hint" id="modeNote" style="margin:12px 0 0"></p>
+      <div id="parentRow" style="margin-top:12px;display:none">
+        <b style="color:var(--ink)">Notes for a parent</b>
+        <p class="hint" style="margin:2px 0 8px">What she and the child talked about, and anything a parent should know. She never reads these back to the child. Anyone who opens this panel can read them, so keep the panel for the parent.</p>
+        <ul id="parentList" style="margin:0 0 8px;padding-left:1.2rem;font-size:14px"></ul>
+        <button id="parentForgetAll" type="button">Delete all notes</button>
+      </div>
+    </section>
 
     <!-- 1. EYES -->
     <section class="card" id="eyesCard">
@@ -354,11 +375,17 @@
   // The personalities are shown by kind of character, not by the show they came from. Each entry in personas.json has a "category".
   var PCATS = ['Made for one person', 'Children and Little Ones', 'Health Professions', 'Fitness and Wellness', 'Fantasy and Magical', 'Reggie and Friends', 'Robots and AI',
                'Teachers and Storytellers', 'Food, Garden and Nature', 'Science and Research', 'Work and Business', 'Writers, Artists and Performers', 'More people'];
+  function visiblePersonas(){ return PERSONAS.filter(function(p){ return state.mode !== 'kids' || p.kids; }); }
+  // the filter buttons and the list follow the mode: a category that is not shown in this mode must not stay chosen
+  function refreshPersonaList(){
+    if(pGroup !== 'All' && !visiblePersonas().some(function(p){ return catOf(p) === pGroup; })){ pGroup = 'All'; }
+    buildGroups(); renderPersonas();
+  }
   function catOf(p){ return p.group === 'Private' ? 'Made for one person' : (p.category || 'More people'); }
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by Astra-9 Lite and her API answers
-  var state = {color:'#1fb7c9', bright:40, accent:'american', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
+  var state = {mode:null, color:'#1fb7c9', bright:40, accent:'american', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
 
   var SKILLS = [
     {id:'clock',    name:'Timer and Alarm', price:0, desc:'Say "Elle, set a timer for ten minutes" or "set an alarm for 3 pm." She chimes and speaks when it is time. Say stop to end it.',
@@ -375,6 +402,19 @@
      demo:'Let us take a breath together. In for four, hold for four, out for six.'},
     {id:'tour',     name:'Lab Tour Guide', price:0, desc:'Included with every companion. Introduces the lab and its work.',
      demo:'Welcome to the Emerging Technologies Laboratory. Shall we start with the robots?'}
+  ];
+  var KIDS_SKILLS = ['clock', 'spanish', 'story', 'study', 'trivia', 'mindful', 'tour'];   // the same list as KIDS_SKILLS in al_panel_server.py
+  var MODES = [
+    {id:'companion', name:'Companion', color:'#1fb7c9', line:'Warm, remembers you, and has moods with reasons.',
+     demo:'Companion mode. I am glad you are here.'},
+    {id:'science', name:'Science', color:'#3b7dff', line:'Careful and honest, for people who check what she says.',
+     demo:'Science mode. I will tell you what is known, what is not, and when I do not know.'},
+    {id:'kids', name:'Children\'s friend', color:'#f2b84b', line:'Gentle and safe for any age. Only characters and skills chosen for everyone under 13. Notes a parent can read.',
+     demo:'Hello, friend. I am a robot who likes stories and questions. How old are you?'},
+    {id:'event', name:'Event and front desk', color:'#2fbf71', line:'A host for visitors: greets, answers about the lab, keeps it short.',
+     demo:'Event mode. I will greet people and tell them about the lab.'},
+    {id:'bench', name:'Bench and workshop', color:'#ff8a3d', line:'Hands free: short answers, one step at a time, timers for the waits.',
+     demo:'Bench mode. Tell me the steps and I will read them one at a time.'}
   ];
   var COLORS = [
     ['Teal','#1fb7c9'],['Electric blue','#2f6bff'],['Emerald','#00c878'],['Amber','#ff9500'],
@@ -410,6 +450,11 @@
       info.log.forEach(function(m){ addMsg(m.who, m.text); });
     }
     if(on && info && info.welcome){ state.welcome = info.welcome; paintWelcome(); }   // Astra-9 Lite keeps these choices herself
+    if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
+      state.mode = info.mode || null; store('mode', state.mode);
+      if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
+      renderModes(); refreshPersonaList(); refreshParent();
+    }
     paintSensor(on ? info : null);
     if(on && info){
       // Astra-9 Lite may have been restarted since this page was last used, so tell her what this page shows
@@ -536,13 +581,13 @@
   function renderPersonas(){
     var box = $('plist'); if(!box){ return; }
     var q = ($('psearch').value || '').toLowerCase();
-    var shown = PERSONAS.filter(function(p){
+    var shown = visiblePersonas().filter(function(p){
       if(pGroup !== 'All' && catOf(p) !== pGroup){ return false; }
       if(pGender !== 'All' && p.gender !== pGender){ return false; }
       return !q || (p.name + ' ' + p.line + ' ' + (p.role || '') + ' ' + (p.sub || '')).toLowerCase().indexOf(q) !== -1;
     });
     box.innerHTML = '';
-    $('pcount').textContent = PERSONAS.length ? (shown.length + ' of ' + PERSONAS.length + ' personalities') : 'Loading personalities...';
+    $('pcount').textContent = PERSONAS.length ? (shown.length + ' of ' + visiblePersonas().length + ' personalities' + (state.mode === 'kids' ? ' (children\'s friend mode: only those chosen for everyone under 13)' : '')) : 'Loading personalities...';
     function addCard(p){
       var card = document.createElement('div'); card.className = 'persona' + (state.persona === p.id ? ' on' : '');
       var h = document.createElement('h3'); h.textContent = shortName(p.name); card.appendChild(h);
@@ -597,7 +642,7 @@
   }
   function buildGroups(){
     var bar = $('pfilters'); Array.prototype.slice.call(bar.querySelectorAll('button')).forEach(function(b){ b.remove(); });
-    ['All'].concat(PCATS.filter(function(c){ return PERSONAS.some(function(p){ return catOf(p) === c; }); })).forEach(function(g){
+    ['All'].concat(PCATS.filter(function(c){ return visiblePersonas().some(function(p){ return catOf(p) === c; }); })).forEach(function(g){
       var b = document.createElement('button'); b.textContent = g; b.className = g === pGroup ? 'on' : '';
       b.addEventListener('click', function(){ pGroup = g; buildGroups(); renderPersonas(); }); bar.appendChild(b);
     });
@@ -650,6 +695,57 @@
       addMsg('al', id && p ? 'Demo: with a real Astra-9 Lite, she would now speak as ' + shortName(p.name) + '.' : 'Back to Astra-9 Lite.');
     }
   }
+  // ---------- modes ----------
+  function renderModes(){
+    var box = $('modes'); box.innerHTML = '';
+    MODES.forEach(function(m){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'mode' + (state.mode === m.id ? ' on' : '');
+      b.innerHTML = '<b><i></i><span class="n"></span></b><span class="l"></span>';
+      b.querySelector('i').style.background = m.color; b.querySelector('.n').textContent = m.name; b.querySelector('.n').style.fontSize = '16px'; b.querySelector('.n').style.color = 'var(--ink)';
+      b.querySelector('.l').textContent = m.line;
+      if(state.mode === m.id){ var t = document.createElement('span'); t.className = 'tag'; t.textContent = 'On'; t.style.alignSelf = 'flex-start'; b.appendChild(t); }
+      b.addEventListener('click', function(){ chooseMode(m.id); });
+      box.appendChild(b);
+    });
+    var cur = MODES.filter(function(m){ return m.id === state.mode; })[0];
+    $('modeNote').textContent = cur ? ('In ' + cur.name + ' mode. ' + (cur.id === 'kids' ? 'She keeps notes for a parent and nothing else. Skills and personalities are filtered to everyone under 13.' : cur.id === 'event' || cur.id === 'bench' ? 'She keeps no notes about anyone in this mode.' : 'She keeps her usual notes.')) : 'No mode chosen: she behaves as she usually does.';
+  }
+  function chooseMode(id){
+    var m = MODES.filter(function(x){ return x.id === id; })[0]; if(!m){ return; }
+    var was = state.mode;
+    state.mode = id; store('mode', id);
+    state.color = m.color; store('eyes', {color:state.color, bright:state.bright}); paintEyes();
+    if(id === 'kids'){ state.skills = state.skills.filter(function(x){ return KIDS_SKILLS.indexOf(x) !== -1; }); }
+    if(live){
+      api('/api/mode', {id:id}).then(function(j){
+        if(j.welcome){ state.welcome = j.welcome; paintWelcome(); }
+        if(j.skills){ state.skills = j.skills.slice(); }
+        state.persona = j.persona || null; store('persona', state.persona);
+        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent();
+      }).catch(function(e){ state.mode = was; store('mode', was); renderModes(); addMsg('al', '(I could not change my mode: ' + e.message + ')'); });
+    } else {
+      if(id === 'kids' && state.persona){ var cp = PERSONAS.filter(function(p){ return p.id === state.persona; })[0]; if(!cp || !cp.kids){ state.persona = null; store('persona', null); } }
+      addMsg('al', 'Demo: ' + m.demo);
+      renderModes(); renderSkills(); refreshPersonaList(); refreshParent();
+    }
+  }
+  var parentTimer = null;
+  function refreshParent(){
+    var row = $('parentRow');
+    if(!live || state.mode !== 'kids'){ row.style.display = 'none'; return; }
+    fetch('/api/parent-notes').then(function(r){ return r.json(); }).then(function(j){
+      row.style.display = '';
+      var ul = $('parentList'); ul.innerHTML = '';
+      if(!j.notes.length){ var li0 = document.createElement('li'); li0.textContent = 'No notes yet. She writes a few after each short talk with a child.'; ul.appendChild(li0); }
+      j.notes.forEach(function(n, i){
+        var li = document.createElement('li'); li.style.margin = '4px 0'; li.appendChild(document.createTextNode(n + ' '));
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Delete this one'; b.style.fontSize = '12px';
+        b.addEventListener('click', function(){ api('/api/parent-notes/forget', {index:i}).then(refreshParent).catch(function(){}); });
+        li.appendChild(b); ul.appendChild(li);
+      });
+    }).catch(function(){ row.style.display = 'none'; });
+    if(!parentTimer){ parentTimer = setInterval(function(){ if(live && state.mode === 'kids'){ refreshParent(); } }, 30000); }
+  }
   function loadPersonas(){
     fetch('personas.json').then(function(r){ if(!r.ok){ throw new Error('no'); } return r.json(); })
       .then(function(j){ PERSONAS = j; buildGroups(); renderPersonas(); })
@@ -659,7 +755,7 @@
   }
   function renderSkills(){
     var box = $('skills'); box.innerHTML = '';
-    SKILLS.forEach(function(s){
+    SKILLS.filter(function(s){ return state.mode !== 'kids' || KIDS_SKILLS.indexOf(s.id) !== -1; }).forEach(function(s){
       var have = state.skills.indexOf(s.id) !== -1;
       var card = document.createElement('div'); card.className = 'skill';
       var h = document.createElement('h3'); h.textContent = s.name; card.appendChild(h);
@@ -881,6 +977,8 @@
   $('send').addEventListener('click', send);
   $('say').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ send(); } });
   $('photo').addEventListener('change', pickPhoto);
+  $('parentForgetAll').addEventListener('click', function(){ api('/api/parent-notes/forget', {}).then(refreshParent).catch(function(){}); });
+  state.mode = load('mode', null); renderModes(); if(PERSONAS.length){ refreshPersonaList(); }
   $('showPhoto').addEventListener('click', function(){ $('photo').click(); });
   $('uploadFile').addEventListener('click', function(){ $('docfile').click(); });
   $('docfile').addEventListener('change', sendFile);

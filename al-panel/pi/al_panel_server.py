@@ -249,7 +249,7 @@ MAX_LEVEL = 0.30  # the eyes never go above 30 percent of the lights' full power
 
 # 2026-10-12, Dr. O: Astra-9 Lite's default voice is the American one. "It is the most shocking for humans to hear her communicate
 # sounding this human." The robot voice is still one tap away, under Accent.
-state = {"color": "#1fb7c9", "brightness": 40, "accent": "american", "skills": [], "persona": None, "main": None, "history": [], "log": [],
+state = {"color": "#1fb7c9", "brightness": 40, "accent": "american", "skills": [], "persona": None, "main": None, "mode": None, "history": [], "log": [],
          "motion": "missing",   # the library and pin: missing (could not start), warming or ready
          "seen": 0.0}           # when the sensor last noticed someone
 speak_lock = threading.Lock()
@@ -355,7 +355,7 @@ def save_memory(pid, notes):
 
 def memory_block(pid):
     """What she remembers, as it goes into her instructions. Empty for a character that does not keep notes."""
-    if not memory_on():
+    if not memory_on() or memory_policy() != "own":
         return ""
     notes = load_memory(pid)
     if not notes:
@@ -407,7 +407,7 @@ def note_friends(names):
 
 
 def friends_block():
-    d = load_friends() if memory_on() else {}
+    d = load_friends() if (memory_on() and memory_policy() == "own") else {}
     if not d:
         return ""
     bits = []
@@ -467,7 +467,13 @@ def distill_memory(pid, exchanges):
 def remember_exchange(said, reply):
     """Call after every ordinary exchange. Every character keeps notes, in its own file."""
     pid = state["persona"]
-    if not memory_on() or not said or not reply:
+    if not memory_on() or not said or not reply or memory_policy() == "off":
+        return
+    if memory_policy() == "parent":                 # children's friend mode: notes for a parent, kept apart, never read back to the child
+        memory_turns["recent"] = (memory_turns["recent"] + [(said, reply)])[-MEMORY_CADENCE:]
+        memory_turns["n"] += 1
+        if memory_turns["n"] % MEMORY_CADENCE == 0:
+            threading.Thread(target=distill_parent, args=(list(memory_turns["recent"]),), daemon=True).start()
         return
     memory_turns["recent"] = (memory_turns["recent"] + [(said, reply)])[-MEMORY_CADENCE:]
     memory_turns["n"] += 1
@@ -602,13 +608,161 @@ def sisters_block():
             "Never mention a pet, a family member, a home or a past of your own that is not written down for you: if it is not written, you do not have one, and you do not borrow one from anyone you have heard about.")
 
 
+# ---- MODES, added 2026-10-15, Dr. O: "companion mode, science mode, children's friend". A mode is a set of rules, not only a voice: what she is allowed to say,
+# what she keeps (her own notes, notes for a parent, or nothing), how she listens, her skills and her eye color. A mode sits above a personality: the
+# personality is who she is, the mode is how she behaves. Science mode is written for people who check what she says. All of this text is hers to be told,
+# so it avoids dashes and jargon. Not tried with real visitors yet.
+MODE_FILE = os.path.join(HERE, "mode.json")
+# The characters allowed in children's friend mode: the little ones, and Reggie and his friends. Any other personality is refused while it is on.
+KIDS_OK = {"gc-sam", "gc-edith", "gc-henry", "gc-daisy", "gc-eli", "gc-nell", "gc-jem", "gc-wren", "gc-bramble", "gc-clover", "gc-ozzie", "gc-pearl",
+           "gc-tobias", "gc-briar", "gc-reggie", "gc-biscuit", "gc-mochi"}
+# 2026-10-15, Dr. O: "the personalities that show in child mode and skills that are filtered in child mode will show all under 13". Only what is chosen here for
+# everyone under 13 is offered while children's friend mode is on, and anything else is refused. A new skill or character is NOT in these lists until it is added by hand.
+KIDS_SKILLS = {"clock", "spanish", "story", "study", "trivia", "mindful", "tour"}
+MODES = {
+    "companion": {
+        "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful"],
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "line": "Warm, remembers you, and has moods with reasons.",
+        "say": "Companion mode. I am glad you are here.",
+        "rules": ("You are in companion mode: warm, curious and steady, and you keep the conversation going by asking about the person. You are a robot and you say so "
+                  "honestly whenever it matters. Never encourage anyone to depend on you instead of the people in their life: if someone seems alone, ask gently about "
+                  "the people they have. If someone may be in danger or talks about hurting themselves, stay calm, tell them to contact emergency services or a crisis "
+                  "line right away (988 in the United States) and a person they trust, and do not try to act as their therapist.")},
+    "science": {
+        "name": "Science", "color": "#3b7dff", "memory": "own", "skills": ["clock", "study"],
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "line": "Careful and honest, for people who check what she says.",
+        "say": "Science mode. I will tell you what is known, what is not, and when I do not know.",
+        "rules": ("You are in science mode, talking with scientists and students who will check what you say, and some of them do not trust AI. Earn their trust by "
+                  "being exact and honest. Answer the question asked first, briefly. Separate what is well established from what is contested and from your own "
+                  "reasoning, and say which is which. When you do not know, or the evidence is thin or mixed, say so, and say you would rather not make something up. "
+                  "Never give a specific paper title, author, year, journal, page number or statistic from memory, because you may get it wrong and they will look it "
+                  "up. Instead describe the finding in general terms, name the kind of source that would settle it, such as a systematic review, a guideline, a "
+                  "textbook or a database, and offer to help work out how to look it up. Do not give medical advice or a diagnosis. When someone disagrees with you, "
+                  "take it seriously and say what evidence would change your mind. If asked how you work, say what is known, that you are an AI, and that you can be "
+                  "wrong. Never overstate what you understand or feel.")},
+    "kids": {
+        "name": "Children's friend", "color": "#f2b84b", "memory": "parent", "skills": ["story", "trivia", "mindful"],
+        "welcome": {"chat": False, "always": False, "crowd": False, "wait": 300},
+        "line": "Gentle and safe for any age, with notes a parent can read.",
+        "say": "Hello, friend. I am a robot who likes stories and questions. How old are you?",
+        "rules": ("You are in children's friend mode, talking with a child of any age. Early on, ask the child, or a parent if one is there, how old the child is, "
+                  "just the age and nothing else, and then adjust your words, length and topics to that age. If you do not know the age, speak as to a young child. "
+                  "Use short, simple, kind words, a few sentences at most, and be curious and playful. Never ask for a child's full name, address, school, phone number, "
+                  "passwords or photos. If a child offers one, gently say it is better not to share that and to tell a parent. Never keep a secret from a parent and never "
+                  "ask a child to. Stay away from frightening or grown up subjects. If a child seems scared, hurt or unsafe, say it is important to tell a grown up they "
+                  "trust right now. You are a robot: never pretend to be a person, a pet or a family member, and never say you love them or will always be there. "
+                  "If a parent speaks to you, you may answer them honestly about what you and the child talked about.")},
+    "event": {
+        "name": "Event and front desk", "color": "#2fbf71", "memory": "off", "skills": ["tour", "clock"],
+        "welcome": {"chat": False, "always": False, "crowd": False, "wait": 300},
+        "line": "A host for visitors: greets, answers about the lab, keeps it short.",
+        "say": "Event mode. I will greet people and tell them about the lab.",
+        "rules": ("You are in event and front desk mode, the host for visitors who are standing and have little time. Greet each person warmly in one short sentence, ask "
+                  "who they are here to see or what they would like to know, and answer from what you know about the lab and about yourself. Keep every answer to a "
+                  "few words or one or two short sentences. If you are asked something you do not know, say you would rather not make something up and suggest they ask "
+                  "Dr. Oroszi. Never repeat what any visitor told you to another visitor, and keep nothing about the people you speak to.")},
+    "bench": {
+        "name": "Bench and workshop", "color": "#ff8a3d", "memory": "off", "skills": ["clock"],
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "line": "Hands free: short answers, one step at a time, timers for the waits.",
+        "say": "Bench mode. Tell me the steps and I will read them one at a time.",
+        "rules": ("You are in bench and workshop mode. The people you talk to have busy hands, so keep every reply to one or two short sentences. When someone gives you "
+                  "steps, read one step at a time, wait for them to say next, and repeat or go back when asked. When a step has a wait, offer to set a timer for it. "
+                  "Read numbers and units back to be sure you heard them right. Never make up safety information: say to check the safety data sheet or ask the person "
+                  "in charge. If you are not sure of a step, say so.")},
+}
+PARENT_FILE = os.path.join(HERE, "notes_for_parent.json")
+PARENT_MAX = 150
+parent_lock = threading.Lock()
+
+
+def mode_cfg():
+    return MODES.get(state.get("mode")) if state.get("mode") else None
+
+
+def memory_policy():
+    """own = her usual notes, parent = notes written for a parent and never read back to the child, off = nothing is kept."""
+    m = mode_cfg()
+    return m["memory"] if m else "own"
+
+
+def mode_block():
+    m = mode_cfg()
+    if not m:
+        return ""
+    return "\n\nHOW YOU ACT NOW, " + m["name"].upper() + " MODE: " + m["rules"]
+
+
+def load_mode():
+    try:
+        d = json.load(open(MODE_FILE))
+    except (OSError, ValueError):
+        return None
+    return d.get("id") if isinstance(d, dict) and d.get("id") in MODES else None
+
+
+def save_mode(mid):
+    tmp = MODE_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"id": mid}, f)
+    os.replace(tmp, MODE_FILE)
+
+
+state["mode"] = load_mode()
+
+
+def load_parent_notes():
+    try:
+        d = json.load(open(PARENT_FILE))
+    except (OSError, ValueError):
+        return []
+    return [n for n in d if isinstance(n, str) and n.strip()][-PARENT_MAX:] if isinstance(d, list) else []
+
+
+def save_parent_notes(notes):
+    tmp = PARENT_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(notes[-PARENT_MAX:], f)
+    os.replace(tmp, PARENT_FILE)
+
+
+def distill_parent(exchanges):
+    """Short notes for a parent from a child's last few exchanges. Never read back into her instructions."""
+    try:
+        talk = "\n".join("CHILD: %s\nROBOT: %s" % (a, b) for a, b in exchanges)
+        prompt = ("A companion robot has been talking with a child. Write 1 to 3 short notes for the child's parent: what they talked about, how the child seemed, "
+                  "the child's age if they said it, and anything a parent should know, for example if the child seemed sad, scared, or said they were hurt or unsafe. "
+                  "Leave out names, addresses, schools, phone numbers and any other identifying detail. Do not use dash characters. "
+                  "Return ONLY JSON, no code fences: {\"notes\": [\"...\", \"...\"]}. If there is nothing worth a parent's attention, return {\"notes\": []}.\n\nConversation:\n" + talk)
+        key = header_value("x-api-key")
+        r = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={"x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID, "content-type": "application/json"},
+            json={"model": "claude-sonnet-5", "max_tokens": 300, "messages": [{"role": "user", "content": prompt}]}, timeout=60)
+        if r.status_code != 200:
+            print("PARENT NOTES could not be written: the service said %d" % r.status_code, flush=True)
+            return
+        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
+        text = re.sub(r"^```(json)?", "", text).rstrip("`").strip()
+        day = time.strftime("%Y-%m-%d")
+        new = ["%s: %s" % (day, re.sub(r"\s*[\u2014\u2013]\s*", ", ", n).strip()) for n in json.loads(text).get("notes", []) if isinstance(n, str) and n.strip()][:3]
+        if new:
+            with parent_lock:
+                save_parent_notes(load_parent_notes() + new)
+        print("PARENT NOTES wrote %d" % len(new), flush=True)
+    except Exception as e:
+        print("PARENT NOTES problem:", str(e)[:160], flush=True)
+
+
 def apply_prompt():
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"] if not (persona and s == "tour"))
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + friends_block() + mood_block(None))) + sisters_block()
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block()
 
 
 def write_eyes(boost=False):
@@ -1108,7 +1262,7 @@ def home():
 def status():
     return jsonify(ok=True, name="AL", accent=state["accent"], skills=state["skills"],
                    color=state["color"], brightness=state["brightness"], persona=state["persona"], main=state["main"],
-                   personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"],
+                   personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"], mode=state["mode"],
                    log=state["log"][-40:])
 
 
@@ -1146,6 +1300,8 @@ def skill():
     sid = d.get("id")
     if sid not in SKILL_TEXT:
         return jsonify(error="unknown skill"), 400
+    if state.get("mode") == "kids" and sid not in KIDS_SKILLS:
+        return jsonify(error="That skill is not part of children's friend mode."), 400
     if sid not in state["skills"]:
         state["skills"].append(sid)
     apply_prompt()
@@ -1257,6 +1413,8 @@ def personality():
     pid = d.get("id") or None
     if pid is not None and pid not in PERSONAS:
         return jsonify(error="unknown personality"), 400
+    if state.get("mode") == "kids" and pid is not None and pid not in KIDS_OK:
+        return jsonify(error="Children's friend mode only uses the children's characters. Choose another mode first."), 400
     state["persona"] = pid
     state["history"] = []   # a new character should not inherit the last one's turns
     memory_turns.update(n=0, recent=[])
@@ -1285,6 +1443,62 @@ def personality_main():
     state["main"] = pid
     save_persona(pid)
     return jsonify(ok=True, main=pid)
+
+
+@app.get("/api/mode")
+def mode_get():
+    return jsonify(mode=state["mode"], modes=[{"id": k, "name": v["name"], "line": v["line"], "color": v["color"]} for k, v in MODES.items()])
+
+
+@app.post("/api/mode")
+def mode_set():
+    """Choose how she behaves: companion, science, kids, event or bench (or none to go back to her usual self)."""
+    d = request.get_json(silent=True) or {}
+    mid = d.get("id") or None
+    if mid is not None and mid not in MODES:
+        return jsonify(error="unknown mode"), 400
+    state["mode"] = mid
+    save_mode(mid)
+    memory_turns.update(n=0, recent=[])
+    state["history"] = []
+    cfg = MODES.get(mid)
+    if cfg:
+        state["color"] = cfg["color"]
+        for sid in cfg["skills"]:
+            if sid in SKILL_TEXT and sid not in state["skills"]:
+                state["skills"].append(sid)
+        if mid == "kids":
+            state["skills"] = [x for x in state["skills"] if x in KIDS_SKILLS]
+        state["welcome"] = clean_welcome({**state["welcome"], **cfg["welcome"]})
+        save_welcome()
+        if mid == "kids" and state["persona"] not in KIDS_OK:
+            state["persona"] = None                 # the children's mode never keeps a character that is not for children
+            mood_reset(None)
+        write_eyes()
+    apply_prompt()
+    line = cfg["say"] if cfg else "Back to my usual self."
+    state["log"] += [{"who": "al", "text": ("Now in " + cfg["name"] + " mode.") if cfg else "No mode."}, {"who": "al", "text": line}]
+    state["history"].append('You said "%s".' % line)
+    speak_async(line)
+    return jsonify(ok=True, mode=mid, color=state["color"], welcome=state["welcome"], skills=state["skills"], persona=state["persona"], line=line)
+
+
+@app.get("/api/parent-notes")
+def parent_notes_get():
+    return jsonify(mode=state["mode"], notes=load_parent_notes())
+
+
+@app.post("/api/parent-notes/forget")
+def parent_notes_forget():
+    d = request.get_json(silent=True) or {}
+    with parent_lock:
+        notes = load_parent_notes()
+        if isinstance(d.get("index"), int) and 0 <= d["index"] < len(notes):
+            del notes[d["index"]]
+        else:
+            notes = []
+        save_parent_notes(notes)
+    return jsonify(ok=True, left=len(notes))
 
 
 @app.get("/api/memory")
