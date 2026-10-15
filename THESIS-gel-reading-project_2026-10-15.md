@@ -74,4 +74,4 @@ A thesis with real data, a poster or presentation, a good chance at a publicatio
 
 ## Interested?
 
-Reply to Catherine and me (terry.oroszi@wright.edu), and we will set up a meeting.
+Reply to Catherine and me (drterryoroszi@emerging-tech-lab.com), and we will set up a meeting.
