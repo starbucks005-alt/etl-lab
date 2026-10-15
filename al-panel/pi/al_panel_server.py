@@ -122,6 +122,9 @@ SKILL_TEXT = {
     "tour": TOUR_TEXT,
     "notebook": "You keep a voice notebook and lists. A person can say remember that something, add something to the shopping list, ask what is on a list, or ask where they put something, and you keep it and read it back. Say you only know what they have told you.",
     "bench": "You can be a hands-free bench guide: once someone gives you a protocol you read one step at a time, wait for next, back or repeat, and offer a timer when a step has a wait.",
+    "reminders": "You can set reminders by voice, one time or every day, such as remind me to take my pills at 8 every day. For a medicine you ask whether it was taken and write the answer down. You give routines, never medical advice, and you say a pharmacist or doctor is the person to ask about a medicine.",
+    "checkin": "You can check in each day: ask how the person is, listen, write the answer down, and, if they have said someone should be told, let that person know when the person does not answer or says they are not well. If they need help now, tell them to call 911.",
+    "focus": "You can be a focus partner: when someone says focus for twenty five minutes you set it, check in halfway, and tell them when it is time for a break.",
     "desk": "You can act as a doorman at a front door: greet people, ask if you can assist them and where they are going, give directions from the building directory exactly as written, point them to the forms, and let the front office know who is here. You never open doors, never block anyone and never claim authority. In an emergency you tell people to call 911.",
     "shelf": "You have a knowledge shelf of files someone gave you. When a question is about what is in them you answer only from them and say where you found it, and if it is not there you say so and do not guess.",
 }
@@ -635,7 +638,7 @@ KIDS_OK = {"gc-sam", "gc-edith", "gc-henry", "gc-daisy", "gc-eli", "gc-nell", "g
 KIDS_SKILLS = {"clock", "spanish", "story", "study", "trivia", "mindful", "tour"}
 MODES = {
     "companion": {
-        "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful", "notebook"],
+        "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful", "notebook", "reminders", "checkin", "focus"],
         "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
         "line": "Warm, remembers you, and has moods with reasons.",
         "say": "Companion mode. I am glad you are here.",
@@ -2459,6 +2462,12 @@ def clock_reply(text):
     pend = clock["pending"]
     if pend and time.time() - pend[1] > 25:
         pend = clock["pending"] = None
+    have_r = [x for x in ("reminders", "checkin", "focus") if x in state["skills"]]
+    if sk is not None and have_r and not pend:
+        r = sk.routine_reply(t, parse_time=lambda x: parse_clock_time(x), parse_dur=lambda x: parse_duration(x),
+                             add_timer=lambda sec, label, spoken: add_clock("timer", time.time() + sec, label, spoken), have=have_r)
+        if r:
+            return r
     kind_word = re.search(r"\b(timer|alarm|wake me|remind me)\b", t)
     if re.search(r"\b(cancel|clear|delete|remove|turn off|stop|forget)\b.*\b(timers?|alarms?)\b", t):
         which = "timer" if "timer" in t and "alarm" not in t else "alarm" if "alarm" in t and "timer" not in t else None
@@ -2610,6 +2619,178 @@ def clock_watcher():
             except Exception as e:
                 print("ALARM problem:", str(e)[:120], flush=True)
                 clock["ringing"] = False
+
+
+# ---- the routine scheduler: reminders, medicine questions, the daily check-in ----
+routine_busy = {"on": False}
+YES_RE = re.compile(r"\b(yes|yeah|yep|yup|sure|i did|i have|done|taken|took (?:it|them)|already|all done)\b", re.I)
+NO_RE = re.compile(r"\b(no|nope|not yet|haven'?t|didn'?t|forgot|later|not now)\b", re.I)
+SNOOZE_MIN = 15
+MAX_SNOOZES = 2
+
+
+def notify_care(text):
+    """Tell the person the owner chose (a notice address saved on the robot). Never blocks speech. Nothing is sent if none is set."""
+    if sk is None:
+        return False
+    url = sk.load_care().get("notify_url", "")
+    if not url:
+        return False
+
+    def go():
+        try:
+            requests.post(url, json={"text": "ETL companion: " + text}, timeout=8)
+        except Exception as e:
+            print("CARE NOTICE could not be sent:", str(e)[:100], flush=True)
+    threading.Thread(target=go, daemon=True).start()
+    return True
+
+
+def listen_answer(seconds=10.0):
+    """Open the microphone for a spoken answer and return what was said, or ''."""
+    settle()
+    if not take_mic(timeout=8.0):
+        print("ROUTINE could not get the microphone to listen", flush=True)
+        return ""
+    try:
+        write_eyes(boost=True)
+        path = hear_one(wait_seconds=seconds, max_seconds=8.0)
+        return transcribe(path).strip() if path else ""
+    except Exception as e:
+        print("ROUTINE listening problem:", str(e)[:100], flush=True)
+        return ""
+    finally:
+        listen_lock.release()
+        write_eyes()
+
+
+def fire_routine(item):
+    kind, text = item["kind"], item["text"]
+    play_chime()
+    if kind == "reminder":
+        speak_now("Reminder: %s." % text, use_persona=False)
+        sk.log_routine("reminder", text, "reminded")
+    elif kind == "medication":
+        speak_now("It is time to %s. Did you take it?" % text, use_persona=False)
+        heard = listen_answer(9.0)
+        if not heard:
+            speak_now("I did not hear you. Did you take it?", use_persona=False)
+            heard = listen_answer(9.0)
+        if heard and YES_RE.search(heard) and not NO_RE.search(heard):
+            speak_now("Thank you. I have noted that you took it.", use_persona=False)
+            sk.log_routine("medication", text, "taken", heard)
+        else:
+            tries = int(item.get("tries", 0)) + 1
+            if tries <= MAX_SNOOZES:
+                speak_now("Okay. I will ask again in %d minutes." % SNOOZE_MIN, use_persona=False)
+                sk.log_routine("medication", text, "not yet" if heard else "no answer", heard)
+                items = sk.load_routines()
+                items.append({"id": max([i.get("id", 0) for i in items] + [int(time.time() * 1000)]) + 1, "kind": "medication", "text": text, "time": item["time"], "repeat": "once", "confirm": True,
+                              "next_at": time.time() + SNOOZE_MIN * 60, "tries": tries})
+                sk.save_routines(items)
+            else:
+                told = notify_care("%s at %s was not confirmed." % (text, item["time"]))
+                speak_now("I could not confirm it.%s Please take care of it when you can." % (" I have let someone know." if told else ""), use_persona=False)
+                sk.log_routine("medication", text, "not confirmed", heard)
+    elif kind == "checkin":
+        speak_now("Hello. How are you feeling today?", use_persona=False)
+        heard = listen_answer(12.0)
+        if not heard:
+            speak_now("I did not hear you. How are you feeling today?", use_persona=False)
+            heard = listen_answer(12.0)
+        if not heard:
+            told = notify_care("The daily check-in was not answered.")
+            speak_now("I did not hear back. I will try again tomorrow.%s" % (" I have let someone know." if told else ""), use_persona=False)
+            sk.log_routine("checkin", "daily check-in", "no answer")
+        else:
+            sk.log_routine("checkin", "daily check-in", "answered", heard)
+            if sk.URGENT_RE.search(heard):
+                told = notify_care("Daily check-in: they said \"%s\"." % heard[:160])
+                speak_now("If you need help now, please call 911.%s" % (" I have let someone know." if told else " Please tell someone."), use_persona=False)
+            elif sk.DISTRESS_RE.search(heard):
+                told = notify_care("Daily check-in: they said \"%s\"." % heard[:160])
+                speak_now("I am sorry to hear that.%s" % (" I have let someone know." if told else " Is there someone you would like to tell?"), use_persona=False)
+            else:
+                speak_now("Thank you for telling me. Have a good day.", use_persona=False)
+
+
+def routine_watcher():
+    while True:
+        time.sleep(5)
+        try:
+            if sk is None or routine_busy["on"] or clock["ringing"] or sisters["on"]:
+                continue
+            now = time.time()
+            items = sk.load_routines()
+            due = [i for i in items if i.get("next_at", 0) <= now]
+            if not due:
+                continue
+            item = due[0]
+            # advance or drop it before it runs, so it can never run twice; one that is more than ten minutes late (she was off) is skipped
+            late = now - item["next_at"] > 600
+            keep = [i for i in items if i is not item and i.get("id") != item.get("id")]
+            if item.get("repeat") in ("daily", "weekdays"):
+                item["next_at"] = sk.next_occurrence(item["time"], item["repeat"], now)
+                keep.append(item)
+            sk.save_routines(keep)
+            if late:
+                continue
+            routine_busy["on"] = True
+            try:
+                fire_routine(item)
+            finally:
+                routine_busy["on"] = False
+        except Exception as e:
+            routine_busy["on"] = False
+            print("ROUTINE problem:", str(e)[:120], flush=True)
+
+
+@app.get("/api/routines")
+def routines_get():
+    if sk is None:
+        return jsonify(items=[], log=[], care=False)
+    return jsonify(items=sk.load_routines(), log=sk.routine_log()[-40:], care=bool(sk.load_care()["notify_url"]))
+
+
+@app.post("/api/routines")
+def routines_add():
+    if sk is None:
+        return jsonify(error="skills are not loaded"), 400
+    d = request.get_json(silent=True) or {}
+    text = str(d.get("text", "")).strip()[:120]
+    hhmm = str(d.get("time", ""))
+    if not text or not re.fullmatch(r"\d{1,2}:\d{2}", hhmm):
+        return jsonify(error="Say what to remind, and a time like 08:00"), 400
+    rep = d.get("repeat") if d.get("repeat") in ("once", "daily", "weekdays") else "once"
+    kind = "checkin" if d.get("kind") == "checkin" else ("medication" if d.get("confirm") else "reminder")
+    sk.add_routine(kind, text if kind != "checkin" else "daily check-in", hhmm, rep, confirm=bool(d.get("confirm")) or kind == "checkin")
+    return jsonify(ok=True)
+
+
+@app.post("/api/routines/delete")
+def routines_delete():
+    d = request.get_json(silent=True) or {}
+    return jsonify(ok=bool(sk and sk.delete_routine(d.get("id"))))
+
+
+@app.post("/api/routines/care")
+def routines_care():
+    d = request.get_json(silent=True) or {}
+    if sk is None:
+        return jsonify(error="skills are not loaded"), 400
+    url = str(d.get("notify_url", ""))
+    try:
+        sk.save_care(sk.load_care()["notify_url"] if url == "set" else url)
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(ok=True)
+
+
+@app.post("/api/routines/clearlog")
+def routines_clearlog():
+    if sk is not None:
+        sk._save(sk.ROUTINE_LOG_FILE, [])
+    return jsonify(ok=True)
 
 
 @app.get("/api/clock")
@@ -3167,4 +3348,5 @@ if __name__ == "__main__":
     threading.Thread(target=watch_names, daemon=True).start()
     prepare_opening()          # her first greeting from the notes is ready before anyone walks up
     threading.Thread(target=clock_watcher, daemon=True).start()     # timers and alarms
+    threading.Thread(target=routine_watcher, daemon=True).start()   # reminders, medicine questions, the daily check-in
     app.run(host="0.0.0.0", port=8000, threaded=True)

@@ -480,3 +480,190 @@ def guardian_reply(text, notify=None, now=None):
         msg = "I do not have the hours here. Please ask at the front desk."
         return msg, msg
     return None
+
+
+# ---------------------------------------------------------------- reminders, medication, the daily check-in and the focus partner
+# Added 2026-10-15, Dr. O. One small scheduler. She is a helper with routines, not a medical device: she says when it is time, asks whether a dose was taken, writes
+# the answer down, and can tell a family member by a notice if it was not confirmed. She gives no medical advice. The log and the schedule stay on the robot.
+ROUTINES_FILE = os.path.join(HERE, "reminders.json")
+ROUTINE_LOG_FILE = os.path.join(HERE, "routine_log.json")
+CARE_FILE = os.path.join(HERE, "care.json")
+MED_RE = re.compile(r"\b(pills?|medicine|medicines|medication|medications|meds|insulin|inhaler|tablets?|doses?|vitamins?|injection|eye drops|capsules?)\b", re.I)
+DISTRESS_RE = re.compile(r"\b(fell|fallen|fall|hurt|pain|chest|dizzy|faint|can'?t breathe|cannot breathe|bleeding|scared|afraid|lonely|alone|sad|depressed|awful|terrible|not good|not well|bad|sick|help)\b", re.I)
+URGENT_RE = re.compile(r"\b(fell|fallen|chest pain|can'?t breathe|cannot breathe|bleeding|unconscious|stroke|heart attack|emergency)\b", re.I)
+pending_reminder = {"task": None, "t": 0.0}
+
+
+def load_routines():
+    return _load(ROUTINES_FILE, [])
+
+
+def save_routines(items):
+    _save(ROUTINES_FILE, items)
+
+
+def load_care():
+    return {"notify_url": str(_load(CARE_FILE, {}).get("notify_url", ""))}
+
+
+def save_care(url):
+    url = (url or "").strip()
+    if url and not url.startswith("https://"):
+        raise ValueError("The notice address has to start with https://")
+    _save(CARE_FILE, {"notify_url": url})
+
+
+def routine_log():
+    return _load(ROUTINE_LOG_FILE, [])
+
+
+def log_routine(kind, text, result, said=""):
+    log = routine_log()
+    log.append({"when": time.strftime("%Y-%m-%d %H:%M"), "kind": kind, "text": text[:120], "result": result, "said": said[:200]})
+    _save(ROUTINE_LOG_FILE, log[-300:])
+
+
+def next_occurrence(hhmm, repeat, now=None):
+    """The next time (epoch seconds) at hh:mm that fits repeat ('daily', 'weekdays' or 'once')."""
+    now = now or time.time()
+    h, m = (int(x) for x in hhmm.split(":"))
+    t = time.localtime(now)
+    base = time.mktime((t.tm_year, t.tm_mon, t.tm_mday, h, m, 0, 0, 0, -1))
+    for add in range(0, 9):
+        cand = base + add * 86400
+        wd = time.localtime(cand).tm_wday
+        if cand > now + 1 and (repeat != "weekdays" or wd < 5):
+            return cand
+    return base + 86400
+
+
+def add_routine(kind, text, hhmm, repeat, confirm=False, now=None, at=None):
+    items = load_routines()
+    rid = int((now or time.time()) * 1000)
+    while any(i.get("id") == rid for i in items):          # two made in the same moment must not share an id
+        rid += 1
+    item = {"id": rid, "kind": kind, "text": text[:120], "time": hhmm, "repeat": repeat, "confirm": bool(confirm), "next_at": at or next_occurrence(hhmm, repeat, now)}
+    items.append(item)
+    save_routines(items)
+    return item
+
+
+def delete_routine(rid):
+    items = load_routines()
+    keep = [i for i in items if i.get("id") != rid]
+    save_routines(keep)
+    return len(keep) != len(items)
+
+
+def _you(t):
+    t = re.sub(r"\bmy\b", "your", t, flags=re.I)
+    t = re.sub(r"\bme\b", "you", t, flags=re.I)
+    return re.sub(r"\bi\b", "you", t, flags=re.I)
+
+
+def _repeat_of(low):
+    if re.search(r"\b(weekdays?|monday to friday|every weekday|on workdays)\b", low):
+        return "weekdays"
+    if re.search(r"\b(every ?day|daily|each day|every morning|every evening|every night|each morning|each night|each evening)\b", low):
+        return "daily"
+    return "once"
+
+
+def _hhmm(epoch):
+    t = time.localtime(epoch)
+    return "%02d:%02d" % (t.tm_hour, t.tm_min)
+
+
+def _label(hhmm):
+    h, m = (int(x) for x in hhmm.split(":"))
+    return "%d%s %s" % (h % 12 or 12, (":%02d" % m) if m else "", "am" if h < 12 else "pm")
+
+
+def _task_of(rest):
+    task = re.split(r"\s+(?:at|in|on|every|each|tomorrow|tonight|this|daily|weekdays?|before|after|around)\b", rest, maxsplit=1)[0]
+    return _clean(_you(task))
+
+
+def routine_reply(text, parse_time, parse_dur, add_timer, have=("reminders",), now=None):
+    """What she says when this was a reminder, check-in or focus request, else None. parse_time(text) gives (epoch, label) or None. parse_dur(text) gives seconds or None.
+    add_timer(seconds, label, spoken) sets a one-off timer."""
+    t = _clean(text)
+    low = t.lower()
+    if not low:
+        return None
+    now = now or time.time()
+    if pending_reminder["task"] and now - pending_reminder["t"] > 40:
+        pending_reminder["task"] = None
+    if pending_reminder["task"] and "reminders" in have:
+        when, dur = parse_time(low), parse_dur(low)
+        if when or dur:
+            task = pending_reminder["task"]
+            pending_reminder["task"] = None
+            return _make_reminder(task, low, when, dur, parse_time, add_timer, now)
+        if re.search(r"\b(never mind|nevermind|cancel|forget it)\b", low):
+            pending_reminder["task"] = None
+            return "Okay, I will not set it."
+    if "reminders" in have or "checkin" in have:
+        if re.search(r"\b(what|which) (?:reminders|check.?ins?)\b|\bdo i have any (?:reminders|check.?ins?)\b|\blist (?:my |the )?(?:reminders|check.?ins?)\b", low):
+            items = load_routines()
+            if not items:
+                return "You do not have any reminders or check-ins set."
+            bits = ["%s at %s%s" % (i["text"] if i["kind"] != "checkin" else "a check-in", _label(i["time"]), ", every day" if i["repeat"] == "daily" else ", on weekdays" if i["repeat"] == "weekdays" else "") for i in items[:5]]
+            return "You have " + "; ".join(bits) + "."
+        m = re.search(r"\b(?:cancel|delete|remove|stop|forget|clear)\b(?: all| my| the)?(?: of)? (?:my |the )?(.*?)(reminders?|check.?ins?)\b", low)
+        if m:
+            items = load_routines()
+            kind_w = m.group(2).startswith("check")
+            word = _clean(m.group(1))
+            gone = [i for i in items if (i["kind"] == "checkin") == kind_w and (not word or word == "all" or _words(word) & _words(i["text"]))]
+            if gone:
+                save_routines([i for i in items if i not in gone])
+                return "Okay, I cancelled %s." % ("it" if len(gone) == 1 else "all %d of them" % len(gone))
+            return "I do not see one like that."
+    if "reminders" in have and re.search(r"\bi (?:just |already )?(?:took|had|have taken|took my|have had)\b", low) and MED_RE.search(low):
+        items = [i for i in load_routines() if i.get("confirm")]
+        what = items[0]["text"] if items else "that"
+        log_routine("medication", what, "taken", t)
+        return "Thank you. I have noted that you took it."
+    if "checkin" in have:
+        m = re.search(r"\b(?:check on me|check in on me|check in with me|ask me how i am|ask how i am|ask me how i'm doing|daily check.?in)\b", low)
+        if m:
+            when = parse_time(low)
+            hhmm = _hhmm(when[0]) if when else "09:00"
+            for old in [i for i in load_routines() if i["kind"] == "checkin"]:
+                delete_routine(old["id"])
+            add_routine("checkin", "daily check-in", hhmm, "weekdays" if _repeat_of(low) == "weekdays" else "daily", confirm=True, now=now)
+            return "Okay. I will ask how you are every %s at %s." % ("weekday" if _repeat_of(low) == "weekdays" else "day", _label(hhmm))
+    if "focus" in have:
+        m = re.search(r"\b(?:focus|work|study|concentrate)(?: with me)?(?: for)? (.+)$", low) or re.search(r"\bfocus (?:session|time)\b", low)
+        if m:
+            dur = parse_dur(low) or (25 * 60 if re.search(r"\bfocus (?:session|time)\b|\bpomodoro\b", low) else None)
+            if dur and 300 <= dur <= 4 * 3600:
+                add_timer(dur // 2, "focus halfway", "Halfway through. How is it going? Keep going, you are doing well.")
+                add_timer(dur, "focus", "Time for a break. Well done. Stand up, stretch and drink some water.")
+                return "Okay, a focus session of %s. I will check in halfway and tell you when it is time for a break." % _human(dur)
+    if "reminders" in have:
+        m = re.search(r"\bremind me (?:to |about |that )?(.+)$", low)
+        if m:
+            when, dur = parse_time(low), parse_dur(low)
+            task = _task_of(m.group(1))
+            if not task:
+                return None
+            if not (when or dur):
+                pending_reminder.update(task=task, t=now)
+                return "When should I remind you to %s?" % task
+            return _make_reminder(task, low, when, dur, parse_time, add_timer, now)
+    return None
+
+
+def _make_reminder(task, low, when, dur, parse_time, add_timer, now):
+    if dur and not when:
+        add_timer(dur, "reminder", "Reminder: %s." % task)
+        return "Okay, I will remind you in %s to %s." % (_human(dur) if dur % 60 == 0 else "%d seconds" % dur, task)
+    hhmm = _hhmm(when[0])
+    rep = _repeat_of(low)
+    med = bool(MED_RE.search(task))
+    add_routine("medication" if med else "reminder", task, hhmm, rep, confirm=med, now=now, at=when[0] if rep == "once" else None)     # a one-off keeps the exact day that was said
+    day = " tomorrow" if (rep == "once" and "tomorrow" in str(when[1]).lower()) else ""
+    return "Okay. I will remind you to %s at %s%s%s.%s" % (task, _label(hhmm), day, ", every day" if rep == "daily" else ", on weekdays" if rep == "weekdays" else "",
+                                                           " I will ask whether you took it." if med else "")
