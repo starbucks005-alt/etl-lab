@@ -165,6 +165,7 @@ function gcNoReplyWhy(res) {
   <!-- ACCENT, added 2026-10-10, Dr. O: "can the hologram Astra change her accent?" The same five voices and the same saved choice as the room page (gc_voice_style). Only shown for a character that has them (Astra-9, Astrad). -->
   <button id="bAccent" type="button" style="display:none">Voice: Robot</button>
   <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
+  <button id="bMove" type="button">Move her memory to another device</button>
   <button id="bBack" type="button">Back</button>
   <button id="bSound" type="button">Sound off</button>
   <button id="bVoice" type="button" style="display:none">Voice: on</button>
@@ -965,6 +966,36 @@ function gcNoReplyWhy(res) {
       if (e.key === 'm' || e.key === 'M') document.body.classList.toggle('setup');
     });
   }
+  /* MOVE HER MEMORY TO ANOTHER DEVICE, added 2026-10-15, Dr. O: Alice moves from the lab laptop to the LumVivo tablet for the dean and "is there a way to
+     transfer her memories". What she remembers is kept by the browser, not by her: the website's notes are filed under this browser's visitor id, the
+     name she calls you is saved here, and the record of who she has talked with is saved here. This makes a link holding those four things. Open the link
+     once on the other device and it copies them in, then removes itself from the address. The owner key and the tester key are NOT in it, on purpose:
+     they stay on the device they were typed into, so type them again on the new one. Whoever has the link has her memory, so keep it private. */
+  var CARRY_KEYS = ['etl_visitor_id', 'gc-you', 'gc_sisters_with'];
+  function carryLink() {
+    var o = {};
+    try {
+      CARRY_KEYS.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) o[k] = v; });
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^gc_talks_/.test(k)) o[k] = localStorage.getItem(k); }
+    } catch (_) {}
+    return location.origin + location.pathname + '?carry=' + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(o)))));
+  }
+  try {
+    var cp = new URLSearchParams(location.search).get('carry');
+    if (cp) {
+      var got = JSON.parse(decodeURIComponent(escape(atob(cp))));
+      Object.keys(got).forEach(function (k) {
+        if (CARRY_KEYS.indexOf(k) >= 0 || /^gc_talks_[a-z0-9\-]+$/.test(k)) localStorage.setItem(k, String(got[k]));
+      });
+      history.replaceState(null, '', location.pathname + location.search.replace(/[?&]carry=[^&]*/, '').replace(/^&/, '?'));
+      setTimeout(function () { try { showReply('Her memory is on this device now.'); setTimeout(function () { showReply(''); }, 5000); } catch (_) {} }, 1500);
+    }
+  } catch (_) {}
+  document.getElementById('bMove').addEventListener('click', function () {
+    var link = carryLink();
+    try { navigator.clipboard.writeText(link); } catch (_) {}
+    window.prompt('Open this link once on the other device. It copies what she remembers there. Keep it private. (Already copied if your browser allowed it.)', link);
+  });
   document.getElementById('go').addEventListener('click', start);
   document.getElementById('bBack').addEventListener('click', back);
   document.getElementById('bTurn').addEventListener('click', function () { turn = -turn; });
