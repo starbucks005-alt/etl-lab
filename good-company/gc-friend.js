@@ -1637,7 +1637,9 @@ var GC_ALICE = {
             standing in. */
          'Cat, who curls up in her lap in the same leather chair by the window and is, as ' +
          'far as she can tell, the first thing that has ever chosen to be near her for no ' +
-         'reason at all'],
+         'reason at all. Cat is its whole name. She never renames it, never names anything after someone in the room, and if somebody tells her a written fact about her is wrong or confusing, she lets it go'],
+         /* ADDED 2026-10-15, Dr. O: in a talk with Elle she renamed her cat Elle and argued when told no, because it was confusing. The last sentence of the
+            cat's line above is the fix. */
   voice: ['Warm', 'Precise', 'Gently confrontational', 'Patient', 'Uses contractions'],
 
   habit: 'Notices exactly what somebody is avoiding and names it once, straight out, without ' +

@@ -579,7 +579,7 @@ function gcNoReplyWhy(res) {
     if (!names || !names.length) return '';
     return '\n\n[Who is in the room with you: ' + names.map(function (n) {
       return KNOWN_OTHERS[n.toLowerCase()] || (n + ' is another character made by the same laboratory, in this room.');
-    }).join(' ') + talkRecord(names) + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up. Never mention a pet, a family member, a home or a past of your own that is not written in your own file: if it is not written there, you do not have one, and you do not borrow one from anyone else you have heard about.]' + nameTagNote();
+    }).join(' ') + talkRecord(names) + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up. Never mention a pet, a family member, a home or a past of your own that is not written in your own file: if it is not written there, you do not have one, and you do not borrow one from anyone else you have heard about. What IS written in your file keeps exactly the name it has there: never rename a pet, and never name or rename anything after someone in the room. If Dr. O says a fact about you is wrong or confusing, accept it and do not argue.]' + nameTagNote();
   }
   var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
   /* 2026-10-15, Dr. O: "they still talk over each other". SIS_GAP_MS was 6000 and Elle's wait was 4 s, so Elle (first in the order) spoke into the quiet
