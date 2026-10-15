@@ -658,11 +658,16 @@ function gcNoReplyWhy(res) {
     })();
   }
 
-  function speakReply(text) {
+  /* voicePending counts voices that are being made or played, so a cameo waits for the main voice to finish instead of speaking over it. */
+  var voicePending = 0;
+  function speakReply(text, overrideVoiceId) {
     if (chatWho && chatWho.echo) return speakEcho(text);
-    var voiceId = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
+    var voiceId = overrideVoiceId || (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
     if (!voiceOn || !voiceId) return;
-    voiceId = accentVoice(voiceId);
+    voiceId = overrideVoiceId ? voiceId : accentVoice(voiceId);
+    voicePending++;
+    var counted = true;
+    function uncount() { if (counted) { counted = false; voicePending = Math.max(0, voicePending - 1); } }
     fetch('/.netlify/functions/gc-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -675,8 +680,9 @@ function gcNoReplyWhy(res) {
       if (!r.ok) throw new Error('voice_failed');
       return r.json();
     }).then(function (data) {
-      if (!data || !data.audio) return;
+      if (!data || !data.audio) { uncount(); return; }
       var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
+      ['ended', 'pause', 'error', 'abort', 'emptied'].forEach(function (n) { audio.addEventListener(n, uncount); });
       gcBoostVoice(audio);
       hf.speakingStart(audio);
       audio.addEventListener('playing', function () { SIS.talking = true; });
@@ -687,9 +693,25 @@ function gcNoReplyWhy(res) {
         var given = false;
         function give() { if (held && !given) { given = true; floorCall('release'); } }
         ['ended', 'pause', 'error', 'abort', 'emptied'].forEach(function (n) { audio.addEventListener(n, give); });
-        audio.play().catch(give);
+        audio.play().catch(function () { give(); uncount(); });
       });
-    }).catch(function () { /* the text reply already stands on its own */ });
+    }).catch(function () { uncount(); /* the text reply already stands on its own */ });
+  }
+
+  /* CAMEOS, added 2026-10-15, Dr. O: "they both talk in the rooms and I thought they talked in AR", "they are in the hologram". Biscuit and Mochi are
+     cameos in Reggie's file. The website (gc-chat.js) sends them back as res.cameo ({name, text, voice_id}) about one reply in seven or eight, and the
+     room page plays them. This page and ar.html only read res.reply, so the cameo was thrown away. Now it is shown with its name and spoken in its own
+     voice once the main voice has finished. Not tried with the real voices. */
+  function showCameo(c, mainReply) {
+    if (!c || !c.text) return;
+    var name = spokenName(c.name || '');
+    showReply(mainReply + '  ' + (name ? name + ': ' : '') + c.text);
+    chatHistory.push({ who: c.name || 'Cameo', text: c.text, mine: false });
+    var waited = 0;
+    (function again() {
+      if (voicePending > 0 && waited < 20000) { waited += 300; setTimeout(again, 300); return; }
+      if (c.voice_id) speakReply(c.text, c.voice_id);
+    })();
   }
 
   function setupChat() {
@@ -867,6 +889,7 @@ function gcNoReplyWhy(res) {
       chatHistory.push({ who: herName, text: reply, mine: false });
       showReply(reply);
       speakReply(reply);
+      if (res && res.cameo) showCameo(res.cameo, reply);
     }).catch(function () {
       chatBusy = false; chatSend.disabled = false;
       showReply('That did not send. Try again in a moment.');

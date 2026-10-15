@@ -1387,14 +1387,18 @@ body { position: relative; background: #000; }
        credits, same as it always has for room.html. Respects the mute
        toggle -- muted means muted, not muted except for the one thing that
        costs money. */
-    function speakReply(text) {
+    var voicePending = 0;     /* voices being made or played, so a cameo waits for the main voice */
+    function speakReply(text, overrideVoiceId) {
       if (colorVideo.muted || !voiceIdFor) return;
+      voicePending++;
+      var counted = true;
+      function uncount() { if (counted) { counted = false; voicePending = Math.max(0, voicePending - 1); } }
       fetch('/.netlify/functions/gc-voice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: text,
-          voice_id: voiceIdFor,
+          voice_id: overrideVoiceId || voiceIdFor,
           is_demo: true,
           visitor_id: GC_visitorId(),
           access_token: GC_accessToken(),
@@ -1414,12 +1418,26 @@ body { position: relative; background: #000; }
            audio file -- silently, since audio.play() rejecting was swallowed by the .catch()
            below with no visible error anywhere. Every reply, on every companion, from the day
            this was first written, because it never worked even once to notice by contrast. */
-        if (!data || !data.audio) return;
+        if (!data || !data.audio) { uncount(); return; }
         var audio = new Audio('data:audio/mpeg;base64,' + data.audio);
+        ['ended', 'pause', 'error', 'abort', 'emptied'].forEach(function (n) { audio.addEventListener(n, uncount); });
         gcBoostVoice(audio);
         hf.speakingStart(audio);
-        audio.play().catch(function () {});
-      }).catch(function () { /* text reply already stands on its own */ });
+        audio.play().catch(uncount);
+      }).catch(function () { uncount(); /* text reply already stands on its own */ });
+    }
+
+    /* CAMEOS, added 2026-10-15, Dr. O: "they both talk in the rooms and I thought they talked in AR". The website sends Biscuit's and Mochi's lines back as
+       res.cameo, about one reply in seven or eight. The room page plays them; this page only read res.reply, so they were thrown away. Now the line is
+       shown with its name and spoken in its own voice once the main voice has finished. Not tried with the real voices. */
+    function showCameo(c) {
+      if (!c || !c.text) return;
+      addChatLine((c.name ? c.name + ': ' : '') + c.text, false);
+      var waited = 0;
+      (function again() {
+        if (voicePending > 0 && waited < 20000) { waited += 300; setTimeout(again, 300); return; }
+        if (c.voice_id) speakReply(c.text, c.voice_id);
+      })();
     }
 
     arChatRow.addEventListener('submit', function (e) {
@@ -1454,6 +1472,7 @@ body { position: relative; background: #000; }
         var reply = (res && res.reply) || gcNoReplyWhy(res);
         addChatLine(reply, false);
         speakReply(reply);
+        if (res && res.cameo) showCameo(res.cameo);
         arChatInput.focus();
       }).catch(function () {
         chatBusy = false;
