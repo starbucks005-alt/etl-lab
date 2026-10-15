@@ -1267,7 +1267,7 @@ def home():
 def status():
     return jsonify(ok=True, name="AL", accent=state["accent"], skills=state["skills"],
                    color=state["color"], brightness=state["brightness"], persona=state["persona"], main=state["main"],
-                   personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"], mode=state["mode"],
+                   personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"], mode=state["mode"], log_n=len(state["log"]),
                    log=state["log"][-40:])
 
 
@@ -1448,6 +1448,12 @@ def personality_main():
     state["main"] = pid
     save_persona(pid)
     return jsonify(ok=True, main=pid)
+
+
+@app.get("/api/log")
+def log_get():
+    """The conversation so far. The panel asks every few seconds, so what she says out loud (and the sources she found) shows there without a reload."""
+    return jsonify(n=len(state["log"]), log=state["log"][-60:])
 
 
 @app.get("/api/mode")

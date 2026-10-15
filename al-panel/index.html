@@ -434,6 +434,18 @@
   function load(k,d){try{var v=localStorage.getItem('al_panel_'+k);return v?JSON.parse(v):d;}catch(e){return d;}}
 
   // ---------- connection ----------
+  // WHAT SHE SAYS OUT LOUD SHOWS HERE TOO, 2026-10-15, Dr. O: "she said the sources are on the panel, but I do not see them". The panel read her conversation once, when it
+  // was opened, so an answer to a question asked by voice was saved but never shown. It now asks every 2.5 seconds and redraws the conversation when it has changed.
+  var logN = -1;
+  function pollLog(){
+    if(!live){ return; }
+    fetch('/api/log').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j || j.n === logN){ return; }
+      var first = logN === -1; logN = j.n;
+      if(first && !j.log.length){ return; }
+      $('log').innerHTML = ''; j.log.forEach(function(m){ addMsg(m.who, m.text); });
+    }).catch(function(){});
+  }
   function setLive(on, info){
     live = on;
     $('demoNote').style.display = on ? 'none' : '';
@@ -449,6 +461,7 @@
       $('log').innerHTML = '';
       info.log.forEach(function(m){ addMsg(m.who, m.text); });
     }
+    if(on && info && info.log_n != null){ logN = info.log_n; }
     if(on && info && info.welcome){ state.welcome = info.welcome; paintWelcome(); }   // Astra-9 Lite keeps these choices herself
     if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
       state.mode = info.mode || null; store('mode', state.mode);
@@ -1088,6 +1101,7 @@
   buildGroups(); loadPersonas();
   tryConnect();
   setInterval(pollSensor, 3000);
+  setInterval(pollLog, 2500);
 })();
 </script>
 </body>
