@@ -1431,7 +1431,12 @@ def wake_name_re():
     # does not wake all of them. The names are picked when the talk starts, so any pair or trio of characters can use it.
     if sisters["on"]:
         mine = [w for w in re.sub(r"[^A-Za-z0-9 ]", " ", sisters["me"]).split() if len(w) > 1] or ["Elle"]
-        base = re.compile(r"\b(" + "|".join(re.escape(w) for w in mine) + r")\b", re.I)
+        extra = []
+        if sisters["me"].strip().lower().startswith("el"):
+            # 2026-10-15: the log showed "Reggie here L I'm starting to think..." and "WAKE heard words but not her name": the listening writes Elle as
+            # "L", "Ella", "El" and so on, and in a talk only the exact name woke her. The same spellings that wake her outside a talk now count here.
+            extra = ["ella", "ellie", "elly", "ell", "el", "l"]
+        base = re.compile(r"\b(" + "|".join(re.escape(w) for w in mine + extra) + r")\b", re.I)
     else:
         base = NAME_RE
     if not p:
