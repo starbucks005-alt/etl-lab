@@ -1359,7 +1359,10 @@ def say():
 CONVERSE_SECONDS = 30     # after a hello, she keeps listening this long, and again after each thing she answers
 END_QUIET = 9            # tenths of a second of quiet that mean the person has finished. 8 cut off the soft last word, 11 made her slow to answer: 9 is the middle (2026-10-12)
 
-TALK_END_QUIET = 14      # 2026-10-12, Dr. O: in a talk with Alice a voice pauses about a second between sentences, and at 0.9 s Elle took the first gap for the end,
+# 2026-10-15, Dr. O: "ALICE and Elle still talk over each other". 14 -> 25 (2.5 s). Alice speaks in pieces and the gap between two pieces can be longer
+# than 1.4 s while the next one is fetched, so Elle took it for the end and answered while Alice carried on. Likely, NOT confirmed on the real devices.
+# The cost is a slower answer in a talk. The log lines that start TALK show when she heard and answered: `journalctl -u al-panel -n 120 --no-pager | grep TALK`.
+TALK_END_QUIET = 25      # 2026-10-12, Dr. O: in a talk with Alice a voice pauses about a second between sentences, and at 0.9 s Elle took the first gap for the end,
                          # cut the clip and talked over the rest. In a talk she waits 1.4 s; with people it stays at END_QUIET.
 
 
@@ -2063,6 +2066,8 @@ def converse(window=None):
             if not text:
                 write_eyes()
                 continue
+            if sisters["on"]:
+                print("TALK heard at %s: %s" % (time.strftime("%H:%M:%S"), text[:90]), flush=True)
             if heard_herself(text, last_clip["start"]):
                 print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
                 write_eyes()
@@ -2078,6 +2083,7 @@ def converse(window=None):
             try:
                 if sisters["on"]:
                     sisters["turns"] += 1
+                    print("TALK answering at %s" % time.strftime("%H:%M:%S"), flush=True)
                 answer_and_say(text)
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)
