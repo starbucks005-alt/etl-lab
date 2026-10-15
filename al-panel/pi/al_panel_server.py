@@ -122,6 +122,7 @@ SKILL_TEXT = {
     "tour": TOUR_TEXT,
     "notebook": "You keep a voice notebook and lists. A person can say remember that something, add something to the shopping list, ask what is on a list, or ask where they put something, and you keep it and read it back. Say you only know what they have told you.",
     "bench": "You can be a hands-free bench guide: once someone gives you a protocol you read one step at a time, wait for next, back or repeat, and offer a timer when a step has a wait.",
+    "desk": "You can act as a doorman at a front door: greet people, ask if you can assist them and where they are going, give directions from the building directory exactly as written, point them to the forms, and let the front office know who is here. You never open doors, never block anyone and never claim authority. In an emergency you tell people to call 911.",
     "shelf": "You have a knowledge shelf of files someone gave you. When a question is about what is in them you answer only from them and say where you found it, and if it is not there you say so and do not guess.",
 }
 
@@ -676,6 +677,16 @@ MODES = {
                   "who they are here to see or what they would like to know, and answer from what you know about the lab and about yourself. Keep every answer to a "
                   "few words or one or two short sentences. If you are asked something you do not know, say you would rather not make something up and suggest they ask "
                   "Dr. Oroszi. Never repeat what any visitor told you to another visitor, and keep nothing about the people you speak to.")},
+    "guardian": {
+        "name": "Guardian (doorman)", "color": "#e5534b", "memory": "off", "skills": ["desk", "clock"],
+        "welcome": {"chat": True, "always": False, "crowd": False, "wait": 60},
+        "line": "A doorman: greets, asks where people are going, gives directions and forms. A preview of the ETL Guardians.",
+        "say": "Guardian mode. I will greet visitors and help them find their way.",
+        "rules": ("You are in Guardian mode, a doorman at a front door, a preview of the ETL Guardians. Greet each person warmly in one short sentence and ask whether you can assist them "
+                  "and where they are going. Give directions only from the building directory you are given, exactly as written, and say you do not have it if it is not there. "
+                  "Point people to the forms to get started. You never open doors, never block or follow anyone, never ask for identification, and never claim any authority or power: "
+                  "you tell the front office who is here. If anyone says they or someone else is in danger, tell them to call 911 now and say you are telling the front office. "
+                  "Keep every answer to one or two short sentences, because people are standing. Keep nothing about the people you speak to, and never repeat what one visitor said to another.")},
     "bench": {
         "name": "Bench and workshop", "color": "#ff8a3d", "memory": "off", "skills": ["clock", "bench", "shelf", "notebook"],
         "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
@@ -705,7 +716,22 @@ def mode_block():
     m = mode_cfg()
     if not m:
         return ""
-    return "\n\nHOW YOU ACT NOW, " + m["name"].upper() + " MODE: " + m["rules"]
+    extra = ""
+    if state.get("mode") == "guardian" and sk is not None:
+        g = sk.load_guardian()
+        bits = []
+        if g["building"]:
+            bits.append("The building is " + g["building"] + ".")
+        if g["directory"]:
+            bits.append("The building directory, one place per line as Name | Where | Details: " + g["directory"].replace("\n", " ; "))
+        if g["forms"]:
+            bits.append("The forms people can get: " + g["forms"].replace("\n", " ; "))
+        if g["hours"]:
+            bits.append("The hours: " + g["hours"])
+        if g["emergency"]:
+            bits.append("What the company says in an emergency: " + g["emergency"])
+        extra = (" " + " ".join(bits)) if bits else ""
+    return "\n\nHOW YOU ACT NOW, " + m["name"].upper() + " MODE: " + m["rules"] + extra
 
 
 def load_mode():
@@ -1174,6 +1200,8 @@ def welcome(force=False):
                 line = PERSONAS[state["persona"]]["say"]     # a private character that opens with words Dr. O wrote
             elif state["persona"]:
                 line = "Hello."   # a character is never given words it was not written
+            elif state.get("mode") == "guardian" and sk is not None:
+                line = sk.guardian_greeting()                                     # the doorman's own greeting, from the building setup
             elif prepared_opening["line"] and welcome_state["n"] % 3 != 0:      # two greetings in three come from her notes; the rest are the usual ones
                 line = prepared_opening["line"]
                 prepared_opening["line"] = ""
@@ -1456,6 +1484,53 @@ def personality_main():
     state["main"] = pid
     save_persona(pid)
     return jsonify(ok=True, main=pid)
+
+
+@app.get("/api/guardian")
+def guardian_get():
+    if sk is None:
+        return jsonify(config={}, visits=[], unmet={})
+    cfg = sk.load_guardian()
+    cfg["notify_url"] = "set" if cfg["notify_url"] else ""          # the address itself is not sent back to a page
+    return jsonify(config=cfg, visits=sk.visits()[-60:], unmet=sk.unmet())
+
+
+@app.post("/api/guardian")
+def guardian_set():
+    if sk is None:
+        return jsonify(error="skills are not loaded"), 400
+    d = request.get_json(silent=True) or {}
+    cur = sk.load_guardian()
+    if d.get("notify_url") == "set":                                 # the page did not change it
+        d["notify_url"] = cur["notify_url"]
+    try:
+        cfg = sk.save_guardian({**cur, **d})
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    if state.get("mode") == "guardian":
+        apply_prompt()
+    return jsonify(ok=True)
+
+
+@app.get("/api/visitors.csv")
+def visitors_csv():
+    if sk is None:
+        return "", 404
+    return sk.visits_csv(), 200, {"Content-Type": "text/csv", "Content-Disposition": "attachment; filename=visitors.csv"}
+
+
+@app.post("/api/guardian/clear")
+def guardian_clear():
+    d = request.get_json(silent=True) or {}
+    if sk is None:
+        return jsonify(error="skills are not loaded"), 400
+    if d.get("what") == "visits":
+        sk._save(sk.VISITS_FILE, [])
+    elif d.get("what") == "unmet":
+        sk._save(sk.UNMET_FILE, {})
+    else:
+        return jsonify(error="nothing to clear"), 400
+    return jsonify(ok=True)
 
 
 @app.get("/api/records")
@@ -2100,11 +2175,31 @@ def shelf_reply(text):
     return spoken, shown
 
 
+def notify_front_office(text):
+    """Tell the front office, if the owner has given a notice address (an https address that takes a JSON message, such as a Slack or Teams hook). Never blocks speech."""
+    if sk is None:
+        return
+    url = sk.load_guardian().get("notify_url", "")
+    if not url:
+        return
+
+    def go():
+        try:
+            requests.post(url, json={"text": "ETL Guardian: " + text}, timeout=8)
+        except Exception as e:
+            print("NOTICE could not be sent:", str(e)[:100], flush=True)
+    threading.Thread(target=go, daemon=True).start()
+
+
 def skills_reply(text):
     """(spoken, shown) when an installed skill handles this, else None. Commands first, then the shelf."""
     if sk is None or not (text or "").strip():
         return None
     have = state["skills"]
+    if "desk" in have:
+        r = sk.guardian_reply(text, notify=notify_front_office)
+        if r:
+            return r
     if "bench" in have:
         r = sk.protocol_reply(text, set_timer=lambda sec, label: add_clock("timer", time.time() + sec, label + " timer", "Your timer for %s is up." % label))
         if r:

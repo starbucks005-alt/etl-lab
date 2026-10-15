@@ -307,3 +307,176 @@ def shelf_search(question, k=4, min_hits=2):
     scored.sort(reverse=True)
     return [{"n": i + 1, "title": n, "journal": "your files", "year": "", "kind": "from the shelf", "text": c, "url": "the file called " + n}
             for i, (_, n, c) in enumerate(scored[:k])]
+
+
+# ---------------------------------------------------------------- the Guardian: a doorman and front desk
+# Added 2026-10-15, Dr. O. The ETL Guardians are the front desk robots the lab means to build. Elle can act as one now ("Hi, can I assist you? Where are you going?"),
+# and the setup below is what a building fills in: its offices, forms, hours, who to tell, and what to say in an emergency. What visitors ask and she cannot answer is
+# kept too, because that list is what the Guardians will need. She reads the directory exactly as written. She never opens a door, blocks anyone or claims authority.
+GUARDIAN_FILE = os.path.join(HERE, "guardian.json")
+VISITS_FILE = os.path.join(HERE, "visitors.json")
+UNMET_FILE = os.path.join(HERE, "unmet_questions.json")
+GUARDIAN_FIELDS = ("building", "greeting", "directory", "forms", "hours", "afterhours_start", "afterhours_end", "afterhours_line", "emergency", "notify_url")
+EMERGENCY_RE = re.compile(r"\b(emergency|fire|on fire|smoke|someone (?:is |has )?(?:hurt|injured|collapsed|unconscious|bleeding)|call (?:911|the police|an ambulance|security)|need help now|bomb|gun|weapon|shooter|attack)\b", re.I)
+
+
+def load_guardian():
+    d = _load(GUARDIAN_FILE, {})
+    return {k: str(d.get(k, ""))[:4000] for k in GUARDIAN_FIELDS}
+
+
+def save_guardian(d):
+    clean = {k: str(d.get(k, "")).strip()[:4000] for k in GUARDIAN_FIELDS}
+    if clean["notify_url"] and not re.match(r"^https://", clean["notify_url"]):
+        raise ValueError("The notice address has to start with https://")
+    _save(GUARDIAN_FILE, clean)
+    return clean
+
+
+def parse_directory(text):
+    """Lines of  Name | Where | Details | alias, alias  (the last two are optional)."""
+    out = []
+    for line in (text or "").splitlines():
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 2 and parts[0] and parts[1]:
+            out.append({"name": parts[0], "where": parts[1], "details": parts[2] if len(parts) > 2 else "",
+                        "aliases": [a.strip() for a in (parts[3] if len(parts) > 3 else "").split(",") if a.strip()]})
+    return out
+
+
+def directory_find(query, directory):
+    q = _words(query)
+    if not q:
+        return []
+    scored = []
+    for e in directory:
+        names = [e["name"]] + e["aliases"]
+        best = max((len(q & _words(n)) / max(1, len(_words(n))) for n in names), default=0)
+        whole = any(n.lower() in (query or "").lower() for n in names)
+        score = 1.0 if whole else best
+        if score >= 0.5:
+            scored.append((score, e))
+    scored.sort(key=lambda x: -x[0])
+    if not scored:
+        return []
+    top = scored[0][0]
+    return [e for s, e in scored if s == top][:2]
+
+
+def parse_forms(text):
+    out = []
+    for line in (text or "").splitlines():
+        parts = [p.strip() for p in line.split("|")]
+        if parts and parts[0]:
+            out.append({"name": parts[0], "where": parts[1] if len(parts) > 1 else ""})
+    return out
+
+
+def is_after_hours(cfg, now=None):
+    s, e = cfg.get("afterhours_start", ""), cfg.get("afterhours_end", "")
+    if not (re.fullmatch(r"\d{1,2}:\d{2}", s or "") and re.fullmatch(r"\d{1,2}:\d{2}", e or "")):
+        return False
+    t = time.localtime(now) if now else time.localtime()
+    cur = t.tm_hour * 60 + t.tm_min
+    a = int(s.split(":")[0]) * 60 + int(s.split(":")[1])
+    b = int(e.split(":")[0]) * 60 + int(e.split(":")[1])
+    return (a <= cur < b) if a <= b else (cur >= a or cur < b)
+
+
+def guardian_greeting(now=None):
+    cfg = load_guardian()
+    if is_after_hours(cfg, now):
+        return cfg["afterhours_line"] or "Hello. The building is closed right now. Can I help you?"
+    if cfg["greeting"]:
+        return cfg["greeting"]
+    b = cfg["building"]
+    return ("Hello, welcome to %s. Can I assist you? Where are you going today?" % b) if b else "Hello, welcome. Can I assist you? Where are you going today?"
+
+
+def visits():
+    return _load(VISITS_FILE, [])
+
+
+def log_visit(name, host, note=""):
+    v = visits()
+    v.append({"t": int(time.time()), "when": time.strftime("%Y-%m-%d %H:%M"), "name": _clean(name)[:60], "host": _clean(host)[:80], "note": note[:200]})
+    _save(VISITS_FILE, v[-500:])
+
+
+def visits_csv():
+    rows = ["when,name,here to see,note"]
+    for v in visits():
+        rows.append(",".join('"%s"' % str(v.get(k, "")).replace('"', '""') for k in ("when", "name", "host", "note")))
+    return "\n".join(rows) + "\n"
+
+
+def note_unmet(question):
+    d = _load(UNMET_FILE, {})
+    q = _clean(question)[:120].lower()
+    if q:
+        d[q] = int(d.get(q, 0)) + 1
+        _save(UNMET_FILE, dict(sorted(d.items(), key=lambda kv: -kv[1])[:100]))
+
+
+def unmet():
+    return _load(UNMET_FILE, {})
+
+
+def guardian_reply(text, notify=None, now=None):
+    """(spoken, shown) when this is something a doorman handles, else None. notify(text) tells the front office, when a notice address is set."""
+    t = _clean(text)
+    low = t.lower()
+    if not low:
+        return None
+    cfg = load_guardian()
+    note = notify or (lambda msg: None)
+    if EMERGENCY_RE.search(low):
+        script = cfg["emergency"] or ""
+        msg = "If anyone is in danger, call 911 now. " + (script + " " if script else "") + "I am telling the front office."
+        note("EMERGENCY words heard at the front door: " + t)
+        log_visit("", "", "EMERGENCY words heard: " + t)
+        return msg, msg
+    host = None
+    m = re.search(r"\b(?:here to see|here for|to see|visiting|meeting with|have an appointment with|appointment with|here to meet|looking for)\s+((?:the |a |an )?.+)$", low)
+    name = None
+    mn = re.search(r"\b(?:my name is|i am|i'm|this is|it's|it is)\s+([a-z][a-z .'-]{1,40}?)(?=,| and | here| for| to see| i| i'm|$)", low)
+    if mn and mn.group(1).split()[0] not in ("looking", "here", "going", "trying", "a", "an", "the", "from", "with", "lost", "new", "not", "sorry", "just"):
+        name = " ".join(w.capitalize() for w in mn.group(1).split())
+    if m and (name or re.search(r"\b(here to see|here for|visiting|meeting with|appointment|here to meet)\b", low)):
+        host = _clean(t[m.start(1):]).strip(" .")
+        found = directory_find(host, parse_directory(cfg["directory"]))
+        who = ("Thank you, %s. " % name) if name else "Thank you. "
+        msg = who + "I will let %s know you are here." % host
+        if found:
+            msg += " Directions: %s." % found[0]["where"].rstrip(".")
+        log_visit(name or "", host)
+        note("%s is here to see %s." % (name or "A visitor", host))
+        return msg, msg
+    m2 = re.search(r"\b(?:where(?:'s| is| are)|where can i find|how do i get to|how can i get to|which way (?:is|to)|directions to|take me to|i(?:'m| am) looking for|i need to find|i'm trying to find|i am trying to find)\s+(?:the |a |an )?(.+?)(?: please)?$", low)
+    if m2:
+        want = _clean(m2.group(1))
+        found = directory_find(want, parse_directory(cfg["directory"]))
+        if found:
+            e = found[0]
+            msg = "%s: %s." % (e["name"], e["where"].rstrip(".")) + ((" " + e["details"].rstrip(".") + ".") if e["details"] else "")
+            return msg, msg
+        note_unmet(t)
+        msg = "I do not have that in my directory. Please ask at the front desk, and I will let them know you asked."
+        return msg, msg
+    if re.search(r"\b(forms?|paperwork|register|registration|sign in|sign-in|check in|get started|application|apply|visitor pass)\b", low) and len(low.split()) <= 14:
+        forms = parse_forms(cfg["forms"])
+        if forms:
+            spoken = "I can help you get started. I have these forms: " + ", ".join(f["name"] for f in forms[:6]) + ". The links are on the panel."
+            shown = spoken + "\n\n" + "\n".join("%s: %s" % (f["name"], f["where"]) for f in forms)
+            return spoken, shown
+        note_unmet(t)
+        msg = "I do not have any forms here yet. Please ask at the front desk."
+        return msg, msg
+    if re.search(r"\b(hours|opening hours|what time do you (?:open|close)|when do you (?:open|close)|are you open|is the building open)\b", low):
+        if cfg["hours"]:
+            msg = "The hours are " + cfg["hours"].rstrip(".") + "."
+            return msg, msg
+        note_unmet(t)
+        msg = "I do not have the hours here. Please ask at the front desk."
+        return msg, msg
+    return None

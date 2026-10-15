@@ -345,6 +345,39 @@
       </div></div>
     </section>
 
+    <!-- GUARDIAN SETUP, added 2026-10-15, Dr. O: "Security is showing what the others will have and she could still be doorman: hi, can I assist you, where are you going, download the
+         building offices and forms to get started. It will help me know what the security bots will need." (They are the ETL Guardians.) This is the form a building fills in. -->
+    <section class="card wide" id="guardianCard" style="display:none">
+      <h2>Guardian setup: teach her your building</h2>
+      <p class="hint">This is what a front door needs to know. Fill in what you have. She reads the directory exactly as written, never opens a door, never blocks anyone, and always tells people to call 911 in an emergency. Everything stays on the robot.</p>
+      <div class="twocol"><div>
+        <label for="gBuilding">Building or company name</label><input type="text" id="gBuilding" placeholder="For example, Example Hall">
+        <label for="gGreeting">What she says when someone walks up (leave empty for the usual hello)</label><input type="text" id="gGreeting" placeholder="Hello, welcome. Can I assist you? Where are you going today?">
+        <label for="gDirectory">Directory: one place per line as  Name | Where | Details | other names</label>
+        <textarea id="gDirectory" rows="6" placeholder="Dean's office | third floor, room 310, take the elevator on your left | Open until 5 | dean&#10;Restrooms | down the hall on your right"></textarea>
+        <label for="gForms">Forms to get started: one per line as  Name | web address or where to get it</label>
+        <textarea id="gForms" rows="3" placeholder="Visitor registration | https://example.edu/visitor&#10;Vendor intake | ask at the front desk"></textarea>
+      </div><div>
+        <label for="gHours">Hours</label><input type="text" id="gHours" placeholder="Monday to Friday, 7 am to 6 pm">
+        <div class="row"><label style="margin:12px 0 4px">Closed from <input type="text" id="gAfterStart" placeholder="18:00" style="max-width:90px"></label><label style="margin:12px 0 4px">until <input type="text" id="gAfterEnd" placeholder="07:00" style="max-width:90px"></label></div>
+        <label for="gAfterLine">What she says when it is closed</label><input type="text" id="gAfterLine" placeholder="The building is closed. If you need help, I will tell the front office.">
+        <label for="gEmergency">What the company wants said in an emergency (she always says call 911 first)</label><textarea id="gEmergency" rows="2" placeholder="The front office number is 555 0100."></textarea>
+        <label for="gNotify">Where to send notices to the front office (an https address that takes a message, such as a Slack or Teams hook)</label>
+        <input type="text" id="gNotify" placeholder="https://..."><label class="wopt" style="margin:6px 0 0;font-size:13px"><input type="checkbox" id="gNotifyClear"> Remove the saved notice address</label>
+      </div></div>
+      <div class="row" style="margin-top:14px"><button class="primary" id="gSave" type="button">Save</button><button id="gExample" type="button">Fill in an example</button><span class="hint" id="gStatus" style="margin:0"></span></div>
+      <div class="twocol" style="margin-top:18px"><div>
+        <b style="color:var(--ink)">Visitors she has logged</b>
+        <ul id="gVisits" style="margin:4px 0 8px;padding-left:1.2rem;font-size:14px"></ul>
+        <div class="row"><a href="/api/visitors.csv" id="gCsv" download><button type="button">Download the list</button></a><button id="gClearVisits" type="button">Clear the list</button></div>
+      </div><div>
+        <b style="color:var(--ink)">Questions she could not answer</b>
+        <p class="hint" style="margin:2px 0 6px">What visitors asked that was not in the directory, forms or hours. This is the list of what a Guardian will need.</p>
+        <ul id="gUnmet" style="margin:4px 0 8px;padding-left:1.2rem;font-size:14px"></ul>
+        <button id="gClearUnmet" type="button">Clear this list</button>
+      </div></div>
+    </section>
+
     <!-- 8. WHEN SOMEONE WALKS UP -->
     <section class="card wide" id="welcomeCard">
       <h2>8. When someone walks up</h2>
@@ -425,6 +458,8 @@
      demo:'Give me your steps as a text file, say start, and I will read them one at a time.'},
     {id:'shelf',    name:'Knowledge Shelf', price:4.99, desc:'Give her your handbook, rules or protocols. She answers from them only, says where she found it, and says so when it is not in your files.',
      demo:'Put a file on my shelf, then ask me about what is in it.'},
+    {id:'desk',     name:'Front Door (Guardian)', price:9.99, desc:'Greets visitors, asks where they are going, gives directions from your building directory, points to your forms, and tells the front office who is here. Fill in the Guardian setup card to teach her your building.',
+     demo:'Hello, welcome. Can I assist you? Where are you going today?'},
     {id:'tour',     name:'Lab Tour Guide', price:0, desc:'Included with every companion. Introduces the lab and its work.',
      demo:'Welcome to the Emerging Technologies Laboratory. Shall we start with the robots?'}
   ];
@@ -438,6 +473,8 @@
      demo:'Hello, friend. I am a robot who likes stories and questions. How old are you?'},
     {id:'event', name:'Event and front desk', color:'#2fbf71', line:'A host for visitors: greets, answers about the lab, keeps it short.',
      demo:'Event mode. I will greet people and tell them about the lab.'},
+    {id:'guardian', name:'Guardian (doorman)', color:'#e5534b', line:'A doorman: greets, asks where people are going, gives directions and forms. A preview of the ETL Guardians.',
+     demo:'Guardian mode. I will greet visitors and help them find their way.'},
     {id:'bench', name:'Bench and workshop', color:'#ff8a3d', line:'Hands free: short answers, one step at a time, timers for the waits.',
      demo:'Bench mode. Tell me the steps and I will read them one at a time.'}
   ];
@@ -491,7 +528,7 @@
     if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
       state.mode = info.mode || null; store('mode', state.mode);
       if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
-      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords();
+      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian();
     }
     paintSensor(on ? info : null);
     if(on && info){
@@ -772,6 +809,49 @@
     }).catch(function(){ card.style.display = 'none'; });
   }
 
+  // ---------- the Guardian setup ----------
+  var gNotifySet = false, gLoadedOnce = false;
+  var G_FIELDS = {building:'gBuilding', greeting:'gGreeting', directory:'gDirectory', forms:'gForms', hours:'gHours', afterhours_start:'gAfterStart', afterhours_end:'gAfterEnd', afterhours_line:'gAfterLine', emergency:'gEmergency'};
+  function refreshGuardian(){
+    var card = $('guardianCard');
+    var wants = state.mode === 'guardian' || state.skills.indexOf('desk') !== -1;
+    if(!live || !wants){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/guardian').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      if(!gLoadedOnce){                                    // fill the fields once, so what is being typed is never overwritten
+        gLoadedOnce = true;
+        Object.keys(G_FIELDS).forEach(function(k){ $(G_FIELDS[k]).value = (j.config[k] || ''); });
+      }
+      gNotifySet = j.config.notify_url === 'set';
+      $('gNotify').placeholder = gNotifySet ? 'A notice address is saved (hidden). Type a new one to change it.' : 'https://...';
+      var v = $('gVisits'); v.innerHTML = '';
+      if(!j.visits.length){ var e = document.createElement('li'); e.textContent = 'No visitors yet.'; v.appendChild(e); }
+      j.visits.slice().reverse().forEach(function(x){ var li = document.createElement('li'); li.textContent = x.when + ': ' + (x.name || 'a visitor') + (x.host ? ' to see ' + x.host : '') + (x.note ? ' (' + x.note + ')' : ''); v.appendChild(li); });
+      var u = $('gUnmet'); u.innerHTML = '';
+      var q = Object.keys(j.unmet);
+      if(!q.length){ var e2 = document.createElement('li'); e2.textContent = 'Nothing yet.'; u.appendChild(e2); }
+      q.forEach(function(k){ var li = document.createElement('li'); li.textContent = k + (j.unmet[k] > 1 ? '  (asked ' + j.unmet[k] + ' times)' : ''); u.appendChild(li); });
+    }).catch(function(){});
+  }
+  $('gSave').addEventListener('click', function(){
+    var body = {}; Object.keys(G_FIELDS).forEach(function(k){ body[k] = $(G_FIELDS[k]).value; });
+    var n = $('gNotify').value.trim();
+    body.notify_url = $('gNotifyClear').checked ? '' : (n || (gNotifySet ? 'set' : ''));
+    api('/api/guardian', body).then(function(){ $('gStatus').textContent = 'Saved.'; $('gNotify').value = ''; $('gNotifyClear').checked = false; gLoadedOnce = true; refreshGuardian(); })
+      .catch(function(e){ $('gStatus').textContent = 'Not saved: ' + e.message; });
+  });
+  $('gExample').addEventListener('click', function(){
+    $('gBuilding').value = 'Example Hall';
+    $('gDirectory').value = "Front desk | just inside the main doors | Open 8 to 5 | reception, desk\nDean's office | third floor, room 310, take the elevator on your left | Open until 5 | dean\nEmerging Technologies Laboratory | second floor, room 214 | | ETL, the lab\nRestrooms | down the hall on your right";
+    $('gForms').value = "Visitor registration | ask at the front desk\nVendor intake | ask at the front desk";
+    $('gHours').value = 'Monday to Friday, 8 am to 5 pm';
+    $('gEmergency').value = 'The front office number is 555 0100.';
+    $('gStatus').textContent = 'An example is filled in. Change it to your building, then Save.';
+  });
+  $('gClearVisits').addEventListener('click', function(){ api('/api/guardian/clear', {what:'visits'}).then(refreshGuardian).catch(function(){}); });
+  $('gClearUnmet').addEventListener('click', function(){ api('/api/guardian/clear', {what:'unmet'}).then(refreshGuardian).catch(function(){}); });
+
   // ---------- modes ----------
   function renderModes(){
     var box = $('modes'); box.innerHTML = '';
@@ -785,7 +865,7 @@
       box.appendChild(b);
     });
     var cur = MODES.filter(function(m){ return m.id === state.mode; })[0];
-    $('modeNote').textContent = cur ? ('In ' + cur.name + ' mode. ' + (cur.id === 'kids' ? 'She keeps notes for a parent and nothing else. Skills and personalities are filtered to everyone under 13.' : cur.id === 'event' || cur.id === 'bench' ? 'She keeps no notes about anyone in this mode.' : 'She keeps her usual notes.')) : 'No mode chosen: she behaves as she usually does.';
+    $('modeNote').textContent = cur ? ('In ' + cur.name + ' mode. ' + (cur.id === 'kids' ? 'She keeps notes for a parent and nothing else. Skills and personalities are filtered to everyone under 13.' : cur.id === 'event' || cur.id === 'bench' || cur.id === 'guardian' ? 'She keeps no notes about anyone in this mode.' : 'She keeps her usual notes.')) : 'No mode chosen: she behaves as she usually does.';
   }
   function chooseMode(id){
     var m = MODES.filter(function(x){ return x.id === id; })[0]; if(!m){ return; }
@@ -798,7 +878,7 @@
         if(j.welcome){ state.welcome = j.welcome; paintWelcome(); }
         if(j.skills){ state.skills = j.skills.slice(); }
         state.persona = j.persona || null; store('persona', state.persona);
-        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent();
+        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian();
       }).catch(function(e){ state.mode = was; store('mode', was); renderModes(); addMsg('al', '(I could not change my mode: ' + e.message + ')'); });
     } else {
       if(id === 'kids' && state.persona){ var cp = PERSONAS.filter(function(p){ return p.id === state.persona; })[0]; if(!cp || !cp.kids){ state.persona = null; store('persona', null); } }
@@ -866,7 +946,7 @@
     function finish(){
       if(state.skills.indexOf(s.id) === -1){ state.skills.push(s.id); }
       store('skills', state.skills);
-      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(refreshRecords).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
+      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
       setTimeout(renderSkills, 250);
     }
   }
@@ -1167,6 +1247,7 @@
   setInterval(pollSensor, 3000);
   setInterval(pollLog, 2500);
   setInterval(refreshRecords, 12000);
+  setInterval(refreshGuardian, 12000);
 })();
 </script>
 </body>
