@@ -980,17 +980,36 @@ function gcNoReplyWhy(res) {
     } catch (_) {}
     return location.origin + location.pathname + '?carry=' + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(o)))));
   }
-  try {
+  /* Opening the link on a device that already has its own visitor id: that device's own memories are moved onto the carried id first (gc-merge-memory),
+     so nothing it has learned is left behind under the old id. That needs the owner key typed on this device; without it nothing is changed and the
+     link stays in the address so it can be opened again once the key is in. */
+  (function () {
     var cp = new URLSearchParams(location.search).get('carry');
-    if (cp) {
-      var got = JSON.parse(decodeURIComponent(escape(atob(cp))));
-      Object.keys(got).forEach(function (k) {
-        if (CARRY_KEYS.indexOf(k) >= 0 || /^gc_talks_[a-z0-9\-]+$/.test(k)) localStorage.setItem(k, String(got[k]));
-      });
-      history.replaceState(null, '', location.pathname + location.search.replace(/[?&]carry=[^&]*/, '').replace(/^&/, '?'));
-      setTimeout(function () { try { showReply('Her memory is on this device now.'); setTimeout(function () { showReply(''); }, 5000); } catch (_) {} }, 1500);
+    if (!cp) return;
+    function say(t) { setTimeout(function () { try { showReply(t); setTimeout(function () { showReply(''); }, 8000); } catch (_) {} }, 1500); }
+    var got;
+    try { got = JSON.parse(decodeURIComponent(escape(atob(cp)))); } catch (_) { say('That link did not work.'); return; }
+    function apply() {
+      try {
+        Object.keys(got).forEach(function (k) {
+          if (CARRY_KEYS.indexOf(k) >= 0 || /^gc_talks_[a-z0-9\-]+$/.test(k)) localStorage.setItem(k, String(got[k]));
+        });
+        history.replaceState(null, '', location.pathname + location.search.replace(/[?&]carry=[^&]*/, '').replace(/^&/, '?'));
+      } catch (_) {}
     }
-  } catch (_) {}
+    var oldId = ''; try { oldId = localStorage.getItem('etl_visitor_id') || ''; } catch (_) {}
+    var newId = got.etl_visitor_id || '';
+    if (!oldId || !newId || oldId === newId) { apply(); say('Her memory is on this device now.'); return; }
+    var key = ''; try { key = GC_ownerKey(); } catch (_) {}
+    if (!key) { say('This device has its own memory of her. Open this page once with ?key= and your owner key at the end of the address, then open the link again, so the two are combined.'); return; }
+    fetch('/.netlify/functions/gc-merge-memory', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ from_visitor_id: oldId, into_visitor_id: newId })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (x) {
+      if (!x.ok) { say('The memories could not be combined (' + ((x.j && x.j.error) || 'error') + '). Nothing was changed.'); return; }
+      apply(); say('Her memory is combined and on this device now. ' + (x.j.moved || 0) + ' notes were moved.');
+    }).catch(function () { say('The memories could not be combined: no connection. Nothing was changed.'); });
+  })();
   document.getElementById('bMove').addEventListener('click', function () {
     var link = carryLink();
     try { navigator.clipboard.writeText(link); } catch (_) {}
