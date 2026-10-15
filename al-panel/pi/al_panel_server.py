@@ -569,7 +569,11 @@ def mood_block(pid):
 # Each one hears the others through the air, so the floor is passed by NAME: a turn ends by speaking to one sister, and only
 # the one named answers. If nobody has spoken for SISTER_GAP seconds, Astra (first in the order) speaks into the silence.
 # Not tested with the real speakers yet; the first run on the real devices is the test.
-SISTER_GAP = 4.0
+# 2026-10-15, Dr. O: "they still talk over each other". This was 4.0. The other one needs more than four seconds to hear the end of a sentence,
+# turn it into words, think and start speaking, so four seconds of quiet is often the other one getting ready, not nobody having anything
+# to say, and Elle spoke into it. Now 9.0, and the page waits longer still (SIS_GAP_MS). This is the likeliest cause, NOT confirmed on the real
+# devices: if they still overlap, the next step is to log who started when, on both.
+SISTER_GAP = 9.0
 sisters = {"on": False, "me": "Elle", "others": [], "turns": 0, "max": 12, "started": 0.0}
 STOP_TALK_RE = re.compile(r"\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b", re.I)
 
