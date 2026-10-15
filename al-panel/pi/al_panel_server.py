@@ -758,37 +758,82 @@ def azure_transcribe(path, cfg):
     return (j.get("DisplayText") or "").strip()
 
 
+# ---- THE FLOOR, added 2026-10-15, Dr. O: "stop talking over each other". In a talk she and the hologram pages hear each other only through the air,
+# so nothing stopped two of them starting at once, and every timing change was a guess. Now each one asks a small page on the website
+# (netlify/functions/gc-floor.js) for the floor before it speaks and gives it back when it has finished. Only one holds it at a time. If the website cannot
+# be reached she speaks anyway, so this can only make a talk quieter, never silent. Only used in a talk. NOT TRIED with the real devices.
+FLOOR_URL = "https://emerging-tech-lab.com/.netlify/functions/gc-floor"
+FLOOR_ROOM = "etl-talk"
+FLOOR_MAX_WAIT = 30.0
+
+
+def floor_call(action):
+    try:
+        r = requests.post(FLOOR_URL, json={"action": action, "room": FLOOR_ROOM, "who": sisters["me"], "ttl": 25}, timeout=4)
+        return r.json() if r.status_code == 200 else None
+    except Exception as e:
+        print("FLOOR unreachable (%s), speaking anyway" % str(e)[:80], flush=True)
+        return None
+
+
+def floor_wait():
+    """True when she holds the floor. False when she should just speak: not in a talk, the website could not be reached, or she waited too long."""
+    if not sisters["on"]:
+        return False
+    t0 = time.time()
+    while True:
+        r = floor_call("claim")
+        if r is None:
+            return False
+        if r.get("granted"):
+            print("FLOOR taken after %.1f s" % (time.time() - t0), flush=True)
+            return True
+        if time.time() - t0 > FLOOR_MAX_WAIT:
+            print("FLOOR still held by %s after %.0f s, speaking anyway" % (r.get("holder"), FLOOR_MAX_WAIT), flush=True)
+            return False
+        time.sleep(0.5)
+
+
 def speak_now(text, use_persona=True):
     """Say it and come back only when she has finished."""
     with speak_lock:
+        held = floor_wait()
         try:
-            persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
-            al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
-            last_said["text"] = text
-            spoken = for_the_voice(text)
-            cfg = azure_cfg("tts") if (not persona and state["accent"] in AZURE_ACCENTS) else None
-            if not cfg:       # say why, so "her voice did not change" can be answered from the journal
-                why = ("a character is on (%s)" % state["persona"]) if persona else \
-                      ("accent is %s, and only %s use Azure" % (state["accent"], "/".join(AZURE_ACCENTS))) if state["accent"] not in AZURE_ACCENTS else \
-                      "no Azure key and region found (azure_speech.json or AZURE_SPEECH_KEY/AZURE_SPEECH_REGION), or tts is switched off"
-                print("SPEAK via ElevenLabs:", why, flush=True)
-            if cfg:
-                try:
-                    az_voice = AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
-                    print("SPEAK via Azure", az_voice, flush=True)
-                    azure_speak(spoken, cfg, az_voice)
-                except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
-                    print("AZURE SPEAK ERROR, using ElevenLabs:", e, flush=True)
-                    # robot/american fall back to the old AL voice; the other accents to their own ElevenLabs voice,
-                    # which was already set above from VOICES.
-                    if state["accent"] in ("robot", "american"):
-                        al.AL_VOICE_ID = ELEVEN_BACKUP_VOICE
-                    al.speak(spoken)
-            else:
+            return _speak_locked(text, use_persona)
+        finally:
+            if held:
+                floor_call("release")
+
+
+def _speak_locked(text, use_persona=True):
+    try:
+        persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
+        al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
+        last_said["text"] = text
+        spoken = for_the_voice(text)
+        cfg = azure_cfg("tts") if (not persona and state["accent"] in AZURE_ACCENTS) else None
+        if not cfg:       # say why, so "her voice did not change" can be answered from the journal
+            why = ("a character is on (%s)" % state["persona"]) if persona else \
+                  ("accent is %s, and only %s use Azure" % (state["accent"], "/".join(AZURE_ACCENTS))) if state["accent"] not in AZURE_ACCENTS else \
+                  "no Azure key and region found (azure_speech.json or AZURE_SPEECH_KEY/AZURE_SPEECH_REGION), or tts is switched off"
+            print("SPEAK via ElevenLabs:", why, flush=True)
+        if cfg:
+            try:
+                az_voice = AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
+                print("SPEAK via Azure", az_voice, flush=True)
+                azure_speak(spoken, cfg, az_voice)
+            except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
+                print("AZURE SPEAK ERROR, using ElevenLabs:", e, flush=True)
+                # robot/american fall back to the old AL voice; the other accents to their own ElevenLabs voice,
+                # which was already set above from VOICES.
+                if state["accent"] in ("robot", "american"):
+                    al.AL_VOICE_ID = ELEVEN_BACKUP_VOICE
                 al.speak(spoken)
-            last_said["t"] = time.time()
-        except Exception as e:  # keep the server alive if sound fails
-            print("SPEAK ERROR:", e, flush=True)
+        else:
+            al.speak(spoken)
+        last_said["t"] = time.time()
+    except Exception as e:  # keep the server alive if sound fails
+        print("SPEAK ERROR:", e, flush=True)
 
 
 def speak_async(text, use_persona=True):

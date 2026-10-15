@@ -636,6 +636,28 @@ function gcNoReplyWhy(res) {
   });
   setInterval(accentPaint, 1000);
 
+  /* FLOOR, added 2026-10-15, Dr. O: who may speak, shared with Elle on her Pi and the other pages through netlify/functions/gc-floor.js. Only one holds it. A hold
+     expires by itself after 25 s. If the website cannot be reached, or it is held too long (30 s), this speaks anyway, so it can only make a talk quieter. */
+  var FLOOR_URL = '/.netlify/functions/gc-floor', FLOOR_ROOM = 'etl-talk';
+  function floorCall(action) {
+    return fetch(FLOOR_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action, room: FLOOR_ROOM, who: spokenName((COMPANIONS[who.value] && COMPANIONS[who.value][0]) || ''), ttl: 25 })
+    }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+  function floorWait(done) {
+    if (!SIS.on) { done(false); return; }
+    var t0 = Date.now();
+    (function tryIt() {
+      floorCall('claim').then(function (r) {
+        if (!r) { done(false); return; }
+        if (r.granted) { done(true); return; }
+        if (Date.now() - t0 > 30000) { done(false); return; }
+        setTimeout(tryIt, 500);
+      });
+    })();
+  }
+
   function speakReply(text) {
     if (chatWho && chatWho.echo) return speakEcho(text);
     var voiceId = (chatWho.speaker && chatWho.speaker.voiceId) || chatWho.friend.voiceId;
@@ -659,7 +681,14 @@ function gcNoReplyWhy(res) {
       hf.speakingStart(audio);
       audio.addEventListener('playing', function () { SIS.talking = true; });
       ['ended', 'pause', 'error', 'abort', 'emptied', 'stalled'].forEach(function (n) { audio.addEventListener(n, function () { SIS.talking = false; SIS.lastActive = Date.now(); }); });
-      audio.play().catch(function () {});
+      /* THE FLOOR, 2026-10-15, Dr. O: "stop talking over each other". In a talk the voice waits until nobody else holds the floor (see FLOOR below),
+         plays, and gives the floor back when it ends. Outside a talk, or if the website cannot be reached, it plays at once as before. */
+      floorWait(function (held) {
+        var given = false;
+        function give() { if (held && !given) { given = true; floorCall('release'); } }
+        ['ended', 'pause', 'error', 'abort', 'emptied'].forEach(function (n) { audio.addEventListener(n, give); });
+        audio.play().catch(give);
+      });
     }).catch(function () { /* the text reply already stands on its own */ });
   }
 
