@@ -585,6 +585,9 @@ function gcNoReplyWhy(res) {
   /* 2026-10-15, Dr. O: "they still talk over each other". SIS_GAP_MS was 6000 and Elle's wait was 4 s, so Elle (first in the order) spoke into the quiet
      while this page was still working out its answer. Elle now waits 9 s and this page 14 s, so she speaks first and only after a real silence. Not confirmed on the devices. */
   var YIELD_MS = 900, SIS_GAP_MS = 14000;
+  /* 2026-10-15, Dr. O: Alice, Elle and Reggie are talking together. Two pages with the same wait (14 s) would both speak into the same silence at the
+     same moment. Each character now waits a different time, in a fixed order: Alice 14 s, Reggie 18 s, Tansy 22 s, anyone else 26 s. Elle waits 9 s on the robot. */
+  function sisGap() { return { alice: 14000, reggie: 18000, tansy: 22000 }[who.value] || 26000; }
   var SIS_STOP = /\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b/i;
   try { var wParam = new URLSearchParams(location.search).get('with'); if (wParam) { SIS.others = wParam.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4); SIS.fixed = true; } } catch (_) {}
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
@@ -923,7 +926,7 @@ function gcNoReplyWhy(res) {
     SIS.timer = setInterval(function () {                              // nobody has spoken for a while: she says something to the next one
       if (!SIS.on) return;
       if (chatBusy || SIS.wait || SIS.talking || SIS.turns >= SIS.max) return;
-      if (Date.now() - SIS.lastActive < SIS_GAP_MS) return;
+      if (Date.now() - SIS.lastActive < sisGap()) return;
       SIS.release = true;
       chatInput.value = '(Nobody has spoken for a few seconds. Say something new to ' + SIS.others[SIS.turns % SIS.others.length] + '.)';
       chatForm.requestSubmit ? chatForm.requestSubmit() : chatSend.click();
