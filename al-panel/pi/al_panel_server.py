@@ -764,7 +764,8 @@ def azure_transcribe(path, cfg):
 # be reached she speaks anyway, so this can only make a talk quieter, never silent. Only used in a talk. NOT TRIED with the real devices.
 FLOOR_URL = "https://emerging-tech-lab.com/.netlify/functions/gc-floor"
 FLOOR_ROOM = "etl-talk"
-FLOOR_MAX_WAIT = 30.0
+FLOOR_MAX_WAIT = 12.0      # 2026-10-15: was 30. While she waits her eyes stay bright and she says nothing, which looks like she wants to talk and cannot
+FLOOR_OFF_FILE = os.path.join(HERE, "no_floor")     # `touch ~/al_panel/no_floor` turns the floor off, `rm ~/al_panel/no_floor` turns it on again
 
 
 def floor_call(action):
@@ -778,9 +779,10 @@ def floor_call(action):
 
 def floor_wait():
     """True when she holds the floor. False when she should just speak: not in a talk, the website could not be reached, or she waited too long."""
-    if not sisters["on"]:
+    if not sisters["on"] or os.path.exists(FLOOR_OFF_FILE):
         return False
     t0 = time.time()
+    told = False
     while True:
         r = floor_call("claim")
         if r is None:
@@ -788,6 +790,9 @@ def floor_wait():
         if r.get("granted"):
             print("FLOOR taken after %.1f s" % (time.time() - t0), flush=True)
             return True
+        if not told:
+            told = True
+            print("FLOOR is held by %s, waiting" % r.get("holder"), flush=True)
         if time.time() - t0 > FLOOR_MAX_WAIT:
             print("FLOOR still held by %s after %.0f s, speaking anyway" % (r.get("holder"), FLOOR_MAX_WAIT), flush=True)
             return False
