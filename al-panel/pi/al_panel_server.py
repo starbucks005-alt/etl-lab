@@ -2055,6 +2055,7 @@ def science_reply(text):
         return msg, msg
     entry["sources"] = [{k: x[k] for k in ("n", "title", "journal", "year", "url", "kind")} for x in sources]
     entry["refused"] = len(refused)
+    entry["diag"] = dict(getattr(ss, "last_diag", {}))      # how many papers were seen and how many methods sections could be read, to see why an answer was thin
     if not sources:
         msg = "I searched the journals I am allowed to use and did not find a source for that, so I would rather not answer from memory."
         entry["answer"] = msg

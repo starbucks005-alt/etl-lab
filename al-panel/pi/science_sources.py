@@ -69,13 +69,20 @@ def reputable(work, allow):
     return False, "not a core journal"
 
 
-def search_works(query, n=8, get=requests.get):
-    r = get(OPENALEX, params={
-        "search": query, "per-page": n, "mailto": MAILTO,
-        "filter": "type:article,is_retracted:false,has_abstract:true",
-        "select": "id,doi,title,publication_year,primary_location,open_access,abstract_inverted_index,cited_by_count,ids,is_retracted"}, timeout=15)
-    r.raise_for_status()
-    return r.json().get("results", [])
+BASE_FILTER = "type:article,is_retracted:false,has_abstract:true"
+
+
+def search_works(query, n=8, get=requests.get, extra_filter=""):
+    """Works for a query. extra_filter narrows it (for example has_pmcid:true); if the index refuses that filter the plain search is used instead."""
+    for flt in ([BASE_FILTER + "," + extra_filter] if extra_filter else []) + [BASE_FILTER]:
+        r = get(OPENALEX, params={
+            "search": query, "per-page": n, "mailto": MAILTO, "filter": flt,
+            "select": "id,doi,title,publication_year,primary_location,open_access,abstract_inverted_index,cited_by_count,ids,is_retracted"}, timeout=15)
+        if r.status_code == 400 and flt != BASE_FILTER:
+            continue
+        r.raise_for_status()
+        return r.json().get("results", [])
+    return []
 
 
 def methods_text(pmcid, get=requests.get):
@@ -96,11 +103,22 @@ def methods_text(pmcid, get=requests.get):
     return ""
 
 
-def gather(query, get=requests.get, want=4, full_texts=2):
-    """The numbered sources for a question. Each has: n, title, journal, year, doi, url, kind ('methods section' or 'abstract only'), text."""
+last_diag = {}
+
+
+def gather(query, get=requests.get, want=5, full_texts=3):
+    """The numbered sources for a question. Each has: n, title, journal, year, doi, url, kind ('methods section' or 'abstract only'), text.
+    Papers that have a PubMed Central copy come first, because only those can give the methods section and a question about a method needs it."""
     allow = load_allowlist()
-    out, refused, fulls = [], [], 0
-    for w in search_works(query, 10, get):
+    out, refused, fulls, ok_full = [], [], 0, 0
+    works, seen = [], set()
+    for batch in (search_works(query, 8, get, "has_pmcid:true"), search_works(query, 8, get)):
+        for w in batch:
+            if w.get("id") not in seen:
+                seen.add(w.get("id"))
+                works.append(w)
+    last_diag.clear()
+    for w in works:
         ok, why = reputable(w, allow)
         if not ok:
             refused.append((w.get("title"), why))
@@ -117,11 +135,13 @@ def gather(query, get=requests.get, want=4, full_texts=2):
             m = methods_text(pm, get)
             fulls += 1
             if m:
+                ok_full += 1
                 text, kind = "ABSTRACT: " + abstract + " METHODS: " + m, "methods section"
         out.append({"n": len(out) + 1, "title": title, "journal": src.get("display_name") or "unknown journal", "year": w.get("publication_year"),
                     "doi": doi, "url": doi or str(w.get("id") or ""), "kind": kind, "text": text})
         if len(out) >= want:
             break
+    last_diag.update(full_text_tried=fulls, full_text_found=ok_full, works_seen=len(works))
     return out, refused
 
 
