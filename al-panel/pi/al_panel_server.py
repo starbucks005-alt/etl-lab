@@ -2076,9 +2076,10 @@ def science_reply(text):
         good = []
     entry["answer"] = answer
     ss.log_it(entry)
-    spoken = ss.speakable(answer) if good else answer
+    # 2026-10-15: the first spoken answer ran about 38 seconds. Out loud she says the first two sentences, and the whole answer with its sources is on the panel.
+    spoken = shorten(ss.speakable(answer), sentences=2, chars=260) if good else answer
     if good:
-        spoken += " The sources are on the panel."
+        spoken += " The rest, and the sources, are on the panel."
     shown = (answer + "\n\nSources:\n" + ss.source_lines(sources)) if good else (answer + "\n\nPapers found:\n" + ss.source_lines(sources))
     return spoken, shown
 
