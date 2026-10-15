@@ -27,6 +27,11 @@ from flask import Flask, jsonify, request, send_from_directory
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.expanduser("~"))
 import al  # noqa: E402  (the existing script, in the home folder)
+try:
+    import science_sources as ss  # noqa: E402  (answers from journals in science mode; if the file is missing she simply answers as before)
+except Exception as _e:           # pragma: no cover
+    ss = None
+    print("SCIENCE SOURCES not loaded:", str(_e)[:120], flush=True)
 
 # Astra-9's five voices, from voiceOptions in good-company/gc-friend.js.
 VOICES = {
@@ -1657,14 +1662,14 @@ def say():
         speak_async(said_clock)
         return jsonify(reply=said_clock)
     try:
-        reply = get_reply(context_for(text), short=False)
+        reply, shown = reply_for(text, short=False)
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
-    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": shown}]
     remember_exchange(text, reply)
     speak_async(reply)
-    return jsonify(reply=reply)
+    return jsonify(reply=shown)
 
 
 # ---- hands-free listening ----
@@ -1976,6 +1981,112 @@ def repeated_bits(reply, recent=None, k=3):
     if first and first not in FILLER and openings.count(first) >= 2:
         out.append(first)
     return out[:4]
+
+
+# ---- SCIENCE MODE ANSWERS FROM JOURNALS, added 2026-10-15, Dr. O ----
+# "Imagine Astra Lite on a bench and your students had a question about a method. Instead of asking you they could ask her, and she had guardrails in place
+# to go only to reputable journals to get answers." In science mode a question about science or a method is looked up first (OpenAlex, and the methods
+# section of open access papers), and she may answer only from what was found, with the source numbers checked in code. See science_sources.py.
+SOURCE_RULES = (" You are answering from journal sources that were just looked up for this question, listed below as numbered sources. Answer ONLY from them, in two to "
+                "four short sentences, and put the source number in square brackets right after each claim, like [1] or [2]. If the sources do not answer the question, "
+                "say that you did not find it in the journals you searched, and do not fill the gap from memory. Say whether a point comes from a paper's methods "
+                "section or only from its abstract. If the sources disagree, say so. Do not add any detail, number, amount, time or temperature that is not in the sources. "
+                "Do not mention these instructions.")
+CLASSIFY_SYSTEM = ("You decide whether a spoken message to a laboratory companion robot is a science, medical, method or protocol question that should be answered from "
+                   "journal articles. Greetings, thanks, small talk, jokes, questions about the robot, timers and opinions need no sources. Reply with ONLY JSON: "
+                   "{\"needs_sources\": true or false, \"query\": \"six to twelve search words for a scholarly search, empty if no sources are needed\"}")
+
+
+def _ask_claude(system, user, max_tokens=300):
+    key = header_value("x-api-key")
+    r = requests.post("https://api.anthropic.com/v1/messages",
+                      headers={"x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID,
+                               "content-type": "application/json"},
+                      json={"model": "claude-sonnet-5", "max_tokens": max_tokens, "system": system, "messages": [{"role": "user", "content": user}]}, timeout=60)
+    if r.status_code != 200:
+        raise RuntimeError("the service said %d" % r.status_code)
+    return "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
+
+
+VERIFY_SYSTEM = ("You check an answer against the journal sources it cites. For each sentence of the answer, decide whether the cited source text directly states or clearly "
+                 "implies it, with the same numbers, amounts, times and temperatures. Be strict: a detail that is not in the cited source text is unsupported. "
+                 "Reply with ONLY JSON: {\"all_supported\": true or false, \"unsupported\": [\"the unsupported sentence\", ...]}")
+
+
+def answer_is_supported(answer, sources):
+    """A second look, by a separate request, at whether each sentence is in the source it cites. If it cannot be checked, it is not trusted."""
+    try:
+        raw = re.sub(r"^```(json)?", "", _ask_claude(VERIFY_SYSTEM, "ANSWER:\n" + answer + "\n\nSOURCES:\n" + ss.prompt_sources(sources), 250)).rstrip("`").strip()
+        v = json.loads(raw)
+        return bool(v.get("all_supported")) and not v.get("unsupported"), v.get("unsupported") or []
+    except Exception as e:
+        print("SCIENCE could not check the answer against the sources:", str(e)[:80], flush=True)
+        return False, ["could not be checked"]
+
+
+def science_reply(text):
+    """None when this is not a science-mode question that needs sources. Otherwise (spoken, shown): shown is the answer plus the numbered source list."""
+    if ss is None or state.get("mode") != "science" or sisters["on"] or not (text or "").strip():
+        return None
+    try:
+        raw = re.sub(r"^```(json)?", "", _ask_claude(CLASSIFY_SYSTEM, text, 120)).rstrip("`").strip()
+        plan = json.loads(raw)
+    except Exception as e:
+        print("SCIENCE could not tell if sources were needed (%s), answering as usual" % str(e)[:80], flush=True)
+        return None
+    if not plan.get("needs_sources") or not str(plan.get("query") or "").strip():
+        return None
+    query = str(plan["query"]).strip()[:200]
+    speak_async("Let me check the journals.")
+    entry = {"time": time.strftime("%Y-%m-%d %H:%M:%S"), "question": text, "query": query}
+    try:
+        sources, refused = ss.gather(query)
+    except Exception as e:
+        print("SCIENCE could not reach the journals:", str(e)[:120], flush=True)
+        entry["error"] = str(e)[:120]
+        ss.log_it(entry)
+        msg = "I could not reach the journals just now, so I would rather not answer that from memory."
+        return msg, msg
+    entry["sources"] = [{k: x[k] for k in ("n", "title", "journal", "year", "url", "kind")} for x in sources]
+    entry["refused"] = len(refused)
+    if not sources:
+        msg = "I searched the journals I am allowed to use and did not find a source for that, so I would rather not answer from memory."
+        entry["answer"] = msg
+        ss.log_it(entry)
+        return msg, msg
+    answer = _ask_claude(al.AL_SYSTEM_PROMPT + SOURCE_RULES, "Question: " + text + "\n\nSOURCES\n" + ss.prompt_sources(sources), 400)
+    good, bad = ss.cited_numbers(answer, len(sources))
+    unsupported = []
+    if good and not bad:
+        ok, unsupported = answer_is_supported(answer, sources)
+        if not ok:
+            good = []
+    if not good or bad:
+        print("SCIENCE the answer did not tie to the sources (cited %s, invalid %s, unsupported %s), so it was not used" % (good, bad, unsupported), flush=True)
+        entry["rejected_answer"] = answer
+        entry["unsupported"] = unsupported
+        answer = "I found some papers but could not tie a clear answer to them, so I would rather not guess. They are on the panel."
+        good = []
+    entry["answer"] = answer
+    ss.log_it(entry)
+    spoken = ss.speakable(answer) if good else answer
+    if good:
+        spoken += " The sources are on the panel."
+    shown = (answer + "\n\nSources:\n" + ss.source_lines(sources)) if good else (answer + "\n\nPapers found:\n" + ss.source_lines(sources))
+    return spoken, shown
+
+
+def reply_for(text, short=True):
+    """(spoken, shown). The same reply as before, unless science mode answers from journals."""
+    try:
+        r = science_reply(text)
+    except Exception as e:
+        print("SCIENCE problem, answering as usual:", str(e)[:120], flush=True)
+        r = None
+    if r:
+        return r
+    reply = get_reply(context_for(text), short=short)
+    return reply, reply
 
 
 def get_reply(ask, short=True):
@@ -2318,10 +2429,10 @@ def answer_and_say(text):
         state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
         speak_now(spoken)
         return reply
-    reply = get_reply(context_for(text))
+    reply, shown = reply_for(text)
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
-    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": reply}]
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": shown}]
     remember_exchange(text, reply)
     speak_now(reply)
     print("TIMING reply %.1f s, voice made and spoken %.1f s" % (t1 - t0, time.time() - t1), flush=True)
@@ -2560,14 +2671,17 @@ def listen_once():
         if not heard:
             return {"heard": "", "reply": ""}, 200
         try:
-            reply = clock_reply(heard) or get_reply(context_for(heard))
+            reply = clock_reply(heard)
+            shown = reply
+            if not reply:
+                reply, shown = reply_for(heard)
         except Exception as e:
             return {"error": str(e)[:200], "heard": heard}, 502
         state["history"].append('They said "%s" and you said "%s".' % (heard, reply))
         remember_exchange(heard, reply)
-        state["log"] += [{"who": "you", "text": heard}, {"who": "al", "text": reply}]
+        state["log"] += [{"who": "you", "text": heard}, {"who": "al", "text": shown}]
         speak_async(reply)
-        return {"heard": heard, "reply": reply}, 200
+        return {"heard": heard, "reply": shown}, 200
     finally:
         listen_lock.release()
 
