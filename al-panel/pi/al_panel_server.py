@@ -577,7 +577,8 @@ def mood_block(pid):
 # devices: if they still overlap, the next step is to log who started when, on both.
 SISTER_GAP = 9.0
 sisters = {"on": False, "me": "Elle", "others": [], "turns": 0, "max": 12, "started": 0.0}
-STOP_TALK_RE = re.compile(r"\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b", re.I)
+# 2026-10-15, Dr. O: "tell all of them to stop talking when I say This is Dr. O". The listening may write it "Dr. Oh", "Doctor O" or "Dr. Oroszi".
+STOP_TALK_RE = re.compile(r"\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done|this is (?:dr|doctor)\.?\s*(?:o|oh|oroszi))\b", re.I)
 
 
 def sisters_block():

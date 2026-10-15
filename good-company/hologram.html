@@ -589,6 +589,9 @@ function gcNoReplyWhy(res) {
      same moment. Each character now waits a different time, in a fixed order: Alice 14 s, Reggie 18 s, Tansy 22 s, anyone else 26 s. Elle waits 9 s on the robot. */
   function sisGap() { return { alice: 14000, reggie: 18000, tansy: 22000 }[who.value] || 26000; }
   var SIS_STOP = /\b(that'?s enough|that is enough|stop talking|okay stop|ok stop|all done)\b/i;
+  /* 2026-10-15, Dr. O: "tell all of them to stop talking when I say This is Dr. O". Only when that is the whole message, so "This is Dr. O, what do
+     you think?" is still a question for the character. The listening may write it "Dr. Oh", "Doctor O" or "Dr. Oroszi". */
+  var SIS_DRO = /^\W*(?:hi\W+|hello\W+)?this is (?:dr|doctor)\.?\s*(?:o|oh|oroszi)\W*$/i;
   try { var wParam = new URLSearchParams(location.search).get('with'); if (wParam) { SIS.others = wParam.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4); SIS.fixed = true; } } catch (_) {}
   var hf = gcHandsFree({ input: chatInput, form: chatForm, toggle: document.getElementById('bHands'), micButton: bMic,
                          isBusy: function () { return chatBusy; }, say: function (t) { showReply(t); },
@@ -849,7 +852,7 @@ function gcNoReplyWhy(res) {
   chatForm.addEventListener('submit', function (e) {
     e.preventDefault();
     var text = chatInput.value.trim();
-    if (text && SIS_STOP.test(text) && text.length < 60) {
+    if (text && ((SIS_STOP.test(text) && text.length < 60) || SIS_DRO.test(text))) {
       chatInput.value = ''; stopAllVoices(); if (SIS.on) sisStop('told to stop'); chatBusy = false; chatSend.disabled = false;
       showReply('Stopped.'); setTimeout(function () { showReply(''); }, 3000);
       return;
