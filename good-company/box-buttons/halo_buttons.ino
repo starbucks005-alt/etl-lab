@@ -5,9 +5,9 @@
    NOT TRIED ON THE REAL BOARD YET. Check the pins against the board's printed labels before wiring.
 
    Board: ESP32-S3 N16R8. Plug the port marked USB into the tablet (through the hub). The other port is only for loading this program.
-   Arduino IDE settings: Board "ESP32S3 Dev Module", "USB Mode: USB-OTG (TinyUSB)" is NOT needed; use
-   "USB CDC On Boot: Disabled" and "USB Mode: Hardware CDC and JTAG" is wrong for a keyboard, so choose "USB-OTG (TinyUSB)".
-   PSRAM: "OPI PSRAM" (this is an N16R8 board). If the settings differ from these on your version, tell Claude what the menu says.
+   Arduino IDE settings (Tools menu): Board "ESP32S3 Dev Module", USB Mode "USB-OTG (TinyUSB)", USB CDC On Boot "Disabled",
+   PSRAM "OPI PSRAM". Menu names can differ by version. If they do, tell Claude what yours say.
+   To load the program, use the port marked UART or COM. It may be easier with the board's BOOT button held while plugging in.
 
    Wiring:
      Each button switch: one wire to the button pin below, the other wire to GND.
