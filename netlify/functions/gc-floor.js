@@ -7,6 +7,8 @@
    (by the database's own clock) wins a tie. A hold expires on its own after ttl seconds (default 25, never more than 60), so a crash cannot leave the
    floor taken. A caller that cannot reach this function speaks anyway, so a failure here never silences them.
 
+   ACTIONS: claim, release, status ({hushed}), hush (everybody stop, 10 minutes unless body.minutes says otherwise), clear.
+
    NO NEW TABLE: a hold is a row in etl_visitor_memories with agent_key "floor:<room>", which no character ever reads as a memory (they read
    "gc:" and "gcd:" keys only). Rows older than five minutes are removed on every claim. NOT TRIED AGAINST THE REAL TABLE when it was written. */
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
@@ -32,7 +34,7 @@ exports.handler = async function (event) {
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }
   const room = slug(body.room), who = slug(body.who);
   if (room.length < 3 || !who) return json(400, { error: 'room_and_who_needed' });
-  const action = body.action === 'release' ? 'release' : 'claim';
+  const action = ['release', 'hush', 'clear', 'status'].includes(body.action) ? body.action : 'claim';
   const ttl = Math.max(5, Math.min(60, Number(body.ttl) || 25));
 
   const agentKey = 'floor:' + room;
@@ -54,8 +56,33 @@ exports.handler = async function (event) {
     return out;
   }
 
+  /* HUSH, 2026-10-15, Dr. O: "tell all of them to stop talking when I say This is Dr. O", and "I have to wait until they stop talking to say it, well
+     then it really will not work". While one is speaking the others are listening, so whichever one hears the phrase (or a button on hush.html is
+     pressed) sets this, and every device checks it before speaking and while it speaks. It lasts 10 minutes by default (body.minutes, 1 to 120), or until
+     cleared, or until a new talk is started. 2026-10-15, Dr. O: "a way to stop them when I need to talk to real people, so I do not need to run away". */
+  const hushKey = 'hush:' + room;
+  const hushUrl = s => `${T}?agent_key=eq.${encodeURIComponent(hushKey)}${s || ''}`;
+  async function hushed() {
+    const r = await fetch(hushUrl('&select=memory&order=created_at.desc&limit=1'), { headers: H });
+    if (!r.ok) throw new Error('hush select ' + r.status);
+    const rows = await r.json();
+    let m = {}; try { m = JSON.parse((rows[0] || {}).memory || '{}'); } catch (_) {}
+    return Number(m.until) > Date.now();
+  }
+
   try {
     if (action === 'release') { await mine(); return json(200, { ok: true }); }
+    if (action === 'status') return json(200, { hushed: await hushed() });
+    if (action === 'clear') { await fetch(hushUrl(), { method: 'DELETE', headers: H }); await mine(); return json(200, { ok: true, hushed: false }); }
+    if (action === 'hush') {
+      await fetch(hushUrl(), { method: 'DELETE', headers: H });
+      const hi = await fetch(T, { method: 'POST', headers: { ...H, Prefer: 'return=minimal' },
+        body: JSON.stringify({ visitor_id: 'hush-' + room + '-xxxxxxxx', agent_key: hushKey, memory: JSON.stringify({ until: Date.now() + Math.max(1, Math.min(120, Number(body.minutes) || 10)) * 60 * 1000, by: who }) }) });
+      if (!hi.ok) throw new Error('hush insert ' + hi.status);
+      await mine();
+      return json(200, { ok: true, hushed: true });
+    }
+    if (await hushed()) return json(200, { granted: false, hushed: true });
 
     await fetch(q(`&created_at=lt.${encodeURIComponent(new Date(Date.now() - 5 * 60 * 1000).toISOString())}`), { method: 'DELETE', headers: H });
     let rows = await active();

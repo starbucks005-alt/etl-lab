@@ -654,6 +654,7 @@ function gcNoReplyWhy(res) {
     (function tryIt() {
       floorCall('claim').then(function (r) {
         if (!r) { done(false); return; }
+        if (r.hushed) { done(false, true); return; }
         if (r.granted) { done(true); return; }
         if (Date.now() - t0 > 30000) { done(false); return; }
         setTimeout(tryIt, 500);
@@ -705,7 +706,8 @@ function gcNoReplyWhy(res) {
       ['ended', 'pause', 'error', 'abort', 'emptied', 'stalled'].forEach(function (n) { audio.addEventListener(n, function () { SIS.talking = false; SIS.lastActive = Date.now(); }); });
       /* THE FLOOR, 2026-10-15, Dr. O: "stop talking over each other". In a talk the voice waits until nobody else holds the floor (see FLOOR below),
          plays, and gives the floor back when it ends. Outside a talk, or if the website cannot be reached, it plays at once as before. */
-      floorWait(function (held) {
+      floorWait(function (held, hushed) {
+        if (hushed) { stopAllVoices(); if (SIS.on) sisStop('hush'); uncount(); return; }
         if (myEpoch !== voiceEpoch) { if (held) floorCall('release'); uncount(); return; }
         var given = false;
         function give() { if (held && !given) { given = true; floorCall('release'); } }
@@ -731,6 +733,16 @@ function gcNoReplyWhy(res) {
       if (c.voice_id) speakReply(c.text, c.voice_id);
     })();
   }
+
+  /* HUSH, 2026-10-15, Dr. O: "tell all of them to stop talking when I say This is Dr. O", and "I have to wait until they stop talking to say it". While
+     this page is in a talk or a voice is playing it asks the website once a second whether anybody has said "everybody stop" (another device that
+     heard the phrase, or the button on hush.html), and if so stops its own voice and its talk. */
+  setInterval(function () {
+    if (!(SIS.on || voicePending > 0 || liveAudios.length)) return;
+    floorCall('status').then(function (r) {
+      if (r && r.hushed && (SIS.on || voicePending > 0 || liveAudios.length)) { stopAllVoices(); if (SIS.on) sisStop('hush'); }
+    });
+  }, 1000);
 
   function setupChat() {
     chatWho = ECHO_KEY[who.value] ? { echo: ECHO_KEY[who.value] } : chatIdentity(who.value);
@@ -853,7 +865,7 @@ function gcNoReplyWhy(res) {
     e.preventDefault();
     var text = chatInput.value.trim();
     if (text && ((SIS_STOP.test(text) && text.length < 60) || SIS_DRO.test(text))) {
-      chatInput.value = ''; stopAllVoices(); if (SIS.on) sisStop('told to stop'); chatBusy = false; chatSend.disabled = false;
+      chatInput.value = ''; stopAllVoices(); floorCall('hush'); if (SIS.on) sisStop('told to stop'); chatBusy = false; chatSend.disabled = false;
       showReply('Stopped.'); setTimeout(function () { showReply(''); }, 3000);
       return;
     }
@@ -996,6 +1008,7 @@ function gcNoReplyWhy(res) {
       try { localStorage.setItem('gc_sisters_with', SIS.others.join(', ')); } catch (_) {}
     }
     noteTalks(SIS.others);
+    floorCall('clear');                                                   // an old "everybody stop" must not end this new talk
     SIS.on = true; SIS.turns = 0; SIS.lastActive = Date.now(); SIS.hearingAt = 0; sisPaint();
     if (!bHands.classList.contains('listening')) bHands.click();       // the ears have to be on for this
     SIS.timer = setInterval(function () {                              // nobody has spoken for a while: she says something to the next one

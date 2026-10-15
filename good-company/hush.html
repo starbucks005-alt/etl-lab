@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stop everyone</title>
+<!-- 2026-10-15, Dr. O: "tell all of them to stop talking". One big button that tells Elle and every hologram page to stop speaking and end their talk.
+     They check once a second, so it takes about a second or two. It lasts 10 minutes (or the 30 minute or 1 hour button), until "Let them talk again" is pressed, or until a new talk is started. Keep this page as a
+     bookmark on your phone. The room name below must match the one in hologram.html and al_panel_server.py (etl-talk). -->
+<style>
+  :root { --bg:#111; --fg:#f2eee6; --red:#c62828; --ok:#2e7d32; }
+  body { margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; background:var(--bg); color:var(--fg); font-family:system-ui,sans-serif; padding:16px; box-sizing:border-box; }
+  button { font:inherit; border:0; border-radius:20px; color:#fff; cursor:pointer; }
+  #stop { width:min(80vw,360px); height:min(80vw,360px); border-radius:50%; background:var(--red); font-size:2.2rem; font-weight:700; box-shadow:0 0 0 10px #3a1111; }
+  #again { padding:16px 28px; background:var(--ok); font-size:1.1rem; }
+  .long { padding:14px 22px; background:#8e2424; font-size:1rem; }
+  #msg { min-height:2em; font-size:1.1rem; text-align:center; }
+</style>
+</head>
+<body>
+  <button id="stop" type="button">STOP<br>EVERYONE<br><span style="font-size:1rem;font-weight:400">for 10 minutes</span></button>
+  <div id="msg" role="status" aria-live="polite"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="long" data-min="30" type="button">Quiet for 30 minutes</button>
+    <button class="long" data-min="60" type="button">Quiet for 1 hour</button>
+  </div>
+  <button id="again" type="button">Let them talk again</button>
+<script>
+  function call(action, minutes) {
+    return fetch('/.netlify/functions/gc-floor', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action, room: 'etl-talk', who: 'Dr. O button', minutes: minutes })
+    }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+  var msg = document.getElementById('msg');
+  function hush(min) {
+    msg.textContent = 'Telling them to stop...';
+    call('hush', min).then(function (r) { msg.textContent = (r && r.hushed) ? 'Everyone has been told to stop, for ' + min + ' minutes. Press "Let them talk again" to end it sooner.' : 'That did not go through. Try again.'; });
+  }
+  document.getElementById('stop').addEventListener('click', function () { hush(10); });
+  Array.prototype.forEach.call(document.querySelectorAll('.long'), function (b) { b.addEventListener('click', function () { hush(Number(b.getAttribute('data-min'))); }); });
+  document.getElementById('again').addEventListener('click', function () {
+    call('clear').then(function (r) { msg.textContent = (r && r.ok) ? 'They can talk again.' : 'That did not go through. Try again.'; });
+  });
+</script>
+</body>
+</html>

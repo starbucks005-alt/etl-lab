@@ -788,6 +788,10 @@ def floor_wait():
         r = floor_call("claim")
         if r is None:
             return False
+        if r.get("hushed"):
+            print("HUSH: everyone was told to stop, so she does not speak", flush=True)
+            sisters_stop("hush")
+            return "hushed"
         if r.get("granted"):
             print("FLOOR taken after %.1f s" % (time.time() - t0), flush=True)
             return True
@@ -800,14 +804,45 @@ def floor_wait():
         time.sleep(0.5)
 
 
+# HUSH, 2026-10-15, Dr. O: "tell all of them to stop talking when I say This is Dr. O", and "I have to wait until they stop talking to say it, well then
+# it really will not work". While one of them speaks the others are listening, so whichever hears the phrase (or the button on good-company/hush.html)
+# tells the website (gc-floor, action hush), and every device checks it. While she speaks in a talk she checks once a second and cuts her own voice off.
+hush_event = threading.Event()
+
+
+def hush_everyone():
+    threading.Thread(target=floor_call, args=("hush",), daemon=True).start()
+
+
+def _hush_watch(stop):
+    while not stop.wait(1.0):
+        r = floor_call("status")
+        if r and r.get("hushed"):
+            print("HUSH: told to stop while she was speaking", flush=True)
+            hush_event.set()
+            sisters_stop("hush")
+            try:
+                subprocess.run(["pkill", "-x", "aplay"], timeout=3)
+            except Exception:
+                pass
+            return
+
+
 def speak_now(text, use_persona=True):
     """Say it and come back only when she has finished."""
     with speak_lock:
         held = floor_wait()
+        if held == "hushed":
+            return
+        hush_event.clear()
+        stop = threading.Event()
+        if sisters["on"] and not os.path.exists(FLOOR_OFF_FILE):
+            threading.Thread(target=_hush_watch, args=(stop,), daemon=True).start()
         try:
             return _speak_locked(text, use_persona)
         finally:
-            if held:
+            stop.set()
+            if held is True:
                 floor_call("release")
 
 
@@ -829,6 +864,8 @@ def _speak_locked(text, use_persona=True):
                 print("SPEAK via Azure", az_voice, flush=True)
                 azure_speak(spoken, cfg, az_voice)
             except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
+                if hush_event.is_set():
+                    return                     # she was told to stop: not a failure, do not say it again in another voice
                 print("AZURE SPEAK ERROR, using ElevenLabs:", e, flush=True)
                 # robot/american fall back to the old AL voice; the other accents to their own ElevenLabs voice,
                 # which was already set above from VOICES.
@@ -1330,6 +1367,7 @@ def sisters_set():
         mx = max(2, min(40, int(d.get("max") or 12)))
     except (TypeError, ValueError):
         mx = 12
+    floor_call("clear")      # an old "everybody stop" must not end the new talk (waits for the answer, up to 4 s)
     sisters.update(on=True, me=me, others=others, turns=0, max=mx, started=time.time())
     note_friends(others)
     apply_prompt()
@@ -2129,6 +2167,7 @@ def converse(window=None):
                 write_eyes()
                 continue
             if sisters["on"] and STOP_TALK_RE.search(text):
+                hush_everyone()
                 sisters_stop("told to stop")
                 write_eyes()
                 break
