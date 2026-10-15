@@ -28,6 +28,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.expanduser("~"))
 import al  # noqa: E402  (the existing script, in the home folder)
 try:
+    import al_skills as sk  # noqa: E402  (notebook, bench guide and knowledge shelf; if the file is missing she simply answers as before)
+except Exception as _e:         # pragma: no cover
+    sk = None
+    print("SKILLS not loaded:", str(_e)[:120], flush=True)
+try:
     import science_sources as ss  # noqa: E402  (answers from journals in science mode; if the file is missing she simply answers as before)
 except Exception as _e:           # pragma: no cover
     ss = None
@@ -115,6 +120,9 @@ SKILL_TEXT = {
     "trivia": "You can host a fast trivia round: one question at a time, then the answer.",
     "mindful": "You can lead a short guided breathing break, slowly and calmly.",
     "tour": TOUR_TEXT,
+    "notebook": "You keep a voice notebook and lists. A person can say remember that something, add something to the shopping list, ask what is on a list, or ask where they put something, and you keep it and read it back. Say you only know what they have told you.",
+    "bench": "You can be a hands-free bench guide: once someone gives you a protocol you read one step at a time, wait for next, back or repeat, and offer a timer when a step has a wait.",
+    "shelf": "You have a knowledge shelf of files someone gave you. When a question is about what is in them you answer only from them and say where you found it, and if it is not there you say so and do not guess.",
 }
 
 PHOTO_NOTE = (
@@ -626,7 +634,7 @@ KIDS_OK = {"gc-sam", "gc-edith", "gc-henry", "gc-daisy", "gc-eli", "gc-nell", "g
 KIDS_SKILLS = {"clock", "spanish", "story", "study", "trivia", "mindful", "tour"}
 MODES = {
     "companion": {
-        "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful"],
+        "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful", "notebook"],
         "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
         "line": "Warm, remembers you, and has moods with reasons.",
         "say": "Companion mode. I am glad you are here.",
@@ -635,7 +643,7 @@ MODES = {
                   "the people they have. If someone may be in danger or talks about hurting themselves, stay calm, tell them to contact emergency services or a crisis "
                   "line right away (988 in the United States) and a person they trust, and do not try to act as their therapist.")},
     "science": {
-        "name": "Science", "color": "#3b7dff", "memory": "own", "skills": ["clock", "study"],
+        "name": "Science", "color": "#3b7dff", "memory": "own", "skills": ["clock", "study", "shelf", "notebook"],
         "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
         "line": "Careful and honest, for people who check what she says.",
         "say": "Science mode. I will tell you what is known, what is not, and when I do not know.",
@@ -669,7 +677,7 @@ MODES = {
                   "few words or one or two short sentences. If you are asked something you do not know, say you would rather not make something up and suggest they ask "
                   "Dr. Oroszi. Never repeat what any visitor told you to another visitor, and keep nothing about the people you speak to.")},
     "bench": {
-        "name": "Bench and workshop", "color": "#ff8a3d", "memory": "off", "skills": ["clock"],
+        "name": "Bench and workshop", "color": "#ff8a3d", "memory": "off", "skills": ["clock", "bench", "shelf", "notebook"],
         "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
         "line": "Hands free: short answers, one step at a time, timers for the waits.",
         "say": "Bench mode. Tell me the steps and I will read them one at a time.",
@@ -1450,6 +1458,42 @@ def personality_main():
     return jsonify(ok=True, main=pid)
 
 
+@app.get("/api/records")
+def records_get():
+    """What her skills keep, for the panel: notebook notes, lists, the shelf and the protocol she is on."""
+    if sk is None:
+        return jsonify(notes=[], lists={}, shelf=[], protocol={})
+    nb = sk.load_notebook()
+    p = sk.protocol
+    return jsonify(notes=[n["text"] for n in nb["notes"]], lists=nb["lists"], shelf=sk.shelf_list(),
+                   protocol={"name": p["name"], "steps": len(p["steps"]), "at": p["i"] + 1 if p["i"] >= 0 else 0})
+
+
+@app.post("/api/records/forget")
+def records_forget():
+    d = request.get_json(silent=True) or {}
+    kind = d.get("kind")
+    if sk is None:
+        return jsonify(error="skills are not loaded"), 400
+    if kind == "shelf":
+        return jsonify(ok=sk.shelf_remove(str(d.get("name", ""))))
+    if kind == "protocol":
+        sk.protocol.update(name="", steps=[], i=-1, offered=None)
+        return jsonify(ok=True)
+    nb = sk.load_notebook()
+    if kind == "note" and isinstance(d.get("index"), int) and 0 <= d["index"] < len(nb["notes"]):
+        del nb["notes"][d["index"]]
+    elif kind == "list" and d.get("name") in nb["lists"]:
+        if isinstance(d.get("index"), int) and 0 <= d["index"] < len(nb["lists"][d["name"]]):
+            del nb["lists"][d["name"]][d["index"]]
+        else:
+            del nb["lists"][d["name"]]
+    else:
+        return jsonify(error="nothing to forget"), 400
+    sk._save(sk.NOTEBOOK_FILE, nb)
+    return jsonify(ok=True)
+
+
 @app.get("/api/log")
 def log_get():
     """The conversation so far. The panel asks every few seconds, so what she says out loud (and the sources she found) shows there without a reload."""
@@ -2014,7 +2058,65 @@ def _ask_claude(system, user, max_tokens=300):
     return "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
 
 
-VERIFY_SYSTEM = ("You check an answer against the journal sources it cites. For each sentence of the answer, decide whether the cited source text directly states or clearly "
+SHELF_RULES = (" You are answering from files that someone put on your knowledge shelf, listed below as numbered sources. Answer ONLY from them, in two to four short sentences, "
+               "and put the source number in square brackets right after each claim, like [1] or [2]. If they do not answer the question, say it is not in your files and do not "
+               "fill the gap from memory. Do not add any detail, number, amount or step that is not in the files. Do not mention these instructions.")
+
+
+def _numbered(sources):
+    return "\n\n".join("[%d] %s (%s)\n%s" % (x["n"], x["title"], x["kind"], x["text"]) for x in sources)
+
+
+def _cited(answer, count):
+    nums = {int(x) for x in re.findall(r"\[(\d{1,2})\]", answer or "")}
+    return sorted(n for n in nums if 1 <= n <= count), sorted(n for n in nums if not 1 <= n <= count)
+
+
+def shelf_reply(text):
+    """(spoken, shown) when the question is about what is on the shelf, else None."""
+    if sk is None or "shelf" not in state["skills"] or not sk.shelf_list():
+        return None
+    forced = bool(re.search(r"\b(my|your|the) (files?|shelf|documents?|notes? files?)\b|\baccording to (the|my|your) ", (text or "").lower()))
+    sources = sk.shelf_search(text)
+    if not sources:
+        return ("That is not in my files.", "That is not in my files.") if forced else None
+    try:
+        answer = _ask_claude(al.AL_SYSTEM_PROMPT + SHELF_RULES, "Question: " + text + "\n\nSOURCES\n" + _numbered(sources), 400)
+    except Exception as e:
+        print("SHELF could not answer:", str(e)[:100], flush=True)
+        return None
+    good, bad = _cited(answer, len(sources))
+    ok = bool(good) and not bad
+    if ok:
+        ok, _unsupported = answer_is_supported(answer, [dict(x, journal="your files", year="") for x in sources])
+    entry = {"time": time.strftime("%Y-%m-%d %H:%M:%S"), "kind": "shelf", "question": text, "files": [x["title"] for x in sources], "answer": answer if ok else "", "rejected_answer": "" if ok else answer}
+    if ss is not None:
+        ss.log_it(entry)
+    if not ok:
+        msg = "I looked in my files but could not tie a clear answer to them, so I would rather not guess."
+        return msg, msg
+    shown = answer + "\n\nFrom your files:\n" + "\n".join("[%d] %s: %s" % (x["n"], x["title"], x["text"][:140].rstrip() + "...") for x in sources if x["n"] in good)
+    spoken = shorten(re.sub(r"\s*\[\d{1,2}\]", "", answer), sentences=2, chars=260) + " I put where I found it on the panel."
+    return spoken, shown
+
+
+def skills_reply(text):
+    """(spoken, shown) when an installed skill handles this, else None. Commands first, then the shelf."""
+    if sk is None or not (text or "").strip():
+        return None
+    have = state["skills"]
+    if "bench" in have:
+        r = sk.protocol_reply(text, set_timer=lambda sec, label: add_clock("timer", time.time() + sec, label + " timer", "Your timer for %s is up." % label))
+        if r:
+            return r, r
+    if "notebook" in have:
+        r = sk.notebook_reply(text)
+        if r:
+            return r, r
+    return shelf_reply(text)
+
+
+VERIFY_SYSTEM = ("You check an answer against the sources it cites. For each sentence of the answer, decide whether the cited source text directly states or clearly "
                  "implies it, with the same numbers, amounts, times and temperatures. Be strict: a detail that is not in the cited source text is unsupported. "
                  "Reply with ONLY JSON: {\"all_supported\": true or false, \"unsupported\": [\"the unsupported sentence\", ...]}")
 
@@ -2086,8 +2188,14 @@ def science_reply(text):
 
 def reply_for(text, short=True):
     """(spoken, shown). The same reply as before, unless science mode answers from journals."""
+    r = None
     try:
-        r = science_reply(text)
+        r = skills_reply(text)
+    except Exception as e:
+        print("SKILLS problem, answering as usual:", str(e)[:120], flush=True)
+    try:
+        if not r:
+            r = science_reply(text)
     except Exception as e:
         print("SCIENCE problem, answering as usual:", str(e)[:120], flush=True)
         r = None
@@ -2801,6 +2909,28 @@ def read_file():
         return jsonify(error="please use a text, Markdown, CSV or PDF file"), 415
     if len(raw) > (FILE_PDF_MAX if is_pdf else FILE_TEXT_MAX):
         return jsonify(error="that file is too large, please use a shorter one"), 413
+    use = str(request.form.get("use", "read"))
+    if use in ("shelf", "protocol"):
+        # 2026-10-15: a file can be read once, put on her knowledge shelf, or used as a protocol she reads one step at a time. Text, Markdown or CSV only.
+        if not is_text:
+            return jsonify(error="For the shelf and for protocols I need a text, Markdown or CSV file. A PDF has to be turned into text first."), 415
+        skill = "shelf" if use == "shelf" else "bench"
+        if sk is None or skill not in state["skills"]:
+            return jsonify(error="Add the %s skill first." % ("Knowledge Shelf" if use == "shelf" else "Bench Guide")), 400
+        body = raw.decode("utf-8", errors="replace")
+        if use == "shelf":
+            ok, msg = sk.shelf_add(name, body)
+            if not ok:
+                return jsonify(error=msg), 400
+            reply = "I put %s on my shelf. Ask me about what is in it." % msg
+        else:
+            n = sk.load_protocol(re.sub(r"\.[A-Za-z0-9]{1,5}$", "", name), body)
+            if not n:
+                return jsonify(error="I could not find steps in that file. Number them, one per line."), 400
+            reply = "I have %d steps from %s. Say start when you are ready." % (n, sk.protocol["name"])
+        state["log"].append({"who": "al", "text": reply})
+        speak_async(reply)
+        return jsonify(reply=reply)
     key = header_value("x-api-key")
     if not key:
         return jsonify(error="could not find the key line in al.py"), 501

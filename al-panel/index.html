@@ -313,6 +313,12 @@
         <p class="hint">Show her a photo so she gets to know you, or give her a file to read. She tells you what she sees, or what stands out in it.</p>
         <label for="caption">Who or what is in it? (optional)</label>
         <input type="text" id="caption" placeholder="For example, my dog Max at the lake">
+        <label for="fileUse">If it is a file, what should she do with it?</label>
+        <select id="fileUse">
+          <option value="read">Read it and tell me what stands out</option>
+          <option value="shelf">Put it on her knowledge shelf (needs that skill)</option>
+          <option value="protocol">Use it as steps to read one at a time (needs the Bench Guide skill)</option>
+        </select>
         <div class="row" style="margin-top:12px">
           <button class="green" id="showPhoto" type="button">Show a photo</button>
           <button id="uploadFile" type="button">Upload a file</button>
@@ -323,6 +329,19 @@
       </div><div>
         <div class="thumbs" id="thumbs"></div>
         <div class="note">Only share photos and files you are happy for Astra-9 Lite to see. When she is connected, the photo or file is sent to her AI service to be read, and is not saved. She keeps the first part of a file in mind for the next few questions.</div>
+      </div></div>
+    </section>
+
+    <!-- HER RECORDS, added 2026-10-15, Dr. O: what her skills keep (notes, lists, the shelf, the protocol she is on), with a way to delete each. Only on the real Astra-9 Lite. -->
+    <section class="card wide" id="recordsCard" style="display:none">
+      <h2>What she keeps</h2>
+      <p class="hint">Kept only on the robot. Anyone who opens this panel can read and delete it.</p>
+      <div class="twocol"><div>
+        <b style="color:var(--ink)">Notes</b><ul id="recNotes" style="margin:4px 0 12px;padding-left:1.2rem;font-size:14px"></ul>
+        <b style="color:var(--ink)">Lists</b><div id="recLists" style="margin:4px 0 12px;font-size:14px"></div>
+      </div><div>
+        <b style="color:var(--ink)">Knowledge shelf</b><ul id="recShelf" style="margin:4px 0 12px;padding-left:1.2rem;font-size:14px"></ul>
+        <b style="color:var(--ink)">Protocol</b><div id="recProto" style="margin:4px 0 0;font-size:14px"></div>
       </div></div>
     </section>
 
@@ -400,6 +419,12 @@
      demo:'Round one. Which planet is closest to the sun?'},
     {id:'mindful',  name:'Mindful Minutes', price:2.99, desc:'A short guided breathing break.',
      demo:'Let us take a breath together. In for four, hold for four, out for six.'},
+    {id:'notebook', name:'Voice Notebook and Lists', price:2.99, desc:'Say "remember that the spare key is in the blue bowl" or "add milk to the shopping list." Ask where something is, or what is on a list. Kept only on the robot.',
+     demo:'Tell me something to remember, or a list to add to.'},
+    {id:'bench',    name:'Bench Guide', price:4.99, desc:'Give her a protocol or a recipe and she reads it one step at a time. Say next, back or repeat. When a step has a wait she offers a timer.',
+     demo:'Give me your steps as a text file, say start, and I will read them one at a time.'},
+    {id:'shelf',    name:'Knowledge Shelf', price:4.99, desc:'Give her your handbook, rules or protocols. She answers from them only, says where she found it, and says so when it is not in your files.',
+     demo:'Put a file on my shelf, then ask me about what is in it.'},
     {id:'tour',     name:'Lab Tour Guide', price:0, desc:'Included with every companion. Introduces the lab and its work.',
      demo:'Welcome to the Emerging Technologies Laboratory. Shall we start with the robots?'}
   ];
@@ -466,7 +491,7 @@
     if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
       state.mode = info.mode || null; store('mode', state.mode);
       if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
-      renderModes(); refreshPersonaList(); refreshParent();
+      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords();
     }
     paintSensor(on ? info : null);
     if(on && info){
@@ -708,6 +733,45 @@
       addMsg('al', id && p ? 'Demo: with a real Astra-9 Lite, she would now speak as ' + shortName(p.name) + '.' : 'Back to Astra-9 Lite.');
     }
   }
+  // ---------- what her skills keep ----------
+  function recLi(text, label, fn){
+    var li = document.createElement('li'); li.style.margin = '3px 0'; li.appendChild(document.createTextNode(text + ' '));
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.fontSize = '12px'; b.addEventListener('click', fn); li.appendChild(b); return li;
+  }
+  function refreshRecords(){
+    var card = $('recordsCard');
+    if(!live){ card.style.display = 'none'; return; }
+    fetch('/api/records').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ card.style.display = 'none'; return; }
+      var any = j.notes.length || Object.keys(j.lists).length || j.shelf.length || (j.protocol && j.protocol.steps);
+      var wants = state.skills.indexOf('notebook') !== -1 || state.skills.indexOf('shelf') !== -1 || state.skills.indexOf('bench') !== -1;
+      card.style.display = (any || wants) ? '' : 'none';
+      var forget = function(body){ return function(){ api('/api/records/forget', body).then(refreshRecords).catch(function(){}); }; };
+      var n = $('recNotes'); n.innerHTML = '';
+      if(!j.notes.length){ var e = document.createElement('li'); e.textContent = 'No notes yet. Say "remember that..." to her.'; n.appendChild(e); }
+      j.notes.forEach(function(t, i){ n.appendChild(recLi(t, 'Delete', forget({kind:'note', index:i}))); });
+      var l = $('recLists'); l.innerHTML = '';
+      var names = Object.keys(j.lists);
+      if(!names.length){ l.textContent = 'No lists yet. Say "add milk to the shopping list."'; }
+      names.forEach(function(name){
+        var h = document.createElement('div'); h.style.margin = '6px 0 2px'; h.appendChild(document.createTextNode(name + ' list '));
+        var del = document.createElement('button'); del.type = 'button'; del.textContent = 'Delete the list'; del.style.fontSize = '12px'; del.addEventListener('click', forget({kind:'list', name:name})); h.appendChild(del);
+        l.appendChild(h);
+        var ul = document.createElement('ul'); ul.style.margin = '0'; ul.style.paddingLeft = '1.2rem';
+        j.lists[name].forEach(function(item, i){ ul.appendChild(recLi(item, 'Remove', forget({kind:'list', name:name, index:i}))); });
+        l.appendChild(ul);
+      });
+      var sh = $('recShelf'); sh.innerHTML = '';
+      if(!j.shelf.length){ var e2 = document.createElement('li'); e2.textContent = 'Nothing on the shelf. Upload a text file and choose "Put it on her knowledge shelf."'; sh.appendChild(e2); }
+      j.shelf.forEach(function(name){ sh.appendChild(recLi(name, 'Take off the shelf', forget({kind:'shelf', name:name}))); });
+      var pr = $('recProto'); pr.innerHTML = '';
+      if(j.protocol && j.protocol.steps){
+        pr.appendChild(document.createTextNode(j.protocol.name + ': ' + j.protocol.steps + ' steps' + (j.protocol.at ? ', on step ' + j.protocol.at : '') + '. '));
+        var pb = document.createElement('button'); pb.type = 'button'; pb.textContent = 'Put it away'; pb.style.fontSize = '12px'; pb.addEventListener('click', forget({kind:'protocol'})); pr.appendChild(pb);
+      } else { pr.textContent = 'None loaded. Upload a text file with numbered steps and choose "Use it as steps."'; }
+    }).catch(function(){ card.style.display = 'none'; });
+  }
+
   // ---------- modes ----------
   function renderModes(){
     var box = $('modes'); box.innerHTML = '';
@@ -802,7 +866,7 @@
     function finish(){
       if(state.skills.indexOf(s.id) === -1){ state.skills.push(s.id); }
       store('skills', state.skills);
-      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
+      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(refreshRecords).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
       setTimeout(renderSkills, 250);
     }
   }
@@ -904,8 +968,8 @@
     addMsg('you', '(gave her a file: ' + f.name + ')');
     if(live){
       $('face').classList.add('speaking');
-      var fd = new FormData(); fd.append('file', f, f.name);
-      api('/api/file', fd, true).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); })
+      var fd = new FormData(); fd.append('file', f, f.name); fd.append('use', $('fileUse').value);
+      api('/api/file', fd, true).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); refreshRecords(); })
         .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al', '(I could not read that: ' + e.message + ')'); });
     } else {
       setTimeout(function(){ reply('Thank you for the file. With a real Astra-9 Lite I would read it and tell you what stands out.'); }, 600);
@@ -1102,6 +1166,7 @@
   tryConnect();
   setInterval(pollSensor, 3000);
   setInterval(pollLog, 2500);
+  setInterval(refreshRecords, 12000);
 })();
 </script>
 </body>
