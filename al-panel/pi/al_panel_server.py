@@ -597,6 +597,103 @@ def for_the_voice(text):
     return text
 
 
+# ---- Azure speech, added 2026-10-14, Dr. O ----
+# AL's own voice and her listening run on Microsoft Azure Speech so the Azure credits are used. Characters keep their
+# ElevenLabs cast voices, and ElevenLabs is the fallback if Azure fails. The old ElevenLabs voice for AL is
+# ELEVEN_BACKUP_VOICE. The key and region come from the environment (AZURE_SPEECH_KEY, AZURE_SPEECH_REGION) or from
+# azure_speech.json beside this file: {"key": "...", "region": "eastus"}. That file is kept out of git. In it,
+# "tts": false or "stt": false turns that half back to ElevenLabs without touching code.
+AZURE_FILE = os.path.join(HERE, "azure_speech.json")
+AZURE_TTS_VOICE = "en-US-LunaNeural"
+# One Azure voice per accent, for AL herself (a character is never on Azure). An accent not listed here stays on ElevenLabs.
+# 2026-10-14: Luna was chosen by Dr. O. The other three were added at her request and have not been listened to yet.
+AZURE_VOICES = {
+    "robot": "en-US-LunaNeural",
+    "american": "en-US-LunaNeural",
+    "british": "en-GB-SoniaNeural",
+    # Swedish is NOT here on purpose. sv-SE-SofieNeural reads English with Swedish pronunciation rules and was hard to
+    # understand (2026-10-14). Azure has no English voice with a Swedish accent, so Swedish stays on ElevenLabs.
+    "indian": "en-IN-NeerjaNeural",
+}
+AZURE_ACCENTS = tuple(AZURE_VOICES)
+ELEVEN_BACKUP_VOICE = "DVXBaWlHfcpJmii7l8yI"
+PLAY_DEVICE = os.environ.get("AL_PLAY_DEVICE", "plughw:wm8960soundcard")   # by name, because the card number can move
+
+
+def azure_cfg(part):
+    """(key, region) when Azure is set up and `part` ("tts" or "stt") is not switched off, else None."""
+    key = os.environ.get("AZURE_SPEECH_KEY")
+    region = os.environ.get("AZURE_SPEECH_REGION")
+    file_cfg = {}
+    try:
+        with open(AZURE_FILE) as f:
+            file_cfg = json.load(f)
+    except (OSError, ValueError):
+        pass
+    if file_cfg.get(part) is False:
+        return None
+    key = key or file_cfg.get("key")
+    region = region or file_cfg.get("region")
+    if key and region:
+        return key.strip(), region.strip()
+    return None
+
+
+def azure_speak(text, cfg, voice=None):
+    """Say it through Azure, out of the HAT's speaker, and come back when it has finished."""
+    from xml.sax.saxutils import escape
+    key, region = cfg
+    voice = voice or AZURE_TTS_VOICE
+    lang = "-".join(voice.split("-")[:2])          # en-GB-SoniaNeural -> en-GB
+    ssml = "<speak version='1.0' xml:lang='%s'><voice name='%s'>%s</voice></speak>" % (lang, voice, escape(text))
+    r = requests.post(
+        "https://%s.tts.speech.microsoft.com/cognitiveservices/v1" % region,
+        headers={"Ocp-Apim-Subscription-Key": key, "Content-Type": "application/ssml+xml",
+                 "X-Microsoft-OutputFormat": "riff-16khz-16bit-mono-pcm", "User-Agent": "al-panel"},
+        data=ssml.encode("utf-8"), timeout=30)
+    if not r.ok:
+        raise RuntimeError("Azure voice answered %s: %s" % (r.status_code, r.text[:120]))
+    tmp = os.path.join(HERE, "_azure_say.wav")
+    with open(tmp, "wb") as f:
+        f.write(r.content)
+    subprocess.run(["aplay", "-q", "-D", PLAY_DEVICE, tmp], check=True, timeout=180)
+
+
+def azure_transcribe(path, cfg):
+    """Turn a recording into words with Azure. The HAT records two channels; Azure's short-audio call wants one."""
+    key, region = cfg
+    with wave.open(path, "rb") as w:
+        ch, width, rate, frames = w.getnchannels(), w.getsampwidth(), w.getframerate(), w.readframes(w.getnframes())
+    if width != 2:
+        raise RuntimeError("expected 16 bit audio, got %d bytes per sample" % width)
+    if ch > 1:
+        pcm = array.array("h")
+        pcm.frombytes(frames)
+        mono = array.array("h", (sum(pcm[i:i + ch]) // ch for i in range(0, len(pcm) - ch + 1, ch)))
+        frames = mono.tobytes()
+    tmp = os.path.join(HERE, "_azure_listen.wav")
+    with wave.open(tmp, "wb") as o:
+        o.setnchannels(1)
+        o.setsampwidth(2)
+        o.setframerate(rate)
+        o.writeframes(frames)
+    with open(tmp, "rb") as f:
+        r = requests.post(
+            "https://%s.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1" % region,
+            params={"language": "en-US", "format": "simple"},
+            headers={"Ocp-Apim-Subscription-Key": key,
+                     "Content-Type": "audio/wav; codecs=audio/pcm; samplerate=%d" % rate, "Accept": "application/json"},
+            data=f, timeout=60)
+    if not r.ok:
+        raise RuntimeError("Azure listening answered %s: %s" % (r.status_code, r.text[:120]))
+    j = r.json()
+    if j.get("RecognitionStatus") in ("NoMatch", "InitialSilenceTimeout"):
+        return ""
+    if j.get("RecognitionStatus") != "Success":
+        raise RuntimeError("Azure listening said %s" % j.get("RecognitionStatus"))
+    return (j.get("DisplayText") or "").strip()
+
+
 def speak_now(text, use_persona=True):
     """Say it and come back only when she has finished."""
     with speak_lock:
@@ -604,7 +701,27 @@ def speak_now(text, use_persona=True):
             persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
             al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
             last_said["text"] = text
-            al.speak(for_the_voice(text))
+            spoken = for_the_voice(text)
+            cfg = azure_cfg("tts") if (not persona and state["accent"] in AZURE_ACCENTS) else None
+            if not cfg:       # say why, so "her voice did not change" can be answered from the journal
+                why = ("a character is on (%s)" % state["persona"]) if persona else \
+                      ("accent is %s, and only %s use Azure" % (state["accent"], "/".join(AZURE_ACCENTS))) if state["accent"] not in AZURE_ACCENTS else \
+                      "no Azure key and region found (azure_speech.json or AZURE_SPEECH_KEY/AZURE_SPEECH_REGION), or tts is switched off"
+                print("SPEAK via ElevenLabs:", why, flush=True)
+            if cfg:
+                try:
+                    az_voice = AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
+                    print("SPEAK via Azure", az_voice, flush=True)
+                    azure_speak(spoken, cfg, az_voice)
+                except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
+                    print("AZURE SPEAK ERROR, using ElevenLabs:", e, flush=True)
+                    # robot/american fall back to the old AL voice; the other accents to their own ElevenLabs voice,
+                    # which was already set above from VOICES.
+                    if state["accent"] in ("robot", "american"):
+                        al.AL_VOICE_ID = ELEVEN_BACKUP_VOICE
+                    al.speak(spoken)
+            else:
+                al.speak(spoken)
             last_said["t"] = time.time()
         except Exception as e:  # keep the server alive if sound fails
             print("SPEAK ERROR:", e, flush=True)
@@ -2007,16 +2124,26 @@ def record_clip(path=None, seconds=None):
 
 
 def transcribe(path=None):
-    """Turn the recording into words, with the same ElevenLabs account that gives her voice."""
+    """Turn the recording into words. Azure first (2026-10-14, to use the Azure credits), ElevenLabs Scribe if Azure is not
+    set up or fails."""
+    cfg = azure_cfg("stt")
+    if cfg:
+        try:
+            return clean_heard(azure_transcribe(path or LISTEN_FILE, cfg))
+        except Exception as e:
+            print("AZURE LISTEN ERROR, using ElevenLabs:", e, flush=True)
     key = header_value("xi-api-key")
     with open(path or LISTEN_FILE, "rb") as f:
         r = requests.post("https://api.elevenlabs.io/v1/speech-to-text", headers={"xi-api-key": key},
                           data={"model_id": "scribe_v1", "tag_audio_events": "false"}, files={"file": ("clip.wav", f, "audio/wav")}, timeout=60)
     if not r.ok:
         raise RuntimeError("the listening service said %s: %s" % (r.status_code, r.text[:160]))
-    text = (r.json().get("text") or "").strip()
-    # The listening service writes "[outro jingle]", "[singing]" or "(background noise)" for sound that is not speech.
-    # 2026-10-07: she answered "[outro jingle]" as though it had been said.
+    return clean_heard((r.json().get("text") or "").strip())
+
+
+def clean_heard(text):
+    """The listening service writes "[outro jingle]", "[singing]" or "(background noise)" for sound that is not speech.
+    2026-10-07: she answered "[outro jingle]" as though it had been said."""
     if re.fullmatch(r"[\[(][^\])]*[\])]\.?", text):
         return ""
     return text

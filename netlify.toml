@@ -586,3 +586,9 @@
 # Five image generations in sequence, most of them refused instantly.
 [functions."gemini-aspect-probe"]
   timeout = 120
+
+# Azure spend tracker (added 2026-10-14): reads daily cost per service and emails whether the workloads for the
+# Microsoft for Startups milestone are still counting. 12:00 UTC, about 8am ET. Needs the AZURE_* tracker settings
+# described in AZURE_SETUP.md, and does nothing until they exist.
+[functions."azure-spend-daily"]
+  schedule = "0 12 * * *"

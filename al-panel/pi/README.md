@@ -123,3 +123,17 @@ The website version cannot use live voices (Good Company's demo allowance is abo
    Keep the names exactly: `accent-robot.mp3`, `accent-american.mp3`, `accent-swedish.mp3`,
    `accent-british.mp3`, `accent-indian.mp3`.
 The panel plays them, and falls back to the device voice if a clip is missing.
+
+## Azure voice and listening (2026-10-14)
+AL's own voice is Microsoft Azure `en-US-LunaNeural`, and her listening uses Azure speech to text, so the Azure credits
+are used. Characters keep their ElevenLabs cast voices. The old ElevenLabs voice for AL, `DVXBaWlHfcpJmii7l8yI`, is kept
+as the backup: if Azure fails she speaks in that voice instead of going quiet, and listening falls back to ElevenLabs Scribe.
+
+Set up on the Pi (the key never goes in git): create `azure_speech.json` beside `al_panel_server.py`:
+
+    {"key": "YOUR_AZURE_SPEECH_KEY", "region": "eastus"}
+
+or set `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in her environment. Add `"tts": false` or `"stt": false` to that file
+to send that half back to ElevenLabs. Sound plays on `plughw:wm8960soundcard`; set `AL_PLAY_DEVICE` to change it.
+Robot, American, British and Indian have an Azure voice (see AZURE_VOICES in the server): Luna for robot and American, Sonia for British, Neerja for Indian. Swedish stays on ElevenLabs, because Azure has no English voice with a Swedish accent. Characters stay on ElevenLabs.
+Not tested on the Pi yet. First checks: she speaks, she hears you, and "Elle" sounds right (see `pronounce.json`).

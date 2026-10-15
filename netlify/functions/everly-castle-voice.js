@@ -34,6 +34,8 @@
 const { AGENTS, SCRIPT, TALES, STORIES, ABOUTS, TALES2 } = require('./everly-castle-chat.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const crypto = require('crypto');
+// Azure Blob Storage as a second copy of the audio cache, added 2026-10-14. Off until AZURE_BLOB_SAS_URL is set.
+const azure = require('./_azure.js');
 
 const AUDIO_STORE = 'everly_castle_audio';
 
@@ -489,6 +491,16 @@ exports.handler = async (event) => {
     }
   }
 
+  /* Second copy, in Azure Blob Storage. Only asked when the Netlify store missed, and a hit here is copied back so the
+     next play is served from the first store. Returns null when Azure is not set up or has nothing. */
+  {
+    const azHit = await azure.blobGet(cacheKey);
+    if (azHit && azHit.length) {
+      if (store) { try { await store.set(cacheKey, azHit, { metadata: { contentType: 'audio/mpeg', agent: agentId, kind: 'azure-copy' } }); } catch (_) {} }
+      return audioResponse(azHit, true, 'ok');
+    }
+  }
+
   /* Leading pause, without feeding the model a word.
 
      This used to prepend a full stop: '. ' + text. On the multilingual model
@@ -542,6 +554,8 @@ exports.handler = async (event) => {
       console.error('[everly-castle-voice] cache write failed (non-fatal):', err && err.message);
     }
   }
+
+  await azure.blobPut(cacheKey, buf, 'audio/mpeg');   // second copy; returns false and logs if Azure is off or fails
 
   return audioResponse(buf, false, storeError ? 'DOWN: ' + storeError : 'ok');
 };
