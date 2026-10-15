@@ -992,7 +992,21 @@ function gcNoReplyWhy(res) {
     function apply() {
       try {
         Object.keys(got).forEach(function (k) {
-          if (CARRY_KEYS.indexOf(k) >= 0 || /^gc_talks_[a-z0-9\-]+$/.test(k)) localStorage.setItem(k, String(got[k]));
+          if (/^gc_talks_[a-z0-9\-]+$/.test(k)) {
+            /* combine, never replace: the device with the shorter record must not wipe out the longer one */
+            var mine = {}, theirs = {};
+            try { mine = JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (_) {}
+            try { theirs = JSON.parse(String(got[k])) || {}; } catch (_) {}
+            Object.keys(theirs).forEach(function (n) {
+              var a = mine[n], b = theirs[n];
+              mine[n] = a ? { talks: Math.max(a.talks || 0, b.talks || 0), first: (a.first < b.first ? a.first : b.first), last: (a.last > b.last ? a.last : b.last) } : b;
+            });
+            localStorage.setItem(k, JSON.stringify(mine));
+          } else if (k === 'etl_visitor_id') {
+            localStorage.setItem(k, String(got[k]));
+          } else if (CARRY_KEYS.indexOf(k) >= 0 && !localStorage.getItem(k)) {
+            localStorage.setItem(k, String(got[k]));          /* the name she calls you and who she talks with: keep this device's if it has one */
+          }
         });
         history.replaceState(null, '', location.pathname + location.search.replace(/[?&]carry=[^&]*/, '').replace(/^&/, '?'));
       } catch (_) {}
