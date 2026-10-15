@@ -107,7 +107,11 @@
   .pfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
   .pfilters input{flex:1;min-width:180px;width:auto}
   .pfilters button.on{background:var(--status);color:var(--on-status);border-color:var(--status)}
-  .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;max-height:560px;overflow:auto;padding:2px}
+  .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;max-height:640px;overflow:auto;padding:2px}
+  .phead{grid-column:1/-1;margin:14px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:19px;color:var(--ink)}
+  .phead:first-child{margin-top:0}
+  .phead span{font-family:var(--mono);font-size:12px;color:var(--mute);margin-left:8px}
+  .twocol{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:22px;align-items:start}
   .persona{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--field);display:flex;flex-direction:column;gap:6px}
   .persona h3{margin:0;font-size:15px;color:var(--ink)}
   .persona p{margin:0;font-size:13px;flex:1;color:var(--mute)}
@@ -225,7 +229,7 @@
     <!-- 5. PERSONALITIES -->
     <section class="card wide" id="personaCard">
       <h2>5. Personalities</h2>
-      <p class="hint">Not everyone wants the same companion. Download a different personality for Astra-9 Lite: these are characters from The Dose, The Gym, Almost Human and Good Company. Press Hear voice to listen first. She is still Astra-9 Lite, and the prices are examples, with no payment taken.</p>
+      <p class="hint">Not everyone wants the same companion. Download a different personality for Astra-9 Lite, grouped by kind of character: children, health professions, fantasy and more. Press Hear voice to listen first. She is still Astra-9 Lite, and the prices are examples, with no payment taken.</p>
       <div class="pfilters" id="pfilters">
         <input type="text" id="psearch" placeholder="Search by name, job or feeling" aria-label="Search personalities">
       </div>
@@ -243,8 +247,9 @@
     </section>
 
     <!-- 6. TALK -->
-    <section class="card" id="talkCard">
+    <section class="card wide" id="talkCard">
       <h2>6. Talk to Astra-9 Lite</h2>
+      <div class="twocol"><div>
       <p class="hint" id="talkHint">Type a message. In demo mode the replies are examples.</p>
       <div class="log" id="log" aria-live="polite"></div>
       <div class="row">
@@ -258,6 +263,7 @@
         <input type="range" id="vol" min="0" max="100" step="5" value="60" style="flex:1;min-width:160px">
         <span id="volText" style="min-width:3.2em;text-align:right">60%</span>
       </div>
+      </div><div>
       <!-- CONVERSATION STARTERS, added 2026-10-04, Dr. O: one tap to start a conversation at the event. Only on the real Astra-9 Lite. -->
       <div class="row" id="starters" style="margin-top:10px;display:none">
         <button data-q="What are you?">What are you?</button>
@@ -276,20 +282,27 @@
         <button id="sistersBtn">Let them talk</button>
         <span class="hint" id="sistersStatus" style="margin:0">Give each one a different name, and use the same names on the other devices. She opens, and they pass the turn by name. Say "that's enough" or press again to end it.</span>
       </div>
+      </div></div>
     </section>
 
     <!-- 6. PHOTOS -->
-    <section class="card" id="photoCard">
-      <h2>7. Show her a photo</h2>
-      <p class="hint">Share a photo so Astra-9 Lite gets to know you. She tells you what she sees.</p>
-      <input type="file" id="photo" accept="image/*">
-      <label for="caption">Who or what is in it? (optional)</label>
-      <input type="text" id="caption" placeholder="For example, my dog Max at the lake">
-      <div class="row" style="margin-top:12px">
-        <button class="green" id="showPhoto" disabled>Show Astra-9 Lite</button>
-      </div>
-      <div class="thumbs" id="thumbs"></div>
-      <div class="note">Only share photos you are happy for Astra-9 Lite to see. When Astra-9 Lite is connected, the photo is sent to her AI service to be described.</div>
+    <section class="card wide" id="photoCard">
+      <h2>7. Show her a photo or a file</h2>
+      <div class="twocol"><div>
+        <p class="hint">Show her a photo so she gets to know you, or give her a file to read. She tells you what she sees, or what stands out in it.</p>
+        <label for="caption">Who or what is in it? (optional)</label>
+        <input type="text" id="caption" placeholder="For example, my dog Max at the lake">
+        <div class="row" style="margin-top:12px">
+          <button class="green" id="showPhoto" type="button">Show a photo</button>
+          <button id="uploadFile" type="button">Upload a file</button>
+        </div>
+        <input type="file" id="photo" accept="image/*" hidden>
+        <input type="file" id="docfile" accept=".txt,.md,.csv,.pdf,text/plain,application/pdf" hidden>
+        <p class="hint" style="margin:10px 0 0">Photos: JPEG, PNG, GIF or WebP. Files: text, Markdown, CSV or PDF, up to a few pages.</p>
+      </div><div>
+        <div class="thumbs" id="thumbs"></div>
+        <div class="note">Only share photos and files you are happy for Astra-9 Lite to see. When she is connected, the photo or file is sent to her AI service to be read, and is not saved. She keeps the first part of a file in mind for the next few questions.</div>
+      </div></div>
     </section>
 
     <!-- 8. WHEN SOMEONE WALKS UP -->
@@ -328,7 +341,7 @@
       <div class="row" style="margin-top:12px"><button id="shutBtn">Shut down Astra-9 Lite</button><span class="hint" id="shutStatus" style="margin:0"></span></div>
     </section>
 
-    <footer>Concept and prototype stage. Astra-9 Lite is a physical companion from Emerging Technologies Laboratory. She is an android, not a person.</footer>
+    <footer>Astra-9 Lite is a physical companion from Emerging Technologies Laboratory. She is an android, not a person.</footer>
 </div>
 
 <dialog id="dlg"><h3 id="dlgTitle"></h3><p id="dlgBody"></p><div class="row" id="dlgBtns"></div></dialog>
@@ -338,6 +351,10 @@
   'use strict';
   var PERSONAS = [];           // the short list from personas.json
   var pGroup = 'All';
+  // The personalities are shown by kind of character, not by the show they came from. Each entry in personas.json has a "category".
+  var PCATS = ['Made for one person', 'Children and Little Ones', 'Health Professions', 'Fitness and Wellness', 'Fantasy and Magical', 'Reggie and Friends', 'Robots and AI',
+               'Teachers and Storytellers', 'Food, Garden and Nature', 'Science and Research', 'Work and Business', 'Writers, Artists and Performers', 'More people'];
+  function catOf(p){ return p.group === 'Private' ? 'Made for one person' : (p.category || 'More people'); }
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by Astra-9 Lite and her API answers
@@ -520,13 +537,13 @@
     var box = $('plist'); if(!box){ return; }
     var q = ($('psearch').value || '').toLowerCase();
     var shown = PERSONAS.filter(function(p){
-      if(pGroup !== 'All' && p.group !== pGroup){ return false; }
+      if(pGroup !== 'All' && catOf(p) !== pGroup){ return false; }
       if(pGender !== 'All' && p.gender !== pGender){ return false; }
       return !q || (p.name + ' ' + p.line + ' ' + (p.role || '') + ' ' + (p.sub || '')).toLowerCase().indexOf(q) !== -1;
     });
     box.innerHTML = '';
     $('pcount').textContent = PERSONAS.length ? (shown.length + ' of ' + PERSONAS.length + ' personalities') : 'Loading personalities...';
-    shown.forEach(function(p){
+    function addCard(p){
       var card = document.createElement('div'); card.className = 'persona' + (state.persona === p.id ? ' on' : '');
       var h = document.createElement('h3'); h.textContent = shortName(p.name); card.appendChild(h);
       var meta = document.createElement('div'); meta.className = 'meta';
@@ -549,6 +566,12 @@
         g.addEventListener('click', function(){ confirmPersona(p); }); row.appendChild(g);
       }
       card.appendChild(row); box.appendChild(card);
+    }
+    PCATS.forEach(function(c){
+      var items = shown.filter(function(p){ return catOf(p) === c; });
+      if(!items.length){ return; }
+      var hd = document.createElement('div'); hd.className = 'phead'; hd.textContent = c; var n = document.createElement('span'); n.textContent = items.length; hd.appendChild(n); box.appendChild(hd);
+      items.forEach(addCard);
     });
     var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
     var mainP = PERSONAS.filter(function(p){ return p.id === state.main; })[0];
@@ -574,7 +597,7 @@
   }
   function buildGroups(){
     var bar = $('pfilters'); Array.prototype.slice.call(bar.querySelectorAll('button')).forEach(function(b){ b.remove(); });
-    ['All', 'The Dose', 'The Gym', 'Almost Human', 'Good Company'].concat(PERSONAS.some(function(p){ return p.group === 'Private'; }) ? ['Private'] : []).forEach(function(g){
+    ['All'].concat(PCATS.filter(function(c){ return PERSONAS.some(function(p){ return catOf(p) === c; }); })).forEach(function(g){
       var b = document.createElement('button'); b.textContent = g; b.className = g === pGroup ? 'on' : '';
       b.addEventListener('click', function(){ pGroup = g; buildGroups(); renderPersonas(); }); bar.appendChild(b);
     });
@@ -724,7 +747,8 @@
   // ---------- photos ----------
   var chosen = null;
   function pickPhoto(){
-    var f = this.files && this.files[0]; chosen = f || null; $('showPhoto').disabled = !f;
+    var f = this.files && this.files[0]; chosen = f || null;
+    if(f){ showPhoto(); }
   }
   function shrinkPhoto(file){
     return new Promise(function(resolve){
@@ -761,7 +785,22 @@
     } else {
       setTimeout(function(){ reply(cap ? 'Thank you for showing me this. ' + cap + '. Tell me more about it.' : 'Thank you for showing me this. What is happening in it?'); }, 600);
     }
-    $('photo').value = ''; $('caption').value = ''; chosen = null; $('showPhoto').disabled = true;
+    $('photo').value = ''; $('caption').value = ''; chosen = null;
+  }
+  // ---------- files: she reads a text file or a PDF ----------
+  function sendFile(){
+    var f = this.files && this.files[0]; this.value = '';
+    if(!f){ return; }
+    var li = document.createElement('div'); li.className = 'tag'; li.textContent = f.name; li.style.margin = '4px'; $('thumbs').appendChild(li);
+    addMsg('you', '(gave her a file: ' + f.name + ')');
+    if(live){
+      $('face').classList.add('speaking');
+      var fd = new FormData(); fd.append('file', f, f.name);
+      api('/api/file', fd, true).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); })
+        .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al', '(I could not read that: ' + e.message + ')'); });
+    } else {
+      setTimeout(function(){ reply('Thank you for the file. With a real Astra-9 Lite I would read it and tell you what stands out.'); }, 600);
+    }
   }
 
   // ---------- when someone walks up ----------
@@ -842,7 +881,9 @@
   $('send').addEventListener('click', send);
   $('say').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ send(); } });
   $('photo').addEventListener('change', pickPhoto);
-  $('showPhoto').addEventListener('click', showPhoto);
+  $('showPhoto').addEventListener('click', function(){ $('photo').click(); });
+  $('uploadFile').addEventListener('click', function(){ $('docfile').click(); });
+  $('docfile').addEventListener('change', sendFile);
   $('reset').addEventListener('click', resetDemo);
   state.welcome = load('welcome', state.welcome); paintWelcome();
   function preset(name){

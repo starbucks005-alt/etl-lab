@@ -2434,6 +2434,62 @@ def photo():
     return jsonify(reply=reply)  # the photo itself is never saved
 
 
+# 2026-10-15, Dr. O: "the show photo could be show photo and upload file". She reads a short text file, a Markdown or CSV file or a PDF, says in a few words
+# what it is and what stands out, and keeps the first part of a text file in her notes for the next few questions (the history lines). Nothing is saved.
+FILE_NOTE = (" Someone has given you a file to read. In two or three short sentences, warmly, say what it is and one thing that stands out. "
+             "Never read it out in full. If it is long, say you read the beginning. Do not invent anything that is not in it.")
+FILE_TEXT_MAX = 150_000
+FILE_PDF_MAX = 5_000_000
+
+
+@app.post("/api/file")
+def read_file():
+    f = request.files.get("file")
+    if not f:
+        return jsonify(error="no file"), 400
+    name = re.sub(r"[^A-Za-z0-9 ._()\-]", "", str(f.filename or "file"))[:80] or "file"
+    low = name.lower()
+    raw = f.read()
+    is_pdf = low.endswith(".pdf") or f.mimetype == "application/pdf"
+    is_text = low.endswith((".txt", ".md", ".csv")) or f.mimetype in ("text/plain", "text/markdown", "text/csv")
+    if not (is_pdf or is_text):
+        return jsonify(error="please use a text, Markdown, CSV or PDF file"), 415
+    if len(raw) > (FILE_PDF_MAX if is_pdf else FILE_TEXT_MAX):
+        return jsonify(error="that file is too large, please use a shorter one"), 413
+    key = header_value("x-api-key")
+    if not key:
+        return jsonify(error="could not find the key line in al.py"), 501
+    lead = "Here is a file someone is giving you to read. It is called \"%s\"." % name
+    if is_pdf:
+        content = [{"type": "document", "source": {"type": "base64", "media_type": "application/pdf", "data": base64.b64encode(raw).decode()}},
+                   {"type": "text", "text": lead}]
+        kept = ""
+    else:
+        body = raw.decode("utf-8", errors="replace")
+        content = [{"type": "text", "text": lead + "\n\n" + body[:30000]}]
+        kept = body[:2500]
+    try:
+        r = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={"x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID,
+                     "content-type": "application/json"},
+            json={"model": "claude-sonnet-5", "max_tokens": 300, "system": al.AL_SYSTEM_PROMPT + FILE_NOTE,
+                  "messages": [{"role": "user", "content": content}]},
+            timeout=90,
+        )
+    except requests.RequestException as e:
+        return jsonify(error=str(e)[:200]), 502
+    if r.status_code != 200:
+        print("FILE the service said %d: %s (file %d bytes, %s)" % (r.status_code, r.text[:300], len(raw), name), flush=True)
+        return jsonify(error="the reading service answered %d: %s" % (r.status_code, r.text[:140])), 502
+    reply = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text") or "Thank you for giving me that."
+    state["history"].append("They gave you a file called \"%s\" and you said \"%s\"." % (name, reply)
+                            + (" The start of it reads: %s" % kept if kept else ""))
+    state["log"].append({"who": "al", "text": reply})
+    speak_async(reply)
+    return jsonify(reply=reply)    # the file itself is never saved
+
+
 def my_address():
     """AL's address on the network, or None if she is not connected yet."""
     import socket
