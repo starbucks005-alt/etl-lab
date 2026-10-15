@@ -901,7 +901,7 @@ function gcNoReplyWhy(res) {
   var KEYS = { '1': 'alice', '2': 'reggie', '3': 'tansy', '4': 'duffy', '5': 'terry' };
   document.addEventListener('keydown', function (e) {
     var t = e.target && e.target.tagName;
-    if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.ctrlKey || e.altKey || e.metaKey) return;   /* a menu with focus must not block the box buttons, 2026-10-15 */
     var k = KEYS[e.key];
     if (!k) return;
     if (!COMPANIONS[k]) {
@@ -910,7 +910,9 @@ function gcNoReplyWhy(res) {
     }
     if (running && who.value === k) return;
     who.value = k;
-    if (running) back();
+    /* 2026-10-15, Dr. O: "it does not do it in hologram mode". It used to call back() first, which leaves full screen and
+       shows the start page, then start(). Now it switches straight away and stays in full screen. The cause on her tablet is
+       not confirmed: this was the one thing in the path that I could see would break a running hologram. */
     start();
   });
 
