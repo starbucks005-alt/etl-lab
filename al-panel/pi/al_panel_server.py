@@ -318,7 +318,9 @@ def memory_on():
 
 
 MEMORY_CADENCE = 4          # a few notes are written after every fourth exchange
-MEMORY_MAX = 40             # the newest this many are kept and carried into her instructions
+# 2026-10-15, Dr. O: "for her and astra bc they are my demos". 40 -> 200 so days of talk are not pushed out. All of them are read into her
+# instructions on every reply, so a full file adds some thousands of words to each one and a little delay. Lower it here if she gets slow.
+MEMORY_MAX = 200             # the newest this many are kept and carried into her instructions
 memory_lock = threading.Lock()
 memory_turns = {"n": 0, "recent": []}
 

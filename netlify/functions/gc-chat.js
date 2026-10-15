@@ -299,7 +299,7 @@ function buildSystem(friend, you, idle, scene, room, spectate) {
     bits.push(
       'THINGS THEY HAVE TOLD YOU TO REMEMBER. You know these the way you know ' +
       'anything about somebody you have known a while:\n' +
-      f.memories.slice(0, 40).map(m => '- ' + String(m).slice(0, 600)).join('\n') +
+      f.memories.slice(0, MEMORY_LOAD).map(m => '- ' + String(m).slice(0, 600)).join('\n') +
       '\nDo not recite these, do not list them, and do not work through them. ' +
       'Do not greet them by asking after every one. Most turns will touch none ' +
       'of it. Bring a thing up only where it genuinely belongs, the way you ' +
@@ -838,6 +838,10 @@ const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
    well under 10 turns and was leaving zero trace. 4 still means an actual
    back-and-forth happened, not a distillation pass on a single hello. */
 const MEMORY_CADENCE = 4;
+/* 40 -> 200, 2026-10-15, per Dr. O ("raise it to much much more"): the notes from three browsers are being combined onto one Alice and 40 would
+   leave most of them unused. This is the newest 200 notes per person and character, read on every message, so it costs more per reply (roughly
+   6 to 8 thousand words of notes at the top) and a little more delay. Older notes than that stay stored but are not read. Raise or lower it here. */
+const MEMORY_LOAD = 200;
 
 async function fetchVisitorMemories(agentKey, identityKey, serviceKey) {
   try {
@@ -848,7 +852,7 @@ async function fetchVisitorMemories(agentKey, identityKey, serviceKey) {
        so nothing fetched here goes to waste and nothing is truncated before
        it even gets a chance to be used. */
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(identityKey)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=40`,
+      `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(identityKey)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=${MEMORY_LOAD}`,
       { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
     );
     if (!r.ok) {
