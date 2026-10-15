@@ -354,6 +354,63 @@ def memory_block(pid):
             + "\n".join("- " + n for n in notes))
 
 
+# ---- WHO SHE HAS TALKED WITH, added 2026-10-15, Dr. O: "ALICE and AL are not remembering each other and have been speaking to each other
+# for several days." Her notes are written by a model every few exchanges, kept to the newest 40, and never named the other speaker, so
+# a few days of talk pushed anything about Alice out. This is a plain record the server keeps itself, not a guess by a model: who she
+# talked with, how many talks, the first and last day. It goes into her instructions every time, in a talk or not. The cause of the
+# forgetting on her side was not confirmed from her real notes file; this does not depend on it.
+friends_lock = threading.Lock()
+
+
+def friends_path():
+    return os.path.join(HERE, "friends_%s.json" % re.sub(r"[^a-z0-9-]", "", mkey(state["persona"]).lower()))
+
+
+def load_friends():
+    try:
+        d = json.load(open(friends_path()))
+    except (OSError, ValueError):
+        return {}
+    return d if isinstance(d, dict) else {}
+
+
+def note_friends(names):
+    """A talk with these characters has begun. Counts the talk and keeps the first and last day."""
+    if not memory_on():
+        return
+    today = time.strftime("%Y-%m-%d")
+    with friends_lock:
+        d = load_friends()
+        for n in names:
+            k = n.strip()
+            if not k:
+                continue
+            e = d.get(k) or {"talks": 0, "first": today}
+            e["talks"] = int(e.get("talks", 0)) + 1
+            e["last"] = today
+            d[k] = e
+        tmp = friends_path() + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(d, f)
+        os.replace(tmp, friends_path())
+
+
+def friends_block():
+    d = load_friends() if memory_on() else {}
+    if not d:
+        return ""
+    bits = []
+    for n, e in d.items():
+        notes = [m for m in load_memory(state["persona"]) if n.lower() in m.lower()][-4:]
+        line = "%s, a character from the same laboratory, not a visitor: you have talked together %d time%s, first on %s and last on %s." % (
+            n, e.get("talks", 0), "" if e.get("talks", 0) == 1 else "s", e.get("first", "?"), e.get("last", "?"))
+        if notes:
+            line += " What you remember about " + n + ": " + " ".join(notes)
+        bits.append(line)
+    return ("\n\nPeople you already know from your talks with the other characters. This is a true record, so you know them and never ask "
+            "who they are: " + " ".join(bits) + " Do not make up anything about them beyond this and your notes.")
+
+
 def distill_memory(pid, exchanges):
     """Write a few notes from the last few exchanges. Runs in the background so she is never slowed down."""
     try:
@@ -365,6 +422,7 @@ def distill_memory(pid, exchanges):
                   "genuinely carry forward about the people you have been talking with and what you talked about: things they told you, "
                   "what is going on in their life, how they seemed, and a thread still open that you might bring up next time. "
                   "Write each the way you would carry it in your head, in your own words, not a transcript and not a direct quote. "
+                  "When a line begins with a name such as \"Alice here\", the speaker is another character from the laboratory, not a visitor: name her in the note and say what you two talked about. "
                   "Do not use any dash characters. Return ONLY JSON, no code fences: {\"memories\": [\"...\", \"...\"]}. "
                   "If honestly nothing new and memorable came up, return {\"memories\": []}.%s\n\nRecent conversation:\n%s") % (name, known, talk)
         key = header_value("x-api-key")
@@ -534,7 +592,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + mood_block(None))) + sisters_block()
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + friends_block() + mood_block(None))) + sisters_block()
 
 
 def write_eyes(boost=False):
@@ -1216,6 +1274,7 @@ def sisters_set():
     except (TypeError, ValueError):
         mx = 12
     sisters.update(on=True, me=me, others=others, turns=0, max=mx, started=time.time())
+    note_friends(others)
     apply_prompt()
 
     def go():

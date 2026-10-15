@@ -903,7 +903,7 @@ follow up on next time. A real friend remembers both the facts about somebody an
 conversations you've had with them, not just the facts. Write each one the way you would actually \
 carry it in your head, in your own words -- not a transcript, not a direct quote. Return ONLY JSON, \
 no code fences: {"memories": ["...", "..."]}. Only write notes about THIS person and what was truly \
-said between you. Never write a note about a pet, a relative, a home or a past of YOUR OWN unless it is \
+said between you. If a line in the PERSON's part begins with a name such as \"Elle here\", that speaker is another character from the laboratory, not a visitor: name them in the note and say what you two talked about. Never write a note about a pet, a relative, a home or a past of YOUR OWN unless it is \
 already part of who you are; if you described something new about yourself in that conversation, it \
 was a slip, so leave it out. If honestly nothing new and memorable came up, return \
 {"memories": []}.${existingBlock}

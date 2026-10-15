@@ -28,3 +28,4 @@ al-panel/pi/alarm_chime.wav
 al-panel/pi/azure_speech.json
 al-panel/pi/_azure_say.wav
 al-panel/pi/_azure_listen.wav
+al-panel/pi/friends_*.json

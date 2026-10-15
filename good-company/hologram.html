@@ -552,11 +552,33 @@ function gcNoReplyWhy(res) {
     var me = spokenName((COMPANIONS[who.value] && COMPANIONS[who.value][0]) || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return me ? String(t || '').replace(new RegExp('^\\s*(?:this is\\s+)?' + me + '(?:\\s+here)?\\s*[.,:!\\-]*\\s*', 'i'), '') : String(t || '');
   }
+  /* WHO SHE HAS TALKED WITH, added 2026-10-15, Dr. O: "ALICE and AL are not remembering each other and have been speaking to each other for several
+     days." Her notes are written by a model, kept per browser, and never named the other speaker, so nothing carried from one day to the next.
+     This is a plain count kept in this browser: who, how many talks, first day, last day. It is added to what she is told every time. The cause
+     of the forgetting on her side was not confirmed from her real notes; this does not depend on it. A new browser or a cleared one starts at none. */
+  function talkLogKey() { return 'gc_talks_' + who.value; }
+  function readTalkLog() { try { return JSON.parse(localStorage.getItem(talkLogKey()) || '{}') || {}; } catch (_) { return {}; } }
+  function noteTalks(names) {
+    var d = readTalkLog(), today = new Date().toISOString().slice(0, 10);
+    (names || []).forEach(function (n) {
+      var e = d[n] || { talks: 0, first: today };
+      e.talks += 1; e.last = today; d[n] = e;
+    });
+    try { localStorage.setItem(talkLogKey(), JSON.stringify(d)); } catch (_) {}
+  }
+  function talkRecord(names) {
+    var d = readTalkLog(), out = [];
+    (names || []).forEach(function (n) {
+      var e = d[n]; if (!e) return;
+      out.push('You and ' + n + ' have talked together ' + e.talks + (e.talks === 1 ? ' time' : ' times') + ', first on ' + e.first + ' and last on ' + e.last + '. You know ' + n + ', so never ask who ' + n + ' is.');
+    });
+    return out.length ? ' ' + out.join(' ') : '';
+  }
   function roomNote(names) {
     if (!names || !names.length) return '';
     return '\n\n[Who is in the room with you: ' + names.map(function (n) {
       return KNOWN_OTHERS[n.toLowerCase()] || (n + ' is another character made by the same laboratory, in this room.');
-    }).join(' ') + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up. Never mention a pet, a family member, a home or a past of your own that is not written in your own file: if it is not written there, you do not have one, and you do not borrow one from anyone else you have heard about.]' + nameTagNote();
+    }).join(' ') + talkRecord(names) + ' They are not visitors. You know no more about them than this, so if you are asked more, say you would rather not make something up. Never mention a pet, a family member, a home or a past of your own that is not written in your own file: if it is not written there, you do not have one, and you do not borrow one from anyone else you have heard about.]' + nameTagNote();
   }
   var SIS = { on: false, turns: 0, max: 12, others: [], lastActive: 0, hearingAt: 0, talking: false, wait: false, release: false, timer: null };
   var YIELD_MS = 900, SIS_GAP_MS = 6000;
@@ -892,6 +914,7 @@ function gcNoReplyWhy(res) {
       SIS.others = ans.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4);
       try { localStorage.setItem('gc_sisters_with', SIS.others.join(', ')); } catch (_) {}
     }
+    noteTalks(SIS.others);
     SIS.on = true; SIS.turns = 0; SIS.lastActive = Date.now(); SIS.hearingAt = 0; sisPaint();
     if (!bHands.classList.contains('listening')) bHands.click();       // the ears have to be on for this
     SIS.timer = setInterval(function () {                              // nobody has spoken for a while: she says something to the next one
