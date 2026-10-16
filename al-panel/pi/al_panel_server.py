@@ -1671,6 +1671,27 @@ def pet_watcher():
             print("PET problem:", str(e)[:120], flush=True)
 
 
+@app.get("/api/pause")
+def pause_get():
+    _pause["t"] = 0.0
+    return jsonify(seconds=round(end_quiet() / 10.0, 1))
+
+
+@app.post("/api/pause")
+def pause_set():
+    d = request.get_json(silent=True) or {}
+    try:
+        tenths = max(6, min(30, int(round(float(d.get("seconds")) * 10))))
+    except (ValueError, TypeError):
+        return jsonify(error="seconds must be a number from 0.6 to 3.0"), 400
+    tmp = PAUSE_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"tenths": tenths}, f)
+    os.replace(tmp, PAUSE_FILE)
+    _pause["t"] = 0.0
+    return jsonify(seconds=round(end_quiet() / 10.0, 1))
+
+
 @app.get("/api/quiet")
 def quiet_get():
     u = quiet_until()
@@ -2142,7 +2163,9 @@ def say():
 
 # ---- hands-free listening ----
 CONVERSE_SECONDS = 30     # after a hello, she keeps listening this long, and again after each thing she answers
-END_QUIET = 9            # tenths of a second of quiet that mean the person has finished. 8 cut off the soft last word, 11 made her slow to answer: 9 is the middle (2026-10-12)
+END_QUIET = 14           # tenths of a second of quiet that mean the person has finished. 9 (2026-10-12) was too short: 2026-10-16, Dr. O: "Elle does not wait for me to finish talking before she starts answering". It is now 14, and a slider on the panel sets it (pause.json, 6 to 30)
+PAUSE_FILE = os.path.join(HERE, "pause.json")
+_pause = {"t": 0.0, "v": END_QUIET}
 
 # 2026-10-15, Dr. O: "ALICE and Elle still talk over each other". 14 -> 25 (2.5 s). Alice speaks in pieces and the gap between two pieces can be longer
 # than 1.4 s while the next one is fetched, so Elle took it for the end and answered while Alice carried on. Likely, NOT confirmed on the real devices.
@@ -2152,7 +2175,16 @@ TALK_END_QUIET = 25      # 2026-10-12, Dr. O: in a talk with Alice a voice pause
 
 
 def end_quiet():
-    return TALK_END_QUIET if sisters["on"] else END_QUIET
+    if sisters["on"]:
+        return TALK_END_QUIET
+    now = time.time()
+    if now - _pause["t"] > 2.0:                  # looked up at most every two seconds, since this is asked every tenth of a second
+        _pause["t"] = now
+        try:
+            _pause["v"] = max(6, min(30, int(json.load(open(PAUSE_FILE)).get("tenths", END_QUIET))))
+        except (OSError, ValueError, TypeError, AttributeError):
+            _pause["v"] = END_QUIET
+    return _pause["v"]
 MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
 # speech to text often mishears her name. 2026-10-12: she now goes by Elle, which it writes as Ella, Ellie, Elly, El or Ell, so those wake her too.
 NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|astra|astro|astrid|al|8l)\b", re.I)

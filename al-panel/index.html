@@ -278,6 +278,12 @@
         <button class="primary" id="send">Send</button>
       </div>
       <div class="row" style="margin-top:10px"><button id="sayAddress">Say my address</button></div>
+      <!-- HOW LONG SHE WAITS, added 2026-10-16, Dr. O: "Elle does not wait for me to finish talking before she starts answering". A longer wait means she lets you pause and think; a shorter one means she answers sooner. -->
+      <div class="row" id="pauseRow" style="margin-top:10px;display:none;align-items:center;gap:10px">
+        <label for="pauseSlider" style="margin:0">She waits</label>
+        <input type="range" id="pauseSlider" min="0.6" max="3" step="0.2" value="1.4" style="flex:1;min-width:160px">
+        <span id="pauseText" style="min-width:8.5em;text-align:right">1.4 s after I stop</span>
+      </div>
       <!-- QUIET, added 2026-10-16, Dr. O: in an online meeting she answered what was said in the meeting. For a set time she does not listen in the background. The Talk button still works. -->
       <div class="row" id="quietRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
         <button id="quietOn" type="button">Quiet for an hour</button><button id="quietOff" type="button">Wake her</button><span class="hint" id="quietText" style="margin:0"></span>
@@ -582,7 +588,7 @@
     $('shutCard').style.display = on ? '' : 'none';
     $('listenRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none'; $('stopAlarmRow').style.display = on ? '' : 'none';
     $('volumeRow').style.display = on ? 'flex' : 'none';
-    $('quietRow').style.display = on ? 'flex' : 'none'; if(on){ refreshQuiet(); }
+    $('quietRow').style.display = on ? 'flex' : 'none'; $('pauseRow').style.display = on ? 'flex' : 'none'; if(on){ refreshQuiet(); refreshPause(); }
     if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
@@ -921,6 +927,12 @@
   $('gClearVisits').addEventListener('click', function(){ api('/api/guardian/clear', {what:'visits'}).then(refreshGuardian).catch(function(){}); });
   $('gClearUnmet').addEventListener('click', function(){ api('/api/guardian/clear', {what:'unmet'}).then(refreshGuardian).catch(function(){}); });
 
+
+  // ---------- how long she waits for me to finish ----------
+  function showPause(j){ if(j && j.seconds != null){ $('pauseSlider').value = j.seconds; $('pauseText').textContent = j.seconds + ' s after I stop'; } }
+  function refreshPause(){ fetch('/api/pause').then(function(r){ return r.ok ? r.json() : null; }).then(showPause).catch(function(){}); }
+  $('pauseSlider').addEventListener('input', function(){ $('pauseText').textContent = this.value + ' s after I stop'; });
+  $('pauseSlider').addEventListener('change', function(){ api('/api/pause', {seconds: parseFloat(this.value)}).then(showPause).catch(function(e){ $('pauseText').textContent = 'Could not reach her'; }); });
 
   // ---------- quiet ----------
   function showQuiet(j){ $('quietText').textContent = j && j.quiet ? ('Quiet until ' + j.until + '. She is not listening in the background. The Talk button still works.') : 'She is listening as usual.'; }
