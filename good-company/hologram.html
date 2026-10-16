@@ -664,6 +664,7 @@ function gcNoReplyWhy(res) {
 
   /* voicePending counts voices that are being made or played, so a cameo waits for the main voice to finish instead of speaking over it. */
   var voicePending = 0, liveAudios = [], voiceEpoch = 0, muteUntil = 0;
+  var voiceTail = Promise.resolve();   // 2026-10-16, Dr. O: "a delay in saying one thing, and it starts when another sentence starts". Each voice used to play the moment it was ready, so a slow one landed on top of the next. Now they play one at a time, in the order they were asked for.
   /* STOP, 2026-10-15, Dr. O: "that's enough did not stop reggie". The stop phrase was only looked for while this page was in the sisters talk, and was
      ignored while a reply was being worked out. Now it works any time: it ends the talk if there is one, stops every voice that is playing or being
      made, and keeps replies that were already on their way from being spoken for the next 15 seconds. */
@@ -706,14 +707,21 @@ function gcNoReplyWhy(res) {
       ['ended', 'pause', 'error', 'abort', 'emptied', 'stalled'].forEach(function (n) { audio.addEventListener(n, function () { SIS.talking = false; SIS.lastActive = Date.now(); }); });
       /* THE FLOOR, 2026-10-15, Dr. O: "stop talking over each other". In a talk the voice waits until nobody else holds the floor (see FLOOR below),
          plays, and gives the floor back when it ends. Outside a talk, or if the website cannot be reached, it plays at once as before. */
+      voiceTail = voiceTail.then(function () { return new Promise(function (done) {
+      var finished = false;
+      function fin() { if (!finished) { finished = true; done(); } }
+      ['ended', 'pause', 'error', 'abort', 'emptied'].forEach(function (n) { audio.addEventListener(n, fin); });
+      setTimeout(fin, 90000);          // never hold the line for more than 90 s
+      if (myEpoch !== voiceEpoch) { uncount(); fin(); return; }
       floorWait(function (held, hushed) {
-        if (hushed) { stopAllVoices(); if (SIS.on) sisStop('hush'); uncount(); return; }
-        if (myEpoch !== voiceEpoch) { if (held) floorCall('release'); uncount(); return; }
+        if (hushed) { stopAllVoices(); if (SIS.on) sisStop('hush'); uncount(); fin(); return; }
+        if (myEpoch !== voiceEpoch) { if (held) floorCall('release'); uncount(); fin(); return; }
         var given = false;
         function give() { if (held && !given) { given = true; floorCall('release'); } }
         ['ended', 'pause', 'error', 'abort', 'emptied'].forEach(function (n) { audio.addEventListener(n, give); });
-        audio.play().catch(function () { give(); uncount(); });
+        audio.play().catch(function () { give(); uncount(); fin(); });
       });
+      }); });
     }).catch(function () { uncount(); /* the text reply already stands on its own */ });
   }
 
