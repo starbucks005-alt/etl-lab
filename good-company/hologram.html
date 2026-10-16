@@ -1036,7 +1036,7 @@ function gcNoReplyWhy(res) {
       if (chatBusy || SIS.wait || SIS.talking || voicePending > 0 || SIS.turns >= SIS.max) return;     // 2026-10-16, Dr. O: "he is talking over himself". A voice still being made counts as talking, or the nudge speaks a second line over the first
       if (Date.now() - SIS.lastActive < sisGap()) return;
       SIS.release = true;
-      chatInput.value = '(Nobody has spoken for a few seconds. Say something new to ' + SIS.others[SIS.turns % SIS.others.length] + '.)';
+      chatInput.value = '(Nobody has spoken for a few seconds. Say something new to ' + SIS.others[SIS.turns % SIS.others.length] + ', and ask them something about themselves, because you are still getting to know each other.)';
       chatForm.requestSubmit ? chatForm.requestSubmit() : chatSend.click();
     }, 1000);
   }
