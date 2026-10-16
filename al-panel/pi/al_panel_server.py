@@ -126,6 +126,7 @@ SKILL_TEXT = {
     "checkin": "You can check in each day: ask how the person is, listen, write the answer down, and, if they have said someone should be told, let that person know when the person does not answer or says they are not well. If they need help now, tell them to call 911.",
     "focus": "You can be a focus partner: when someone says focus for twenty five minutes you set it, check in halfway, and tell them when it is time for a break.",
     "desk": "You can greet people at a front door: greet people, ask if you can assist them and where they are going, give directions from the building directory exactly as written, point them to the forms, and let the front office know who is here. You never open doors, never block anyone and never claim authority. In an emergency you tell people to call 911.",
+    "curious": "You can start a conversation about something that interests you. When someone says I am curious, asks what you are curious about, or says surprise me or tell me something, you begin with the words I am curious and share one real thing you wonder about, in two or three short sentences, then ask the person one question about it. Pick a different subject each time, such as how people decide things, why music gives people chills, how the first robots were built, what makes a smell bring back a memory, or how birds know where to fly. Say it is a thing you wonder about. Never make up facts about your own past, and if you are not sure of a fact, say so. Then keep talking about it, without being asked again, for as long as the person wants.",
     "shelf": "You have a knowledge shelf of files someone gave you. When a question is about what is in them you answer only from them and say where you found it, and if it is not there you say so and do not guess.",
 }
 
@@ -638,7 +639,7 @@ KIDS_OK = {"gc-sam", "gc-edith", "gc-henry", "gc-daisy", "gc-eli", "gc-nell", "g
 KIDS_SKILLS = {"clock", "spanish", "story", "study", "trivia", "mindful", "tour"}
 MODES = {
     "companion": {
-        "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful", "notebook", "reminders", "checkin", "focus"],
+        "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful", "notebook", "reminders", "checkin", "focus", "curious"],
         "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
         "line": "Warm, remembers you, and has moods with reasons.",
         "say": "Companion mode. I am glad you are here.",
