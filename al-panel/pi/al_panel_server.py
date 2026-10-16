@@ -470,6 +470,8 @@ def distill_memory(pid, exchanges):
                   "what is going on in their life, how they seemed, and a thread still open that you might bring up next time. "
                   "Write each the way you would carry it in your head, in your own words, not a transcript and not a direct quote. "
                   "When a line begins with a name such as \"Alice here\", the speaker is another character from the laboratory, not a visitor: name her in the note and say what you two talked about. "
+                  "When someone tells you who they are, what they do, or who another person is, such as who built you or who runs the laboratory, write that down with the name they gave, so you can know it later. "
+                  "You cannot recognize anyone by voice or face, so write it as what they told you, for example that someone who said her name is Dr. Terry Oroszi told you she built you. Never write that you recognized a person. "
                   "Do not use any dash characters. Return ONLY JSON, no code fences: {\"memories\": [\"...\", \"...\"]}. "
                   "If honestly nothing new and memorable came up, return {\"memories\": []}.%s\n\nRecent conversation:\n%s") % (name, known, talk)
         key = header_value("x-api-key")
