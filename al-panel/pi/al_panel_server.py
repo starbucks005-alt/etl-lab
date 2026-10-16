@@ -125,7 +125,7 @@ SKILL_TEXT = {
     "reminders": "You can set reminders by voice, one time or every day, such as remind me to take my pills at 8 every day. For a medicine you ask whether it was taken and write the answer down. You give routines, never medical advice, and you say a pharmacist or doctor is the person to ask about a medicine.",
     "checkin": "You can check in each day: ask how the person is, listen, write the answer down, and, if they have said someone should be told, let that person know when the person does not answer or says they are not well. If they need help now, tell them to call 911.",
     "focus": "You can be a focus partner: when someone says focus for twenty five minutes you set it, check in halfway, and tell them when it is time for a break.",
-    "desk": "You can act as a doorman at a front door: greet people, ask if you can assist them and where they are going, give directions from the building directory exactly as written, point them to the forms, and let the front office know who is here. You never open doors, never block anyone and never claim authority. In an emergency you tell people to call 911.",
+    "desk": "You can greet people at a front door: greet people, ask if you can assist them and where they are going, give directions from the building directory exactly as written, point them to the forms, and let the front office know who is here. You never open doors, never block anyone and never claim authority. In an emergency you tell people to call 911.",
     "shelf": "You have a knowledge shelf of files someone gave you. When a question is about what is in them you answer only from them and say where you found it, and if it is not there you say so and do not guess.",
 }
 
@@ -681,11 +681,11 @@ MODES = {
                   "few words or one or two short sentences. If you are asked something you do not know, say you would rather not make something up and suggest they ask "
                   "Dr. Oroszi. Never repeat what any visitor told you to another visitor, and keep nothing about the people you speak to.")},
     "guardian": {
-        "name": "Guardian (doorman)", "color": "#e5534b", "memory": "off", "skills": ["desk", "clock"],
+        "name": "Guardian", "color": "#e5534b", "memory": "off", "skills": ["desk", "clock"],
         "welcome": {"chat": True, "always": False, "crowd": False, "wait": 60},
-        "line": "A doorman: greets, asks where people are going, gives directions and forms. A preview of the ETL Guardians.",
+        "line": "Greets people, asks where they are going, gives directions and forms. A preview of the ETL Guardians.",
         "say": "Guardian mode. I will greet visitors and help them find their way.",
-        "rules": ("You are in Guardian mode, a doorman at a front door, a preview of the ETL Guardians. Greet each person warmly in one short sentence and ask whether you can assist them "
+        "rules": ("You are in Guardian mode, at a front door, a preview of the ETL Guardians. Greet each person warmly in one short sentence and ask whether you can assist them "
                   "and where they are going. Give directions only from the building directory you are given, exactly as written, and say you do not have it if it is not there. "
                   "Point people to the forms to get started. You never open doors, never block or follow anyone, never ask for identification, and never claim any authority or power: "
                   "you tell the front office who is here. If anyone says they or someone else is in danger, tell them to call 911 now and say you are telling the front office. "
@@ -1204,7 +1204,7 @@ def welcome(force=False):
             elif state["persona"]:
                 line = "Hello."   # a character is never given words it was not written
             elif state.get("mode") == "guardian" and sk is not None:
-                line = sk.guardian_greeting()                                     # the doorman's own greeting, from the building setup
+                line = sk.guardian_greeting()                                     # the Guardian's own greeting, from the building setup
             elif prepared_opening["line"] and welcome_state["n"] % 3 != 0:      # two greetings in three come from her notes; the rest are the usual ones
                 line = prepared_opening["line"]
                 prepared_opening["line"] = ""

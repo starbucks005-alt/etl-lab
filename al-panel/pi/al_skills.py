@@ -309,7 +309,7 @@ def shelf_search(question, k=4, min_hits=2):
             for i, (_, n, c) in enumerate(scored[:k])]
 
 
-# ---------------------------------------------------------------- the Guardian: a doorman and front desk
+# ---------------------------------------------------------------- the Guardian: a front-door greeter and front desk
 # Added 2026-10-15, Dr. O. The ETL Guardians are the front desk robots the lab means to build. Elle can act as one now ("Hi, can I assist you? Where are you going?"),
 # and the setup below is what a building fills in: its offices, forms, hours, who to tell, and what to say in an emergency. What visitors ask and she cannot answer is
 # kept too, because that list is what the Guardians will need. She reads the directory exactly as written. She never opens a door, blocks anyone or claims authority.
@@ -423,7 +423,7 @@ def unmet():
 
 
 def guardian_reply(text, notify=None, now=None):
-    """(spoken, shown) when this is something a doorman handles, else None. notify(text) tells the front office, when a notice address is set."""
+    """(spoken, shown) when this is something the Guardian handles, else None. notify(text) tells the front office, when a notice address is set."""
     t = _clean(text)
     low = t.lower()
     if not low:
