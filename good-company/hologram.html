@@ -723,7 +723,7 @@ function gcNoReplyWhy(res) {
      voice once the main voice has finished. Not tried with the real voices. */
   function showCameo(c, mainReply) {
     if (!c || !c.text) return;
-    if (SIS.on) return;          // 2026-10-16, Dr. O: in a talk with Elle, Astra chimed in in her robot voice and answered for Elle. In a talk with others, nobody speaks for them.
+    if (SIS.on || SIS.fixed) return;          // 2026-10-16, Dr. O: in a talk with Elle, Astra chimed in in her robot voice and answered for Elle. In a talk with others, nobody speaks for them.
     var name = spokenName(c.name || '');
     showReply(mainReply + '  ' + (name ? name + ': ' : '') + c.text);
     chatHistory.push({ who: c.name || 'Cameo', text: c.text, mine: false });
@@ -901,7 +901,8 @@ function gcNoReplyWhy(res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          friend: chatWho.friend, speaker: chatWho.speaker,
+          // 2026-10-16, Dr. O: "Astra is answering for Elle". With others named in the room (?with= or a talk) nobody else is told they may chime in, so no one speaks for Elle.
+          friend: (SIS.on || SIS.fixed) && chatWho.friend ? Object.assign({}, chatWho.friend, { cameos: [] }) : chatWho.friend, speaker: chatWho.speaker,
           you: { name: YOU.name, pronouns: YOU.pronouns },
           messages: sentHistory, message: msg, scene: null, guest_cameo: null, is_demo: true,
           visitor_id: GC_visitorId(), access_token: GC_accessToken(),
