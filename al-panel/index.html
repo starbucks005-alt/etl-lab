@@ -480,6 +480,8 @@
      demo:'Tell me what you are curious about, or ask me what I am curious about.'},
     {id:'house',    name:'House Controls', price:4.99, desc:'An option, off until you add a device. Say "turn on the test lamp" or "close the blinds." Works with a TP-Link Kasa plug or a device with a web address on your home network. She will not touch locks, doors or alarms, and never touches Alexa.',
      demo:'Add a lamp on my panel, press Test, and then say turn on the test lamp.'},
+    {id:'briefing', name:'Daily Briefing', price:2.99, desc:'Say "what is on my day" and she reads the reminders and timers still ahead today and your to do list. She tells you she does not have your calendar.',
+     demo:'Ask me what is on today, and I will read what I am holding for you.'},
     {id:'shelf',    name:'Knowledge Shelf', price:4.99, desc:'Give her your handbook, rules or protocols. She answers from them only, says where she found it, and says so when it is not in your files.',
      demo:'Put a file on my shelf, then ask me about what is in it.'},
     {id:'desk',     name:'Front Door (Guardian)', price:9.99, desc:'Greets visitors, asks where they are going, gives directions from your building directory, points to your forms, and tells the front office who is here. Fill in the Guardian setup card to teach her your building.',
@@ -490,7 +492,7 @@
   var KIDS_SKILLS = ['clock', 'spanish', 'story', 'study', 'trivia', 'mindful', 'tour'];   // the same list as KIDS_SKILLS in al_panel_server.py
   var MODES = [
     {id:'companion', name:'Companion', color:'#1fb7c9', line:'Warm, remembers you, and has moods with reasons.',
-     demo:'Companion mode. I am glad you are here.'},
+     demo:'Companion mode. I\'m glad you\'re here.'},
     {id:'science', name:'Science', color:'#3b7dff', line:'Careful and honest, for people who check what she says.',
      demo:'Science mode. I will tell you what is known, what is not, and when I do not know.'},
     {id:'kids', name:'Children\'s friend', color:'#f2b84b', line:'Gentle and safe for any age. Only characters and skills chosen for everyone under 13. Notes a parent can read.',
@@ -499,6 +501,8 @@
      demo:'Event mode. I will greet people and tell them about the lab.'},
     {id:'guardian', name:'Guardian', color:'#e5534b', line:'Greets people, asks where they are going, gives directions and forms. A preview of the ETL Guardians.',
      demo:'Guardian mode. I will greet visitors and help them find their way.'},
+    {id:'assistant', name:'Personal assistant', color:'#8e6bff', line:'Keeps your day: reminders, lists, timers and a daily briefing. Short, organized and on your side.',
+     demo:'Assistant mode. Ask me for your day, or tell me what to remember.'},
     {id:'bench', name:'Bench and workshop', color:'#ff8a3d', line:'Hands free: short answers, one step at a time, timers for the waits.',
      demo:'Bench mode. Tell me the steps and I will read them one at a time.'}
   ];

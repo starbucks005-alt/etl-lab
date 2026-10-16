@@ -309,6 +309,48 @@ def shelf_search(question, k=4, min_hits=2):
             for i, (_, n, c) in enumerate(scored[:k])]
 
 
+# ---------------------------------------------------------------- the daily briefing, 2026-10-16, Dr. O: a personal assistant mode
+BRIEF_RE = re.compile(r"\b(what(?:'s| is| do i have)? (?:on )?(?:my )?(?:day|schedule|agenda|today)|what do i have (?:today|planned|on today)|(?:my|the|a) (?:daily )?(?:briefing|brief)\b|brief me|plan for today|my day)\b", re.I)
+TODO_NAMES = ("to do", "todo", "to-do", "tasks", "task", "today")
+
+
+def briefing_reply(text, clock_items=None, now=None):
+    """The day in a few spoken sentences, from what she is actually holding: today's reminders, her timers and alarms, and the to do list. She has no calendar,
+    and says so. Returns None when this was not a request for the day."""
+    if not BRIEF_RE.search(text or ""):
+        return None
+    now = now or time.time()
+    lt = time.localtime(now)
+    hello = "Good morning." if lt.tm_hour < 12 else "Good afternoon." if lt.tm_hour < 17 else "Good evening."
+    day = time.strftime("%A, %B ", lt) + str(lt.tm_mday)
+    parts = []
+    today = []
+    for r in load_routines():
+        at = r.get("next_at") or 0
+        a = time.localtime(at)
+        if at > now and (a.tm_year, a.tm_yday) == (lt.tm_year, lt.tm_yday):
+            today.append((at, "%s at %s" % (_you(r.get("text", "")), _label(r.get("time") or time.strftime("%H:%M", a)))))
+    for c in (clock_items or []):
+        at = c.get("at") or 0
+        a = time.localtime(at)
+        if at > now and (a.tm_year, a.tm_yday) == (lt.tm_year, lt.tm_yday):
+            today.append((at, "%s at %s" % ("an alarm" if c.get("kind") == "alarm" else "a timer", time.strftime("%I:%M %p", a).lstrip("0").lower())))
+    today.sort()
+    if today:
+        parts.append("Still ahead today: " + "; ".join(x[1] for x in today[:6]) + ".")
+    lists = load_notebook()["lists"]
+    todo = []
+    for name, items in lists.items():
+        if name.lower() in TODO_NAMES and items:
+            todo.extend(items)
+    if todo:
+        parts.append("On your to do list: " + ", ".join(todo[:6]) + (", and %d more" % (len(todo) - 6) if len(todo) > 6 else "") + ".")
+    if not parts:
+        parts.append("You have nothing set for the rest of today, and nothing on a to do list.")
+    parts.append("I do not have your calendar, so tell me anything else to add.")
+    return "%s It is %s. %s" % (hello, day, " ".join(parts))
+
+
 # ---------------------------------------------------------------- the Guardian: a front-door greeter and front desk
 # Added 2026-10-15, Dr. O. The ETL Guardians are the front desk robots the lab means to build. Elle can act as one now ("Hi, can I assist you? Where are you going?"),
 # and the setup below is what a building fills in: its offices, forms, hours, who to tell, and what to say in an emergency. What visitors ask and she cannot answer is
