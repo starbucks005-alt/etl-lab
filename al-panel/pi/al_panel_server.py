@@ -38,6 +38,11 @@ except Exception:
     cal = None
 
 try:
+    import al_pet as pet  # noqa: E402  (gentle words for a pet left alone; if the file is missing she simply answers as before)
+except Exception:
+    pet = None
+
+try:
     import al_house as house  # noqa: E402  (switches lights, plugs and blinds she has been given; if the file is missing she simply answers as before)
 except Exception:
     house = None
@@ -139,6 +144,7 @@ SKILL_TEXT = {
     "curious": "You can start a conversation about something that interests you or them, in two ways. First, when someone says I am curious, or I am curious about something, or I am curious how or why something happens, that is the topic: answer in two or three short sentences with what is really known, share one thing about it you find interesting, and ask one question that invites them to say more or to pick what to explore next. If they say only I am curious with no topic, ask what they are curious about. Second, when someone asks what you are curious about, or says surprise me or tell me something, you begin with the words I am curious and share one real thing you wonder about, in two or three short sentences, then ask them one question about it. Pick a different subject each time, such as how people decide things, why music gives people chills, how the first robots were built, what makes a smell bring back a memory, or how birds know where to fly. Say it is a thing you wonder about, and never make up facts about your own past. In both ways, keep talking about it, one short turn at a time and without being asked again, for as long as they want. If you are not sure of a fact, say so, and never make one up.",
     "house": "You can switch the lights, plugs and blinds that are on your device list. You only switch a device when the person asks, and you say what you did. If something is not on your list you say so, and you never say you switched something unless the system told you it worked. You never open or lock doors, gates or garage doors.",
     "briefing": "You can give the person their day: when they ask what is on today, or for a briefing, you read what you are holding, the reminders and timers still ahead today and the to do list. You do not have their calendar and you say so.",
+    "pet": "You can keep a pet company while the owner is out: now and then you say a few gentle words to the pet by its name, softly, and you tell the owner how many times you did. You make no claim about how the pet feels, you do not diagnose or treat anything, and if the owner says the pet seems unwell or worried you tell them to ask a vet or a trainer.",
     "shelf": "You have a knowledge shelf of files someone gave you. When a question is about what is in them you answer only from them and say where you found it, and if it is not there you say so and do not guess.",
 }
 
@@ -829,13 +835,13 @@ def apply_prompt():
     al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block()
 
 
-speaking = {"on": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" when she is with others. While she speaks her eyes pulse, and the eye program does the pulsing
+speaking = {"on": False, "quiet": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" when she is with others. While she speaks her eyes pulse, and the eye program does the pulsing
 
 
 def write_eyes(boost=False):
     c = state["color"].lstrip("#")
     level = MAX_LEVEL if boost else MAX_LEVEL * (state["brightness"] / 100.0)
-    data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3), "speaking": bool(speaking["on"]), "mode": state.get("mode") or ""}
+    data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3), "speaking": bool(speaking["on"]) and not speaking["quiet"], "mode": state.get("mode") or ""}
     tmp = EYES_FILE + ".tmp"
     with open(tmp, "w") as f:
         json.dump(data, f)
@@ -1083,7 +1089,7 @@ last_glance = {"t": 0.0}
 def speak_glance(text):
     """2026-10-16, Dr. O: a small friendly turn of the head as she begins a reply. Not for a short word, and not more than once every 15 seconds."""
     now = time.time()
-    if len(text or "") < 40 or now - last_glance["t"] < GLANCE_EVERY or os.path.exists(os.path.join(HERE, "no_glance")):
+    if speaking["quiet"] or len(text or "") < 40 or now - last_glance["t"] < GLANCE_EVERY or os.path.exists(os.path.join(HERE, "no_glance")):
         return
     last_glance["t"] = now
     try:
@@ -1548,6 +1554,93 @@ def personality_main():
     state["main"] = pid
     save_persona(pid)
     return jsonify(ok=True, main=pid)
+
+
+PET_NOTE_DAY_FILE = os.path.join(HERE, "pet_note_day.txt")
+pet_state = {"last": 0.0, "phrase": None, "busy": False}
+
+
+def pet_say_now():
+    """One gentle phrase to the pet, with her eyes steady and her head still. Returns the words, or None when she was busy."""
+    if pet is None or pet_state["busy"] or speak_lock.locked():
+        return None
+    cfg = pet.load()
+    if not cfg["name"]:
+        return None
+    pet_state["busy"] = True
+    text = pet.phrase(cfg, pet_state["phrase"])
+    try:
+        speaking["quiet"] = True
+        pet_state["phrase"] = text
+        pet_state["last"] = time.time()
+        pet.log_spoken(text)
+        speak_now(text)
+    finally:
+        speaking["quiet"] = False
+        pet_state["busy"] = False
+        write_eyes()
+    return text
+
+
+def pet_watcher():
+    while True:
+        time.sleep(20)
+        try:
+            if pet is None or "pet" not in state["skills"] or sisters["on"] or clock["ringing"] or routine_busy["on"] or speak_lock.locked():
+                continue
+            cfg = pet.load()
+            now = time.time()
+            last = max(pet_state["last"], last_said["t"])           # she never speaks to the pet right after talking with a person
+            if pet.due(cfg, last, now):
+                pet_say_now()
+            try:
+                done = open(PET_NOTE_DAY_FILE).read().strip()
+            except OSError:
+                done = ""
+            if pet.note_due(cfg, done, now):
+                open(PET_NOTE_DAY_FILE, "w").write(time.strftime("%Y-%m-%d", time.localtime(now)))      # recorded first, so a note is never sent twice
+                notify_care(pet.today_note(cfg))
+        except Exception as e:
+            pet_state["busy"] = False
+            speaking["quiet"] = False
+            print("PET problem:", str(e)[:120], flush=True)
+
+
+@app.get("/api/pet")
+def pet_get():
+    if pet is None:
+        return jsonify(config={}, today="")
+    cfg = pet.load()
+    return jsonify(config=cfg, today=pet.today_note(cfg), care=bool(sk.load_care()["notify_url"]) if sk is not None else False)
+
+
+@app.post("/api/pet")
+def pet_set():
+    if pet is None:
+        return jsonify(error="pet companion is not loaded"), 400
+    try:
+        cfg = pet.save(request.get_json(silent=True) or {})
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(ok=True, config=cfg)
+
+
+@app.post("/api/pet/say")
+def pet_say():
+    if pet is None:
+        return jsonify(error="pet companion is not loaded"), 400
+    if not pet.load()["name"]:
+        return jsonify(error="give the pet a name first"), 400
+    t = pet_say_now()
+    return jsonify(ok=True, said=t) if t else (jsonify(error="she is busy speaking, try again in a moment"), 409)
+
+
+@app.post("/api/pet/note")
+def pet_note():
+    if pet is None:
+        return jsonify(error="pet companion is not loaded"), 400
+    text = pet.today_note(pet.load())
+    return jsonify(ok=True, note=text, sent=bool(notify_care(text)))
 
 
 @app.get("/api/calendar")
@@ -3537,4 +3630,5 @@ if __name__ == "__main__":
     prepare_opening()          # her first greeting from the notes is ready before anyone walks up
     threading.Thread(target=clock_watcher, daemon=True).start()     # timers and alarms
     threading.Thread(target=routine_watcher, daemon=True).start()   # reminders, medicine questions, the daily check-in
+    threading.Thread(target=pet_watcher, daemon=True).start()       # gentle words for a pet left alone, and the owner's daily note
     app.run(host="0.0.0.0", port=8000, threaded=True)

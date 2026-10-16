@@ -378,6 +378,23 @@
       </div></div>
     </section>
 
+    <!-- PET COMPANION, added 2026-10-16, Dr. O: "a skill for pet owners that feel bad about leaving their pet alone all day." Off until switched on. -->
+    <section class="card wide" id="petCard" style="display:none">
+      <h2>Pet companion</h2>
+      <p class="hint">While you are out she says a few gentle words to your pet now and then, with her eyes steady and her head still. She does not listen for barking yet, and she makes no claim about how your pet feels. If your pet seems worried or unwell, ask a vet or a trainer. Keep her and her cords out of your pet's reach.</p>
+      <div class="twocol"><div>
+        <label for="petName">Your pet's name</label><input type="text" id="petName" placeholder="Name">
+        <label for="petKind">Kind of pet</label><select id="petKind"><option value="dog">Dog</option><option value="cat">Cat</option><option value="other">Something else</option></select>
+        <label for="petEvery">How often, in minutes (10 to 240)</label><input type="number" id="petEvery" min="10" max="240" step="5" style="max-width:110px">
+      </div><div>
+        <div class="row"><label style="margin:12px 0 4px">Quiet from <input type="text" id="petQs" placeholder="21:00" style="max-width:90px"></label><label style="margin:12px 0 4px">until <input type="text" id="petQe" placeholder="07:00" style="max-width:90px"></label></div>
+        <label for="petNoteAt">Send my daily note at (uses the notice address from the check-in card)</label><input type="text" id="petNoteAt" placeholder="18:00" style="max-width:90px">
+        <label class="wopt" style="margin-top:12px"><input type="checkbox" id="petOn"> She keeps my pet company now</label>
+      </div></div>
+      <div class="row" style="margin-top:12px"><button class="primary" id="petSave" type="button">Save</button><button id="petSay" type="button">Say one now</button><button id="petNote" type="button">Send today's note</button><span class="hint" id="petStatus" style="margin:0"></span></div>
+      <p class="hint" id="petToday" style="margin-top:10px"></p>
+    </section>
+
     <!-- CALENDAR, added 2026-10-16, Dr. O: "Auggie can check my calendar." Read only. The link is private and is never shown again once saved. -->
     <section class="card wide" id="calCard" style="display:none">
       <h2>Her calendar: read only</h2>
@@ -490,6 +507,8 @@
      demo:'Add a lamp on my panel, press Test, and then say turn on the test lamp.'},
     {id:'briefing', name:'Daily Briefing', price:2.99, desc:'Say "what is on my day." She reads today\'s calendar (paste a calendar link on her panel and she reads it, read only), plus the reminders and timers still ahead and your to do list. Without a link she tells you she does not have your calendar.',
      demo:'Ask me what is on today, and I will read what I am holding for you.'},
+    {id:'pet',      name:'Pet Companion', price:4.99, desc:'For when you are out. She says a few gentle words to your pet by name, now and then, with her eyes steady and her head still, and sends you a daily note of how often she did. She does not listen for barking yet and makes no claim about how your pet feels.',
+     demo:'Hello, sweet pet. It is quiet, and that is fine. I am keeping you company.'},
     {id:'shelf',    name:'Knowledge Shelf', price:4.99, desc:'Give her your handbook, rules or protocols. She answers from them only, says where she found it, and says so when it is not in your files.',
      demo:'Put a file on my shelf, then ask me about what is in it.'},
     {id:'desk',     name:'Front Door (Guardian)', price:9.99, desc:'Greets visitors, asks where they are going, gives directions from your building directory, points to your forms, and tells the front office who is here. Fill in the Guardian setup card to teach her your building.',
@@ -564,7 +583,7 @@
     if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
       state.mode = info.mode || null; store('mode', state.mode);
       if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
-      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar();
+      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet();
     }
     paintSensor(on ? info : null);
     if(on && info){
@@ -889,6 +908,29 @@
   $('gClearUnmet').addEventListener('click', function(){ api('/api/guardian/clear', {what:'unmet'}).then(refreshGuardian).catch(function(){}); });
 
 
+  // ---------- pet companion ----------
+  var petLoaded = false;
+  function refreshPet(){
+    var card = $('petCard');
+    if(!live || state.skills.indexOf('pet') === -1){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/pet').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      if(!petLoaded){                                    // fill once, so what is being typed is never overwritten
+        petLoaded = true; var c = j.config;
+        $('petName').value = c.name || ''; $('petKind').value = c.kind || 'dog'; $('petEvery').value = c.every_min || 40;
+        $('petQs').value = c.quiet_start || ''; $('petQe').value = c.quiet_end || ''; $('petNoteAt').value = c.note_at || ''; $('petOn').checked = !!c.on;
+      }
+      $('petToday').textContent = j.today + (j.care ? '' : ' (No notice address is saved yet, so the daily note cannot be sent. Add one in the check-in card.)');
+    }).catch(function(){});
+  }
+  $('petSave').addEventListener('click', function(){
+    api('/api/pet', {name:$('petName').value, kind:$('petKind').value, every_min:$('petEvery').value, quiet_start:$('petQs').value, quiet_end:$('petQe').value, note_at:$('petNoteAt').value, on:$('petOn').checked})
+      .then(function(){ $('petStatus').textContent = 'Saved.'; petLoaded = false; refreshPet(); }).catch(function(e){ $('petStatus').textContent = 'Not saved: ' + e.message; });
+  });
+  $('petSay').addEventListener('click', function(){ $('petStatus').textContent = 'Saying one...'; api('/api/pet/say', {}).then(function(j){ $('petStatus').textContent = 'She said: ' + j.said; refreshPet(); }).catch(function(e){ $('petStatus').textContent = e.message; }); });
+  $('petNote').addEventListener('click', function(){ api('/api/pet/note', {}).then(function(j){ $('petStatus').textContent = j.sent ? 'Sent: ' + j.note : 'Not sent (no notice address saved). The note is: ' + j.note; }).catch(function(e){ $('petStatus').textContent = e.message; }); });
+
   // ---------- the calendar ----------
   function refreshCalendar(){
     var card = $('calCard');
@@ -972,7 +1014,7 @@
         if(j.welcome){ state.welcome = j.welcome; paintWelcome(); }
         if(j.skills){ state.skills = j.skills.slice(); }
         state.persona = j.persona || null; store('persona', state.persona);
-        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar();
+        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet();
       }).catch(function(e){ state.mode = was; store('mode', was); renderModes(); addMsg('al', '(I could not change my mode: ' + e.message + ')'); });
     } else {
       if(id === 'kids' && state.persona){ var cp = PERSONAS.filter(function(p){ return p.id === state.persona; })[0]; if(!cp || !cp.kids){ state.persona = null; store('persona', null); } }
@@ -1040,7 +1082,7 @@
     function finish(){
       if(state.skills.indexOf(s.id) === -1){ state.skills.push(s.id); }
       store('skills', state.skills);
-      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
+      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
       setTimeout(renderSkills, 250);
     }
   }
