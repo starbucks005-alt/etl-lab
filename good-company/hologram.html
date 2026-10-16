@@ -887,7 +887,10 @@ function gcNoReplyWhy(res) {
       if (!SIS.release) {
         chatInput.value = '';
         if (SIS_STOP.test(text)) { sisStop('told to stop'); return; }
-        if (!sisNameRe().test(text) || SIS.wait) return;            // not meant for her: stay quiet and let the one named answer
+        var hsEl = document.getElementById('bHandsState');
+        if (!sisNameRe().test(text)) { if (hsEl) hsEl.textContent = 'Heard: "' + text.slice(0, 70) + '" (no name for me in it, so I stayed quiet)'; return; }   // 2026-10-16, Dr. O: "Astrad cannot hear Elle". Now the page says what it heard
+        if (SIS.wait) return;               // not meant for her: stay quiet and let the one named answer
+        if (hsEl) hsEl.textContent = 'Heard: "' + text.slice(0, 70) + '"';
         SIS.wait = true; var t0 = Date.now();
         setTimeout(function () {                                    // a beat first; if someone has started talking, they keep the floor
           SIS.wait = false;
@@ -1003,7 +1006,8 @@ function gcNoReplyWhy(res) {
     var n = (COMPANIONS[who.value] && COMPANIONS[who.value][0]) || '';
     var words = n.replace(/\b(dr|ms|mr|mrs)\b\.?/ig, '').split(/[^A-Za-z0-9.]+/).filter(function (w) { return w.length > 1; });
     var all = words.map(function (w) { return w.replace(/\./g, ''); }).filter(function (w) { return w.length > 1; });
-    if (/astrad/i.test(n)) all.push('Ted');                              // 2026-10-16, Dr. O: Astrad also goes by Ted, so the talk can name him without saying a word that sounds like Astra
+    if (/astrad/i.test(n)) all.push('Ted', 'Strad', 'Astrid', 'Astro');   // Ted is his short name; the rest are how listening often writes Astrad
+    if (false) all.push('Ted');                              // 2026-10-16, Dr. O: Astrad also goes by Ted, so the talk can name him without saying a word that sounds like Astra
     if (!all.length) all = ['nobody-has-this-name'];
     return new RegExp('\\b(' + all.join('|') + ')\\b', 'i');
   }
