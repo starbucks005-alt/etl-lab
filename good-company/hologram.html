@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Good Company: Hologram Mode</title>
-<meta name="description" content="Show a Good Company companion on a phone laid flat, under a small clear pyramid, so she appears to float.">
+<meta name="description" content="Show a Good Company companion on a phone laid flat, under a small clear pyramid, so the character appears to float.">
 
 <!-- Google tag (gtag.js), same snippet as every other Good Company page. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F7HTDVMJPZ"></script>
@@ -151,7 +151,7 @@ function gcNoReplyWhy(res) {
   <div id="holoReply" aria-live="polite"></div>
   <form id="holoChat" autocomplete="off">
     <button id="bMic" type="button" aria-label="Speak your message" style="display:none">&#127908; Talk</button>
-    <input id="holoInput" type="text" placeholder="Or type to her" aria-label="Type your message">
+    <input id="holoInput" type="text" placeholder="Or type here" aria-label="Type your message">
     <button id="holoSend" type="submit">Send</button>
   </form>
   <!-- ALWAYS-ON MICROPHONE, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. -->
@@ -171,7 +171,7 @@ function gcNoReplyWhy(res) {
   <button id="bVoice" type="button" style="display:none">Voice: on</button>
   <button id="bTurn" type="button">Turn the sides</button>
   <button id="bMirror" type="button">Mirror</button>
-  <button id="bRot" type="button">Turn her</button>
+  <button id="bRot" type="button">Turn the hologram</button>
   <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="70"></span>
   <span class="rng"><label for="rGap" style="margin:0">Middle gap</label><input id="rGap" type="range" min="0" max="40" value="12"></span>
   <button id="bFull" type="button">Full screen</button>
@@ -1002,7 +1002,7 @@ function gcNoReplyWhy(res) {
     if (!chatWho || chatWho.echo) { showReply('This one talks through My Echo, so it cannot join the sisters yet.'); return; }
     if (!SIS.others.length) {                                          // asked, not fixed: any characters can be in the talk
       var saved = ''; try { saved = localStorage.getItem('gc_sisters_with') || ''; } catch (_) {}
-      var ans = window.prompt('Who is talking with her? Use the names they answer to, separated by commas.', saved);
+      var ans = window.prompt('Who is talking with them? Use the names they answer to, separated by commas.', saved);
       if (!ans) return;
       SIS.others = ans.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4);
       try { localStorage.setItem('gc_sisters_with', SIS.others.join(', ')); } catch (_) {}
