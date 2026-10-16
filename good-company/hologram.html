@@ -649,7 +649,7 @@ function gcNoReplyWhy(res) {
     }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
   }
   function floorWait(done) {
-    if (!SIS.on) { done(false); return; }
+    if (!SIS.on && !SIS.fixed) { done(false); return; }      // 2026-10-16: also when Elle is named in the address, so it waits while she speaks
     var t0 = Date.now();
     (function tryIt() {
       floorCall('claim').then(function (r) {

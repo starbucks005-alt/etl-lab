@@ -1079,7 +1079,9 @@ def floor_call(action):
 
 def floor_wait():
     """True when she holds the floor. False when she should just speak: not in a talk, the website could not be reached, or she waited too long."""
-    if not sisters["on"] or os.path.exists(FLOOR_OFF_FILE):
+    # 2026-10-16, Dr. O: "they both think Elle is not speaking". She only took the floor inside a talk, so a page with her named in its address never saw her hold it
+    # and spoke over her. She now takes it whenever she speaks (the floor is off only with the no_floor file). If the website cannot be reached she just speaks.
+    if os.path.exists(FLOOR_OFF_FILE):
         return False
     t0 = time.time()
     told = False
