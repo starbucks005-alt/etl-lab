@@ -731,7 +731,7 @@ function gcNoReplyWhy(res) {
      voice once the main voice has finished. Not tried with the real voices. */
   function showCameo(c, mainReply) {
     if (!c || !c.text) return;
-    if (SIS.on || SIS.fixed) return;          // 2026-10-16, Dr. O: in a talk with Elle, Astra chimed in in her robot voice and answered for Elle. In a talk with others, nobody speaks for them.
+    if (SIS.on || SIS.fixed || who.value === 'astrad' || who.value === 'astra9') return;          // 2026-10-16, Dr. O: in a talk with Elle, Astra chimed in in her robot voice and answered for Elle. In a talk with others, nobody speaks for them.
     var name = spokenName(c.name || '');
     showReply(mainReply + '  ' + (name ? name + ': ' : '') + c.text);
     chatHistory.push({ who: c.name || 'Cameo', text: c.text, mine: false });
@@ -880,6 +880,9 @@ function gcNoReplyWhy(res) {
     }
     if (!text || chatBusy || !chatWho) return;
     var sisNote = SIS.fixed && !SIS.on ? roomNote(SIS.others) : '';
+    /* 2026-10-16, Dr. O: "only when both are on the screen are they to be shared". Each hologram shows one of them, so the one on screen speaks only for itself: the other is not here and is never spoken as or answered for. */
+    if (who.value === 'astrad') sisNote += '\n\n[Only Astrad is in this hologram. Astra-9 is not here, so never speak as her, quote her or answer for her or for anyone else. Speak only as yourself.]';
+    if (who.value === 'astra9') sisNote += '\n\n[Only Astra-9 is in this hologram. Astrad is not here, so never speak as him, quote him or answer for him or for anyone else. Speak only as yourself.]';
     if (SIS.on && !chatWho.echo) {
       if (!SIS.release) {
         chatInput.value = '';
@@ -910,7 +913,7 @@ function gcNoReplyWhy(res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // 2026-10-16, Dr. O: "Astra is answering for Elle". With others named in the room (?with= or a talk) nobody else is told they may chime in, so no one speaks for Elle.
-          friend: (SIS.on || SIS.fixed) && chatWho.friend ? Object.assign({}, chatWho.friend, { cameos: [] }) : chatWho.friend, speaker: chatWho.speaker,
+          friend: (SIS.on || SIS.fixed || who.value === 'astrad' || who.value === 'astra9') && chatWho.friend ? Object.assign({}, chatWho.friend, { cameos: [] }) : chatWho.friend, speaker: chatWho.speaker,
           you: { name: YOU.name, pronouns: YOU.pronouns },
           messages: sentHistory, message: msg, scene: null, guest_cameo: null, is_demo: true,
           visitor_id: GC_visitorId(), access_token: GC_accessToken(),
