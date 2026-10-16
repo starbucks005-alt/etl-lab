@@ -2,7 +2,7 @@
 
 2026-10-16, Dr. O: "when we have her with others, nothing shows she is alive". So:
   speaking  the eyes pulse like a voice, about three times a second, with a little irregularity so it does not look like a blinking light
-  quiet     the eyes swell slowly from about 60 percent to full and back every 5 seconds, so she looks awake
+  quiet     the eyes swell slowly, from about 30 percent to well above their usual brightness and back every 4.5 seconds, so she looks awake
 The level never goes above the cap (30 percent), whatever the pulse asks for."""
 import math
 
@@ -19,8 +19,12 @@ def eye_level(d, t, breathe=True):
         x = (w + 1.0) / 2.0
         return max(0.0, min(CAP, lo + (hi - lo) * x))
     if breathe:
-        # 2026-10-16: the first try (10 percent) could not be seen on the rings. Now she swells from about 60 percent up to her usual brightness and back, every 5 seconds
-        return max(0.0, min(CAP, base * (0.60 + 0.40 * (0.5 + 0.5 * math.sin(2 * math.pi * t / 5.0)))))
+        # 2026-10-16: the second try (60 percent to full) could still not be seen on her rings. Now a deep, slow swell: from about 30 percent up to a good deal brighter than usual and back
+        # every 4.5 seconds, still never above the cap.
+        lo = base * 0.30
+        hi = min(CAP, max(base * 1.45, base + 0.04))
+        x = 0.5 + 0.5 * math.sin(2 * math.pi * t / 4.5)
+        return max(0.0, min(CAP, lo + (hi - lo) * x))
     return base
 
 
