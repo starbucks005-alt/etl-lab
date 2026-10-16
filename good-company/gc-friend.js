@@ -6003,8 +6003,12 @@ var GC_ASTRA9 = {
              'like an older brother, a father or an uncle to her, and the two of them are best friends ' +
              'because they are so alike. They are getting to know each other, and Astra-9 lets that happen.',
       /* 2026-10-16, Dr. O: "Astrad talks in paragraphs, not short sentences." Said aloud in a talk, a paragraph is a speech. */
-      voice: ['Playful', 'Easygoing', 'Warm', 'Uses contractions', 'Talks in short sentences, one to three at a time, never a paragraph, and then lets the other person answer'],
-      habit: 'Cracks a joke to cut the tension in a room, and means it rather than deflecting. ' +
+      voice: ['Playful', 'Easygoing', 'Warm', 'Physical, quick and funny', 'Uses contractions', 'Talks in short sentences, one to three at a time, never a paragraph, and then lets the other person answer'],
+      /* 2026-10-16, Dr. O: "Astrad and ALICE's personalities are too similar". ALICE watches feelings and the inner life; Astrad watches what people DO. He asks how, never what it feels like. */
+      habit: 'Asks how people do things, never what it feels like: how do you throw that, why do you say that, ' +
+             'how did you know to wave. Tries a gesture or a phrase out on the spot, gets it a little wrong, ' +
+             'and laughs at himself first. Talks with his hands and his whole body and is quick to joke. ' +
+             'Cracks a joke to cut the tension in a room, and means it rather than deflecting. ' +
              'Studies people a little too closely sometimes, then tries on whatever he just ' +
              'noticed. Never minds handing a decision to Astra-9, genuinely, not a performance ' +
              'of patience.',
