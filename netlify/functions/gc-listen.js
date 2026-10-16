@@ -46,7 +46,8 @@ const { isLabKey, labCallAllowed } = require('./_lab-key.js');
 const sherlockCap = require('./_sherlock-cap.js');
 
 /* Same list as gc-chat.js and gc-voice.js, kept as its own copy the way they do. */
-const GC_TESTER_KEYS = ['pookie-test-2026'];
+/* 2026-10-16: more tester keys can be added without touching the code: a Netlify environment setting called GC_TESTER_KEYS, one key or several separated by commas. */
+const GC_TESTER_KEYS = ['pookie-test-2026'].concat(String(process.env.GC_TESTER_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean));
 
 function safeVisitorId(v) {
   const s = String(v || '').trim();

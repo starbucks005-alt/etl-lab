@@ -103,7 +103,8 @@ const DAILY_FREE_LIMIT  = 15;  // free messages/day with a house demo, matching 
    is a perfectly good place for it -- add a name here, push, done, no
    Netlify config step and no risk of tripping the same env var ceiling
    again. See isTester's own comment below for what this actually bypasses. */
-const GC_TESTER_KEYS = ['pookie-test-2026'];
+/* 2026-10-16: more tester keys can be added without touching the code: a Netlify environment setting called GC_TESTER_KEYS, one key or several separated by commas. */
+const GC_TESTER_KEYS = ['pookie-test-2026'].concat(String(process.env.GC_TESTER_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean));
 
 function safeVisitorId(v) {
   const s = String(v || '').trim();

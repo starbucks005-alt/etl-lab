@@ -110,7 +110,8 @@ const sherlockCap = require('./_sherlock-cap.js');
    a first-time visitor sees, which is what she reported as her time being
    up. Kept as its own hardcoded copy rather than a shared require, matching
    how GC_OWNER_KEY is independently duplicated between the two files. */
-const GC_TESTER_KEYS = ['pookie-test-2026'];
+/* 2026-10-16: more tester keys can be added without touching the code: a Netlify environment setting called GC_TESTER_KEYS, one key or several separated by commas. */
+const GC_TESTER_KEYS = ['pookie-test-2026'].concat(String(process.env.GC_TESTER_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean));
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
 
