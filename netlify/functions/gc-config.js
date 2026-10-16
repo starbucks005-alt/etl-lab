@@ -15,7 +15,9 @@ const json = (statusCode, o) => ({ statusCode, headers: H, body: JSON.stringify(
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
   const token = String((event.headers && (event.headers.authorization || event.headers.Authorization)) || '').replace(/^Bearer\s+/i, '').trim();
-  if (!ownerUser(token)) return json(401, { error: 'owner_key_needed' });
+  /* the campus owner key, or Good Company's own owner key (the one the hologram ?key= link uses), same two doors gc-chat.js accepts */
+  const gcOwnerKey = String(process.env.GC_OWNER_KEY || '').trim();
+  if (!ownerUser(token) && !(gcOwnerKey && token === gcOwnerKey)) return json(401, { error: 'owner_key_needed' });
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }
 

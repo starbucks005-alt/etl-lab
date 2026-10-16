@@ -13,6 +13,7 @@ Module._load = function (req, ...a) {
   return origLoad.call(this, req, ...a);
 };
 process.env.OWNER_KEY = 'owner-test-key-123';
+process.env.GC_OWNER_KEY = 'gc-owner-test-key';
 const cfg = require('../netlify/functions/_gc-config.js');
 const admin = require('../netlify/functions/gc-config.js');
 const call = (token, body) => admin.handler({ httpMethod: 'POST', headers: token ? { authorization: 'Bearer ' + token } : {}, body: JSON.stringify(body) });
@@ -38,5 +39,6 @@ const call = (token, body) => admin.handler({ httpMethod: 'POST', headers: token
   assert.strictEqual(env.AZURE_SPEECH_KEY.length, 32);
   await call('owner-test-key-123', { action: 'clear_testers' });
   assert.strictEqual(await cfg.isTesterKey({}, 'laptop-tester-abc123', []), false);
+  assert.strictEqual((await call('gc-owner-test-key', { action: 'status' })).statusCode, 200, 'the Good Company owner key is accepted too');
   console.log('gc-config tests passed');
 })().catch((e) => { console.error(e); process.exit(1); });
