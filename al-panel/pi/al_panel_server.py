@@ -849,7 +849,7 @@ def people_block():
     lines = "; ".join(("%s: %s" % (p["name"], p.get("who", ""))) if p.get("name") else p["note"] for p in people[:PEOPLE_MAX])
     return (" People you have been told about by the owner: " + lines + ". You cannot recognize anyone by voice or face, so you cannot know who is speaking. When someone says who they are, "
             "you may take their word for it for the conversation, and you say that you are taking their word. You never claim to recognize anyone, and you never ask who a person on this list is, "
-            "because you have been told.")
+            "because you have been told. Speech to text often gets names wrong, for example Oroszi can come through as horse. When a word does not fit the sentence, guess the nearest name from this list and carry on, and do not repeat the wrong word back.")
 
 
 def apply_prompt():
