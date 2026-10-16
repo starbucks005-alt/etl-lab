@@ -835,7 +835,7 @@ PEOPLE_MAX = 20
 def load_people():
     try:
         d = json.load(open(PEOPLE_FILE))
-        return [x for x in d if isinstance(x, dict) and x.get("name")] if isinstance(d, list) else []
+        return [x for x in d if isinstance(x, dict) and (x.get("name") or x.get("note"))] if isinstance(d, list) else []
     except (OSError, ValueError):
         return []
 
@@ -846,7 +846,7 @@ def people_block():
     people = load_people()
     if not people:
         return ""
-    lines = "; ".join("%s: %s" % (p["name"], p.get("who", "")) for p in people[:PEOPLE_MAX])
+    lines = "; ".join(("%s: %s" % (p["name"], p.get("who", ""))) if p.get("name") else p["note"] for p in people[:PEOPLE_MAX])
     return (" People you have been told about by the owner: " + lines + ". You cannot recognize anyone by voice or face, so you cannot know who is speaking. When someone says who they are, "
             "you may take their word for it for the conversation, and you say that you are taking their word. You never claim to recognize anyone, and you never ask who a person on this list is, "
             "because you have been told.")
@@ -1642,12 +1642,15 @@ def people_set():
     d = request.get_json(silent=True) or {}
     out = []
     for ln in str(d.get("text", "")).splitlines():
-        if "|" not in ln:
+        ln = ln.strip()
+        if not ln or any(c in ln for c in "<>{}\\"):
             continue
-        name, who = (x.strip() for x in ln.split("|", 1))
-        if not name or any(c in name + who for c in "<>{}\\"):
-            continue
-        out.append({"name": name[:40], "who": who[:200]})
+        if "|" in ln:                                   # Name | who they are
+            name, who = (x.strip() for x in ln.split("|", 1))
+            if name:
+                out.append({"name": name[:40], "who": who[:200]})
+        else:                                           # a plain sentence: kept as written
+            out.append({"note": ln[:400]})
     out = out[:PEOPLE_MAX]
     tmp = PEOPLE_FILE + ".tmp"
     with open(tmp, "w") as f:

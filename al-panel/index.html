@@ -381,7 +381,7 @@
     <!-- PEOPLE SHE KNOWS ABOUT, added 2026-10-16, Dr. O: she did not know who the owner was. She cannot recognize a voice or a face, so this is what she is told. Real names go in on the robot, never in this file, which is public. -->
     <section class="card wide" id="peopleCard">
       <h2>People she knows about</h2>
-      <p class="hint">She cannot tell who is speaking, because she does not recognize voices or faces. But she can know about the people you tell her about, and she will take someone's word for who they are. Write one person per line as  Name | who they are.  Only Elle gets this, never the characters, and it stays on this robot.</p>
+      <p class="hint">She cannot tell who is speaking, because she does not recognize voices or faces. But she can know about the people you tell her about, and she will take someone's word for who they are. Write whatever you want her to know, one thought per line, in plain sentences. A line like  Name | who they are  works too. Only Elle gets this, never the characters, and it stays on this robot.</p>
       <textarea id="peopleText" rows="5" placeholder="Alex | the owner, who set you up&#10;Sam | a friend who visits on Tuesdays"></textarea>
       <div class="row" style="margin-top:12px"><button class="primary" id="peopleSave" type="button">Save</button><span class="hint" id="peopleStatus" style="margin:0"></span></div>
     </section>
@@ -923,7 +923,7 @@
     fetch('/api/people').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
       if(!j || $('peopleText').dataset.loaded){ return; }
       $('peopleText').dataset.loaded = '1';
-      $('peopleText').value = (j.people || []).map(function(p){ return p.name + ' | ' + (p.who || ''); }).join('\n');
+      $('peopleText').value = (j.people || []).map(function(p){ return p.name ? (p.name + ' | ' + (p.who || '')) : p.note; }).join('\n');
     }).catch(function(){});
   }
   $('peopleSave').addEventListener('click', function(){
