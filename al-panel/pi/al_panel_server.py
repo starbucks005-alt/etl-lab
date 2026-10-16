@@ -2187,7 +2187,8 @@ def end_quiet():
     return _pause["v"]
 MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit units); tune on the real Pi
 # speech to text often mishears her name. 2026-10-12: she now goes by Elle, which it writes as Ella, Ellie, Elly, El or Ell, so those wake her too.
-NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|astra|astro|astrid|al|8l)\b", re.I)
+# 2026-10-16, Dr. O: "she goes by Elle". Astra, Astro and Astrid were taken out: Astra is the other robot, and "Astrad" is often written as one of them, so words meant for Astrad woke Elle.
+NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|al|8l)\b", re.I)
 
 
 def wake_name_re():
