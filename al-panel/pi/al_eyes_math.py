@@ -38,7 +38,7 @@ def strip_frame(n, t, speaking, speed=1.1, trail=0.28):
     for i in range(n):
         behind = (pos - i) * direction                        # how far behind the spot this light is
         if behind < 0:
-            v = max(0.0, 1.0 - abs(behind) / 0.9)             # a little glow ahead of it
+            v = max(0.0, 1.0 - abs(behind) / 1.4)             # a little glow ahead of it
         else:
             v = max(0.0, 1.0 - behind / max(1.0, trail * n)) ** 2
         out.append(max(0.0, min(1.0, v)))
