@@ -33,6 +33,11 @@ except Exception as _e:         # pragma: no cover
     sk = None
     print("SKILLS not loaded:", str(_e)[:120], flush=True)
 try:
+    import al_calendar as cal  # noqa: E402  (reads a calendar link, read only; if the file is missing she simply answers as before)
+except Exception:
+    cal = None
+
+try:
     import al_house as house  # noqa: E402  (switches lights, plugs and blinds she has been given; if the file is missing she simply answers as before)
 except Exception:
     house = None
@@ -1545,6 +1550,38 @@ def personality_main():
     return jsonify(ok=True, main=pid)
 
 
+@app.get("/api/calendar")
+def calendar_get():
+    if cal is None:
+        return jsonify(set=False)
+    return jsonify(set=bool(cal.load_feed()["url"]))          # the link itself is private and is never sent to a page
+
+
+@app.post("/api/calendar")
+def calendar_set():
+    if cal is None:
+        return jsonify(error="calendar reading is not loaded"), 400
+    d = request.get_json(silent=True) or {}
+    try:
+        cal.save_feed(d.get("url", ""))
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(ok=True, set=bool(cal.load_feed()["url"]))
+
+
+@app.post("/api/calendar/test")
+def calendar_test():
+    if cal is None:
+        return jsonify(error="calendar reading is not loaded"), 400
+    events, err = cal.fetch_events(force=True)
+    if err:
+        return jsonify(error="I could not read it: " + err), 502
+    import datetime as _d
+    lt = time.localtime()
+    lo = _d.datetime(lt.tm_year, lt.tm_mon, lt.tm_mday)
+    return jsonify(ok=True, events=len(events), upcoming=len(cal.expand(events, lo, lo + _d.timedelta(days=14))))
+
+
 @app.get("/api/house")
 def house_get():
     if house is None:
@@ -2304,7 +2341,20 @@ def skills_reply(text):
         if r:
             return r
     if "briefing" in have:
-        r = sk.briefing_reply(text, clock_items=[dict(i) for i in clock["items"]])
+        if cal is not None:
+            r = cal.calendar_reply(text)
+            if r:
+                return r, r
+        today = None
+        if cal is not None and sk.BRIEF_RE.search(text or "") and cal.load_feed()["url"]:
+            try:
+                lt = time.localtime()
+                evs = cal.day_events(__import__("datetime").date(lt.tm_year, lt.tm_mon, lt.tm_mday))
+                now_dt = __import__("datetime").datetime(lt.tm_year, lt.tm_mon, lt.tm_mday, lt.tm_hour, lt.tm_min)
+                today = None if evs is None else [cal.say_event(x) for x in evs if x["allday"] or x["end"] > now_dt]
+            except Exception as e:
+                print("CALENDAR could not be read for the briefing:", str(e)[:100], flush=True)
+        r = sk.briefing_reply(text, clock_items=[dict(i) for i in clock["items"]], calendar_today=today)
         if r:
             return r, r
     if "house" in have and house is not None:

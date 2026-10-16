@@ -314,9 +314,9 @@ BRIEF_RE = re.compile(r"\b(what(?:'s| is| do i have)? (?:on )?(?:my )?(?:day|sch
 TODO_NAMES = ("to do", "todo", "to-do", "tasks", "task", "today")
 
 
-def briefing_reply(text, clock_items=None, now=None):
-    """The day in a few spoken sentences, from what she is actually holding: today's reminders, her timers and alarms, and the to do list. She has no calendar,
-    and says so. Returns None when this was not a request for the day."""
+def briefing_reply(text, clock_items=None, now=None, calendar_today=None):
+    """The day in a few spoken sentences, from what she is actually holding: today's calendar when one is connected (calendar_today is a list of spoken events, or None when
+    there is no calendar and she says so), reminders, her timers and alarms, and the to do list. Returns None when this was not a request for the day."""
     if not BRIEF_RE.search(text or ""):
         return None
     now = now or time.time()
@@ -324,6 +324,10 @@ def briefing_reply(text, clock_items=None, now=None):
     hello = "Good morning." if lt.tm_hour < 12 else "Good afternoon." if lt.tm_hour < 17 else "Good evening."
     day = time.strftime("%A, %B ", lt) + str(lt.tm_mday)
     parts = []
+    if calendar_today:
+        parts.append("On your calendar today: " + "; ".join(calendar_today[:6]) + ".")
+    elif calendar_today is not None:
+        parts.append("Nothing more on your calendar today.")
     today = []
     for r in load_routines():
         at = r.get("next_at") or 0
@@ -347,7 +351,7 @@ def briefing_reply(text, clock_items=None, now=None):
         parts.append("On your to do list: " + ", ".join(todo[:6]) + (", and %d more" % (len(todo) - 6) if len(todo) > 6 else "") + ".")
     if not parts:
         parts.append("You have nothing set for the rest of today, and nothing on a to do list.")
-    parts.append("I do not have your calendar, so tell me anything else to add.")
+    parts.append("Tell me anything else to add." if calendar_today is not None else "I do not have your calendar, so tell me anything else to add.")
     return "%s It is %s. %s" % (hello, day, " ".join(parts))
 
 

@@ -378,6 +378,14 @@
       </div></div>
     </section>
 
+    <!-- CALENDAR, added 2026-10-16, Dr. O: "Auggie can check my calendar." Read only. The link is private and is never shown again once saved. -->
+    <section class="card wide" id="calCard" style="display:none">
+      <h2>Her calendar: read only</h2>
+      <p class="hint">Paste the link from Outlook (Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then copy the ICS link). She can read what is on it and tell you your day. She cannot add, change or delete anything. Anyone who has the link can read your calendar, so do not share it. It is kept only on this robot and never shown again. A repeating event whose single days were moved or cancelled may be wrong, so check anything important.</p>
+      <label for="calUrl">Calendar link</label><input type="text" id="calUrl" placeholder="https://outlook.office365.com/owa/calendar/...ics">
+      <div class="row" style="margin-top:12px"><button class="primary" id="calSave" type="button">Save</button><button id="calTest" type="button">Test it</button><button id="calClear" type="button">Remove it</button><span class="hint" id="calStatus" style="margin:0"></span></div>
+    </section>
+
     <!-- HOUSE CONTROLS, added 2026-10-16, Dr. O: an option, off until a device is added. It never touches Alexa or anything already in the house. -->
     <section class="card wide" id="houseCard" style="display:none">
       <h2>House controls: lights, plugs and blinds</h2>
@@ -480,7 +488,7 @@
      demo:'Tell me what you are curious about, or ask me what I am curious about.'},
     {id:'house',    name:'House Controls', price:4.99, desc:'An option, off until you add a device. Say "turn on the test lamp" or "close the blinds." Works with a TP-Link Kasa plug or a device with a web address on your home network. She will not touch locks, doors or alarms, and never touches Alexa.',
      demo:'Add a lamp on my panel, press Test, and then say turn on the test lamp.'},
-    {id:'briefing', name:'Daily Briefing', price:2.99, desc:'Say "what is on my day" and she reads the reminders and timers still ahead today and your to do list. She tells you she does not have your calendar.',
+    {id:'briefing', name:'Daily Briefing', price:2.99, desc:'Say "what is on my day." She reads today\'s calendar (paste a calendar link on her panel and she reads it, read only), plus the reminders and timers still ahead and your to do list. Without a link she tells you she does not have your calendar.',
      demo:'Ask me what is on today, and I will read what I am holding for you.'},
     {id:'shelf',    name:'Knowledge Shelf', price:4.99, desc:'Give her your handbook, rules or protocols. She answers from them only, says where she found it, and says so when it is not in your files.',
      demo:'Put a file on my shelf, then ask me about what is in it.'},
@@ -556,7 +564,7 @@
     if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
       state.mode = info.mode || null; store('mode', state.mode);
       if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
-      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse();
+      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar();
     }
     paintSensor(on ? info : null);
     if(on && info){
@@ -881,6 +889,26 @@
   $('gClearUnmet').addEventListener('click', function(){ api('/api/guardian/clear', {what:'unmet'}).then(refreshGuardian).catch(function(){}); });
 
 
+  // ---------- the calendar ----------
+  function refreshCalendar(){
+    var card = $('calCard');
+    if(!live || state.skills.indexOf('briefing') === -1){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/calendar').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      $('calUrl').placeholder = j.set ? 'A calendar link is saved (hidden). Paste a new one to change it.' : 'https://outlook.office365.com/owa/calendar/...ics';
+    }).catch(function(){});
+  }
+  $('calSave').addEventListener('click', function(){
+    var u = $('calUrl').value.trim(); if(!u){ $('calStatus').textContent = 'Paste the link first.'; return; }
+    api('/api/calendar', {url:u}).then(function(){ $('calUrl').value = ''; $('calStatus').textContent = 'Saved. Press Test it.'; refreshCalendar(); }).catch(function(e){ $('calStatus').textContent = 'Not saved: ' + e.message; });
+  });
+  $('calTest').addEventListener('click', function(){
+    $('calStatus').textContent = 'Reading it...';
+    api('/api/calendar/test', {}).then(function(j){ $('calStatus').textContent = 'I can read it: ' + j.events + ' events on the feed, ' + j.upcoming + ' in the next two weeks.'; }).catch(function(e){ $('calStatus').textContent = e.message; });
+  });
+  $('calClear').addEventListener('click', function(){ api('/api/calendar', {url:''}).then(function(){ $('calStatus').textContent = 'Removed.'; refreshCalendar(); }).catch(function(){}); });
+
   // ---------- house controls ----------
   function refreshHouse(){
     var card = $('houseCard');
@@ -944,7 +972,7 @@
         if(j.welcome){ state.welcome = j.welcome; paintWelcome(); }
         if(j.skills){ state.skills = j.skills.slice(); }
         state.persona = j.persona || null; store('persona', state.persona);
-        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse();
+        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar();
       }).catch(function(e){ state.mode = was; store('mode', was); renderModes(); addMsg('al', '(I could not change my mode: ' + e.message + ')'); });
     } else {
       if(id === 'kids' && state.persona){ var cp = PERSONAS.filter(function(p){ return p.id === state.persona; })[0]; if(!cp || !cp.kids){ state.persona = null; store('persona', null); } }
@@ -1012,7 +1040,7 @@
     function finish(){
       if(state.skills.indexOf(s.id) === -1){ state.skills.push(s.id); }
       store('skills', state.skills);
-      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
+      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
       setTimeout(renderSkills, 250);
     }
   }
