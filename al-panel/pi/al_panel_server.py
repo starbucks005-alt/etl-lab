@@ -826,13 +826,37 @@ def distill_parent(exchanges):
         print("PARENT NOTES problem:", str(e)[:160], flush=True)
 
 
+PEOPLE_FILE = os.path.join(HERE, "people.json")
+PEOPLE_MAX = 20
+
+
+def load_people():
+    try:
+        d = json.load(open(PEOPLE_FILE))
+        return [x for x in d if isinstance(x, dict) and x.get("name")] if isinstance(d, list) else []
+    except (OSError, ValueError):
+        return []
+
+
+def people_block():
+    """2026-10-16, Dr. O: "Elle doesn't know me. She just asked me who is David." She cannot recognize a voice or a face, so she cannot know who is speaking, but she
+    can know about the people the owner tells her about, and take someone's word for who they are. Only Elle gets this; a character is never given it."""
+    people = load_people()
+    if not people:
+        return ""
+    lines = "; ".join("%s: %s" % (p["name"], p.get("who", "")) for p in people[:PEOPLE_MAX])
+    return (" People you have been told about by the owner: " + lines + ". You cannot recognize anyone by voice or face, so you cannot know who is speaking. When someone says who they are, "
+            "you may take their word for it for the conversation, and you say that you are taking their word. You never claim to recognize anyone, and you never ask who a person on this list is, "
+            "because you have been told.")
+
+
 def apply_prompt():
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"] if not (persona and s == "tour"))
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block()
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block()
 
 
 speaking = {"on": False, "quiet": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" when she is with others. While she speaks her eyes pulse, and the eye program does the pulsing
@@ -1604,6 +1628,31 @@ def pet_watcher():
             pet_state["busy"] = False
             speaking["quiet"] = False
             print("PET problem:", str(e)[:120], flush=True)
+
+
+@app.get("/api/people")
+def people_get():
+    return jsonify(people=load_people())
+
+
+@app.post("/api/people")
+def people_set():
+    d = request.get_json(silent=True) or {}
+    out = []
+    for ln in str(d.get("text", "")).splitlines():
+        if "|" not in ln:
+            continue
+        name, who = (x.strip() for x in ln.split("|", 1))
+        if not name or any(c in name + who for c in "<>{}\\"):
+            continue
+        out.append({"name": name[:40], "who": who[:200]})
+    out = out[:PEOPLE_MAX]
+    tmp = PEOPLE_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(out, f)
+    os.replace(tmp, PEOPLE_FILE)
+    apply_prompt()
+    return jsonify(ok=True, n=len(out))
 
 
 @app.get("/api/pet")
