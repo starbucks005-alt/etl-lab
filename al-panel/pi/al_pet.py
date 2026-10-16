@@ -15,7 +15,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 PET_FILE = os.path.join(HERE, "pet.json")
 LOG_FILE = os.path.join(HERE, "pet_log.json")
-DEFAULT = {"name": "", "kind": "dog", "every_min": 40, "quiet_start": "21:00", "quiet_end": "07:00", "on": False, "note_at": "18:00"}
+DEFAULT = {"name": "", "kind": "dog", "every_min": 40, "quiet_start": "21:00", "quiet_end": "07:00", "on": False, "note_at": "18:00", "toys": []}
 KINDS = ("dog", "cat", "other")
 # soft, short and true: nothing here promises the owner is coming at a time, or claims to know how the animal feels
 PHRASES = {
@@ -27,6 +27,23 @@ PHRASES = {
     "other": ["Hi {n}. You are okay. I am here.", "Hello {n}. It is quiet, and that is fine.", "{n}, I am still here with you.",
               "Hi {n}. Everything is all right.", "Hello, sweet {n}. I am keeping you company."],
 }
+
+
+# 2026-10-16, Dr. O: "favorite toys reminder so Elle can say something about fav toys". The owner lists them and she mentions one now and then. She only says what is listed.
+TOY_PHRASES = ["{n}, your {t} is waiting for you.", "Hi {n}. Maybe it is a good time to find your {t}.", "{n}, do you remember your {t}?",
+               "Hello {n}. I wonder where your {t} is.", "{n}, your {t} is right where you left it, maybe."]
+MAX_TOYS = 6
+
+
+def _toys(v):
+    """A list of toy names from a list or from words separated by commas. Letters, numbers, spaces and hyphens only, so nothing odd is ever spoken."""
+    raw = v if isinstance(v, list) else str(v or "").split(",")
+    out = []
+    for t in raw:
+        t = " ".join(str(t).split())[:30]
+        if t and all(c.isalnum() or c in " -'" for c in t) and t.lower() not in [x.lower() for x in out]:
+            out.append(t)
+    return out[:MAX_TOYS]
 
 
 def _hhmm(v, default):
@@ -47,6 +64,7 @@ def load():
         d = {}
     cfg = dict(DEFAULT)
     cfg.update({k: d[k] for k in DEFAULT if k in d})
+    cfg["toys"] = _toys(cfg.get("toys"))
     return cfg
 
 
@@ -71,6 +89,8 @@ def save(d):
     for k in ("quiet_start", "quiet_end", "note_at"):
         if k in d:
             cfg[k] = _hhmm(d[k], cfg[k])
+    if "toys" in d:
+        cfg["toys"] = _toys(d["toys"])
     if "on" in d:
         cfg["on"] = bool(d["on"])
     if cfg["on"] and not cfg["name"]:
@@ -93,6 +113,12 @@ def in_quiet_hours(cfg, now=None):
 
 
 def phrase(cfg, last=None):
+    toys = cfg.get("toys") or []
+    if toys and random.random() < 0.4:                                               # now and then, one of the favorite toys
+        toy = random.choice(toys)
+        opts = [p.format(n=cfg["name"], t=toy) for p in TOY_PHRASES]
+        opts = [o for o in opts if o != last] or opts
+        return random.choice(opts)
     pool = PHRASES.get(cfg["kind"], PHRASES["other"])
     options = [p for p in pool if p.format(n=cfg["name"]) != last] or pool          # the last one said is the formatted text, so compare it formatted
     return random.choice(options).format(n=cfg["name"])

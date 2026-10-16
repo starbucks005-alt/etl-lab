@@ -385,6 +385,7 @@
       <div class="twocol"><div>
         <label for="petName">Your pet's name</label><input type="text" id="petName" placeholder="Name">
         <label for="petKind">Kind of pet</label><select id="petKind"><option value="dog">Dog</option><option value="cat">Cat</option><option value="other">Something else</option></select>
+        <label for="petToys">Favorite toys (up to six, separated by commas)</label><input type="text" id="petToys" placeholder="squeaky bone, blue ball">
         <label for="petEvery">How often, in minutes (10 to 240)</label><input type="number" id="petEvery" min="10" max="240" step="5" style="max-width:110px">
       </div><div>
         <div class="row"><label style="margin:12px 0 4px">Quiet from <input type="text" id="petQs" placeholder="21:00" style="max-width:90px"></label><label style="margin:12px 0 4px">until <input type="text" id="petQe" placeholder="07:00" style="max-width:90px"></label></div>
@@ -918,14 +919,14 @@
       if(!j){ return; }
       if(!petLoaded){                                    // fill once, so what is being typed is never overwritten
         petLoaded = true; var c = j.config;
-        $('petName').value = c.name || ''; $('petKind').value = c.kind || 'dog'; $('petEvery').value = c.every_min || 40;
+        $('petName').value = c.name || ''; $('petToys').value = (c.toys || []).join(', '); $('petKind').value = c.kind || 'dog'; $('petEvery').value = c.every_min || 40;
         $('petQs').value = c.quiet_start || ''; $('petQe').value = c.quiet_end || ''; $('petNoteAt').value = c.note_at || ''; $('petOn').checked = !!c.on;
       }
       $('petToday').textContent = j.today + (j.care ? '' : ' (No notice address is saved yet, so the daily note cannot be sent. Add one in the check-in card.)');
     }).catch(function(){});
   }
   $('petSave').addEventListener('click', function(){
-    api('/api/pet', {name:$('petName').value, kind:$('petKind').value, every_min:$('petEvery').value, quiet_start:$('petQs').value, quiet_end:$('petQe').value, note_at:$('petNoteAt').value, on:$('petOn').checked})
+    api('/api/pet', {name:$('petName').value, toys:$('petToys').value, kind:$('petKind').value, every_min:$('petEvery').value, quiet_start:$('petQs').value, quiet_end:$('petQe').value, note_at:$('petNoteAt').value, on:$('petOn').checked})
       .then(function(){ $('petStatus').textContent = 'Saved.'; petLoaded = false; refreshPet(); }).catch(function(e){ $('petStatus').textContent = 'Not saved: ' + e.message; });
   });
   $('petSay').addEventListener('click', function(){ $('petStatus').textContent = 'Saying one...'; api('/api/pet/say', {}).then(function(j){ $('petStatus').textContent = 'She said: ' + j.said; refreshPet(); }).catch(function(e){ $('petStatus').textContent = e.message; }); });
