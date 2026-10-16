@@ -6005,7 +6005,7 @@ var GC_ASTRA9 = {
          American promoted from a Voice Design generation (generation id
          4NZxG3SNE9sA1UE6KTRy, saved via gc-voice-design.js's create action); Swedish a real
          library voice Dr. O found and handed over directly. */
-      voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: '4NZxG3SNE9sA1UE6KTRy', swedish: 'QiXK9tnNgbiiVrsXurVo', british: 'JgqplyjpUYA3WY8MxmoG', indian: 'xDPzsOf5j3pAdTMGiswR' },
+      voiceOptions: { robot: 'bAq8AI9QURijOtmeFFqT', american: 'azure:en-US-ChristopherMultilingualNeural' /* 2026-10-16, Dr. O: Azure Christopher Multilingual; falls back to the earlier ElevenLabs voice 4NZxG3SNE9sA1UE6KTRy if Azure is not set up (gc-voice.js) */, swedish: 'QiXK9tnNgbiiVrsXurVo', british: 'JgqplyjpUYA3WY8MxmoG', indian: 'xDPzsOf5j3pAdTMGiswR' },
       bioAudio: 'audio/astrad-bio.mp3',
       portrait: 'photos/astrad-portrait.jpg',
       /* CAMEOS, added 2026-09-12, same fix and same reasoning as companions.astra9's own note

@@ -89,6 +89,9 @@ const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safe
    pooled ah_credits table, a real follow-up gap, not an oversight. */
 const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-companion-credits.js');
 const { ownerUser } = require('./_owner-auth.js');
+const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
+/* 2026-10-16, Dr. O: an id like azure:en-US-ChristopherMultilingualNeural is spoken by Azure. If Azure is not set up or fails, this is the ElevenLabs voice it replaces, so nobody goes silent. */
+const AZURE_FALLBACK = { 'azure:en-US-ChristopherMultilingualNeural': '4NZxG3SNE9sA1UE6KTRy' };
 const { isLabKey, labCallAllowed } = require('./_lab-key.js');
 /* DUAL VISITOR+ADDRESS CAP, added 2026-08-30 -- same fix, same reasoning,
    same shared ah_daily_usage pool as gc-chat.js's own identical comment.
@@ -145,7 +148,8 @@ exports.handler = async function (event) {
   }
   const voiceId = String(body.voice_id || '').trim();
   if (!text) return json(400, { error: 'nothing_to_say' });
-  if (!/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return json(400, { error: 'no_voice_id' });
+  const azureName = azureVoiceName(voiceId);
+  if (!azureName && !/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return json(400, { error: 'no_voice_id' });
 
   const rawOwnerKey = String(body.owner_key || '').trim();
   /* GC_OWNER_KEY, same reasoning as gc-chat.js's own comment: a second,
@@ -241,29 +245,43 @@ exports.handler = async function (event) {
     }
   }
 
-  let r;
-  try {
-    r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voiceId), {
-      method: 'POST',
-      headers: { 'xi-api-key': key, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
-      body: JSON.stringify({
-        text,
-        model_id: MODEL,
-        /* Steady rather than theatrical. He is talking to somebody across a
-           room, not performing. */
-        voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true },
-      }),
-    });
-  } catch (err) {
-    return json(502, { error: 'voice_unreachable', detail: String(err && err.message || err).slice(0, 200) });
+  let azureBuf = null, speakId = voiceId;
+  if (azureName) {
+    try { azureBuf = await azureSpeak(text, azureName); }
+    catch (err) {
+      console.log(`[gc-voice] azure voice ${azureName} not used (${String(err && err.message || err).slice(0, 40)}), using the ElevenLabs fallback`);
+      speakId = AZURE_FALLBACK[voiceId] || '';
+      if (!speakId) return json(502, { error: 'voice_failed', detail: 'azure_unavailable' });
+    }
   }
+  let buf;
+  if (azureBuf) {
+    buf = azureBuf;                       // spoken by Azure, nothing more to fetch
+  } else {
+    let r;
+    try {
+      r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(speakId), {
+        method: 'POST',
+        headers: { 'xi-api-key': key, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+        body: JSON.stringify({
+          text,
+          model_id: MODEL,
+          /* Steady rather than theatrical. He is talking to somebody across a
+             room, not performing. */
+          voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true },
+        }),
+      });
+    } catch (err) {
+      return json(502, { error: 'voice_unreachable', detail: String(err && err.message || err).slice(0, 200) });
+    }
 
-  if (!r.ok) {
-    const detail = await r.text().catch(() => '');
-    return json(r.status === 401 ? 401 : 502, { error: 'voice_failed', status: r.status, detail: detail.slice(0, 300) });
+    if (!r.ok) {
+      const detail = await r.text().catch(() => '');
+      return json(r.status === 401 ? 401 : 502, { error: 'voice_failed', status: r.status, detail: detail.slice(0, 300) });
+    }
+
+    buf = Buffer.from(await r.arrayBuffer());
   }
-
-  const buf = Buffer.from(await r.arrayBuffer());
 
   /* Billed only now, after ElevenLabs actually returned audio — never on a
      blocked check above, and never on a failed/unreachable call, which
