@@ -14,7 +14,7 @@ const USE_CASES = ['home', 'education', 'workshop', 'other'];
 /* Optional too: which size would suit them. Added 2026-10-04. It needs a "version" text column in the
    astra9_waitlist_emails table. Until that column exists the choice is simply not stored, and the
    email still is. */
-const VERSIONS = ['fullsize', 'lite', 'either'];
+const VERSIONS = ['fullsize', 'lite', 'either', 'guardian'];
 
 /* Optional "came from" tag, e.g. a QR code on a table at an exhibition. Only
    short lowercase words, numbers and dashes are kept, anything else is dropped. */

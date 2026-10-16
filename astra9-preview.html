@@ -113,6 +113,30 @@
   .status.ok{color:var(--accent)}
   .status.err{color:var(--red)}
 
+
+  .family{margin:44px 0 0}
+  .family h2{font-family:var(--display);font-size:clamp(26px,4vw,34px);margin:0 0 8px;color:var(--ink)}
+  .family .sub{font-size:15px;margin:0 0 20px;max-width:760px}
+  .famgrid{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:16px;align-items:stretch}
+  .fam{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+       box-shadow:0 12px 30px -22px rgba(22,35,42,.3)}
+  .fam .vis{height:var(--vh);background:#e8ebef;display:flex;justify-content:center;overflow:hidden}
+  .fam .vis{--vh:340px}
+  .fam .vis.lite .crop{height:var(--vh);width:calc(var(--vh)*0.5977);overflow:hidden}
+  .fam .vis.lite img{height:100%;width:auto;max-width:none;display:block}
+  .fam .vis.pair{background:#e9e8ee}
+  .fam .vis.pair img{width:100%;height:340px;object-fit:cover;object-position:50% 20%;display:block}
+  .fam .vis.guard{background:#16202b;align-items:center;position:relative}
+  .fam .vis.guard .bar{position:absolute;left:12%;right:12%;top:50%;height:12px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+  .fam .vis.guard .bar i{position:absolute;top:0;bottom:0;width:22%;border-radius:6px;background:linear-gradient(90deg,transparent,#7fd6ff 55%,#fff);animation:sweep 2.4s ease-in-out infinite alternate}
+  .fam .vis.guard .word{position:absolute;left:0;right:0;bottom:22px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9fb0bd}
+  @keyframes sweep{from{left:0}to{left:78%}}
+  @media (prefers-reduced-motion:reduce){.fam .vis.guard .bar i{animation:none;left:39%}}
+  .fam .body{padding:16px 20px 20px;display:flex;flex-direction:column;flex:1}
+  .fam h3{margin:0 0 6px;font-size:19px;color:var(--ink);font-family:var(--display)}
+  .fam p{margin:0 0 12px;font-size:14px;flex:1}
+  .badge.soon{background:#ece9f8;color:#5b4fb0}
+  @media (max-width:860px){.famgrid{grid-template-columns:1fr}.fam .vis{--vh:300px;height:300px}.fam .vis.pair img{height:300px}}
   .can{margin:44px 0 0}
   .can h2{font-family:var(--display);font-size:clamp(26px,4vw,34px);margin:0 0 8px;color:var(--ink)}
   .can .sub{font-size:15px;margin:0 0 8px;max-width:760px}
@@ -176,6 +200,31 @@
       </div>
     </div>
   </div>
+
+  <section class="family" id="family">
+    <h2>The Astra-9 family</h2>
+    <p class="sub">Four ways in. One is made and working today, two are in development, and one is coming soon.</p>
+    <div class="famgrid">
+      <div class="fam">
+        <div class="vis lite"><div class="crop"><img src="/images/astra9-home/astra9-lite-bench-v1.jpg" alt="Astra-9 Lite, the benchtop head and bust, seen from the front." loading="lazy"></div></div>
+        <div class="body"><h3>Astra-9 Lite</h3>
+          <p>The benchtop version: a head and bust with Astra-9's own voice and personality. It sits on a desk, a counter or a workbench, and it is the one working in our lab today.</p>
+          <span class="badge now">Made and working</span></div>
+      </div>
+      <div class="fam">
+        <div class="vis pair"><img src="/images/astra9-home/astra9-astrad-confirmed-look-v1.jpg" alt="Astra-9 and Astrad standing together, in the confirmed champagne and copper design." loading="lazy"></div>
+        <div class="body"><h3>Astra-9 and Astrad</h3>
+          <p>The full-size companions. Astra-9 is the ninth of nine, and Astrad was built after her, for her, so she would have company. They share the Lite's voice and personality work, in a figure that stands in the room.</p>
+          <span class="badge try">In development</span></div>
+      </div>
+      <div class="fam">
+        <div class="vis guard"><div class="bar"><i></i></div><div class="word">The Guardian series</div></div>
+        <div class="body"><h3>The Guardian series</h3>
+          <p>A trusted presence for home, business and research spaces. A front-door greeter is already running as a preview, and more is on the way.</p>
+          <span class="badge soon">Coming soon</span></div>
+      </div>
+    </div>
+  </section>
 
   <div class="explainer">
     <video controls playsinline preload="metadata" aria-label="Astra-9, Astrad, and Astra-9 Lite, a thirty second overview">
@@ -246,45 +295,6 @@
     </div>
   </div>
 
-  <div class="gallery" id="a9Gallery">
-    <figure>
-      <img src="/images/astra9-home/astra9-lite-bench-v1.jpg" alt="Astra-9 Lite, the portable head and bust version of Astra-9, front, back, and side view." loading="lazy" data-scene="Astra-9 Lite, the portable version">
-      <figcaption><span class="scene">Astra-9 Lite, the portable version</span><span class="stamp">In progress</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/astrad-home.png" alt="Concept rendering of Astrad seated in an older woman's living room, having tea." loading="lazy" data-scene="Astrad, at home">
-      <figcaption><span class="scene">Astrad, at home</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/astrad-homework.jpg" alt="Concept rendering of Astrad standing by while a child does homework." loading="lazy" data-scene="Astrad, homework help">
-      <figcaption><span class="scene">Astrad, homework help</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/astrad-garage.jpg" alt="Concept rendering of Astrad standing beside someone working on a car in a garage." loading="lazy" data-scene="Astrad, in the garage">
-      <figcaption><span class="scene">Astrad, in the garage</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/astrad-fireside.png" alt="Concept rendering of Astrad seated for a fireside conference conversation in front of an audience." loading="lazy" data-scene="Astrad, on stage">
-      <figcaption><span class="scene">Astrad, on stage</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/kitchen_skills.jpg" alt="Concept rendering of Astra-9 in a kitchen." loading="lazy" data-scene="Astra-9, in the kitchen">
-      <figcaption><span class="scene">Astra-9, in the kitchen</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/classroom.png" alt="Concept rendering of Astra-9 teaching in a classroom." loading="lazy" data-scene="Astra-9, teaching">
-      <figcaption><span class="scene">Astra-9, teaching</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/healthcare.jpg" alt="Concept rendering of Astra-9 in an assisted living setting." loading="lazy" data-scene="Astra-9, assisted living">
-      <figcaption><span class="scene">Astra-9, assisted living</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-    <figure>
-      <img src="/images/astra9-home/office.jpg" alt="Concept rendering of Astra-9 in a work environment." loading="lazy" data-scene="Astra-9, at work">
-      <figcaption><span class="scene">Astra-9, at work</span><span class="stamp">Concept</span></figcaption>
-    </figure>
-  </div>
-
   <div class="lightbox" id="a9Lightbox">
     <button class="lbclose" id="a9LbClose" aria-label="Close">&times;</button>
     <div>
@@ -310,6 +320,7 @@
         <option value="">Which would suit you? (optional)</option>
         <option value="fullsize">The full-size figure</option>
         <option value="lite">Astra-9 Lite, the portable head and bust</option>
+        <option value="guardian">The Guardian series, when it is ready</option>
         <option value="either">Either, I am not sure yet</option>
       </select>
       <select id="astra9WaitUseCase">
