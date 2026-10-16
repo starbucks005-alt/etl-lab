@@ -1016,7 +1016,7 @@ function gcNoReplyWhy(res) {
     if (!bHands.classList.contains('listening')) bHands.click();       // the ears have to be on for this
     SIS.timer = setInterval(function () {                              // nobody has spoken for a while: she says something to the next one
       if (!SIS.on) return;
-      if (chatBusy || SIS.wait || SIS.talking || SIS.turns >= SIS.max) return;
+      if (chatBusy || SIS.wait || SIS.talking || voicePending > 0 || SIS.turns >= SIS.max) return;     // 2026-10-16, Dr. O: "he is talking over himself". A voice still being made counts as talking, or the nudge speaks a second line over the first
       if (Date.now() - SIS.lastActive < sisGap()) return;
       SIS.release = true;
       chatInput.value = '(Nobody has spoken for a few seconds. Say something new to ' + SIS.others[SIS.turns % SIS.others.length] + '.)';
