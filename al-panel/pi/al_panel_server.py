@@ -814,10 +814,13 @@ def apply_prompt():
     al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block()
 
 
+speaking = {"on": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" when she is with others. While she speaks her eyes pulse, and the eye program does the pulsing
+
+
 def write_eyes(boost=False):
     c = state["color"].lstrip("#")
     level = MAX_LEVEL if boost else MAX_LEVEL * (state["brightness"] / 100.0)
-    data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3)}
+    data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3), "speaking": bool(speaking["on"])}
     tmp = EYES_FILE + ".tmp"
     with open(tmp, "w") as f:
         json.dump(data, f)
@@ -1059,6 +1062,22 @@ def speak_now(text, use_persona=True):
 
 
 def _speak_locked(text, use_persona=True):
+    speaking["on"] = True
+    try:
+        write_eyes()
+    except Exception:
+        pass
+    try:
+        return _speak_inner(text, use_persona)
+    finally:
+        speaking["on"] = False
+        try:
+            write_eyes()
+        except Exception:
+            pass
+
+
+def _speak_inner(text, use_persona=True):
     try:
         persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
         al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
