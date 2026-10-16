@@ -894,7 +894,7 @@ def maybe_quiet(text):
         return False
     set_quiet(60)
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": "Okay, I will be quiet for an hour."}]
-    speak_now("Okay, I will be quiet for an hour. Press Talk if you need me.")
+    speak_now("Okay, I will be quiet for an hour. You can turn me back on from my panel.")
     return True
 
 
