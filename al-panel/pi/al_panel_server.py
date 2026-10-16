@@ -2222,7 +2222,7 @@ def wake_name_re():
 # 2026-10-16, Dr. O: "Elle thinks I am talking to her when I am talking to Astrad". After she answers she keeps listening for 30 s and used to answer anything,
 # so words meant for the one beside her were taken as hers. Now, in that follow up window, a name that belongs to somebody else in the room (and not hers)
 # means it was not said to her. The names are the ones who are usually with her, plus whoever was named for her last talk with the others.
-ROOMMATES = ["astrad", "alice", "a l i c e"]
+ROOMMATES = ["astrad", "ted", "alice", "a l i c e"]       # Ted is Astrad's short name, given by Dr. O 2026-10-16
 
 
 def other_name_re():
