@@ -104,6 +104,7 @@ const DAILY_FREE_LIMIT  = 15;  // free messages/day with a house demo, matching 
    Netlify config step and no risk of tripping the same env var ceiling
    again. See isTester's own comment below for what this actually bypasses. */
 /* 2026-10-16: more tester keys can be added without touching the code: a Netlify environment setting called GC_TESTER_KEYS, one key or several separated by commas. */
+const gcConfig = require('./_gc-config.js');
 const GC_TESTER_KEYS = ['pookie-test-2026'].concat(String(process.env.GC_TESTER_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean));
 
 function safeVisitorId(v) {
@@ -1108,7 +1109,7 @@ exports.handler = async function (event) {
      silently ignored it every time. Now reads the one real, hardcoded list
      instead of a second, dead one. */
   const rawTesterKey = String(body.tester_key || '').trim();
-  const isTester = !isOwner && !!rawTesterKey && GC_TESTER_KEYS.indexOf(rawTesterKey) > -1;
+  const isTester = !isOwner && !!rawTesterKey && (await gcConfig.isTesterKey(event, rawTesterKey, GC_TESTER_KEYS));
   const accessToken = safeToken(body.access_token);
   /* THE SHARED-ROOM PATH, ADDED 2026-08-17. gc-room-say.js proxies here on
      behalf of whoever actually spoke, and no guest's browser holds the

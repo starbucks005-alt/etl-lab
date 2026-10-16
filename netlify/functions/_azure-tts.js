@@ -3,7 +3,7 @@
    A voice id of the form  azure:en-US-ChristopherMultilingualNeural  means "use Azure with this voice name". gc-voice.js calls azureSpeak() for those, and for any
    other id it goes to ElevenLabs as before.
 
-   THE KEY IS NEVER IN THIS FILE OR THE REPOSITORY. It comes from the campus environment: AZURE_SPEECH_KEY, and AZURE_SPEECH_REGION (eastus if it is not set).
+   THE KEY IS NEVER IN THIS FILE OR THE REPOSITORY. It comes from the private record set through gc-config.js (see _gc-config.js), or failing that the environment: AZURE_SPEECH_KEY, and AZURE_SPEECH_REGION (eastus if it is not set).
    If the key is not set, or Azure says no, azureSpeak() throws and gc-voice.js falls back to the ElevenLabs voice that was used before, so nobody goes silent.
 
    Not tried against the real Azure service from here; the request shape follows Azure's published text to speech REST call. */

@@ -111,6 +111,7 @@ const sherlockCap = require('./_sherlock-cap.js');
    up. Kept as its own hardcoded copy rather than a shared require, matching
    how GC_OWNER_KEY is independently duplicated between the two files. */
 /* 2026-10-16: more tester keys can be added without touching the code: a Netlify environment setting called GC_TESTER_KEYS, one key or several separated by commas. */
+const gcConfig = require('./_gc-config.js');
 const GC_TESTER_KEYS = ['pookie-test-2026'].concat(String(process.env.GC_TESTER_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean));
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
@@ -165,7 +166,7 @@ exports.handler = async function (event) {
      arrived at all, without ever echoing the key value itself back. */
   const ownerKeySentButRejected = !isOwner && !!rawOwnerKey;
   const rawTesterKey = String(body.tester_key || '').trim();
-  const isTester = !isOwner && !!rawTesterKey && GC_TESTER_KEYS.indexOf(rawTesterKey) > -1;
+  const isTester = !isOwner && !!rawTesterKey && (await gcConfig.isTesterKey(event, rawTesterKey, GC_TESTER_KEYS));
   const isDemo = body.is_demo === true;
   const visitorId = safeVisitorId(body.visitor_id);
   const accessToken = safeToken(body.access_token);
@@ -248,7 +249,7 @@ exports.handler = async function (event) {
 
   let azureBuf = null, speakId = voiceId;
   if (azureName) {
-    try { azureBuf = await azureSpeak(text, azureName); }
+    try { azureBuf = await azureSpeak(text, azureName, { env: await gcConfig.azureEnv(event) }); }
     catch (err) {
       console.log(`[gc-voice] azure voice ${azureName} not used (${String(err && err.message || err).slice(0, 40)}), using the ElevenLabs fallback`);
       speakId = AZURE_FALLBACK[voiceId] || '';

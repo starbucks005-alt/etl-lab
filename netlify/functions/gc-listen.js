@@ -47,6 +47,7 @@ const sherlockCap = require('./_sherlock-cap.js');
 
 /* Same list as gc-chat.js and gc-voice.js, kept as its own copy the way they do. */
 /* 2026-10-16: more tester keys can be added without touching the code: a Netlify environment setting called GC_TESTER_KEYS, one key or several separated by commas. */
+const gcConfig = require('./_gc-config.js');
 const GC_TESTER_KEYS = ['pookie-test-2026'].concat(String(process.env.GC_TESTER_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean));
 
 function safeVisitorId(v) {
@@ -88,7 +89,7 @@ exports.handler = async function (event) {
   const gcOwnerKey = String(process.env.GC_OWNER_KEY || '').trim();
   const isOwner = !!ownerUser(rawOwnerKey) || (!!gcOwnerKey && rawOwnerKey === gcOwnerKey);
   const rawTesterKey = String(body.tester_key || '').trim();
-  const isTester = !isOwner && !!rawTesterKey && GC_TESTER_KEYS.indexOf(rawTesterKey) > -1;
+  const isTester = !isOwner && !!rawTesterKey && (await gcConfig.isTesterKey(event, rawTesterKey, GC_TESTER_KEYS));
   const visitorId = safeVisitorId(body.visitor_id);
 
   /* A lab key counts as free here and nothing more, metered per key per day by labCallAllowed, which fails closed. */
