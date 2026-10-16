@@ -37,6 +37,7 @@ al-panel/pi/sources_allowlist.txt
 al-panel/pi/notebook.json
 al-panel/pi/shelf/
 al-panel/pi/guardian.json
+al-panel/pi/devices.json
 al-panel/pi/visitors.json
 al-panel/pi/unmet_questions.json
 al-panel/pi/reminders.json

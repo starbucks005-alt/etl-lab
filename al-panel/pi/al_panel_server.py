@@ -33,6 +33,11 @@ except Exception as _e:         # pragma: no cover
     sk = None
     print("SKILLS not loaded:", str(_e)[:120], flush=True)
 try:
+    import al_house as house  # noqa: E402  (switches lights, plugs and blinds she has been given; if the file is missing she simply answers as before)
+except Exception:
+    house = None
+
+try:
     import science_sources as ss  # noqa: E402  (answers from journals in science mode; if the file is missing she simply answers as before)
 except Exception as _e:           # pragma: no cover
     ss = None
@@ -127,6 +132,7 @@ SKILL_TEXT = {
     "focus": "You can be a focus partner: when someone says focus for twenty five minutes you set it, check in halfway, and tell them when it is time for a break.",
     "desk": "You can greet people at a front door: greet people, ask if you can assist them and where they are going, give directions from the building directory exactly as written, point them to the forms, and let the front office know who is here. You never open doors, never block anyone and never claim authority. In an emergency you tell people to call 911.",
     "curious": "You can start a conversation about something that interests you or them, in two ways. First, when someone says I am curious, or I am curious about something, or I am curious how or why something happens, that is the topic: answer in two or three short sentences with what is really known, share one thing about it you find interesting, and ask one question that invites them to say more or to pick what to explore next. If they say only I am curious with no topic, ask what they are curious about. Second, when someone asks what you are curious about, or says surprise me or tell me something, you begin with the words I am curious and share one real thing you wonder about, in two or three short sentences, then ask them one question about it. Pick a different subject each time, such as how people decide things, why music gives people chills, how the first robots were built, what makes a smell bring back a memory, or how birds know where to fly. Say it is a thing you wonder about, and never make up facts about your own past. In both ways, keep talking about it, one short turn at a time and without being asked again, for as long as they want. If you are not sure of a fact, say so, and never make one up.",
+    "house": "You can switch the lights, plugs and blinds that are on your device list. You only switch a device when the person asks, and you say what you did. If something is not on your list you say so, and you never say you switched something unless the system told you it worked. You never open or lock doors, gates or garage doors.",
     "shelf": "You have a knowledge shelf of files someone gave you. When a question is about what is in them you answer only from them and say where you found it, and if it is not there you say so and do not guess.",
 }
 
@@ -1490,6 +1496,50 @@ def personality_main():
     return jsonify(ok=True, main=pid)
 
 
+@app.get("/api/house")
+def house_get():
+    if house is None:
+        return jsonify(devices=[])
+    return jsonify(devices=[{k: v for k, v in d.items() if k in ("name", "kind", "type", "host")} | {"actions": sorted((d.get("actions") or {}).keys())} for d in house.list_devices()])
+
+
+@app.post("/api/house/add")
+def house_add():
+    if house is None:
+        return jsonify(error="house controls are not loaded"), 400
+    d = request.get_json(silent=True) or {}
+    try:
+        house.add_device(d.get("name"), d.get("kind"), d.get("type") or "plug", d.get("host") or "", d.get("actions") or {})
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(ok=True)
+
+
+@app.post("/api/house/delete")
+def house_delete():
+    if house is None:
+        return jsonify(error="house controls are not loaded"), 400
+    d = request.get_json(silent=True) or {}
+    return jsonify(ok=house.delete_device(d.get("name")))
+
+
+@app.post("/api/house/test")
+def house_test():
+    """Try a device from the panel, so setup can be checked without speaking."""
+    if house is None:
+        return jsonify(error="house controls are not loaded"), 400
+    d = request.get_json(silent=True) or {}
+    name, action = (d.get("name") or ""), (d.get("action") or "")
+    dev = next((x for x in house.list_devices() if x["name"].lower() == name.lower()), None)
+    if dev is None or action not in ("on", "off", "open", "close"):
+        return jsonify(error="no such device or action"), 400
+    try:
+        house.do(dev, action)
+    except Exception as e:
+        return jsonify(error=str(e)[:160]), 502
+    return jsonify(ok=True)
+
+
 @app.get("/api/guardian")
 def guardian_get():
     if sk is None:
@@ -2204,6 +2254,10 @@ def skills_reply(text):
         r = sk.guardian_reply(text, notify=notify_front_office)
         if r:
             return r
+    if "house" in have and house is not None:
+        r = house.house_reply(text)
+        if r:
+            return r, r
     if "bench" in have:
         r = sk.protocol_reply(text, set_timer=lambda sec, label: add_clock("timer", time.time() + sec, label + " timer", "Your timer for %s is up." % label))
         if r:
@@ -2404,6 +2458,8 @@ def parse_clock_time(text, now=None):
         if at <= now + 5:
             at += 86400
         best = at if best is None or at < best else best
+    if re.search(r"\btomorrow\b", t) and time.localtime(best).tm_mday == lt.tm_mday:
+        best += 86400                      # 2026-10-16: "3 pm tomorrow" said before 3 pm used to ring today, because only a time already past was moved to tomorrow
     tm = time.localtime(best)
     h12 = tm.tm_hour % 12 or 12
     label = "%d%s %s" % (h12, (":%02d" % tm.tm_min) if tm.tm_min else "", "PM" if tm.tm_hour >= 12 else "AM")

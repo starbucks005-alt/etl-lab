@@ -378,6 +378,26 @@
       </div></div>
     </section>
 
+    <!-- HOUSE CONTROLS, added 2026-10-16, Dr. O: an option, off until a device is added. It never touches Alexa or anything already in the house. -->
+    <section class="card wide" id="houseCard" style="display:none">
+      <h2>House controls: lights, plugs and blinds</h2>
+      <p class="hint">An option. She does nothing here until you add a device, and she never touches Alexa or anything you already have. She will not control locks, doors, garage doors, alarms, cameras or heaters. Add a device, press Test, and then say "turn on the test lamp." The device must be on the same network as she is.</p>
+      <ul id="hDevices" style="margin:4px 0 12px;padding-left:1.2rem;font-size:14px"></ul>
+      <div class="twocol"><div>
+        <label for="hName">Name she will answer to</label><input type="text" id="hName" placeholder="test lamp">
+        <label for="hType">What it is</label><select id="hType"><option value="plug">Plug or lamp</option><option value="light">Light</option><option value="blinds">Blinds</option></select>
+        <label for="hKind">How she reaches it</label><select id="hKind"><option value="kasa">TP-Link Kasa plug or bulb (needs her library, see below)</option><option value="http">A web address on your network (Shelly, Tasmota and others)</option></select>
+      </div><div>
+        <div id="hKasaBox"><label for="hHost">Its address on your home network, such as 192.168.1.40</label><input type="text" id="hHost" placeholder="192.168.1.40"></div>
+        <div id="hHttpBox" style="display:none">
+          <label for="hOn" id="hOnLabel">Address that turns it on</label><input type="text" id="hOn" placeholder="http://192.168.1.40/relay/0?turn=on">
+          <label for="hOff" id="hOffLabel">Address that turns it off</label><input type="text" id="hOff" placeholder="http://192.168.1.40/relay/0?turn=off">
+        </div>
+        <p class="hint" style="margin:8px 0 0">For a Kasa plug she needs one small add-on on the Pi: <code class="inline">pip3 install python-kasa</code>. Find the plug's address in your router's list of devices.</p>
+      </div></div>
+      <div class="row" style="margin-top:12px"><button class="primary" id="hAdd" type="button">Add it</button><span class="hint" id="hStatus" style="margin:0"></span></div>
+    </section>
+
     <!-- 8. WHEN SOMEONE WALKS UP -->
     <section class="card wide" id="welcomeCard">
       <h2>8. When someone walks up</h2>
@@ -458,6 +478,8 @@
      demo:'Give me your steps as a text file, say start, and I will read them one at a time.'},
     {id:'curious',  name:'I am curious', price:0, desc:'Say "Hey Elle, I am curious how bees make honey" and she explores it with you: a short answer, something interesting, a question. Or ask what she is curious about and she starts one of her own. She keeps going without her name each time.',
      demo:'Tell me what you are curious about, or ask me what I am curious about.'},
+    {id:'house',    name:'House Controls', price:4.99, desc:'An option, off until you add a device. Say "turn on the test lamp" or "close the blinds." Works with a TP-Link Kasa plug or a device with a web address on your home network. She will not touch locks, doors or alarms, and never touches Alexa.',
+     demo:'Add a lamp on my panel, press Test, and then say turn on the test lamp.'},
     {id:'shelf',    name:'Knowledge Shelf', price:4.99, desc:'Give her your handbook, rules or protocols. She answers from them only, says where she found it, and says so when it is not in your files.',
      demo:'Put a file on my shelf, then ask me about what is in it.'},
     {id:'desk',     name:'Front Door (Guardian)', price:9.99, desc:'Greets visitors, asks where they are going, gives directions from your building directory, points to your forms, and tells the front office who is here. Fill in the Guardian setup card to teach her your building.',
@@ -530,7 +552,7 @@
     if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
       state.mode = info.mode || null; store('mode', state.mode);
       if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
-      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian();
+      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse();
     }
     paintSensor(on ? info : null);
     if(on && info){
@@ -854,6 +876,44 @@
   $('gClearVisits').addEventListener('click', function(){ api('/api/guardian/clear', {what:'visits'}).then(refreshGuardian).catch(function(){}); });
   $('gClearUnmet').addEventListener('click', function(){ api('/api/guardian/clear', {what:'unmet'}).then(refreshGuardian).catch(function(){}); });
 
+
+  // ---------- house controls ----------
+  function refreshHouse(){
+    var card = $('houseCard');
+    if(!live || state.skills.indexOf('house') === -1){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/house').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      var ul = $('hDevices'); ul.innerHTML = '';
+      if(!j.devices.length){ var e = document.createElement('li'); e.textContent = 'No devices yet.'; ul.appendChild(e); }
+      j.devices.forEach(function(d){
+        var li = document.createElement('li'); li.style.margin = '4px 0';
+        li.appendChild(document.createTextNode(d.name + '  (' + d.type + ', ' + d.kind + ')  '));
+        (d.type === 'blinds' ? ['open','close'] : ['on','off']).forEach(function(a){
+          var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Test ' + a; b.style.marginRight = '6px';
+          b.addEventListener('click', function(){ $('hStatus').textContent = 'Trying it...'; api('/api/house/test', {name:d.name, action:a}).then(function(){ $('hStatus').textContent = 'It answered.'; }).catch(function(e){ $('hStatus').textContent = 'It did not work: ' + e.message; }); });
+          li.appendChild(b);
+        });
+        var rm = document.createElement('button'); rm.type = 'button'; rm.textContent = 'Remove';
+        rm.addEventListener('click', function(){ api('/api/house/delete', {name:d.name}).then(refreshHouse).catch(function(){}); });
+        li.appendChild(rm); ul.appendChild(li);
+      });
+    }).catch(function(){});
+  }
+  function houseFormShape(){
+    var http = $('hKind').value === 'http', blinds = $('hType').value === 'blinds';
+    $('hKasaBox').style.display = http ? 'none' : ''; $('hHttpBox').style.display = http ? '' : 'none';
+    $('hOnLabel').textContent = blinds ? 'Address that opens it' : 'Address that turns it on';
+    $('hOffLabel').textContent = blinds ? 'Address that closes it' : 'Address that turns it off';
+  }
+  $('hKind').addEventListener('change', houseFormShape); $('hType').addEventListener('change', houseFormShape);
+  $('hAdd').addEventListener('click', function(){
+    var blinds = $('hType').value === 'blinds', body = {name:$('hName').value, type:$('hType').value, kind:$('hKind').value, host:$('hHost').value.trim(), actions:{}};
+    if(body.kind === 'http'){ body.actions[blinds ? 'open' : 'on'] = $('hOn').value.trim(); body.actions[blinds ? 'close' : 'off'] = $('hOff').value.trim(); }
+    api('/api/house/add', body).then(function(){ $('hStatus').textContent = 'Added. Press Test to check it.'; $('hName').value = ''; refreshHouse(); })
+      .catch(function(e){ $('hStatus').textContent = 'Not added: ' + e.message; });
+  });
+
   // ---------- modes ----------
   function renderModes(){
     var box = $('modes'); box.innerHTML = '';
@@ -880,7 +940,7 @@
         if(j.welcome){ state.welcome = j.welcome; paintWelcome(); }
         if(j.skills){ state.skills = j.skills.slice(); }
         state.persona = j.persona || null; store('persona', state.persona);
-        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian();
+        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse();
       }).catch(function(e){ state.mode = was; store('mode', was); renderModes(); addMsg('al', '(I could not change my mode: ' + e.message + ')'); });
     } else {
       if(id === 'kids' && state.persona){ var cp = PERSONAS.filter(function(p){ return p.id === state.persona; })[0]; if(!cp || !cp.kids){ state.persona = null; store('persona', null); } }
@@ -948,7 +1008,7 @@
     function finish(){
       if(state.skills.indexOf(s.id) === -1){ state.skills.push(s.id); }
       store('skills', state.skills);
-      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
+      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
       setTimeout(renderSkills, 250);
     }
   }
