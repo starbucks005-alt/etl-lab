@@ -3179,18 +3179,46 @@ def transcribe(path=None):
     """Turn the recording into words. Azure first (2026-10-14, to use the Azure credits), ElevenLabs Scribe if Azure is not
     set up or fails."""
     cfg = azure_cfg("stt")
+    second_opinion = False
     if cfg:
         try:
-            return clean_heard(azure_transcribe(path or LISTEN_FILE, cfg))
+            first = clean_heard(azure_transcribe(path or LISTEN_FILE, cfg))
+            if first:
+                return first
+            # 2026-10-16, Dr. O: "she is not talking again". The log showed clip after clip of real speech, 3 to 12 seconds and well above the room, and Azure
+            # returned no words for all but one. A clip that loud and that long is speech, so ask the other service before giving up.
+            secs, peak = _clip_stats(path or LISTEN_FILE)
+            if secs < 1.2 or peak < 6000:
+                return ""
+            print("AZURE LISTEN heard no words in a clip of %.1f s, loudest %d. Asking ElevenLabs." % (secs, peak), flush=True)
+            second_opinion = True
         except Exception as e:
             print("AZURE LISTEN ERROR, using ElevenLabs:", e, flush=True)
-    key = header_value("xi-api-key")
-    with open(path or LISTEN_FILE, "rb") as f:
-        r = requests.post("https://api.elevenlabs.io/v1/speech-to-text", headers={"xi-api-key": key},
-                          data={"model_id": "scribe_v1", "tag_audio_events": "false"}, files={"file": ("clip.wav", f, "audio/wav")}, timeout=60)
-    if not r.ok:
-        raise RuntimeError("the listening service said %s: %s" % (r.status_code, r.text[:160]))
-    return clean_heard((r.json().get("text") or "").strip())
+    try:
+        key = header_value("xi-api-key")
+        with open(path or LISTEN_FILE, "rb") as f:
+            r = requests.post("https://api.elevenlabs.io/v1/speech-to-text", headers={"xi-api-key": key},
+                              data={"model_id": "scribe_v1", "tag_audio_events": "false"}, files={"file": ("clip.wav", f, "audio/wav")}, timeout=60)
+        if not r.ok:
+            raise RuntimeError("the listening service said %s: %s" % (r.status_code, r.text[:160]))
+        return clean_heard((r.json().get("text") or "").strip())
+    except Exception as e:
+        if second_opinion:                      # only a second opinion: Azure already answered with nothing, so nothing is lost and no long pause
+            print("SECOND OPINION failed:", str(e)[:100], flush=True)
+            return ""
+        raise
+
+
+def _clip_stats(path):
+    """(seconds, loudest sample) of a recording, or (0, 0) when it cannot be read."""
+    try:
+        with wave.open(path, "rb") as w:
+            secs = w.getnframes() / float(w.getframerate() or 1)
+            pcm = array.array("h")
+            pcm.frombytes(w.readframes(w.getnframes()))
+        return secs, (max(abs(x) for x in pcm) if pcm else 0)
+    except Exception:
+        return 0.0, 0
 
 
 def clean_heard(text):
