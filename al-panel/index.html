@@ -278,6 +278,10 @@
         <button class="primary" id="send">Send</button>
       </div>
       <div class="row" style="margin-top:10px"><button id="sayAddress">Say my address</button></div>
+      <!-- QUIET, added 2026-10-16, Dr. O: in an online meeting she answered what was said in the meeting. For a set time she does not listen in the background. The Talk button still works. -->
+      <div class="row" id="quietRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
+        <button id="quietOn" type="button">Quiet for an hour</button><button id="quietOff" type="button">Wake her</button><span class="hint" id="quietText" style="margin:0"></span>
+      </div>
       <!-- VOLUME, added 2026-10-05, Dr. O: "need volume control on panel". Only on the real Astra-9 Lite. -->
       <div class="row" id="volumeRow" style="margin-top:10px;display:none;align-items:center;gap:10px">
         <label for="vol" style="margin:0">Volume</label>
@@ -578,6 +582,7 @@
     $('shutCard').style.display = on ? '' : 'none';
     $('listenRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none'; $('stopAlarmRow').style.display = on ? '' : 'none';
     $('volumeRow').style.display = on ? 'flex' : 'none';
+    $('quietRow').style.display = on ? 'flex' : 'none'; if(on){ refreshQuiet(); }
     if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
@@ -916,6 +921,12 @@
   $('gClearVisits').addEventListener('click', function(){ api('/api/guardian/clear', {what:'visits'}).then(refreshGuardian).catch(function(){}); });
   $('gClearUnmet').addEventListener('click', function(){ api('/api/guardian/clear', {what:'unmet'}).then(refreshGuardian).catch(function(){}); });
 
+
+  // ---------- quiet ----------
+  function showQuiet(j){ $('quietText').textContent = j && j.quiet ? ('Quiet until ' + j.until + '. She is not listening in the background. The Talk button still works.') : 'She is listening as usual.'; }
+  function refreshQuiet(){ fetch('/api/quiet').then(function(r){ return r.ok ? r.json() : null; }).then(showQuiet).catch(function(){}); }
+  $('quietOn').addEventListener('click', function(){ api('/api/quiet', {minutes:60}).then(showQuiet).catch(function(e){ $('quietText').textContent = 'Could not reach her: ' + e.message; }); });
+  $('quietOff').addEventListener('click', function(){ api('/api/quiet', {minutes:0}).then(showQuiet).catch(function(e){ $('quietText').textContent = 'Could not reach her: ' + e.message; }); });
 
   // ---------- people she knows about ----------
   function refreshPeople(){

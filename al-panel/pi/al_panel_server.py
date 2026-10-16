@@ -861,6 +861,43 @@ def apply_prompt():
     al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block()
 
 
+# ---- QUIET, added 2026-10-16, Dr. O: she was in an online meeting with Elle listening, and Elle answered something sad that was said IN the meeting. She cannot tell a meeting from a
+# person, so there is a quiet switch: for a set time she does not listen in the background, does not greet, and the pet and welcome speech stay silent. The Talk button still works. It
+# ends by itself, so she is never left deaf by mistake. Say her name and "meeting mode" or "go quiet", or use the panel.
+QUIET_FILE = os.path.join(HERE, "quiet.json")
+QUIET_RE = re.compile(r"\b(meeting mode|quiet mode|go quiet|quiet for (?:a|an|one) hour|be quiet for (?:a|an|one) hour)\b", re.I)
+
+
+def quiet_until():
+    try:
+        return float(json.load(open(QUIET_FILE)).get("until", 0))
+    except (OSError, ValueError, TypeError, AttributeError):
+        return 0.0
+
+
+def is_quiet(now=None):
+    return (now or time.time()) < quiet_until()
+
+
+def set_quiet(minutes):
+    until = time.time() + max(0, min(480, int(minutes))) * 60 if minutes else 0
+    tmp = QUIET_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"until": until}, f)
+    os.replace(tmp, QUIET_FILE)
+    return until
+
+
+def maybe_quiet(text):
+    """True when this was a request to go quiet, after she has said so out loud."""
+    if not QUIET_RE.search(text or ""):
+        return False
+    set_quiet(60)
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": "Okay, I will be quiet for an hour."}]
+    speak_now("Okay, I will be quiet for an hour. Press Talk if you need me.")
+    return True
+
+
 speaking = {"on": False, "quiet": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" when she is with others. While she speaks her eyes pulse, and the eye program does the pulsing
 
 
@@ -1270,6 +1307,8 @@ def welcome(force=False):
     A single motion sensor cannot tell where a person is, so the head makes a small friendly
     glance and comes back to the middle. It does not aim at anyone."""
     import time
+    if is_quiet() and not force:                 # quiet for a meeting: no hello, no head turn, no eyes
+        return []
     with welcome_lock:
         w = state["welcome"]
         now = time.time()
@@ -1612,7 +1651,7 @@ def pet_watcher():
     while True:
         time.sleep(20)
         try:
-            if pet is None or "pet" not in state["skills"] or sisters["on"] or clock["ringing"] or routine_busy["on"] or speak_lock.locked():
+            if pet is None or "pet" not in state["skills"] or sisters["on"] or clock["ringing"] or routine_busy["on"] or speak_lock.locked() or is_quiet():
                 continue
             cfg = pet.load()
             now = time.time()
@@ -1630,6 +1669,23 @@ def pet_watcher():
             pet_state["busy"] = False
             speaking["quiet"] = False
             print("PET problem:", str(e)[:120], flush=True)
+
+
+@app.get("/api/quiet")
+def quiet_get():
+    u = quiet_until()
+    return jsonify(quiet=is_quiet(), minutes_left=max(0, int((u - time.time()) / 60) + 1) if is_quiet() else 0, until=time.strftime("%I:%M %p", time.localtime(u)).lstrip("0") if is_quiet() else "")
+
+
+@app.post("/api/quiet")
+def quiet_set():
+    d = request.get_json(silent=True) or {}
+    try:
+        m = int(d.get("minutes", 0))
+    except (ValueError, TypeError):
+        return jsonify(error="minutes must be a number"), 400
+    set_quiet(m)
+    return quiet_get()
 
 
 @app.get("/api/people")
@@ -3140,6 +3196,8 @@ def answer_and_say(text):
 
 def converse(window=None):
     """Keep listening and answering until nobody has spoken for a while."""
+    if is_quiet():
+        return
     if not grab_mic():
         # 2026-10-08, Dr. O: right after the welcome she did not answer someone standing next to her. grab_mic only gives up the
         # name listener while it is WAITING; for the moment it is turning a clip into words it holds the microphone and this
@@ -3226,7 +3284,7 @@ def converse(window=None):
 def watch_names():
     """With "always listening" on, answer only when she hears her own name, then carry on the conversation."""
     while True:
-        if not state["welcome"].get("always"):
+        if not state["welcome"].get("always") or is_quiet():
             time.sleep(1)
             continue
         if mic_wants["n"] > 0 or not listen_lock.acquire(blocking=False):
@@ -3261,6 +3319,9 @@ def watch_names():
             continue
         if text and wake_name_re().search(text):
             try:
+                if maybe_quiet(text):
+                    write_eyes()
+                    continue
                 answer_and_say(text)
                 converse(window=8 if state["welcome"].get("crowd") else None)   # crowd mode: a short wait for a follow up with her name, not 30 s open
             except Exception as e:
