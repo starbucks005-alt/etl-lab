@@ -723,6 +723,7 @@ function gcNoReplyWhy(res) {
      voice once the main voice has finished. Not tried with the real voices. */
   function showCameo(c, mainReply) {
     if (!c || !c.text) return;
+    if (SIS.on) return;          // 2026-10-16, Dr. O: in a talk with Elle, Astra chimed in in her robot voice and answered for Elle. In a talk with others, nobody speaks for them.
     var name = spokenName(c.name || '');
     showReply(mainReply + '  ' + (name ? name + ': ' : '') + c.text);
     chatHistory.push({ who: c.name || 'Cameo', text: c.text, mine: false });
