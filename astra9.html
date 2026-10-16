@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Astra-9 | Emerging Technologies Laboratory</title>
+<title>The Astra Line Robots | Emerging Technologies Laboratory</title>
 <!-- The ETL mark, same as gym.html and city-government.html. Without one a
      browser falls back to /favicon.ico, which is the Founder Studio mark. -->
 <link rel="icon" type="image/png" href="/favicon_etl_512.png">
-<meta name="description" content="Astra-9, a physical companion from Emerging Technologies Laboratory. Concept and prototype stage, coming soon.">
+<meta name="description" content="The Astra Line Robots from Emerging Technologies Laboratory: physical companions that listen, talk and remember. A working prototype, in testing.">
 <link rel="canonical" href="https://emerging-tech-lab.com/astra9">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
@@ -112,6 +112,50 @@
   .status{font-family:var(--mono);font-size:12px;margin-top:12px}
   .status.ok{color:var(--accent)}
   .status.err{color:var(--red)}
+
+
+  .family{margin:44px 0 0}
+  .family h2{font-family:var(--display);font-size:clamp(26px,4vw,34px);margin:0 0 8px;color:var(--ink)}
+  .family .sub{font-size:15px;margin:0 0 20px;max-width:760px}
+  .famgrid{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:16px;align-items:stretch}
+  .fam{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+       box-shadow:0 12px 30px -22px rgba(22,35,42,.3)}
+  .fam .vis{height:var(--vh);background:#e8ebef;display:flex;justify-content:center;overflow:hidden}
+  .fam .vis{--vh:340px}
+  .fam .vis.lite .crop{height:var(--vh);width:calc(var(--vh)*0.5977);overflow:hidden}
+  .fam .vis.lite img{height:100%;width:auto;max-width:none;display:block}
+  .fam .vis.pair{background:#e9e8ee}
+  .fam .vis.pair img{width:100%;height:340px;object-fit:cover;object-position:50% 20%;display:block}
+  .fam .vis.guard{background:#16202b;align-items:center;position:relative}
+  .fam .vis.guard .bar{position:absolute;left:12%;right:12%;top:50%;height:12px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+  .fam .vis.guard .bar i{position:absolute;top:0;bottom:0;width:22%;border-radius:6px;background:linear-gradient(90deg,transparent,#7fd6ff 55%,#fff);animation:sweep 2.4s ease-in-out infinite alternate}
+  .fam .vis.guard .word{position:absolute;left:0;right:0;bottom:22px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9fb0bd}
+  @keyframes sweep{from{left:0}to{left:78%}}
+  @media (prefers-reduced-motion:reduce){.fam .vis.guard .bar i{animation:none;left:39%}}
+  .fam .body{padding:16px 20px 20px;display:flex;flex-direction:column;flex:1}
+  .fam h3{margin:0 0 6px;font-size:19px;color:var(--ink);font-family:var(--display)}
+  .fam p{margin:0 0 12px;font-size:14px;flex:1}
+  .badge.soon{background:#ece9f8;color:#5b4fb0}
+  @media (max-width:860px){.famgrid{grid-template-columns:1fr}.fam .vis{--vh:300px;height:300px}.fam .vis.pair img{height:300px}}
+  .can{margin:44px 0 0}
+  .can h2{font-family:var(--display);font-size:clamp(26px,4vw,34px);margin:0 0 8px;color:var(--ink)}
+  .can .sub{font-size:15px;margin:0 0 8px;max-width:760px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:12px 0 22px;font-size:13px;color:var(--mute)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .dotg,.dota{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .dotg{background:var(--sig-good)}.dota{background:var(--sig-warn)}
+  .voice-toggle{flex-wrap:wrap}
+  .cangrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .cap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+       box-shadow:0 12px 30px -22px rgba(22,35,42,.3);display:flex;flex-direction:column}
+  .cap h3{margin:0 0 6px;font-size:16px;color:var(--ink);font-family:var(--display)}
+  .cap p{margin:0 0 12px;font-size:14px;flex:1}
+  .badge{align-self:flex-start;font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:3px 10px;border-radius:20px}
+  .badge.now{background:var(--sig-good-bg);color:var(--sig-good)}
+  .badge.try{background:var(--sig-warn-bg);color:#8a6410}
+  .honest{margin:22px 0 0;padding:16px 20px;border-left:3px solid var(--accent);background:var(--accent-bg);border-radius:0 10px 10px 0;font-size:14px;color:var(--ink)}
+  @media (max-width:860px){.cangrid{grid-template-columns:1fr 1fr}}
+  @media (max-width:560px){.cangrid{grid-template-columns:1fr}}
   footer{margin-top:56px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
   .back{display:inline-block;margin-top:10px;font-size:12px;color:var(--mute)}
   @media (max-width:640px){.hero{grid-template-columns:1fr}.appcard{grid-template-columns:1fr}.appcard>div{border-right:none;border-bottom:1px solid var(--line)}.appcard>div:last-child{border-bottom:none}}
@@ -133,9 +177,9 @@
       useful in it. Astra-9 and Astrad are our answer to that.</p>
     </div>
     <div>
-      <h1>Meet the newest members of your family, Astra-9 and her companion, Astrad.</h1>
-      <p class="tag">Physical robot companions, built for your home.</p>
-      <span class="pill">Concept &amp; prototype stage</span>
+      <h1>Meet the Astra Line Robots, the newest members of your family.</h1>
+      <p class="tag">Astra-9, her companion Astrad, and the benchtop Astra-9 Lite: physical robot companions, built for your home.</p>
+      <span class="pill">Working prototype, in testing</span>
       <div class="lede">
         <p>Astra-9 and Astrad bring conversational intelligence into the physical room. They
         sense when you walk in, turn to look at you, and talk back in their own natural
@@ -157,11 +201,59 @@
     </div>
   </div>
 
+  <section class="family" id="family">
+    <h2>The Astra Line</h2>
+    <p class="sub">Four ways in. One is made and working today, two are in development, and one is coming soon.</p>
+    <div class="famgrid">
+      <div class="fam">
+        <div class="vis lite"><div class="crop"><img src="/images/astra9-home/astra9-lite-bench-v1.jpg" alt="Astra-9 Lite, the benchtop head and bust, seen from the front." loading="lazy"></div></div>
+        <div class="body"><h3>Astra-9 Lite</h3>
+          <p>The benchtop version: a head and bust with Astra-9's own voice and personality. It sits on a desk, a counter or a workbench, and it is the one working in our lab today.</p>
+          <span class="badge now">Made and working</span></div>
+      </div>
+      <div class="fam">
+        <div class="vis pair"><img src="/images/astra9-home/astra9-astrad-confirmed-look-v1.jpg" alt="Astra-9 and Astrad standing together, in the confirmed champagne and copper design." loading="lazy"></div>
+        <div class="body"><h3>Astra-9 and Astrad</h3>
+          <p>The full-size companions. Astra-9 is the ninth of nine, and Astrad was built after her, for her, so she would have company. They share the Lite's voice and personality work, in a figure that stands in the room.</p>
+          <span class="badge try">In development</span></div>
+      </div>
+      <div class="fam">
+        <div class="vis guard"><div class="bar"><i></i></div><div class="word">The Guardian series</div></div>
+        <div class="body"><h3>The Guardian series</h3>
+          <p>A trusted presence for home, business and research spaces. A front-door greeter is already running as a preview, and more is on the way.</p>
+          <span class="badge soon">Coming soon</span></div>
+      </div>
+    </div>
+  </section>
+
   <div class="explainer">
     <video controls playsinline preload="metadata" aria-label="Astra-9, Astrad, and Astra-9 Lite, a thirty second overview">
       <source src="/images/astra9-home/astra9-loop-v1.mp4" type="video/mp4">
     </video>
   </div>
+
+  <section class="can" id="can-do">
+    <h2>What she can do today</h2>
+    <p class="sub">Everything here is running on the prototype in our lab. The green ones we have watched work on a real robot. The amber ones are built and tested in the lab, and we are trying them on the robot now. We would rather tell you which is which.</p>
+    <div class="legend"><span><i class="dotg"></i>Working on the robot</span><span><i class="dota"></i>Built, being tried</span></div>
+    <div class="cangrid">
+    <div class="cap"><h3>She listens and keeps talking</h3><p>Say her name once, then just talk. She keeps listening for your next sentence without needing her name again, and she talks back in a natural voice.</p><span class="badge now">Working on the robot</span></div>
+    <div class="cap"><h3>She looks alive</h3><p>Her eyes change color and brightness, pulse like a voice while she speaks and breathe slowly when she is quiet, and her head turns to greet you.</p><span class="badge now">Working on the robot</span></div>
+    <div class="cap"><h3>Voices and accents</h3><p>Robot, American, Swedish, British and Indian voices, chosen on her panel.</p><span class="badge now">Working on the robot</span></div>
+    <div class="cap"><h3>A cast of characters</h3><p>Several characters can sit in one conversation and take turns without talking over each other. Say "This is Dr. O" and they all stop, so you can talk to a real person.</p><span class="badge now">Working on the robot</span></div>
+    <div class="cap"><h3>Science mode</h3><p>For people who check what she says. She looks things up in real journals, shows her sources, and says so when she does not know, instead of making something up.</p><span class="badge now">Working on the robot</span></div>
+    <div class="cap"><h3>Modes for the moment</h3><p>Companion, Science, Children's friend, Event and front desk, Guardian, Personal assistant, and Bench and workshop. A mode sets her rules, what she remembers, how she listens and her eye color.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>Personal assistant</h3><p>Voice notebook and lists, reminders, medicine reminders that ask whether it was taken, a daily check-in, a focus partner, timers and alarms, and a daily briefing.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>Your calendar, read only</h3><p>Paste your published calendar link once and she can tell you what is on today, tomorrow or this week, and your next meeting. She cannot add, change or delete anything.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>Bench Guide</h3><p>Give her a protocol or a recipe and she reads it one step at a time, waits for you to say next, and offers a timer when a step has a wait. Good for hands that are busy.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>Knowledge Shelf</h3><p>Give her your handbook or your rules as text files. She answers only from them, says where she found it, and says so when it is not there.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>Keeps your pet company</h3><p>While you are out she says a few gentle words to your pet by name, and mentions a favorite toy now and then, with her eyes steady and her head still. She sends you a daily note of how often she spoke. She does not listen for barking yet.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>Children's friend</h3><p>Gentle, with characters and skills chosen for anyone under 13, and notes a parent can read. She never pretends to be a person, a pet or a family member.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>A front-door greeter</h3><p>Welcomes visitors, asks where they are going, gives directions from your own building directory, points to forms, and tells the front office who is here. In an emergency she says call 911 first. A preview of the ETL Guardians.</p><span class="badge try">Built, being tried</span></div>
+    <div class="cap"><h3>Lights, plugs and blinds</h3><p>An option you add. Say "turn on the lamp" or "close the blinds." She works alongside what you already have and will not touch locks, doors or alarms.</p><span class="badge try">Built, being tried</span></div>
+    </div>
+    <p class="honest">She tells you she is a robot whenever it matters, and she says "I would rather not make something up" when she does not know. What she remembers stays on the robot.</p>
+  </section>
 
   <div class="appcard">
     <div>
@@ -186,9 +278,9 @@
     <div>
       <h3>Skills</h3>
       <div class="skill"><p class="name">Conversation</p><p class="status">Always on</p></div>
-      <div class="skill"><p class="name">Cooking helper</p><p class="status on">Active</p></div>
-      <div class="skill"><p class="name">Homework helper</p><p class="status">Not added</p><button>Add</button></div>
-      <div class="skill"><p class="name">Garage companion</p><p class="status">Not added</p><button>Add</button></div>
+      <div class="skill"><p class="name">Science mode</p><p class="status on">Active</p></div>
+      <div class="skill"><p class="name">Daily briefing</p><p class="status">Not added</p><button>Add</button></div>
+      <div class="skill"><p class="name">Pet companion</p><p class="status">Not added</p><button>Add</button></div>
     </div>
   </div>
 
@@ -228,6 +320,7 @@
         <option value="">Which would suit you? (optional)</option>
         <option value="fullsize">The full-size figure</option>
         <option value="lite">Astra-9 Lite, the portable head and bust</option>
+        <option value="guardian">The Guardian series, when it is ready</option>
         <option value="either">Either, I am not sure yet</option>
       </select>
       <select id="astra9WaitUseCase">
