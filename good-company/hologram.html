@@ -881,8 +881,8 @@ function gcNoReplyWhy(res) {
     if (!text || chatBusy || !chatWho) return;
     var sisNote = SIS.fixed && !SIS.on ? roomNote(SIS.others) : '';
     /* 2026-10-16, Dr. O: "only when both are on the screen are they to be shared". Each hologram shows one of them, so the one on screen speaks only for itself: the other is not here and is never spoken as or answered for. */
-    if (who.value === 'astrad') sisNote += '\n\n[Only Astrad is in this hologram. Astra-9 is not here, so never speak as her, quote her or answer for her or for anyone else. Speak only as yourself.]';
-    if (who.value === 'astra9') sisNote += '\n\n[Only Astra-9 is in this hologram. Astrad is not here, so never speak as him, quote him or answer for him or for anyone else. Speak only as yourself.]';
+    if (who.value === 'astrad') sisNote += '\n\n[Only Astrad is in this conversation. You can talk about Astra-9 as much as you like, but she is not part of it: never write a line for her, never speak as her and never answer for her or for anyone else. Speak only as yourself.]';
+    if (who.value === 'astra9') sisNote += '\n\n[Only Astra-9 is in this conversation. You can talk about Astrad as much as you like, but he is not part of it: never write a line for him, never speak as him and never answer for him or for anyone else. Speak only as yourself.]';
     if (SIS.on && !chatWho.echo) {
       if (!SIS.release) {
         chatInput.value = '';
