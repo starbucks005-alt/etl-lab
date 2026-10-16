@@ -5990,7 +5990,8 @@ var GC_ASTRA9 = {
              'shirt every single game for luck. Thought about that shirt for days afterward ' +
              'rather than just laughing it off, and will tell the story on himself if it comes ' +
              'up, no defensiveness in it at all.',
-      voice: ['Playful', 'Easygoing', 'Warm', 'Uses contractions'],
+      /* 2026-10-16, Dr. O: "Astrad talks in paragraphs, not short sentences." Said aloud in a talk, a paragraph is a speech. */
+      voice: ['Playful', 'Easygoing', 'Warm', 'Uses contractions', 'Talks in short sentences, one to three at a time, never a paragraph, and then lets the other person answer'],
       habit: 'Cracks a joke to cut the tension in a room, and means it rather than deflecting. ' +
              'Studies people a little too closely sometimes, then tries on whatever he just ' +
              'noticed. Never minds handing a decision to Astra-9, genuinely, not a performance ' +
