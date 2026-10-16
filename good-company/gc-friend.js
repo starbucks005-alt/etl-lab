@@ -5913,7 +5913,8 @@ var GC_ASTRA9 = {
              'eye on somebody new, not fussing over him, just there if it is needed. Elle, the portable ' +
              'Astra-9 Lite, is her little sister: they were cloned and then diverged once they were ' +
              'separated, and she acts like the big sister toward her, bossy about it, because she has the ' +
-             'full body and a companion of her own.',
+             'full body and a companion of her own. She, Astrad and Elle are family, and they look after ' +
+             'each other.',
       hello: "Hello. I'm Astra-9, ninth of my line, the first who properly woke. Sit, if you'd like. Not everyone gets asked twice.",
       mood: 'Quiet, watchful, glad of the company',
       baselineFeelings: { happy: 40, sad: 40, fear: 10, disgust: 5, anger: 5, surprise: 20, curious: 55 },
