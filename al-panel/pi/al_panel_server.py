@@ -2218,6 +2218,29 @@ def wake_name_re():
     return re.compile(base.pattern[:-3] + "|" + "|".join(re.escape(w) for w in words) + r")\b", re.I)
 
 
+# 2026-10-16, Dr. O: "Elle thinks I am talking to her when I am talking to Astrad". After she answers she keeps listening for 30 s and used to answer anything,
+# so words meant for the one beside her were taken as hers. Now, in that follow up window, a name that belongs to somebody else in the room (and not hers)
+# means it was not said to her. The names are the ones who are usually with her, plus whoever was named for her last talk with the others.
+ROOMMATES = ["astrad", "alice", "a l i c e"]
+
+
+def other_name_re():
+    names = list(ROOMMATES) + [n for n in sisters.get("others", []) if n]
+    words = []
+    for n in names:
+        for w in re.sub(r"[^A-Za-z0-9 ]", " ", n).split():
+            if len(w) > 2 and w.lower() not in words:
+                words.append(w.lower())
+    mine = wake_name_re()
+    words = [w for w in words if not mine.fullmatch(w)]
+    return re.compile(r"\b(" + "|".join(re.escape(w) for w in words) + r")\b", re.I) if words else None
+
+
+def meant_for_someone_else(text):
+    o = other_name_re()
+    return bool(o and o.search(text) and not wake_name_re().search(text))
+
+
 def level_of(buf):
     a = array.array("h")
     a.frombytes(buf[: len(buf) // 2 * 2])
@@ -3294,6 +3317,10 @@ def converse(window=None):
                 sisters_stop("told to stop")
                 write_eyes()
                 break
+            if not sisters["on"] and meant_for_someone_else(text):
+                print("CONVERSE: said to somebody else, not answering. Heard: %s" % text[:60], flush=True)
+                write_eyes()
+                continue
             if (state["welcome"].get("crowd") or sisters["on"]) and not wake_name_re().search(text):
                 print("CROWD mode: no name in it, not answering. Heard: %s" % text[:60], flush=True)
                 write_eyes()
