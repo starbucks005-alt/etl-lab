@@ -841,7 +841,7 @@ def load_people():
 
 
 def people_block():
-    """2026-10-16, Dr. O: "Elle doesn't know me. She just asked me who is David." She cannot recognize a voice or a face, so she cannot know who is speaking, but she
+    """2026-10-16, Dr. O: she did not know who the owner was and asked about a name in her notes. She cannot recognize a voice or a face, so she cannot know who is speaking, but she
     can know about the people the owner tells her about, and take someone's word for who they are. Only Elle gets this; a character is never given it."""
     people = load_people()
     if not people:

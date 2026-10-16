@@ -1,6 +1,6 @@
-"""Take one character out of the private list on this robot, 2026-10-15, Dr. O ("remove David").
+"""Take one character out of the private list on this robot, 2026-10-15, Dr. O.
 
-Run it on the Pi, in ~/al_panel:   python3 remove_private.py David
+Run it on the Pi, in ~/al_panel:   python3 remove_private.py NAME
 It looks in every personalities_private*.json next to it for characters whose name or id contains that word, makes a backup copy
 (the file name with .bak after it), takes them out, and says what it removed. Then restart her: sudo systemctl restart al-panel.service
 Run it with no word to only list who is there. The characters are never in the public repository, only in those files on the robot."""
