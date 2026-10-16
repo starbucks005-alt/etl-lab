@@ -248,7 +248,7 @@ try:
 except (OSError, ValueError):
     PERSONAS = {}
 
-# 2026-10-08, Dr. O: a character made for one person (David's Echo) must not go in the public repository, which this file is
+# 2026-10-08, Dr. O: a character made for one person (a private Echo) must not go in the public repository, which this file is
 # fetched from. A file called personalities_private.json next to the server holds them, in the same shape as personalities.json
 # with one added line, "line", for the card. It is kept out of git. Delete the file and restart her to remove them.
 PRIVATE_LIST = []
