@@ -91,7 +91,7 @@ const { readCompanionCreditRow, deductCompanionCredits } = require('./_gc-compan
 const { ownerUser } = require('./_owner-auth.js');
 const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
 /* 2026-10-16, Dr. O: an id like azure:en-US-ChristopherMultilingualNeural is spoken by Azure. If Azure is not set up or fails, this is the ElevenLabs voice it replaces, so nobody goes silent. */
-const AZURE_FALLBACK = { 'azure:en-US-ChristopherMultilingualNeural': '4NZxG3SNE9sA1UE6KTRy' };
+const AZURE_FALLBACK = { 'azure:en-US-ChristopherNeural': '4NZxG3SNE9sA1UE6KTRy', 'azure:en-US-ChristopherMultilingualNeural': '4NZxG3SNE9sA1UE6KTRy' };
 const { isLabKey, labCallAllowed } = require('./_lab-key.js');
 /* DUAL VISITOR+ADDRESS CAP, added 2026-08-30 -- same fix, same reasoning,
    same shared ah_daily_usage pool as gc-chat.js's own identical comment.
