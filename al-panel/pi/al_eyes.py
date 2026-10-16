@@ -11,9 +11,22 @@ import time
 
 from rpi_ws281x import Color, PixelStrip
 
-from al_eyes_math import eye_level
+from al_eyes_math import eye_level, strip_frame
 
-LED_COUNT = 32      # two rings of 16
+EYE_LEDS = 32       # two rings of 16
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def _strip_leds():
+    """A light strip chained after the eye rings (a Guardian). A file called strip_leds next to this one holds how many lights it has; no file, no strip."""
+    try:
+        return max(0, min(144, int(open(os.path.join(HERE, "strip_leds")).read().strip())))
+    except (OSError, ValueError):
+        return 0
+
+
+STRIP = _strip_leds()
+LED_COUNT = EYE_LEDS + STRIP
 LED_PIN = 12        # GPIO12, physical pin 32
 strip = PixelStrip(LED_COUNT, LED_PIN, 800000, 10, False, 255, 0)
 strip.begin()
@@ -23,6 +36,7 @@ REFRESH_SECONDS = 2   # the rings forget their color when they lose power, so it
 last = None
 last_sent = 0.0
 last_lvl = None
+last_frame = None
 BREATHE = not os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "eyes_still"))   # a file called eyes_still next to this one turns the slow breathing off
 while True:
     try:
@@ -30,12 +44,18 @@ while True:
             d = json.load(f)
     except Exception:
         d = DEFAULT
-    lvl = round(eye_level(d, time.time(), BREATHE), 3)
-    if lvl != last_lvl or d != last or time.time() - last_sent > REFRESH_SECONDS:
+    now_t = time.time()
+    lvl = round(eye_level(d, now_t, BREATHE), 3)
+    frame = [round(v, 2) for v in strip_frame(STRIP, now_t, bool(d.get("speaking")))] if STRIP else []
+    if lvl != last_lvl or d != last or frame != last_frame or now_t - last_sent > REFRESH_SECONDS:
         c = Color(int(d["r"] * lvl), int(d["g"] * lvl), int(d["b"] * lvl))
-        for i in range(LED_COUNT):
+        for i in range(EYE_LEDS):
             strip.setPixelColor(i, c)
+        slvl = max(0.0, min(0.30, float(d.get("level", 0.12)) * 1.6))        # the strip is capped like the eyes, a little brighter so it reads from across a room
+        for j, v in enumerate(frame):
+            strip.setPixelColor(EYE_LEDS + j, Color(int(d["r"] * slvl * v), int(d["g"] * slvl * v), int(d["b"] * slvl * v)))
         strip.show()
+        last_frame = frame
         last = d
         last_lvl = lvl
         last_sent = time.time()

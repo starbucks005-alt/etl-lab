@@ -820,7 +820,7 @@ speaking = {"on": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" 
 def write_eyes(boost=False):
     c = state["color"].lstrip("#")
     level = MAX_LEVEL if boost else MAX_LEVEL * (state["brightness"] / 100.0)
-    data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3), "speaking": bool(speaking["on"])}
+    data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3), "speaking": bool(speaking["on"]), "mode": state.get("mode") or ""}
     tmp = EYES_FILE + ".tmp"
     with open(tmp, "w") as f:
         json.dump(data, f)
@@ -1061,7 +1061,27 @@ def speak_now(text, use_persona=True):
                 floor_call("release")
 
 
+GLANCE_EVERY = 15.0       # seconds. A small turn of the head as she starts to speak, so she looks present. A file called no_glance next to this one turns it off.
+last_glance = {"t": 0.0}
+
+
+def speak_glance(text):
+    """2026-10-16, Dr. O: a small friendly turn of the head as she begins a reply. Not for a short word, and not more than once every 15 seconds."""
+    now = time.time()
+    if len(text or "") < 40 or now - last_glance["t"] < GLANCE_EVERY or os.path.exists(os.path.join(HERE, "no_glance")):
+        return
+    last_glance["t"] = now
+    try:
+        tmp = NECK_FILE + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump({"cmd": "glance", "id": int(now * 1000)}, f)
+        os.replace(tmp, NECK_FILE)
+    except OSError as e:
+        print("NECK ERROR:", e, flush=True)
+
+
 def _speak_locked(text, use_persona=True):
+    speak_glance(text)
     speaking["on"] = True
     try:
         write_eyes()
