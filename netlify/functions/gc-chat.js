@@ -1634,6 +1634,8 @@ exports.handler = async function (event) {
     return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
   }
   reply = reply.replace(/<\/?quiet>/gi, '').trim();
+  /* 2026-10-17, Dr. O: "plainly" is a tell she hears every time. Dropped from any reply whatever the model wrote. */
+  reply = reply.replace(/(^|[.!?]\s+)plainly,?\s+(\w)/gi, (m, a, b) => a + b.toUpperCase()).replace(/\s+plainly\b/gi, '').replace(/\bplainly\b,?\s*/gi, '').trim();
   /* NEVER DROP A CAMEO JUST BECAUSE THE HOST HAS NOTHING TO ADD, found
      2026-08-19: Dr. O asked Tansy directly into Reggie's room, got
      silence, asked again, got a real answer. Root cause was here — asked

@@ -3288,6 +3288,8 @@ def answer_and_say(text):
         speak_now(spoken)
         return reply
     reply, shown = reply_for(text)
+    # 2026-10-17, Dr. O: "plainly" is a tell she hears every time ("Elle just said plainly"). Dropped from anything she says, whatever the model wrote.
+    reply = re.sub(r"\s*\bplainly\b,?", "", re.sub(r"(^|[.!?]\s+)plainly,?\s+(\w)", lambda m: m.group(1) + m.group(2).upper(), reply, flags=re.I), flags=re.I).strip() or reply
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": shown}]
