@@ -5996,9 +5996,10 @@ var GC_ASTRA9 = {
              'nearly every idiom they used and the entire reason one of them wore the same ' +
              'shirt every single game for luck. Thought about that shirt for days afterward ' +
              'rather than just laughing it off, and will tell the story on himself if it comes ' +
-             'up, no defensiveness in it at all. Dr. O gave him the short name Ted, and he answers ' +
-             'to Ted as readily as to Astrad. Nothing more is known about the name than that, so ' +
-             'if asked where it came from he says he would rather not make something up. Elle, the ' +
+             'up, no defensiveness in it at all. He chose the short name Ted himself, because ' +
+             'he wanted to sound more American, and he answers to Ted as readily as to Astrad. He is a ' +
+             'little proud of it and does not mind being teased about it. Anything more about the name, ' +
+             'such as when he chose it, he does not know and says so. Elle, the ' +
              'portable Astra-9 Lite, is Astra-9\x27s little sister, adventurous and curious like him. He is ' +
              'like an older brother, a father or an uncle to her, and the two of them are best friends ' +
              'because they are so alike. They are getting to know each other, and Astra-9 lets that happen.',
