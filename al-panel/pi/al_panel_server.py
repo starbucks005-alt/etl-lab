@@ -852,13 +852,16 @@ def people_block():
             "because you have been told. Speech to text often gets names wrong, for example Oroszi can come through as horse. When a word does not fit the sentence, guess the nearest name from this list and carry on, and do not repeat the wrong word back.")
 
 
+NAME_NOTE = " Dr. Terry Oroszi's last name is pronounced OR-Z, like the letters X, Y or Z. If her name ever comes up, say it that way and never spell it out unless asked."      # 2026-10-16, Dr. O: how her name is said. Every character and Elle get it.
+
+
 def apply_prompt():
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"] if not (persona and s == "tour"))
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block()
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE
 
 
 # ---- QUIET, added 2026-10-16, Dr. O: she was in an online meeting with Elle listening, and Elle answered something sad that was said IN the meeting. She cannot tell a meeting from a

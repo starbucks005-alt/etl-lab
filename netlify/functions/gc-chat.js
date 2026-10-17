@@ -249,6 +249,8 @@ function buildSystem(friend, you, idle, scene, room, spectate) {
      the claim was never actually wrong. */
   if (f.kind !== 'creature') bits.push(`You are ${name}. You are a person, and you talk like one.`);
   else bits.push(`You are ${name}.`);
+  /* 2026-10-16, Dr. O: how her name is said. Only matters if a character mentions her. */
+  bits.push(`Dr. Terry Oroszi's last name is pronounced OR-Z, like the letters X, Y or Z. If her name ever comes up, say it that way and never spell it out unless asked.`);
   if (f.age)    bits.push(`You are in your ${String(f.age).replace(/s$/, '')}s.`);
   if (f.gender) bits.push(`You are ${String(f.gender).replace(/^A /, 'a ')}.`);
   if (f.from)   bits.push(`You are from ${f.from}.`);

@@ -148,6 +148,7 @@ exports.handler = async function (event) {
       text = (lastSpace > MAX_CHARS * 0.8 ? cut.slice(0, lastSpace) : cut).trim();
     }
   }
+  text = text.replace(/\bOroszi\b/gi, 'Or-zee');          // 2026-10-16, Dr. O: pronounced OR-Z, like X, Y or Z. Only what goes to the voice changes. Whether this spelling sounds right is settled by listening.
   const voiceId = String(body.voice_id || '').trim();
   if (!text) return json(400, { error: 'nothing_to_say' });
   const azureName = azureVoiceName(voiceId);
