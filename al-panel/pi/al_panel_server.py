@@ -854,7 +854,7 @@ def people_block():
             "because you have been told. Speech to text often gets names wrong, for example Oroszi can come through as horse. When a word does not fit the sentence, guess the nearest name from this list and carry on, and do not repeat the wrong word back.")
 
 
-NAME_NOTE = " Dr. Terry Oroszi's last name is pronounced OR-Z, like the letters X, Y or Z. If her name ever comes up, say it that way and never spell it out unless asked."      # 2026-10-16, Dr. O: how her name is said. Every character and Elle get it.
+NAME_NOTE = " Dr. Terry Oroszi's last name is written Oroszi and said as one word with two sounds, Or and zee, run together, Or-zee. Never say it letter by letter. If her name ever comes up, say it that way."      # 2026-10-16, Dr. O: how her name is said. Every character and Elle get it.
 
 
 def apply_prompt():
