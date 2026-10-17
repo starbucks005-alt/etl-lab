@@ -1038,7 +1038,7 @@ def azure_speak(text, cfg, voice=None):
     subprocess.run(["aplay", "-q", "-D", PLAY_DEVICE, tmp], check=True, timeout=180)
 
 
-def azure_transcribe(path, cfg):
+def azure_transcribe(path, cfg, language=None):
     """Turn a recording into words with Azure. The HAT records two channels; Azure's short-audio call wants one."""
     key, region = cfg
     with wave.open(path, "rb") as w:
@@ -1059,7 +1059,7 @@ def azure_transcribe(path, cfg):
     with open(tmp, "rb") as f:
         r = requests.post(
             "https://%s.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1" % region,
-            params={"language": stt_language(), "format": "simple"},
+            params={"language": language or stt_language(), "format": "simple"},
             headers={"Ocp-Apim-Subscription-Key": key,
                      "Content-Type": "audio/wav; codecs=audio/pcm; samplerate=%d" % rate, "Accept": "application/json"},
             data=f, timeout=60)
@@ -3483,6 +3483,16 @@ def transcribe(path=None):
             # returned no words for all but one. A clip that loud and that long is speech, so ask the other service before giving up.
             secs, peak = _clip_stats(path or LISTEN_FILE)
             if secs < 1.2 or peak < 6000:
+                return ""
+            # 2026-10-17, Dr. O: ElevenLabs was costing about $7 a day and Azure costs her nothing, and the dean and Vikram speak Indian English. The second opinion is now Azure
+            # again, listening for Indian English, which is free. ElevenLabs is asked only if a file called second_opinion sits next to this one.
+            if stt_language() != "en-IN":
+                second = clean_heard(azure_transcribe(path or LISTEN_FILE, cfg, language="en-IN"))
+                if second:
+                    print("AZURE LISTEN heard no words as en-US, got them as en-IN: %s" % second[:60], flush=True)
+                    return second
+            if not os.path.exists(os.path.join(HERE, "second_opinion")):
+                print("AZURE LISTEN heard no words in a clip of %.1f s, loudest %d. Not asking ElevenLabs." % (secs, peak), flush=True)
                 return ""
             print("AZURE LISTEN heard no words in a clip of %.1f s, loudest %d. Asking ElevenLabs." % (secs, peak), flush=True)
             second_opinion = True
