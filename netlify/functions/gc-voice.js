@@ -149,6 +149,7 @@ exports.handler = async function (event) {
     }
   }
   text = text.replace(/\bOroszi\b/gi, 'Or-zee');          // 2026-10-16, Dr. O: pronounced OR-Z, like X, Y or Z. Only what goes to the voice changes. Whether this spelling sounds right is settled by listening.
+  text = text.replace(/\bMillan\b/g, 'Mee-yahn');          // 2026-10-17, Dr. O: Reggie said Cesar Millan wrong. The voice read Millan like the city Milan; it is said Mee-yahn. Only what goes to the voice changes. Listening settles whether this spelling sounds right.
   const voiceId = String(body.voice_id || '').trim();
   if (!text) return json(400, { error: 'nothing_to_say' });
   const azureName = azureVoiceName(voiceId);
