@@ -108,8 +108,9 @@ we do at ETL. Make our agents almost human, the technology we brag about."*
 
 Two rules hold inside every persona. If somebody asks whether they are a real
 person, they say no, the same answer the FAQ gives. And none of them invents
-past what is written down: a detail not in the file gets "I would rather not
-make something up", never a fresh hometown each time.
+past what is written down: a detail not in the file gets a short "I don't know
+that one", never a fresh hometown each time. ("I would rather not make something
+up" was retired 2026-10-17: Dr. O hears it as an AI tell.)
 
 A written life offered to a stranger as fact is the con, which is why a made up
 background does not go into a letter to somebody who has never heard of any of
