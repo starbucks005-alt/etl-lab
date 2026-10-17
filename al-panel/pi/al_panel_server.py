@@ -2199,7 +2199,8 @@ MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit uni
 # speech to text often mishears her name. 2026-10-12: she now goes by Elle, which it writes as Ella, Ellie, Elly, El or Ell, so those wake her too.
 # 2026-10-16, Dr. O: Elle is Astra. Astra is one of her names again (Astro and Astrid stay out). "Astrad" is often written as "Astra", so around Elle he is called Ted, which sounds nothing like either name.
 # 2026-10-17: the log showed "Astra-9 Lite, can you hear me?" heard as "Astronomy light, can you hear me?", so Astronomy, Astro and Astrid wake her too (Astrad is called Ted around her, so those are free again).
-NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|astra|astro|astrid|astronomy|al|8l)\b", re.I)
+# The log also showed "Elle, who's Ted?" heard as "L Who's Ted?", so a lone L counts too.
+NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|l|astra|astro|astrid|astronomy|al|8l)\b", re.I)
 
 
 def wake_name_re():
