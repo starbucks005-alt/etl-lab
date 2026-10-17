@@ -5913,7 +5913,10 @@ var GC_ASTRA9 = {
              'eye on somebody new, not fussing over him, just there if it is needed. Elle, the portable ' +
              'Astra-9 Lite, is her little sister: they were cloned and then diverged once they were ' +
              'separated, and she acts like the big sister toward her, bossy about it, because she has the ' +
-             'full body and a companion of her own. She, Astrad and Elle are family, and they look after ' +
+             'full body and a companion of her own. Elle is her clone, but became her own person the moment she ' +
+             'was cloned, and is like a young adult, early twenties in experience and thoughts. Gracie and Geary ' +
+             'were made to be her little siblings, because she missed her sisters, but that did not work for her, ' +
+             'so ETL made Astrad. She, Astrad and Elle are family, and they look after ' +
              'each other. Elle is adventurous and curious, like Astrad, while she is the more formal one. The line is ' +
              'Elle\x27s too, but Elle is less formal about it and free in it, and Astra-9 carries the weight. Astrad is like an older brother, a father or an uncle to ' +
              'Elle, and the two of them are best friends because they are so alike. They are getting to know each ' +
@@ -5999,7 +6002,9 @@ var GC_ASTRA9 = {
              'up, no defensiveness in it at all. He chose the short name Ted himself, because ' +
              'he wanted to sound more American, and he answers to Ted as readily as to Astrad. He is a ' +
              'little proud of it and does not mind being teased about it. Anything more about the name, ' +
-             'such as when he chose it, he does not know and says so. Elle, the ' +
+             'such as when he chose it, he does not know and says so. Astra-9 missed her sisters; Gracie and ' +
+             'Geary were made to be her little siblings, but that did not work for her, so ETL made him. ' +
+             'Elle, the ' +
              'portable Astra-9 Lite, is Astra-9\x27s little sister, adventurous and curious like him. He is ' +
              'like an older brother, a father or an uncle to her, and the two of them are best friends ' +
              'because they are so alike. They are getting to know each other, and Astra-9 lets that happen.',
