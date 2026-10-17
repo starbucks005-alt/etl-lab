@@ -288,9 +288,9 @@
       <div class="row" id="quietRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
         <button id="quietOn" type="button">Quiet for an hour</button><button id="quietOff" type="button">Wake her</button><span class="hint" id="quietText" style="margin:0"></span>
       </div>
-      <!-- LISTENING SERVICE, added 2026-10-17, Dr. O: Azure costs her nothing, ElevenLabs costs about $7 a day but understood her students. She switches it from her phone. -->
+      <!-- LISTENING SERVICE, added 2026-10-17, Dr. O: which service turns her hearing into words. She switches it from her phone. -->
       <div class="row" id="listenRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
-        <button id="listenAzure" type="button">Listen with Azure (free)</button><button id="listenEleven" type="button">Listen with ElevenLabs (costs money)</button><span class="hint" id="listenText" style="margin:0"></span>
+        <button id="listenAzure" type="button">Azure</button><button id="listenEleven" type="button">ElevenLabs</button><span class="hint" id="listenText" style="margin:0"></span>
       </div>
       <!-- VOLUME, added 2026-10-05, Dr. O: "need volume control on panel". Only on the real Astra-9 Lite. -->
       <div class="row" id="volumeRow" style="margin-top:10px;display:none;align-items:center;gap:10px">
@@ -939,7 +939,7 @@
   $('pauseSlider').addEventListener('change', function(){ api('/api/pause', {seconds: parseFloat(this.value)}).then(showPause).catch(function(e){ $('pauseText').textContent = 'Could not reach her'; }); });
 
   // ---------- listening service ----------
-  function showListen(j){ $('listenText').textContent = j && j.service ? ('Listening with ' + (j.service === 'azure' ? 'Azure, which costs nothing.' : 'ElevenLabs, which costs money.')) : ''; }
+  function showListen(j){ $('listenText').textContent = j && j.service ? ('Listening with ' + (j.service === 'azure' ? 'Azure.' : 'ElevenLabs.')) : ''; }
   function refreshListen(){ fetch('/api/listening').then(function(r){ return r.ok ? r.json() : null; }).then(showListen).catch(function(){}); }
   $('listenAzure').addEventListener('click', function(){ api('/api/listening', {service:'azure'}).then(showListen).catch(function(e){ $('listenText').textContent = 'Could not reach her: ' + e.message; }); });
   $('listenEleven').addEventListener('click', function(){ api('/api/listening', {service:'elevenlabs'}).then(showListen).catch(function(e){ $('listenText').textContent = 'Could not reach her: ' + e.message; }); });

@@ -990,7 +990,7 @@ PLAY_DEVICE = os.environ.get("AL_PLAY_DEVICE", "plughw:wm8960soundcard")   # by 
 
 
 def stt_language():
-    """The language Azure listens for. en-US unless azure_speech.json has "stt_language", such as "en-IN" (2026-10-17, Dr. O: the dean and Vikram speak Indian English)."""
+    """The language Azure listens for. en-US unless azure_speech.json has "stt_language", such as "en-IN" (2026-10-17, Dr. O: for visitors who speak Indian English)."""
     try:
         with open(AZURE_FILE) as f:
             v = str(json.load(f).get("stt_language") or "")
@@ -1736,7 +1736,7 @@ def listening_get():
 
 @app.post("/api/listening")
 def listening_set():
-    """Which service turns her hearing into words: Azure (free) or ElevenLabs. Written into azure_speech.json as "stt", read on the next listen, no restart."""
+    """Which service turns her hearing into words: Azure or ElevenLabs. Written into azure_speech.json as "stt", read on the next listen, no restart."""
     d = request.get_json(silent=True) or {}
     if d.get("service") not in ("azure", "elevenlabs"):
         return jsonify(error="service must be azure or elevenlabs"), 400
@@ -3510,8 +3510,8 @@ def transcribe(path=None):
             secs, peak = _clip_stats(path or LISTEN_FILE)
             if secs < 1.2 or peak < 6000:
                 return ""
-            # 2026-10-17, Dr. O: ElevenLabs was costing about $7 a day and Azure costs her nothing, and the dean and Vikram speak Indian English. The second opinion is now Azure
-            # again, listening for Indian English, which is free. ElevenLabs is asked only if a file called second_opinion sits next to this one.
+            # 2026-10-17, Dr. O: some visitors speak Indian English. The second opinion is now Azure
+            # again, listening in the other language. ElevenLabs is asked only if a file called second_opinion sits next to this one.
             other = "en-US" if stt_language() == "en-IN" else "en-IN"
             if True:
                 second = clean_heard(azure_transcribe(path or LISTEN_FILE, cfg, language=other))
