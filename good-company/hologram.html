@@ -649,12 +649,12 @@ function gcNoReplyWhy(res) {
     }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
   }
   function floorWait(done) {
-    if (!SIS.on && !SIS.fixed) { done(false); return; }      // 2026-10-16: also when Elle is named in the address, so it waits while she speaks
+    // 2026-10-17, Dr. O: "Reggie is talking, Elle chimes in and finishes before he does". Every voice on this page takes the floor before it speaks, talk or no talk, so Elle (who does the same) waits for it.
     var t0 = Date.now();
     (function tryIt() {
       floorCall('claim').then(function (r) {
         if (!r) { done(false); return; }
-        if (r.hushed) { done(false, true); return; }
+        if (r.hushed) { done(false, SIS.on); return; }           // a hush only matters during a talk
         if (r.granted) { done(true); return; }
         if (Date.now() - t0 > 30000) { done(false); return; }
         setTimeout(tryIt, 500);

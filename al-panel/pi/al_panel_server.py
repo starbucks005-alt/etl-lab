@@ -1079,7 +1079,7 @@ def azure_transcribe(path, cfg, language=None):
 # be reached she speaks anyway, so this can only make a talk quieter, never silent. Only used in a talk. NOT TRIED with the real devices.
 FLOOR_URL = "https://emerging-tech-lab.com/.netlify/functions/gc-floor"
 FLOOR_ROOM = "etl-talk"
-FLOOR_MAX_WAIT = 12.0      # 2026-10-15: was 30. While she waits her eyes stay bright and she says nothing, which looks like she wants to talk and cannot
+FLOOR_MAX_WAIT = 26.0      # 2026-10-17: was 12, so she waits for a long answer from the hologram to finish (a hold lasts 25 s). 2026-10-15: was 30. While she waits her eyes stay bright and she says nothing, which looks like she wants to talk and cannot
 FLOOR_OFF_FILE = os.path.join(HERE, "no_floor")     # `touch ~/al_panel/no_floor` turns the floor off, `rm ~/al_panel/no_floor` turns it on again
 
 
