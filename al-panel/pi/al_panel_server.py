@@ -2200,7 +2200,8 @@ MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit uni
 # 2026-10-16, Dr. O: Elle is Astra. Astra is one of her names again (Astro and Astrid stay out). "Astrad" is often written as "Astra", so around Elle he is called Ted, which sounds nothing like either name.
 # 2026-10-17: the log showed "Astra-9 Lite, can you hear me?" heard as "Astronomy light, can you hear me?", so Astronomy, Astro and Astrid wake her too (Astrad is called Ted around her, so those are free again).
 # The log also showed "Elle, who's Ted?" heard as "L Who's Ted?", so a lone L counts too.
-NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|l|astra|astro|astrid|astronomy|al|8l)\b", re.I)
+# 2026-10-17: "Astra-9 Lite" was heard as "How strong Nine Light?", so "nine light" (or 9 lite, nine lite) and "strong nine" wake her.
+NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|l|astra|astro|astrid|astronomy|(?:nine|9)[ -]?(?:light|lite)|strong nine|al|8l)\b", re.I)
 
 
 def wake_name_re():
