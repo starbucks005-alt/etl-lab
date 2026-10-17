@@ -1092,6 +1092,9 @@ def floor_wait():
         if r is None:
             return False
         if r.get("hushed"):
+            if not sisters["on"]:
+                # 2026-10-17: the floor is now used outside a talk too. A hush is for a talk; it must not leave her silent for ten minutes when someone just asks her something.
+                return False
             print("HUSH: everyone was told to stop, so she does not speak", flush=True)
             sisters_stop("hush")
             return "hushed"
