@@ -989,6 +989,16 @@ ELEVEN_BACKUP_VOICE = "DVXBaWlHfcpJmii7l8yI"
 PLAY_DEVICE = os.environ.get("AL_PLAY_DEVICE", "plughw:wm8960soundcard")   # by name, because the card number can move
 
 
+def stt_language():
+    """The language Azure listens for. en-US unless azure_speech.json has "stt_language", such as "en-IN" (2026-10-17, Dr. O: the dean and Vikram speak Indian English)."""
+    try:
+        with open(AZURE_FILE) as f:
+            v = str(json.load(f).get("stt_language") or "")
+        return v if re.fullmatch(r"[a-z]{2}-[A-Z]{2}", v) else "en-US"
+    except (OSError, ValueError, AttributeError):
+        return "en-US"
+
+
 def azure_cfg(part):
     """(key, region) when Azure is set up and `part` ("tts" or "stt") is not switched off, else None."""
     key = os.environ.get("AZURE_SPEECH_KEY")
@@ -1049,7 +1059,7 @@ def azure_transcribe(path, cfg):
     with open(tmp, "rb") as f:
         r = requests.post(
             "https://%s.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1" % region,
-            params={"language": "en-US", "format": "simple"},
+            params={"language": stt_language(), "format": "simple"},
             headers={"Ocp-Apim-Subscription-Key": key,
                      "Content-Type": "audio/wav; codecs=audio/pcm; samplerate=%d" % rate, "Accept": "application/json"},
             data=f, timeout=60)
