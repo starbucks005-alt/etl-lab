@@ -3159,10 +3159,10 @@ document.addEventListener('DOMContentLoaded', function(){
     // and disagree with what the customer is actually charged.
     {name:'ETL Design',           url:'/etl-design',         role:'Social graphics, made to brief',                  dom:'biz',  type:'count',  n:4, access:'paid', price:'Per piece', travel:'all 4 travel in &middot; Yuki, Reid, Zara, Chris'},
     // Slot 8 of Professional & Business, after Chris's Tailor Shop (Dr. O, 2026-10-17). Pending cards
-    // sort last in their group, which is what puts it there. No url on purpose: a card that links
-    // nowhere is honest, a guessed domain is not. When Auggie's Closet is open, set access to 'paid',
-    // add the url and a price line, and capture a hover image named auggie-s-closet.webp.
-    {name:"Auggie's Closet",      url:null,                   role:'Style the clothes you already own',               dom:'biz',  type:'count',  n:1, access:'pending', travel:'Auggie travels in from Founder Studio'},
+    // sort last in their group, which is what puts it there. It links to the live app (Dr. O, 2026-10-17).
+    // It stays "Shipping soon" until billing exists. Then set access to 'paid', add a price line, and
+    // capture a hover image named auggie-s-closet.webp.
+    {name:"Auggie's Closet",      url:'https://auggies-closet.netlify.app/',                   role:'Style the clothes you already own',               dom:'biz',  type:'count',  n:1, access:'pending', travel:'Auggie travels in from Founder Studio'},
     {name:'ETL Messenger',        url:'/hiring-pool',         role:'Chat with a staff member',                         dom:'friends', type:'engine', tool:'Open the staff catalog &middot; pick a staff member &middot; IM them', access:'free'},
     {name:'The Harvest Circuit',  url:'/restaurant',         role:'Farm to table, wired through',                    dom:'dining', type:'count', n:8, access:'free', travel:'first floor &middot; 3 native, 5 travel in'},
     {name:'ETL Classrooms',       url:'/classrooms',         role:'AI agents for education',                         dom:'acad',    type:'engine', tool:'Teaching Assistants &middot; ETL Faculty &middot; Living Legends', access:'paid', price:'From $99/mo'},
