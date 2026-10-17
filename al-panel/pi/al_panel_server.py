@@ -3486,10 +3486,11 @@ def transcribe(path=None):
                 return ""
             # 2026-10-17, Dr. O: ElevenLabs was costing about $7 a day and Azure costs her nothing, and the dean and Vikram speak Indian English. The second opinion is now Azure
             # again, listening for Indian English, which is free. ElevenLabs is asked only if a file called second_opinion sits next to this one.
-            if stt_language() != "en-IN":
-                second = clean_heard(azure_transcribe(path or LISTEN_FILE, cfg, language="en-IN"))
+            other = "en-US" if stt_language() == "en-IN" else "en-IN"
+            if True:
+                second = clean_heard(azure_transcribe(path or LISTEN_FILE, cfg, language=other))
                 if second:
-                    print("AZURE LISTEN heard no words as en-US, got them as en-IN: %s" % second[:60], flush=True)
+                    print("AZURE LISTEN heard no words in %s, got them as %s: %s" % (stt_language(), other, second[:60]), flush=True)
                     return second
             if not os.path.exists(os.path.join(HERE, "second_opinion")):
                 print("AZURE LISTEN heard no words in a clip of %.1f s, loudest %d. Not asking ElevenLabs." % (secs, peak), flush=True)
