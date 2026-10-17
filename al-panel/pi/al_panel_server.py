@@ -3390,7 +3390,10 @@ def watch_names():
             print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
             write_eyes()
             continue
-        if text and wake_name_re().search(text):
+        # 2026-10-17, Dr. O: "do not make her listen for her name to talk". Unless crowd mode is on (a room full of people), she answers whatever she hears, as long as it is
+        # a real few words and not said to someone else by name. Crowd mode, a talk with the others and the quiet switch still work as before. `touch ~/al_panel/name_needed` brings the name back.
+        nameless_ok = (not state["welcome"].get("crowd")) and not os.path.exists(os.path.join(HERE, "name_needed")) and len(text.split()) >= 2 and not meant_for_someone_else(text) if text else False
+        if text and (wake_name_re().search(text) or nameless_ok):
             try:
                 if maybe_quiet(text):
                     write_eyes()
