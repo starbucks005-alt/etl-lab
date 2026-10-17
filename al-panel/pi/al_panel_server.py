@@ -1729,6 +1729,30 @@ def quiet_set():
     return quiet_get()
 
 
+@app.get("/api/listening")
+def listening_get():
+    return jsonify(service="azure" if azure_cfg("stt") else "elevenlabs")
+
+
+@app.post("/api/listening")
+def listening_set():
+    """Which service turns her hearing into words: Azure (free) or ElevenLabs. Written into azure_speech.json as "stt", read on the next listen, no restart."""
+    d = request.get_json(silent=True) or {}
+    if d.get("service") not in ("azure", "elevenlabs"):
+        return jsonify(error="service must be azure or elevenlabs"), 400
+    try:
+        with open(AZURE_FILE) as f:
+            cfg = json.load(f)
+    except (OSError, ValueError):
+        cfg = {}
+    cfg["stt"] = d["service"] == "azure"
+    tmp = AZURE_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(cfg, f)
+    os.replace(tmp, AZURE_FILE)
+    return listening_get()
+
+
 @app.get("/api/people")
 def people_get():
     return jsonify(people=load_people())

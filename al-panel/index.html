@@ -288,6 +288,10 @@
       <div class="row" id="quietRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
         <button id="quietOn" type="button">Quiet for an hour</button><button id="quietOff" type="button">Wake her</button><span class="hint" id="quietText" style="margin:0"></span>
       </div>
+      <!-- LISTENING SERVICE, added 2026-10-17, Dr. O: Azure costs her nothing, ElevenLabs costs about $7 a day but understood her students. She switches it from her phone. -->
+      <div class="row" id="listenRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
+        <button id="listenAzure" type="button">Listen with Azure (free)</button><button id="listenEleven" type="button">Listen with ElevenLabs (costs money)</button><span class="hint" id="listenText" style="margin:0"></span>
+      </div>
       <!-- VOLUME, added 2026-10-05, Dr. O: "need volume control on panel". Only on the real Astra-9 Lite. -->
       <div class="row" id="volumeRow" style="margin-top:10px;display:none;align-items:center;gap:10px">
         <label for="vol" style="margin:0">Volume</label>
@@ -588,7 +592,7 @@
     $('shutCard').style.display = on ? '' : 'none';
     $('listenRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none'; $('stopAlarmRow').style.display = on ? '' : 'none';
     $('volumeRow').style.display = on ? 'flex' : 'none';
-    $('quietRow').style.display = on ? 'flex' : 'none'; $('pauseRow').style.display = on ? 'flex' : 'none'; if(on){ refreshQuiet(); refreshPause(); }
+    $('quietRow').style.display = on ? 'flex' : 'none'; $('pauseRow').style.display = on ? 'flex' : 'none'; $('listenRow').style.display = on ? 'flex' : 'none'; if(on){ refreshQuiet(); refreshPause(); refreshListen(); }
     if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
@@ -934,6 +938,11 @@
   $('pauseSlider').addEventListener('input', function(){ $('pauseText').textContent = this.value + ' s after I stop'; });
   $('pauseSlider').addEventListener('change', function(){ api('/api/pause', {seconds: parseFloat(this.value)}).then(showPause).catch(function(e){ $('pauseText').textContent = 'Could not reach her'; }); });
 
+  // ---------- listening service ----------
+  function showListen(j){ $('listenText').textContent = j && j.service ? ('Listening with ' + (j.service === 'azure' ? 'Azure, which costs nothing.' : 'ElevenLabs, which costs money.')) : ''; }
+  function refreshListen(){ fetch('/api/listening').then(function(r){ return r.ok ? r.json() : null; }).then(showListen).catch(function(){}); }
+  $('listenAzure').addEventListener('click', function(){ api('/api/listening', {service:'azure'}).then(showListen).catch(function(e){ $('listenText').textContent = 'Could not reach her: ' + e.message; }); });
+  $('listenEleven').addEventListener('click', function(){ api('/api/listening', {service:'elevenlabs'}).then(showListen).catch(function(e){ $('listenText').textContent = 'Could not reach her: ' + e.message; }); });
   // ---------- quiet ----------
   function showQuiet(j){ $('quietText').textContent = j && j.quiet ? ('Quiet until ' + j.until + '. She is not listening in the background. The Talk button still works.') : 'She is listening as usual.'; }
   function refreshQuiet(){ fetch('/api/quiet').then(function(r){ return r.ok ? r.json() : null; }).then(showQuiet).catch(function(){}); }
