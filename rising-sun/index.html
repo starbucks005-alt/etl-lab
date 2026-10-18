@@ -76,6 +76,7 @@
   .bub .who{display:block;font-size:11px;font-family:var(--mono);color:var(--mute);margin-bottom:2px}
   .bub.pending{opacity:.6}
   .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
+  body:not(.owner) .owner-only{display:none!important}
   .msg{font-size:13px;color:var(--mute);margin:8px 0 0;min-height:1.2em}
   .msg.bad{color:var(--bad)}
 </style>
@@ -88,9 +89,9 @@
 
   <div class="grid">
     <section class="card wide" id="keyCard">
-      <h2>The key</h2>
-      <p class="hint">The sun's key, the same one the site and the board hold. It stays in this browser. Without it nothing here can be read or changed.</p>
-      <div class="row"><input type="password" id="key" autocomplete="off" aria-label="Sun key"><button class="primary" id="connect">Connect</button></div>
+      <h2>Your sun's access code</h2>
+      <p class="hint">The access code for your sun. It stays in this browser. Without it nothing here can be read or changed.</p>
+      <div class="row"><input type="password" id="key" autocomplete="off" aria-label="Access code"><button class="primary" id="connect">Connect</button></div>
       <p class="msg" id="keyMsg"></p>
     </section>
 
@@ -122,7 +123,7 @@
 
     <section class="card wide" id="fairyCard">
       <h2>3. Who is in the sun</h2>
-      <p class="hint">Three fairies come with the sun, each with her own voice. "Use her" puts her in the sun. "Hear her" plays her waking you, using her voice (it needs her voice id and a little ElevenLabs credit). "Change her words" opens her lines below.</p>
+      <p class="hint">Three fairies come with the sun, each with her own voice. "Use her" puts her in the sun. "Hear her" plays her waking you in her own voice. "Change her words" opens her lines below.</p>
       <div class="fairies" id="fairies"></div>
       <div class="row" style="margin-top:12px"><button id="newFairy">Make another fairy</button></div>
     </section>
@@ -134,21 +135,21 @@
       <label for="fGreet">What she says when you wake</label><input type="text" id="fGreet" maxlength="300">
       <label for="fAsk">What she asks next</label><input type="text" id="fAsk" maxlength="300">
       <label for="fManner">Her manner, in a few words (for example: warm and teasing)</label><input type="text" id="fManner" maxlength="300">
-      <label for="fImage">Her picture: the filename of the image you uploaded to the rising-sun folder (for example, velvet_v1.png). It shows on her card here and nowhere else.</label><input type="text" id="fImage" maxlength="120">
+      <label class="owner-only" for="fImage">Her picture: the filename of the image you uploaded to the rising-sun folder (for example, velvet_v1.png). It shows on her card here and nowhere else.</label><input class="owner-only" type="text" id="fImage" maxlength="120">
       <label for="fBack">Her backstory (leave empty until you have written it)</label><textarea id="fBack" maxlength="3000" rows="6"></textarea>
-      <label for="fVoice">Her voice: an ElevenLabs voice id. With no voice she shows words and makes no sound. If a fairy sounds like the wrong one, paste the right id here.</label><input type="text" id="fVoice" maxlength="80">
+      <label class="owner-only" for="fVoice">Her voice: an ElevenLabs voice id. With no voice she shows words and makes no sound. If a fairy sounds like the wrong one, paste the right id here.</label><input class="owner-only" type="text" id="fVoice" maxlength="80">
       <div class="row" style="margin-top:12px"><button class="primary" id="saveFairy">Save her</button><button id="hearFairy">Save and hear her wake you</button><button id="delFairy">Remove her</button></div>
       <p class="msg" id="fairyMsg"></p>
     </section>
 
     <section class="card wide" id="tryCard">
       <h2>4. Text your fairy</h2>
-      <p class="hint">Pick who you want to talk to and write to her, the way you would text a friend. She remembers what you told her, so tomorrow she can ask how it went. Each fairy keeps her own conversation. Ask for the news and she plays Above the Fold. What you write is kept on the website behind the key, and "Clear our chat" wipes it.</p>
+      <p class="hint">Pick who you want to talk to and write to her, the way you would text a friend. She remembers what you told her, so tomorrow she can ask how it went. Each fairy keeps her own conversation. Ask for the news and she plays Above the Fold. What you write is kept on the website behind your sun's access code, and "Clear our chat" wipes it.</p>
       <div class="row"><select id="chatWho" aria-label="Who are you talking to"></select><button id="wakeBtn">Wake me</button><button id="clearChat">Clear our chat</button></div>
       <div class="thread" id="thread" aria-live="polite" style="margin-top:10px"></div>
       <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="Write to her" aria-label="Your message" maxlength="500"><button class="primary" id="send">Send</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
       <div id="news" style="display:none;margin-top:10px"></div>
-      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice (uses a little of the ElevenLabs credit each time)</label>
+      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice</label>
     </section>
 
     <section class="card wide" id="musicCard">
@@ -170,7 +171,7 @@
 
     <section class="card wide" id="remCard">
       <h2>6. Reminders</h2>
-      <p class="hint">Write one reminder per line, for example "Take your morning pills." She says them in your words, after her greeting and before she asks about the news. She adds nothing and gives no advice. Up to five. They are kept on the website behind the key.</p>
+      <p class="hint">Write one reminder per line, for example "Take your morning pills." She says them in your words, after her greeting and before she asks about the news. She adds nothing and gives no advice. Up to five. They are kept on the website behind your sun's access code.</p>
       <textarea id="rems" rows="4" maxlength="1200" aria-label="Reminders, one per line"></textarea>
       <div class="row" style="margin-top:12px"><button class="primary" id="saveRem">Save the reminders</button></div>
       <p class="msg" id="remMsg"></p>
@@ -184,8 +185,9 @@
       <p class="hint" style="margin:8px 0 0">The link is saved, but she cannot read it yet. That part is not built. Until it is, she says she cannot see your calendar. The news is Above the Fold from ETL Newswire, the daily briefing, and she plays it when you ask.</p>
     </section>
 
-    <section class="card wide" id="connCard">
-      <h2>Connections</h2>
+    <section class="card wide owner-only" id="connCard">
+      <h2>Owner setup (ETL only)</h2>
+      <p class="hint"><b>Customers never see this section.</b> ETL holds the provider keys and pays for the thinking, the voice and the music setup. A customer only signs in to their own music account, and later sees their plan and credits. These fields are for ETL while the sun is a prototype.</p>
       <p class="hint">Her thinking runs on Claude through Amazon Bedrock, so the AWS credits pay for it. Paste the Bedrock key here once (from the AWS console: Bedrock, API keys). It is kept on the website and never shown again here. Her voice uses the Azure key the site already has, and the Anthropic key the site already has is the backup. Nothing else to paste.</p>
       <div class="row"><input type="password" id="bedKey" autocomplete="off" placeholder="Bedrock key" aria-label="Bedrock key"><button id="saveBed">Save the key</button><button id="clearBed">Remove it</button></div>
       <p class="msg" id="bedMsg"></p>
@@ -216,6 +218,10 @@
     label();
     btn.addEventListener('click', function () { var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); try { localStorage.setItem('sun_panel_theme', n); } catch (e) {} label(); });
   })();
+  /* Owner view: ETL only. ?owner=1 turns it on in this browser, ?owner=0 turns it off. Customers never have it: ETL holds the provider keys, they sign in to their own music account. */
+  var OWNER = false;
+  try { var oq = new URLSearchParams(location.search).get('owner'); if (oq === '1') localStorage.setItem('sun_owner', '1'); else if (oq === '0') localStorage.removeItem('sun_owner'); OWNER = localStorage.getItem('sun_owner') === '1'; } catch (e) { OWNER = false; }
+  if (OWNER) document.body.classList.add('owner');
   var s = null, all = {}, editing = null, key = '';
   function $(id) { return document.getElementById(id); }
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
@@ -229,7 +235,7 @@
   function paint() {
     $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
     $('rems').value = (s.reminders || []).join('\n');
-    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet') + (s.apple_set ? ', Apple key saved' : '') + (s.spotify_client_id ? ', Spotify id saved' : '');
+    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (OWNER ? (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet') + (s.apple_set ? ', Apple key saved' : '') + (s.spotify_client_id ? ', Spotify id saved' : '') : '');
     musicSvcChanged();
     var sel = $('chatWho'), keep = sel.value, first = !sel.options.length;
     sel.innerHTML = '';
@@ -242,7 +248,7 @@
       var t = document.createElement('span'); t.className = 'tag'; t.textContent = s.fairy === id ? 'In the sun now' : (f.ships ? 'Comes with the sun' : 'Yours');
       if (f.image) { var im = document.createElement('img'); im.src = encodeURI(f.image); im.alt = ''; im.style.cssText = 'width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;background:var(--line)'; im.onerror = function () { im.style.display = 'none'; }; d.appendChild(im); }
       var h3 = document.createElement('h3'); h3.textContent = f.name || id;
-      var p = document.createElement('p'); p.textContent = f.voice ? 'Voice id ends ' + f.voice.slice(-4) : 'No voice yet, words only';
+      var p = document.createElement('p'); p.textContent = OWNER ? (f.voice ? 'Voice id ends ' + f.voice.slice(-4) : 'No voice yet, words only') : (f.greeting || '');
       var r = document.createElement('div'); r.className = 'row';
       var use = document.createElement('button'); use.textContent = 'Use her'; use.disabled = s.fairy === id; use.onclick = function () { save({ fairy: id }, null); };
       var hear = document.createElement('button'); hear.textContent = 'Hear her'; hear.onclick = function () { $('chatWho').value = id; loadThread().then(function () { ask({ step: 'wake', fairy: id }, true); }); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
@@ -407,7 +413,7 @@
   function musicSvcChanged() {
     var sp = svc() === 'spotify';
     $('musicConnect').textContent = (sp ? (spOn ? 'Reconnect Spotify' : 'Connect Spotify') : (appleOn ? 'Reconnect Apple Music' : 'Connect Apple Music'));
-    var need = sp ? (s && s.spotify_client_id ? '' : 'Save your Spotify Client ID under Connections first.') : (s && s.apple_set ? '' : 'Save your Apple key under Connections first.');
+    var need = sp ? (s && s.spotify_client_id ? '' : (OWNER ? 'Save the Spotify Client ID under Owner setup first.' : 'Spotify is not set up yet.')) : (s && s.apple_set ? '' : (OWNER ? 'Save the Apple key under Owner setup first.' : 'Apple Music is not set up yet.'));
     $('musicNeed').textContent = need; $('musicNeed').style.display = need ? '' : 'none'; $('musicConnect').disabled = !!need;
     $('musicBox').style.display = (sp ? spOn : appleOn) ? '' : 'none';
     $('spDevRow').style.display = sp ? '' : 'none';
