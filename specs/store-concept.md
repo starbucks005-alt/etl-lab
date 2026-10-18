@@ -259,9 +259,12 @@ full-size robots.
   cable $7.29, capacitor $4.99. About $107 in total.
 - Not priced in the document and still needed: the tag reader, the light ring, the
   case with its speaker grille, wiring, assembly time, a shipping box and the figurine.
-- Speech to text and the voice both come from ElevenLabs in the cloud, and the thinking
-  from Anthropic's API, so the Pi is a thin device that listens, plays sound and runs
-  the panel. Both cost money for every use.
+- The speech is in the cloud. From the build document: speech to text and the voice from
+  ElevenLabs. Since 2026-10-14 (`al_panel_server.py`) AL's own voice and her listening
+  run on Azure Speech, so the Azure credits pay for them. Characters keep their
+  ElevenLabs cast voices, and ElevenLabs is the fallback if Azure fails. The thinking is
+  Anthropic's API. So the Pi is a thin device that listens, plays sound and runs the
+  panel, and every use costs money somewhere.
 - A suggestion, not a decision: build the first plinths on the Pi 4, which works.
   Then try a Pi Zero 2 W (about $15) with the same HAT, which should run the same
   software. Only if that fails look at a small voice board (about $24 to $35, not
@@ -404,9 +407,11 @@ on figures, so check the official pages):
 - Not confirmed: that a university partnership alone raises the credits. The likelier
   route is a school incubator or innovation center that is a program partner and can
   give the referral. Whether WSU has one is not known.
-- What credits would cover: Claude through Bedrock (the code calls Anthropic directly
-  today and would change) and Azure speech to text. They would not pay for the
-  ElevenLabs character voices, which are likely the biggest running cost. Not measured.
+- What credits cover: Dr. O, 2026-10-18: Azure is paying for Astra-9 Lite's speech,
+  meaning her own voice and her listening (the code was changed on 2026-10-14). Claude
+  through Bedrock would also be payable with AWS credits, but the code calls Anthropic
+  directly today and would change. The credits do not pay for the ElevenLabs character
+  voices, which are likely the biggest running cost for figurines. Not measured.
 - Credits expire, so the timing should follow when they will be used.
 - Azure speech to text includes 5 audio hours free a month and neural text to speech
   0.5 million characters free a month. The paid rates were not confirmed. A guess, not
@@ -415,8 +420,11 @@ on figures, so check the official pages):
   for the voice alone on ElevenLabs. Check the Azure pricing page or calculator.
 - The $5K Azure credits must be spent within about six months, roughly $800 a month,
   more than current use would spend, so the credits may run out of time before money.
-- A suggestion: speech to text on Azure, an Azure voice for the Guardian and ETL Security
-  units, ElevenLabs kept for the characters, and Claude on Bedrock tried in one mode.
+- A suggestion: Azure voices for the Guardian and ETL Security units (the Guardian mode
+  already uses AL's Azure voice), ElevenLabs kept for the characters, and Claude on
+  Bedrock tried in one mode. In the code a character is never on Azure, a choice that
+  keeps their voices. Whether figurine characters could use Azure voices is a quality
+  decision for Dr. O.
 
 Questions: what is left on each and when does it expire, how much did AWS give, and does
 the business school have an incubator or innovation center that could give the
