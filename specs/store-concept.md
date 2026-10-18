@@ -387,6 +387,30 @@ To settle before the first intern starts:
 A suggestion for a start: one short paid project, such as building and testing the Talk
 button and quiet switch for the shop, to see what supervision takes.
 
+## Cloud credits (idea, 2026-10-18)
+
+Dr. O: the Azure and AWS startup programs give more credits if she partners with a
+university. Nothing is applied for. What was found (third-party summaries that disagree
+on figures, so check the official pages):
+- AWS Activate: a self-serve tier of roughly $1,000 to $5,000, and larger amounts
+  (reported as $100,000 to $200,000) that need a partner such as an accelerator or
+  incubator to refer the company. AWS announced on 2026-05-11 that Activate credits
+  can pay for third-party models, including Anthropic's, on Amazon Bedrock.
+- Microsoft for Startups Founders Hub: $1,000 to start, up to about $5,000 after
+  business verification, and about $100,000 to $150,000 with an investor referral.
+  The first $1,000 expires after 90 days and the rest 180 days after verification.
+  A university itself is not eligible, so the credits would go to ETL.
+- Not confirmed: that a university partnership alone raises the credits. The likelier
+  route is a school incubator or innovation center that is a program partner and can
+  give the referral. Whether WSU has one is not known.
+- What credits would cover: Claude through Bedrock (the code calls Anthropic directly
+  today and would change) and Azure speech to text. They would not pay for the
+  ElevenLabs character voices, which are likely the biggest running cost. Not measured.
+- Credits expire, so the timing should follow when they will be used.
+
+Questions: is ETL set up as a company that can pass business verification, and does
+the business school have an incubator or innovation center?
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
