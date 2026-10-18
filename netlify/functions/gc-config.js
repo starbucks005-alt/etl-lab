@@ -47,7 +47,7 @@ exports.handler = async function (event) {
     delete cfg.azure_region;
   } else if (action === 'set_sun_key') {
     const k = String(body.key || '').trim();
-    if (!/^[A-Za-z0-9_-]{12,80}$/.test(k)) return json(400, { error: 'key_must_be_12_to_80_letters_numbers_dash_or_underscore' });
+    if (!/^[\x21-\x7e]{12,80}$/.test(k)) return json(400, { error: 'The access code needs 12 to 80 characters with no spaces, using plain letters, numbers or symbols from the keyboard.' });
     cfg.sun_key_hash = cfgmod.hash(k);
   } else if (action !== 'status') {
     return json(400, { error: 'unknown_action' });
