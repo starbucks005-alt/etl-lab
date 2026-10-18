@@ -77,12 +77,14 @@
   .bub.pending{opacity:.6}
   .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
   body:not(.owner) .owner-only{display:none!important}
+  .owner-bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-bg);color:var(--ink);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:14px}
   .msg{font-size:13px;color:var(--mute);margin:8px 0 0;min-height:1.2em}
   .msg.bad{color:var(--bad)}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div id="ownerBar" class="owner-bar" style="display:none"><span>Owner view (ETL only). Customers do not see this.</span><button id="ownerExit" type="button">Exit owner view</button></div>
   <div class="top"><h1>The Rising <em>Sun</em></h1><button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button></div>
   <p class="sub">Set the wake time, choose who lives inside the sun, and hear her. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
   <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
@@ -115,7 +117,7 @@
 
     <section class="card" id="skyCard">
       <h2>2. Watch the sunrise</h2>
-      <p class="hint">A preview of the colors on this screen. Drag to see any moment. The real strip will look different, so tell Claude what to change once it is lit.</p>
+      <p class="hint">A preview of the colors on this screen. Drag to see any moment. The real strip will look a little different.</p>
       <div class="sky" id="sky"><div class="sun" id="sun"></div></div>
       <input type="range" id="scrub" min="0" max="100" value="60" aria-label="Moment in the sunrise">
       <div class="row" style="margin-top:8px"><button id="play">Play it</button></div>
@@ -154,7 +156,7 @@
 
     <section class="card wide" id="musicCard">
       <h2>5. Music</h2>
-      <p class="hint">Play Apple Music or Spotify from here. Each listener signs in with their own subscription (Spotify needs Premium), so ETL pays nothing for the music. Apple Music plays on the device that has this panel open. Spotify can play on this panel in a computer browser, or this panel can act as a remote for any other Spotify device, such as a phone. Your browser needs a tap first, so music cannot start by itself at wake time.</p>
+      <p class="hint">Play Apple Music or Spotify from here. Each listener signs in with their own subscription (Spotify needs Premium). Apple Music plays on the device that has this panel open. Spotify can play on this panel in a computer browser, or this panel can act as a remote for any other Spotify device, such as a phone. Your browser needs a tap first, so music cannot start by itself at wake time.</p>
       <p class="msg" id="musicNeed" style="display:none"></p>
       <div class="row"><select id="musicSvc" aria-label="Music service"><option value="apple">Apple Music</option><option value="spotify">Spotify</option></select><button class="primary" id="musicConnect">Connect Apple Music</button><span class="msg" id="musicState" style="margin:0"></span></div>
       <div id="musicBox" style="display:none">
@@ -182,7 +184,7 @@
       <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
       <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
       <p class="msg" id="calMsg"></p>
-      <p class="hint" style="margin:8px 0 0">The link is saved, but she cannot read it yet. That part is not built. Until it is, she says she cannot see your calendar. The news is Above the Fold from ETL Newswire, the daily briefing, and she plays it when you ask.</p>
+      <p class="hint" style="margin:8px 0 0">She cannot read your calendar yet. Ask her for the news and she plays Above the Fold from ETL Newswire, the daily briefing.</p>
     </section>
 
     <section class="card wide owner-only" id="connCard">
@@ -220,8 +222,17 @@
   })();
   /* Owner view: ETL only. ?owner=1 turns it on in this browser, ?owner=0 turns it off. Customers never have it: ETL holds the provider keys, they sign in to their own music account. */
   var OWNER = false;
-  try { var oq = new URLSearchParams(location.search).get('owner'); if (oq === '1') localStorage.setItem('sun_owner', '1'); else if (oq === '0') localStorage.removeItem('sun_owner'); OWNER = localStorage.getItem('sun_owner') === '1'; } catch (e) { OWNER = false; }
-  if (OWNER) document.body.classList.add('owner');
+  try {
+    localStorage.removeItem('sun_owner');                                                     // an older version kept this in the browser for good; it never does now
+    var oq = new URLSearchParams(location.search).get('owner');
+    if (oq === '1') sessionStorage.setItem('sun_owner', '1'); else if (oq === '0') sessionStorage.removeItem('sun_owner');
+    OWNER = sessionStorage.getItem('sun_owner') === '1';
+  } catch (e) { OWNER = false; }
+  if (OWNER) {
+    document.body.classList.add('owner');
+    var ob = document.getElementById('ownerBar'); ob.style.display = '';
+    document.getElementById('ownerExit').onclick = function () { try { sessionStorage.removeItem('sun_owner'); } catch (e) {} location.href = location.pathname; };
+  }
   var s = null, all = {}, editing = null, key = '';
   function $(id) { return document.getElementById(id); }
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
