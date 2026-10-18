@@ -390,8 +390,8 @@ button and quiet switch for the shop, to see what supervision takes.
 ## Cloud credits (idea, 2026-10-18)
 
 Dr. O: the Azure and AWS startup programs give more credits if she partners with a
-university. She is already in both programs (2026-10-18). Which tier each is on, the
-balance and the expiry dates are not recorded. What was found (third-party summaries that disagree
+university. She is already in both programs (2026-10-18): the $5K credits tier on Azure, and
+just started on AWS. The balances and expiry dates are not recorded. What was found (third-party summaries that disagree
 on figures, so check the official pages):
 - AWS Activate: a self-serve tier of roughly $1,000 to $5,000, and larger amounts
   (reported as $100,000 to $200,000) that need a partner such as an accelerator or
@@ -408,8 +408,17 @@ on figures, so check the official pages):
   today and would change) and Azure speech to text. They would not pay for the
   ElevenLabs character voices, which are likely the biggest running cost. Not measured.
 - Credits expire, so the timing should follow when they will be used.
+- Azure speech to text includes 5 audio hours free a month and neural text to speech
+  0.5 million characters free a month. The paid rates were not confirmed. A guess, not
+  checked: about $1 per hour of speech to text and about $16 per million characters of
+  neural voice, which would make a 30 minute session about $0.70, against $1.35 to $2.70
+  for the voice alone on ElevenLabs. Check the Azure pricing page or calculator.
+- The $5K Azure credits must be spent within about six months, roughly $800 a month,
+  more than current use would spend, so the credits may run out of time before money.
+- A suggestion: speech to text on Azure, an Azure voice for the Guardian and ETL Security
+  units, ElevenLabs kept for the characters, and Claude on Bedrock tried in one mode.
 
-Questions: which tier is each program on, what is left and when does it expire, and does
+Questions: what is left on each and when does it expire, how much did AWS give, and does
 the business school have an incubator or innovation center that could give the
 referral for a larger tier?
 
