@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
-"""The artificial sun: a slow ramp from dark red to daylight on an LED strip behind acrylic. Runs on the Pi.
+"""The sunrise colors, kept here so they can be previewed and tested on any computer. The same table is in sunrise.ino, which is what runs the strip.
 
-  python3 sunrise.py --dry-run           print the colors for a 30 minute sunrise, touches no pins
-  sudo python3 sunrise.py --minutes 30   run it on the strip (rpi_ws281x needs root)
-
-NOT TRIED ON REAL LEDS YET. The color steps are a first guess, picked to look like dawn. Change STEPS after you see it.
+  python3 sunrise.py            print the colors for a 30 minute sunrise
 """
 import argparse
-import sys
-import time
 
-LED_COUNT = 60        # how many LEDs are in the strip; change to match yours
-LED_PIN = 18          # GPIO18, PWM. Not usable together with the Pi's own audio, so the speaker must be USB or a HAT
-LED_BRIGHT_MAX = 255
 
 # (fraction of the sunrise, red, green, blue). Between two rows the color slides.
 STEPS = (
@@ -35,36 +27,16 @@ def color_at(fraction):
     return STEPS[-1][1:]
 
 
-def run(minutes, dry=False):
+def preview(minutes):
+    """Print the colors for a sunrise of this many minutes, ten rows. Touches no hardware."""
     total = max(1.0, minutes * 60.0)
-    strip = None
-    if not dry:
-        from rpi_ws281x import Color, PixelStrip
-        strip = PixelStrip(LED_COUNT, LED_PIN, brightness=LED_BRIGHT_MAX)
-        strip.begin()
-    start = time.time()
-    step = 1.0 if not dry else total / 10.0
-    shown = 0.0
-    while True:
-        f = (time.time() - start) / total if not dry else shown / total
-        r, g, b = color_at(f)
-        if dry:
-            print("%5.1f min  %3d %3d %3d" % (shown / 60.0, r, g, b))
-            shown += step
-            if shown > total:
-                return
-            continue
-        for i in range(LED_COUNT):
-            strip.setPixelColor(i, Color(r, g, b))
-        strip.show()
-        if f >= 1.0:
-            return
-        time.sleep(step)
+    for i in range(11):
+        r, g, b = color_at(i / 10.0)
+        print("%5.1f min  %3d %3d %3d" % (i * total / 600.0, r, g, b))
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--minutes", type=float, default=30)
-    ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
-    run(a.minutes, a.dry_run)
+    preview(a.minutes)

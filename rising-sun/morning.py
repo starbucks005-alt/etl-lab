@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """The morning routine: the sun reaches full, the fairy greets whoever is there, asks what they want, and does it.
 
-The speaking and listening are passed in, so the flow can be tested without a speaker. On the Pi, speak() and listen() come from the same
-Azure and ElevenLabs calls as AL (al-panel/pi/al_panel_server.py: azure_speak, azure_transcribe). Wiring those in is the next step and is NOT done.
-The calendar is al_calendar.py from al-panel/pi, copied next to this file.
+The speaking and listening are passed in, so the flow can be tested without a speaker. On the device these come from the website (see README). This file is the flow written out so it can be checked.
 News is NOT connected. She says so out loud rather than making any up.
 """
 import json
