@@ -193,6 +193,15 @@ Dr. O has not signed anything yet.
 - Dr. O, 2026-10-18: the paid student internships could be part of the agreement with
   the business school and the dean. See "Paid student internships". The agreement with
   Vikram's college would be separate.
+- The meeting with the dean is Thursday 2026-10-22. Dr. O brings Astra-9 Lite for a live
+  demo, LumVivo, and a one-page summary of each ETL product. Her asks: whether the school
+  has an entrepreneurship center, incubator or accelerator; whether it is already in the
+  Microsoft for Startups Investor Network or is an AWS Activate Provider, so ETL can get a
+  referral code; or whether the school would apply as a program partner; and who runs it.
+  Her two documents for the meeting are "Business School Partnership Brief" and "ETL
+  Product One-Pagers" (both 2026-10-17). Vikram is listed as business school faculty and
+  as the first paid client of Founder Studio. He also has the college in India and his own
+  application, so each agreement should state which role he is acting in.
 - The ideas, designs, characters and decisions are Dr. O's. Any agreement should say
   so, and that what is built for her stays hers.
 - Things to settle in writing before anything is signed: who owns what, what "some
@@ -319,6 +328,10 @@ LumVivo: the name on the hologram page's box mode (`good-company/hologram.html`,
 "light in the living"), where a tablet lies face down in the lid and keys 1 to 5 are
 the box buttons. Dr. O, 2026-10-18: LumVivo is the box, and she is making it now
 with David.
+The one-pager describes it as a tabletop hologram: a figure on black reflects off a sheet
+of angled clear glass, a visitor presses a lit button to choose a character (up to five
+per pod), and a speakerphone on the table serves as microphone and speaker. Status in the
+brief: being built the weekend of 2026-10-17 and 18, with a cardboard mockup proven.
 
 ## What the shop needs, and what is not proven (2026-10-18)
 
@@ -393,8 +406,14 @@ button and quiet switch for the shop, to see what supervision takes.
 ## Cloud credits (idea, 2026-10-18)
 
 Dr. O: the Azure and AWS startup programs give more credits if she partners with a
-university. She is already in both programs (2026-10-18): the $5K credits tier on Azure, and
-just started on AWS. The balances and expiry dates are not recorded. What was found (third-party summaries that disagree
+university. She is already in both programs (2026-10-18). From her partnership brief for the dean
+(dated 2026-10-17): $6,100 in total. Azure (Microsoft for Startups) $5,000, active,
+expires 2027-03-09. AWS Activate Founders $1,000, approved, active through 2028-10-31.
+AWS Free Tier $100, active through 2027-06-17. ETL is also in Anthropic's Claude for
+Startups program, with no credits. The Azure milestones need each workload to stay above
+$1 in spend for about 60 days: five workloads for $25,000, seven for $50,000. Speech and
+Storage are above $1, and three more were created on 2026-10-15. Vikram Sethi is
+preparing his own application as a program partner. What was found (third-party summaries that disagree
 on figures, so check the official pages):
 - AWS Activate: a self-serve tier of roughly $1,000 to $5,000, and larger amounts
   (reported as $100,000 to $200,000) that need a partner such as an accelerator or
@@ -433,7 +452,7 @@ on figures, so check the official pages):
   would say which voice service it uses. Azure also lists custom voice options; whether
   they are available to ETL and what consent they need was not checked.
 
-Questions: what is left on each and when does it expire, how much did AWS give, and does
+Questions: what is left on each, and does
 the business school have an incubator or innovation center that could give the
 referral for a larger tier?
 
