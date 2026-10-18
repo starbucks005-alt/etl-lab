@@ -5102,7 +5102,7 @@ var GC_EMBER = {
   baselineFeelings: { happy: 40, sad: 15, fear: 8, disgust: 3, anger: 3, surprise: 10, curious: 35 },
   moodEmoji: '&#127749;',
   voice: ['Soft', 'Hushed', 'Peaceful', 'Reflective', 'Uses contractions'],
-  voiceId: 'L6Qa01yqWMO8K86PvToq',
+  voiceId: 'LqA4WEIuQcNV6bHMVVXV',
   talkingPoints: [
     'Help me settle down.',
     'What is First Light?',

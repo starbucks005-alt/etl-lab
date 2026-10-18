@@ -79,7 +79,7 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   for (const f of ['poppy', 'velvet', 'ember', 'ash', 'flint', 'tansy', 'blue']) {
     await m.handler(ev2('k', { step: 'wake', fairy: f, audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas, speak: async (tx, v) => { seenVoice.push(v); return Buffer.from('x'); } });
   }
-  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq', 'iqp2mz1khslpMZ4XfrPv', '4INSaS2X3PwDueCjvPjm', 'thfYL0Elyru2qqTtNQsE', 'WUyjxM8OTY6l8LhTmdkq']);
+  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'LqA4WEIuQcNV6bHMVVXV', 'iqp2mz1khslpMZ4XfrPv', '4INSaS2X3PwDueCjvPjm', 'thfYL0Elyru2qqTtNQsE', 'WUyjxM8OTY6l8LhTmdkq']);
   assert(/Hushed, soft/.test(m.fairyPrompt(personas.ember)) && /adores humans, openly/.test(m.fairyPrompt(personas.poppy)) && /light and the dew/.test(m.fairyPrompt(personas.blue)));
   assert(/mischievous/.test(m.fairyPrompt(personas.flint)) && /husky/.test(m.fairyPrompt(personas.ash)));
   const tp = m.fairyPrompt(personas.tansy);
