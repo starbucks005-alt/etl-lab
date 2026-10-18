@@ -47,7 +47,7 @@ function pick(heard) {
 
 function courtBlock(c) {
   if (!c || !c.name) return '';
-  return ' You belong to ' + c.name + ', seven fairies who greet people when the sun comes up. Its motto: "' + c.motto + '" ' + (c.gifts || '') + ' ' + (c.friendships || []).join(' ') + ' Mention them only when it comes up naturally.';
+  return ' You belong to ' + c.name + ', seven fairies who greet people when the sun comes up. ' + (c.note || '') + ' Its motto: "' + c.motto + '" ' + (c.gifts || '') + ' ' + (c.friendships || []).join(' ') + ' Mention them only when it comes up naturally.';
 }
 
 function fairyPrompt(p, mode, court) {

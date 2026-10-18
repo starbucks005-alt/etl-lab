@@ -119,5 +119,8 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   let conv;
   await bedrockAsk('sys', [{ role: 'user', text: 'a' }, { role: 'assistant', text: 'b' }, { role: 'user', text: 'c' }], { fetchFn: async (u, o) => { conv = JSON.parse(o.body).messages; return { ok: true, json: async () => ({ output: { message: { content: [{ text: 'ok' }] } } }) }; }, env: { AWS_BEARER_TOKEN_BEDROCK: 'k' } });
   assert.deepStrictEqual(conv.map((x) => x.role + ':' + x.content[0].text), ['user:a', 'assistant:b', 'user:c']);
+  const courtText = m.fairyPrompt(personas.blue, 'chat', personas.court);
+  assert(/smaller court/.test(courtText) && /Radiant Court is the main one/.test(courtText) && !/centur/.test(JSON.stringify(personas)));   // the ages stay as in Good Company, so nobody is friends for centuries
+  assert(/eighty-nine/.test(m.fairyPrompt(personas.poppy, 'chat', personas.court)) && /one hundred and twenty-six/.test(m.fairyPrompt(personas.tansy, 'chat', personas.court)));
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });
