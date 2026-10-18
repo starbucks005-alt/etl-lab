@@ -5,12 +5,21 @@
 const apple = require('./_apple.js');
 const KEY_HEADER = 'x-sun-key';
 
-function authorized(event, env) {
-  const want = (env || process.env).SUN_DEVICE_KEY;
-  if (!want) return { ok: false, code: 503, error: 'no_device_key_set' };
+/* The key is the environment variable when one is set. The site is at its limit of environment variables, so it can instead be kept as a fingerprint in the same private
+   record Good Company uses (set by gc-config.js, which needs the owner key). loadCfg is passed in by tests. */
+async function authorized(event, env, loadCfg) {
   const h = event.headers || {};
-  const got = h[KEY_HEADER] || h['X-Sun-Key'] || '';
-  return got === want ? { ok: true } : { ok: false, code: 401, error: 'wrong_key' };
+  const got = String(h[KEY_HEADER] || h['X-Sun-Key'] || '');
+  const want = (env || process.env).SUN_DEVICE_KEY;
+  if (want) return got === want ? { ok: true } : { ok: false, code: 401, error: 'wrong_key' };
+  let fp = '';
+  try {
+    const gc = require('./_gc-config.js');
+    const cfg = await (loadCfg || gc.load)(event);
+    fp = String((cfg && cfg.sun_key_hash) || '');
+  } catch (_) { /* unreadable: the same as not set */ }
+  if (!fp) return { ok: false, code: 503, error: 'no_device_key_set' };
+  return require('./_gc-config.js').hash(got) === fp && got ? { ok: true } : { ok: false, code: 401, error: 'wrong_key' };
 }
 
 const ZONES = {

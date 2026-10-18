@@ -114,6 +114,11 @@
       <p class="hint">The access code for your sun. It stays in this browser. Without it nothing here can be read or changed.</p>
       <div class="row"><input type="password" id="key" autocomplete="off" aria-label="Access code"><button class="primary" id="connect">Connect</button></div>
       <p class="msg" id="keyMsg"></p>
+      <div class="owner-only" style="margin-top:12px">
+        <p class="hint">First time only (ETL owner): type the access code above, then your owner key here, and press the button. The site keeps only a fingerprint of the code.</p>
+        <div class="row"><input type="password" id="ownKey" autocomplete="off" aria-label="Owner key"><button id="setKey">Set this as the access code</button></div>
+        <p class="msg" id="setKeyMsg"></p>
+      </div>
     </section>
 
     <section class="card wide" id="fairyCard">
@@ -362,6 +367,13 @@
   function load() {
     return api(SET).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); say('keyMsg', ''); store('sunKey', key); spResume(); }).catch(function (e) { say('keyMsg', e.message, true); $('status').className = 'status'; $('statusText').textContent = 'Not connected'; });
   }
+  $('setKey').onclick = function () {
+    var k = $('key').value.trim(), o = $('ownKey').value.trim();
+    if (!k || !o) { say('setKeyMsg', 'Type the access code above and your owner key.', true); return; }
+    fetch('/.netlify/functions/gc-config', { method: 'POST', headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + o }, body: JSON.stringify({ action: 'set_sun_key', key: k }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That owner key was not accepted.' : (j.error || 'Something went wrong.')); say('setKeyMsg', 'Saved. Press Connect.'); $('ownKey').value = ''; }); })
+      .catch(function (e) { say('setKeyMsg', e.message, true); });
+  };
   $('connect').onclick = function () { key = $('key').value.trim(); if (key) load(); };
   $('saveWake').onclick = function () { save({ wake_hour: +$('wh').value, wake_min: +$('wm').value, sunrise_minutes: +$('len').value, zone: $('zone').value }, 'wakeMsg'); };
   $('len').oninput = function () { $('lenOut').textContent = $('len').value; };

@@ -13,7 +13,7 @@ const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers
 exports.handler = async function (event, _ctx, deps = {}) {
   const json = (code, o) => ({ statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(o) });
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
-  const a = sun.authorized(event, deps.env);
+  const a = await sun.authorized(event, deps.env, deps.loadCfg);
   if (!a.ok) return json(a.code, { error: a.error });
   const store = deps.store || (await sun.openStore(event));
   const view = (saved) => ({ settings: sun.publicView(saved), fairies: sun.fairyList(BASE, saved) });

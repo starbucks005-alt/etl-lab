@@ -5,6 +5,7 @@
      { "action": "clear_testers" }                forget every key added this way
      { "action": "set_azure", "key": "...", "region": "eastus" }
      { "action": "clear_azure" }
+     { "action": "set_sun_key", "key": "..." }    the Rising Sun's access code, kept as a fingerprint
    Nothing here ever sends a secret back. Keys are stored as fingerprints (testers) or in private storage (Azure). */
 const { ownerUser } = require('./_owner-auth.js');
 const cfgmod = require('./_gc-config.js');
@@ -44,6 +45,10 @@ exports.handler = async function (event) {
   } else if (action === 'clear_azure') {
     delete cfg.azure_key;
     delete cfg.azure_region;
+  } else if (action === 'set_sun_key') {
+    const k = String(body.key || '').trim();
+    if (!/^[A-Za-z0-9_-]{12,80}$/.test(k)) return json(400, { error: 'key_must_be_12_to_80_letters_numbers_dash_or_underscore' });
+    cfg.sun_key_hash = cfgmod.hash(k);
   } else if (action !== 'status') {
     return json(400, { error: 'unknown_action' });
   }
@@ -56,5 +61,6 @@ exports.handler = async function (event) {
     tester_keys_added: (cfg.tester_hashes || []).length,
     azure_key_set: !!cfg.azure_key,
     azure_region: cfg.azure_region || null,
+    sun_key_set: !!cfg.sun_key_hash,
   });
 };

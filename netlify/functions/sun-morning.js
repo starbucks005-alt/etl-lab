@@ -164,7 +164,7 @@ exports.handler = async function (event, _ctx, deps = {}) {
   const json = (code, o) => ({ statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(o) });
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'post_only' });
-  const a = sun.authorized(event, deps.env);
+  const a = await sun.authorized(event, deps.env, deps.loadCfg);
   if (!a.ok) return json(a.code, { error: a.error });
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }

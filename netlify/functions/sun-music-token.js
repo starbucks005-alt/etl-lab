@@ -10,7 +10,7 @@ exports.handler = async function (event, _ctx, deps = {}) {
   const json = (code, o) => ({ statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify(o) });
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'GET') return json(405, { error: 'get_only' });
-  const a = sun.authorized(event, deps.env);
+  const a = await sun.authorized(event, deps.env, deps.loadCfg);
   if (!a.ok) return json(a.code, { error: a.error });
   let saved = {};
   try { saved = await sun.loadSettings(deps.store || (await sun.openStore(event))); } catch (_) {}
