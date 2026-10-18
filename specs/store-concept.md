@@ -545,6 +545,8 @@ sales tax, and rules on sound and cameras). Not known yet.
 
 Dr. O's idea, from her sheet "The Rising Sun Court Candles". A second product from the
 Rising Sun Court, after the Rising Sun light.
+- Names (Dr. O, 2026-10-18): the Radiant Court is the Good Company lore for Tansy, Poppy
+  and Blue, the grand court. The Rising Sun Court is the seven fairies.
 - Flameless artificial candles, one fairy in each, with the fairy's silhouette on the
   outside of the candle. Each candle is bought on its own and costs less than the light.
   Set on a base, the candles come alive and the fairies talk to each other, the way the
