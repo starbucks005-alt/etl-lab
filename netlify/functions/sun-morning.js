@@ -50,7 +50,13 @@ function courtBlock(c) {
   return ' You belong to ' + c.name + ', seven fairies who greet people when the sun comes up. ' + (c.note || '') + ' Its motto: "' + c.motto + '" ' + (c.gifts || '') + ' ' + (c.friendships || []).join(' ') + ' Mention them only when it comes up naturally.';
 }
 
-function fairyPrompt(p, mode, court) {
+function detailsBlock(list) {
+  const items = (list || []).map((x) => (x.date ? x.date + ' ' : '') + x.text).filter(Boolean);
+  if (!items.length) return '';
+  return ' This person asked the product to remember these little details, and you may bring them up warmly when it fits, the way a caring friend would, without reading them out as a list: ' + items.join('; ') + '.';
+}
+
+function fairyPrompt(p, mode, court, details) {
   const life = String(p.backstory || '').trim();
   return 'You are ' + p.name + ', the fairy inside the Rising Sun, an artificial sunrise that wakes a household. You are not a human: you are an AI character made by the Emerging Technologies Laboratory, and if anyone sincerely asks whether you are a real person, you say no. ' +
     (life ? 'Use only these facts about your life: ' + life + ' ' : 'Nothing is written about your life yet, so to any question about your past, family or school, say you do not know that one. ') +
@@ -58,7 +64,7 @@ function fairyPrompt(p, mode, court) {
     (mode === 'chat'
       ? 'You are texting with the person whose sun you live in, and they are your friend. Remember what they told you earlier in this conversation and bring it back up naturally when it fits, the way a friend would. Answer like a text message, in one to three short sentences, the way a person talks, and never use a long dash. If they ask for medical, legal or money advice, say you are a fairy in a sun and they should ask someone who knows.'
       : 'Someone has just woken up. Keep to one or two short sentences, speak the way a person talks, and never use a long dash.') +
-    courtBlock(court) +
+    courtBlock(court) + (mode === 'chat' ? detailsBlock(details) : '') +
     (p.manner ? ' Your manner: ' + String(p.manner).replace(/[.\s]+$/, '') + '.' : '');
 }
 
@@ -88,9 +94,19 @@ async function step(body, deps = {}) {
   const fid = personas[body.fairy] ? body.fairy : (personas[personas.chosen] ? personas.chosen : 'velvet');
   if (body.step === 'history') return { history: deps.chat ? await deps.chat.load(fid) : [], fairy: fid };
   if (body.step === 'clear') { if (deps.chat) await deps.chat.save(fid, []); return { ok: true, fairy: fid }; }
+  const ask = deps.ask || defaultAsk(deps);
   if (body.step === 'wake') {
     const rem = (deps.reminders || []).filter(Boolean);
-    return { say: [p.greeting].concat(rem, [p.ask]).join(' '), reminders: rem.length };
+    /* A date they saved that falls today: the fairy says it in her own voice. If the thinking is down, the plain words still go out. */
+    const todays = sun.detailsToday(deps.details, deps.zone, deps.now);
+    let today = '';
+    if (todays.length) {
+      const list = todays.map((x) => x.text).join('; ');
+      try { today = await ask(fairyPrompt(p, 'chat', personas.court, deps.details), 'Today is a day this person asked to remember: ' + list + '. Say it to them in one or two short warm sentences, in your own voice, as part of waking them. Say nothing else.'); }
+      catch (_) { today = ''; }
+      if (!today) today = 'Today: ' + list + '.';
+    }
+    return { say: [p.greeting].concat(today ? [today] : [], rem, [p.ask]).join(' '), reminders: rem.length, today: todays.length };
   }
   const chatting = body.step === 'chat';
   if (body.step !== 'answer' && !chatting) return { say: '', error: 'bad_step' };
@@ -115,14 +131,13 @@ async function step(body, deps = {}) {
     return { say: sayNews, choice, news };
   }
   if (choice === 'calendar') { await remember('I cannot see your calendar yet.'); return { say: 'I cannot see your calendar yet.', choice }; }
-  const ask = deps.ask || defaultAsk(deps);
   try {
     let said;
     if (chatting && deps.chat) {
       const past = (await deps.chat.load(fid)).slice(-SEND);
       while (past.length && past[0].role !== 'user') past.shift();                                  // a conversation has to start with the person
       const convo = past.map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', text: m.text })).concat([{ role: 'user', text: heard }]);
-      said = await ask(fairyPrompt(p, 'chat', personas.court), convo);
+      said = await ask(fairyPrompt(p, 'chat', personas.court, deps.details), convo);
     } else {
       said = await ask(fairyPrompt(p, undefined, personas.court), heard);
     }
@@ -157,7 +172,7 @@ exports.handler = async function (event, _ctx, deps = {}) {
     load: async (f) => { const v = await (await getStore()).get('chat-' + f, { type: 'json' }); return Array.isArray(v) ? v : []; },
     save: async (f, m) => (await getStore()).setJSON('chat-' + f, m),
   };
-  deps = Object.assign({}, deps, { personas, saved, chat, reminders: deps.reminders || saved.reminders || [] });
+  deps = Object.assign({}, deps, { personas, saved, chat, details: deps.details || saved.details || [], zone: deps.zone || saved.zone || 'eastern', reminders: deps.reminders || saved.reminders || [] });
   const out = await step(body, Object.assign({ event }, deps));
   if (out.error === 'bad_step' || out.error === 'no_fairy') return json(400, out);
   if (body.audio && out.say && body.step !== 'history' && body.step !== 'clear') {

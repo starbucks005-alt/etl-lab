@@ -75,6 +75,11 @@
   .bub.her{align-self:flex-start;background:var(--status-bg);color:var(--ink);border-bottom-left-radius:4px}
   .bub .who{display:block;font-size:11px;font-family:var(--mono);color:var(--mute);margin-bottom:2px}
   .bub.pending{opacity:.6}
+  .mrow{display:flex;align-items:flex-end;gap:8px;max-width:92%}
+  .mrow .bub{max-width:none}
+  .ava{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:0 0 34px;background:var(--line);border:1px solid var(--line2)}
+  .detHead{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .detHead img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);background:var(--line);flex:0 0 56px}
   .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
   body:not(.owner) .owner-only{display:none!important}
   .owner-bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-bg);color:var(--ink);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:14px}
@@ -179,8 +184,16 @@
       <p class="msg" id="remMsg"></p>
     </section>
 
+    <section class="card wide" id="detCard">
+      <div class="detHead"><img id="detFairy" alt="" style="display:none"><div><h2 style="margin:0">7. Little details</h2><span class="hint" id="detWho" style="margin:0"></span></div></div>
+      <p class="hint">Birthdays, favorite songs, the names of the people you love. Write one per line. Start a line with the date as month and day, like 05-14, and your fairy says it on that morning, in their own voice. Lines without a date are things they can bring up when you talk. Up to forty. They are kept on the website behind your sun's access code.</p>
+      <textarea id="dets" rows="5" maxlength="4000" aria-label="Little details, one per line" placeholder="05-14 Mom's birthday&#10;Dad's favorite song is Moon River&#10;My sister is named Anna"></textarea>
+      <div class="row" style="margin-top:12px"><button class="primary" id="saveDet">Save the details</button></div>
+      <p class="msg" id="detMsg"></p>
+    </section>
+
     <section class="card wide" id="calCard">
-      <h2>7. Your calendar</h2>
+      <h2>8. Your calendar</h2>
       <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. Nothing can be added, changed or deleted.</p>
       <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
       <p class="msg" id="calMsg"></p>
@@ -246,8 +259,12 @@
   function paint() {
     $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
     $('rems').value = (s.reminders || []).join('\n');
+    $('dets').value = (s.details || []).map(function (x) { return (x.date ? x.date + ' ' : '') + x.text; }).join('\n');
     $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (OWNER ? (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet') + (s.apple_set ? ', Apple key saved' : '') + (s.spotify_client_id ? ', Spotify id saved' : '') : '');
     musicSvcChanged();
+    var df = all[s.fairy] || {}, di = $('detFairy');
+    if (df.image) { di.src = encodeURI(df.image); di.style.display = ''; di.onerror = function () { di.style.display = 'none'; }; } else di.style.display = 'none';
+    $('detWho').textContent = df.name ? 'Said by ' + df.name + ', the fairy in your sun' : '';
     var sel = $('chatWho'), keep = sel.value, first = !sel.options.length;
     sel.innerHTML = '';
     Object.keys(all).forEach(function (id) { var o = document.createElement('option'); o.value = id; o.textContent = all[id].name || id; sel.appendChild(o); });
@@ -308,8 +325,16 @@
   function bubble(role, text, pending) {
     var el = $('thread'), e = el.querySelector('.empty'); if (e) e.remove();
     var b = document.createElement('div'); b.className = 'bub ' + (role === 'user' ? 'me' : 'her') + (pending ? ' pending' : '');
-    if (role !== 'user') { var w = document.createElement('span'); w.className = 'who'; w.textContent = (all[who()] || {}).name || ''; b.appendChild(w); }
-    b.appendChild(document.createTextNode(text)); el.appendChild(b); el.scrollTop = el.scrollHeight; return b;
+    var f = all[who()] || {};
+    if (role !== 'user') { var w = document.createElement('span'); w.className = 'who'; w.textContent = f.name || ''; b.appendChild(w); }
+    b.appendChild(document.createTextNode(text));
+    var out = b;
+    if (role !== 'user' && f.image) {
+      out = document.createElement('div'); out.className = 'mrow';
+      var a = document.createElement('img'); a.className = 'ava'; a.alt = ''; a.src = encodeURI(f.image); a.onerror = function () { a.style.display = 'none'; };
+      out.appendChild(a); out.appendChild(b);
+    }
+    el.appendChild(out); el.scrollTop = el.scrollHeight; return out;
   }
   function empty() { var el = $('thread'); el.innerHTML = ''; var d = document.createElement('div'); d.className = 'empty'; d.textContent = 'Nothing yet. Say good morning to ' + ((all[who()] || {}).name || 'your fairy') + '.'; el.appendChild(d); }
   function loadThread() {
@@ -562,6 +587,13 @@
   };
   $('clearApple').onclick = function () { save({ apple_team_id: '' }, 'appleMsg'); };
 
+  $('saveDet').onclick = function () {
+    var list = $('dets').value.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
+      var m = /^(\d{1,2})[\/-](\d{1,2})\s+(.*)$/.exec(l);
+      return m ? { date: m[1] + '-' + m[2], text: m[3] } : { date: '', text: l };
+    });
+    save({ details: list }, 'detMsg');
+  };
   $('saveRem').onclick = function () { save({ reminders: $('rems').value.split('\n') }, 'remMsg'); };
   $('saveBed').onclick = function () { var k = $('bedKey').value.trim(); if (k) save({ bedrock_key: k }, 'bedMsg').then(function () { $('bedKey').value = ''; }); };
   $('clearBed').onclick = function () { save({ bedrock_key: '' }, 'bedMsg'); };

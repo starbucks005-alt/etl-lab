@@ -18,7 +18,17 @@ const ZONES = {
   arizona: 'MST7', pacific: 'PST8PDT,M3.2.0,M11.1.0', alaska: 'AKST9AKDT,M3.2.0,M11.1.0', hawaii: 'HST10',
 };
 const SHIPPED = ['poppy', 'velvet', 'ember', 'ash', 'flint', 'tansy', 'blue'];   // the ones that come with the sun; they can be changed but not removed
-const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'velvet', fairies: {}, reminders: [] };
+const IANA = { eastern: 'America/New_York', central: 'America/Chicago', mountain: 'America/Denver', arizona: 'America/Phoenix', pacific: 'America/Los_Angeles', alaska: 'America/Anchorage', hawaii: 'Pacific/Honolulu' };
+
+/* The details that fall on today's date, where the person lives. now is passed in for tests. */
+function detailsToday(details, zone, now) {
+  const tz = IANA[zone] || IANA.eastern;
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: tz, month: '2-digit', day: '2-digit' }).formatToParts(new Date(now || Date.now()));
+  const md = parts.find((x) => x.type === 'month').value + '-' + parts.find((x) => x.type === 'day').value;
+  return (details || []).filter((x) => x && x.date && x.date === md);
+}
+
+const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'velvet', fairies: {}, reminders: [], details: [] };
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 function int(v, lo, hi) { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= lo && n <= hi ? n : null; }
@@ -34,6 +44,16 @@ function cleanPatch(body) {
   if (ZONES[body.zone]) out.zone = body.zone;
   if (typeof body.fairy === 'string' && ID_RE.test(body.fairy)) out.fairy = body.fairy;
   /* Reminders are the owner's own words, spoken as written after the greeting (Dr. O, 2026-10-18: "reminder to take your meds"). Nothing is added or advised. */
+  /* Little details: birthdays, favorite songs, names of the people they love. The product keeps them and the fairy says them in her own voice. date is month-day (MM-DD) for a yearly morning, or empty. */
+  if (Array.isArray(body.details)) {
+    out.details = body.details.slice(0, 40).map((x) => {
+      const text = str(x && x.text, 200);
+      const m = /^(\d{1,2})-(\d{1,2})$/.exec(String((x && x.date) || '').trim());
+      const mo = m ? +m[1] : 0, da = m ? +m[2] : 0;
+      const date = (mo >= 1 && mo <= 12 && da >= 1 && da <= 31) ? String(mo).padStart(2, '0') + '-' + String(da).padStart(2, '0') : '';
+      return { text, date };
+    }).filter((x) => x.text);
+  }
   if (Array.isArray(body.reminders)) out.reminders = body.reminders.map((r) => str(r, 200)).filter(Boolean).slice(0, 5);
   /* Apple Music: Team ID, Key ID and the private key, kept like the Bedrock key and never sent back (see _apple.js). All three are needed; sending an empty team id clears them all. */
   if (typeof body.apple_team_id === 'string') {
@@ -150,4 +170,4 @@ async function loadNews(event, deps = {}) {
   };
 }
 
-module.exports = { fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };
+module.exports = { detailsToday, IANA, fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };
