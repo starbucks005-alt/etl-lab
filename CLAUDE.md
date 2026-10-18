@@ -88,6 +88,7 @@ were settled has been wrong three times in one evening.
 - A new asset gets a **new filename**. Replacing a file in place does not reach
   the site; `_v2`, `_v3` and so on are why.
 - Her filenames win. The page follows the files, not the other way round.
+- **One Word document, no PDF copy, not several files.** Anything she is to read or file is a single .docx. When several sheets belong together, merge them into one before sending. She said, 2026-10-18: *"just give me one word doc - no pdf, not three"*. Send her the Word file only, and say nothing about a PDF.
 
 ## 6. HER ADDRESS IS THE WORK ONE
 
