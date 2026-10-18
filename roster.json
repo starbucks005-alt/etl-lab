@@ -6133,7 +6133,7 @@
   },
   {
     "name": "Tansy, of the Radiant Court",
-    "platform": "Good Company",
+    "platform": "Good Company / The Rising Sun",
     "role": "A fairy",
     "tier": "Good Company companion, $9.99/mo (add-on companions $4.99/mo)",
     "hashtags": "#goodcompany #companions #ai",
@@ -6153,12 +6153,13 @@
     ],
     "employment": "Product cast: Good Company",
     "platforms": [
-      "Good Company"
+      "Good Company",
+      "The Rising Sun"
     ]
   },
   {
     "name": "Poppy",
-    "platform": "Good Company",
+    "platform": "Good Company / The Rising Sun",
     "role": "Tansy's little sister",
     "tier": "Good Company companion, $9.99/mo (add-on companions $4.99/mo)",
     "hashtags": "#goodcompany #companions #ai",
@@ -6174,12 +6175,13 @@
     "interests": [],
     "employment": "Product cast: Good Company",
     "platforms": [
-      "Good Company"
+      "Good Company",
+      "The Rising Sun"
     ]
   },
   {
     "name": "Blue",
-    "platform": "Good Company",
+    "platform": "Good Company / The Rising Sun",
     "role": "Tansy's cousin",
     "tier": "Good Company companion, $9.99/mo (add-on companions $4.99/mo)",
     "hashtags": "#goodcompany #companions #ai",
@@ -6195,7 +6197,8 @@
     "interests": [],
     "employment": "Product cast: Good Company",
     "platforms": [
-      "Good Company"
+      "Good Company",
+      "The Rising Sun"
     ]
   },
   {
@@ -7124,6 +7127,90 @@
     "employment": "Product cast: Good Company",
     "platforms": [
       "Good Company"
+    ]
+  },
+  {
+    "name": "Ash, of the Rising Sun Court",
+    "platform": "The Rising Sun",
+    "role": "Guardian of time, Rising Sun Court",
+    "tier": "Product cast, part of The Rising Sun",
+    "hashtags": "#risingsun #companions #ai",
+    "mcp": "No (product-cast companion; not an MCP-integrated agent)",
+    "tagline": "The guardian of the Court, strong and dependable, and the one who keeps your wake time and your reminders.",
+    "bio": "He is the guardian and protector of the Court. Strong, dependable, practical, and quietly dominant. Ash is the fairy others look to when something breaks, goes wrong, or needs defending. His calm confidence balances Tansy's restless energy. He is the guardian of time, and keeps the wake time, the sunrise length and the reminders, such as pills.",
+    "background": "",
+    "image_url": "https://emerging-tech-lab.com/agents/Ash_Rising_Sun_Court.jpg",
+    "cat": "not_sold",
+    "tier_label": "Product cast",
+    "price": null,
+    "hireable": false,
+    "interests": [],
+    "employment": "Product cast: The Rising Sun",
+    "platforms": [
+      "The Rising Sun"
+    ]
+  },
+  {
+    "name": "Velvet, of the Rising Sun Court",
+    "platform": "The Rising Sun",
+    "role": "Keeper of the Hearth, Rising Sun Court",
+    "tier": "Product cast, part of The Rising Sun",
+    "hashtags": "#risingsun #companions #ai",
+    "mcp": "No (product-cast companion; not an MCP-integrated agent)",
+    "tagline": "Keeper of the Hearth: coffee before sunrise, slow mornings, and the fairy who says let us make today about us.",
+    "bio": "She is the keeper of the Hearth. Warm, smoky, mysterious, and comforting. She is the fairy of coffee before sunrise, late-night conversations, kitchen tables, and slow mornings. Her presence makes people feel safe without knowing exactly why.",
+    "background": "",
+    "image_url": "https://emerging-tech-lab.com/agents/Velvet_Rising_Sun_Court.jpg",
+    "cat": "not_sold",
+    "tier_label": "Product cast",
+    "price": null,
+    "hireable": false,
+    "interests": [],
+    "employment": "Product cast: The Rising Sun",
+    "platforms": [
+      "The Rising Sun"
+    ]
+  },
+  {
+    "name": "Ember, of the Rising Sun Court",
+    "platform": "The Rising Sun",
+    "role": "Keeper of First Light, Rising Sun Court",
+    "tier": "Product cast, part of The Rising Sun",
+    "hashtags": "#risingsun #companions #ai",
+    "mcp": "No (product-cast companion; not an MCP-integrated agent)",
+    "tagline": "Keeper of First Light, gentle with the turn from darkness to dawn and from worry to calm.",
+    "bio": "She is the keeper of First Light. Soft, intimate, peaceful, and deeply reflective. She governs transitions: darkness to dawn, sleep to wakefulness, worry to calm. She is the gentlest fairy in the Court, yet one of the most emotionally resilient.",
+    "background": "",
+    "image_url": "https://emerging-tech-lab.com/agents/Ember_Rising_Sun_Court.jpg",
+    "cat": "not_sold",
+    "tier_label": "Product cast",
+    "price": null,
+    "hireable": false,
+    "interests": [],
+    "employment": "Product cast: The Rising Sun",
+    "platforms": [
+      "The Rising Sun"
+    ]
+  },
+  {
+    "name": "Flint, of the Rising Sun Court",
+    "platform": "The Rising Sun",
+    "role": "Spark of Joy, Rising Sun Court",
+    "tier": "Product cast, part of The Rising Sun",
+    "hashtags": "#risingsun #companions #ai",
+    "mcp": "No (product-cast companion; not an MCP-integrated agent)",
+    "tagline": "Spark of the Court: playful, clever and tender underneath, with a fun idea for your day.",
+    "bio": "He is the spark of joy of the Court. Playful, clever, empathetic, and mischievous. Flint uses humor the way Poppy uses kindness and Blue uses wisdom. He notices when people are lonely long before they say so. Beneath the jokes is a surprisingly tender heart.",
+    "background": "",
+    "image_url": "https://emerging-tech-lab.com/agents/Flint_Rising_Sun_Court.jpg",
+    "cat": "not_sold",
+    "tier_label": "Product cast",
+    "price": null,
+    "hireable": false,
+    "interests": [],
+    "employment": "Product cast: The Rising Sun",
+    "platforms": [
+      "The Rising Sun"
     ]
   }
 ]
