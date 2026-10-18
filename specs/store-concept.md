@@ -425,7 +425,9 @@ on figures, so check the official pages):
   Bedrock tried in one mode. In the code a character is never on Azure, a choice that
   keeps their voices. Dr. O, 2026-10-18: some of the companion figurines will stay with
   ElevenLabs and some will transfer over to Azure. Her reason: Microsoft voices are very
-  generic, not ethnicity or character voices. Which characters go where is not decided.
+  generic, not ethnicity or character voices. Her examples of voices that will stay with
+  ElevenLabs: Alice, Reggie, Tansy, Poppy, Blue, Mochi, Biscuit and Julian. The full
+  list of which characters go where is not decided.
   Suggestions: the generic roles (Guardian, ETL Security, helpers) are the likeliest to
   move, and the characters with a distinctive voice stay. Each figurine's tag or record
   would say which voice service it uses. Azure also lists custom voice options; whether
