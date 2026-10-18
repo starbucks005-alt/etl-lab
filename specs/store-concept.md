@@ -499,6 +499,33 @@ Questions: is it a store product, and does a customer buy the sun alone or with 
 fairy chosen at the counter like the figurines? Who hears the fairy's voice at wake
 time, and what does a morning cost to run? Not measured.
 
+## Start with a mall kiosk (2026-10-18)
+
+Dr. O: "I think we would be better suited to start with a mall kiosk first, and see how
+it goes. The brain in the cloud of Rising Sun, like figurines too." So the store is now
+a possible second step, after a kiosk. The brain for both the Rising Sun and the
+figurines is in the cloud. No mall, city, budget or date is chosen.
+
+Suggestions, not decisions:
+- What goes in a kiosk: LumVivo, a few figurines on plinths, the Rising Sun, and a sign
+  with the waiting list QR code. Astra-9 Lite for a live demo if there is room.
+- Nothing is for sale yet, so the kiosk is a demo and waiting list first. Selling
+  electronics needs the right approvals and terms, and a lawyer should check before any
+  deposit is taken.
+- A Talk button on each piece and a time limit per visit, so a busy mall does not run up
+  the voice cost. Recorded greetings for anything that repeats.
+- The kiosk must work if the internet is poor: a phone hotspot or a cellular router, and
+  a recorded line when there is no connection (AL already does this).
+- Measure from day one: people who stop, people who try one, waiting list sign-ups (tag
+  them with a `src` for the kiosk), and what each visitor costs in voice.
+- Lockable cases for the tablet and the small parts, a sign about the camera if one is
+  used, and magnets and small pieces kept away from children's hands.
+- Student interns could run the kiosk, as the pop-up idea for the business school.
+
+Questions: which mall and city, the budget, whether a holiday season kiosk is possible
+this year, and what the mall requires (a lease length, insurance, a business license,
+sales tax, and rules on sound and cameras). Not known yet.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
