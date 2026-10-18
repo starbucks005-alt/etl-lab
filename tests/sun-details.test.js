@@ -70,5 +70,25 @@ const personas = require('../rising-sun/personas.json');
   assert.deepStrictEqual(fl.poppy.keeps, ['music', 'details']); assert.deepStrictEqual(fl.blue.keeps, ['calendar']);
   assert.deepStrictEqual(fl.tansy.keeps, ['news']); assert.deepStrictEqual(fl.velvet.keeps, ['selfcare']); assert.deepStrictEqual(fl.flint.keeps, ['fun']);
   assert.strictEqual(fl.ash.title, 'Guardian of time');
+  // Blue speaks rarely: about one morning in four, the same answer all day, and never on a fairy who speaks every day
+  let blueDays = 0, tansyDays = 0, same = true;
+  for (let i = 0; i < 120; i++) {
+    const now = Date.parse('2026-03-01T15:00:00Z') + i * 86400000;
+    const a = sun.tipDay('blue', 4, 'eastern', now), a2 = sun.tipDay('blue', 4, 'eastern', now + 3600000);
+    if (a !== a2) same = false;
+    if (a) blueDays++;
+    if (sun.tipDay('tansy', undefined, 'eastern', now)) tansyDays++;
+  }
+  assert(same);                                                                                        // the same morning always gives the same answer
+  assert(blueDays >= 15 && blueDays <= 50, 'about a quarter of 120 mornings, got ' + blueDays);       // rare, not never
+  assert.strictEqual(tansyDays, 120);                                                                  // a fairy with no setting speaks every morning
+  let blueSpoke = 0, blueQuiet = 0, blueText = '';
+  for (let i = 0; i < 40; i++) {
+    const now = Date.parse('2026-03-01T15:00:00Z') + i * 86400000;
+    const r = await m.step({ step: 'wake', fairy: 'blue' }, { personas, details: [], zone: 'eastern', now, ask: async (sys, text) => { blueText = text; return 'Every sunrise is a new page.'; } });
+    if (r.tip) { blueSpoke++; assert(r.say.startsWith('Good morning, human. Every sunrise is a new page.')); } else { blueQuiet++; assert(r.say.startsWith('Good morning, human. Good morning sunshine.')); }
+  }
+  assert(blueSpoke > 0 && blueQuiet > blueSpoke);                                                      // most mornings she says only the greeting
+  assert(/Every sunrise is a new page/.test(blueText) && /Something wonderful may happen today/.test(blueText) && /speak rarely/.test(blueText));
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });

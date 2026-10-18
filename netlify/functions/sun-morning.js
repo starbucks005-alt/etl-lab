@@ -108,7 +108,7 @@ async function step(body, deps = {}) {
     }
     /* A fairy's own skill, once a morning, if she has one written (wake_tip). If the thinking is down, she simply skips it. */
     let tip = '';
-    if (p.wake_tip) {
+    if (p.wake_tip && sun.tipDay(fid, p.wake_tip_every, deps.zone, deps.now)) {
       try {
         tip = await ask(fairyPrompt(p, 'chat', personas.court, deps.details), 'Today is ' + sun.longDate(deps.zone, deps.now) + ', and this person lives in ' + (sun.REGION[deps.zone] || sun.REGION.eastern) + '. ' + p.wake_tip);
       } catch (_) { tip = ''; }

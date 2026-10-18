@@ -35,6 +35,18 @@ function longDate(zone, now) {
   return new Intl.DateTimeFormat('en-US', { timeZone: IANA[zone] || IANA.eastern, month: 'long', day: 'numeric' }).format(new Date(now || Date.now()));
 }
 
+/* A fairy who speaks rarely: her morning line falls on about one day in every `every`, chosen by the date and the fairy, so the same morning always gives the same answer
+   (reloading the page or pressing Hear does not change it). No every, or 1, means every morning. */
+function tipDay(id, every, zone, now) {
+  const n = Math.floor(Number(every) || 1);
+  if (n <= 1) return true;
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: IANA[zone] || IANA.eastern, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now || Date.now()));
+  let h = 5381;
+  const key = day + ':' + id;
+  for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0;
+  return h % n === 0;
+}
+
 const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'velvet', fairies: {}, reminders: [], details: [] };
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
@@ -177,4 +189,4 @@ async function loadNews(event, deps = {}) {
   };
 }
 
-module.exports = { REGION, longDate, detailsToday, IANA, fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };
+module.exports = { tipDay, REGION, longDate, detailsToday, IANA, fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };
