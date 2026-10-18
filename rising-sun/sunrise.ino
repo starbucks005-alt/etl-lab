@@ -8,20 +8,29 @@
      Strip + to its own 5V supply, sized for the strip (a full white LED draws up to 60 milliamps, so 60 LEDs can need 3.6 amps).
      Do not power a long strip from the board's 5V pin.
      A 3.3V data signal can be unreliable on some strips. If the first LED flickers, add a 74AHCT125 level shifter.
-   Wi-Fi and the wake time: fill in WIFI_NAME, WIFI_PASS, WAKE_HOUR and WAKE_MIN below. The clock comes from the internet.
+   Wi-Fi: fill in WIFI_NAME, WIFI_PASS, SUN_KEY (the same SUN_DEVICE_KEY the site holds) and SITE below. The clock comes from the internet.
+   Wake time, sunrise length and time zone are read from the website every 10 minutes (set them on the Rising Sun panel). The numbers below are only used until the first read works.
+   Library: also ArduinoJson (Library Manager).
    NOT BUILT: her voice, her listening, the choice of fairy. This program only runs the light. */
 
 #include <Adafruit_NeoPixel.h>
 #include <WiFi.h>
 #include <time.h>
+#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
 
 const int LED_PIN = 5;
 const int LED_COUNT = 60;                 // placeholder until the acrylic layout is decided
-const int SUNRISE_MINUTES = 30;
-const int WAKE_HOUR = 7, WAKE_MIN = 0;    // the sun is at full strength at this time
+int SUNRISE_MINUTES = 30;
+int WAKE_HOUR = 7, WAKE_MIN = 0;          // the sun is at full strength at this time
 const char* WIFI_NAME = "";
 const char* WIFI_PASS = "";
-const char* TIMEZONE = "EST5EDT,M3.2.0,M11.1.0";   // change for where you live
+const char* SITE = "https://emerging-tech-lab.com";
+const char* SUN_KEY = "";
+String TIMEZONE = "EST5EDT,M3.2.0,M11.1.0";   // replaced by the panel's choice
+unsigned long lastRead = 0;
+bool haveRead = false;
 
 struct Step { float f; uint8_t r, g, b; };
 const Step STEPS[] = {
@@ -55,18 +64,41 @@ void paint(float f) {
   strip.show();
 }
 
+void readSettings() {
+  if (WiFi.status() != WL_CONNECTED) return;
+  WiFiClientSecure net;
+  net.setInsecure();      // the key is the protection here; add the site's certificate to do better
+  HTTPClient http;
+  http.begin(net, String(SITE) + "/.netlify/functions/sun-settings");
+  http.addHeader("x-sun-key", SUN_KEY);
+  if (http.GET() == 200) {
+    JsonDocument doc;
+    if (!deserializeJson(doc, http.getString())) {
+      JsonObject st = doc["settings"];
+      WAKE_HOUR = st["wake_hour"] | WAKE_HOUR;
+      WAKE_MIN = st["wake_min"] | WAKE_MIN;
+      SUNRISE_MINUTES = st["sunrise_minutes"] | SUNRISE_MINUTES;
+      String tz = st["tz"] | "";
+      if (tz.length() && tz != TIMEZONE) { TIMEZONE = tz; configTzTime(TIMEZONE.c_str(), "pool.ntp.org"); }
+      haveRead = true;
+    }
+  }
+  http.end();
+}
+
 void setup() {
   strip.begin();
   strip.clear();
   strip.show();
   WiFi.begin(WIFI_NAME, WIFI_PASS);
-  configTzTime(TIMEZONE, "pool.ntp.org");
+  configTzTime(TIMEZONE.c_str(), "pool.ntp.org");
   // a short test so you can see the strip is alive: one slow pass up and down
   for (int i = 0; i <= 20; i++) { paint(i / 20.0); delay(50); }
   for (int i = 20; i >= 0; i--) { paint(i / 20.0); delay(50); }
 }
 
 void loop() {
+  if (lastRead == 0 || millis() - lastRead > (haveRead ? 600000UL : 30000UL)) { lastRead = millis(); readSettings(); }
   struct tm t;
   if (getLocalTime(&t, 200)) {
     int now = t.tm_hour * 3600 + t.tm_min * 60 + t.tm_sec;

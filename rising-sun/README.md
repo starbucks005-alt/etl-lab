@@ -10,9 +10,11 @@ An artificial sunrise made of acrylic and LED strips, with a light fairy inside 
 ## What exists, and what does not
 - Built and checked here with a stand-in for the strip and the speaker: the color ramp, the greeting and the three-way choice. Run `python3 test_rising_sun.py`.
 - NOT TRIED ON THE REAL BOARD OR LEDS. The color steps are a first guess. Run `python3 sunrise.py` to see them, then look at the real strip and tell Claude what is wrong. `sunrise.ino` holds the same table and the wake time.
-- NOT BUILT: her voice and her listening, the Rising Sun panel page, and the "something else" answer. With no Pi these go through the website, the way the Holopod page does. `morning.py` is the flow written out so it can be checked; it is the plan for that page, not code that runs on the board.
+- The panel: `rising-sun/index.html`, at emerging-tech-lab.com/rising-sun/ once deployed. Modelled on the Astra-9 Lite panel. Enter the key once. It sets the wake time, sunrise length and time zone, picks the fairy, lets you change a fairy's greeting, question, manner, backstory and voice or make new ones, previews the sunrise, lets you talk to her, and saves your calendar link. Settings are saved by `netlify/functions/sun-settings.js` and read by the brain and by the board.
+- Checked: the panel in a real browser against the real handlers with a stand-in store (`node tests/sun-settings.test.js`). NOT tried on the live site or the board.
+- NOT BUILT: her voice and her listening on the board itself. With no Pi these go through the website, the way the Holopod page does. `morning.py` is the flow written out so it can be checked; it is the plan for that page, not code that runs on the board.
 - News is not connected. She says so out loud.
-- Calendar: the website reads her published calendar link, the same way AL and Auggie do.
+- Calendar: the link is saved on the website and never shown again, the way AL keeps hers. Nothing reads it yet. AL's calendar reader is Python and has not been ported.
 - Her backstory is empty until Dr. O writes it. Anything not written there gets a short "I don't know that one".
 - The acrylic and strip layout (how many LEDs, rings or a disc) is not decided, so `LED_COUNT` in `sunrise.ino` is a placeholder.
 

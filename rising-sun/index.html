@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rising Sun: panel</title>
+<meta name="robots" content="noindex">
+<!-- The Rising Sun panel, 2026-10-18, Dr. O: "panel like astra so personalities of the fire fairy can vary and the user can easily set things up".
+     Same layout and colors as the Astra-9 Lite panel (al-panel/index.html). It talks to two functions: sun-settings (saves the choices, the board reads them)
+     and sun-morning (the fairy's brain). NOT TRIED against the live site yet. The access key is the one set as SUN_DEVICE_KEY; it is kept in this browser only. -->
+<style>
+  :root{
+    --bg:#f6f1e8;--panel:#ffffff;--line:#e0d8c8;--line2:#c9bea8;
+    --ink:#2a1d12;--text:#4d3f33;--mute:#7a6c5d;
+    --accent:#b8531c;--accent-bg:#fbe7d8;--on-accent:#ffffff;
+    --status:#28527a;--status-bg:#e4ebf1;--on-status:#ffffff;
+    --field:#ffffff;--night:#1b1410;
+    --mono:ui-monospace,Menlo,Consolas,monospace;--body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--display:Georgia,serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17110d;--panel:#211914;--line:#3a2d23;--line2:#4d3d30;
+      --ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;
+      --accent:#f08a4b;--accent-bg:#3a2316;--on-accent:#1b1008;
+      --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17110d;--panel:#211914;--line:#3a2d23;--line2:#4d3d30;
+    --ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;
+    --accent:#f08a4b;--accent-bg:#3a2316;--on-accent:#1b1008;
+    --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;
+  }
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 16px 80px}
+  h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,5vw,44px);line-height:1.12;margin:0 0 6px;color:var(--ink)}
+  h1 em{font-style:italic;color:var(--accent)}
+  .sub{margin:0 0 14px;font-size:16px;max-width:60ch}
+  .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);color:var(--ink)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--mute)}
+  .status.live .dot{background:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:18px;margin-top:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .card.wide{grid-column:1/-1}
+  h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0 0 4px;color:var(--ink)}
+  .hint{margin:0 0 14px;font-size:14px;color:var(--mute)}
+  button,select,input,textarea{font-family:var(--body);font-size:15px}
+  button{cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--ink);padding:9px 14px;border-radius:8px}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  button:disabled{opacity:.5;cursor:default}
+  input[type=text],input[type=password],input[type=number],select,textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line2);border-radius:8px;background:var(--field);color:var(--ink)}
+  textarea{resize:vertical;min-height:70px}
+  label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .row > *{flex:1 1 90px}
+  .row > button{flex:0 0 auto}
+  .sky{height:150px;border-radius:12px;position:relative;overflow:hidden;background:#000;border:1px solid var(--line)}
+  .sky .sun{position:absolute;left:50%;bottom:-70px;width:150px;height:150px;margin-left:-75px;border-radius:50%;filter:blur(14px)}
+  input[type=range]{width:100%}
+  .fairies{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px}
+  .fairy{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--field);display:flex;flex-direction:column;gap:6px}
+  .fairy.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+  .fairy h3{margin:0;font-size:16px;color:var(--ink)}
+  .fairy p{margin:0;font-size:14px;flex:1}
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:12px;background:var(--accent-bg);color:var(--accent);width:max-content}
+  .said{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--status-bg);color:var(--ink);min-height:1.4em}
+  .msg{font-size:13px;color:var(--mute);margin:8px 0 0;min-height:1.2em}
+  .msg.bad{color:#b3261e}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The Rising <em>Sun</em></h1>
+  <p class="sub">Set the wake time, choose who lives inside the sun, and hear her. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
+  <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
+
+  <div class="grid">
+    <section class="card wide" id="keyCard">
+      <h2>The key</h2>
+      <p class="hint">The sun's key, the same one the site and the board hold. It stays in this browser. Without it nothing here can be read or changed.</p>
+      <div class="row"><input type="password" id="key" autocomplete="off" aria-label="Sun key"><button class="primary" id="connect">Connect</button></div>
+      <p class="msg" id="keyMsg"></p>
+    </section>
+
+    <section class="card" id="wakeCard">
+      <h2>1. Wake time</h2>
+      <p class="hint">The sun is at full strength at this time. It starts coming up before it.</p>
+      <div class="row">
+        <div><label for="wh">Hour (0 to 23)</label><input type="number" id="wh" min="0" max="23"></div>
+        <div><label for="wm">Minute</label><input type="number" id="wm" min="0" max="59"></div>
+      </div>
+      <label for="len">How long the sunrise takes: <span id="lenOut"></span> minutes</label>
+      <input type="range" id="len" min="5" max="90" step="5">
+      <label for="zone">Where you live</label>
+      <select id="zone">
+        <option value="eastern">Eastern</option><option value="central">Central</option><option value="mountain">Mountain</option>
+        <option value="arizona">Arizona</option><option value="pacific">Pacific</option><option value="alaska">Alaska</option><option value="hawaii">Hawaii</option>
+      </select>
+      <div class="row" style="margin-top:12px"><button class="primary" id="saveWake">Save</button></div>
+      <p class="msg" id="wakeMsg"></p>
+    </section>
+
+    <section class="card" id="skyCard">
+      <h2>2. Watch the sunrise</h2>
+      <p class="hint">A preview of the colors on this screen. Drag to see any moment. The real strip will look different, so tell Claude what to change once it is lit.</p>
+      <div class="sky" id="sky"><div class="sun" id="sun"></div></div>
+      <input type="range" id="scrub" min="0" max="100" value="60" aria-label="Moment in the sunrise">
+      <div class="row" style="margin-top:8px"><button id="play">Play it</button></div>
+    </section>
+
+    <section class="card wide" id="fairyCard">
+      <h2>3. Who is in the sun</h2>
+      <p class="hint">Pick her, or make your own. Each one has her own greeting, her own question, her own manner and, when you write one, her own backstory.</p>
+      <div class="fairies" id="fairies"></div>
+      <div class="row" style="margin-top:12px"><button id="newFairy">Make a new fairy</button></div>
+    </section>
+
+    <section class="card wide" id="editCard" style="display:none">
+      <h2 id="editTitle">Her words</h2>
+      <p class="hint">Anything about her life that is not written in the backstory box, she answers with "I don't know that one". She says she is not a real person if anyone sincerely asks.</p>
+      <label for="fName">Name</label><input type="text" id="fName" maxlength="60">
+      <label for="fGreet">What she says when you wake</label><input type="text" id="fGreet" maxlength="300">
+      <label for="fAsk">What she asks next</label><input type="text" id="fAsk" maxlength="300">
+      <label for="fManner">Her manner, in a few words (for example: warm and teasing)</label><input type="text" id="fManner" maxlength="300">
+      <label for="fBack">Her backstory (leave empty until you have written it)</label><textarea id="fBack" maxlength="3000" rows="6"></textarea>
+      <label for="fVoice">Her voice (azure:en-US-JennyNeural, or an ElevenLabs voice id). Leave empty to keep the current one.</label><input type="text" id="fVoice" maxlength="80">
+      <div class="row" style="margin-top:12px"><button class="primary" id="saveFairy">Save her</button><button id="hearFairy">Save and hear her wake you</button><button id="delFairy">Remove her</button></div>
+      <p class="msg" id="fairyMsg"></p>
+    </section>
+
+    <section class="card wide" id="tryCard">
+      <h2>4. Talk to her</h2>
+      <p class="hint">The same thing the sun does at wake time. Press Wake me, then say or type what you want.</p>
+      <div class="row"><button class="primary" id="wakeBtn">Wake me</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
+      <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="The news, my calendar, or something else" aria-label="What you say"><button id="send">Send</button></div>
+      <div class="said" id="said" aria-live="polite"></div>
+      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice (uses a little of the Azure credit each time)</label>
+    </section>
+
+    <section class="card wide" id="calCard">
+      <h2>5. Your calendar</h2>
+      <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
+      <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
+      <p class="msg" id="calMsg"></p>
+      <p class="hint" style="margin:8px 0 0">The link is saved, but she cannot read it yet. That part is not built. Until it is, she says she cannot see your calendar. The news is not connected either, and she says so.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  var SET = '/.netlify/functions/sun-settings', BRAIN = '/.netlify/functions/sun-morning';
+  var SHIPPED = {
+    'default': { name: 'The Light Fairy', greeting: 'Good morning, human.', ask: 'Good morning sunshine. Do you want to hear the news, check your calendar, or something else?', manner: '', backstory: '' },
+    'arrogant': { name: 'The Arrogant Fairy', greeting: 'Are you ready to basque in my glory?', ask: 'Good morning sunshine. Do you want to hear the news, check your calendar, or something else?', manner: 'arrogant and grand about your light', backstory: '' }
+  };
+  var s = null, editing = null, key = '';
+  function $(id) { return document.getElementById(id); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function say(id, text, bad) { var el = $(id); el.textContent = text; el.className = 'msg' + (bad ? ' bad' : ''); }
+  function api(url, body) {
+    var o = { headers: { 'x-sun-key': key, 'content-type': 'application/json' } };
+    if (body) { o.method = 'POST'; o.body = JSON.stringify(body); }
+    return fetch(url, o).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That key was not accepted.' : r.status === 503 ? 'The site has no sun key set yet.' : (j.error || 'Something went wrong.')); return j; }); });
+  }
+  function fairyOf(id) { var mine = (s.fairies || {})[id] || {}, base = SHIPPED[id] || {}, o = {}; ['name','greeting','ask','manner','backstory','voice'].forEach(function (k) { o[k] = mine[k] || base[k] || ''; }); return o; }
+  function ids() { var a = ['default', 'arrogant']; Object.keys(s.fairies || {}).forEach(function (k) { if (a.indexOf(k) < 0) a.push(k); }); return a; }
+
+  function paint() {
+    $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
+    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '');
+    var box = $('fairies'); box.innerHTML = '';
+    ids().forEach(function (id) {
+      var f = fairyOf(id), d = document.createElement('div'); d.className = 'fairy' + (s.fairy === id ? ' on' : '');
+      var h = document.createElement('h3'); h.textContent = f.name || id;
+      var p = document.createElement('p'); p.textContent = '"' + f.greeting + '"';
+      var t = document.createElement('span'); t.className = 'tag'; t.textContent = s.fairy === id ? 'In the sun now' : (SHIPPED[id] ? 'Ready made' : 'Yours');
+      var r = document.createElement('div'); r.className = 'row';
+      var use = document.createElement('button'); use.textContent = 'Use her'; use.disabled = s.fairy === id; use.onclick = function () { save({ fairy: id }, null); };
+      var ed = document.createElement('button'); ed.textContent = 'Change her words'; ed.onclick = function () { edit(id); };
+      r.appendChild(use); r.appendChild(ed);
+      d.appendChild(t); d.appendChild(h); d.appendChild(p); d.appendChild(r); box.appendChild(d);
+    });
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function save(patch, msgId) {
+    return api(SET, patch).then(function (j) { s = j.settings; paint(); if (msgId) say(msgId, 'Saved.'); return j; }).catch(function (e) { if (msgId) say(msgId, e.message, true); else say('keyMsg', e.message, true); throw e; });
+  }
+  function load() {
+    return api(SET).then(function (j) { s = j.settings; paint(); say('keyMsg', ''); store('sunKey', key); }).catch(function (e) { say('keyMsg', e.message, true); $('status').className = 'status'; $('statusText').textContent = 'Not connected'; });
+  }
+  $('connect').onclick = function () { key = $('key').value.trim(); if (key) load(); };
+  $('saveWake').onclick = function () { save({ wake_hour: +$('wh').value, wake_min: +$('wm').value, sunrise_minutes: +$('len').value, zone: $('zone').value }, 'wakeMsg'); };
+  $('len').oninput = function () { $('lenOut').textContent = $('len').value; };
+
+  function edit(id) {
+    editing = id; var f = fairyOf(id);
+    $('editCard').style.display = ''; $('editTitle').textContent = 'Her words: ' + (f.name || id);
+    $('fName').value = f.name; $('fGreet').value = f.greeting; $('fAsk').value = f.ask; $('fManner').value = f.manner; $('fBack').value = f.backstory; $('fVoice').value = '';
+    $('delFairy').style.display = SHIPPED[id] ? 'none' : '';
+    $('editCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  $('newFairy').onclick = function () {
+    var id = 'fairy-' + Date.now().toString(36);
+    s.fairies = s.fairies || {}; s.fairies[id] = { name: 'A new fairy', greeting: 'Good morning.', ask: SHIPPED['default'].ask };
+    editing = id; paint(); edit(id);
+  };
+  function saveFairy() {
+    var f = { name: $('fName').value, greeting: $('fGreet').value, ask: $('fAsk').value, manner: $('fManner').value, backstory: $('fBack').value }, v = $('fVoice').value.trim();
+    if (v) f.voice = v;
+    var patch = { fairies: {} }; patch.fairies[editing] = f;
+    return save(patch, 'fairyMsg');
+  }
+  $('saveFairy').onclick = saveFairy;
+  $('hearFairy').onclick = function () { saveFairy().then(function () { return save({ fairy: editing }, null); }).then(function () { wake(); }).catch(function () {}); };
+  $('delFairy').onclick = function () { if (confirm('Remove her?')) save({ delete_fairy: editing }, null).then(function () { $('editCard').style.display = 'none'; }); };
+
+  function show(j) {
+    $('said').textContent = j.say || '';
+    if (j.audio) { try { new Audio('data:audio/mpeg;base64,' + j.audio).play(); } catch (e) {} }
+  }
+  function ask(body) { body.audio = $('wantAudio').checked; return api(BRAIN, body).then(show).catch(function (e) { $('said').textContent = e.message; }); }
+  function wake() { return ask({ step: 'wake' }); }
+  $('wakeBtn').onclick = wake;
+  $('send').onclick = function () { var t = $('heard').value; if (t.trim()) ask({ step: 'answer', heard: t }); };
+  $('heard').onkeydown = function (e) { if (e.key === 'Enter') $('send').onclick(); };
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) $('micBtn').style.display = 'none';
+  else $('micBtn').onclick = function () { var r = new SR(); r.lang = 'en-US'; r.onresult = function (e) { $('heard').value = e.results[0][0].transcript; $('send').onclick(); }; r.start(); };
+
+  $('saveCal').onclick = function () { var u = $('calUrl').value.trim(); if (!u) return; save({ calendar_url: u }, 'calMsg').then(function () { $('calUrl').value = ''; }); };
+  $('clearCal').onclick = function () { save({ calendar_url: '' }, 'calMsg'); };
+
+  /* The preview: the same color table as sunrise.ino and sunrise.py. */
+  var STEPS = [[0,0,0,0],[.10,40,2,0],[.35,200,40,0],[.65,255,120,20],[.85,255,190,110],[1,255,235,200]];
+  function colorAt(f) { f = Math.min(1, Math.max(0, f)); for (var i = 1; i < STEPS.length; i++) if (f <= STEPS[i][0]) { var a = STEPS[i-1], b = STEPS[i], k = (f - a[0]) / (b[0] - a[0]); return [0,1,2].map(function (j) { return Math.round(a[j+1] + (b[j+1] - a[j+1]) * k); }); } return STEPS[STEPS.length-1].slice(1); }
+  function sky(f) { var c = colorAt(f), rgb = 'rgb(' + c.join(',') + ')'; $('sky').style.background = 'linear-gradient(#000, rgba(' + c.join(',') + ',' + (0.15 + f * 0.6) + '))'; $('sun').style.background = rgb; $('sun').style.bottom = (-70 + f * 90) + 'px'; }
+  $('scrub').oninput = function () { sky($('scrub').value / 100); };
+  var timer = null;
+  $('play').onclick = function () { clearInterval(timer); var n = 0; timer = setInterval(function () { n++; $('scrub').value = n; sky(n / 100); if (n >= 100) clearInterval(timer); }, 60); };
+  sky(0.6);
+
+  var saved = store('sunKey');
+  if (saved) { key = saved; $('key').value = saved; load(); }
+})();
+</script>
+</body>
+</html>

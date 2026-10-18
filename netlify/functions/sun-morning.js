@@ -6,6 +6,7 @@
    POST { step: "answer", heard: "..." }      -> { say, choice }         the fairy's reply to what was said
    Both take { fairy?: "default" | "arrogant" } and { audio?: true }, and answer with { audio } (base64 mp3) when asked and Azure speaks.
    Every call needs the header x-sun-key to equal SUN_DEVICE_KEY, because each answer can spend Azure and Anthropic credits. With no key set it answers 503.
+   The fairies are the shipped ones (rising-sun/personas.json) with whatever the panel saved laid over them (sun-settings.js), so the owner can change a greeting or add a fairy.
 
    WHAT IS NOT CONNECTED, and she says so out loud instead of making anything up: the news, the calendar (AL's calendar reader is Python, not ported), and speech to
    text (the device sends the words, or a later version sends audio). "Something else" goes to Claude with the fairy's own lines and her written backstory, which is
@@ -13,6 +14,7 @@
 
    NOT TRIED against the real Azure or Anthropic services, or from the device. The tests run with stand-ins. */
 const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
+const sun = require('./_sun.js');
 
 let PERSONAS = {};
 try { PERSONAS = require('../../rising-sun/personas.json'); } catch (_) {}
@@ -33,7 +35,7 @@ function fairyPrompt(p) {
   return 'You are ' + p.name + ', the fairy inside the Rising Sun, an artificial sunrise that wakes a household. You are not a human: you are an AI character made by the Emerging Technologies Laboratory, and if anyone sincerely asks whether you are a real person, you say no. ' +
     (life ? 'Use only these facts about your life: ' + life + ' ' : 'Nothing is written about your life yet, so to any question about your past, family or school, say you do not know that one. ') +
     'If you are asked about anything else that is not written here, say you do not know. Someone has just woken up. Keep to one or two short sentences, speak the way a person talks, and never use a long dash.' +
-    (p === PERSONAS.arrogant ? ' You are vain and grand about your light, and under it you are fond of whoever you wake.' : '');
+    (p.manner ? ' Your manner: ' + p.manner + '.' : '');
 }
 
 async function step(body, deps = {}) {
@@ -68,16 +70,20 @@ exports.handler = async function (event, _ctx, deps = {}) {
   const json = (code, o) => ({ statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(o) });
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'post_only' });
-  const want = (deps.env || process.env).SUN_DEVICE_KEY;
-  if (!want) return json(503, { error: 'no_device_key_set' });
-  const got = (event.headers && (event.headers['x-sun-key'] || event.headers['X-Sun-Key'])) || '';
-  if (got !== want) return json(401, { error: 'wrong_key' });
+  const a = sun.authorized(event, deps.env);
+  if (!a.ok) return json(a.code, { error: a.error });
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }
+  let personas = deps.personas;
+  if (!personas) {
+    let saved = {};
+    try { saved = await sun.loadSettings(deps.store || (await sun.openStore(event))); } catch (_) {}   // no saved settings is fine: the shipped fairies are used
+    personas = sun.mergePersonas(PERSONAS, saved);
+  }
+  deps = Object.assign({}, deps, { personas });
   const out = await step(body, deps);
   if (out.error === 'bad_step' || out.error === 'no_fairy') return json(400, out);
   if (body.audio && out.say) {
-    const personas = deps.personas || PERSONAS;
     const p = personas[body.fairy] || personas[personas.chosen] || personas.default;
     const name = azureVoiceName(p && p.voice);
     if (name) {
