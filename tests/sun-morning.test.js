@@ -2,7 +2,7 @@
 const assert = require('assert');
 const m = require('../netlify/functions/sun-morning.js');
 const personas = require('../rising-sun/personas.json');
-assert(!personas.arrogant && personas.chosen === 'velvet' && personas.poppy && personas.ember && personas.ash && personas.flint);   // five fairies, Velvet chosen
+assert(!personas.arrogant && personas.chosen === 'velvet' && personas.poppy && personas.ember && personas.ash && personas.flint && personas.tansy);   // six fairies, Velvet chosen
 function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': key }, body: JSON.stringify(body) }; }
 (async () => {
   assert.strictEqual(m.pick('check my calendar please'), 'calendar');
@@ -76,11 +76,14 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   assert(!o3.audio && !o3.audio_error);                                                                                        // no voice chosen yet: words only
   // each of the three speaks with her own voice; none is Velvet by accident
   const seenVoice = [];
-  for (const f of ['poppy', 'velvet', 'ember', 'ash', 'flint']) {
+  for (const f of ['poppy', 'velvet', 'ember', 'ash', 'flint', 'tansy']) {
     await m.handler(ev2('k', { step: 'wake', fairy: f, audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas, speak: async (tx, v) => { seenVoice.push(v); return Buffer.from('x'); } });
   }
-  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq', 'iqp2mz1khslpMZ4XfrPv', '4INSaS2X3PwDueCjvPjm']);
+  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq', 'iqp2mz1khslpMZ4XfrPv', '4INSaS2X3PwDueCjvPjm', 'thfYL0Elyru2qqTtNQsE']);
   assert(/Hushed, soft/.test(m.fairyPrompt(personas.ember)) && /Bright, quick/.test(m.fairyPrompt(personas.poppy)));
-  assert(/mischievous/.test(m.fairyPrompt(personas.flint)) && /husky/.test(m.fairyPrompt(personas.ash)));   // the two male fairies keep their own manners
+  assert(/mischievous/.test(m.fairyPrompt(personas.flint)) && /husky/.test(m.fairyPrompt(personas.ash)));
+  const tp = m.fairyPrompt(personas.tansy);
+  assert(/one hundred and twenty-six/.test(tp) && /Radiant Court/.test(tp) && !/Nothing is written about your life/.test(tp));   // Tansy has her written life, and only that
+  assert((await m.step({ step: 'wake', fairy: 'tansy' }, { personas })).say.startsWith('Are you ready to basque in my glory?'));   // the two male fairies keep their own manners
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });

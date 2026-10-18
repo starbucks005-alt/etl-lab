@@ -16,7 +16,7 @@ const ZONES = {
   eastern: 'EST5EDT,M3.2.0,M11.1.0', central: 'CST6CDT,M3.2.0,M11.1.0', mountain: 'MST7MDT,M3.2.0,M11.1.0',
   arizona: 'MST7', pacific: 'PST8PDT,M3.2.0,M11.1.0', alaska: 'AKST9AKDT,M3.2.0,M11.1.0', hawaii: 'HST10',
 };
-const SHIPPED = ['poppy', 'velvet', 'ember', 'ash', 'flint'];   // the ones that come with the sun; they can be changed but not removed
+const SHIPPED = ['poppy', 'velvet', 'ember', 'ash', 'flint', 'tansy'];   // the ones that come with the sun; they can be changed but not removed
 const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'velvet', fairies: {}, reminders: [] };
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
