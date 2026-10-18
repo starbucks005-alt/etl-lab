@@ -134,6 +134,9 @@
   .prod b{color:var(--ink);font-size:15px}
   .prod span{color:var(--text);font-size:14px}
   .prod .tag{align-self:flex-start;font-style:normal}
+  body.demo #musicCard,body.demo #calCard,body.demo #newsCard,body.demo #connCard{display:none!important}
+  .demonote{display:none;margin:0 0 12px;padding:10px 14px;border:1px dashed var(--line2);border-radius:10px;color:var(--text);font-size:14px;max-width:70ch}
+  body.demo .demonote{display:block}
   body.p-candle .lightonly{display:none!important}
   body:not(.p-candle):not(.p-both) .candleonly{display:none!important}
   .prodpick{margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -153,6 +156,7 @@
   <div class="prodpick"><label for="product">I have</label><select id="product" aria-label="Which product you have"><option value="light">The Rising Sun light</option><option value="candle">A Rising Sun candle</option><option value="both">Both the light and candles</option></select></div>
   <p class="motto">No one greets the morning alone.</p>
   <p class="sub">Set the wake time, choose who lives inside the sun, and hear the voice. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
+  <p class="demonote" id="demoNote">This is a preview of what you get: the seven fairies of the Rising Sun Court, the sunrise, reminders and chat. Try anything. Nothing is saved, and the fairies' answers are examples with no voice. To talk to them for real, connect your sun with its access code below.</p>
   <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
 
   <div class="grid">
@@ -374,7 +378,36 @@
   function $(id) { return document.getElementById(id); }
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
   function say(id, text, bad) { var el = $(id); el.textContent = text; el.className = 'msg' + (bad ? ' bad' : ''); }
+  /* DEMO, like the Astra-9 Lite panel: with no access code the panel still works as a preview. The fairies come from the shipped personas file, the controls change only what is on screen, the answers are examples, and nothing is sent or spent. Entering a code ends it. */
+  var DEMO = false, demoS = null, demoChat = {};
+  function demoApi(url, body) {
+    return new Promise(function (resolve) {
+      var f = (body && body.fairy) || (demoS && demoS.fairy) || 'velvet', p = all[f] || {};
+      if (url === SET) {
+        if (body) {
+          ['wake_hour', 'wake_min', 'sunrise_minutes'].forEach(function (k) { if (body[k] !== undefined) demoS[k] = +body[k]; });
+          if (body.zone) demoS.zone = body.zone;
+          if (body.fairy && all[body.fairy]) demoS.fairy = body.fairy;
+          if (Array.isArray(body.reminders)) demoS.reminders = body.reminders.slice(0, 5);
+          if (Array.isArray(body.details)) demoS.details = body.details.slice(0, 40);
+        }
+        return resolve({ settings: demoS, fairies: all });
+      }
+      var th = demoChat[f] = demoChat[f] || [];
+      if (body.step === 'history') return resolve({ history: th, fairy: f });
+      if (body.step === 'clear') { demoChat[f] = []; return resolve({ ok: true, fairy: f }); }
+      var say;
+      if (body.step === 'wake') say = (p.greeting || 'Good morning, human.') + ' ' + (p.ask || '');
+      else if (body.step === 'news') say = 'In the preview I cannot read you the news. Your own sun reads it to you each morning.';
+      else if (!th.length) say = (p.greeting || 'Good morning, human.') + ' ' + (p.ask || '');
+      else say = 'This is a preview, so my answers are only examples. With your own sun we can really talk.';
+      if (body.text) th.push({ role: 'user', text: body.text });
+      th.push({ role: 'fairy', text: say });
+      resolve({ say: say });
+    });
+  }
   function api(url, body) {
+    if (DEMO) return demoApi(url, body);
     var o = { headers: { 'x-sun-key': key, 'content-type': 'application/json' } };
     if (body) { o.method = 'POST'; o.body = JSON.stringify(body); }
     return fetch(url, o).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That key was not accepted.' : r.status === 503 ? 'The site has no sun key set yet.' : (j.error || 'Something went wrong.')); return j; }); });
@@ -445,7 +478,7 @@
     return api(SET, patch).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); if (msgId) say(msgId, 'Saved.'); return j; }).catch(function (e) { if (msgId) say(msgId, e.message, true); else say('keyMsg', e.message, true); throw e; });
   }
   function load() {
-    return api(SET).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); say('keyMsg', ''); store('sunKey', key); spResume(); }).catch(function (e) { say('keyMsg', e.message, true); $('status').className = 'status'; $('statusText').textContent = 'Not connected'; });
+    return api(SET).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); say('keyMsg', ''); store('sunKey', key); spResume(); return true; }).catch(function (e) { say('keyMsg', e.message, true); $('status').className = 'status'; $('statusText').textContent = 'Not connected'; if (!Object.keys(all).length) startDemo(); return false; });
   }
   $('setKey').onclick = function () {
     var k = $('key').value.trim(), o = $('ownKey').value.trim();
@@ -463,7 +496,7 @@
   }
   $('tAdd').onclick = function () { testerCall('add_sun_tester'); };
   $('tRemove').onclick = function () { testerCall('remove_sun_tester'); };
-  $('connect').onclick = function () { key = $('key').value.trim(); if (key) load(); };
+  $('connect').onclick = function () { var k = $('key').value.trim(); if (!k) return; var wasDemo = DEMO; if (DEMO) { DEMO = false; document.body.classList.remove('demo'); $('wantAudio').disabled = false; demoChat = {}; $('thread').innerHTML = ''; } key = k; load().then(function (ok) { if (!ok && wasDemo) startDemo(); }); };
   $('saveWake').onclick = function () { save({ wake_hour: +$('wh').value, wake_min: +$('wm').value, sunrise_minutes: +$('len').value, zone: $('zone').value }, 'wakeMsg'); };
   $('len').oninput = function () { $('lenOut').textContent = $('len').value; };
 
@@ -784,8 +817,21 @@
   $('play').onclick = function () { clearInterval(timer); var n = 0; timer = setInterval(function () { n++; $('scrub').value = n; sky(n / 100); if (n >= 100) clearInterval(timer); }, 60); };
   sky(0.6);
 
+  function startDemo() {
+    fetch('personas.json').then(function (r) { return r.json(); }).then(function (P) {
+      all = {};
+      Object.keys(P).forEach(function (id) {
+        var f = P[id]; if (!f || typeof f !== 'object' || id.charAt(0) === '_' || id === 'chosen' || id === 'court') return;
+        all[id] = { name: f.name || id, title: f.title || '', keeps: f.keeps || [], greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', image: f.image || '', ships: true };
+      });
+      demoS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: P.chosen || 'velvet', fairies: {}, reminders: [], details: [], calendar_set: false, bedrock_set: false, apple_set: false };
+      DEMO = true; document.body.classList.add('demo'); s = demoS; paint();
+      $('status').className = 'status'; $('statusText').textContent = 'Demo mode, no sun connected';
+      $('wantAudio').checked = false; $('wantAudio').disabled = true;
+    }).catch(function () {});
+  }
   var saved = store('sunKey');
-  if (saved) { key = saved; $('key').value = saved; load(); }
+  if (saved) { key = saved; $('key').value = saved; load(); } else startDemo();
 })();
 </script>
 </body>
