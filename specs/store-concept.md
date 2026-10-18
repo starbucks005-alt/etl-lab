@@ -541,6 +541,35 @@ Questions: which mall and city, the budget, which later season to aim for, and w
 mall requires (a lease length, insurance, a business license,
 sales tax, and rules on sound and cameras). Not known yet.
 
+## The Rising Sun Court Candles (idea and first build plan, 2026-10-18)
+
+Dr. O's idea, from her sheet "The Rising Sun Court Candles". A second product from the
+Rising Sun Court, after the Rising Sun light.
+- Flameless artificial candles, one fairy in each, with the fairy's silhouette on the
+  outside of the candle. Each candle is bought on its own and costs less than the light.
+  Set on a base, the candles come alive and the fairies talk to each other, the way the
+  figurines do. The candles stand on a base, not a vase.
+- What the customer does: unwrap the candle, find a card with the fairy's portrait and
+  lore, turn the candle on and the fairy wakes, talk to her or him, say goodnight, turn it
+  off and the fairy is off too and nothing is listening. The switch is the whole control.
+- Behind it: the candle is a way into Good Company, where voice, chat, memory and the
+  account already exist. It needs a speaker, a microphone, a switch and Wi-Fi. All seven
+  fairies now have a Good Company room (Tansy, Poppy, Blue, Ash, Velvet, Ember and Flint).
+  Videos of them are still to come from Dr. O.
+- Because every spoken line costs money, the fairies should talk to each other rarely.
+- Not built: any candle hardware, the program that lets a board hear and speak, the base,
+  and the code and QR card for each product. Built: the cloud brain, the fairies, their
+  voices and portraits, the panel's "I have" choice and the Say goodnight button.
+- A suggested first candle (hers to choose): the same ESP32-S3 board as the light, a warm
+  flickering LED module, the speaker made for Astra-9, a small microphone board, one real
+  switch, a USB cord first and a battery later, a hollow translucent shell, and a cut
+  vinyl or printed silhouette lit from behind.
+- Her open questions: which fairy goes in the first candle, whether a candle comes with a
+  Good Company subscription, the price of a candle and of the base, how many candles fit
+  on the base, whether the fairy wakes by button or touch or by voice, whether the fairies
+  may talk on their own, whether it belongs to the Rising Sun line or starts a line of its
+  own under the Radiant Court, and whether the light also sells one fairy at a time.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
