@@ -125,7 +125,7 @@
 
     <section class="card wide" id="fairyCard">
       <h2>3. Who is in the sun</h2>
-      <p class="hint">Fairies come with the sun, each with a voice of their own. "Use" puts a fairy in the sun. "Hear" plays that fairy waking you. "Change words" opens their lines below.</p>
+      <p class="hint">No one greets the morning alone. Fairies come with the sun, each with a voice of their own. "Use" puts a fairy in the sun. "Hear" plays that fairy waking you. "Change words" opens their lines below.</p>
       <div class="fairies" id="fairies"></div>
       <div class="row" style="margin-top:12px"><button id="newFairy">Make another fairy</button></div>
     </section>
@@ -259,7 +259,7 @@
       var t = document.createElement('span'); t.className = 'tag'; t.textContent = s.fairy === id ? 'In the sun now' : (f.ships ? 'Comes with the sun' : 'Yours');
       if (f.image) { var im = document.createElement('img'); im.src = encodeURI(f.image); im.alt = ''; im.style.cssText = 'width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;background:var(--line)'; im.onerror = function () { im.style.display = 'none'; }; d.appendChild(im); }
       var h3 = document.createElement('h3'); h3.textContent = f.name || id;
-      var p = document.createElement('p'); p.textContent = OWNER ? (f.voice ? 'Voice id ends ' + f.voice.slice(-4) : 'No voice yet, words only') : (f.greeting || '');
+      var p = document.createElement('p'); p.textContent = (f.title || '') + (OWNER ? (f.title ? '. ' : '') + (f.voice ? 'Voice id ends ' + f.voice.slice(-4) : 'No voice yet, words only') : '');
       var r = document.createElement('div'); r.className = 'row';
       var use = document.createElement('button'); use.textContent = 'Use'; use.disabled = s.fairy === id; use.onclick = function () { save({ fairy: id }, null); };
       var hear = document.createElement('button'); hear.textContent = 'Hear'; hear.onclick = function () { $('chatWho').value = id; loadThread().then(function () { ask({ step: 'wake', fairy: id }, true); }); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };

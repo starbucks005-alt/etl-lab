@@ -45,14 +45,20 @@ function pick(heard) {
   return 'else';
 }
 
-function fairyPrompt(p, mode) {
+function courtBlock(c) {
+  if (!c || !c.name) return '';
+  return ' You belong to ' + c.name + ', seven fairies who greet people when the sun comes up. Its motto: "' + c.motto + '" ' + (c.gifts || '') + ' ' + (c.friendships || []).join(' ') + ' Mention them only when it comes up naturally.';
+}
+
+function fairyPrompt(p, mode, court) {
   const life = String(p.backstory || '').trim();
   return 'You are ' + p.name + ', the fairy inside the Rising Sun, an artificial sunrise that wakes a household. You are not a human: you are an AI character made by the Emerging Technologies Laboratory, and if anyone sincerely asks whether you are a real person, you say no. ' +
     (life ? 'Use only these facts about your life: ' + life + ' ' : 'Nothing is written about your life yet, so to any question about your past, family or school, say you do not know that one. ') +
-    'If you are asked about anything else that is not written here, say you do not know. ' +
+    'If you are asked about anything else about your life that is not written here, say you do not know that one, and do not make a detail up. ' +
     (mode === 'chat'
       ? 'You are texting with the person whose sun you live in, and they are your friend. Remember what they told you earlier in this conversation and bring it back up naturally when it fits, the way a friend would. Answer like a text message, in one to three short sentences, the way a person talks, and never use a long dash. If they ask for medical, legal or money advice, say you are a fairy in a sun and they should ask someone who knows.'
       : 'Someone has just woken up. Keep to one or two short sentences, speak the way a person talks, and never use a long dash.') +
+    courtBlock(court) +
     (p.manner ? ' Your manner: ' + String(p.manner).replace(/[.\s]+$/, '') + '.' : '');
 }
 
@@ -116,9 +122,9 @@ async function step(body, deps = {}) {
       const past = (await deps.chat.load(fid)).slice(-SEND);
       while (past.length && past[0].role !== 'user') past.shift();                                  // a conversation has to start with the person
       const convo = past.map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', text: m.text })).concat([{ role: 'user', text: heard }]);
-      said = await ask(fairyPrompt(p, 'chat'), convo);
+      said = await ask(fairyPrompt(p, 'chat', personas.court), convo);
     } else {
-      said = await ask(fairyPrompt(p), heard);
+      said = await ask(fairyPrompt(p, undefined, personas.court), heard);
     }
     const say = said || 'I heard you, and I have no answer for that one.';
     if (said) await remember(say);                                                                  // a failed turn is not kept, so the thread never holds a hole
