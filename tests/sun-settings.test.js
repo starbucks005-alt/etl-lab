@@ -52,5 +52,9 @@ const base = require('../rising-sun/personas.json');
   const got = JSON.parse((await call('GET', 'k')).body);
   assert.deepStrictEqual(Object.keys(got.fairies).filter((k) => got.fairies[k].ships), ['poppy', 'velvet', 'ember']);
   assert.strictEqual(got.fairies.velvet.voice, 'sZXgk6vPj5VwF6GvqUUu'); assert(!('chosen' in got.fairies) && !('_note' in got.fairies));
+  await call('POST', 'k', { fairies: { velvet: { image: 'velvet_v1.png' } } });
+  assert.strictEqual(JSON.parse((await call('GET', 'k')).body).fairies.velvet.image, 'velvet_v1.png');
+  await call('POST', 'k', { fairies: { velvet: { image: '../../secret.png' } } });                                      // a path out of the folder is refused
+  assert.strictEqual(JSON.parse((await call('GET', 'k')).body).fairies.velvet.image, 'velvet_v1.png');
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -51,6 +51,7 @@ function cleanPatch(body) {
       const f = body.fairies[id] || {};
       const o = { name: str(f.name, 60), greeting: str(f.greeting, 300), ask: str(f.ask, 300), manner: str(f.manner, 1200), backstory: str(f.backstory, 3000) };
       if (typeof f.voice === 'string' && VOICE_RE.test(f.voice.trim())) o.voice = f.voice.trim();
+      if (typeof f.image === 'string' && /^[A-Za-z0-9._ -]{1,120}$/.test(f.image.trim())) o.image = f.image.trim();
       out.fairies[id] = o;
     }
   }
@@ -100,7 +101,7 @@ function fairyList(base, settings) {
   for (const id of Object.keys(all)) {
     const f = all[id];
     if (!f || typeof f !== 'object' || id.startsWith('_') || id === 'chosen') continue;
-    out[id] = { name: f.name || id, greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', ships: SHIPPED.includes(id) };
+    out[id] = { name: f.name || id, greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', image: /^[A-Za-z0-9._ -]{1,120}$/.test(f.image || '') ? f.image : '', ships: SHIPPED.includes(id) };
   }
   return out;
 }

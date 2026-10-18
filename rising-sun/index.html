@@ -123,6 +123,7 @@
       <label for="fGreet">What she says when you wake</label><input type="text" id="fGreet" maxlength="300">
       <label for="fAsk">What she asks next</label><input type="text" id="fAsk" maxlength="300">
       <label for="fManner">Her manner, in a few words (for example: warm and teasing)</label><input type="text" id="fManner" maxlength="300">
+      <label for="fImage">Her picture: the filename of the image you uploaded to the rising-sun folder (for example, velvet_v1.png). It shows on her card here and nowhere else.</label><input type="text" id="fImage" maxlength="120">
       <label for="fBack">Her backstory (leave empty until you have written it)</label><textarea id="fBack" maxlength="3000" rows="6"></textarea>
       <label for="fVoice">Her voice: an ElevenLabs voice id. With no voice she shows words and makes no sound. If a fairy sounds like the wrong one, paste the right id here.</label><input type="text" id="fVoice" maxlength="80">
       <div class="row" style="margin-top:12px"><button class="primary" id="saveFairy">Save her</button><button id="hearFairy">Save and hear her wake you</button><button id="delFairy">Remove her</button></div>
@@ -185,6 +186,7 @@
     Object.keys(all).forEach(function (id) {
       var f = all[id], d = document.createElement('div'); d.className = 'fairy' + (s.fairy === id ? ' on' : '');
       var t = document.createElement('span'); t.className = 'tag'; t.textContent = s.fairy === id ? 'In the sun now' : (f.ships ? 'Comes with the sun' : 'Yours');
+      if (f.image) { var im = document.createElement('img'); im.src = encodeURI(f.image); im.alt = ''; im.style.cssText = 'width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;background:var(--line)'; im.onerror = function () { im.style.display = 'none'; }; d.appendChild(im); }
       var h3 = document.createElement('h3'); h3.textContent = f.name || id;
       var p = document.createElement('p'); p.textContent = f.voice ? 'Voice id ends ' + f.voice.slice(-4) : 'No voice yet, words only';
       var r = document.createElement('div'); r.className = 'row';
@@ -210,13 +212,14 @@
     editing = id; var f = fairyOf(id);
 
     $('editCard').style.display = ''; $('editTitle').textContent = 'Her words and her voice: ' + (f.name || id);
-    $('fName').value = f.name; $('fGreet').value = f.greeting; $('fAsk').value = f.ask; $('fManner').value = f.manner; $('fBack').value = f.backstory; $('fVoice').value = f.voice || '';
+    $('fName').value = f.name; $('fGreet').value = f.greeting; $('fAsk').value = f.ask; $('fManner').value = f.manner; $('fBack').value = f.backstory; $('fVoice').value = f.voice || ''; $('fImage').value = f.image || '';
     $('delFairy').style.display = f.ships ? 'none' : '';
     $('editCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   function saveFairy() {
     var f = { name: $('fName').value, greeting: $('fGreet').value, ask: $('fAsk').value, manner: $('fManner').value, backstory: $('fBack').value }, v = $('fVoice').value.trim();
     if (v) f.voice = v;
+    var im = $('fImage').value.trim(); if (im) f.image = im;
     var patch = { fairies: {} }; patch.fairies[editing] = f;
     return save(patch, 'fairyMsg');
   }
