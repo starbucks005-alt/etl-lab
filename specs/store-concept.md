@@ -423,8 +423,13 @@ on figures, so check the official pages):
 - A suggestion: Azure voices for the Guardian and ETL Security units (the Guardian mode
   already uses AL's Azure voice), ElevenLabs kept for the characters, and Claude on
   Bedrock tried in one mode. In the code a character is never on Azure, a choice that
-  keeps their voices. Whether figurine characters could use Azure voices is a quality
-  decision for Dr. O.
+  keeps their voices. Dr. O, 2026-10-18: some of the companion figurines will stay with
+  ElevenLabs and some will transfer over to Azure. Her reason: Microsoft voices are very
+  generic, not ethnicity or character voices. Which characters go where is not decided.
+  Suggestions: the generic roles (Guardian, ETL Security, helpers) are the likeliest to
+  move, and the characters with a distinctive voice stay. Each figurine's tag or record
+  would say which voice service it uses. Azure also lists custom voice options; whether
+  they are available to ETL and what consent they need was not checked.
 
 Questions: what is left on each and when does it expire, how much did AWS give, and does
 the business school have an incubator or innovation center that could give the
