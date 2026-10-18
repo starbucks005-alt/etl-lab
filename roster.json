@@ -7131,9 +7131,9 @@
   },
   {
     "name": "Ash, of the Rising Sun Court",
-    "platform": "The Rising Sun",
+    "platform": "Good Company / The Rising Sun",
     "role": "Guardian of time, Rising Sun Court",
-    "tier": "Product cast, part of The Rising Sun",
+    "tier": "Good Company companion, $9.99/mo (add-on companions $4.99/mo)",
     "hashtags": "#risingsun #companions #ai",
     "mcp": "No (product-cast companion; not an MCP-integrated agent)",
     "tagline": "The guardian of the Court, strong and dependable, and the one who keeps your wake time and your reminders.",
@@ -7145,16 +7145,17 @@
     "price": null,
     "hireable": false,
     "interests": [],
-    "employment": "Product cast: The Rising Sun",
+    "employment": "Product cast: Good Company, The Rising Sun",
     "platforms": [
+      "Good Company",
       "The Rising Sun"
     ]
   },
   {
     "name": "Velvet, of the Rising Sun Court",
-    "platform": "The Rising Sun",
+    "platform": "Good Company / The Rising Sun",
     "role": "Keeper of the Hearth, Rising Sun Court",
-    "tier": "Product cast, part of The Rising Sun",
+    "tier": "Good Company companion, $9.99/mo (add-on companions $4.99/mo)",
     "hashtags": "#risingsun #companions #ai",
     "mcp": "No (product-cast companion; not an MCP-integrated agent)",
     "tagline": "Keeper of the Hearth: coffee before sunrise, slow mornings, and the fairy who says let us make today about us.",
@@ -7166,16 +7167,17 @@
     "price": null,
     "hireable": false,
     "interests": [],
-    "employment": "Product cast: The Rising Sun",
+    "employment": "Product cast: Good Company, The Rising Sun",
     "platforms": [
+      "Good Company",
       "The Rising Sun"
     ]
   },
   {
     "name": "Ember, of the Rising Sun Court",
-    "platform": "The Rising Sun",
+    "platform": "Good Company / The Rising Sun",
     "role": "Keeper of First Light, Rising Sun Court",
-    "tier": "Product cast, part of The Rising Sun",
+    "tier": "Good Company companion, $9.99/mo (add-on companions $4.99/mo)",
     "hashtags": "#risingsun #companions #ai",
     "mcp": "No (product-cast companion; not an MCP-integrated agent)",
     "tagline": "Keeper of First Light, gentle with the turn from darkness to dawn and from worry to calm.",
@@ -7187,16 +7189,17 @@
     "price": null,
     "hireable": false,
     "interests": [],
-    "employment": "Product cast: The Rising Sun",
+    "employment": "Product cast: Good Company, The Rising Sun",
     "platforms": [
+      "Good Company",
       "The Rising Sun"
     ]
   },
   {
     "name": "Flint, of the Rising Sun Court",
-    "platform": "The Rising Sun",
+    "platform": "Good Company / The Rising Sun",
     "role": "Spark of Joy, Rising Sun Court",
-    "tier": "Product cast, part of The Rising Sun",
+    "tier": "Good Company companion, $9.99/mo (add-on companions $4.99/mo)",
     "hashtags": "#risingsun #companions #ai",
     "mcp": "No (product-cast companion; not an MCP-integrated agent)",
     "tagline": "Spark of the Court: playful, clever and tender underneath, with a fun idea for your day.",
@@ -7208,8 +7211,9 @@
     "price": null,
     "hireable": false,
     "interests": [],
-    "employment": "Product cast: The Rising Sun",
+    "employment": "Product cast: Good Company, The Rising Sun",
     "platforms": [
+      "Good Company",
       "The Rising Sun"
     ]
   }

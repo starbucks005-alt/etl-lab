@@ -1800,32 +1800,36 @@
     },
     {
       "name": "Ash, of the Rising Sun Court",
-      "platform": "The Rising Sun",
+      "platform": "Good Company / The Rising Sun",
       "platforms": [
+        "Good Company",
         "The Rising Sun"
       ],
       "hasMCP": 0
     },
     {
       "name": "Velvet, of the Rising Sun Court",
-      "platform": "The Rising Sun",
+      "platform": "Good Company / The Rising Sun",
       "platforms": [
+        "Good Company",
         "The Rising Sun"
       ],
       "hasMCP": 0
     },
     {
       "name": "Ember, of the Rising Sun Court",
-      "platform": "The Rising Sun",
+      "platform": "Good Company / The Rising Sun",
       "platforms": [
+        "Good Company",
         "The Rising Sun"
       ],
       "hasMCP": 0
     },
     {
       "name": "Flint, of the Rising Sun Court",
-      "platform": "The Rising Sun",
+      "platform": "Good Company / The Rising Sun",
       "platforms": [
+        "Good Company",
         "The Rising Sun"
       ],
       "hasMCP": 0
