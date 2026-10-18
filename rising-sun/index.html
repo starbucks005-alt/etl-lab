@@ -528,7 +528,7 @@
     if (j.audio) { var v = new Audio('data:audio/mpeg;base64,' + j.audio); if (a) v.onended = function () { a.play().catch(function () {}); }; v.play().catch(function () {}); }
     else if (a) a.play().catch(function () {});
   }
-  function reply(j) { bubble('fairy', j.say || ''); news(j); }
+  function reply(j) { bubble('fairy', j.say || ''); if (OWNER && j.reason) bubble('fairy', 'Owner note, customers do not see this: ' + j.reason); news(j); }
   function ask(body, forceAudio) {
     body.audio = forceAudio || $('wantAudio').checked; body.fairy = body.fairy || who();
     return api(BRAIN, body).then(reply).catch(function (e) { bubble('fairy', e.message); });

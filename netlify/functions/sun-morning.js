@@ -77,7 +77,7 @@ function defaultAsk(deps) {
       if (b) return b;
     } catch (_) {}
     const Anthropic = require('@anthropic-ai/sdk');   // loaded here so the tests run without it
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: process.env.ETL_API_KEY || process.env.GOOD_COMPANY_API_KEY || process.env.ANTHROPIC_API_KEY });
     const messages = (Array.isArray(text) ? text : [{ role: 'user', text }]).map((m) => ({ role: m.role, content: m.text }));
     const out = await client.messages.create({ model: MODEL, max_tokens: 250, system, messages });
     return (out.content || []).filter((c) => c.type === 'text').map((c) => c.text).join(' ').trim();
@@ -152,7 +152,8 @@ async function step(body, deps = {}) {
     if (said) await remember(say);                                                                  // a failed turn is not kept, so the thread never holds a hole
     return { say, choice };
   } catch (e) {
-    return { say: 'I heard you, and I cannot think of an answer just now.', choice, error: 'brain_failed' };
+    console.error('sun brain failed: ' + String((e && e.message) || e).slice(0, 300));
+    return { say: 'I heard you, and I cannot think of an answer just now.', choice, error: 'brain_failed', reason: String((e && e.message) || e).replace(/sk-[A-Za-z0-9_-]+/g, 'sk-...').slice(0, 160) };
   }
 }
 
