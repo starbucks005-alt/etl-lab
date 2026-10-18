@@ -550,7 +550,7 @@ Rising Sun Court, after the Rising Sun light.
 - Flameless artificial candles, one fairy in each, with the fairy's silhouette on the
   outside of the candle. Each candle is bought on its own and costs less than the light.
   Set on a base, the candles come alive and the fairies talk to each other, the way the
-  figurines do. The candles stand on a base, not a vase.
+  figurines do. The candles stand on a base.
 - What the customer does: unwrap the candle, find a card with the fairy's portrait and
   lore, turn the candle on and the fairy wakes, talk to her or him, say goodnight, turn it
   off and the fairy is off too and nothing is listening. The switch is the whole control.
