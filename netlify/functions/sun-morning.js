@@ -4,7 +4,7 @@
 
    POST { step: "wake" }                      -> { say }                 the greeting and the question
    POST { step: "answer", heard: "..." }      -> { say, choice }         the fairy's reply to what was said
-   Both take { fairy?: "default" } and { audio?: true }, and answer with { audio } (base64 mp3) when asked and her voice speaks (an ElevenLabs voice id, or azure:<name>).
+   Both take { fairy?: "poppy" | "velvet" | "ember" | an id the owner made } and { audio?: true }, and answer with { audio } (base64 mp3) when asked and her voice speaks (an ElevenLabs voice id, or azure:<name>).
    Every call needs the header x-sun-key to equal SUN_DEVICE_KEY, because each answer can spend Azure and Anthropic credits. With no key set it answers 503.
    The fairies are the shipped ones (rising-sun/personas.json) with whatever the panel saved laid over them (sun-settings.js), so the owner can change a greeting or add a fairy.
 
@@ -53,7 +53,7 @@ function fairyPrompt(p) {
 
 async function step(body, deps = {}) {
   const personas = deps.personas || PERSONAS;
-  const p = personas[body.fairy] || personas[personas.chosen] || personas.default;
+  const p = personas[body.fairy] || personas[personas.chosen] || personas.velvet;
   if (!p) return { say: '', error: 'no_fairy' };
   if (body.step === 'wake') {
     const rem = (deps.reminders || []).filter(Boolean);
@@ -118,7 +118,7 @@ exports.handler = async function (event, _ctx, deps = {}) {
   const out = await step(body, Object.assign({ event }, deps));
   if (out.error === 'bad_step' || out.error === 'no_fairy') return json(400, out);
   if (body.audio && out.say) {
-    const p = personas[body.fairy] || personas[personas.chosen] || personas.default;
+    const p = personas[body.fairy] || personas[personas.chosen] || personas.velvet;
     const voice = String((p && p.voice) || '').trim();
     const azName = azureVoiceName(voice);
     const speak = deps.speak || (async (t, v) => (azureVoiceName(v)

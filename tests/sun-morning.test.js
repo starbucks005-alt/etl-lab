@@ -2,7 +2,7 @@
 const assert = require('assert');
 const m = require('../netlify/functions/sun-morning.js');
 const personas = require('../rising-sun/personas.json');
-assert(!personas.arrogant && personas.chosen === 'default');   // one fairy for now
+assert(!personas.arrogant && personas.chosen === 'velvet' && personas.poppy && personas.ember);   // three fairies, Velvet chosen
 function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': key }, body: JSON.stringify(body) }; }
 (async () => {
   assert.strictEqual(m.pick('check my calendar please'), 'calendar');
@@ -10,7 +10,7 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   assert.strictEqual(m.pick('what is a rainbow'), 'else');
   assert.strictEqual(m.pick('  '), 'nothing');
   assert((await m.step({ step: 'wake' }, { personas })).say.startsWith('Good morning, human.'));
-  assert((await m.step({ step: 'wake', fairy: 'default' }, { personas })).say.includes('news, check your calendar, or something else'));
+  assert((await m.step({ step: 'wake', fairy: 'ember' }, { personas })).say.includes('news, check your calendar, or something else'));
   const wr = await m.step({ step: 'wake' }, { personas, reminders: ['Take your morning pills.', 'Drink some water.'] });
   assert(wr.say.startsWith('Good morning, human. Take your morning pills. Drink some water. Good morning sunshine.') && wr.reminders === 2);   // her words, between the greeting and the question
   const fresh = { audio_url: 'https://emerging-tech-lab.com/.netlify/functions/newswire-briefing-audio?episode=episode-2026-10-18', generated_at: '2026-10-18T10:00:00Z', hours_old: 5, duration_label: '4:58', headlines: ['A', 'B'] };
@@ -33,7 +33,7 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   const ev = (key, body) => ({ httpMethod: 'POST', headers: { 'x-sun-key': key }, body: JSON.stringify(body) });
   assert.strictEqual((await m.handler(ev('k', { step: 'wake' }), {}, { env: {} })).statusCode, 503);        // no key set: closed
   assert.strictEqual((await m.handler(ev('bad', { step: 'wake' }), {}, { env: { SUN_DEVICE_KEY: 'k' } })).statusCode, 401);
-  const ok = await m.handler(ev('k', { step: 'wake', audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas: { default: Object.assign({}, personas.default, { voice: 'abcdefghij1234' }), chosen: 'default' }, speak: async () => Buffer.from('mp3') });
+  const ok = await m.handler(ev('k', { step: 'wake', audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas: { velvet: Object.assign({}, personas.velvet, { voice: 'abcdefghij1234' }), chosen: 'velvet' }, speak: async () => Buffer.from('mp3') });
   assert.strictEqual(ok.statusCode, 200);
   assert.strictEqual(JSON.parse(ok.body).audio, Buffer.from('mp3').toString('base64'));
   // Bedrock first, Anthropic after. Stand-in network; no keys are real.
@@ -52,7 +52,7 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   const viaBedrock = await m.step({ step: 'answer', heard: 'tell me about the sun' }, { personas, fetchFn: fetchSpy, saved: { bedrock_key: 'fromrecord' } });   // the key from the panel's private record, no environment variable
   assert.strictEqual(usedKey, 'Bearer fromrecord');
   assert.strictEqual(viaBedrock.say, 'Hello from Bedrock.');
-  const fp = m.fairyPrompt(personas.default);
+  const fp = m.fairyPrompt(personas.velvet);
   assert(/fire fairy/.test(fp) && /not a human/.test(fp) && !/\u2014/.test(fp) && !/plainly/i.test(fp));   // the character is in the prompt, with no invented life
   assert(!/\.\.\s/.test(fp));
   // ElevenLabs: her voice. Stand-in network.
@@ -66,13 +66,20 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   await assert.rejects(elevenSpeak('x', 'abcdefghij1234', { fetchFn: async () => ({ ok: false, status: 401 }), env: { ELEVENLABS_API_KEY: 'k' } }), /eleven_401/);
   assert(isElevenId('thfYL0Elyru2qqTtNQsE') && !isElevenId('azure:en-US-AriaNeural') && !isElevenId(''));
   // the handler asks for her voice only when one is set, and keeps the words if the voice fails
-  const withVoice = { default: Object.assign({}, personas.default, { voice: 'abcdefghij1234' }), chosen: 'default' };
+  const withVoice = { velvet: Object.assign({}, personas.velvet, { voice: 'abcdefghij1234' }), chosen: 'velvet' };
   const heard = [];
   const o1 = JSON.parse((await m.handler(ev2('k', { step: 'wake', audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas: withVoice, speak: async (t, v) => { heard.push(v); return Buffer.from('mp3'); } })).body);
   assert.strictEqual(heard[0], 'abcdefghij1234'); assert(o1.audio);
   const o2 = JSON.parse((await m.handler(ev2('k', { step: 'wake', audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas: withVoice, speak: async () => { throw new Error('x'); } })).body);
   assert(o2.audio_error && !o2.audio && o2.say.startsWith('Good morning, human.'));
-  const o3 = JSON.parse((await m.handler(ev2('k', { step: 'wake', audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas, speak: async () => { throw new Error('should not be asked'); } })).body);
+  const o3 = JSON.parse((await m.handler(ev2('k', { step: 'wake', audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas: { velvet: Object.assign({}, personas.velvet, { voice: '' }), chosen: 'velvet' }, speak: async () => { throw new Error('should not be asked'); } })).body);
   assert(!o3.audio && !o3.audio_error);                                                                                        // no voice chosen yet: words only
+  // each of the three speaks with her own voice; none is Velvet by accident
+  const seenVoice = [];
+  for (const f of ['poppy', 'velvet', 'ember']) {
+    await m.handler(ev2('k', { step: 'wake', fairy: f, audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas, speak: async (tx, v) => { seenVoice.push(v); return Buffer.from('x'); } });
+  }
+  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq']);
+  assert(/Hushed, soft/.test(m.fairyPrompt(personas.ember)) && /Bright, quick/.test(m.fairyPrompt(personas.poppy)));
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });

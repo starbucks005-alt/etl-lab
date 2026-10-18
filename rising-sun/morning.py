@@ -13,7 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 def load_persona(name=None):
     with open(os.path.join(HERE, "personas.json")) as f:
         d = json.load(f)
-    return d[name or d.get("chosen", "default")]
+    return d[name or d.get("chosen", "velvet")]
 
 
 def choice(heard):

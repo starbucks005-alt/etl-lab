@@ -20,21 +20,23 @@ const base = require('../rising-sun/personas.json');
   assert.strictEqual(mem.settings.calendar_url, 'https://example.com/private/cal.ics');
   await call('POST', 'k', { calendar_url: 'http://insecure.example/cal.ics' });
   assert.strictEqual(mem.settings.calendar_url, 'https://example.com/private/cal.ics');                                       // not https: refused
-  await call('POST', 'k', { fairies: { ember: { name: 'Ember', greeting: 'Wake up, sleepyhead.', ask: 'What shall it be?', manner: 'warm and teasing', backstory: '', voice: 'azure:en-US-JennyNeural' } }, fairy: 'ember' });
-  assert.strictEqual(mem.settings.fairy, 'ember');
+  await call('POST', 'k', { fairies: { sparks: { name: 'Sparks', greeting: 'Wake up, sleepyhead.', ask: 'What shall it be?', manner: 'warm and teasing', backstory: '', voice: 'azure:en-US-JennyNeural' } }, fairy: 'sparks' });
+  assert.strictEqual(mem.settings.fairy, 'sparks');
   const merged = sun.mergePersonas(base, mem.settings);
-  assert.strictEqual(merged.ember.greeting, 'Wake up, sleepyhead.'); assert.strictEqual(merged.chosen, 'ember');
-  assert.strictEqual(merged.default.greeting, 'Good morning, human.');                                                          // the shipped one stays
+  assert.strictEqual(merged.sparks.greeting, 'Wake up, sleepyhead.'); assert.strictEqual(merged.chosen, 'sparks');
+  assert.strictEqual(merged.velvet.greeting, 'Good morning, human.');                                                          // the shipped one stays
   const w = await morning.step({ step: 'wake' }, { personas: merged });
   assert(w.say.startsWith('Wake up, sleepyhead.'));
-  assert(/warm and teasing/.test(morning.fairyPrompt(merged.ember)));
-  await call('POST', 'k', { fairies: { default: { greeting: 'Behold.' } } });                                                  // changing the shipped fairy keeps her other lines
+  assert(/warm and teasing/.test(morning.fairyPrompt(merged.sparks)));
+  await call('POST', 'k', { fairies: { velvet: { greeting: 'Behold.' } } });                                                  // changing the shipped fairy keeps her other lines
   const m2 = sun.mergePersonas(base, mem.settings);
-  assert.strictEqual(m2.default.greeting, 'Behold.'); assert(m2.default.ask.includes('news'));
-  await call('POST', 'k', { delete_fairy: 'ember' });
-  assert.strictEqual(mem.settings.fairy, 'default'); assert(!mem.settings.fairies.ember);                                     // deleting the chosen one falls back
-  await call('POST', 'k', { delete_fairy: 'default' });
-  assert(mem.settings.fairies.default);                                                                                       // the shipped ones cannot be deleted
+  assert.strictEqual(m2.velvet.greeting, 'Behold.'); assert(m2.velvet.ask.includes('news'));
+  await call('POST', 'k', { delete_fairy: 'sparks' });
+  assert.strictEqual(mem.settings.fairy, 'velvet'); assert(!mem.settings.fairies.sparks);                                     // deleting the chosen one falls back
+  await call('POST', 'k', { delete_fairy: 'poppy' });
+  await call('POST', 'k', { fairies: { poppy: { greeting: 'Hi.' } } });
+  await call('POST', 'k', { delete_fairy: 'poppy' });
+  assert(mem.settings.fairies.poppy);                                                                                       // the shipped ones cannot be deleted
   r = JSON.parse((await call('POST', 'k', { reminders: ['Take your morning pills.', '  ', 'x'.repeat(500), 'a', 'b', 'c', 'd'] })).body).settings;
   assert.strictEqual(r.reminders.length, 5); assert.strictEqual(r.reminders[0], 'Take your morning pills.'); assert.strictEqual(r.reminders[1].length, 200);   // blanks dropped, long ones cut, five at most
   r = JSON.parse((await call('POST', 'k', { reminders: [] })).body).settings;
@@ -47,5 +49,8 @@ const base = require('../rising-sun/personas.json');
   assert.strictEqual(mem.settings.bedrock_key, '');
   const dash = sun.cleanPatch({ fairies: { x: { greeting: 'Hello \u2014 there', voice: '../x' } } }).fairies.x;
   assert(!/\u2014/.test(dash.greeting) && !('voice' in dash));
+  const got = JSON.parse((await call('GET', 'k')).body);
+  assert.deepStrictEqual(Object.keys(got.fairies).filter((k) => got.fairies[k].ships), ['poppy', 'velvet', 'ember']);
+  assert.strictEqual(got.fairies.velvet.voice, 'sZXgk6vPj5VwF6GvqUUu'); assert(!('chosen' in got.fairies) && !('_note' in got.fairies));
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });

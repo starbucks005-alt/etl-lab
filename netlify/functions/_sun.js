@@ -16,7 +16,8 @@ const ZONES = {
   eastern: 'EST5EDT,M3.2.0,M11.1.0', central: 'CST6CDT,M3.2.0,M11.1.0', mountain: 'MST7MDT,M3.2.0,M11.1.0',
   arizona: 'MST7', pacific: 'PST8PDT,M3.2.0,M11.1.0', alaska: 'AKST9AKDT,M3.2.0,M11.1.0', hawaii: 'HST10',
 };
-const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'default', fairies: {}, reminders: [] };
+const SHIPPED = ['poppy', 'velvet', 'ember'];   // the three that come with the sun; they can be changed but not removed
+const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'velvet', fairies: {}, reminders: [] };
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 function int(v, lo, hi) { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= lo && n <= hi ? n : null; }
@@ -62,10 +63,10 @@ function applyPatch(current, body) {
   const p = cleanPatch(body);
   const fairies = Object.assign({}, next.fairies);
   if (p.fairies) for (const id of Object.keys(p.fairies)) fairies[id] = Object.assign({}, fairies[id], p.fairies[id]);
-  if (typeof body.delete_fairy === 'string' && body.delete_fairy !== 'default') delete fairies[body.delete_fairy];
+  if (typeof body.delete_fairy === 'string' && !SHIPPED.includes(body.delete_fairy)) delete fairies[body.delete_fairy];
   delete p.fairies;
   const merged = Object.assign(next, p, { fairies });
-  if (merged.fairy !== 'default' && !fairies[merged.fairy]) merged.fairy = 'default';
+  if (!SHIPPED.includes(merged.fairy) && !fairies[merged.fairy]) merged.fairy = 'velvet';
   return merged;
 }
 
@@ -89,6 +90,18 @@ function mergePersonas(base, settings) {
     out[id] = Object.assign({}, out[id], mine);
   }
   if (settings && settings.fairy) out.chosen = settings.fairy;
+  return out;
+}
+
+/* The fairies as the panel shows them: id, name, lines, manner, backstory, voice id, whether she is one that ships. Voice ids are not secret. */
+function fairyList(base, settings) {
+  const all = mergePersonas(base, settings);
+  const out = {};
+  for (const id of Object.keys(all)) {
+    const f = all[id];
+    if (!f || typeof f !== 'object' || id.startsWith('_') || id === 'chosen') continue;
+    out[id] = { name: f.name || id, greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', ships: SHIPPED.includes(id) };
+  }
   return out;
 }
 
@@ -123,4 +136,4 @@ async function loadNews(event, deps = {}) {
   };
 }
 
-module.exports = { loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS };
+module.exports = { fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };

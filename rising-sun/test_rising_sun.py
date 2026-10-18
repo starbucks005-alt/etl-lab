@@ -27,5 +27,5 @@ said.clear(); r = morning.morning(said.append, lambda: "the news please", lambda
 check("news introduces Above the Fold", r == "news" and "Above the Fold" in said[-1])
 check("silence is handled", morning.choice("") == "nothing")
 text = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "personas.json")).read()
-check("no backstory invented", json.loads(text)["default"]["backstory"] == "")
+check("no backstory invented", json.loads(text)["velvet"]["backstory"] == "")
 sys.exit(1 if bad else 0)
