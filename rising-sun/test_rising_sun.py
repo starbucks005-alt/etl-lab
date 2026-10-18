@@ -19,8 +19,7 @@ check("never gets darker on the way up", mono)
 check("out of range input is held", sunrise.color_at(-1) == (0, 0, 0) and sunrise.color_at(9) == (255, 235, 200))
 
 said = []
-r = morning.morning(said.append, lambda: "check my calendar", lambda t: "cal", morning.load_persona("arrogant"))
-check("arrogant greeting uses her words", said[0] == "Are you ready to basque in my glory?")
+r = morning.morning(said.append, lambda: "check my calendar", lambda t: "cal")
 check("calendar choice answered", r == "calendar" and said[-1] == "cal")
 said.clear(); morning.morning(said.append, lambda: "good morning human", lambda t: "x")
 check("default greeting uses her words", said[0] == "Good morning, human.")

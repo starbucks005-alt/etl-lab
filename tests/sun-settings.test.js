@@ -24,17 +24,17 @@ const base = require('../rising-sun/personas.json');
   assert.strictEqual(mem.settings.fairy, 'ember');
   const merged = sun.mergePersonas(base, mem.settings);
   assert.strictEqual(merged.ember.greeting, 'Wake up, sleepyhead.'); assert.strictEqual(merged.chosen, 'ember');
-  assert.strictEqual(merged.arrogant.greeting, 'Are you ready to basque in my glory?');                                       // the shipped ones stay
+  assert.strictEqual(merged.default.greeting, 'Good morning, human.');                                                          // the shipped one stays
   const w = await morning.step({ step: 'wake' }, { personas: merged });
   assert(w.say.startsWith('Wake up, sleepyhead.'));
   assert(/warm and teasing/.test(morning.fairyPrompt(merged.ember)));
-  await call('POST', 'k', { fairies: { arrogant: { greeting: 'Behold.' } } });                                                // changing a shipped fairy keeps her other lines
+  await call('POST', 'k', { fairies: { default: { greeting: 'Behold.' } } });                                                  // changing the shipped fairy keeps her other lines
   const m2 = sun.mergePersonas(base, mem.settings);
-  assert.strictEqual(m2.arrogant.greeting, 'Behold.'); assert(m2.arrogant.ask.includes('news'));
+  assert.strictEqual(m2.default.greeting, 'Behold.'); assert(m2.default.ask.includes('news'));
   await call('POST', 'k', { delete_fairy: 'ember' });
   assert.strictEqual(mem.settings.fairy, 'default'); assert(!mem.settings.fairies.ember);                                     // deleting the chosen one falls back
-  await call('POST', 'k', { delete_fairy: 'arrogant' });
-  assert(mem.settings.fairies.arrogant);                                                                                       // the shipped ones cannot be deleted
+  await call('POST', 'k', { delete_fairy: 'default' });
+  assert(mem.settings.fairies.default);                                                                                       // the shipped ones cannot be deleted
   r = JSON.parse((await call('POST', 'k', { reminders: ['Take your morning pills.', '  ', 'x'.repeat(500), 'a', 'b', 'c', 'd'] })).body).settings;
   assert.strictEqual(r.reminders.length, 5); assert.strictEqual(r.reminders[0], 'Take your morning pills.'); assert.strictEqual(r.reminders[1].length, 200);   // blanks dropped, long ones cut, five at most
   r = JSON.parse((await call('POST', 'k', { reminders: [] })).body).settings;

@@ -20,7 +20,7 @@ const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'easter
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 function int(v, lo, hi) { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= lo && n <= hi ? n : null; }
-const VOICE_RE = /^(azure:[A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]{3,60}|[A-Za-z0-9]{12,30})$/;
+const VOICE_RE = /^(azure:[A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]{3,60}|[A-Za-z0-9]{12,30})$/;   // an ElevenLabs voice id, or azure:<name>
 const ID_RE = /^[a-z0-9-]{1,30}$/;
 
 /* A patch from the panel becomes only the fields it may change, each checked. Anything else is dropped. */
@@ -48,7 +48,7 @@ function cleanPatch(body) {
     for (const id of Object.keys(body.fairies).slice(0, 12)) {
       if (!ID_RE.test(id)) continue;
       const f = body.fairies[id] || {};
-      const o = { name: str(f.name, 60), greeting: str(f.greeting, 300), ask: str(f.ask, 300), manner: str(f.manner, 300), backstory: str(f.backstory, 3000) };
+      const o = { name: str(f.name, 60), greeting: str(f.greeting, 300), ask: str(f.ask, 300), manner: str(f.manner, 1200), backstory: str(f.backstory, 3000) };
       if (typeof f.voice === 'string' && VOICE_RE.test(f.voice.trim())) o.voice = f.voice.trim();
       out.fairies[id] = o;
     }
@@ -62,10 +62,10 @@ function applyPatch(current, body) {
   const p = cleanPatch(body);
   const fairies = Object.assign({}, next.fairies);
   if (p.fairies) for (const id of Object.keys(p.fairies)) fairies[id] = Object.assign({}, fairies[id], p.fairies[id]);
-  if (typeof body.delete_fairy === 'string' && !['default', 'arrogant'].includes(body.delete_fairy)) delete fairies[body.delete_fairy];
+  if (typeof body.delete_fairy === 'string' && body.delete_fairy !== 'default') delete fairies[body.delete_fairy];
   delete p.fairies;
   const merged = Object.assign(next, p, { fairies });
-  if (merged.fairy !== 'default' && merged.fairy !== 'arrogant' && !fairies[merged.fairy]) merged.fairy = 'default';
+  if (merged.fairy !== 'default' && !fairies[merged.fairy]) merged.fairy = 'default';
   return merged;
 }
 

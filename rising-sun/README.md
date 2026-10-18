@@ -4,7 +4,7 @@ An artificial sunrise made of acrylic and LED strips, with a light fairy inside 
 
 ## What it does
 1. At the wake time the strip climbs from dark red to amber to full daylight over about 30 minutes (`sunrise.ino`, on an ESP32-S3 board, no Pi).
-2. When the sun is up the fairy greets you. The default one says "Good morning, human." The arrogant one, chosen from the Rising Sun panel, says "Are you ready to basque in my glory?" (`personas.json`).
+2. When the sun is up the fairy greets you: "Good morning, human." (`personas.json`). One fairy for now (Dr. O, 2026-10-18: keep it simple, build up as interest happens). Her voice is an ElevenLabs voice id that Dr. O picks and pastes on the panel. Until she does, she shows words and makes no sound. The code can still hold more fairies later.
 3. She asks: "Good morning sunshine. Do you want to hear the news, check your calendar, or something else?" (`morning.py`)
 
 ## What exists, and what does not
@@ -23,7 +23,7 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 - `netlify/functions/sun-morning.js` is that brain. `step: "wake"` returns the greeting and the question. `step: "answer"` with `heard` returns her reply. With `audio: true` it also returns her voice as base64 mp3 from Azure.
 - Every call needs the header `x-sun-key` to match `SUN_DEVICE_KEY`, the one new environment variable, because each answer can spend Azure and Anthropic credits. With no key set it answers 503. The key is not in the repository: set it in Netlify and put the same value on the board.
 - The calendar is not connected, and she says so. The news plays Above the Fold. "Something else" goes to Claude with the fairy's own lines. Her written backstory is empty, so the prompt tells her to say she does not know that one.
-- The voices in `personas.json` are placeholders, not chosen and not listened to.
+- Her voice: ElevenLabs, with the key the site already has (`_eleven.js`, the same call `gc-voice.js` makes). Not chosen yet, and not tried against the real service.
 - Credits (Dr. O, 2026-10-18: use the AWS and Azure startup credits when possible): her voice is Azure, so the Azure credits pay (the site's existing Azure key, read the way gc-voice reads it). Her thinking tries Claude on Amazon Bedrock first, so the AWS credits pay (`_bedrock.js`), and falls back to Anthropic's own API (the key the site already has). The Bedrock key is pasted once on the panel's Connections card and kept in the sun's private record, because the site is at its limit of environment variables. The only new environment variable is `SUN_DEVICE_KEY`. The Bedrock model id and the account's access to the model are not checked: make one call and see.
 - Her settings sit in Netlify's own small store, which is free at this size. Moving them to Azure Storage would count toward the Azure milestone only if that workload needs the spend, which is not worth doing for one small record.
 - Checked with stand-ins: `node tests/sun-morning.test.js`. NOT tried against the real services or from the board.

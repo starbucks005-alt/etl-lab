@@ -4,7 +4,7 @@
 
    POST { step: "wake" }                      -> { say }                 the greeting and the question
    POST { step: "answer", heard: "..." }      -> { say, choice }         the fairy's reply to what was said
-   Both take { fairy?: "default" | "arrogant" } and { audio?: true }, and answer with { audio } (base64 mp3) when asked and Azure speaks.
+   Both take { fairy?: "default" } and { audio?: true }, and answer with { audio } (base64 mp3) when asked and her voice speaks (an ElevenLabs voice id, or azure:<name>).
    Every call needs the header x-sun-key to equal SUN_DEVICE_KEY, because each answer can spend Azure and Anthropic credits. With no key set it answers 503.
    The fairies are the shipped ones (rising-sun/personas.json) with whatever the panel saved laid over them (sun-settings.js), so the owner can change a greeting or add a fairy.
 
@@ -27,6 +27,7 @@ const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
 const sun = require('./_sun.js');
 const { bedrockAsk } = require('./_bedrock.js');
 const gcConfig = require('./_gc-config.js');
+const { elevenSpeak, isElevenId } = require('./_eleven.js');
 
 let PERSONAS = {};
 try { PERSONAS = require('../../rising-sun/personas.json'); } catch (_) {}
@@ -47,7 +48,7 @@ function fairyPrompt(p) {
   return 'You are ' + p.name + ', the fairy inside the Rising Sun, an artificial sunrise that wakes a household. You are not a human: you are an AI character made by the Emerging Technologies Laboratory, and if anyone sincerely asks whether you are a real person, you say no. ' +
     (life ? 'Use only these facts about your life: ' + life + ' ' : 'Nothing is written about your life yet, so to any question about your past, family or school, say you do not know that one. ') +
     'If you are asked about anything else that is not written here, say you do not know. Someone has just woken up. Keep to one or two short sentences, speak the way a person talks, and never use a long dash.' +
-    (p.manner ? ' Your manner: ' + p.manner + '.' : '');
+    (p.manner ? ' Your manner: ' + String(p.manner).replace(/[.\s]+$/, '') + '.' : '');
 }
 
 async function step(body, deps = {}) {
@@ -118,9 +119,13 @@ exports.handler = async function (event, _ctx, deps = {}) {
   if (out.error === 'bad_step' || out.error === 'no_fairy') return json(400, out);
   if (body.audio && out.say) {
     const p = personas[body.fairy] || personas[personas.chosen] || personas.default;
-    const name = azureVoiceName(p && p.voice);
-    if (name) {
-      try { out.audio = (await (deps.speak || (async (t, n) => azureSpeak(t, n, { env: await gcConfig.azureEnv(event) })))(out.say, name)).toString('base64'); } catch (_) { out.audio_error = true; }
+    const voice = String((p && p.voice) || '').trim();
+    const azName = azureVoiceName(voice);
+    const speak = deps.speak || (async (t, v) => (azureVoiceName(v)
+      ? azureSpeak(t, azureVoiceName(v), { env: await gcConfig.azureEnv(event) })
+      : elevenSpeak(t, v)));
+    if (azName || isElevenId(voice)) {
+      try { out.audio = (await speak(out.say, voice)).toString('base64'); } catch (_) { out.audio_error = true; }   // the words still go out
     }
   }
   return json(200, out);
