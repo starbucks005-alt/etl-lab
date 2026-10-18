@@ -6,6 +6,8 @@
      { "action": "set_azure", "key": "...", "region": "eastus" }
      { "action": "clear_azure" }
      { "action": "set_sun_key", "key": "..." }    the Rising Sun's access code, kept as a fingerprint
+     { "action": "add_sun_tester", "name": "...", "key": "..." }   a tester's own Rising Sun code (own settings and chats, never the provider keys)
+     { "action": "remove_sun_tester", "name": "..." }
    Nothing here ever sends a secret back. Keys are stored as fingerprints (testers) or in private storage (Azure). */
 const { ownerUser } = require('./_owner-auth.js');
 const cfgmod = require('./_gc-config.js');
@@ -49,6 +51,17 @@ exports.handler = async function (event) {
     const k = String(body.key || '').trim();
     if (!/^[\x21-\x7e]{12,80}$/.test(k)) return json(400, { error: 'The access code needs 12 to 80 characters with no spaces, using plain letters, numbers or symbols from the keyboard.' });
     cfg.sun_key_hash = cfgmod.hash(k);
+  } else if (action === 'add_sun_tester') {
+    const id = String(body.name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+    const k = String(body.key || '').trim();
+    if (!id) return json(400, { error: 'Give the tester a name.' });
+    if (!/^[\x21-\x7e]{12,80}$/.test(k)) return json(400, { error: 'The access code needs 12 to 80 characters with no spaces, using plain letters, numbers or symbols from the keyboard.' });
+    const list = (Array.isArray(cfg.sun_testers) ? cfg.sun_testers : []).filter((x) => x.id !== id);
+    list.push({ id, hash: cfgmod.hash(k) });
+    cfg.sun_testers = list.slice(-20);
+  } else if (action === 'remove_sun_tester') {
+    const id = String(body.name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    cfg.sun_testers = (Array.isArray(cfg.sun_testers) ? cfg.sun_testers : []).filter((x) => x.id !== id);
   } else if (action !== 'status') {
     return json(400, { error: 'unknown_action' });
   }
@@ -62,5 +75,6 @@ exports.handler = async function (event) {
     azure_key_set: !!cfg.azure_key,
     azure_region: cfg.azure_region || null,
     sun_key_set: !!cfg.sun_key_hash,
+    sun_testers: (cfg.sun_testers || []).map((x) => x.id),
   });
 };

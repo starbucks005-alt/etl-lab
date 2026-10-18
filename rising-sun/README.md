@@ -42,3 +42,5 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 
 ## Parts
 ESP32-S3 N16R8 (as in the Holopod box), WS2812B strip, its own 5V supply sized for the strip, a speaker and a microphone for her voice. Wiring is at the top of `sunrise.ino`.
+
+- Testers (2026-10-18): a tester has a code of her own, added from owner view (`gc-config.js`, `add_sun_tester`, needs the ETL owner key) and kept as a fingerprint. It opens the panel and the fairies, keeps that tester's settings and chats apart from the owner's and from other testers (keys prefixed with the tester's id), and uses ETL's provider keys without ever showing them or being able to change them. `remove_sun_tester` takes the code away. This is the stand-in for per-sun codes, which are still not built.

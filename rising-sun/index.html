@@ -160,6 +160,14 @@
         <div class="row"><input type="password" id="ownKey" autocomplete="off"></div>
         <div class="row" style="margin-top:8px"><button id="setKey">Save the Rising Sun access code</button></div>
         <p class="msg" id="setKeyMsg"></p>
+        <h3 style="margin-top:16px">Give a tester a code of their own</h3>
+        <p class="hint">Uses the ETL owner key above. The tester gets their own settings and chats, and never sees the provider keys. Adding the same name again replaces their code. Remove takes it away.</p>
+        <label class="lab" for="tName">Tester's name</label>
+        <div class="row"><input type="text" id="tName" autocomplete="off"></div>
+        <label class="lab" for="tKey">Tester's code (12 or more characters, no spaces)</label>
+        <div class="row"><input type="text" id="tKey" autocomplete="off"></div>
+        <div class="row" style="margin-top:8px"><button id="tAdd">Add the tester</button><button id="tRemove">Remove the tester</button></div>
+        <p class="msg" id="tMsg"></p>
       </div>
     </section>
 
@@ -420,6 +428,15 @@
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That owner key was not accepted.' : (j.error || 'Something went wrong.')); say('setKeyMsg', 'Saved. Press Connect.'); $('ownKey').value = ''; }); })
       .catch(function (e) { say('setKeyMsg', e.message, true); });
   };
+  function testerCall(action) {
+    var o = $('ownKey').value.trim(), n = $('tName').value.trim(), k = $('tKey').value.trim();
+    if (!o || !n || (action === 'add_sun_tester' && !k)) { say('tMsg', 'Fill in the ETL owner key, the tester\'s name' + (action === 'add_sun_tester' ? ' and the tester\'s code.' : '.'), true); return; }
+    fetch('/.netlify/functions/gc-config', { method: 'POST', headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + o }, body: JSON.stringify({ action: action, name: n, key: k }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That owner key was not accepted.' : (j.error || 'Something went wrong.')); say('tMsg', action === 'add_sun_tester' ? 'Saved. ' + n + ' can connect with that code.' : 'Removed. That code no longer works.'); $('tKey').value = ''; }); })
+      .catch(function (e) { say('tMsg', e.message, true); });
+  }
+  $('tAdd').onclick = function () { testerCall('add_sun_tester'); };
+  $('tRemove').onclick = function () { testerCall('remove_sun_tester'); };
   $('connect').onclick = function () { key = $('key').value.trim(); if (key) load(); };
   $('saveWake').onclick = function () { save({ wake_hour: +$('wh').value, wake_min: +$('wm').value, sunrise_minutes: +$('len').value, zone: $('zone').value }, 'wakeMsg'); };
   $('len').oninput = function () { $('lenOut').textContent = $('len').value; };

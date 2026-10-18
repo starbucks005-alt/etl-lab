@@ -5,21 +5,50 @@
 const apple = require('./_apple.js');
 const KEY_HEADER = 'x-sun-key';
 
-/* The key is the environment variable when one is set. The site is at its limit of environment variables, so it can instead be kept as a fingerprint in the same private
-   record Good Company uses (set by gc-config.js, which needs the owner key). loadCfg is passed in by tests. */
+/* Who is calling, and which code they hold. The owner's code is the environment variable when one is set, else the fingerprint kept in the private record. A tester has a code of
+   their own (set by gc-config.js, add_sun_tester): it opens the panel and the fairies, keeps that tester's settings and chats apart from everyone else's, and never shows or changes
+   the provider keys. loadCfg is passed in by tests. */
 async function authorized(event, env, loadCfg) {
   const h = event.headers || {};
   const got = String(h[KEY_HEADER] || h['X-Sun-Key'] || '');
   const want = (env || process.env).SUN_DEVICE_KEY;
-  if (want) return got === want ? { ok: true } : { ok: false, code: 401, error: 'wrong_key' };
-  let fp = '';
+  if (want) return got === want ? { ok: true, who: 'owner' } : { ok: false, code: 401, error: 'wrong_key' };
+  let cfg = {};
   try {
     const gc = require('./_gc-config.js');
-    const cfg = await (loadCfg || gc.load)(event);
-    fp = String((cfg && cfg.sun_key_hash) || '');
+    cfg = (await (loadCfg || gc.load)(event)) || {};
   } catch (_) { /* unreadable: the same as not set */ }
-  if (!fp) return { ok: false, code: 503, error: 'no_device_key_set' };
-  return require('./_gc-config.js').hash(got) === fp && got ? { ok: true } : { ok: false, code: 401, error: 'wrong_key' };
+  const fp = String(cfg.sun_key_hash || '');
+  const testers = Array.isArray(cfg.sun_testers) ? cfg.sun_testers : [];
+  if (!fp && !testers.length) return { ok: false, code: 503, error: 'no_device_key_set' };
+  if (!got) return { ok: false, code: 401, error: 'wrong_key' };
+  const hash = require('./_gc-config.js').hash(got);
+  if (fp && hash === fp) return { ok: true, who: 'owner' };
+  const t = testers.find((x) => x && x.hash === hash);
+  return t ? { ok: true, who: 't-' + String(t.id) } : { ok: false, code: 401, error: 'wrong_key' };
+}
+
+/* A tester's own corner of the store: every key carries the tester's id, so nothing of theirs mixes with the owner's or another tester's. */
+function scopedStore(store, who) {
+  if (!who || who === 'owner') return store;
+  return { get: (k, o) => store.get(who + ':' + k, o), setJSON: (k, v) => store.setJSON(who + ':' + k, v) };
+}
+const OWNER_ONLY = ['bedrock_key', 'apple_team_id', 'apple_key_id', 'apple_private_key', 'spotify_client_id'];
+/* A tester cannot write the provider keys. */
+function forWho(body, who) {
+  if (!who || who === 'owner') return body;
+  const b = Object.assign({}, body);
+  OWNER_ONLY.forEach((k) => delete b[k]);
+  return b;
+}
+/* The settings a call runs on: a tester's own, with ETL's provider keys laid underneath so the fairy can think and the music can play. Never written back. */
+async function effectiveSettings(rootStore, who) {
+  const mine = await loadSettings(scopedStore(rootStore, who));
+  if (!who || who === 'owner') return mine;
+  const owner = await loadSettings(rootStore);
+  const out = Object.assign({}, mine);
+  OWNER_ONLY.forEach((k) => { if (owner[k]) out[k] = owner[k]; });
+  return out;
 }
 
 const ZONES = {
@@ -198,4 +227,4 @@ async function loadNews(event, deps = {}) {
   };
 }
 
-module.exports = { tipDay, REGION, longDate, detailsToday, IANA, fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };
+module.exports = { scopedStore, forWho, effectiveSettings, OWNER_ONLY, tipDay, REGION, longDate, detailsToday, IANA, fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };

@@ -15,13 +15,14 @@ exports.handler = async function (event, _ctx, deps = {}) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   const a = await sun.authorized(event, deps.env, deps.loadCfg);
   if (!a.ok) return json(a.code, { error: a.error });
-  const store = deps.store || (await sun.openStore(event));
+  const rootStore = deps.store || (await sun.openStore(event));
+  const store = sun.scopedStore(rootStore, a.who);
   const view = (saved) => ({ settings: sun.publicView(saved), fairies: sun.fairyList(BASE, saved) });
-  if (event.httpMethod === 'GET') return json(200, view(await sun.loadSettings(store)));
+  if (event.httpMethod === 'GET') return json(200, view(await sun.effectiveSettings(rootStore, a.who)));
   if (event.httpMethod !== 'POST') return json(405, { error: 'get_or_post' });
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }
-  const next = sun.applyPatch(await sun.loadSettings(store), body);
+  const next = sun.applyPatch(await sun.loadSettings(store), sun.forWho(body, a.who));
   await sun.saveSettings(store, next);
-  return json(200, view(next));
+  return json(200, view(a.who === 'owner' ? next : await sun.effectiveSettings(rootStore, a.who)));
 };

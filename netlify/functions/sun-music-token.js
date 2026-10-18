@@ -13,7 +13,7 @@ exports.handler = async function (event, _ctx, deps = {}) {
   const a = await sun.authorized(event, deps.env, deps.loadCfg);
   if (!a.ok) return json(a.code, { error: a.error });
   let saved = {};
-  try { saved = await sun.loadSettings(deps.store || (await sun.openStore(event))); } catch (_) {}
+  try { saved = await sun.effectiveSettings(deps.store || (await sun.openStore(event)), a.who); } catch (_) {}
   try {
     return json(200, apple.makeDeveloperToken({ teamId: saved.apple_team_id, keyId: saved.apple_key_id, privateKey: saved.apple_private_key }, { now: deps.now }));
   } catch (e) {

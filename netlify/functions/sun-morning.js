@@ -171,10 +171,10 @@ exports.handler = async function (event, _ctx, deps = {}) {
   let saved = deps.saved;
   if (!saved) {
     saved = {};
-    try { saved = await sun.loadSettings(deps.store || (await sun.openStore(event))); } catch (_) {}   // no saved settings is fine: the shipped fairies are used
+    try { saved = await sun.effectiveSettings(deps.store || (await sun.openStore(event)), a.who); } catch (_) {}   // no saved settings is fine: the shipped fairies are used
   }
   const personas = deps.personas || sun.mergePersonas(PERSONAS, saved);
-  const getStore = async () => deps.store || (await sun.openStore(event));
+  const getStore = async () => sun.scopedStore(deps.store || (await sun.openStore(event)), a.who);
   const chat = deps.chat || {
     load: async (f) => { const v = await (await getStore()).get('chat-' + f, { type: 'json' }); return Array.isArray(v) ? v : []; },
     save: async (f, m) => (await getStore()).setJSON('chat-' + f, m),
