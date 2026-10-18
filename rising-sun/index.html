@@ -97,6 +97,7 @@
   .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
   body:not(.owner) .owner-only{display:none!important}
   .owner-bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-bg);color:var(--ink);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:14px}
+  .hero{display:block;width:100%;height:auto;aspect-ratio:1376/768;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:0 0 14px}
   .msg{font-size:13px;color:var(--mute);margin:8px 0 0;min-height:1.2em}
   .msg.bad{color:var(--bad)}
 </style>
@@ -105,6 +106,7 @@
 <div class="wrap">
   <div id="ownerBar" class="owner-bar" style="display:none"><span>Owner view (ETL only). Customers do not see this.</span><button id="ownerExit" type="button">Exit owner view</button></div>
   <div class="top"><h1>The Rising <em>Sun</em></h1><button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button></div>
+  <img class="hero" src="court_hero_v1.jpg" alt="The seven fairies of the Rising Sun Court, standing together in a sunlit wood" onerror="this.style.display='none'">
   <p class="sub">Set the wake time, choose who lives inside the sun, and hear the voice. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
   <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
 
