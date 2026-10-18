@@ -126,6 +126,9 @@
   .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
   body:not(.owner) .owner-only{display:none!important}
   .owner-bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-bg);color:var(--ink);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:14px}
+  .lab{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:10px 0 4px}
+  .ownbox{margin-top:18px;padding:14px;border:1px dashed var(--line2);border-radius:10px}
+  .ownbox h3{margin:0 0 6px;font-size:15px;color:var(--ink)}
   .eyebrow{margin:0 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
   .motto{margin:0 0 6px;font-family:var(--display);font-style:italic;font-size:18px;color:var(--accent)}
   .hero{display:block;width:100%;height:auto;aspect-ratio:1376/768;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:0 0 14px}
@@ -147,11 +150,15 @@
     <section class="card wide" id="keyCard">
       <h2>Your sun's access code</h2>
       <p class="hint">The access code for your sun. It stays in this browser. Without it nothing here can be read or changed.</p>
-      <div class="row"><input type="password" id="key" autocomplete="off" aria-label="Access code"><button class="primary" id="connect">Connect</button></div>
+      <label class="lab" for="key">Rising Sun access code</label>
+      <div class="row"><input type="password" id="key" autocomplete="off"><button class="primary" id="connect">Connect</button></div>
       <p class="msg" id="keyMsg"></p>
-      <div class="owner-only" style="margin-top:12px">
-        <p class="hint">First time only (ETL owner): type the access code above, then your owner key here, and press the button. The site keeps only a fingerprint of the code.</p>
-        <div class="row"><input type="password" id="ownKey" autocomplete="off" aria-label="Owner key"><button id="setKey">Set this as the access code</button></div>
+      <div class="owner-only ownbox">
+        <h3>ETL owner only: save the access code (first time only)</h3>
+        <p class="hint">Step 1: type the Rising Sun access code in the box above. Step 2: type the ETL owner key here. Step 3: press the button below. Then press Connect above.</p>
+        <label class="lab" for="ownKey">ETL owner key</label>
+        <div class="row"><input type="password" id="ownKey" autocomplete="off"></div>
+        <div class="row" style="margin-top:8px"><button id="setKey">Save the Rising Sun access code</button></div>
         <p class="msg" id="setKeyMsg"></p>
       </div>
     </section>
