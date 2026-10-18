@@ -16,5 +16,14 @@ An artificial sunrise made of acrylic and LED strips, with a light fairy inside 
 - Her backstory is empty until Dr. O writes it. Anything not written there gets a short "I don't know that one".
 - The acrylic and strip layout (how many LEDs, rings or a disc) is not decided, so `LED_COUNT` in `sunrise.ino` is a placeholder.
 
+## The brain is in the cloud (2026-10-18)
+Dr. O: "can be a brain in the cloud like the figurines." The board only runs the light, and asks the website what the fairy says.
+- `netlify/functions/sun-morning.js` is that brain. `step: "wake"` returns the greeting and the question. `step: "answer"` with `heard` returns her reply. With `audio: true` it also returns her voice as base64 mp3 from Azure.
+- Every call needs the header `x-sun-key` to match `SUN_DEVICE_KEY` in the site's settings, because each answer can spend Azure and Anthropic credits. With no key set it answers 503. The key is not in the repository: set it in Netlify and put the same value on the board.
+- News and calendar are not connected, and she says so. "Something else" goes to Claude with the fairy's own lines. Her written backstory is empty, so the prompt tells her to say she does not know that one.
+- The voices in `personas.json` are placeholders, not chosen and not listened to.
+- Checked with stand-ins: `node tests/sun-morning.test.js`. NOT tried against the real services or from the board.
+- Still open: how the board hears you and plays her voice. It needs a microphone and a speaker amplifier on the ESP32-S3, and a way to turn mp3 into sound. Until that is built the page route (a tablet) is the way to hear her.
+
 ## Parts
 ESP32-S3 N16R8 (as in the Holopod box), WS2812B strip, its own 5V supply sized for the strip, a speaker and a microphone for her voice. Wiring is at the top of `sunrise.ino`.
