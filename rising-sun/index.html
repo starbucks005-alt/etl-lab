@@ -86,7 +86,7 @@
 <div class="wrap">
   <div id="ownerBar" class="owner-bar" style="display:none"><span>Owner view (ETL only). Customers do not see this.</span><button id="ownerExit" type="button">Exit owner view</button></div>
   <div class="top"><h1>The Rising <em>Sun</em></h1><button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button></div>
-  <p class="sub">Set the wake time, choose who lives inside the sun, and hear her. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
+  <p class="sub">Set the wake time, choose who lives inside the sun, and hear the voice. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
   <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
 
   <div class="grid">
@@ -125,33 +125,33 @@
 
     <section class="card wide" id="fairyCard">
       <h2>3. Who is in the sun</h2>
-      <p class="hint">Three fairies come with the sun, each with her own voice. "Use her" puts her in the sun. "Hear her" plays her waking you in her own voice. "Change her words" opens her lines below.</p>
+      <p class="hint">Fairies come with the sun, each with a voice of their own. "Use" puts a fairy in the sun. "Hear" plays that fairy waking you. "Change words" opens their lines below.</p>
       <div class="fairies" id="fairies"></div>
       <div class="row" style="margin-top:12px"><button id="newFairy">Make another fairy</button></div>
     </section>
 
     <section class="card wide" id="editCard" style="display:none">
-      <h2 id="editTitle">Her words and her voice</h2>
-      <p class="hint">Anything about her life that is not written in the backstory box, she answers with "I don't know that one". She says she is not a real person if anyone sincerely asks.</p>
+      <h2 id="editTitle">Words and voice</h2>
+      <p class="hint">Anything about their life that is not written in the backstory box, the fairy answers with "I don't know that one". They say they are not a real person if anyone sincerely asks.</p>
       <label for="fName">Name</label><input type="text" id="fName" maxlength="60">
-      <label for="fGreet">What she says when you wake</label><input type="text" id="fGreet" maxlength="300">
-      <label for="fAsk">What she asks next</label><input type="text" id="fAsk" maxlength="300">
-      <label for="fManner">Her manner, in a few words (for example: warm and teasing)</label><input type="text" id="fManner" maxlength="300">
+      <label for="fGreet">The greeting when you wake</label><input type="text" id="fGreet" maxlength="300">
+      <label for="fAsk">The question that comes next</label><input type="text" id="fAsk" maxlength="300">
+      <label for="fManner">Manner, in a few words (for example: warm and teasing)</label><input type="text" id="fManner" maxlength="300">
       <label class="owner-only" for="fImage">Her picture: the filename of the image you uploaded to the rising-sun folder (for example, velvet_v1.png). It shows on her card here and nowhere else.</label><input class="owner-only" type="text" id="fImage" maxlength="120">
-      <label for="fBack">Her backstory (leave empty until you have written it)</label><textarea id="fBack" maxlength="3000" rows="6"></textarea>
+      <label for="fBack">Backstory (leave empty until you have written one)</label><textarea id="fBack" maxlength="3000" rows="6"></textarea>
       <label class="owner-only" for="fVoice">Her voice: an ElevenLabs voice id. With no voice she shows words and makes no sound. If a fairy sounds like the wrong one, paste the right id here.</label><input class="owner-only" type="text" id="fVoice" maxlength="80">
-      <div class="row" style="margin-top:12px"><button class="primary" id="saveFairy">Save her</button><button id="hearFairy">Save and hear her wake you</button><button id="delFairy">Remove her</button></div>
+      <div class="row" style="margin-top:12px"><button class="primary" id="saveFairy">Save</button><button id="hearFairy">Save and hear it</button><button id="delFairy">Remove</button></div>
       <p class="msg" id="fairyMsg"></p>
     </section>
 
     <section class="card wide" id="tryCard">
       <h2>4. Text your fairy</h2>
-      <p class="hint">Pick who you want to talk to and write to her, the way you would text a friend. She remembers what you told her, so tomorrow she can ask how it went. Each fairy keeps her own conversation. Ask for the news and she plays Above the Fold. What you write is kept on the website behind your sun's access code, and "Clear our chat" wipes it.</p>
+      <p class="hint">Pick who you want to talk to and write to them, the way you would text a friend. They remember what you told them, so tomorrow they can ask how it went. Each fairy keeps a conversation of their own. Ask for the news and Above the Fold plays. What you write is kept on the website behind your sun's access code, and "Clear our chat" wipes it.</p>
       <div class="row"><select id="chatWho" aria-label="Who are you talking to"></select><button id="wakeBtn">Wake me</button><button id="clearChat">Clear our chat</button></div>
       <div class="thread" id="thread" aria-live="polite" style="margin-top:10px"></div>
-      <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="Write to her" aria-label="Your message" maxlength="500"><button class="primary" id="send">Send</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
+      <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="Write a message" aria-label="Your message" maxlength="500"><button class="primary" id="send">Send</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
       <div id="news" style="display:none;margin-top:10px"></div>
-      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice</label>
+      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play the voice</label>
     </section>
 
     <section class="card wide" id="musicCard">
@@ -173,7 +173,7 @@
 
     <section class="card wide" id="remCard">
       <h2>6. Reminders</h2>
-      <p class="hint">Write one reminder per line, for example "Take your morning pills." She says them in your words, after her greeting and before she asks about the news. She adds nothing and gives no advice. Up to five. They are kept on the website behind your sun's access code.</p>
+      <p class="hint">Write one reminder per line, for example "Take your morning pills." The fairy says them in your words, after the greeting and before the question about the news. Nothing is added and no advice is given. Up to five. They are kept on the website behind your sun's access code.</p>
       <textarea id="rems" rows="4" maxlength="1200" aria-label="Reminders, one per line"></textarea>
       <div class="row" style="margin-top:12px"><button class="primary" id="saveRem">Save the reminders</button></div>
       <p class="msg" id="remMsg"></p>
@@ -181,16 +181,16 @@
 
     <section class="card wide" id="calCard">
       <h2>7. Your calendar</h2>
-      <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
+      <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. Nothing can be added, changed or deleted.</p>
       <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
       <p class="msg" id="calMsg"></p>
-      <p class="hint" style="margin:8px 0 0">She cannot read your calendar yet. Ask her for the news and she plays Above the Fold from ETL Newswire, the daily briefing.</p>
+      <p class="hint" style="margin:8px 0 0">Your fairy cannot read your calendar yet. Ask for the news and Above the Fold from ETL Newswire plays, the daily briefing.</p>
     </section>
 
     <section class="card wide owner-only" id="connCard">
       <h2>Owner setup (ETL only)</h2>
       <p class="hint"><b>Customers never see this section.</b> ETL holds the provider keys and pays for the thinking, the voice and the music setup. A customer only signs in to their own music account, and later sees their plan and credits. These fields are for ETL while the sun is a prototype.</p>
-      <p class="hint">Her thinking runs on Claude through Amazon Bedrock, so the AWS credits pay for it. Paste the Bedrock key here once (from the AWS console: Bedrock, API keys). It is kept on the website and never shown again here. Her voice uses the Azure key the site already has, and the Anthropic key the site already has is the backup. Nothing else to paste.</p>
+      <p class="hint">The fairies' thinking runs on Claude through Amazon Bedrock, so the AWS credits pay for it. Paste the Bedrock key here once (from the AWS console: Bedrock, API keys). It is kept on the website and never shown again here. The voice uses the Azure key the site already has, and the Anthropic key the site already has is the backup. Nothing else to paste.</p>
       <div class="row"><input type="password" id="bedKey" autocomplete="off" placeholder="Bedrock key" aria-label="Bedrock key"><button id="saveBed">Save the key</button><button id="clearBed">Remove it</button></div>
       <p class="msg" id="bedMsg"></p>
       <h2 style="margin-top:18px;font-size:18px">Apple Music</h2>
@@ -261,9 +261,9 @@
       var h3 = document.createElement('h3'); h3.textContent = f.name || id;
       var p = document.createElement('p'); p.textContent = OWNER ? (f.voice ? 'Voice id ends ' + f.voice.slice(-4) : 'No voice yet, words only') : (f.greeting || '');
       var r = document.createElement('div'); r.className = 'row';
-      var use = document.createElement('button'); use.textContent = 'Use her'; use.disabled = s.fairy === id; use.onclick = function () { save({ fairy: id }, null); };
-      var hear = document.createElement('button'); hear.textContent = 'Hear her'; hear.onclick = function () { $('chatWho').value = id; loadThread().then(function () { ask({ step: 'wake', fairy: id }, true); }); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
-      var ed = document.createElement('button'); ed.textContent = 'Change her words'; ed.onclick = function () { edit(id); };
+      var use = document.createElement('button'); use.textContent = 'Use'; use.disabled = s.fairy === id; use.onclick = function () { save({ fairy: id }, null); };
+      var hear = document.createElement('button'); hear.textContent = 'Hear'; hear.onclick = function () { $('chatWho').value = id; loadThread().then(function () { ask({ step: 'wake', fairy: id }, true); }); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
+      var ed = document.createElement('button'); ed.textContent = 'Change words'; ed.onclick = function () { edit(id); };
       r.appendChild(use); r.appendChild(hear); r.appendChild(ed);
       d.appendChild(t); d.appendChild(h3); d.appendChild(p); d.appendChild(r); box.appendChild(d);
     });
@@ -282,7 +282,7 @@
   function edit(id) {
     editing = id; var f = fairyOf(id);
 
-    $('editCard').style.display = ''; $('editTitle').textContent = 'Her words and her voice: ' + (f.name || id);
+    $('editCard').style.display = ''; $('editTitle').textContent = 'Words and voice: ' + (f.name || id);
     $('fName').value = f.name; $('fGreet').value = f.greeting; $('fAsk').value = f.ask; $('fManner').value = f.manner; $('fBack').value = f.backstory; $('fVoice').value = f.voice || ''; $('fImage').value = f.image || '';
     $('delFairy').style.display = f.ships ? 'none' : '';
     $('editCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -299,7 +299,7 @@
     all[id] = { name: 'A new fairy', greeting: 'Good morning, human.', ask: all.velvet ? all.velvet.ask : '', manner: '', backstory: '', voice: '', ships: false };
     edit(id);
   };
-  $('delFairy').onclick = function () { if (confirm('Remove her?')) save({ delete_fairy: editing }, null).then(function () { $('editCard').style.display = 'none'; }); };
+  $('delFairy').onclick = function () { if (confirm('Remove this fairy?')) save({ delete_fairy: editing }, null).then(function () { $('editCard').style.display = 'none'; }); };
   $('saveFairy').onclick = saveFairy;
   $('hearFairy').onclick = function () { saveFairy().then(function () { return save({ fairy: editing }, null); }).then(function () { $('chatWho').value = editing; return loadThread().then(function () { return ask({ step: 'wake', fairy: editing }, true); }); }).catch(function () {}); };
 
@@ -311,7 +311,7 @@
     if (role !== 'user') { var w = document.createElement('span'); w.className = 'who'; w.textContent = (all[who()] || {}).name || ''; b.appendChild(w); }
     b.appendChild(document.createTextNode(text)); el.appendChild(b); el.scrollTop = el.scrollHeight; return b;
   }
-  function empty() { var el = $('thread'); el.innerHTML = ''; var d = document.createElement('div'); d.className = 'empty'; d.textContent = 'Nothing yet. Say good morning to ' + ((all[who()] || {}).name || 'her') + '.'; el.appendChild(d); }
+  function empty() { var el = $('thread'); el.innerHTML = ''; var d = document.createElement('div'); d.className = 'empty'; d.textContent = 'Nothing yet. Say good morning to ' + ((all[who()] || {}).name || 'your fairy') + '.'; el.appendChild(d); }
   function loadThread() {
     var f = who(); if (!f) return Promise.resolve();
     return api(BRAIN, { step: 'history', fairy: f }).then(function (j) {
@@ -340,7 +340,7 @@
   function wake() { return ask({ step: 'wake' }); }
   $('wakeBtn').onclick = wake;
   $('chatWho').onchange = function () { $('news').style.display = 'none'; loadThread(); };
-  $('clearChat').onclick = function () { if (confirm('Wipe your chat with ' + ((all[who()] || {}).name || 'her') + '?')) api(BRAIN, { step: 'clear', fairy: who() }).then(empty); };
+  $('clearChat').onclick = function () { if (confirm('Wipe your chat with ' + ((all[who()] || {}).name || 'your fairy') + '?')) api(BRAIN, { step: 'clear', fairy: who() }).then(empty); };
   $('send').onclick = function () {
     var t = $('heard').value.trim(); if (!t) return; $('heard').value = '';
     bubble('user', t); var wait = bubble('fairy', '...', true);
