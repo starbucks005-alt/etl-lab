@@ -35,7 +35,7 @@ const base = require('../rising-sun/personas.json');
   assert.strictEqual(mem.settings.fairy, 'default'); assert(!mem.settings.fairies.ember);                                     // deleting the chosen one falls back
   await call('POST', 'k', { delete_fairy: 'arrogant' });
   assert(mem.settings.fairies.arrogant);                                                                                       // the shipped ones cannot be deleted
-  const dash = sun.cleanPatch({ fairies: { x: { greeting: 'Hello — there', voice: '../x' } } }).fairies.x;
-  assert(!/—/.test(dash.greeting) && !('voice' in dash));
+  const dash = sun.cleanPatch({ fairies: { x: { greeting: 'Hello \u2014 there', voice: '../x' } } }).fairies.x;
+  assert(!/\u2014/.test(dash.greeting) && !('voice' in dash));
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });

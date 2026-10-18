@@ -18,7 +18,7 @@ const ZONES = {
 };
 const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'default', fairies: {} };
 
-function str(v, max) { return typeof v === 'string' ? v.replace(/[–—]/g, ',').trim().slice(0, max) : ''; }
+function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 function int(v, lo, hi) { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= lo && n <= hi ? n : null; }
 const VOICE_RE = /^(azure:[A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]{3,60}|[A-Za-z0-9]{12,30})$/;
 const ID_RE = /^[a-z0-9-]{1,30}$/;
