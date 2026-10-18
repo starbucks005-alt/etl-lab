@@ -129,6 +129,11 @@
   .lab{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:10px 0 4px}
   .ownbox{margin-top:18px;padding:14px;border:1px dashed var(--line2);border-radius:10px}
   .ownbox h3{margin:0 0 6px;font-size:15px;color:var(--ink)}
+  .prods{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
+  .prod{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--field);display:flex;flex-direction:column;gap:6px}
+  .prod b{color:var(--ink);font-size:15px}
+  .prod span{color:var(--text);font-size:14px}
+  .prod .tag{align-self:flex-start;font-style:normal}
   .eyebrow{margin:0 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
   .motto{margin:0 0 6px;font-family:var(--display);font-style:italic;font-size:18px;color:var(--accent)}
   .hero{display:block;width:100%;height:auto;aspect-ratio:1376/768;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:0 0 14px}
@@ -139,7 +144,6 @@
 <body>
 <div class="wrap">
   <div id="ownerBar" class="owner-bar" style="display:none"><span>Owner view (ETL only). Customers do not see this.</span><button id="ownerExit" type="button">Exit owner view</button></div>
-  <p class="eyebrow">The Rising Sun &middot; the light</p>
   <div class="top"><h1>The Rising Sun <em>Court</em></h1><select id="palette" class="themebtn" aria-label="Choose a palette"><option value="">Sunrise (light or dark)</option><option value="harvest">Harvest</option><option value="seaside">Seaside</option><option value="snowline">Snowline</option><option value="fireside">Fireside</option><option value="grove">Grove</option><option value="bramble">Bramble</option><option value="tidepool">Tidepool</option><option value="confetti">Confetti</option><option value="blueprint">Blueprint</option><option value="umber">Umber</option><option value="blaze">Blaze</option><option value="understory">Understory</option><option value="wildflower">Wildflower</option><option value="twilight">Twilight</option><option value="alpine">Alpine</option><option value="canopy">Canopy</option><option value="amethyst">Amethyst</option><option value="driftwood">Driftwood</option><option value="orchard">Orchard</option><option value="terrarium">Terrarium</option><option value="bordeaux">Bordeaux</option><option value="copper">Copper</option><option value="tide">Tide</option><option value="slate">Slate</option><option value="black">Black</option><option value="ember">Ember</option></select> <button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button></div>
   <img class="hero" src="court_hero_v1.jpg" alt="The seven fairies of the Rising Sun Court, standing together in a sunlit wood" onerror="this.style.display='none'">
   <p class="motto">No one greets the morning alone.</p>
@@ -191,6 +195,15 @@
       <label class="owner-only" for="fVoice">Her voice: an ElevenLabs voice id. With no voice she shows words and makes no sound. If a fairy sounds like the wrong one, paste the right id here.</label><input class="owner-only" type="text" id="fVoice" maxlength="80">
       <div class="row" style="margin-top:12px"><button class="primary" id="saveFairy">Save</button><button id="hearFairy">Save and hear it</button><button id="delFairy">Remove</button></div>
       <p class="msg" id="fairyMsg"></p>
+    </section>
+
+    <section class="card wide" id="productsCard">
+      <h2>Made by the Rising Sun Court</h2>
+      <p class="hint">Two products so far. Each holds one of the fairies.</p>
+      <div class="prods">
+        <div class="prod"><b>The Rising Sun light</b><span>The light you are using now. It wakes you with a sunrise, and the fairy of your choice greets you.</span><em class="tag">Available</em></div>
+        <div class="prod"><b>The candles</b><span>Artificial candles, flameless, with one fairy in each. A silhouette of the fairy shows on the outside.</span><em class="tag">Coming</em></div>
+      </div>
     </section>
 
     <section class="card wide" id="tryCard">
