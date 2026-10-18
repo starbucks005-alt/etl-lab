@@ -506,6 +506,9 @@ it goes. The brain in the cloud of Rising Sun, like figurines too." So the store
 a possible second step, after a kiosk. The brain for both the Rising Sun and the
 figurines is in the cloud. No mall, city, budget or date is chosen.
 
+Dr. O, 2026-10-18: "I do not think we can do this by christmas season." So the kiosk is
+not planned for this holiday season. No other date is chosen.
+
 Dr. O's plan for what is in it (2026-10-18): they would have to make the figurines and
 plinths, the Rising Sun, have one each of the bots and take orders, and some computers
 of other products (ME, GC, AH). The store's name: Almost Human. (The dean one-pagers
@@ -530,8 +533,13 @@ Suggestions, not decisions:
   used, and magnets and small pieces kept away from children's hands.
 - Student interns could run the kiosk, as the pop-up idea for the business school.
 
-Questions: which mall and city, the budget, whether a holiday season kiosk is possible
-this year, and what the mall requires (a lease length, insurance, a business license,
+A suggested order, not a decision: finish the prototypes (LumVivo, the plinths and
+figurines, the Rising Sun); demo at events and with the business school; build the waiting
+list; get the legal checks and part quotes; look at malls and ask what they require; then
+pick a later season for the kiosk.
+
+Questions: which mall and city, the budget, which later season to aim for, and what the
+mall requires (a lease length, insurance, a business license,
 sales tax, and rules on sound and cameras). Not known yet.
 
 ## Open questions
