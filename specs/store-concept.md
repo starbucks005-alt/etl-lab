@@ -390,7 +390,8 @@ button and quiet switch for the shop, to see what supervision takes.
 ## Cloud credits (idea, 2026-10-18)
 
 Dr. O: the Azure and AWS startup programs give more credits if she partners with a
-university. Nothing is applied for. What was found (third-party summaries that disagree
+university. She is already in both programs (2026-10-18). Which tier each is on, the
+balance and the expiry dates are not recorded. What was found (third-party summaries that disagree
 on figures, so check the official pages):
 - AWS Activate: a self-serve tier of roughly $1,000 to $5,000, and larger amounts
   (reported as $100,000 to $200,000) that need a partner such as an accelerator or
@@ -408,8 +409,9 @@ on figures, so check the official pages):
   ElevenLabs character voices, which are likely the biggest running cost. Not measured.
 - Credits expire, so the timing should follow when they will be used.
 
-Questions: is ETL set up as a company that can pass business verification, and does
-the business school have an incubator or innovation center?
+Questions: which tier is each program on, what is left and when does it expire, and does
+the business school have an incubator or innovation center that could give the
+referral for a larger tier?
 
 ## Open questions
 
