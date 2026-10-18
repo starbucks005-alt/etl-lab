@@ -147,6 +147,13 @@
       <p class="msg" id="remMsg"></p>
     </section>
 
+    <section class="card wide" id="connCard">
+      <h2>Connections</h2>
+      <p class="hint">Her thinking runs on Claude through Amazon Bedrock, so the AWS credits pay for it. Paste the Bedrock key here once (from the AWS console: Bedrock, API keys). It is kept on the website and never shown again here. Her voice uses the Azure key the site already has, and the Anthropic key the site already has is the backup. Nothing else to paste.</p>
+      <div class="row"><input type="password" id="bedKey" autocomplete="off" placeholder="Bedrock key" aria-label="Bedrock key"><button id="saveBed">Save the key</button><button id="clearBed">Remove it</button></div>
+      <p class="msg" id="bedMsg"></p>
+    </section>
+
     <section class="card wide" id="calCard">
       <h2>6. Your calendar</h2>
       <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
@@ -179,7 +186,7 @@
   function paint() {
     $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
     $('rems').value = (s.reminders || []).join('\n');
-    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '');
+    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet');
     var box = $('fairies'); box.innerHTML = '';
     ids().forEach(function (id) {
       var f = fairyOf(id), d = document.createElement('div'); d.className = 'fairy' + (s.fairy === id ? ' on' : '');
@@ -249,6 +256,8 @@
   else $('micBtn').onclick = function () { var r = new SR(); r.lang = 'en-US'; r.onresult = function (e) { $('heard').value = e.results[0][0].transcript; $('send').onclick(); }; r.start(); };
 
   $('saveRem').onclick = function () { save({ reminders: $('rems').value.split('\n') }, 'remMsg'); };
+  $('saveBed').onclick = function () { var k = $('bedKey').value.trim(); if (k) save({ bedrock_key: k }, 'bedMsg').then(function () { $('bedKey').value = ''; }); };
+  $('clearBed').onclick = function () { save({ bedrock_key: '' }, 'bedMsg'); };
   $('saveCal').onclick = function () { var u = $('calUrl').value.trim(); if (!u) return; save({ calendar_url: u }, 'calMsg').then(function () { $('calUrl').value = ''; }); };
   $('clearCal').onclick = function () { save({ calendar_url: '' }, 'calMsg'); };
 

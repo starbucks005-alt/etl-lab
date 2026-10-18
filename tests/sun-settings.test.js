@@ -39,6 +39,12 @@ const base = require('../rising-sun/personas.json');
   assert.strictEqual(r.reminders.length, 5); assert.strictEqual(r.reminders[0], 'Take your morning pills.'); assert.strictEqual(r.reminders[1].length, 200);   // blanks dropped, long ones cut, five at most
   r = JSON.parse((await call('POST', 'k', { reminders: [] })).body).settings;
   assert.deepStrictEqual(r.reminders, []);
+  r = JSON.parse((await call('POST', 'k', { bedrock_key: 'ABSKQmVkcm9ja0FQSUtleS1leGFtcGxlLWV4YW1wbGU' })).body);
+  assert.strictEqual(r.settings.bedrock_set, true); assert(!JSON.stringify(r).includes('ABSKQmVkcm9')); assert(mem.settings.bedrock_key.startsWith('ABSK'));   // kept, never sent back
+  await call('POST', 'k', { bedrock_key: 'short' });
+  assert(mem.settings.bedrock_key.startsWith('ABSK'));                                                                                          // too short to be a key: refused
+  await call('POST', 'k', { bedrock_key: '' });
+  assert.strictEqual(mem.settings.bedrock_key, '');
   const dash = sun.cleanPatch({ fairies: { x: { greeting: 'Hello \u2014 there', voice: '../x' } } }).fairies.x;
   assert(!/\u2014/.test(dash.greeting) && !('voice' in dash));
   console.log('ALL OK');

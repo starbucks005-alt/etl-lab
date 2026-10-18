@@ -17,12 +17,16 @@
    text (the device sends the words, or a later version sends audio). "Something else" goes to Claude with the fairy's own lines and her written backstory, which is
    empty until Dr. O writes it.
 
+   KEYS: the only new environment variable is SUN_DEVICE_KEY. The site is at its limit of them, so the Azure key is read the way gc-voice reads it (private record, then environment, see _gc-config.js),
+   the Anthropic key is the one the site already has, and the Bedrock key is saved from the panel into the sun's private record.
+
    CREDITS: her voice is Azure (the Azure credits pay). Her thinking tries Claude on Amazon Bedrock first (the AWS credits pay; see _bedrock.js), then Anthropic's own API.
 
    NOT TRIED against the real Azure, Bedrock or Anthropic services, or from the device. The tests run with stand-ins. */
 const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
 const sun = require('./_sun.js');
 const { bedrockAsk } = require('./_bedrock.js');
+const gcConfig = require('./_gc-config.js');
 
 let PERSONAS = {};
 try { PERSONAS = require('../../rising-sun/personas.json'); } catch (_) {}
@@ -73,7 +77,11 @@ async function step(body, deps = {}) {
   if (choice === 'calendar') return { say: 'I cannot see your calendar yet.', choice };
   /* AWS credits first (Claude on Bedrock), Anthropic's own API if Bedrock is not set up or says no. */
   const ask = deps.ask || (async (system, text) => {
-    try { const b = await bedrockAsk(system, text, { fetchFn: deps.fetchFn || fetch }); if (b) return b; } catch (_) {}
+    try {
+      const env = Object.assign({}, process.env, deps.saved && deps.saved.bedrock_key ? { AWS_BEARER_TOKEN_BEDROCK: deps.saved.bedrock_key } : {});
+      const b = await bedrockAsk(system, text, { fetchFn: deps.fetchFn || fetch, env });
+      if (b) return b;
+    } catch (_) {}
     const Anthropic = require('@anthropic-ai/sdk');   // loaded here so the tests run without it
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const out = await client.messages.create({ model: MODEL, max_tokens: 200, system, messages: [{ role: 'user', content: text }] });
@@ -105,14 +113,14 @@ exports.handler = async function (event, _ctx, deps = {}) {
     try { saved = await sun.loadSettings(deps.store || (await sun.openStore(event))); } catch (_) {}   // no saved settings is fine: the shipped fairies are used
   }
   const personas = deps.personas || sun.mergePersonas(PERSONAS, saved);
-  deps = Object.assign({}, deps, { personas, reminders: deps.reminders || saved.reminders || [] });
+  deps = Object.assign({}, deps, { personas, saved, reminders: deps.reminders || saved.reminders || [] });
   const out = await step(body, Object.assign({ event }, deps));
   if (out.error === 'bad_step' || out.error === 'no_fairy') return json(400, out);
   if (body.audio && out.say) {
     const p = personas[body.fairy] || personas[personas.chosen] || personas.default;
     const name = azureVoiceName(p && p.voice);
     if (name) {
-      try { out.audio = (await (deps.speak || azureSpeak)(out.say, name)).toString('base64'); } catch (_) { out.audio_error = true; }
+      try { out.audio = (await (deps.speak || (async (t, n) => azureSpeak(t, n, { env: await gcConfig.azureEnv(event) })))(out.say, name)).toString('base64'); } catch (_) { out.audio_error = true; }
     }
   }
   return json(200, out);

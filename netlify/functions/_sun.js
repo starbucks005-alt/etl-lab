@@ -33,6 +33,11 @@ function cleanPatch(body) {
   if (typeof body.fairy === 'string' && ID_RE.test(body.fairy)) out.fairy = body.fairy;
   /* Reminders are the owner's own words, spoken as written after the greeting (Dr. O, 2026-10-18: "reminder to take your meds"). Nothing is added or advised. */
   if (Array.isArray(body.reminders)) out.reminders = body.reminders.map((r) => str(r, 200)).filter(Boolean).slice(0, 5);
+  /* The Bedrock key is kept in the private record, not an environment variable, because the site is at its limit of those (see _gc-config.js). Write-only, like the calendar link. */
+  if (typeof body.bedrock_key === 'string') {
+    const k = body.bedrock_key.trim();
+    if (k === '' || /^\S{20,2000}$/.test(k)) out.bedrock_key = k;
+  }
   if (typeof body.calendar_url === 'string') {
     let u = body.calendar_url.trim();
     if (/^webcal:\/\//i.test(u)) u = 'https://' + u.slice(9);
@@ -64,12 +69,14 @@ function applyPatch(current, body) {
   return merged;
 }
 
-/* What the page and the board may see: everything except the calendar link itself. */
+/* What the page and the board may see: everything except the calendar link and the Bedrock key themselves. */
 function publicView(s) {
   const o = Object.assign({}, DEFAULTS, s || {});
   const calendar_set = !!o.calendar_url;
+  const bedrock_set = !!o.bedrock_key;
   delete o.calendar_url;
-  return Object.assign(o, { calendar_set, tz: ZONES[o.zone] || ZONES.eastern });
+  delete o.bedrock_key;
+  return Object.assign(o, { calendar_set, bedrock_set, tz: ZONES[o.zone] || ZONES.eastern });
 }
 
 /* The shipped fairies with the owner's changes laid over them. */

@@ -46,8 +46,10 @@ const personas = require('../rising-sun/personas.json');
   await assert.rejects(bedrockAsk('s', 't', { fetchFn: fetchOk, env: {} }), /no_bedrock_key/);
   await assert.rejects(bedrockAsk('s', 't', { fetchFn: fetchOk, env: { AWS_BEARER_TOKEN_BEDROCK: 'k', AWS_REGION: 'evil.com/x' } }), /bad_aws_region/);
   await assert.rejects(bedrockAsk('s', 't', { fetchFn: async () => ({ ok: false, status: 403 }), env: { AWS_BEARER_TOKEN_BEDROCK: 'k' } }), /bedrock_403/);
-  process.env.AWS_BEARER_TOKEN_BEDROCK = 'k';
-  const viaBedrock = await m.step({ step: 'answer', heard: 'tell me about the sun' }, { personas, fetchFn: fetchOk });
+  let usedKey;
+  const fetchSpy = async (u, o) => { usedKey = o.headers.Authorization; return fetchOk(u, o); };
+  const viaBedrock = await m.step({ step: 'answer', heard: 'tell me about the sun' }, { personas, fetchFn: fetchSpy, saved: { bedrock_key: 'fromrecord' } });   // the key from the panel's private record, no environment variable
+  assert.strictEqual(usedKey, 'Bearer fromrecord');
   assert.strictEqual(viaBedrock.say, 'Hello from Bedrock.');
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });
