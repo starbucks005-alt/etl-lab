@@ -134,6 +134,10 @@
   .prod b{color:var(--ink);font-size:15px}
   .prod span{color:var(--text);font-size:14px}
   .prod .tag{align-self:flex-start;font-style:normal}
+  body.p-candle .lightonly{display:none!important}
+  body:not(.p-candle):not(.p-both) .candleonly{display:none!important}
+  .prodpick{margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .prodpick label{font-size:13px;font-weight:600;color:var(--ink)}
   .eyebrow{margin:0 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
   .motto{margin:0 0 6px;font-family:var(--display);font-style:italic;font-size:18px;color:var(--accent)}
   .hero{display:block;width:100%;height:auto;aspect-ratio:1376/768;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:0 0 14px}
@@ -146,6 +150,7 @@
   <div id="ownerBar" class="owner-bar" style="display:none"><span>Owner view (ETL only). Customers do not see this.</span><button id="ownerExit" type="button">Exit owner view</button></div>
   <div class="top"><h1>The Rising Sun <em>Court</em></h1><select id="palette" class="themebtn" aria-label="Choose a palette"><option value="">Sunrise (light or dark)</option><option value="harvest">Harvest</option><option value="seaside">Seaside</option><option value="snowline">Snowline</option><option value="fireside">Fireside</option><option value="grove">Grove</option><option value="bramble">Bramble</option><option value="tidepool">Tidepool</option><option value="confetti">Confetti</option><option value="blueprint">Blueprint</option><option value="umber">Umber</option><option value="blaze">Blaze</option><option value="understory">Understory</option><option value="wildflower">Wildflower</option><option value="twilight">Twilight</option><option value="alpine">Alpine</option><option value="canopy">Canopy</option><option value="amethyst">Amethyst</option><option value="driftwood">Driftwood</option><option value="orchard">Orchard</option><option value="terrarium">Terrarium</option><option value="bordeaux">Bordeaux</option><option value="copper">Copper</option><option value="tide">Tide</option><option value="slate">Slate</option><option value="black">Black</option><option value="ember">Ember</option></select> <button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button></div>
   <img class="hero" src="court_hero_v1.jpg" alt="The seven fairies of the Rising Sun Court, standing together in a sunlit wood" onerror="this.style.display='none'">
+  <div class="prodpick"><label for="product">I have</label><select id="product" aria-label="Which product you have"><option value="light">The Rising Sun light</option><option value="candle">A Rising Sun candle</option><option value="both">Both the light and candles</option></select></div>
   <p class="motto">No one greets the morning alone.</p>
   <p class="sub">Set the wake time, choose who lives inside the sun, and hear the voice. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
   <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
@@ -209,7 +214,7 @@
     <section class="card wide" id="tryCard">
       <h2 id="chatTitle">Chat</h2>
       <p class="hint">Write to them the way you would text a friend. They remember what you told them, so tomorrow they can ask how it went. Each fairy keeps a conversation of their own. What you write is kept on the website behind your sun's access code, and "Clear our chat" wipes it.</p>
-      <div class="row"><select id="chatWho" aria-label="Who are you talking to" style="display:none"></select><button id="wakeBtn">Wake me</button><button id="clearChat">Clear our chat</button></div>
+      <div class="row"><select id="chatWho" aria-label="Who are you talking to" style="display:none"></select><button id="wakeBtn" class="lightonly">Wake me</button><button id="goodnightBtn" class="candleonly">Say goodnight</button><button id="clearChat">Clear our chat</button></div>
       <div class="thread" id="thread" aria-live="polite" style="margin-top:10px"></div>
       <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="Write a message" aria-label="Your message" maxlength="500"><button class="primary" id="send">Send</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
       <div id="news" style="display:none;margin-top:10px"></div>
@@ -218,7 +223,7 @@
 
     <h2 class="keepHead" id="keepHead" style="display:none"></h2>
 
-    <section data-keep="wake" class="card wide" id="wakeCard">
+    <section data-keep="wake" class="card wide lightonly" id="wakeCard">
       <h2>Wake time</h2>
       <p class="hint">The sun is at full strength at this time. It starts coming up before it.</p>
       <div class="row">
@@ -235,21 +240,21 @@
       <div class="row" style="margin-top:12px"><button class="primary" id="saveWake">Save</button></div>
       <p class="msg" id="wakeMsg"></p>
     </section>
-    <section data-keep="sunrise" class="card wide" id="skyCard">
+    <section data-keep="sunrise" class="card wide lightonly" id="skyCard">
       <h2>The sunrise</h2>
       <p class="hint">A preview of the colors on this screen. Drag to see any moment. The real strip will look a little different.</p>
       <div class="sky" id="sky"><div class="sun" id="sun"></div></div>
       <input type="range" id="scrub" min="0" max="100" value="60" aria-label="Moment in the sunrise">
       <div class="row" style="margin-top:8px"><button id="play">Play it</button></div>
     </section>
-    <section data-keep="reminders" class="card wide" id="remCard">
+    <section data-keep="reminders" class="card wide lightonly" id="remCard">
       <h2>Reminders</h2>
       <p class="hint">Write one reminder per line, for example "Take your morning pills." The fairy says them in your words, after the greeting and before the question about the news. Nothing is added and no advice is given. Up to five. They are kept on the website behind your sun's access code.</p>
       <textarea id="rems" rows="4" maxlength="1200" aria-label="Reminders, one per line"></textarea>
       <div class="row" style="margin-top:12px"><button class="primary" id="saveRem">Save the reminders</button></div>
       <p class="msg" id="remMsg"></p>
     </section>
-    <section data-keep="music" class="card wide" id="musicCard">
+    <section data-keep="music" class="card wide lightonly" id="musicCard">
       <h2>Music</h2>
       <p class="hint">Play Apple Music or Spotify from here. Each listener signs in with their own subscription (Spotify needs Premium). Apple Music plays on the device that has this panel open. Spotify can play on this panel in a computer browser, or this panel can act as a remote for any other Spotify device, such as a phone. Your browser needs a tap first, so music cannot start by itself at wake time.</p>
       <p class="msg" id="musicNeed" style="display:none"></p>
@@ -343,6 +348,14 @@
     pal.addEventListener('change', function () { palette(pal.value); try { localStorage.setItem('sun_palette', pal.value); } catch (e) {} });
     label();
     btn.addEventListener('click', function () { var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); try { localStorage.setItem('sun_panel_theme', n); } catch (e) {} label(); });
+  })();
+  /* Which product the owner has: the light, a candle, or both. It only decides which cards show; later the code that comes with each product will say it. */
+  (function () {
+    var sel = document.getElementById('product');
+    function apply(v) { document.body.classList.remove('p-light', 'p-candle', 'p-both'); document.body.classList.add('p-' + v); }
+    var saved = 'light'; try { var x = localStorage.getItem('sun_product'); if (x === 'candle' || x === 'both' || x === 'light') saved = x; } catch (e) {}
+    sel.value = saved; apply(saved);
+    sel.addEventListener('change', function () { apply(sel.value); try { localStorage.setItem('sun_product', sel.value); } catch (e) {} });
   })();
   /* Owner view: ETL only. ?owner=1 turns it on in this browser, ?owner=0 turns it off. Customers never have it: ETL holds the provider keys, they sign in to their own music account. */
   var OWNER = false;
@@ -522,6 +535,7 @@
   }
   function wake() { return ask({ step: 'wake' }); }
   $('wakeBtn').onclick = wake;
+  $('goodnightBtn').onclick = function () { $('heard').value = 'Goodnight.'; $('send').onclick(); };
   $('chatWho').onchange = function () { selectFairy($('chatWho').value); };
   $('clearChat').onclick = function () { if (confirm('Wipe your chat with ' + ((all[who()] || {}).name || 'your fairy') + '?')) api(BRAIN, { step: 'clear', fairy: who() }).then(empty); };
   $('send').onclick = function () {
