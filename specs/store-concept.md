@@ -326,8 +326,7 @@ The Astra-9 session arranged it as a route (a suggestion, not a decision):
 
 LumVivo: the name on the hologram page's box mode (`good-company/hologram.html`,
 "light in the living"), where a tablet lies face down in the lid and keys 1 to 5 are
-the box buttons. Dr. O, 2026-10-18: LumVivo is the box, and she is making it now
-with David.
+the box buttons. Dr. O, 2026-10-18: LumVivo is the box, and she is making it now.
 The one-pager describes it as a tabletop hologram: a figure on black reflects off a sheet
 of angled clear glass, a visitor presses a lit button to choose a character (up to five
 per pod), and a speakerphone on the table serves as microphone and speaker. Status in the
