@@ -43,6 +43,8 @@ function cleanPatch(body) {
   }
   if (typeof body.apple_key_id === 'string' && apple.ID10.test(body.apple_key_id.trim().toUpperCase())) out.apple_key_id = body.apple_key_id.trim().toUpperCase();
   if (typeof body.apple_private_key === 'string') { const k = apple.cleanPrivateKey(body.apple_private_key); if (k) out.apple_private_key = k; }
+  /* The Spotify client id is public (it is in the sign-in address), so it is not hidden. 32 letters and numbers, or empty to clear. */
+  if (typeof body.spotify_client_id === 'string') { const c = body.spotify_client_id.trim().toLowerCase(); if (c === '' || /^[a-f0-9]{32}$/.test(c)) out.spotify_client_id = c; }
   /* The Bedrock key is kept in the private record, not an environment variable, because the site is at its limit of those (see _gc-config.js). Write-only, like the calendar link. */
   if (typeof body.bedrock_key === 'string') {
     const k = body.bedrock_key.trim();

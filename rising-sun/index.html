@@ -149,10 +149,11 @@
 
     <section class="card wide" id="musicCard">
       <h2>5. Music</h2>
-      <p class="hint">Play Apple Music from here. It plays on the device that has this panel open, such as a tablet beside the sun. The listener signs in with their own Apple Music subscription, and without one only short previews play. Your browser needs a tap first, so music cannot start by itself at wake time.</p>
-      <p class="msg" id="musicNeed" style="display:none">Save your Apple key under Connections first.</p>
-      <div class="row"><button class="primary" id="musicConnect">Connect Apple Music</button><span class="msg" id="musicState" style="margin:0"></span></div>
+      <p class="hint">Play Apple Music or Spotify from here. Each listener signs in with their own subscription (Spotify needs Premium), so ETL pays nothing for the music. Apple Music plays on the device that has this panel open. Spotify can play on this panel in a computer browser, or this panel can act as a remote for any other Spotify device, such as a phone. Your browser needs a tap first, so music cannot start by itself at wake time.</p>
+      <p class="msg" id="musicNeed" style="display:none"></p>
+      <div class="row"><select id="musicSvc" aria-label="Music service"><option value="apple">Apple Music</option><option value="spotify">Spotify</option></select><button class="primary" id="musicConnect">Connect Apple Music</button><span class="msg" id="musicState" style="margin:0"></span></div>
       <div id="musicBox" style="display:none">
+        <div id="spDevRow" style="display:none;margin-top:12px"><div class="row"><select id="spDevice" aria-label="Play on which device"></select><button id="spDevRefresh">Refresh devices</button></div><p class="hint" style="margin:6px 0 0">Play on this panel (computer browsers only) or on any other Spotify device you are signed in on, such as your phone. Open the Spotify app on a device first if it is not listed.</p></div>
         <div class="row" style="margin-top:12px"><input type="text" id="musicTerm" placeholder="A song, an artist, an album or a playlist" aria-label="Search Apple Music"><button id="musicGo">Search</button><button id="musicMine">My playlists</button></div>
         <div id="musicList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
         <div class="said" id="nowPlaying" style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -190,10 +191,15 @@
       <textarea id="apPem" rows="4" autocomplete="off" placeholder="Paste the whole .p8 file here" aria-label="Apple private key" style="margin-top:8px"></textarea>
       <div class="row" style="margin-top:8px"><button id="saveApple">Save the Apple key</button><button id="clearApple">Remove it</button></div>
       <p class="msg" id="appleMsg"></p>
+      <h2 style="margin-top:18px;font-size:18px">Spotify</h2>
+      <p class="hint">For the music player. Make a free app at developer.spotify.com, then paste its Client ID here. The Client ID is public and not a secret, and no Spotify secret is used or kept anywhere. In the Spotify app's settings, add this exact address as a Redirect URI: <code id="spRedirect"></code>. The listener signs in with their own Spotify Premium account.</p>
+      <div class="row"><input type="text" id="spClient" autocomplete="off" placeholder="Client ID (32 letters and numbers)" aria-label="Spotify client id"><button id="saveSp">Save the Client ID</button><button id="clearSp">Remove it</button></div>
+      <p class="msg" id="spMsg"></p>
     </section>
   </div>
 </div>
 
+<script src="spotify.js"></script>
 <script>
 (function () {
   var SET = '/.netlify/functions/sun-settings', BRAIN = '/.netlify/functions/sun-morning';
@@ -210,8 +216,8 @@
   function paint() {
     $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
     $('rems').value = (s.reminders || []).join('\n');
-    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet') + (s.apple_set ? ', Apple key saved' : '');
-    $('musicNeed').style.display = s.apple_set ? 'none' : ''; $('musicConnect').disabled = !s.apple_set;
+    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet') + (s.apple_set ? ', Apple key saved' : '') + (s.spotify_client_id ? ', Spotify id saved' : '');
+    musicSvcChanged();
     var sel = $('chatWho'), keep = sel.value, first = !sel.options.length;
     sel.innerHTML = '';
     Object.keys(all).forEach(function (id) { var o = document.createElement('option'); o.value = id; o.textContent = all[id].name || id; sel.appendChild(o); });
@@ -237,7 +243,7 @@
     return api(SET, patch).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); if (msgId) say(msgId, 'Saved.'); return j; }).catch(function (e) { if (msgId) say(msgId, e.message, true); else say('keyMsg', e.message, true); throw e; });
   }
   function load() {
-    return api(SET).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); say('keyMsg', ''); store('sunKey', key); }).catch(function (e) { say('keyMsg', e.message, true); $('status').className = 'status'; $('statusText').textContent = 'Not connected'; });
+    return api(SET).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); say('keyMsg', ''); store('sunKey', key); spResume(); }).catch(function (e) { say('keyMsg', e.message, true); $('status').className = 'status'; $('statusText').textContent = 'Not connected'; });
   }
   $('connect').onclick = function () { key = $('key').value.trim(); if (key) load(); };
   $('saveWake').onclick = function () { save({ wake_hour: +$('wh').value, wake_min: +$('wm').value, sunrise_minutes: +$('len').value, zone: $('zone').value }, 'wakeMsg'); };
@@ -346,6 +352,7 @@
     if (!n) { var d = document.createElement('div'); d.className = 'hint'; d.textContent = 'Nothing found.'; box.appendChild(d); }
   }
   function playItem(item, kind) {
+    if (item.svc === 'spotify') return spPlay(item, kind);
     var q = {}; var id = item.id;
     if (kind === 'songs') q.song = id; else if (kind === 'albums') q.album = id; else q.playlist = id;
     mk.setQueue(q).then(function () { return mk.play(); }).catch(function (e) { mstate('Could not play that: ' + (e && e.message || e), true); });
@@ -366,7 +373,7 @@
       mk.addEventListener('playbackStateDidChange', refreshNow); mk.addEventListener('nowPlayingItemDidChange', refreshNow);
       return mk.authorize();
     }).then(function () {
-      $('musicBox').style.display = ''; mstate('Connected to Apple Music.'); $('musicConnect').textContent = 'Reconnect'; refreshNow();
+      appleOn = true; musicSvcChanged(); mstate('Connected to Apple Music.'); refreshNow();
     }).catch(function (e) { mstate(e && e.message ? e.message : 'Could not connect to Apple Music.', true); });
   }
   function musicSearch() {
@@ -382,14 +389,142 @@
     mk.api.music('/v1/me/library/playlists', { limit: 25 }).then(function (r) { showResults([{ kind: 'library-playlists', items: (r && r.data && r.data.data) || [] }]); })
       .catch(function (e) { mstate('Could not read your playlists: ' + (e && e.message || e), true); });
   }
-  $('musicConnect').onclick = connectMusic;
-  $('musicGo').onclick = musicSearch;
-  $('musicTerm').onkeydown = function (e) { if (e.key === 'Enter') musicSearch(); };
-  $('musicMine').onclick = musicMine;
-  $('mPlay').onclick = function () { if (!mk) return; (mk.isPlaying ? mk.pause() : mk.play()).catch(function () {}); };
-  $('mNext').onclick = function () { if (mk) mk.skipToNextItem().catch(function () {}); };
-  $('mPrev').onclick = function () { if (mk) mk.skipToPreviousItem().catch(function () {}); };
-  $('mVol').oninput = function () { if (mk) mk.volume = $('mVol').value / 100; };
+  function svc() { return $('musicSvc').value; }
+  var appleOn = false, spOn = false;
+  function musicSvcChanged() {
+    var sp = svc() === 'spotify';
+    $('musicConnect').textContent = (sp ? (spOn ? 'Reconnect Spotify' : 'Connect Spotify') : (appleOn ? 'Reconnect Apple Music' : 'Connect Apple Music'));
+    var need = sp ? (s && s.spotify_client_id ? '' : 'Save your Spotify Client ID under Connections first.') : (s && s.apple_set ? '' : 'Save your Apple key under Connections first.');
+    $('musicNeed').textContent = need; $('musicNeed').style.display = need ? '' : 'none'; $('musicConnect').disabled = !!need;
+    $('musicBox').style.display = (sp ? spOn : appleOn) ? '' : 'none';
+    $('spDevRow').style.display = sp ? '' : 'none';
+    $('musicList').innerHTML = ''; mstate('');
+    if (sp && spOn) { spPollStart(); } else { spPollStop(); }
+    if (!sp) refreshNow();
+  }
+  $('musicSvc').onchange = musicSvcChanged;
+
+  /* Spotify. Sign-in is PKCE, so no secret exists. The tokens stay in this browser only. NOT TRIED against Spotify. */
+  var SPK = 'sunSpotify', spTok = null, spPlayer = null, spThis = '', spTimer = null, spState = null;
+  try { spTok = JSON.parse(localStorage.getItem(SPK) || 'null'); } catch (e) { spTok = null; }
+  function spSaveTok(t) { spTok = t; try { if (t) localStorage.setItem(SPK, JSON.stringify(t)); else localStorage.removeItem(SPK); } catch (e) {} }
+  function redirectUri() { return location.origin + location.pathname; }
+  $('spRedirect').textContent = redirectUri();
+  function spForm(body) { return fetch('https://accounts.spotify.com/api/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error_description || j.error || 'Spotify sign-in failed.'); return j; }); }); }
+  function spToken() {
+    if (SunSpotify.fresh(spTok)) return Promise.resolve(spTok.access);
+    if (spTok && spTok.refresh && s.spotify_client_id) return spForm(SunSpotify.refreshBody({ refresh: spTok.refresh, clientId: s.spotify_client_id })).then(function (j) { spSaveTok(SunSpotify.keep(j, spTok)); return spTok.access; });
+    return Promise.reject(new Error('Sign in to Spotify again.'));
+  }
+  function spApi(method, path, body) {
+    return spToken().then(function (tk) {
+      var o = { method: method, headers: { Authorization: 'Bearer ' + tk } };
+      if (body) { o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(body); }
+      return fetch('https://api.spotify.com/v1' + path, o);
+    }).then(function (r) {
+      if (r.status === 204 || r.status === 202) return null;
+      return r.text().then(function (t) {
+        var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {}
+        if (!r.ok) throw new Error(r.status === 403 ? 'Spotify says this needs Premium, or that device cannot be controlled.' : (j && j.error && j.error.message) || ('Spotify said ' + r.status));
+        return j;
+      });
+    });
+  }
+  function spStart() {
+    var v = SunSpotify.verifier(), st = SunSpotify.randomString(16);
+    try { sessionStorage.setItem('sunSpV', v); sessionStorage.setItem('sunSpS', st); } catch (e) { mstate('This browser would not keep the sign-in step. Try another.', true); return; }
+    SunSpotify.challenge(v).then(function (c) { location.href = SunSpotify.authUrl({ clientId: s.spotify_client_id, redirectUri: redirectUri(), challenge: c, state: st }); });
+  }
+  /* Back from Spotify: ?code= and ?state= in the address. */
+  function spResume() {
+    var q = new URLSearchParams(location.search), code = q.get('code'), st = q.get('state'), v = null, want = null;
+    try { v = sessionStorage.getItem('sunSpV'); want = sessionStorage.getItem('sunSpS'); } catch (e) {}
+    if (q.get('error')) { history.replaceState(null, '', location.pathname); $('musicSvc').value = 'spotify'; musicSvcChanged(); mstate('Spotify did not sign you in: ' + q.get('error'), true); return; }
+    if (code && st && v && st === want && s && s.spotify_client_id) {
+      history.replaceState(null, '', location.pathname);
+      try { sessionStorage.removeItem('sunSpV'); sessionStorage.removeItem('sunSpS'); } catch (e) {}
+      $('musicSvc').value = 'spotify'; mstate('Signing in to Spotify...');
+      spForm(SunSpotify.codeBody({ code: code, redirectUri: redirectUri(), clientId: s.spotify_client_id, verifier: v })).then(function (j) { spSaveTok(SunSpotify.keep(j, null)); return spReady(); })
+        .catch(function (e) { mstate(e.message, true); });
+      $('musicCard').scrollIntoView({ block: 'nearest' });
+    }
+  }
+  function spConnect() {
+    if (!s.spotify_client_id) return;
+    if (!SunSpotify.fresh(spTok) && !(spTok && spTok.refresh)) return spStart();
+    mstate('Connecting...'); return spReady().catch(function () { spSaveTok(null); spStart(); });
+  }
+  function spReady() {
+    return spToken().then(function () {
+      spOn = true; $('musicSvc').value = 'spotify'; musicSvcChanged(); mstate('Connected to Spotify.');
+      spInitPlayer(); return spDevices();
+    });
+  }
+  function spInitPlayer() {
+    if (spPlayer || document.getElementById('spSdk')) return;
+    window.onSpotifyWebPlaybackSDKReady = function () {
+      try {
+        spPlayer = new Spotify.Player({ name: 'The Rising Sun panel', getOAuthToken: function (cb) { spToken().then(cb).catch(function () {}); }, volume: 0.7 });
+        spPlayer.addListener('ready', function (e) { spThis = e.device_id; spDevices(spThis); });
+        spPlayer.addListener('not_ready', function () { spThis = ''; spDevices(); });
+        spPlayer.addListener('initialization_error', function () { mstate('This browser cannot play Spotify itself. Choose another Spotify device above, such as your phone.'); });
+        spPlayer.addListener('authentication_error', function () { mstate('Spotify sign-in ran out. Press Reconnect Spotify.', true); });
+        spPlayer.addListener('account_error', function () { mstate('Spotify Premium is needed to play here.', true); });
+        spPlayer.connect();
+        try { spPlayer.activateElement(); } catch (e) {}
+      } catch (e) { mstate('Spotify player could not start.', true); }
+    };
+    var sc = document.createElement('script'); sc.id = 'spSdk'; sc.src = 'https://sdk.scdn.co/spotify-player.js'; sc.async = true; document.head.appendChild(sc);
+  }
+  function spDevices(prefer) {
+    return spApi('GET', '/me/player/devices').then(function (j) {
+      var list = (j && j.devices) || [], sel = $('spDevice'), keep = prefer || sel.value;
+      sel.innerHTML = '';
+      if (!list.length) { var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'No Spotify device found. Open Spotify on a phone or computer.'; sel.appendChild(o0); return; }
+      list.forEach(function (d) { var o = document.createElement('option'); o.value = d.id; o.textContent = d.name + (d.id === spThis ? ' (this panel)' : '') + (d.is_active ? ' (playing)' : ''); sel.appendChild(o); });
+      var act = list.filter(function (d) { return d.is_active; })[0];
+      sel.value = list.some(function (d) { return d.id === keep; }) ? keep : (act ? act.id : list[0].id);
+    }).catch(function (e) { mstate(e.message, true); });
+  }
+  function spDevParam(first) { var d = $('spDevice').value; return d ? (first ? '?' : '&') + 'device_id=' + encodeURIComponent(d) : ''; }
+  function spPlay(item, kind) {
+    var body = kind === 'songs' ? { uris: [item.uri] } : { context_uri: item.uri };
+    spApi('PUT', '/me/player/play' + spDevParam(true), body).then(function () { setTimeout(spNow, 800); }).catch(function (e) { mstate('Could not play that: ' + e.message, true); });
+  }
+  function spSearch() {
+    var term = $('musicTerm').value.trim(); if (!term) return;
+    spApi('GET', '/search?type=track,album,playlist&limit=8&q=' + encodeURIComponent(term)).then(function (j) {
+      var map = function (kind, node) { return { kind: kind, items: ((node && node.items) || []).map(function (x) { return SunSpotify.row(kind, x); }).filter(Boolean) }; };
+      showResults([map('songs', j.tracks), map('albums', j.albums), map('playlists', j.playlists)]);
+    }).catch(function (e) { mstate('Search failed: ' + e.message, true); });
+  }
+  function spMine() {
+    spApi('GET', '/me/playlists?limit=25').then(function (j) { showResults([{ kind: 'library-playlists', items: ((j && j.items) || []).map(function (x) { return SunSpotify.row('playlists', x); }).filter(Boolean) }]); })
+      .catch(function (e) { mstate('Could not read your playlists: ' + e.message, true); });
+  }
+  function spNow() {
+    if (svc() !== 'spotify' || !spOn) return;
+    spApi('GET', '/me/player').then(function (st) {
+      spState = st; var it = st && st.item;
+      $('npText').textContent = it ? it.name + ((it.artists || []).length ? ' · ' + it.artists.map(function (a) { return a.name; }).join(', ') : '') : 'Nothing playing.';
+      $('mPlay').textContent = st && st.is_playing ? 'Pause' : 'Play';
+    }).catch(function () {});
+  }
+  function spPollStart() { spPollStop(); spNow(); spTimer = setInterval(spNow, 4000); }
+  function spPollStop() { if (spTimer) { clearInterval(spTimer); spTimer = null; } }
+  function spToggle() { spApi('PUT', '/me/player/' + (spState && spState.is_playing ? 'pause' : 'play') + spDevParam(true)).then(function () { setTimeout(spNow, 500); }).catch(function (e) { mstate(e.message, true); }); }
+
+  $('musicConnect').onclick = function () { return svc() === 'spotify' ? spConnect() : connectMusic(); };
+  $('musicGo').onclick = function () { return svc() === 'spotify' ? spSearch() : musicSearch(); };
+  $('musicTerm').onkeydown = function (e) { if (e.key === 'Enter') $('musicGo').onclick(); };
+  $('musicMine').onclick = function () { return svc() === 'spotify' ? spMine() : musicMine(); };
+  $('spDevRefresh').onclick = function () { spDevices(); };
+  $('mPlay').onclick = function () { if (svc() === 'spotify') return spToggle(); if (!mk) return; (mk.isPlaying ? mk.pause() : mk.play()).catch(function () {}); };
+  $('mNext').onclick = function () { if (svc() === 'spotify') { spApi('POST', '/me/player/next' + spDevParam(true)).then(function () { setTimeout(spNow, 800); }).catch(function (e) { mstate(e.message, true); }); } else if (mk) mk.skipToNextItem().catch(function () {}); };
+  $('mPrev').onclick = function () { if (svc() === 'spotify') { spApi('POST', '/me/player/previous' + spDevParam(true)).then(function () { setTimeout(spNow, 800); }).catch(function (e) { mstate(e.message, true); }); } else if (mk) mk.skipToPreviousItem().catch(function () {}); };
+  $('mVol').oninput = function () { if (svc() === 'spotify') { spApi('PUT', '/me/player/volume?volume_percent=' + $('mVol').value + spDevParam(false)).catch(function () {}); } else if (mk) mk.volume = $('mVol').value / 100; };
+  $('saveSp').onclick = function () { var v = $('spClient').value.trim(); if (!v) return; save({ spotify_client_id: v }, 'spMsg').then(function () { if (s.spotify_client_id) $('spClient').value = ''; else say('spMsg', 'That did not look right. A Client ID is 32 letters and numbers.', true); }); };
+  $('clearSp').onclick = function () { save({ spotify_client_id: '' }, 'spMsg'); spSaveTok(null); spOn = false; spPollStop(); musicSvcChanged(); };
   $('saveApple').onclick = function () {
     var p = { apple_team_id: $('apTeam').value, apple_key_id: $('apKey').value, apple_private_key: $('apPem').value };
     if (!p.apple_team_id.trim() || !p.apple_key_id.trim() || !p.apple_private_key.trim()) { say('appleMsg', 'Fill in all three.', true); return; }
