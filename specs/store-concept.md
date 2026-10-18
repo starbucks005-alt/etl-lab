@@ -311,7 +311,8 @@ The Astra-9 session arranged it as a route (a suggestion, not a decision):
 
 LumVivo: the name on the hologram page's box mode (`good-company/hologram.html`,
 "light in the living"), where a tablet lies face down in the lid and keys 1 to 5 are
-the box buttons. It appears to be the name for the hologram pod. Not confirmed here.
+the box buttons. Dr. O, 2026-10-18: LumVivo is the box, and she is making it now
+with David.
 
 ## What the shop needs, and what is not proven (2026-10-18)
 
@@ -353,6 +354,9 @@ current quote:
   coming, then think about space, installation and training.
 - Open: what does a printed figurine cost per piece, and does the color quality
   suit a bespoke figurine? Not known yet.
+- Dr. O sent this printer information to Vikram (2026-10-18). Nothing is signed.
+  Anything sent to a print service or to the college should keep the figurine files
+  and designs hers, and share only what is needed.
 
 ## Open questions
 
