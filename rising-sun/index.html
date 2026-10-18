@@ -65,6 +65,13 @@
   .fairy p{margin:0;font-size:14px;flex:1}
   .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:12px;background:var(--accent-bg);color:var(--accent);width:max-content}
   .said{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--status-bg);color:var(--ink);min-height:1.4em}
+  .thread{border:1px solid var(--line);border-radius:12px;background:var(--field);padding:12px;height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+  .bub{max-width:82%;padding:9px 13px;border-radius:14px;font-size:15px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+  .bub.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:4px}
+  .bub.her{align-self:flex-start;background:var(--status-bg);color:var(--ink);border-bottom-left-radius:4px}
+  .bub .who{display:block;font-size:11px;font-family:var(--mono);color:var(--mute);margin-bottom:2px}
+  .bub.pending{opacity:.6}
+  .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
   .msg{font-size:13px;color:var(--mute);margin:8px 0 0;min-height:1.2em}
   .msg.bad{color:#b3261e}
 </style>
@@ -131,13 +138,13 @@
     </section>
 
     <section class="card wide" id="tryCard">
-      <h2>4. Talk to her</h2>
-      <p class="hint">The same thing the sun does at wake time. Press Wake me, then say or type what you want.</p>
-      <div class="row"><button class="primary" id="wakeBtn">Wake me</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
-      <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="The news, my calendar, or something else" aria-label="What you say"><button id="send">Send</button></div>
-      <div class="said" id="said" aria-live="polite"></div>
+      <h2>4. Text your fairy</h2>
+      <p class="hint">Pick who you want to talk to and write to her, the way you would text a friend. She remembers what you told her, so tomorrow she can ask how it went. Each fairy keeps her own conversation. Ask for the news and she plays Above the Fold. What you write is kept on the website behind the key, and "Clear our chat" wipes it.</p>
+      <div class="row"><select id="chatWho" aria-label="Who are you talking to"></select><button id="wakeBtn">Wake me</button><button id="clearChat">Clear our chat</button></div>
+      <div class="thread" id="thread" aria-live="polite" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="Write to her" aria-label="Your message" maxlength="500"><button class="primary" id="send">Send</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
       <div id="news" style="display:none;margin-top:10px"></div>
-      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice (uses a little of the Azure credit each time)</label>
+      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice (uses a little of the ElevenLabs credit each time)</label>
     </section>
 
     <section class="card wide" id="remCard">
@@ -182,6 +189,11 @@
     $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
     $('rems').value = (s.reminders || []).join('\n');
     $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet');
+    var sel = $('chatWho'), keep = sel.value, first = !sel.options.length;
+    sel.innerHTML = '';
+    Object.keys(all).forEach(function (id) { var o = document.createElement('option'); o.value = id; o.textContent = all[id].name || id; sel.appendChild(o); });
+    sel.value = all[keep] ? keep : s.fairy;
+    if (first) loadThread();
     var box = $('fairies'); box.innerHTML = '';
     Object.keys(all).forEach(function (id) {
       var f = all[id], d = document.createElement('div'); d.className = 'fairy' + (s.fairy === id ? ' on' : '');
@@ -191,7 +203,7 @@
       var p = document.createElement('p'); p.textContent = f.voice ? 'Voice id ends ' + f.voice.slice(-4) : 'No voice yet, words only';
       var r = document.createElement('div'); r.className = 'row';
       var use = document.createElement('button'); use.textContent = 'Use her'; use.disabled = s.fairy === id; use.onclick = function () { save({ fairy: id }, null); };
-      var hear = document.createElement('button'); hear.textContent = 'Hear her'; hear.onclick = function () { ask({ step: 'wake', fairy: id }, true); };
+      var hear = document.createElement('button'); hear.textContent = 'Hear her'; hear.onclick = function () { $('chatWho').value = id; loadThread().then(function () { ask({ step: 'wake', fairy: id }, true); }); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
       var ed = document.createElement('button'); ed.textContent = 'Change her words'; ed.onclick = function () { edit(id); };
       r.appendChild(use); r.appendChild(hear); r.appendChild(ed);
       d.appendChild(t); d.appendChild(h3); d.appendChild(p); d.appendChild(r); box.appendChild(d);
@@ -230,25 +242,53 @@
   };
   $('delFairy').onclick = function () { if (confirm('Remove her?')) save({ delete_fairy: editing }, null).then(function () { $('editCard').style.display = 'none'; }); };
   $('saveFairy').onclick = saveFairy;
-  $('hearFairy').onclick = function () { saveFairy().then(function () { return save({ fairy: editing }, null); }).then(function () { wake(); }).catch(function () {}); };
+  $('hearFairy').onclick = function () { saveFairy().then(function () { return save({ fairy: editing }, null); }).then(function () { $('chatWho').value = editing; return loadThread().then(function () { return ask({ step: 'wake', fairy: editing }, true); }); }).catch(function () {}); };
 
-  function show(j) {
-    $('said').textContent = j.say || '';
-    var news = $('news'); news.innerHTML = ''; news.style.display = 'none';
+  var thread = null;
+  function who() { return $('chatWho').value || s.fairy; }
+  function bubble(role, text, pending) {
+    var el = $('thread'), e = el.querySelector('.empty'); if (e) e.remove();
+    var b = document.createElement('div'); b.className = 'bub ' + (role === 'user' ? 'me' : 'her') + (pending ? ' pending' : '');
+    if (role !== 'user') { var w = document.createElement('span'); w.className = 'who'; w.textContent = (all[who()] || {}).name || ''; b.appendChild(w); }
+    b.appendChild(document.createTextNode(text)); el.appendChild(b); el.scrollTop = el.scrollHeight; return b;
+  }
+  function empty() { var el = $('thread'); el.innerHTML = ''; var d = document.createElement('div'); d.className = 'empty'; d.textContent = 'Nothing yet. Say good morning to ' + ((all[who()] || {}).name || 'her') + '.'; el.appendChild(d); }
+  function loadThread() {
+    var f = who(); if (!f) return Promise.resolve();
+    return api(BRAIN, { step: 'history', fairy: f }).then(function (j) {
+      $('thread').innerHTML = ''; var h = j.history || [];
+      if (!h.length) return empty();
+      h.forEach(function (m) { bubble(m.role, m.text); });
+    }).catch(function () { empty(); });
+  }
+  function news(j) {
+    var box = $('news'); box.innerHTML = ''; box.style.display = 'none'; var a = null;
     if (j.news) {
-      news.style.display = '';
-      var a = document.createElement('audio'); a.controls = true; a.src = j.news.audio_url; a.style.width = '100%'; news.appendChild(a);
+      box.style.display = '';
+      a = document.createElement('audio'); a.controls = true; a.src = j.news.audio_url; a.style.width = '100%'; box.appendChild(a);
       var ul = document.createElement('ul'); ul.style.cssText = 'margin:8px 0 0;padding-left:1.2rem;font-size:14px';
       (j.news.headlines || []).forEach(function (t) { var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
-      news.appendChild(ul);
-      if (j.audio) { var intro = new Audio('data:audio/mpeg;base64,' + j.audio); intro.onended = function () { a.play().catch(function () {}); }; intro.play().catch(function () {}); }
-      else a.play().catch(function () {});
-    } else if (j.audio) { try { new Audio('data:audio/mpeg;base64,' + j.audio).play(); } catch (e) {} }
+      box.appendChild(ul);
+    }
+    if (j.audio) { var v = new Audio('data:audio/mpeg;base64,' + j.audio); if (a) v.onended = function () { a.play().catch(function () {}); }; v.play().catch(function () {}); }
+    else if (a) a.play().catch(function () {});
   }
-  function ask(body, forceAudio) { body.audio = forceAudio || $('wantAudio').checked; return api(BRAIN, body).then(show).catch(function (e) { $('said').textContent = e.message; }); }
+  function reply(j) { bubble('fairy', j.say || ''); news(j); }
+  function ask(body, forceAudio) {
+    body.audio = forceAudio || $('wantAudio').checked; body.fairy = body.fairy || who();
+    return api(BRAIN, body).then(reply).catch(function (e) { bubble('fairy', e.message); });
+  }
   function wake() { return ask({ step: 'wake' }); }
   $('wakeBtn').onclick = wake;
-  $('send').onclick = function () { var t = $('heard').value; if (t.trim()) ask({ step: 'answer', heard: t }); };
+  $('chatWho').onchange = function () { $('news').style.display = 'none'; loadThread(); };
+  $('clearChat').onclick = function () { if (confirm('Wipe your chat with ' + ((all[who()] || {}).name || 'her') + '?')) api(BRAIN, { step: 'clear', fairy: who() }).then(empty); };
+  $('send').onclick = function () {
+    var t = $('heard').value.trim(); if (!t) return; $('heard').value = '';
+    bubble('user', t); var wait = bubble('fairy', '...', true);
+    api(BRAIN, { step: 'chat', fairy: who(), text: t, audio: $('wantAudio').checked })
+      .then(function (j) { wait.remove(); reply(j); })
+      .catch(function (e) { wait.remove(); bubble('fairy', e.message); });
+  };
   $('heard').onkeydown = function (e) { if (e.key === 'Enter') $('send').onclick(); };
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) $('micBtn').style.display = 'none';
