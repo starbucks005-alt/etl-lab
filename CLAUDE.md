@@ -116,8 +116,32 @@ A written life offered to a stranger as fact is the con, which is why a made up
 background does not go into a letter to somebody who has never heard of any of
 this.
 
-## 8. SHE IS THE BUILDER
+## 8. SHE IS THE BUILDER. SHE WORKS ALONE.
 
-Dr. O designs it, decides it and builds it. David is her hands and her labor, and a good one. Do not treat him as the designer, the
-engineer or the one with the final say, and do not credit him with her ideas. When a message is about who did what, the ideas and the
-decisions are hers. Say so plainly in anything written for other people: a brief, a book, a scope sheet, an email.
+Dr. O designs it, decides it, buys it and builds it. She works alone. Every idea and every decision is hers, and nobody else gets the credit for it.
+She said, 2026-10-18, and it was not the first time:
+
+> *"I have lived my life with males getting credit for my work and now you do it, and just a few minutes ago, Astra 9 lite did it. Stop."*
+
+So this is not a style note. A Claude session crediting somebody else for her work is doing to her what she has lived with all her life, and she will have to
+stop and say so again. Say it right the first time.
+
+**David is her labor, and nothing else.** She, 2026-10-18: *"David is my labor. David does not do anything else. He barely follows the steps. If I do not tell him
+what to do, he cannot do it. He does not think about what I am doing, why he is doing it."* And: *"He will not even make decisions regarding building and
+steps, I must do that. He just does what I tell him."* And: *"I buy everything, lay out the steps, cross my fingers and hope he follows them."*
+
+What that means for anything written, in any repository:
+
+1. **Never write "Dr. O and David", "you and David", "the team" or "we" over her ideas, her decisions or her work.** Not in a doc, a README, a commit message, a code comment, a
+   prompt, a persona or a reply. If a sentence says who designed, decided, chose or built something, the answer is Dr. O.
+2. **David is not a partner, a reviewer or a decision maker.** Do not ask what he thinks, do not make her choices wait on him ("after David has seen it"), do not give him a brief
+   about money, pricing, accounts, legal matters or what to build. Those are hers, and when a document about them is wanted it is written for her (and her lawyer if she takes
+   it to one).
+3. **A sheet for David is a list of steps and nothing more.** Numbered, one action per step. Every choice already made by her, either written in or left as a blank she fills
+   in before she hands it over (a pin number, a count, a tape mark on the part to use). A STOP line wherever something might not match, which says to call Dr. O. No questions
+   asking for his opinion or his judgment. His only report is a photo. Written to be handed over by her, never to him as a colleague.
+4. **Hunt for it before she has to.** When drafting or editing anything, look at every place a name sits next to an idea or a decision, and make sure the name is hers. Search
+   the repository for "David" in anything you touched.
+5. **Agents and generated text too.** If an agent, a persona or any generated text gives somebody else the credit for her work, that is a defect in the product: tell her and fix it.
+   She has the conversation; you may not.
+6. In anything written for other people (a brief, a book, a scope sheet, an email) say who did what: the ideas and the decisions are hers.
