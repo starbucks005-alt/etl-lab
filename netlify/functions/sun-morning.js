@@ -8,6 +8,8 @@
    Every call needs the header x-sun-key to equal SUN_DEVICE_KEY, because each answer can spend Azure and Anthropic credits. With no key set it answers 503.
    The fairies are the shipped ones (rising-sun/personas.json) with whatever the panel saved laid over them (sun-settings.js), so the owner can change a greeting or add a fairy.
 
+   REMINDERS: lines the owner wrote on the panel are spoken as written after the greeting and before the question, "Dr. O, 2026-10-18: reminder to take your meds". She adds nothing and advises nothing.
+
    THE NEWS is Above the Fold, ETL Newswire's daily briefing (Dr. O, 2026-10-18). "News" answers { say, news: { audio_url, headlines, duration_label, generated_at } }: she says one line
    and the device plays audio_url, the multi-voice briefing already recorded. If today's has not come out she says so and offers the last one. If none can be read she says that.
 
@@ -48,7 +50,10 @@ async function step(body, deps = {}) {
   const personas = deps.personas || PERSONAS;
   const p = personas[body.fairy] || personas[personas.chosen] || personas.default;
   if (!p) return { say: '', error: 'no_fairy' };
-  if (body.step === 'wake') return { say: p.greeting + ' ' + p.ask };
+  if (body.step === 'wake') {
+    const rem = (deps.reminders || []).filter(Boolean);
+    return { say: [p.greeting].concat(rem, [p.ask]).join(' '), reminders: rem.length };
+  }
   if (body.step !== 'answer') return { say: '', error: 'bad_step' };
   const choice = pick(body.heard);
   if (choice === 'nothing') return { say: 'I did not catch that. Try me again.', choice };
@@ -94,13 +99,13 @@ exports.handler = async function (event, _ctx, deps = {}) {
   if (!a.ok) return json(a.code, { error: a.error });
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }
-  let personas = deps.personas;
-  if (!personas) {
-    let saved = {};
+  let saved = deps.saved;
+  if (!saved) {
+    saved = {};
     try { saved = await sun.loadSettings(deps.store || (await sun.openStore(event))); } catch (_) {}   // no saved settings is fine: the shipped fairies are used
-    personas = sun.mergePersonas(PERSONAS, saved);
   }
-  deps = Object.assign({}, deps, { personas });
+  const personas = deps.personas || sun.mergePersonas(PERSONAS, saved);
+  deps = Object.assign({}, deps, { personas, reminders: deps.reminders || saved.reminders || [] });
   const out = await step(body, Object.assign({ event }, deps));
   if (out.error === 'bad_step' || out.error === 'no_fairy') return json(400, out);
   if (body.audio && out.say) {

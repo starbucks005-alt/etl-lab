@@ -139,8 +139,16 @@
       <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice (uses a little of the Azure credit each time)</label>
     </section>
 
+    <section class="card wide" id="remCard">
+      <h2>5. Reminders</h2>
+      <p class="hint">Write one reminder per line, for example "Take your morning pills." She says them in your words, after her greeting and before she asks about the news. She adds nothing and gives no advice. Up to five. They are kept on the website behind the key.</p>
+      <textarea id="rems" rows="4" maxlength="1200" aria-label="Reminders, one per line"></textarea>
+      <div class="row" style="margin-top:12px"><button class="primary" id="saveRem">Save the reminders</button></div>
+      <p class="msg" id="remMsg"></p>
+    </section>
+
     <section class="card wide" id="calCard">
-      <h2>5. Your calendar</h2>
+      <h2>6. Your calendar</h2>
       <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
       <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
       <p class="msg" id="calMsg"></p>
@@ -170,6 +178,7 @@
 
   function paint() {
     $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
+    $('rems').value = (s.reminders || []).join('\n');
     $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '');
     var box = $('fairies'); box.innerHTML = '';
     ids().forEach(function (id) {
@@ -239,6 +248,7 @@
   if (!SR) $('micBtn').style.display = 'none';
   else $('micBtn').onclick = function () { var r = new SR(); r.lang = 'en-US'; r.onresult = function (e) { $('heard').value = e.results[0][0].transcript; $('send').onclick(); }; r.start(); };
 
+  $('saveRem').onclick = function () { save({ reminders: $('rems').value.split('\n') }, 'remMsg'); };
   $('saveCal').onclick = function () { var u = $('calUrl').value.trim(); if (!u) return; save({ calendar_url: u }, 'calMsg').then(function () { $('calUrl').value = ''; }); };
   $('clearCal').onclick = function () { save({ calendar_url: '' }, 'calMsg'); };
 

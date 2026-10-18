@@ -10,6 +10,8 @@ const personas = require('../rising-sun/personas.json');
   assert.strictEqual((await m.step({ step: 'wake', fairy: 'arrogant' }, { personas })).say.split('?')[0], 'Are you ready to basque in my glory');
   assert((await m.step({ step: 'wake' }, { personas })).say.startsWith('Good morning, human.'));
   assert((await m.step({ step: 'wake', fairy: 'default' }, { personas })).say.includes('news, check your calendar, or something else'));
+  const wr = await m.step({ step: 'wake' }, { personas, reminders: ['Take your morning pills.', 'Drink some water.'] });
+  assert(wr.say.startsWith('Good morning, human. Take your morning pills. Drink some water. Good morning sunshine.') && wr.reminders === 2);   // her words, between the greeting and the question
   const fresh = { audio_url: 'https://emerging-tech-lab.com/.netlify/functions/newswire-briefing-audio?episode=episode-2026-10-18', generated_at: '2026-10-18T10:00:00Z', hours_old: 5, duration_label: '4:58', headlines: ['A', 'B'] };
   const n1 = await m.step({ step: 'answer', heard: 'the news' }, { personas, news: fresh });
   assert(n1.say.startsWith('Here is Above the Fold from ETL Newswire, 4:58 long') && n1.news.audio_url === fresh.audio_url);

@@ -16,7 +16,7 @@ const ZONES = {
   eastern: 'EST5EDT,M3.2.0,M11.1.0', central: 'CST6CDT,M3.2.0,M11.1.0', mountain: 'MST7MDT,M3.2.0,M11.1.0',
   arizona: 'MST7', pacific: 'PST8PDT,M3.2.0,M11.1.0', alaska: 'AKST9AKDT,M3.2.0,M11.1.0', hawaii: 'HST10',
 };
-const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'default', fairies: {} };
+const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'default', fairies: {}, reminders: [] };
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 function int(v, lo, hi) { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= lo && n <= hi ? n : null; }
@@ -31,6 +31,8 @@ function cleanPatch(body) {
   const c = int(body.sunrise_minutes, 5, 90); if (c !== null) out.sunrise_minutes = c;
   if (ZONES[body.zone]) out.zone = body.zone;
   if (typeof body.fairy === 'string' && ID_RE.test(body.fairy)) out.fairy = body.fairy;
+  /* Reminders are the owner's own words, spoken as written after the greeting (Dr. O, 2026-10-18: "reminder to take your meds"). Nothing is added or advised. */
+  if (Array.isArray(body.reminders)) out.reminders = body.reminders.map((r) => str(r, 200)).filter(Boolean).slice(0, 5);
   if (typeof body.calendar_url === 'string') {
     let u = body.calendar_url.trim();
     if (/^webcal:\/\//i.test(u)) u = 'https://' + u.slice(9);
