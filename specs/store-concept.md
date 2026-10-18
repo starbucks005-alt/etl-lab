@@ -291,6 +291,69 @@ coordinates communication, keeps knowledge and understands human behaviour.
   restricted in some workplaces; medical and family details are sensitive data; and the
   word "Guardian" itself suggests protection. A lawyer should check these.
 
+## The shop as a walk through (2026-10-18)
+
+From Dr. O and the Astra-9 session. Dr. O's list for the display: AL, Astra, Astrad,
+Guardian, figurines, LumVivos, laptops for the other programs and stations for ME, GC
+and bespoke, and fun areas, maybe a tea party with a robot or a fireside chat space.
+The Astra-9 session arranged it as a route (a suggestion, not a decision):
+- Front, near the door: the Guardian greeter, who welcomes people and points them on.
+- First room, meet the family: AL, Astra and Astrad, where people can talk to them.
+- Shelves, take-home pieces: figurines on try-me plinths, and the LumVivos. A child
+  can wake one up before anyone asks them to buy.
+- Stations for grown-ups: laptops for ME and GC, and bespoke stations where someone
+  designs a figurine. ME in a quiet corner away from the noise and the children,
+  because people may bring someone they have lost.
+- Play areas at the back: a tea party with a robot on one side and a fireside chat
+  on the other, as far apart as possible, since one is lively and the other quiet.
+- Behind glass at the very back: the workshop, with the printer and the bench, so
+  people can see where it all comes from.
+
+LumVivo: the name on the hologram page's box mode (`good-company/hologram.html`,
+"light in the living"), where a tablet lies face down in the lid and keys 1 to 5 are
+the box buttons. It appears to be the name for the hologram pod. Not confirmed here.
+
+## What the shop needs, and what is not proven (2026-10-18)
+
+Suggestions from the Astra-9 session, not built unless stated:
+- A real Talk button beside each robot, so it listens only when pressed. Reason: in a
+  busy room a robot that listens to everyone hears the whole room and costs more in
+  speech service credits. The Guardian at the door can always listen.
+- A shop mode, like the Event mode: listening only on the button, short and
+  child-safe answers, nothing remembered.
+- One quiet switch for staff, to quiet every robot at closing time or when one says
+  something odd.
+- A sign saying what people hear and that nothing is kept without a parent's say.
+- Robots for different people: a Children's friend at a child's height with a
+  parent's notes, and a Companion or Science robot for grown-ups.
+
+Turn-taking between robots is not proven. The Astra-9 session said it had treated it
+as fixed, but Dr. O had told it several times that robots still talked over each
+other, and no test has shown it solved. What is confirmed is narrower: Elle can reach
+the shared "who has the floor" lock, and the stop phrase works. For the shop, the
+simple protection is stations far apart with a Talk button on each. This also
+affects the "companions that talk to each other" section above.
+
+## A printer for figurines (2026-10-18)
+
+Discussed with the Astra-9 session. The printer named is the Mimaki 3DUJ-2207, a
+full-color UV 3D printer. Figures below are from Mimaki USA's spec sheet and
+product page, MatterHackers, Aniwaa and 3DNatives, mostly 2022 and 2023, so get a
+current quote:
+- Build area 8 x 8 x 3 inches (203 x 203 x 76 mm), 28 micron layers, more than ten
+  million colors, water-soluble support material, about 140 kg.
+- Price: $46,286 from Mimaki USA (US and Canada), a list price of $50,652 at
+  MatterHackers, and from about $42,076 at Aniwaa. MatterHackers says an installation
+  and training session is required and costs another $7,000.
+- The 3 inch height limit means a standing figurine taller than that would be printed
+  lying down or in pieces. Whether the figurines are that tall is not decided.
+- The Astra-9 session's suggestion: do not buy it first. Send one real figurine file
+  to a print service that owns this printer, or ask Mimaki for sample prints, and use
+  a service for the first 10 to 20 figurines. Price the printer only if orders keep
+  coming, then think about space, installation and training.
+- Open: what does a printed figurine cost per piece, and does the color quality
+  suit a bespoke figurine? Not known yet.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
