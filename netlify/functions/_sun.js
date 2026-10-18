@@ -141,7 +141,7 @@ function fairyList(base, settings) {
   for (const id of Object.keys(all)) {
     const f = all[id];
     if (!f || typeof f !== 'object' || id.startsWith('_') || id === 'chosen' || id === 'court') continue;
-    out[id] = { name: f.name || id, title: f.title || '', greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', image: /^[A-Za-z0-9._ -]{1,120}$/.test(f.image || '') ? f.image : '', ships: SHIPPED.includes(id) };
+    out[id] = { name: f.name || id, title: f.title || '', keeps: Array.isArray(f.keeps) ? f.keeps : [], greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', image: /^[A-Za-z0-9._ -]{1,120}$/.test(f.image || '') ? f.image : '', ships: SHIPPED.includes(id) };
   }
   return out;
 }

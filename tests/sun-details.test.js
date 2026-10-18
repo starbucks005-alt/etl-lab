@@ -54,5 +54,21 @@ const personas = require('../rising-sun/personas.json');
   const wd = await m.step({ step: 'wake', fairy: 'tansy' }, { personas, details: [], zone: 'eastern', now: Date.parse('2026-10-18T15:00:00Z'), ask: async () => { throw new Error('down'); } });
   assert(wd.tip === false && wd.say.startsWith('Are you ready to basque in my glory? Good morning sunshine.'));   // the thinking is down: she skips it
   assert(sun.longDate('eastern', Date.parse('2026-01-05T03:00:00Z')) === 'January 4');            // the evening before, in their own time zone
+  // Velvet's self-care invitation and Flint's idea for the day, each once a morning, in their own voice
+  const seenTips = {};
+  const askAny = async (sys, text) => { seenTips.last = text; return 'A line in their voice.'; };
+  for (const f of ['velvet', 'flint', 'ash']) {
+    seenTips[f] = null;
+    const r = await m.step({ step: 'wake', fairy: f }, { personas, details: [], zone: 'central', now: Date.parse('2026-10-18T15:00:00Z'), ask: async (sys, text) => { seenTips[f] = text; return 'A line in their voice.'; } });
+    assert.strictEqual(r.tip, f !== 'ash');
+  }
+  assert(/make today about the two of you/.test(seenTips.velvet) && /staying in bed and watching TV, reading a book/.test(seenTips.velvet) && /no medical advice/i.test(seenTips.velvet));
+  assert(/fun thing to do today/.test(seenTips.flint) && /do not rely on the weather/.test(seenTips.flint) && /Central time zone/.test(seenTips.flint));
+  assert(seenTips.ash === null);                                                                    // Ash has no daily line of his own: the time is his, and it needs no model call
+  const fl = sun.fairyList(personas, {});
+  assert.deepStrictEqual(fl.ash.keeps, ['wake', 'reminders']); assert.deepStrictEqual(fl.ember.keeps, ['sunrise']);
+  assert.deepStrictEqual(fl.poppy.keeps, ['music', 'details']); assert.deepStrictEqual(fl.blue.keeps, ['calendar']);
+  assert.deepStrictEqual(fl.tansy.keeps, ['news']); assert.deepStrictEqual(fl.velvet.keeps, ['selfcare']); assert.deepStrictEqual(fl.flint.keeps, ['fun']);
+  assert.strictEqual(fl.ash.title, 'Guardian of time');
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });
