@@ -15,24 +15,28 @@
     --accent:#b8531c;--accent-bg:#fbe7d8;--on-accent:#ffffff;
     --status:#28527a;--status-bg:#e4ebf1;--on-status:#ffffff;
     --field:#ffffff;--night:#1b1410;
-    --mono:ui-monospace,Menlo,Consolas,monospace;--body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--display:Georgia,serif;
+    --bad:#b3261e;--mono:ui-monospace,Menlo,Consolas,monospace;--body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--display:Georgia,serif;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --bg:#17110d;--panel:#211914;--line:#3a2d23;--line2:#4d3d30;
       --ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;
       --accent:#f08a4b;--accent-bg:#3a2316;--on-accent:#1b1008;
-      --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;
+      --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;--bad:#ff8a80;
     }
   }
   :root[data-theme="dark"]{
     --bg:#17110d;--panel:#211914;--line:#3a2d23;--line2:#4d3d30;
     --ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;
     --accent:#f08a4b;--accent-bg:#3a2316;--on-accent:#1b1008;
-    --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;
+    --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;--bad:#ff8a80;
   }
   body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.55}
   .wrap{max-width:1100px;margin:0 auto;padding:28px 16px 80px}
+  .top{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .top h1{flex:1 1 auto}
+  .themebtn{font-size:13px;padding:6px 10px;margin-top:6px}
+  code{font-family:var(--mono);font-size:13px;background:var(--field);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
   h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,5vw,44px);line-height:1.12;margin:0 0 6px;color:var(--ink)}
   h1 em{font-style:italic;color:var(--accent)}
   .sub{margin:0 0 14px;font-size:16px;max-width:60ch}
@@ -73,12 +77,12 @@
   .bub.pending{opacity:.6}
   .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
   .msg{font-size:13px;color:var(--mute);margin:8px 0 0;min-height:1.2em}
-  .msg.bad{color:#b3261e}
+  .msg.bad{color:var(--bad)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>The Rising <em>Sun</em></h1>
+  <div class="top"><h1>The Rising <em>Sun</em></h1><button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button></div>
   <p class="sub">Set the wake time, choose who lives inside the sun, and hear her. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
   <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
 
@@ -203,6 +207,15 @@
 <script>
 (function () {
   var SET = '/.netlify/functions/sun-settings', BRAIN = '/.netlify/functions/sun-morning';
+  /* Light or dark, like the Astra-9 Lite panel: follows the device until the button is pressed, then remembers the choice in this browser. */
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('themeBtn');
+    function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+    function label() { btn.textContent = isDark() ? 'Light mode' : 'Dark mode'; }
+    try { var saved = localStorage.getItem('sun_panel_theme'); if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved); } catch (e) {}
+    label();
+    btn.addEventListener('click', function () { var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); try { localStorage.setItem('sun_panel_theme', n); } catch (e) {} label(); });
+  })();
   var s = null, all = {}, editing = null, key = '';
   function $(id) { return document.getElementById(id); }
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
