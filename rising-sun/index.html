@@ -107,13 +107,13 @@
   .mrow{display:flex;align-items:flex-end;gap:8px;max-width:92%}
   .mrow .bub{max-width:none}
   .ava{width:34px;height:34px;border-radius:50%;object-fit:cover;object-position:50% 20%;flex:0 0 34px;background:var(--line);border:1px solid var(--line2)}
-  .tiles{display:flex;flex-wrap:wrap;gap:10px}
+  .tiles{display:flex;flex-wrap:wrap;gap:16px 10px;padding-top:8px}
   .tile{display:flex;flex-direction:column;align-items:center;gap:4px;width:104px;padding:10px 6px;border:1px solid var(--line);border-radius:12px;background:var(--field);cursor:pointer;color:var(--ink);font-size:13px;position:relative}
   .tile:hover{border-color:var(--accent)}
-  .tile.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+  .tile.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg);background:var(--accent-bg)}
   .tile .tn{font-weight:600;font-size:14px}
   .tile .tt{font-size:11px;color:var(--mute);text-align:center;line-height:1.25}
-  .tile .sunmark{position:absolute;top:6px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+  .tile .sunmark{position:absolute;top:-9px;left:50%;transform:translateX(-50%);padding:1px 8px;border-radius:10px;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
   .av{width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 20%;background:var(--line);border:2px solid var(--line2);flex:0 0 64px}
   .av.big{width:84px;height:84px;flex:0 0 84px;border-color:var(--accent)}
   .av.initial{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:28px;color:var(--accent);background:var(--accent-bg)}
@@ -417,7 +417,7 @@
       b.appendChild(avatarOf(f, 'av'));
       var n = document.createElement('span'); n.className = 'tn'; n.textContent = f.name || id; b.appendChild(n);
       var t = document.createElement('span'); t.className = 'tt'; t.textContent = f.title || ''; b.appendChild(t);
-      if (id === s.fairy) { var m = document.createElement('span'); m.className = 'sunmark'; m.title = 'In your sun now'; b.appendChild(m); }
+      if (id === s.fairy) { var m = document.createElement('span'); m.className = 'sunmark'; m.textContent = 'Chosen'; m.title = 'The fairy you have chosen for your sun'; b.appendChild(m); }
       b.onclick = function () { selectFairy(id); };
       tiles.appendChild(b);
     });
