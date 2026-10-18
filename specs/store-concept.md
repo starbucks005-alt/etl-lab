@@ -358,6 +358,32 @@ current quote:
   Anything sent to a print service or to the college should keep the figurine files
   and designs hers, and share only what is needed.
 
+## Paid student internships (idea, 2026-10-18)
+
+Dr. O: the shop/store could have paid internships for students to learn to program the
+robots, build them, do AI agents and so on. This sits beside the business school
+partnership. Nothing is decided or signed.
+
+Possible tracks (suggestions): programming the robots; building (wiring, plinths,
+painting, the LumVivo boxes); AI agents (characters, voices, rules); running the shop
+(research, displays, sign-ups, sales numbers, customer questions); repair and set-up
+help.
+
+To settle before the first intern starts:
+1. Who pays them: the shop, the school, a grant or a mix. Unpaid internships have legal
+   limits, so paid is the safer way. Someone should confirm the rules for student
+   workers.
+2. Who owns the work. Code, designs and characters stay Dr. O's, and interns may not
+   reuse or take them elsewhere. The agreement should say so.
+3. What interns can see. Not customers' conversations or companions' memories,
+   especially ME and any children's line.
+4. Safety: soldering, power supplies and tools need supervision and a rule for who
+   may use what.
+5. Who supervises each intern, and what each is responsible for.
+6. Insurance, and what changes if any intern is under 18.
+A suggestion for a start: one short paid project, such as building and testing the Talk
+button and quiet switch for the shop, to see what supervision takes.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
