@@ -28,6 +28,13 @@ function detailsToday(details, zone, now) {
   return (details || []).filter((x) => x && x.date && x.date === md);
 }
 
+const REGION = { eastern: 'the Eastern time zone of the United States', central: 'the Central time zone of the United States', mountain: 'the Mountain time zone of the United States', arizona: 'Arizona', pacific: 'the Pacific time zone of the United States', alaska: 'Alaska', hawaii: 'Hawaii' };
+
+/* "October 18" in the person's own time zone. now is passed in for tests. */
+function longDate(zone, now) {
+  return new Intl.DateTimeFormat('en-US', { timeZone: IANA[zone] || IANA.eastern, month: 'long', day: 'numeric' }).format(new Date(now || Date.now()));
+}
+
 const DEFAULTS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: 'velvet', fairies: {}, reminders: [], details: [] };
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
@@ -170,4 +177,4 @@ async function loadNews(event, deps = {}) {
   };
 }
 
-module.exports = { detailsToday, IANA, fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };
+module.exports = { REGION, longDate, detailsToday, IANA, fairyList, loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS, SHIPPED };

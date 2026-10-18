@@ -106,7 +106,14 @@ async function step(body, deps = {}) {
       catch (_) { today = ''; }
       if (!today) today = 'Today: ' + list + '.';
     }
-    return { say: [p.greeting].concat(today ? [today] : [], rem, [p.ask]).join(' '), reminders: rem.length, today: todays.length };
+    /* A fairy's own skill, once a morning, if she has one written (wake_tip). If the thinking is down, she simply skips it. */
+    let tip = '';
+    if (p.wake_tip) {
+      try {
+        tip = await ask(fairyPrompt(p, 'chat', personas.court, deps.details), 'Today is ' + sun.longDate(deps.zone, deps.now) + ', and this person lives in ' + (sun.REGION[deps.zone] || sun.REGION.eastern) + '. ' + p.wake_tip);
+      } catch (_) { tip = ''; }
+    }
+    return { say: [p.greeting].concat(today ? [today] : [], tip ? [tip] : [], rem, [p.ask]).join(' '), reminders: rem.length, today: todays.length, tip: !!tip };
   }
   const chatting = body.step === 'chat';
   if (body.step !== 'answer' && !chatting) return { say: '', error: 'bad_step' };

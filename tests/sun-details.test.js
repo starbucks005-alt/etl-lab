@@ -40,5 +40,19 @@ const personas = require('../rising-sun/personas.json');
   assert(!/Moon River/.test(seen.sys));
   // Poppy says what she is given and does not claim a memory
   assert(/never claim to remember anything you were not given/.test(m.fairyPrompt(personas.poppy, 'chat', personas.court, d)));
+  // Tansy's seasonal gardening line, depending on the time zone and the date
+  let tipSeen, calls = 0;
+  const askTip = async (sys, text) => { calls++; tipSeen = text; return "It is that time of year to plant garlic, and I expect you to do it properly."; };
+  const wt = await m.step({ step: 'wake', fairy: 'tansy' }, { personas, details: [], zone: 'pacific', now: Date.parse('2026-10-18T15:00:00Z'), ask: askTip });
+  assert(wt.tip === true && wt.say.startsWith('Are you ready to basque in my glory? It is that time of year to plant garlic'));
+  assert(/October 18/.test(tipSeen) && /Pacific time zone/.test(tipSeen) && /never state an exact frost date/.test(tipSeen));
+  await m.step({ step: 'wake', fairy: 'tansy' }, { personas, details: [], zone: 'hawaii', now: Date.parse('2026-10-18T15:00:00Z'), ask: askTip });
+  assert(/Hawaii/.test(tipSeen));                                                              // the place follows the time zone they chose
+  const before = calls;
+  const wn = await m.step({ step: 'wake', fairy: 'poppy' }, { personas, details: [], zone: 'eastern', now: Date.parse('2026-10-18T15:00:00Z'), ask: askTip });
+  assert(calls === before && wn.tip === false);                                                  // a fairy with no wake_tip adds nothing and costs nothing
+  const wd = await m.step({ step: 'wake', fairy: 'tansy' }, { personas, details: [], zone: 'eastern', now: Date.parse('2026-10-18T15:00:00Z'), ask: async () => { throw new Error('down'); } });
+  assert(wd.tip === false && wd.say.startsWith('Are you ready to basque in my glory? Good morning sunshine.'));   // the thinking is down: she skips it
+  assert(sun.longDate('eastern', Date.parse('2026-01-05T03:00:00Z')) === 'January 4');            // the evening before, in their own time zone
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });
