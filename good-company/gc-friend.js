@@ -520,7 +520,7 @@ var GC_DEMO = {
     { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
     { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
     { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
-    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Poppy', voiceId: 'VJFN2gyaDzoKekQ8ZuKB' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ]
 };
@@ -1081,7 +1081,7 @@ var GC_SOFIA = {
     { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
     { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
     { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
-    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Poppy', voiceId: 'VJFN2gyaDzoKekQ8ZuKB' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
 };
@@ -2098,7 +2098,7 @@ var GC_REGGIE = {
     { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
     { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
     { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
-    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Poppy', voiceId: 'VJFN2gyaDzoKekQ8ZuKB' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
 
@@ -2472,7 +2472,7 @@ var GC_TANSY = {
     { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
     { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
     { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
-    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Poppy', voiceId: 'VJFN2gyaDzoKekQ8ZuKB' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
 
@@ -2491,7 +2491,7 @@ var GC_TANSY = {
      this companion has the room to themselves. */
   companions: {
     poppy: {
-      name: 'Poppy', age: 89, gender: 'A woman', voiceId: 'XJ2fW4ybq7HouelYYGcL',
+      name: 'Poppy', age: 89, gender: 'A woman', voiceId: 'VJFN2gyaDzoKekQ8ZuKB',
       form: 'Small by default, wings a near-constant blur even at rest, and can pass at full ' +
             'human size when she wants to, same as any of the Fae, though she rarely bothers.',
       knows:
