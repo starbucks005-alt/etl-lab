@@ -67,39 +67,37 @@ squares drawn on the lower front panel.
 - Open: does each of the five spaces show a different friend, so a customer sees a
   small collection at once?
 
-## Vessels on a plinth (idea, 2026-10-10)
+## Dolls on a plinth (idea, 2026-10-10)
 
 Dr. O's idea: dolls, something like Barbie dolls, that talk when placed on a plinth
-with a Raspberry Pi inside it. Dr. O has named them vessels (2026-10-11). Her words:
-"No, cannot work without plinth."
-- The vessel is a collectable with no electronics of its own, apart from a small tag.
+with a Raspberry Pi inside it. Her words: "No, cannot work without plinth."
+- The doll is a collectable with no electronics of its own, apart from a small tag.
   The plinth holds the Pi, speaker and power, and reads the tag to know which
   character this is. Take her off and she is silent.
-- The plinth is the starter product. Each vessel after that is a smaller purchase.
+- The plinth is the starter product. Each doll after that is a smaller purchase.
 - One friend talks at a time on one plinth, which keeps the running cost down.
   Whether that is true is not known yet and needs the monthly cost measured.
-- Children or adults depends on how the vessel is designed, in Dr. O's words. A
-  suggestion, not a decision: the tag says which line a vessel belongs to and the
+- Children or adults depends on how the doll is designed, in Dr. O's words. A
+  suggestion, not a decision: the tag says which line a doll belongs to and the
   plinth sets its behaviour to match, so one plinth can serve both.
   - Children's line: soft, safe and story-led. Does not ask for a name, address or
     school, and keeps no record of a child's voice. A parent can switch it off.
   - Adult line: open conversation with the Good Company personalities, and the
     goodnight ritual.
-- Dr. O's idea for the first vessels: Little Astra-9 and Astrads, small versions of
+- Dr. O's idea for the first dolls: Little Astra-9 and Astrads, small versions of
   her own characters, for people who do not want life-size robots. Whether there
   are several Astrads, and whether they are the children's or adult line, is not
   answered yet.
-- The vessel needs its own name and look. Barbie is Mattel's trademark and this
-  should not copy it. "Vessel" as a product name has not been checked for a
-  trademark conflict.
+- The doll needs its own name and look. Barbie is Mattel's trademark and this
+  should not copy it.
 
-Open questions for the vessels:
+Open questions for the dolls:
 1. Which line first, children's or adult?
-2. Does the plinth ship with one vessel, or is the first vessel chosen at the counter?
-3. Does a vessel work on any plinth, or is it paired to the buyer's?
+2. Does the plinth ship with one doll, or is the first doll chosen at the counter?
+3. Does a doll work on any plinth, or is it paired to the buyer's?
 4. How long is a plinth supported? Collectors will ask.
-5. What stops a vessel's tag from being copied, if limited editions matter?
-6. A children's vessel needs a lawyer to check toy safety rules and the rules on
+5. What stops a doll's tag from being copied, if limited editions matter?
+6. A children's doll needs a lawyer to check toy safety rules and the rules on
    collecting information from children (COPPA in the US) before it is sold.
 
 ## ETL Security (idea, 2026-10-11)
@@ -162,7 +160,7 @@ Open questions:
 1. Talking whenever they like can run up a cost without anyone asking for it. Not
    known how much. A daily limit and quiet hours at night are suggestions.
 2. A children's-line friend should not join an adult-line friend's conversation.
-   Suggestion: the vessel's tag decides who may talk to whom.
+   Suggestion: the doll's tag decides who may talk to whom.
 3. What do friends share about the owner when they talk, and what does each keep
    to itself? The owner should be able to see this and switch it off.
 4. Being on the same Wi-Fi does not by itself say whether the conversations stay in
