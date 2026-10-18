@@ -50,8 +50,8 @@ const base = require('../rising-sun/personas.json');
   const dash = sun.cleanPatch({ fairies: { x: { greeting: 'Hello \u2014 there', voice: '../x' } } }).fairies.x;
   assert(!/\u2014/.test(dash.greeting) && !('voice' in dash));
   const got = JSON.parse((await call('GET', 'k')).body);
-  assert.deepStrictEqual(Object.keys(got.fairies).filter((k) => got.fairies[k].ships), ['poppy', 'velvet', 'ember', 'flint']);
-  assert.strictEqual(got.fairies.flint.voice, '');   // no voice id yet
+  assert.deepStrictEqual(Object.keys(got.fairies).filter((k) => got.fairies[k].ships), ['poppy', 'velvet', 'ember', 'ash', 'flint']);
+  assert.strictEqual(got.fairies.flint.voice, '4INSaS2X3PwDueCjvPjm'); assert.strictEqual(got.fairies.ash.voice, 'iqp2mz1khslpMZ4XfrPv');
   assert.strictEqual(got.fairies.velvet.voice, 'sZXgk6vPj5VwF6GvqUUu'); assert(!('chosen' in got.fairies) && !('_note' in got.fairies));
   await call('POST', 'k', { fairies: { velvet: { image: 'velvet_v1.png' } } });
   assert.strictEqual(JSON.parse((await call('GET', 'k')).body).fairies.velvet.image, 'velvet_v1.png');

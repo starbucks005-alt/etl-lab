@@ -2,7 +2,7 @@
 const assert = require('assert');
 const m = require('../netlify/functions/sun-morning.js');
 const personas = require('../rising-sun/personas.json');
-assert(!personas.arrogant && personas.chosen === 'velvet' && personas.poppy && personas.ember && personas.flint);   // four fairies, Velvet chosen
+assert(!personas.arrogant && personas.chosen === 'velvet' && personas.poppy && personas.ember && personas.ash && personas.flint);   // five fairies, Velvet chosen
 function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': key }, body: JSON.stringify(body) }; }
 (async () => {
   assert.strictEqual(m.pick('check my calendar please'), 'calendar');
@@ -76,13 +76,11 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   assert(!o3.audio && !o3.audio_error);                                                                                        // no voice chosen yet: words only
   // each of the three speaks with her own voice; none is Velvet by accident
   const seenVoice = [];
-  for (const f of ['poppy', 'velvet', 'ember']) {
+  for (const f of ['poppy', 'velvet', 'ember', 'ash', 'flint']) {
     await m.handler(ev2('k', { step: 'wake', fairy: f, audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas, speak: async (tx, v) => { seenVoice.push(v); return Buffer.from('x'); } });
   }
-  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq']);
+  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq', 'iqp2mz1khslpMZ4XfrPv', '4INSaS2X3PwDueCjvPjm']);
   assert(/Hushed, soft/.test(m.fairyPrompt(personas.ember)) && /Bright, quick/.test(m.fairyPrompt(personas.poppy)));
-  const fl = JSON.parse((await m.handler(ev2('k', { step: 'wake', fairy: 'flint', audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas, speak: async () => { throw new Error('no voice yet, so none should be asked'); } })).body);
-  assert(fl.say.startsWith('Good morning, human.') && !fl.audio && !fl.audio_error);          // Flint has no voice id yet: words only
-  assert(/mischievous/.test(m.fairyPrompt(personas.flint)));
+  assert(/mischievous/.test(m.fairyPrompt(personas.flint)) && /husky/.test(m.fairyPrompt(personas.ash)));   // the two male fairies keep their own manners
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });
