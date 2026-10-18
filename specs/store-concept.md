@@ -470,6 +470,35 @@ Suggestions, not decisions:
 - Scale: the hologram figure is about 15 cm tall, so audience figures would be smaller,
   perhaps 6 to 8 cm. Small pieces need age labels for children.
 
+## The Rising Sun (new product, prototype, 2026-10-18)
+
+Dr. O's design, started 2026-10-18, details still being worked out. From
+`rising-sun/README.md` and her Spotify setup sheet (the code was written by another
+session):
+- An artificial sunrise made of acrylic and an LED strip, with a light fairy inside who
+  talks. At the wake time the light climbs from dark red to amber to full daylight over
+  about 30 minutes. When the sun is up the fairy says good morning and asks whether to
+  play the news, check the calendar or something else.
+- One fairy for now, and more can be added later. Her voice is an ElevenLabs voice that
+  Dr. O picks. The panel is at emerging-tech-lab.com/rising-sun/. The news is Above the
+  Fold from ETL Newswire. Music through Apple Music, or Spotify (the listener uses their
+  own subscription, so ETL pays nothing for the music).
+- The board is an ESP32-S3 with no Pi, the same kind as in the LumVivo box. Dr. O: the
+  brain can be in the cloud, like the figurines. The thinking tries Claude on Amazon
+  Bedrock first (AWS credits) and falls back to Anthropic's own service. The voice
+  through Azure is the plan for the credits.
+- Built and checked only with stand-ins. Not tried on the real board, the real LEDs or
+  the live services. Not built: the board hearing the user and playing her voice (it
+  needs a microphone and an amplifier), the calendar reader, and music from the sun's
+  own speaker. The LED layout and the color steps are not decided.
+- Spotify is limited: a new Spotify app only lets the people added by hand sign in, and
+  Spotify's rules for serving more people were not checked. Apple Music has no such
+  limit that was found. A customer product would need this checked first.
+- It is not for sale. No price is set.
+Questions: is it a store product, and does a customer buy the sun alone or with the
+fairy chosen at the counter like the figurines? Who hears the fairy's voice at wake
+time, and what does a morning cost to run? Not measured.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
