@@ -506,6 +506,14 @@ it goes. The brain in the cloud of Rising Sun, like figurines too." So the store
 a possible second step, after a kiosk. The brain for both the Rising Sun and the
 figurines is in the cloud. No mall, city, budget or date is chosen.
 
+Dr. O's plan for what is in it (2026-10-18): they would have to make the figurines and
+plinths, the Rising Sun, have one each of the bots and take orders, and some computers
+of other products (ME, GC, AH). The store's name: Almost Human. (The dean one-pagers
+call it "The ETL Store", so they would need updating.) "Almost Human" is also the name
+of an existing ETL product, the chat room site, and the name of an older television
+series about a robot police partner. Whether the name is free to use for a store has not
+been checked, and a trademark lawyer should look at it.
+
 Suggestions, not decisions:
 - What goes in a kiosk: LumVivo, a few figurines on plinths, the Rising Sun, and a sign
   with the waiting list QR code. Astra-9 Lite for a live demo if there is room.
