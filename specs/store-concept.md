@@ -225,6 +225,72 @@ Open questions:
 3. For ETL Security and the Guardian units, is a camera expected, or can they be
    sold without one?
 
+## How clients buy (2026-10-18)
+
+Dr. O: clients pick a plinth, pick a figurine. The plinths are sold separately.
+- Her idea for a bundle: "maybe 1 plinth and 3 figurines". Not decided. Because
+  plinths are sold separately, it is not clear whether a bundle includes the plinth.
+- Two separate stocks: a plinth and a figurine are not built as a matched pair.
+- At the counter the plinth plays the chosen figurine's voice before the client pays
+  (a suggestion).
+- The site has natural trios: three fairies and three dogs are in the Good Company
+  banner (a suggestion).
+- A suggestion to test, not tried: a larger plinth with three spots, each reading its
+  own figurine's tag, so one computer runs three friends who can talk to each other.
+  Whether one Pi can run three voices smoothly is not known.
+
+Open questions:
+1. Is a trio the only way to buy, or a bundle beside a plinth and one figurine?
+2. Is a trio a fixed set from one room, or any three the client picks?
+3. Does each figurine have its own memory, so swapping brings a friend back where it
+   left off? Where memory lives (the tag, the plinth or the cloud) is not decided.
+4. How many plinth choices at launch: shapes, finishes, sensors?
+
+## What a plinth is made of (2026-10-18)
+
+From the Astra-9 Lite build document (2026-10-04 and 2026-10-05). The Lite runs on a
+Raspberry Pi 4 with 2GB. The Pi 5 boards Dr. O bought (about $200 each) are for the
+full-size robots.
+- Priced parts a plinth would need, one-off Amazon prices: Pi 4 bundle with card and
+  case $65.11, power supply $9.66, 2-mic HAT $11.99, speakers and amplifier $7.99,
+  cable $7.29, capacitor $4.99. About $107 in total.
+- Not priced in the document and still needed: the tag reader, the light ring, the
+  case with its speaker grille, wiring, assembly time, a shipping box and the figurine.
+- Speech to text and the voice both come from ElevenLabs in the cloud, and the thinking
+  from Anthropic's API, so the Pi is a thin device that listens, plays sound and runs
+  the panel. Both cost money for every use.
+- A suggestion, not a decision: build the first plinths on the Pi 4, which works.
+  Then try a Pi Zero 2 W (about $15) with the same HAT, which should run the same
+  software. Only if that fails look at a small voice board (about $24 to $35, not
+  checked against a build), which needs the code rebuilt. The voice board figures
+  come from web searches in October 2026 and are not confirmed.
+- The running cost of the voice is likely to matter more than the parts. Not
+  measured. One real week of use would show it.
+
+## ETL Guardian (2026-10-18)
+
+Dr. O shared ETL_Guardian.docx: a physical presence for a home, a business or a lab
+that holds memory, notices unusual things, supports decisions, handles a crisis,
+coordinates communication, keeps knowledge and understands human behaviour.
+- AL already has a Guardian mode (added 2026-10-15, `al-panel/pi/al_skills.py` and
+  `al_panel_server.py`): a front-door greeter. It greets people, gives directions from
+  a building directory, points to forms, tells the front office who is here, keeps a
+  downloadable visitor log, and says call 911 first when it hears emergency words.
+  It never opens doors, blocks anyone, asks for ID or claims authority.
+- Not built: memory (it is off in this mode), anything that sees (it has only a motion
+  sensor), decision support, and crisis handling beyond telling people to call 911.
+- ETL Security would be the lobby unit in this family. Whether ETL Guardian is the
+  family name is not answered.
+- Three points to resolve in the existing mode: its rules say to keep nothing about
+  the people it speaks to, but it logs names, who they came to see and the time; the
+  front-office notice is posted to a web address and includes the visitor's name;
+  and speech to text often mishears names.
+- Cautions: tracking a child's arrival or recognising visitors brings the biometric and
+  children's data rules; a Guardian that coordinates emergencies should work beside
+  certified alarms and a person, not replace them; guessing how someone feels is
+  restricted in some workplaces; medical and family details are sensitive data; and the
+  word "Guardian" itself suggests protection. A lawyer should check these.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
