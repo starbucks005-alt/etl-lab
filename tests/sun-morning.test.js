@@ -2,7 +2,7 @@
 const assert = require('assert');
 const m = require('../netlify/functions/sun-morning.js');
 const personas = require('../rising-sun/personas.json');
-assert(!personas.arrogant && personas.chosen === 'velvet' && personas.poppy && personas.ember && personas.ash && personas.flint && personas.tansy);   // six fairies, Velvet chosen
+assert(!personas.arrogant && personas.chosen === 'velvet' && personas.poppy && personas.ember && personas.ash && personas.flint && personas.tansy && personas.blue);   // seven fairies, Velvet chosen
 function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': key }, body: JSON.stringify(body) }; }
 (async () => {
   assert.strictEqual(m.pick('check my calendar please'), 'calendar');
@@ -76,14 +76,48 @@ function ev2(key, body) { return { httpMethod: 'POST', headers: { 'x-sun-key': k
   assert(!o3.audio && !o3.audio_error);                                                                                        // no voice chosen yet: words only
   // each of the three speaks with her own voice; none is Velvet by accident
   const seenVoice = [];
-  for (const f of ['poppy', 'velvet', 'ember', 'ash', 'flint', 'tansy']) {
+  for (const f of ['poppy', 'velvet', 'ember', 'ash', 'flint', 'tansy', 'blue']) {
     await m.handler(ev2('k', { step: 'wake', fairy: f, audio: true }), {}, { env: { SUN_DEVICE_KEY: 'k' }, personas, speak: async (tx, v) => { seenVoice.push(v); return Buffer.from('x'); } });
   }
-  assert.deepStrictEqual(seenVoice, ['VJFN2gyaDzoKekQ8ZuKB', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq', 'iqp2mz1khslpMZ4XfrPv', '4INSaS2X3PwDueCjvPjm', 'thfYL0Elyru2qqTtNQsE']);
-  assert(/Hushed, soft/.test(m.fairyPrompt(personas.ember)) && /Bright, quick/.test(m.fairyPrompt(personas.poppy)));
+  assert.deepStrictEqual(seenVoice, ['XJ2fW4ybq7HouelYYGcL', 'sZXgk6vPj5VwF6GvqUUu', 'L6Qa01yqWMO8K86PvToq', 'iqp2mz1khslpMZ4XfrPv', '4INSaS2X3PwDueCjvPjm', 'thfYL0Elyru2qqTtNQsE', 'WUyjxM8OTY6l8LhTmdkq']);
+  assert(/Hushed, soft/.test(m.fairyPrompt(personas.ember)) && /adores humans, openly/.test(m.fairyPrompt(personas.poppy)) && /light and the dew/.test(m.fairyPrompt(personas.blue)));
   assert(/mischievous/.test(m.fairyPrompt(personas.flint)) && /husky/.test(m.fairyPrompt(personas.ash)));
   const tp = m.fairyPrompt(personas.tansy);
   assert(/one hundred and twenty-six/.test(tp) && /Radiant Court/.test(tp) && !/Nothing is written about your life/.test(tp));   // Tansy has her written life, and only that
   assert((await m.step({ step: 'wake', fairy: 'tansy' }, { personas })).say.startsWith('Are you ready to basque in my glory?'));   // the two male fairies keep their own manners
+  // ---- text chat: she remembers, per fairy
+  const memChat = (() => { const m = {}; return { load: async (f) => m[f] || [], save: async (f, v) => { m[f] = v; }, m }; })();
+  let seenConvo, seenSys;
+  const askSpy = async (sys, convo) => { seenSys = sys; seenConvo = convo; return 'I remember.'; };
+  const c1 = await m.step({ step: 'chat', fairy: 'velvet', text: 'My daughter has a recital today.' }, { personas, chat: memChat, ask: askSpy });
+  assert.strictEqual(c1.say, 'I remember.'); assert.strictEqual(seenConvo.length, 1);
+  assert(/texting with the person/.test(seenSys) && /Remember what they told you/.test(seenSys) && /medical, legal or money/.test(seenSys));
+  await m.step({ step: 'chat', fairy: 'velvet', text: 'Wish her luck.' }, { personas, chat: memChat, ask: askSpy });
+  assert.deepStrictEqual(seenConvo.map((x) => x.role), ['user', 'assistant', 'user']);                         // the earlier turn goes to the model
+  assert.strictEqual(seenConvo[0].text, 'My daughter has a recital today.');
+  assert.strictEqual(memChat.m.velvet.length, 4); assert.strictEqual(memChat.m.velvet[1].role, 'fairy');
+  await m.step({ step: 'chat', fairy: 'flint', text: 'Hello Flint.' }, { personas, chat: memChat, ask: askSpy });
+  assert.strictEqual(seenConvo.length, 1); assert.strictEqual(memChat.m.flint.length, 2);                        // each fairy has her own thread
+  assert.strictEqual((await m.step({ step: 'history', fairy: 'velvet' }, { personas, chat: memChat })).history.length, 4);
+  for (let i = 0; i < 15; i++) await m.step({ step: 'chat', fairy: 'ash', text: 'msg ' + i }, { personas, chat: memChat, ask: askSpy });
+  assert.strictEqual(memChat.m.ash.length, 20); assert.strictEqual(memChat.m.ash[0].text, 'msg 5');            // the last twenty are kept
+  assert(seenConvo.length <= 17 && seenConvo[0].role === 'user');                                                // at most 16 old plus the new one, starting with the person
+  const nw = await m.step({ step: 'chat', fairy: 'ember', text: 'any news?' }, { personas, chat: memChat, ask: askSpy, news: fresh });
+  assert(nw.news && memChat.m.ember.length === 2 && /Above the Fold/.test(memChat.m.ember[1].text));              // news works in a chat and is remembered
+  const bad = await m.step({ step: 'chat', fairy: 'poppy', text: 'tell me a joke' }, { personas, chat: memChat, ask: async () => { throw new Error('x'); } });
+  assert.strictEqual(bad.error, 'brain_failed'); assert(!memChat.m.poppy);                                        // a failed turn leaves no hole in the thread
+  await m.step({ step: 'clear', fairy: 'velvet' }, { personas, chat: memChat });
+  assert.strictEqual(memChat.m.velvet.length, 0);
+  // through the handler, with a stand-in store
+  const memStore = (() => { const k = {}; return { get: async (n) => k[n] || null, setJSON: async (n, v) => { k[n] = JSON.parse(JSON.stringify(v)); }, k }; })();
+  const hd = { env: { SUN_DEVICE_KEY: 'k' }, personas, store: memStore, saved: {}, ask: askSpy };
+  const hr = JSON.parse((await m.handler(ev2('k', { step: 'chat', fairy: 'tansy', text: 'Hello.' }), {}, hd)).body);
+  assert.strictEqual(hr.say, 'I remember.'); assert.strictEqual(memStore.k['chat-tansy'].length, 2);
+  const hh = JSON.parse((await m.handler(ev2('k', { step: 'history', fairy: 'tansy' }), {}, hd)).body);
+  assert.strictEqual(hh.history.length, 2);
+  // a whole conversation goes to Bedrock
+  let conv;
+  await bedrockAsk('sys', [{ role: 'user', text: 'a' }, { role: 'assistant', text: 'b' }, { role: 'user', text: 'c' }], { fetchFn: async (u, o) => { conv = JSON.parse(o.body).messages; return { ok: true, json: async () => ({ output: { message: { content: [{ text: 'ok' }] } } }) }; }, env: { AWS_BEARER_TOKEN_BEDROCK: 'k' } });
+  assert.deepStrictEqual(conv.map((x) => x.role + ':' + x.content[0].text), ['user:a', 'assistant:b', 'user:c']);
   console.log('ALL OK');
 })().catch((e) => { console.error(e); process.exit(1); });

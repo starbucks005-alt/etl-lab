@@ -11,6 +11,7 @@
    the model in the Bedrock console are not checked. Test with one call before relying on it. */
 const DEFAULT_MODEL = 'us.anthropic.claude-haiku-4-5-20251001-v1:0';
 
+/* text is one message, or a conversation: an array of { role: 'user' | 'assistant', text } that starts with a user message and alternates. */
 async function bedrockAsk(system, text, { fetchFn = fetch, env = process.env, maxTokens = 200 } = {}) {
   const key = String(env.AWS_BEARER_TOKEN_BEDROCK || '').trim();
   if (!key) throw new Error('no_bedrock_key');
@@ -21,7 +22,7 @@ async function bedrockAsk(system, text, { fetchFn = fetch, env = process.env, ma
   const r = await fetchFn(`https://bedrock-runtime.${region}.amazonaws.com/model/${encodeURIComponent(model)}/converse`, {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system: [{ text: system }], messages: [{ role: 'user', content: [{ text }] }], inferenceConfig: { maxTokens } }),
+    body: JSON.stringify({ system: [{ text: system }], messages: (Array.isArray(text) ? text : [{ role: 'user', text }]).map((m) => ({ role: m.role, content: [{ text: m.text }] })), inferenceConfig: { maxTokens } }),
   });
   if (!r.ok) throw new Error('bedrock_' + r.status);
   const j = await r.json();
