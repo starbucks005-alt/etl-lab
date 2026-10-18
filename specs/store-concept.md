@@ -456,6 +456,20 @@ Questions: what is left on each, and does
 the business school have an incubator or innovation center that could give the
 referral for a larger tier?
 
+## LumVivo as a tiny theater (idea, 2026-10-18)
+
+Dr. O, after seeing the first LumVivo hologram working (a Samsung Tab S7+ in a black ABS
+box with an angled glass front): it reminded her of a movie theater, and she could
+imagine theater seats and little people.
+Suggestions, not decisions:
+- Small seats in front of the glass with figurines sitting in them as the audience, a
+  "Now Showing" button to choose the character, a marquee strip of lights, and a black
+  frame with small curtains at the sides.
+- The speakerphone serves as the sound, and the audience could be passive props (cheap)
+  or figurines that talk (each needs a tag reader and a voice, so more cost).
+- Scale: the hologram figure is about 15 cm tall, so audience figures would be smaller,
+  perhaps 6 to 8 cm. Small pieces need age labels for children.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
