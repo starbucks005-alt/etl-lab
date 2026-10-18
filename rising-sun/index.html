@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
 <script>try{var p=localStorage.getItem('sun_palette');if(p&&/^[a-z-]{2,20}$/.test(p))document.documentElement.setAttribute('data-palette',p)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +17,7 @@
     --accent:#b8531c;--accent-bg:#fbe7d8;--on-accent:#ffffff;
     --status:#28527a;--status-bg:#e4ebf1;--on-status:#ffffff;
     --field:#ffffff;--night:#1b1410;
-    --bad:#b3261e;--mono:ui-monospace,Menlo,Consolas,monospace;--body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--display:Georgia,serif;
+    --bad:#b3261e;--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;--body:'Public Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--display:Spectral,Georgia,serif;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -95,13 +96,13 @@
   .fairy.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
   .fairy h3{margin:0;font-size:16px;color:var(--ink)}
   .fairy p{margin:0;font-size:14px;flex:1}
-  .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:12px;background:var(--accent-bg);color:var(--accent);width:max-content}
+  .tag{display:inline-block;font-family:var(--body);font-size:11px;padding:2px 8px;border-radius:12px;background:var(--accent-bg);color:var(--accent);width:max-content}
   .said{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--status-bg);color:var(--ink);min-height:1.4em}
   .thread{border:1px solid var(--line);border-radius:12px;background:var(--field);padding:12px;height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
   .bub{max-width:82%;padding:9px 13px;border-radius:14px;font-size:15px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
   .bub.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:4px}
   .bub.her{align-self:flex-start;background:var(--status-bg);color:var(--ink);border-bottom-left-radius:4px}
-  .bub .who{display:block;font-size:11px;font-family:var(--mono);color:var(--mute);margin-bottom:2px}
+  .bub .who{display:block;font-size:11px;font-family:var(--body);color:var(--mute);margin-bottom:2px}
   .bub.pending{opacity:.6}
   .mrow{display:flex;align-items:flex-end;gap:8px;max-width:92%}
   .mrow .bub{max-width:none}
