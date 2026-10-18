@@ -147,12 +147,36 @@
       <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice (uses a little of the ElevenLabs credit each time)</label>
     </section>
 
+    <section class="card wide" id="musicCard">
+      <h2>5. Music</h2>
+      <p class="hint">Play Apple Music from here. It plays on the device that has this panel open, such as a tablet beside the sun. The listener signs in with their own Apple Music subscription, and without one only short previews play. Your browser needs a tap first, so music cannot start by itself at wake time.</p>
+      <p class="msg" id="musicNeed" style="display:none">Save your Apple key under Connections first.</p>
+      <div class="row"><button class="primary" id="musicConnect">Connect Apple Music</button><span class="msg" id="musicState" style="margin:0"></span></div>
+      <div id="musicBox" style="display:none">
+        <div class="row" style="margin-top:12px"><input type="text" id="musicTerm" placeholder="A song, an artist, an album or a playlist" aria-label="Search Apple Music"><button id="musicGo">Search</button><button id="musicMine">My playlists</button></div>
+        <div id="musicList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+        <div class="said" id="nowPlaying" style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span id="npText" style="flex:1 1 160px">Nothing playing.</span>
+          <button id="mPrev" aria-label="Previous">Prev</button><button id="mPlay" aria-label="Play or pause">Play</button><button id="mNext" aria-label="Next">Next</button>
+          <input type="range" id="mVol" min="0" max="100" value="70" aria-label="Volume" style="flex:1 1 100px">
+        </div>
+      </div>
+    </section>
+
     <section class="card wide" id="remCard">
-      <h2>5. Reminders</h2>
+      <h2>6. Reminders</h2>
       <p class="hint">Write one reminder per line, for example "Take your morning pills." She says them in your words, after her greeting and before she asks about the news. She adds nothing and gives no advice. Up to five. They are kept on the website behind the key.</p>
       <textarea id="rems" rows="4" maxlength="1200" aria-label="Reminders, one per line"></textarea>
       <div class="row" style="margin-top:12px"><button class="primary" id="saveRem">Save the reminders</button></div>
       <p class="msg" id="remMsg"></p>
+    </section>
+
+    <section class="card wide" id="calCard">
+      <h2>7. Your calendar</h2>
+      <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
+      <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
+      <p class="msg" id="calMsg"></p>
+      <p class="hint" style="margin:8px 0 0">The link is saved, but she cannot read it yet. That part is not built. Until it is, she says she cannot see your calendar. The news is Above the Fold from ETL Newswire, the daily briefing, and she plays it when you ask.</p>
     </section>
 
     <section class="card wide" id="connCard">
@@ -160,14 +184,12 @@
       <p class="hint">Her thinking runs on Claude through Amazon Bedrock, so the AWS credits pay for it. Paste the Bedrock key here once (from the AWS console: Bedrock, API keys). It is kept on the website and never shown again here. Her voice uses the Azure key the site already has, and the Anthropic key the site already has is the backup. Nothing else to paste.</p>
       <div class="row"><input type="password" id="bedKey" autocomplete="off" placeholder="Bedrock key" aria-label="Bedrock key"><button id="saveBed">Save the key</button><button id="clearBed">Remove it</button></div>
       <p class="msg" id="bedMsg"></p>
-    </section>
-
-    <section class="card wide" id="calCard">
-      <h2>6. Your calendar</h2>
-      <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
-      <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
-      <p class="msg" id="calMsg"></p>
-      <p class="hint" style="margin:8px 0 0">The link is saved, but she cannot read it yet. That part is not built. Until it is, she says she cannot see your calendar. The news is Above the Fold from ETL Newswire, the daily briefing, and she plays it when you ask.</p>
+      <h2 style="margin-top:18px;font-size:18px">Apple Music</h2>
+      <p class="hint">For the music player below. Three things from your Apple developer account: the Team ID, the Key ID, and the private key file (the .p8). Open the .p8 in a text editor and paste all of it. They are kept on the website and never shown again here. Not shown on screen: the listener signs in with their own Apple Music subscription, so ETL pays nothing for the music.</p>
+      <div class="row"><input type="text" id="apTeam" autocomplete="off" placeholder="Team ID (10 characters)" aria-label="Apple Team ID"><input type="text" id="apKey" autocomplete="off" placeholder="Key ID (10 characters)" aria-label="Apple Key ID"></div>
+      <textarea id="apPem" rows="4" autocomplete="off" placeholder="Paste the whole .p8 file here" aria-label="Apple private key" style="margin-top:8px"></textarea>
+      <div class="row" style="margin-top:8px"><button id="saveApple">Save the Apple key</button><button id="clearApple">Remove it</button></div>
+      <p class="msg" id="appleMsg"></p>
     </section>
   </div>
 </div>
@@ -188,7 +210,8 @@
   function paint() {
     $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
     $('rems').value = (s.reminders || []).join('\n');
-    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet');
+    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet') + (s.apple_set ? ', Apple key saved' : '');
+    $('musicNeed').style.display = s.apple_set ? 'none' : ''; $('musicConnect').disabled = !s.apple_set;
     var sel = $('chatWho'), keep = sel.value, first = !sel.options.length;
     sel.innerHTML = '';
     Object.keys(all).forEach(function (id) { var o = document.createElement('option'); o.value = id; o.textContent = all[id].name || id; sel.appendChild(o); });
@@ -293,6 +316,86 @@
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) $('micBtn').style.display = 'none';
   else $('micBtn').onclick = function () { var r = new SR(); r.lang = 'en-US'; r.onresult = function (e) { $('heard').value = e.results[0][0].transcript; $('send').onclick(); }; r.start(); };
+
+  /* Apple Music. MusicKit JS is loaded from Apple only when the button is pressed. NOT TRIED against Apple. */
+  var mk = null;
+  function loadMusicKit() {
+    if (window.MusicKit) return Promise.resolve();
+    return new Promise(function (ok, no) {
+      var sc = document.createElement('script'); sc.src = 'https://js-cdn.music.apple.com/musickit/v3/musickit.js'; sc.async = true;
+      sc.onload = function () { if (window.MusicKit) ok(); else document.addEventListener('musickitloaded', ok, { once: true }); };
+      sc.onerror = function () { no(new Error('Apple Music could not be loaded. Check the connection.')); };
+      document.head.appendChild(sc);
+    });
+  }
+  function mstate(t, bad) { var e = $('musicState'); e.textContent = t; e.className = 'msg' + (bad ? ' bad' : ''); }
+  function artwork(a, n) { return a && a.url ? a.url.replace('{w}', n).replace('{h}', n) : ''; }
+  function musicRow(item, kind) {
+    var at = item.attributes || {}, row = document.createElement('div'); row.className = 'row'; row.style.cssText = 'gap:10px;flex-wrap:nowrap';
+    var im = document.createElement('img'); im.alt = ''; im.width = 44; im.height = 44; im.style.cssText = 'border-radius:6px;background:var(--line);flex:0 0 44px'; var u = artwork(at.artwork, 88); if (u) im.src = u; row.appendChild(im);
+    var tx = document.createElement('div'); tx.style.cssText = 'flex:1 1 auto;min-width:0';
+    var t1 = document.createElement('div'); t1.textContent = at.name || ''; t1.style.cssText = 'color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    var t2 = document.createElement('div'); t2.textContent = (kind === 'library-playlists' ? 'Your playlist' : kind === 'playlists' ? 'Playlist' : kind === 'albums' ? 'Album' : 'Song') + (at.artistName ? ' · ' + at.artistName : ''); t2.className = 'hint'; t2.style.margin = '0';
+    tx.appendChild(t1); tx.appendChild(t2); row.appendChild(tx);
+    var b = document.createElement('button'); b.textContent = 'Play'; b.onclick = function () { playItem(item, kind); }; row.appendChild(b);
+    return row;
+  }
+  function showResults(groups) {
+    var box = $('musicList'); box.innerHTML = ''; var n = 0;
+    groups.forEach(function (g) { (g.items || []).forEach(function (it) { box.appendChild(musicRow(it, g.kind)); n++; }); });
+    if (!n) { var d = document.createElement('div'); d.className = 'hint'; d.textContent = 'Nothing found.'; box.appendChild(d); }
+  }
+  function playItem(item, kind) {
+    var q = {}; var id = item.id;
+    if (kind === 'songs') q.song = id; else if (kind === 'albums') q.album = id; else q.playlist = id;
+    mk.setQueue(q).then(function () { return mk.play(); }).catch(function (e) { mstate('Could not play that: ' + (e && e.message || e), true); });
+  }
+  function refreshNow() {
+    var it = mk && mk.nowPlayingItem, at = it && it.attributes;
+    $('npText').textContent = at ? (at.name + (at.artistName ? ' · ' + at.artistName : '')) : 'Nothing playing.';
+    $('mPlay').textContent = mk && mk.isPlaying ? 'Pause' : 'Play';
+  }
+  function connectMusic() {
+    mstate('Connecting...');
+    return api('/.netlify/functions/sun-music-token').then(function (t) {
+      return loadMusicKit().then(function () {
+        return MusicKit.configure({ developerToken: t.token, app: { name: 'The Rising Sun', build: '1.0' } });
+      });
+    }).then(function () {
+      mk = MusicKit.getInstance();
+      mk.addEventListener('playbackStateDidChange', refreshNow); mk.addEventListener('nowPlayingItemDidChange', refreshNow);
+      return mk.authorize();
+    }).then(function () {
+      $('musicBox').style.display = ''; mstate('Connected to Apple Music.'); $('musicConnect').textContent = 'Reconnect'; refreshNow();
+    }).catch(function (e) { mstate(e && e.message ? e.message : 'Could not connect to Apple Music.', true); });
+  }
+  function musicSearch() {
+    var term = $('musicTerm').value.trim(); if (!term || !mk) return;
+    var sf = mk.storefrontId || 'us';
+    mk.api.music('/v1/catalog/' + sf + '/search', { term: term, types: 'songs,albums,playlists', limit: 8 }).then(function (r) {
+      var res = (r && r.data && r.data.results) || {};
+      showResults([{ kind: 'songs', items: (res.songs || {}).data }, { kind: 'albums', items: (res.albums || {}).data }, { kind: 'playlists', items: (res.playlists || {}).data }]);
+    }).catch(function (e) { mstate('Search failed: ' + (e && e.message || e), true); });
+  }
+  function musicMine() {
+    if (!mk) return;
+    mk.api.music('/v1/me/library/playlists', { limit: 25 }).then(function (r) { showResults([{ kind: 'library-playlists', items: (r && r.data && r.data.data) || [] }]); })
+      .catch(function (e) { mstate('Could not read your playlists: ' + (e && e.message || e), true); });
+  }
+  $('musicConnect').onclick = connectMusic;
+  $('musicGo').onclick = musicSearch;
+  $('musicTerm').onkeydown = function (e) { if (e.key === 'Enter') musicSearch(); };
+  $('musicMine').onclick = musicMine;
+  $('mPlay').onclick = function () { if (!mk) return; (mk.isPlaying ? mk.pause() : mk.play()).catch(function () {}); };
+  $('mNext').onclick = function () { if (mk) mk.skipToNextItem().catch(function () {}); };
+  $('mPrev').onclick = function () { if (mk) mk.skipToPreviousItem().catch(function () {}); };
+  $('mVol').oninput = function () { if (mk) mk.volume = $('mVol').value / 100; };
+  $('saveApple').onclick = function () {
+    var p = { apple_team_id: $('apTeam').value, apple_key_id: $('apKey').value, apple_private_key: $('apPem').value };
+    if (!p.apple_team_id.trim() || !p.apple_key_id.trim() || !p.apple_private_key.trim()) { say('appleMsg', 'Fill in all three.', true); return; }
+    save(p, 'appleMsg').then(function () { if (s.apple_set) { $('apTeam').value = ''; $('apKey').value = ''; $('apPem').value = ''; } else say('appleMsg', 'Saved, but one of the three did not look right. The IDs are 10 letters and numbers, and the key is the whole .p8 file.', true); });
+  };
+  $('clearApple').onclick = function () { save({ apple_team_id: '' }, 'appleMsg'); };
 
   $('saveRem').onclick = function () { save({ reminders: $('rems').value.split('\n') }, 'remMsg'); };
   $('saveBed').onclick = function () { var k = $('bedKey').value.trim(); if (k) save({ bedrock_key: k }, 'bedMsg').then(function () { $('bedKey').value = ''; }); };

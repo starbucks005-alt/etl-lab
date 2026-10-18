@@ -2,6 +2,7 @@
 
    Settings live in one record in the 'rising_sun' blob store. The calendar link is private (anyone holding it can read the calendar): it is kept here, never sent
    back to the page or the board, and the panel only learns that one is set. Same rule as AL's calendar.json. */
+const apple = require('./_apple.js');
 const KEY_HEADER = 'x-sun-key';
 
 function authorized(event, env) {
@@ -34,6 +35,14 @@ function cleanPatch(body) {
   if (typeof body.fairy === 'string' && ID_RE.test(body.fairy)) out.fairy = body.fairy;
   /* Reminders are the owner's own words, spoken as written after the greeting (Dr. O, 2026-10-18: "reminder to take your meds"). Nothing is added or advised. */
   if (Array.isArray(body.reminders)) out.reminders = body.reminders.map((r) => str(r, 200)).filter(Boolean).slice(0, 5);
+  /* Apple Music: Team ID, Key ID and the private key, kept like the Bedrock key and never sent back (see _apple.js). All three are needed; sending an empty team id clears them all. */
+  if (typeof body.apple_team_id === 'string') {
+    const t = body.apple_team_id.trim().toUpperCase();
+    if (t === '') { out.apple_team_id = ''; out.apple_key_id = ''; out.apple_private_key = ''; }
+    else if (apple.ID10.test(t)) out.apple_team_id = t;
+  }
+  if (typeof body.apple_key_id === 'string' && apple.ID10.test(body.apple_key_id.trim().toUpperCase())) out.apple_key_id = body.apple_key_id.trim().toUpperCase();
+  if (typeof body.apple_private_key === 'string') { const k = apple.cleanPrivateKey(body.apple_private_key); if (k) out.apple_private_key = k; }
   /* The Bedrock key is kept in the private record, not an environment variable, because the site is at its limit of those (see _gc-config.js). Write-only, like the calendar link. */
   if (typeof body.bedrock_key === 'string') {
     const k = body.bedrock_key.trim();
@@ -76,9 +85,11 @@ function publicView(s) {
   const o = Object.assign({}, DEFAULTS, s || {});
   const calendar_set = !!o.calendar_url;
   const bedrock_set = !!o.bedrock_key;
+  const apple_set = !!(o.apple_team_id && o.apple_key_id && o.apple_private_key);
   delete o.calendar_url;
   delete o.bedrock_key;
-  return Object.assign(o, { calendar_set, bedrock_set, tz: ZONES[o.zone] || ZONES.eastern });
+  delete o.apple_team_id; delete o.apple_key_id; delete o.apple_private_key;
+  return Object.assign(o, { calendar_set, bedrock_set, apple_set, tz: ZONES[o.zone] || ZONES.eastern });
 }
 
 /* The shipped fairies with the owner's changes laid over them. */

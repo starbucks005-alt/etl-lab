@@ -29,5 +29,11 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 - Checked with stand-ins: `node tests/sun-morning.test.js`. NOT tried against the real services or from the board.
 - Still open: how the board hears you and plays her voice. It needs a microphone and a speaker amplifier on the ESP32-S3, and a way to turn mp3 into sound. Until that is built the page route (a tablet) is the way to hear her.
 
+## Music (Dr. O, 2026-10-18)
+- The panel plays Apple Music with Apple's web player (MusicKit JS). The listener signs in with their own Apple Music subscription, so ETL pays nothing for the music. Without a subscription only short previews play. It plays on the device that has the panel open, such as a tablet beside the sun. A browser needs a tap first, so music cannot start by itself at wake time.
+- Setup: the Team ID, the Key ID and the private key (.p8) from Dr. O's Apple developer account, pasted once under Connections. They are kept in the sun's private record and never shown again. `netlify/functions/sun-music-token.js` signs a short-lived token with them (`_apple.js`, Node's own crypto, no new packages and no new environment variable). The sheet "Rising-Sun_Apple-Music-Key" says how to make the key.
+- Checked: the signing against a key made for the test, and the player in a real browser against a stand-in for MusicKit (`node tests/sun-apple.test.js`). NOT tried against Apple. Whether Apple accepts the token depends on the real key and its Media ID.
+- Not built: Spotify, and music coming out of the sun's own speaker. Spotify needs a Premium listener and, from memory, a limit on how many people a developer app may serve; check Spotify's current rules before selling it. Amazon Music has no open player that I know of.
+
 ## Parts
 ESP32-S3 N16R8 (as in the Holopod box), WS2812B strip, its own 5V supply sized for the strip, a speaker and a microphone for her voice. Wiring is at the top of `sunrise.ino`.
