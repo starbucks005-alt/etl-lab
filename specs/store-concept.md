@@ -198,6 +198,33 @@ Dr. O has not signed anything yet.
   shared with a college in India. Safety certification and shipping are separate
   questions. A lawyer should read any agreement first. None of this is known yet.
 
+## Plinth options: sensors (2026-10-18)
+
+Dr. O: "the plinth can be with camera, with motion detector, or both, or none."
+Her answer on which is standard: "things are optional." So there is no standard
+sensor set. The customer chooses.
+- None: talks and listens when spoken to.
+- Motion detector: notices that someone has walked up and says hello. AL does this
+  today with her own motion sensor.
+- Camera: can see. The same three levels as ETL Security apply (notices someone is
+  there, reads a code or badge shown to it, face recognition only after a lawyer has
+  checked). Not decided.
+- Both: the motion detector could wake the camera, so the camera is off most of
+  the time. A suggestion, not a decision.
+
+Suggestions, not decisions:
+- Sensors are plug-in parts, so one can be added later.
+- A light shows when the camera is on, and a physical switch or cover cuts it off.
+- No camera on the children's line by default.
+- A card in the box says what the camera does and does not keep.
+
+Open questions:
+1. Does a figurine's tag switch a sensor off, or does only the owner decide?
+2. What does a camera module cost, and the motion sensor? The build document does
+   not price the sensor, because it was bought in a shared pack. Not known yet.
+3. For ETL Security and the Guardian units, is a camera expected, or can they be
+   sold without one?
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
