@@ -8,7 +8,8 @@
      Strip + to its own 5V supply, sized for the strip (a full white LED draws up to 60 milliamps, so 60 LEDs can need 3.6 amps).
      Do not power a long strip from the board's 5V pin.
      A 3.3V data signal can be unreliable on some strips. If the first LED flickers, add a 74AHCT125 level shifter.
-   Wi-Fi: fill in WIFI_NAME, WIFI_PASS, SUN_KEY (the same SUN_DEVICE_KEY the site holds) and SITE below. The clock comes from the internet.
+   FIRST TRY: leave DEMO_MODE true. It needs no Wi-Fi and no key, and plays the whole sunrise in 90 seconds on a loop so you can see the colors.
+   REAL USE: set DEMO_MODE false, then fill in WIFI_NAME, WIFI_PASS, SUN_KEY (the same SUN_DEVICE_KEY the site holds) and SITE below. The clock comes from the internet.
    Wake time, sunrise length and time zone are read from the website every 10 minutes (set them on the Rising Sun panel). The numbers below are only used until the first read works.
    Library: also ArduinoJson (Library Manager).
    NOT BUILT: her voice, her listening, the choice of fairy. This program only runs the light. */
@@ -22,6 +23,8 @@
 
 const int LED_PIN = 5;
 const int LED_COUNT = 60;                 // placeholder until the acrylic layout is decided
+const bool DEMO_MODE = true;              // true: skip Wi-Fi and the clock and play the whole sunrise in DEMO_SECONDS, over and over. Set false for the real thing.
+const int DEMO_SECONDS = 90;
 int SUNRISE_MINUTES = 30;
 int WAKE_HOUR = 7, WAKE_MIN = 0;          // the sun is at full strength at this time
 const char* WIFI_NAME = "";
@@ -97,7 +100,15 @@ void setup() {
   for (int i = 20; i >= 0; i--) { paint(i / 20.0); delay(50); }
 }
 
+void demo() {
+  unsigned long cycle = (unsigned long)(DEMO_SECONDS + 10) * 1000UL;     // the sunrise, then 10 seconds of dark before it starts again
+  unsigned long at = millis() % cycle;
+  paint(at < (unsigned long)DEMO_SECONDS * 1000UL ? (float)at / ((float)DEMO_SECONDS * 1000.0) : 0.0);
+  delay(50);
+}
+
 void loop() {
+  if (DEMO_MODE) { demo(); return; }
   if (lastRead == 0 || millis() - lastRead > (haveRead ? 600000UL : 30000UL)) { lastRead = millis(); readSettings(); }
   struct tm t;
   if (getLocalTime(&t, 200)) {
