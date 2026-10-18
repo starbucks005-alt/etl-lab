@@ -190,6 +190,9 @@ Dr. O has not signed anything yet.
   students help run it, give some proceeds to the school (some, not all).
 - Vikram, a professor in the business school, has a college in India. His interns
   there would make the robots for commercialization.
+- Dr. O, 2026-10-18: the paid student internships could be part of the agreement with
+  the business school and the dean. See "Paid student internships". The agreement with
+  Vikram's college would be separate.
 - The ideas, designs, characters and decisions are Dr. O's. Any agreement should say
   so, and that what is built for her stays hers.
 - Things to settle in writing before anything is signed: who owns what, what "some
