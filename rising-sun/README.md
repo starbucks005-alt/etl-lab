@@ -24,6 +24,8 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 - Every call needs the header `x-sun-key` to match `SUN_DEVICE_KEY` in the site's settings, because each answer can spend Azure and Anthropic credits. With no key set it answers 503. The key is not in the repository: set it in Netlify and put the same value on the board.
 - News and calendar are not connected, and she says so. "Something else" goes to Claude with the fairy's own lines. Her written backstory is empty, so the prompt tells her to say she does not know that one.
 - The voices in `personas.json` are placeholders, not chosen and not listened to.
+- Credits (Dr. O, 2026-10-18: use the AWS and Azure startup credits when possible): her voice is Azure, so the Azure credits pay. Her thinking tries Claude on Amazon Bedrock first, so the AWS credits pay (`_bedrock.js`, needs `AWS_BEARER_TOKEN_BEDROCK` from the Bedrock console, optional `AWS_REGION` and `SUN_BEDROCK_MODEL`), and falls back to Anthropic's own API if Bedrock is not set up or says no. The Bedrock model id and the account's access to the model are not checked: make one call and see.
+- Her settings sit in Netlify's own small store, which is free at this size. Moving them to Azure Storage would count toward the Azure milestone only if that workload needs the spend, which is not worth doing for one small record.
 - Checked with stand-ins: `node tests/sun-morning.test.js`. NOT tried against the real services or from the board.
 - Still open: how the board hears you and plays her voice. It needs a microphone and a speaker amplifier on the ESP32-S3, and a way to turn mp3 into sound. Until that is built the page route (a tablet) is the way to hear her.
 

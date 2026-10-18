@@ -12,9 +12,12 @@
    text (the device sends the words, or a later version sends audio). "Something else" goes to Claude with the fairy's own lines and her written backstory, which is
    empty until Dr. O writes it.
 
-   NOT TRIED against the real Azure or Anthropic services, or from the device. The tests run with stand-ins. */
+   CREDITS: her voice is Azure (the Azure credits pay). Her thinking tries Claude on Amazon Bedrock first (the AWS credits pay; see _bedrock.js), then Anthropic's own API.
+
+   NOT TRIED against the real Azure, Bedrock or Anthropic services, or from the device. The tests run with stand-ins. */
 const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
 const sun = require('./_sun.js');
+const { bedrockAsk } = require('./_bedrock.js');
 
 let PERSONAS = {};
 try { PERSONAS = require('../../rising-sun/personas.json'); } catch (_) {}
@@ -48,7 +51,9 @@ async function step(body, deps = {}) {
   if (choice === 'nothing') return { say: 'I did not catch that. Try me again.', choice };
   if (choice === 'news') return { say: 'I do not have the news hooked up yet.', choice };
   if (choice === 'calendar') return { say: 'I cannot see your calendar yet.', choice };
+  /* AWS credits first (Claude on Bedrock), Anthropic's own API if Bedrock is not set up or says no. */
   const ask = deps.ask || (async (system, text) => {
+    try { const b = await bedrockAsk(system, text, { fetchFn: deps.fetchFn || fetch }); if (b) return b; } catch (_) {}
     const Anthropic = require('@anthropic-ai/sdk');   // loaded here so the tests run without it
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const out = await client.messages.create({ model: MODEL, max_tokens: 200, system, messages: [{ role: 'user', content: text }] });
