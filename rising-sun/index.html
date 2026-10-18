@@ -135,6 +135,7 @@
       <div class="row"><button class="primary" id="wakeBtn">Wake me</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
       <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="The news, my calendar, or something else" aria-label="What you say"><button id="send">Send</button></div>
       <div class="said" id="said" aria-live="polite"></div>
+      <div id="news" style="display:none;margin-top:10px"></div>
       <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play her voice (uses a little of the Azure credit each time)</label>
     </section>
 
@@ -143,7 +144,7 @@
       <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. She cannot add, change or delete anything.</p>
       <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
       <p class="msg" id="calMsg"></p>
-      <p class="hint" style="margin:8px 0 0">The link is saved, but she cannot read it yet. That part is not built. Until it is, she says she cannot see your calendar. The news is not connected either, and she says so.</p>
+      <p class="hint" style="margin:8px 0 0">The link is saved, but she cannot read it yet. That part is not built. Until it is, she says she cannot see your calendar. The news is Above the Fold from ETL Newswire, the daily briefing, and she plays it when you ask.</p>
     </section>
   </div>
 </div>
@@ -218,7 +219,16 @@
 
   function show(j) {
     $('said').textContent = j.say || '';
-    if (j.audio) { try { new Audio('data:audio/mpeg;base64,' + j.audio).play(); } catch (e) {} }
+    var news = $('news'); news.innerHTML = ''; news.style.display = 'none';
+    if (j.news) {
+      news.style.display = '';
+      var a = document.createElement('audio'); a.controls = true; a.src = j.news.audio_url; a.style.width = '100%'; news.appendChild(a);
+      var ul = document.createElement('ul'); ul.style.cssText = 'margin:8px 0 0;padding-left:1.2rem;font-size:14px';
+      (j.news.headlines || []).forEach(function (t) { var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+      news.appendChild(ul);
+      if (j.audio) { var intro = new Audio('data:audio/mpeg;base64,' + j.audio); intro.onended = function () { a.play().catch(function () {}); }; intro.play().catch(function () {}); }
+      else a.play().catch(function () {});
+    } else if (j.audio) { try { new Audio('data:audio/mpeg;base64,' + j.audio).play(); } catch (e) {} }
   }
   function ask(body) { body.audio = $('wantAudio').checked; return api(BRAIN, body).then(show).catch(function (e) { $('said').textContent = e.message; }); }
   function wake() { return ask({ step: 'wake' }); }

@@ -8,7 +8,10 @@
    Every call needs the header x-sun-key to equal SUN_DEVICE_KEY, because each answer can spend Azure and Anthropic credits. With no key set it answers 503.
    The fairies are the shipped ones (rising-sun/personas.json) with whatever the panel saved laid over them (sun-settings.js), so the owner can change a greeting or add a fairy.
 
-   WHAT IS NOT CONNECTED, and she says so out loud instead of making anything up: the news, the calendar (AL's calendar reader is Python, not ported), and speech to
+   THE NEWS is Above the Fold, ETL Newswire's daily briefing (Dr. O, 2026-10-18). "News" answers { say, news: { audio_url, headlines, duration_label, generated_at } }: she says one line
+   and the device plays audio_url, the multi-voice briefing already recorded. If today's has not come out she says so and offers the last one. If none can be read she says that.
+
+   WHAT IS NOT CONNECTED, and she says so out loud instead of making anything up: the calendar (AL's calendar reader is Python, not ported), and speech to
    text (the device sends the words, or a later version sends audio). "Something else" goes to Claude with the fairy's own lines and her written backstory, which is
    empty until Dr. O writes it.
 
@@ -49,7 +52,19 @@ async function step(body, deps = {}) {
   if (body.step !== 'answer') return { say: '', error: 'bad_step' };
   const choice = pick(body.heard);
   if (choice === 'nothing') return { say: 'I did not catch that. Try me again.', choice };
-  if (choice === 'news') return { say: 'I do not have the news hooked up yet.', choice };
+  if (choice === 'news') {
+    let news = null;
+    try { news = deps.news !== undefined ? deps.news : await sun.loadNews(deps.event, deps); } catch (_) {}
+    if (!news) return { say: 'I cannot reach the news right now.', choice };
+    const day = news.generated_at ? new Date(news.generated_at).toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/New_York' }) : '';
+    const old = news.hours_old !== null && news.hours_old > 36;
+    const len = news.duration_label ? ', ' + news.duration_label + ' long' : '';
+    return {
+      say: (old ? 'Above the Fold has not come out yet today. This is the one from ' + day + len + '.' : 'Here is Above the Fold from ETL Newswire' + len + '.'),
+      choice,
+      news,
+    };
+  }
   if (choice === 'calendar') return { say: 'I cannot see your calendar yet.', choice };
   /* AWS credits first (Claude on Bedrock), Anthropic's own API if Bedrock is not set up or says no. */
   const ask = deps.ask || (async (system, text) => {
@@ -86,7 +101,7 @@ exports.handler = async function (event, _ctx, deps = {}) {
     personas = sun.mergePersonas(PERSONAS, saved);
   }
   deps = Object.assign({}, deps, { personas });
-  const out = await step(body, deps);
+  const out = await step(body, Object.assign({ event }, deps));
   if (out.error === 'bad_step' || out.error === 'no_fairy') return json(400, out);
   if (body.audio && out.say) {
     const p = personas[body.fairy] || personas[personas.chosen] || personas.default;

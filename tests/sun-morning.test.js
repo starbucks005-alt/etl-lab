@@ -10,7 +10,16 @@ const personas = require('../rising-sun/personas.json');
   assert.strictEqual((await m.step({ step: 'wake', fairy: 'arrogant' }, { personas })).say.split('?')[0], 'Are you ready to basque in my glory');
   assert((await m.step({ step: 'wake' }, { personas })).say.startsWith('Good morning, human.'));
   assert((await m.step({ step: 'wake', fairy: 'default' }, { personas })).say.includes('news, check your calendar, or something else'));
-  assert((await m.step({ step: 'answer', heard: 'news' }, { personas })).say.includes('not have the news'));   // says so, makes none up
+  const fresh = { audio_url: 'https://emerging-tech-lab.com/.netlify/functions/newswire-briefing-audio?episode=episode-2026-10-18', generated_at: '2026-10-18T10:00:00Z', hours_old: 5, duration_label: '4:58', headlines: ['A', 'B'] };
+  const n1 = await m.step({ step: 'answer', heard: 'the news' }, { personas, news: fresh });
+  assert(n1.say.startsWith('Here is Above the Fold from ETL Newswire, 4:58 long') && n1.news.audio_url === fresh.audio_url);
+  const n2 = await m.step({ step: 'answer', heard: 'the news' }, { personas, news: Object.assign({}, fresh, { hours_old: 60, generated_at: '2026-10-16T10:00:00Z' }) });
+  assert(/has not come out yet today/.test(n2.say) && /Friday/.test(n2.say));            // an old one is called old
+  assert((await m.step({ step: 'answer', heard: 'the news' }, { personas, news: null })).say.includes('cannot reach the news'));   // none: says so, makes none up
+  const sunMod = require('../netlify/functions/_sun.js');
+  const got = await sunMod.loadNews({}, { loadMeta: async () => ({ audio_url: '/.netlify/functions/newswire-briefing-audio?episode=episode-2026-10-18', generated_at: '2026-10-18T10:00:00Z', duration_label: '4:58', pieces: [{ title: 'One' }, { title: 'Two' }] }), now: Date.parse('2026-10-18T15:00:00Z') });
+  assert.strictEqual(got.hours_old, 5); assert.deepStrictEqual(got.headlines, ['One', 'Two']); assert(got.audio_url.startsWith('https://emerging-tech-lab.com/'));
+  assert.strictEqual(await sunMod.loadNews({}, { loadMeta: async () => null }), null);
   let sys;
   const r = await m.step({ step: 'answer', heard: 'where did you go to school' }, { personas, ask: async (s) => { sys = s; return 'I do not know that one.'; } });
   assert.strictEqual(r.choice, 'else');

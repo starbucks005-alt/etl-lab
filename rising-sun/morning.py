@@ -2,7 +2,7 @@
 """The morning routine: the sun reaches full, the fairy greets whoever is there, asks what they want, and does it.
 
 The speaking and listening are passed in, so the flow can be tested without a speaker. On the device these come from the website (see README). This file is the flow written out so it can be checked.
-News is NOT connected. She says so out loud rather than making any up.
+The news is Above the Fold from ETL Newswire, played by the device; see netlify/functions/sun-morning.js.
 """
 import json
 import os
@@ -36,7 +36,7 @@ def morning(speak, listen, calendar_reply, persona=None):
     if what == "calendar":
         speak(calendar_reply(heard))
     elif what == "news":
-        speak("I don't have the news hooked up yet.")
+        speak("Here is Above the Fold from ETL Newswire.")
     elif what == "else":
         speak("I heard you, and I can't do that one yet.")
     return what

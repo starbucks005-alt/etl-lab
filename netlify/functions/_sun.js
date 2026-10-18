@@ -91,4 +91,27 @@ async function openStore(event) {
 async function loadSettings(store) { return (await store.get('settings', { type: 'json' })) || {}; }
 async function saveSettings(store, s) { await store.setJSON('settings', s); }
 
-module.exports = { authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS };
+/* Above the Fold, ETL Newswire's daily multi-voice briefing. newswire-briefing-background.js saves its details under newswire_briefings_meta/latest and the mp3 is served
+   by newswire-briefing-audio. Dr. O, 2026-10-18: "the news briefing can be from above the fold". Returns null when there is none. */
+const SITE_BASE = 'https://emerging-tech-lab.com';
+async function loadNews(event, deps = {}) {
+  let meta;
+  if (deps.loadMeta) meta = await deps.loadMeta();
+  else {
+    const { getStore, connectLambda } = require('@netlify/blobs');
+    try { connectLambda(event); } catch (_) {}
+    meta = await getStore('newswire_briefings_meta').get('latest', { type: 'json' });
+  }
+  if (!meta || !meta.audio_url) return null;
+  const when = new Date(meta.generated_at);
+  const hours = isNaN(+when) ? null : ((deps.now || Date.now()) - +when) / 3600000;
+  return {
+    audio_url: SITE_BASE + meta.audio_url,
+    generated_at: meta.generated_at || null,
+    hours_old: hours,
+    duration_label: meta.duration_label || '',
+    headlines: (meta.pieces || []).map((x) => String(x.title || '').trim()).filter(Boolean).slice(0, 8),
+  };
+}
+
+module.exports = { loadNews, authorized, cleanPatch, applyPatch, publicView, mergePersonas, openStore, loadSettings, saveSettings, ZONES, DEFAULTS };
