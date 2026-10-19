@@ -241,7 +241,7 @@
 
     <section class="card wide" id="interestCard">
       <h2>Want one?</h2>
-      <p class="hint">Leave your email and ETL will tell you when the light or a candle is ready. Your email is used for that and nothing else.</p>
+      <p class="hint">Leave your email and ETL will tell you when the light or a candle is ready. ETL Lab members get 15% off. Your email is used for that and nothing else.</p>
       <form class="ask" id="askForm" novalidate>
         <input type="email" id="aEmail" placeholder="Your email" autocomplete="email" aria-label="Your email">
         <select id="aProduct" aria-label="Which one"><option value="both">The light and candles</option><option value="light">The light</option><option value="candle">A candle</option></select>
@@ -895,10 +895,11 @@
     });
   }
   document.querySelectorAll('.prod .more').forEach(function (b) { b.onclick = function () { $('aProduct').value = b.getAttribute('data-p'); $('interestCard').scrollIntoView({ behavior: 'smooth' }); $('aEmail').focus(); }; });
+  var SOURCE = ''; try { var ms = /[?&]s=([a-z0-9-]{1,40})/.exec(location.search); if (ms) SOURCE = ms[1]; } catch (e) {}
   $('askForm').onsubmit = function (e) {
     e.preventDefault();
     var em = $('aEmail').value.trim(); if (!em) { say('aMsg', 'Type your email first.', true); return; }
-    fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: $('aProduct').value, fairy: current || '', website: $('aTrap').value }) })
+    fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: $('aProduct').value, fairy: current || '', source: SOURCE, website: $('aTrap').value }) })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong.'); say('aMsg', 'Thank you. We will tell you when it is ready.'); $('aEmail').value = ''; }); })
       .catch(function (err) { say('aMsg', err.message, true); });
   };
