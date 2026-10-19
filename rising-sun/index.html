@@ -137,6 +137,18 @@
   body.demo #musicCard,body.demo #calCard,body.demo #newsCard,body.demo #connCard{display:none!important}
   .demonote{display:none;margin:0 0 12px;padding:10px 14px;border:1px dashed var(--line2);border-radius:10px;color:var(--text);font-size:14px;max-width:70ch}
   body.demo .demonote{display:block}
+  .demo-only{display:none}
+  body.demo .demo-only{display:block}
+  body.demo #keyCard{order:90}
+  body.demo .prodpick{display:none}
+  .quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:12px}
+  .quiz button{display:flex;align-items:center;gap:10px;text-align:left;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.3}
+  .quiz button img,.quiz button .initial{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 20%;flex:0 0 40px}
+  .quiz button b{display:block;font-size:13px;color:var(--ink)}
+  .ask{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .ask input[type=email]{flex:1 1 220px;min-width:0}
+  .prod .more{align-self:flex-start;margin-top:4px;font-size:13px;padding:5px 10px}
+  .trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
   body.p-candle .lightonly{display:none!important}
   body:not(.p-candle):not(.p-both) .candleonly{display:none!important}
   .prodpick{margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -184,6 +196,12 @@
       </div>
     </section>
 
+    <section class="card wide demo-only" id="quizCard">
+      <h2>Who should greet your morning?</h2>
+      <p class="hint">Pick what you need most. The fairy who keeps it says hello.</p>
+      <div class="quiz" id="quiz"></div>
+    </section>
+
     <section class="card wide" id="fairyCard">
       <h2>The Rising Sun Court</h2>
       <p class="hint">No one greets the morning alone. Pick a fairy to talk to and to see what they keep.</p>
@@ -210,9 +228,21 @@
       <h2>Made by the Rising Sun Court</h2>
       <p class="hint">Two products so far. Each holds one of the fairies.</p>
       <div class="prods">
-        <div class="prod"><b>The Rising Sun light</b><span>The light you are using now. It wakes you with a sunrise, and the fairy of your choice greets you.</span><em class="tag">Available</em></div>
-        <div class="prod"><b>The candles</b><span>Artificial candles, flameless, with one fairy in each. A silhouette of the fairy shows on the outside.</span><em class="tag">Coming</em></div>
+        <div class="prod"><b>The Rising Sun light</b><span>The light you are using now. It wakes you with a sunrise, and the fairy of your choice greets you.</span><em class="tag">Available</em><button type="button" class="more" data-p="light">Tell me when it is ready</button></div>
+        <div class="prod"><b>The candles</b><span>Artificial candles, flameless, with one fairy in each. A silhouette of the fairy shows on the outside.</span><em class="tag">Coming</em><button type="button" class="more" data-p="candle">Tell me when it is ready</button></div>
       </div>
+    </section>
+
+    <section class="card wide" id="interestCard">
+      <h2>Want one?</h2>
+      <p class="hint">Leave your email and ETL will tell you when the light or a candle is ready. Your email is used for that and nothing else.</p>
+      <form class="ask" id="askForm" novalidate>
+        <input type="email" id="aEmail" placeholder="Your email" autocomplete="email" aria-label="Your email">
+        <select id="aProduct" aria-label="Which one"><option value="both">The light and candles</option><option value="light">The light</option><option value="candle">A candle</option></select>
+        <input class="trap" type="text" id="aTrap" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="primary" type="submit">Tell me</button>
+      </form>
+      <p class="msg" id="aMsg"></p>
     </section>
 
     <section class="card wide" id="tryCard">
@@ -496,7 +526,7 @@
   }
   $('tAdd').onclick = function () { testerCall('add_sun_tester'); };
   $('tRemove').onclick = function () { testerCall('remove_sun_tester'); };
-  $('connect').onclick = function () { var k = $('key').value.trim(); if (!k) return; var wasDemo = DEMO; if (DEMO) { DEMO = false; document.body.classList.remove('demo'); $('wantAudio').disabled = false; demoChat = {}; $('thread').innerHTML = ''; } key = k; load().then(function (ok) { if (!ok && wasDemo) startDemo(); }); };
+  $('connect').onclick = function () { var k = $('key').value.trim(); if (!k) return; var wasDemo = DEMO; if (DEMO) { DEMO = false; document.body.classList.remove('demo'); var sb = document.querySelector('.sub'); if (sb && sb.getAttribute('data-was')) sb.textContent = sb.getAttribute('data-was'); var kh2 = document.querySelector('#keyCard h2'); if (kh2 && kh2.getAttribute('data-was')) kh2.textContent = kh2.getAttribute('data-was'); $('wantAudio').disabled = false; demoChat = {}; $('thread').innerHTML = ''; } key = k; load().then(function (ok) { if (!ok && wasDemo) startDemo(); }); };
   $('saveWake').onclick = function () { save({ wake_hour: +$('wh').value, wake_min: +$('wm').value, sunrise_minutes: +$('len').value, zone: $('zone').value }, 'wakeMsg'); };
   $('len').oninput = function () { $('lenOut').textContent = $('len').value; };
 
@@ -817,6 +847,28 @@
   $('play').onclick = function () { clearInterval(timer); var n = 0; timer = setInterval(function () { n++; $('scrub').value = n; sky(n / 100); if (n >= 100) clearInterval(timer); }, 60); };
   sky(0.6);
 
+
+  /* The preview's front door: say what you need, the fairy who keeps it says hello. The needs are the fairies' own jobs from the Court text. */
+  var NEEDS = [['ash', 'Help me keep on track'], ['velvet', 'A slow, cozy start'], ['ember', 'Calm, when my head is loud'], ['flint', 'A reason to laugh'], ['poppy', 'Someone who is just glad I am here'], ['tansy', 'Some sass, and something new to try'], ['blue', 'Something rare and wise']];
+  function renderQuiz() {
+    var box = $('quiz'); box.innerHTML = '';
+    NEEDS.forEach(function (n) {
+      var f = all[n[0]]; if (!f) return;
+      var b = document.createElement('button'); b.type = 'button';
+      b.appendChild(avatarOf(f, 'qa'));
+      var t = document.createElement('span'); t.innerHTML = '<b></b>'; t.querySelector('b').textContent = n[1]; t.appendChild(document.createTextNode(f.name)); b.appendChild(t);
+      b.onclick = function () { selectFairy(n[0]); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(wake, 250); };
+      box.appendChild(b);
+    });
+  }
+  document.querySelectorAll('.prod .more').forEach(function (b) { b.onclick = function () { $('aProduct').value = b.getAttribute('data-p'); $('interestCard').scrollIntoView({ behavior: 'smooth' }); $('aEmail').focus(); }; });
+  $('askForm').onsubmit = function (e) {
+    e.preventDefault();
+    var em = $('aEmail').value.trim(); if (!em) { say('aMsg', 'Type your email first.', true); return; }
+    fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: $('aProduct').value, fairy: current || '', website: $('aTrap').value }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong.'); say('aMsg', 'Thank you. We will tell you when it is ready.'); $('aEmail').value = ''; }); })
+      .catch(function (err) { say('aMsg', err.message, true); });
+  };
   function startDemo() {
     fetch('personas.json').then(function (r) { return r.json(); }).then(function (P) {
       all = {};
@@ -825,7 +877,9 @@
         all[id] = { name: f.name || id, title: f.title || '', keeps: f.keeps || [], greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', image: f.image || '', ships: true };
       });
       demoS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: P.chosen || 'velvet', fairies: {}, reminders: [], details: [], calendar_set: false, bedrock_set: false, apple_set: false };
-      DEMO = true; document.body.classList.add('demo'); s = demoS; paint();
+      DEMO = true; document.body.classList.add('demo'); s = demoS; paint(); renderQuiz();
+      var sub = document.querySelector('.sub'); if (sub && !sub.getAttribute('data-was')) { sub.setAttribute('data-was', sub.textContent); sub.textContent = 'Seven fairies, one for each part of your morning. Pick the one you need today, say hello, and watch the sunrise.'; }
+      var kh = document.querySelector('#keyCard h2'); if (kh && !kh.getAttribute('data-was')) { kh.setAttribute('data-was', kh.textContent); kh.textContent = 'Have a Rising Sun of your own?'; }
       $('status').className = 'status'; $('statusText').textContent = 'Demo mode, no sun connected';
       $('wantAudio').checked = false; $('wantAudio').disabled = true;
     }).catch(function () {});
