@@ -2,6 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js): the ETL property, G-3GQ2KLSGX4. The pages are told apart by path (/rising-sun/...). To give the Rising Sun a property of its own, change the id in these two lines. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3GQ2KLSGX4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3GQ2KLSGX4');
+</script>
+<link rel="canonical" href="https://emerging-tech-lab.com/rising-sun/notify.html">
+<meta property="og:title" content="Be told when the Rising Sun is ready">
+<meta property="og:image" content="https://emerging-tech-lab.com/rising-sun/court_hero_v2.jpg">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Be told when the Rising Sun is ready</title>
 <meta name="description" content="Leave your email and we will tell you when the Rising Sun light or a Rising Sun Court candle is available. ETL Lab members get 15% off.">
@@ -58,7 +69,7 @@
     if (!em) { msg.className = 'msg bad'; msg.textContent = 'Type your email first.'; return; }
     msg.textContent = 'One moment...';
     fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: document.getElementById('product').value, fairy: document.getElementById('fairy').value, source: src, website: document.getElementById('trap').value }) })
-      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong. Please try again.'); msg.className = 'msg ok'; msg.textContent = 'Thank you. You are on the list. Watch your inbox.'; f.reset(); }); })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong. Please try again.'); msg.className = 'msg ok'; msg.textContent = 'Thank you. You are on the list. Watch your inbox.'; try { if (window.gtag) gtag('event', 'generate_lead', { product: document.getElementById('product').value, fairy: document.getElementById('fairy').value || 'none', source: src || 'notify' }); } catch (e) {} f.reset(); }); })
       .catch(function (err) { msg.className = 'msg bad'; msg.textContent = err.message; });
   };
 })();

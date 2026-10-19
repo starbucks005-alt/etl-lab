@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js): the ETL property, G-3GQ2KLSGX4. The pages are told apart by path (/rising-sun/...). To give the Rising Sun a property of its own, change the id in these two lines. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3GQ2KLSGX4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3GQ2KLSGX4');
+</script>
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://emerging-tech-lab.com/rising-sun/">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
 <script>try{var p=localStorage.getItem('sun_palette');if(p&&/^[a-z-]{2,20}$/.test(p))document.documentElement.setAttribute('data-palette',p)}catch(e){}</script>
 <meta charset="utf-8">
@@ -413,6 +423,7 @@
     var ob = document.getElementById('ownerBar'); ob.style.display = '';
     document.getElementById('ownerExit').onclick = function () { try { sessionStorage.removeItem('sun_owner'); } catch (e) {} location.href = location.pathname; };
   }
+  function ev(n, p) { try { if (window.gtag) gtag('event', n, p || {}); } catch (e) {} }
   var s = null, all = {}, editing = null, key = '', COURT = null;
   try { fetch('personas.json').then(function (r) { return r.json(); }).then(function (P) { COURT = P.court || null; if (current) renderCourt(); }).catch(function () {}); } catch (e) {}
   function $(id) { return document.getElementById(id); }
@@ -442,6 +453,7 @@
         return resolve({ say: w, audio_url: '/.netlify/functions/sun-greeting?fairy=' + encodeURIComponent(f) });
       }
       if (body.step === 'news') return resolve({ say: 'In the preview I cannot read you the news. Your own sun reads it to you each morning.' });
+      ev('chat_message', { fairy: f, tier: etlToken() ? 'account' : 'guest' });
       var hist = th.slice(-10).map(function (m) { return { role: m.role === 'user' ? 'user' : 'fairy', text: m.text }; });
       th.push({ role: 'user', text: body.text });
       var hd = { 'content-type': 'application/json' }, tk = etlToken(); if (tk) hd.authorization = 'Bearer ' + tk;
@@ -530,6 +542,7 @@
     var kh = $('keepHead'); kh.style.display = shown ? '' : 'none'; kh.textContent = shown ? (f.name || 'They') + ' keeps' : '';
   }
   function selectFairy(id) {
+    ev('select_content', { content_type: 'fairy', item_id: id });
     current = id; $('chatWho').value = id; $('news').style.display = 'none'; $('editCard').style.display = 'none';
     renderCourt(); loadThread();
   }
@@ -901,7 +914,7 @@
     e.preventDefault();
     var em = $('aEmail').value.trim(); if (!em) { say('aMsg', 'Type your email first.', true); return; }
     fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: $('aProduct').value, fairy: current || '', source: SOURCE, website: $('aTrap').value }) })
-      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong.'); say('aMsg', 'Thank you. We will tell you when it is ready.'); $('aEmail').value = ''; }); })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong.'); say('aMsg', 'Thank you. We will tell you when it is ready.'); ev('generate_lead', { product: $('aProduct').value, fairy: current || 'none', source: SOURCE || 'panel' }); $('aEmail').value = ''; }); })
       .catch(function (err) { say('aMsg', err.message, true); });
   };
   function startDemo() {
