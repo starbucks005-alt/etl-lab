@@ -173,7 +173,7 @@
   <div class="prodpick"><label for="product">I have</label><select id="product" aria-label="Which product you have"><option value="light">The Rising Sun light</option><option value="candle">A Rising Sun candle</option><option value="both">Both the light and candles</option></select></div>
   <p class="motto">No one greets the morning alone.</p>
   <p class="sub">Set the wake time, choose who lives inside the sun, and hear the voice. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
-  <p class="demonote" id="demoNote">This is a preview of what you get: the seven fairies of the Rising Sun Court, the sunrise, reminders and chat. Try anything. Nothing is saved, and the fairies' answers are examples with no voice. To talk to them for real, connect your sun with its access code below.</p>
+  <p class="demonote" id="demoNote">This is a preview of what you get: the seven fairies of the Rising Sun Court, the sunrise, reminders and chat. Try anything. Say hello and they answer for real, a few messages a day for free. Hear each fairy's hello. Sign in to ETL to hear them answer out loud. To use your own sun, connect it with its access code at the bottom.</p>
   <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
 
   <div class="grid">
@@ -259,6 +259,8 @@
       <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="Write a message" aria-label="Your message" maxlength="500"><button class="primary" id="send">Send</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
       <div id="news" style="display:none;margin-top:10px"></div>
       <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play the voice</label>
+      <p class="msg demo-only" id="leftMsg"></p>
+      <p class="hint demo-only" id="signInHint">To hear them answer out loud, <a href="/member-login?next=/rising-sun/" style="color:var(--accent)">sign in to ETL</a>. ETL Lab members get more messages and more voice.</p>
     </section>
 
     <h2 class="keepHead" id="keepHead" style="display:none"></h2>
@@ -433,16 +435,26 @@
       var th = demoChat[f] = demoChat[f] || [];
       if (body.step === 'history') return resolve({ history: th, fairy: f });
       if (body.step === 'clear') { demoChat[f] = []; return resolve({ ok: true, fairy: f }); }
-      var say;
-      if (body.step === 'wake') say = (p.greeting || 'Good morning, human.') + ' ' + (p.ask || '');
-      else if (body.step === 'news') say = 'In the preview I cannot read you the news. Your own sun reads it to you each morning.';
-      else if (!th.length) say = (p.greeting || 'Good morning, human.') + ' ' + (p.ask || '');
-      else say = 'This is a preview, so my answers are only examples. With your own sun we can really talk.';
-      if (body.text) th.push({ role: 'user', text: body.text });
-      th.push({ role: 'fairy', text: say });
-      resolve({ say: say });
+      if (body.step === 'wake') {
+        var w = (p.greeting || 'Good morning, human.') + ' ' + (p.ask || '');
+        th.push({ role: 'fairy', text: w });
+        return resolve({ say: w, audio_url: '/.netlify/functions/sun-greeting?fairy=' + encodeURIComponent(f) });
+      }
+      if (body.step === 'news') return resolve({ say: 'In the preview I cannot read you the news. Your own sun reads it to you each morning.' });
+      var hist = th.slice(-10).map(function (m) { return { role: m.role === 'user' ? 'user' : 'fairy', text: m.text }; });
+      th.push({ role: 'user', text: body.text });
+      var hd = { 'content-type': 'application/json' }, tk = etlToken(); if (tk) hd.authorization = 'Bearer ' + tk;
+      fetch('/.netlify/functions/sun-guest', { method: 'POST', headers: hd, body: JSON.stringify({ fairy: f, text: body.text, history: hist, audio: !!(body.audio && tk) }) })
+        .then(function (r) { return r.json().then(function (j) { return [r.status, j]; }); })
+        .then(function (a) {
+          var st = a[0], j = a[1], say = st === 200 ? j.say : (j.message || j.say || 'I cannot answer just now. Try again in a moment.');
+          th.push({ role: 'fairy', text: say });
+          resolve(st === 200 ? j : { say: say, limit: st === 429 });
+        })
+        .catch(function () { var say = 'I cannot answer just now. Try again in a moment.'; th.push({ role: 'fairy', text: say }); resolve({ say: say }); });
     });
   }
+  function etlToken() { try { var t = JSON.parse(localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token') || 'null'); return (t && t.access_token) || ''; } catch (e) { return ''; } }
   function api(url, body) {
     if (DEMO) return demoApi(url, body);
     var o = { headers: { 'x-sun-key': key, 'content-type': 'application/json' } };
@@ -608,7 +620,11 @@
     if (j.audio) { var v = new Audio('data:audio/mpeg;base64,' + j.audio); if (a) v.onended = function () { a.play().catch(function () {}); }; v.play().catch(function () {}); }
     else if (a) a.play().catch(function () {});
   }
-  function reply(j) { bubble('fairy', j.say || ''); if (OWNER && j.reason) bubble('fairy', 'Owner note, customers do not see this: ' + j.reason); news(j); }
+  function reply(j) {
+    bubble('fairy', j.say || ''); if (OWNER && j.reason) bubble('fairy', 'Owner note, customers do not see this: ' + j.reason); news(j);
+    if (j.audio_url && $('wantAudio').dataset.hello !== '0') { try { var hv = new Audio(j.audio_url); hv.play().catch(function () {}); } catch (e) {} }
+    if (DEMO && j.left) say('leftMsg', j.left.text + ' free message' + (j.left.text === 1 ? '' : 's') + ' left today.'); else if (DEMO && j.limit) say('leftMsg', '');
+  }
   function ask(body, forceAudio) {
     body.audio = forceAudio || $('wantAudio').checked; body.fairy = body.fairy || who();
     return api(BRAIN, body).then(reply).catch(function (e) { bubble('fairy', e.message); });
@@ -874,7 +890,7 @@
       var b = document.createElement('button'); b.type = 'button';
       b.appendChild(avatarOf(f, 'qa'));
       var t = document.createElement('span'); t.innerHTML = '<b></b>'; t.querySelector('b').textContent = n[1]; t.appendChild(document.createTextNode(f.name)); b.appendChild(t);
-      b.onclick = function () { selectFairy(n[0]); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(wake, 250); };
+      b.onclick = function () { selectFairy(n[0]); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(function () { ask({ step: 'wake' }, true); }, 250); };
       box.appendChild(b);
     });
   }
@@ -898,7 +914,7 @@
       var sub = document.querySelector('.sub'); if (sub && !sub.getAttribute('data-was')) { sub.setAttribute('data-was', sub.textContent); sub.textContent = 'Seven fairies, one for each part of your morning. Pick the one you need today, say hello, and watch the sunrise.'; }
       var kh = document.querySelector('#keyCard h2'); if (kh && !kh.getAttribute('data-was')) { kh.setAttribute('data-was', kh.textContent); kh.textContent = 'Have a Rising Sun of your own?'; }
       $('status').className = 'status'; $('statusText').textContent = 'Demo mode, no sun connected';
-      $('wantAudio').checked = false; $('wantAudio').disabled = true;
+      $('wantAudio').checked = false; $('wantAudio').disabled = !etlToken(); $('signInHint').style.display = etlToken() ? 'none' : '';
     }).catch(function () {});
   }
   var fromLink = null; try { var mh = /[#&]k=([^&]+)/.exec(location.hash || ''); if (mh) { fromLink = decodeURIComponent(mh[1]); history.replaceState(null, '', location.pathname + location.search); } } catch (e) {}
