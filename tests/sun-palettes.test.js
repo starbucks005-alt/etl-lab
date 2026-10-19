@@ -18,7 +18,24 @@ mine.forEach(([, n, body]) => {
   check(ratio(v['--ink'], v['--panel']) >= 7, n + ': text on a card is at least 7:1');
   check(ratio(v['--mute'], v['--panel']) >= 4.5, n + ': soft text on a card is at least 4.5:1');
   check(ratio(v['--on-accent'], v['--accent']) >= 4.5, n + ': button text is at least 4.5:1');
+  check(ratio(v['--link'], v['--bg']) >= 4.5 && ratio(v['--link'], v['--panel']) >= 4.5, n + ': links and accent text are at least 4.5:1');
 });
 const opts = [...html.matchAll(/<option value="([a-z-]+)">/g)].map((m) => m[1]);
 check(gcNames.every((n) => opts.indexOf(n) > -1), 'every palette is in the picker');
+
+/* The web page carries the same palettes, and the same measuring. */
+const land = fs.readFileSync(__dirname + '/../rising-sun/index.html', 'utf8');
+const lmine = [...land.matchAll(/:root\[data-palette="([a-z-]+)"\]\{([^}]*)\}/g)];
+check(lmine.length === gcNames.length, 'the web page has every Good Company palette (' + lmine.length + ' of ' + gcNames.length + ')');
+lmine.forEach(([, n, body]) => {
+  const v = Object.fromEntries([...body.matchAll(/((?:--)?[a-z0-9-]+):([^;]+)/g)].map((m) => [m[1], m[2]]));
+  const dark = lum(v['--bg']) < 0.2;
+  check(v['color-scheme'] === (dark ? 'dark' : 'light'), 'page ' + n + ': light or dark measured and declared the same');
+  check(ratio(v['--ink'], v['--bg']) >= 7 && ratio(v['--ink'], v['--panel']) >= 7, 'page ' + n + ': text is at least 7:1');
+  check(ratio(v['--mute'], v['--bg']) >= 4.5 && ratio(v['--mute'], v['--panel']) >= 4.5, 'page ' + n + ': soft text is at least 4.5:1');
+  check(ratio(v['--on'], v['--accent']) >= 4.5, 'page ' + n + ': button text is at least 4.5:1');
+  check(ratio(v['--link'], v['--bg']) >= 4.5 && ratio(v['--link'], v['--panel']) >= 4.5, 'page ' + n + ': links are at least 4.5:1');
+});
+check(/id="pal"/.test(land) && gcNames.every((n) => land.indexOf('<option value="' + n + '">') > -1), 'the web page has the palette picker');
+check(/\.wrap\{max-width:none;margin:0;padding:0\}/.test(land), 'the web page has no side padding');
 process.exit(bad ? 1 : 0);
