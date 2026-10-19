@@ -148,6 +148,11 @@
   .ask{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .ask input[type=email]{flex:1 1 220px;min-width:0}
   .prod .more{align-self:flex-start;margin-top:4px;font-size:13px;padding:5px 10px}
+  .story{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:var(--field);flex:1 1 100%}
+  .story summary{cursor:pointer;font-weight:600;color:var(--ink)}
+  .story p{margin:8px 0 0;color:var(--text);font-size:14px;line-height:1.55}
+  .story .gift{color:var(--accent);font-style:italic}
+  .gcnote{margin:14px 0 0;font-size:14px;color:var(--text)}
   .trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
   body.p-candle .lightonly{display:none!important}
   body:not(.p-candle):not(.p-both) .candleonly{display:none!important}
@@ -207,6 +212,7 @@
       <p class="hint">No one greets the morning alone. Pick a fairy to talk to and to see what they keep.</p>
       <div class="tiles" id="tiles"><p class="hint" style="grid-column:1/-1;margin:0">The seven fairies appear here once you connect with the access code at the top.</p></div>
       <div class="curHead" id="curHead"></div>
+      <p class="gcnote">Loved A.L.I.C.E.? More friends live in <a href="../good-company/" style="color:var(--accent)">Good Company</a>.</p>
       <div class="row owner-only" style="margin-top:12px"><button id="newFairy">Make another fairy</button></div>
     </section>
 
@@ -404,7 +410,8 @@
     var ob = document.getElementById('ownerBar'); ob.style.display = '';
     document.getElementById('ownerExit').onclick = function () { try { sessionStorage.removeItem('sun_owner'); } catch (e) {} location.href = location.pathname; };
   }
-  var s = null, all = {}, editing = null, key = '';
+  var s = null, all = {}, editing = null, key = '', COURT = null;
+  try { fetch('personas.json').then(function (r) { return r.json(); }).then(function (P) { COURT = P.court || null; if (current) renderCourt(); }).catch(function () {}); } catch (e) {}
   function $(id) { return document.getElementById(id); }
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
   function say(id, text, bad) { var el = $(id); el.textContent = text; el.className = 'msg' + (bad ? ' bad' : ''); }
@@ -494,6 +501,16 @@
     var hear = document.createElement('button'); hear.textContent = 'Hear'; hear.onclick = function () { ask({ step: 'wake', fairy: current }, true); };
     var ed = document.createElement('button'); ed.textContent = 'Change words'; ed.onclick = function () { edit(current); };
     [use, hear, ed].forEach(function (x) { r.appendChild(x); }); box.appendChild(r); head.appendChild(box);
+    if (f.backstory) {
+      var det = document.createElement('details'); det.className = 'story';
+      var sm = document.createElement('summary'); sm.textContent = (f.name || 'Their') + '\u2019s story'; det.appendChild(sm);
+      var bp = document.createElement('p'); bp.textContent = f.backstory; det.appendChild(bp);
+      var nm = f.name || '', co = COURT || {};
+      var gift = String(co.gifts || '').split('. ').filter(function (x) { return x.indexOf(nm + ' ') === 0; })[0];
+      if (gift) { var gp = document.createElement('p'); gp.className = 'gift'; gp.textContent = gift.replace(/\.?$/, '.'); det.appendChild(gp); }
+      (co.friendships || []).filter(function (x) { return x.indexOf(nm) > -1; }).forEach(function (x) { var fp = document.createElement('p'); fp.textContent = x; det.appendChild(fp); });
+      head.appendChild(det);
+    }
     $('chatTitle').textContent = 'Chat with ' + (f.name || 'your fairy');
     var keeps = f.keeps || [], shown = 0;
     document.querySelectorAll('[data-keep]').forEach(function (c) { var on = keeps.indexOf(c.getAttribute('data-keep')) > -1; c.style.display = on ? '' : 'none'; if (on) shown++; });
@@ -884,7 +901,8 @@
       $('wantAudio').checked = false; $('wantAudio').disabled = true;
     }).catch(function () {});
   }
-  var saved = store('sunKey');
+  var fromLink = null; try { var mh = /[#&]k=([^&]+)/.exec(location.hash || ''); if (mh) { fromLink = decodeURIComponent(mh[1]); history.replaceState(null, '', location.pathname + location.search); } } catch (e) {}
+  var saved = fromLink || store('sunKey');
   if (saved) { key = saved; $('key').value = saved; load(); } else startDemo();
 })();
 </script>
