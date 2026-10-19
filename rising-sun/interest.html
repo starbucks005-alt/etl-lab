@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rising Sun list (ETL owner)</title>
+<style>
+  :root{--bg:#f6f1e8;--panel:#fff;--line:#e0d8c8;--ink:#2a1d12;--text:#4d3f33;--mute:#7a6c5d;--accent:#b8531c;--on:#fff;--bad:#b3261e}
+  @media (prefers-color-scheme:dark){:root{--bg:#17110d;--panel:#211914;--line:#3a2d23;--ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;--accent:#f08a4b;--on:#1b1008;--bad:#ff8a80}}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;line-height:1.5}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}h1{font-weight:500;color:var(--ink);margin:0 0 4px}h2{font-weight:500;color:var(--ink);font-size:18px;margin:0 0 8px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:10px 0 4px}
+  input,select,textarea,button{font:inherit;border-radius:8px}input,select,textarea{width:100%;color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:9px 10px}textarea{min-height:140px}
+  button{border:1px solid var(--accent);background:transparent;color:var(--accent);padding:8px 14px;cursor:pointer;margin:8px 8px 0 0}button.p{background:var(--accent);color:var(--on)}
+  table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}th{color:var(--ink)}tr.off td{color:var(--mute);text-decoration:line-through}
+  .msg{min-height:1.4em;margin:8px 0 0}.bad{color:var(--bad)}.stat{display:inline-block;margin-right:20px}.stat b{font-size:22px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Rising Sun list</h1>
+  <p>Who asked to be told when the light or the candles are ready. For ETL owner only.</p>
+  <div class="card">
+    <label for="key">ETL owner key</label>
+    <input id="key" type="password" autocomplete="off">
+    <button class="p" id="load">Show the list</button>
+    <p class="msg" id="loadMsg"></p>
+  </div>
+  <div class="card" id="listCard" style="display:none">
+    <h2>The list</h2>
+    <p><span class="stat"><b id="nAll">0</b> signed up</span><span class="stat"><b id="nAct">0</b> still on the list</span></p>
+    <p id="by"></p>
+    <button id="copy">Copy the emails</button><button id="csv">Download as a spreadsheet</button>
+    <table style="margin-top:12px"><thead><tr><th>Email</th><th>Wants</th><th>Fairy</th><th>From</th><th>When</th></tr></thead><tbody id="rows"></tbody></table>
+  </div>
+  <div class="card" id="sendCard" style="display:none">
+    <h2>Write to the list</h2>
+    <p>Send the message when the light or a candle is ready. Everyone who took themselves off the list is skipped, and each message has its own link to leave.</p>
+    <label for="subject">Subject</label><input id="subject" type="text" placeholder="The Rising Sun is ready">
+    <label for="message">Message</label><textarea id="message" placeholder="Write it the way you would say it. A blank line starts a new paragraph."></textarea>
+    <label for="who">Send to</label>
+    <select id="who"><option value="both">Everyone on the list</option><option value="light">Those waiting for the light</option><option value="candle">Those waiting for a candle</option></select>
+    <button id="test">Send me a test first</button><button class="p" id="send">Send to the list</button>
+    <p class="msg" id="sendMsg"></p>
+  </div>
+</div>
+<script>
+(function () {
+  var URL = '/.netlify/functions/sun-interest', $ = function (i) { return document.getElementById(i); }, data = null;
+  function call(method, body) {
+    var o = { method: method, headers: { authorization: 'Bearer ' + $('key').value.trim(), 'content-type': 'application/json' } };
+    if (body) o.body = JSON.stringify(body);
+    return fetch(URL, o).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That owner key was not accepted.' : (j.error || 'Something went wrong.')); return j; }); });
+  }
+  function show(j) {
+    data = j; $('listCard').style.display = ''; $('sendCard').style.display = '';
+    $('nAll').textContent = j.count; $('nAct').textContent = j.active;
+    var c = {}; j.interested.forEach(function (x) { if (!x.unsubscribed) c[x.product] = (c[x.product] || 0) + 1; });
+    $('by').textContent = 'Waiting for: the light ' + (c.light || 0) + ', a candle ' + (c.candle || 0) + ', both ' + (c.both || 0) + '.';
+    var tb = $('rows'); tb.innerHTML = '';
+    j.interested.forEach(function (x) {
+      var tr = document.createElement('tr'); if (x.unsubscribed) tr.className = 'off';
+      [x.email, x.product, x.fairy, x.source, (x.at || '').slice(0, 10)].forEach(function (v) { var td = document.createElement('td'); td.textContent = v || ''; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+  }
+  $('load').onclick = function () { $('loadMsg').className = 'msg'; $('loadMsg').textContent = ''; call('GET').then(show).catch(function (e) { $('loadMsg').className = 'msg bad'; $('loadMsg').textContent = e.message; }); };
+  $('copy').onclick = function () { var t = data.interested.filter(function (x) { return !x.unsubscribed; }).map(function (x) { return x.email; }).join('\n'); navigator.clipboard.writeText(t).then(function () { $('copy').textContent = 'Copied'; setTimeout(function () { $('copy').textContent = 'Copy the emails'; }, 1500); }); };
+  $('csv').onclick = function () {
+    var rows = [['email', 'wants', 'fairy', 'from', 'when', 'left the list']].concat(data.interested.map(function (x) { return [x.email, x.product, x.fairy, x.source, x.at, x.unsubscribed ? 'yes' : '']; }));
+    var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v || '').replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'rising-sun-list.csv'; a.click();
+  };
+  function send(test) {
+    var body = { action: 'announce', subject: $('subject').value, message: $('message').value, product: $('who').value, test: test };
+    if (!test && !confirm('Send this to ' + $('nAct').textContent + ' people? This cannot be undone.')) return;
+    $('sendMsg').className = 'msg'; $('sendMsg').textContent = 'Sending...';
+    call('POST', body).then(function (j) { $('sendMsg').textContent = test ? (j.sent ? 'Test sent to your work address.' : 'The test did not send: ' + (j.reason || 'unknown')) : ('Sent to ' + j.sent + (j.failed ? ', and ' + j.failed + ' did not send.' : '.')); })
+      .catch(function (e) { $('sendMsg').className = 'msg bad'; $('sendMsg').textContent = e.message; });
+  }
+  $('test').onclick = function () { send(true); }; $('send').onclick = function () { send(false); };
+})();
+</script>
+</body>
+</html>

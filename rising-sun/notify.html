@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Be told when the Rising Sun is ready</title>
+<meta name="description" content="Leave your email and we will tell you when the Rising Sun light or a Rising Sun Court candle is available. ETL Lab members get 15% off.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600&display=swap">
+<style>
+  :root{--bg:#f6f1e8;--panel:#fff;--line:#e0d8c8;--ink:#2a1d12;--text:#4d3f33;--mute:#7a6c5d;--accent:#b8531c;--on:#fff;--bad:#b3261e}
+  @media (prefers-color-scheme:dark){:root{--bg:#17110d;--panel:#211914;--line:#3a2d23;--ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;--accent:#f08a4b;--on:#1b1008;--bad:#ff8a80}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Public Sans',system-ui,sans-serif;line-height:1.55}
+  .wrap{max-width:640px;margin:0 auto;padding:24px 16px 64px}
+  h1{font-family:Spectral,Georgia,serif;font-weight:400;font-size:clamp(30px,6vw,42px);line-height:1.12;margin:0 0 6px;color:var(--ink)}
+  h1 em{color:var(--accent);font-style:italic}
+  .motto{font-family:Spectral,Georgia,serif;font-style:italic;font-size:18px;color:var(--accent);margin:0 0 14px}
+  img.hero{display:block;width:100%;height:auto;aspect-ratio:1376/768;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:0 0 16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:12px 0 4px}
+  input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+  input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  button{margin-top:16px;width:100%;font:inherit;font-weight:600;background:var(--accent);color:var(--on);border:0;border-radius:10px;padding:13px;cursor:pointer}
+  .fine{font-size:13px;color:var(--mute);margin:12px 0 0}
+  .msg{min-height:1.4em;margin:12px 0 0;font-size:15px}.msg.bad{color:var(--bad)}.msg.ok{color:var(--ink);font-weight:600}
+  .trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <img class="hero" src="court_hero_v2.jpg" alt="The seven fairies of the Rising Sun Court, standing together in a sunlit wood">
+  <h1>Be told when the Rising Sun <em>is ready</em></h1>
+  <p class="motto">No one greets the morning alone.</p>
+  <div class="card">
+    <p style="margin:0">The Rising Sun light wakes you with a sunrise, and a fairy of the Rising Sun Court greets you. The candles are flameless, with one fairy in each. Leave your email and we will tell you when they are ready. ETL Lab members get 15% off.</p>
+    <form id="f" novalidate>
+      <label for="email">Your email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+      <label for="product">What are you waiting for?</label>
+      <select id="product"><option value="both">The light and the candles</option><option value="light">The Rising Sun light</option><option value="candle">A candle</option></select>
+      <label for="fairy">Which fairy would you like? (optional)</label>
+      <select id="fairy"><option value="">Surprise me</option><option value="velvet">Velvet, Keeper of the Hearth</option><option value="ember">Ember, Keeper of First Light</option><option value="ash">Ash, Guardian of time</option><option value="flint">Flint, Spark of Joy</option><option value="poppy">Poppy, Heart of the Court</option><option value="tansy">Tansy, Visionary and adventurer</option><option value="blue">Blue, Highest of the Court</option></select>
+      <input class="trap" id="trap" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit">Tell me when it is ready</button>
+      <p class="msg" id="msg" role="status"></p>
+    </form>
+    <p class="fine">We use your email to tell you when the light or a candle is ready, and for nothing else. Every message has a link to take yourself off the list. <a href="/rising-sun/">Try the preview first</a>.</p>
+  </div>
+</div>
+<script>
+(function () {
+  var src = ''; try { var m = /[?&]s=([a-z0-9-]{1,40})/.exec(location.search); if (m) src = m[1]; var pm = /[?&]p=(light|candle|both)/.exec(location.search); if (pm) document.getElementById('product').value = pm[1]; } catch (e) {}
+  var f = document.getElementById('f'), msg = document.getElementById('msg');
+  f.onsubmit = function (e) {
+    e.preventDefault(); msg.className = 'msg';
+    var em = document.getElementById('email').value.trim();
+    if (!em) { msg.className = 'msg bad'; msg.textContent = 'Type your email first.'; return; }
+    msg.textContent = 'One moment...';
+    fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: document.getElementById('product').value, fairy: document.getElementById('fairy').value, source: src, website: document.getElementById('trap').value }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong. Please try again.'); msg.className = 'msg ok'; msg.textContent = 'Thank you. You are on the list. Watch your inbox.'; f.reset(); }); })
+      .catch(function (err) { msg.className = 'msg bad'; msg.textContent = err.message; });
+  };
+})();
+</script>
+</body>
+</html>
