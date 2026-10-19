@@ -1,926 +1,268 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
-<script>try{var p=localStorage.getItem('sun_palette');if(p&&/^[a-z-]{2,20}$/.test(p))document.documentElement.setAttribute('data-palette',p)}catch(e){}</script>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Rising Sun Court: panel</title>
-<meta name="robots" content="noindex">
-<!-- The Rising Sun panel, 2026-10-18, Dr. O: "panel like astra so personalities of the fire fairy can vary and the user can easily set things up".
-     Same layout and colors as the Astra-9 Lite panel (al-panel/index.html). It talks to two functions: sun-settings (saves the choices, the board reads them)
-     and sun-morning (the fairy's brain). NOT TRIED against the live site yet. The access key is the one set as SUN_DEVICE_KEY; it is kept in this browser only. -->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Rising Sun Court: a sunrise light and candles with a fairy inside</title>
+<meta name="description" content="Seven fairies, one for each part of your morning. The Rising Sun light wakes you with a sunrise and a fairy who says good morning. Flameless candles, one fairy in each, are coming. Try it free.">
+<meta property="og:title" content="The Rising Sun Court">
+<meta property="og:description" content="No one greets the morning alone. A sunrise light and flameless candles, each with a fairy inside.">
+<meta property="og:image" content="https://emerging-tech-lab.com/rising-sun/court_hero_v2.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='38' r='16' fill='%23f08a4b'/%3E%3Cpath d='M6 54h52' stroke='%23b8531c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;600&display=swap">
+<script>
+/* Old links that went to the panel (owner view, a personal link, a source tag) still do. */
+(function(){ try { if (/[?&](owner|k)=/.test(location.search) || /[#&]k=/.test(location.hash)) location.replace('panel.html' + location.search + location.hash); } catch (e) {} })();
+</script>
 <style>
-  :root{
-    --bg:#f6f1e8;--panel:#ffffff;--line:#e0d8c8;--line2:#c9bea8;
-    --ink:#2a1d12;--text:#4d3f33;--mute:#7a6c5d;
-    --accent:#b8531c;--accent-bg:#fbe7d8;--on-accent:#ffffff;
-    --status:#28527a;--status-bg:#e4ebf1;--on-status:#ffffff;
-    --field:#ffffff;--night:#1b1410;
-    --bad:#b3261e;--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;--body:'Public Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--display:Spectral,Georgia,serif;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#17110d;--panel:#211914;--line:#3a2d23;--line2:#4d3d30;
-      --ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;
-      --accent:#f08a4b;--accent-bg:#3a2316;--on-accent:#1b1008;
-      --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;--bad:#ff8a80;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#17110d;--panel:#211914;--line:#3a2d23;--line2:#4d3d30;
-    --ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;
-    --accent:#f08a4b;--accent-bg:#3a2316;--on-accent:#1b1008;
-    --status:#7fb3e6;--status-bg:#1c2b3a;--on-status:#0e1620;--field:#2a2018;--bad:#ff8a80;
-  }
-  /* PALETTES, from Good Company and My Echo (gc-skin.css). Each block is that room's own colors; the light or dark of each is measured from its background, never listed by hand. */
-  :root[data-palette="harvest"]{color-scheme:light;--bg:#F7F1E6;--panel:#EFE5D3;--field:#EFE5D3;--line:#DDCEB6;--line2:color-mix(in srgb,#DDCEB6 70%,#241C12);--ink:#241C12;--text:#241C12;--mute:#665441;--accent:#9E4E27;--on-accent:#FFF8ED;--accent-bg:color-mix(in srgb,#9E4E27 16%,#EFE5D3);--status:#9E4E27;--status-bg:color-mix(in srgb,#9E4E27 16%,#EFE5D3);--on-status:#FFF8ED;--bad:#b3261e}
-  :root[data-palette="seaside"]{color-scheme:light;--bg:#F1F7F8;--panel:#E1EFF1;--field:#E1EFF1;--line:#C7DDE1;--line2:color-mix(in srgb,#C7DDE1 70%,#0F2429);--ink:#0F2429;--text:#0F2429;--mute:#4A666D;--accent:#9A4630;--on-accent:#FFF6F3;--accent-bg:color-mix(in srgb,#9A4630 16%,#E1EFF1);--status:#9A4630;--status-bg:color-mix(in srgb,#9A4630 16%,#E1EFF1);--on-status:#FFF6F3;--bad:#b3261e}
-  :root[data-palette="snowline"]{color-scheme:light;--bg:#F6F8FA;--panel:#EAEEF3;--field:#EAEEF3;--line:#D8DEE7;--line2:color-mix(in srgb,#D8DEE7 70%,#171A1F);--ink:#171A1F;--text:#171A1F;--mute:#555C67;--accent:#3A6355;--on-accent:#F4F9F7;--accent-bg:color-mix(in srgb,#3A6355 16%,#EAEEF3);--status:#3A6355;--status-bg:color-mix(in srgb,#3A6355 16%,#EAEEF3);--on-status:#F4F9F7;--bad:#b3261e}
-  :root[data-palette="fireside"]{color-scheme:dark;--bg:#171310;--panel:#221C17;--field:#221C17;--line:#382E24;--line2:color-mix(in srgb,#382E24 70%,#F4ECE0);--ink:#F4ECE0;--text:#F4ECE0;--mute:#AC9D8B;--accent:#E08A4E;--on-accent:#1A1410;--accent-bg:color-mix(in srgb,#E08A4E 16%,#221C17);--status:#E08A4E;--status-bg:color-mix(in srgb,#E08A4E 16%,#221C17);--on-status:#1A1410;--bad:#ff8a80}
-  :root[data-palette="grove"]{color-scheme:dark;--bg:#0E1A10;--panel:#17281A;--field:#17281A;--line:#2C4530;--line2:color-mix(in srgb,#2C4530 70%,#EFE6CC);--ink:#EFE6CC;--text:#EFE6CC;--mute:#93AE85;--accent:#D4A72C;--on-accent:#14210F;--accent-bg:color-mix(in srgb,#D4A72C 16%,#17281A);--status:#D4A72C;--status-bg:color-mix(in srgb,#D4A72C 16%,#17281A);--on-status:#14210F;--bad:#ff8a80}
-  :root[data-palette="bramble"]{color-scheme:light;--bg:#D2E2EE;--panel:#BAD3E8;--field:#BAD3E8;--line:#9AC0DF;--line2:color-mix(in srgb,#9AC0DF 70%,#0F1215);--ink:#0F1215;--text:#0F1215;--mute:#40596D;--accent:#0A385F;--on-accent:#F7F7F8;--accent-bg:color-mix(in srgb,#0A385F 16%,#BAD3E8);--status:#0A385F;--status-bg:color-mix(in srgb,#0A385F 16%,#BAD3E8);--on-status:#F7F7F8;--bad:#b3261e}
-  :root[data-palette="tidepool"]{color-scheme:light;--bg:#D2EEEE;--panel:#BAE7E8;--field:#BAE7E8;--line:#9ADEDF;--line2:color-mix(in srgb,#9ADEDF 70%,#0B1D19);--ink:#0B1D19;--text:#0B1D19;--mute:#2B6559;--accent:#A33E70;--on-accent:#F8F7F7;--accent-bg:color-mix(in srgb,#A33E70 16%,#BAE7E8);--status:#A33E70;--status-bg:color-mix(in srgb,#A33E70 16%,#BAE7E8);--on-status:#F8F7F7;--bad:#b3261e}
-  :root[data-palette="confetti"]{color-scheme:light;--bg:#EED4D2;--panel:#E8BDBA;--field:#E8BDBA;--line:#DF9F9A;--line2:color-mix(in srgb,#DF9F9A 70%,#080806);--ink:#080806;--text:#080806;--mute:#080806;--accent:#F8A49E;--on-accent:#23211A;--accent-bg:color-mix(in srgb,#F8A49E 16%,#E8BDBA);--status:#F8A49E;--status-bg:color-mix(in srgb,#F8A49E 16%,#E8BDBA);--on-status:#23211A;--bad:#b3261e}
-  :root[data-palette="blueprint"]{color-scheme:dark;--bg:#0F1E29;--panel:#142C3D;--field:#142C3D;--line:#1D425D;--line2:color-mix(in srgb,#1D425D 70%,#EEECE7);--ink:#EEECE7;--text:#EEECE7;--mute:#C2B38E;--accent:#BB894C;--on-accent:#171A1C;--accent-bg:color-mix(in srgb,#BB894C 16%,#142C3D);--status:#BB894C;--status-bg:color-mix(in srgb,#BB894C 16%,#142C3D);--on-status:#171A1C;--bad:#ff8a80}
-  :root[data-palette="umber"]{color-scheme:dark;--bg:#241B14;--panel:#37271B;--field:#37271B;--line:#533A27;--line2:color-mix(in srgb,#533A27 70%,#EEEBE7);--ink:#EEEBE7;--text:#EEEBE7;--mute:#C2AB8E;--accent:#7D5430;--on-accent:#F3F2F1;--accent-bg:color-mix(in srgb,#7D5430 16%,#37271B);--status:#7D5430;--status-bg:color-mix(in srgb,#7D5430 16%,#37271B);--on-status:#F3F2F1;--bad:#ff8a80}
-  :root[data-palette="blaze"]{color-scheme:dark;--bg:#290F12;--panel:#3D1419;--field:#3D1419;--line:#5D1D25;--line2:color-mix(in srgb,#5D1D25 70%,#EEEBE7);--ink:#EEEBE7;--text:#EEEBE7;--mute:#C2AD8E;--accent:#FDA829;--on-accent:#1C1817;--accent-bg:color-mix(in srgb,#FDA829 16%,#3D1419);--status:#FDA829;--status-bg:color-mix(in srgb,#FDA829 16%,#3D1419);--on-status:#1C1817;--bad:#ff8a80}
-  :root[data-palette="understory"]{color-scheme:dark;--bg:#222711;--panel:#323A18;--field:#323A18;--line:#4C5823;--line2:color-mix(in srgb,#4C5823 70%,#F6F7F6);--ink:#F6F7F6;--text:#F6F7F6;--mute:#A1B39E;--accent:#A2B645;--on-accent:#1B1C17;--accent-bg:color-mix(in srgb,#A2B645 16%,#323A18);--status:#A2B645;--status-bg:color-mix(in srgb,#A2B645 16%,#323A18);--on-status:#1B1C17;--bad:#ff8a80}
-  :root[data-palette="wildflower"]{color-scheme:dark;--bg:#251319;--panel:#371B24;--field:#371B24;--line:#532736;--line2:color-mix(in srgb,#532736 70%,#EEECE7);--ink:#EEECE7;--text:#EEECE7;--mute:#C2B68E;--accent:#FEB641;--on-accent:#171C19;--accent-bg:color-mix(in srgb,#FEB641 16%,#371B24);--status:#FEB641;--status-bg:color-mix(in srgb,#FEB641 16%,#371B24);--on-status:#171C19;--bad:#ff8a80}
-  :root[data-palette="twilight"]{color-scheme:dark;--bg:#1B0F29;--panel:#27153D;--field:#27153D;--line:#3A1E5C;--line2:color-mix(in srgb,#3A1E5C 70%,#EEE7EE);--ink:#EEE7EE;--text:#EEE7EE;--mute:#C28EC2;--accent:#993A7D;--on-accent:#F3F1F3;--accent-bg:color-mix(in srgb,#993A7D 16%,#27153D);--status:#993A7D;--status-bg:color-mix(in srgb,#993A7D 16%,#27153D);--on-status:#F3F1F3;--bad:#ff8a80}
-  :root[data-palette="alpine"]{color-scheme:dark;--bg:#0F1D29;--panel:#152A3C;--field:#152A3C;--line:#1F405B;--line2:color-mix(in srgb,#1F405B 70%,#E7EEEE);--ink:#E7EEEE;--text:#E7EEEE;--mute:#8EC2C2;--accent:#405265;--on-accent:#F1F3F3;--accent-bg:color-mix(in srgb,#405265 16%,#152A3C);--status:#405265;--status-bg:color-mix(in srgb,#405265 16%,#152A3C);--on-status:#F1F3F3;--bad:#ff8a80}
-  :root[data-palette="canopy"]{color-scheme:dark;--bg:#1F1919;--panel:#2E2424;--field:#2E2424;--line:#463535;--line2:color-mix(in srgb,#463535 70%,#EDEEE7);--ink:#EDEEE7;--text:#EDEEE7;--mute:#B9C28E;--accent:#3FA75A;--on-accent:#1C1717;--accent-bg:color-mix(in srgb,#3FA75A 16%,#2E2424);--status:#3FA75A;--status-bg:color-mix(in srgb,#3FA75A 16%,#2E2424);--on-status:#1C1717;--bad:#ff8a80}
-  :root[data-palette="amethyst"]{color-scheme:light;--bg:#DBD7EA;--panel:#C7C1E2;--field:#C7C1E2;--line:#AEA4D6;--line2:color-mix(in srgb,#AEA4D6 70%,#0B0A0E);--ink:#0B0A0E;--text:#0B0A0E;--mute:#0B0A0E;--accent:#5740A8;--on-accent:#F8F7F8;--accent-bg:color-mix(in srgb,#5740A8 16%,#C7C1E2);--status:#5740A8;--status-bg:color-mix(in srgb,#5740A8 16%,#C7C1E2);--on-status:#F8F7F8;--bad:#b3261e}
-  :root[data-palette="driftwood"]{color-scheme:light;--bg:#E4E4DD;--panel:#D7D7CB;--field:#D7D7CB;--line:#C7C7B3;--line2:color-mix(in srgb,#C7C7B3 70%,#151514);--ink:#151514;--text:#151514;--mute:#5A5A48;--accent:#D7AE96;--on-accent:#1F1F1E;--accent-bg:color-mix(in srgb,#D7AE96 16%,#D7D7CB);--status:#D7AE96;--status-bg:color-mix(in srgb,#D7AE96 16%,#D7D7CB);--on-status:#1F1F1E;--bad:#b3261e}
-  :root[data-palette="orchard"]{color-scheme:light;--bg:#D6DCEB;--panel:#BECAE4;--field:#BECAE4;--line:#A1B2D9;--line2:color-mix(in srgb,#A1B2D9 70%,#090F06);--ink:#090F06;--text:#090F06;--mute:#395C28;--accent:#6642AE;--on-accent:#F8F7F7;--accent-bg:color-mix(in srgb,#6642AE 16%,#BECAE4);--status:#6642AE;--status-bg:color-mix(in srgb,#6642AE 16%,#BECAE4);--on-status:#F8F7F7;--bad:#b3261e}
-  :root[data-palette="terrarium"]{color-scheme:dark;--bg:#0F2629;--panel:#14393D;--field:#14393D;--line:#1D565D;--line2:color-mix(in srgb,#1D565D 70%,#EFF3EE);--ink:#EFF3EE;--text:#EFF3EE;--mute:#9DC28E;--accent:#41AA92;--on-accent:#17191C;--accent-bg:color-mix(in srgb,#41AA92 16%,#14393D);--status:#41AA92;--status-bg:color-mix(in srgb,#41AA92 16%,#14393D);--on-status:#17191C;--bad:#ff8a80}
-  :root[data-palette="bordeaux"]{color-scheme:dark;--bg:#290F13;--panel:#3D141A;--field:#3D141A;--line:#5D1D27;--line2:color-mix(in srgb,#5D1D27 70%,#EEE7E7);--ink:#EEE7E7;--text:#EEE7E7;--mute:#C2918E;--accent:#8E201A;--on-accent:#F3F1F1;--accent-bg:color-mix(in srgb,#8E201A 16%,#3D141A);--status:#8E201A;--status-bg:color-mix(in srgb,#8E201A 16%,#3D141A);--on-status:#F3F1F1;--bad:#ff8a80}
-  :root[data-palette="copper"]{color-scheme:dark;--bg:#29160F;--panel:#3D1F14;--field:#3D1F14;--line:#5D2E1D;--line2:color-mix(in srgb,#5D2E1D 70%,#EEE9E7);--ink:#EEE9E7;--text:#EEE9E7;--mute:#C29F8E;--accent:#522C1F;--on-accent:#F3F2F1;--accent-bg:color-mix(in srgb,#522C1F 16%,#3D1F14);--status:#522C1F;--status-bg:color-mix(in srgb,#522C1F 16%,#3D1F14);--on-status:#F3F2F1;--bad:#ff8a80}
-  :root[data-palette="tide"]{color-scheme:light;--bg:#EED2E6;--panel:#E8BADA;--field:#E8BADA;--line:#DF9ACB;--line2:color-mix(in srgb,#DF9ACB 70%,#090B0C);--ink:#090B0C;--text:#090B0C;--mute:#090B0C;--accent:#B08EB7;--on-accent:#1B1F22;--accent-bg:color-mix(in srgb,#B08EB7 16%,#E8BADA);--status:#B08EB7;--status-bg:color-mix(in srgb,#B08EB7 16%,#E8BADA);--on-status:#1B1F22;--bad:#b3261e}
-  :root[data-palette="slate"]{color-scheme:light;--bg:#E0E0E0;--panel:#D2D0D0;--field:#D2D0D0;--line:#BFBBBB;--line2:color-mix(in srgb,#BFBBBB 70%,#101211);--ink:#101211;--text:#101211;--mute:#535A5A;--accent:#3E4A4B;--on-accent:#F8F7F7;--accent-bg:color-mix(in srgb,#3E4A4B 16%,#D2D0D0);--status:#3E4A4B;--status-bg:color-mix(in srgb,#3E4A4B 16%,#D2D0D0);--on-status:#F8F7F7;--bad:#b3261e}
-  :root[data-palette="black"]{color-scheme:dark;--bg:#1C1C1C;--panel:#292828;--field:#292828;--line:#3E3C3C;--line2:color-mix(in srgb,#3E3C3C 70%,#EBEBEB);--ink:#EBEBEB;--text:#EBEBEB;--mute:#A8A8A8;--accent:#D8D8D8;--on-accent:#1C1717;--accent-bg:color-mix(in srgb,#D8D8D8 16%,#292828);--status:#D8D8D8;--status-bg:color-mix(in srgb,#D8D8D8 16%,#292828);--on-status:#1C1717;--bad:#ff8a80}
-  :root[data-palette="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--field:#3D1814;--line:#5D221D;--line2:color-mix(in srgb,#5D221D 70%,#EEECE7);--ink:#EEECE7;--text:#EEECE7;--mute:#C2B08E;--accent:#DB930E;--on-accent:#1C1A17;--accent-bg:color-mix(in srgb,#DB930E 16%,#3D1814);--status:#DB930E;--status-bg:color-mix(in srgb,#DB930E 16%,#3D1814);--on-status:#1C1A17;--bad:#ff8a80}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.55}
-  .wrap{max-width:1100px;margin:0 auto;padding:28px 16px 80px}
-  .top{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
-  .top h1{flex:1 1 auto}
-  .themebtn{font-size:13px;padding:6px 10px;margin-top:6px}
-  code{font-family:var(--mono);font-size:13px;background:var(--field);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
-  h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,5vw,44px);line-height:1.12;margin:0 0 6px;color:var(--ink)}
-  h1 em{font-style:italic;color:var(--accent)}
-  .sub{margin:0 0 14px;font-size:16px;max-width:60ch}
-  .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);color:var(--ink)}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--mute)}
-  .status.live .dot{background:var(--accent)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:18px;margin-top:22px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
-  .card.wide{grid-column:1/-1}
-  h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0 0 4px;color:var(--ink)}
-  .hint{margin:0 0 14px;font-size:14px;color:var(--mute)}
-  button,select,input,textarea{font-family:var(--body);font-size:15px}
-  button{cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--ink);padding:9px 14px;border-radius:8px}
-  button:hover{border-color:var(--accent)}
-  button.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-  button:disabled{opacity:.5;cursor:default}
-  input[type=text],input[type=password],input[type=number],select,textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line2);border-radius:8px;background:var(--field);color:var(--ink)}
-  textarea{resize:vertical;min-height:70px}
-  label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .row > *{flex:1 1 90px}
-  .row > button{flex:0 0 auto}
-  .sky{height:150px;border-radius:12px;position:relative;overflow:hidden;background:#000;border:1px solid var(--line)}
-  .sky .sun{position:absolute;left:50%;bottom:-70px;width:150px;height:150px;margin-left:-75px;border-radius:50%;filter:blur(14px)}
-  input[type=range]{width:100%}
-  .fairies{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px}
-  .fairy{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--field);display:flex;flex-direction:column;gap:6px}
-  .fairy.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
-  .fairy h3{margin:0;font-size:16px;color:var(--ink)}
-  .fairy p{margin:0;font-size:14px;flex:1}
-  .tag{display:inline-block;font-family:var(--body);font-size:11px;padding:2px 8px;border-radius:12px;background:var(--accent-bg);color:var(--accent);width:max-content}
-  .said{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--status-bg);color:var(--ink);min-height:1.4em}
-  .thread{border:1px solid var(--line);border-radius:12px;background:var(--field);padding:12px;height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
-  .bub{max-width:82%;padding:9px 13px;border-radius:14px;font-size:15px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
-  .bub.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:4px}
-  .bub.her{align-self:flex-start;background:var(--status-bg);color:var(--ink);border-bottom-left-radius:4px}
-  .bub .who{display:block;font-size:11px;font-family:var(--body);color:var(--mute);margin-bottom:2px}
-  .bub.pending{opacity:.6}
-  .mrow{display:flex;align-items:flex-end;gap:8px;max-width:92%}
-  .mrow .bub{max-width:none}
-  .ava{width:34px;height:34px;border-radius:50%;object-fit:cover;object-position:50% 20%;flex:0 0 34px;background:var(--line);border:1px solid var(--line2)}
-  .tiles{display:flex;flex-wrap:wrap;gap:16px 10px;padding-top:8px}
-  .tile{display:flex;flex-direction:column;align-items:center;gap:4px;width:104px;padding:10px 6px;border:1px solid var(--line);border-radius:12px;background:var(--field);cursor:pointer;color:var(--ink);font-size:13px;position:relative}
-  .tile:hover{border-color:var(--accent)}
-  .tile.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg);background:var(--accent-bg)}
-  .tile .tn{font-weight:600;font-size:14px}
-  .tile .tt{font-size:11px;color:var(--mute);text-align:center;line-height:1.25}
-  .tile .sunmark{position:absolute;top:-9px;left:50%;transform:translateX(-50%);padding:1px 8px;border-radius:10px;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
-  .av{width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 20%;background:var(--line);border:2px solid var(--line2);flex:0 0 64px}
-  .av.big{width:84px;height:84px;flex:0 0 84px;border-color:var(--accent)}
-  .av.initial{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:28px;color:var(--accent);background:var(--accent-bg)}
-  .curHead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
-  .curHead h3{margin:0;font-size:20px;color:var(--ink);font-family:var(--display);font-weight:400}
-  .curHead .ttl{font-size:14px;color:var(--mute);margin:0 0 6px}
-  .keepHead{grid-column:1/-1;margin:8px 0 0}
-  .detHead{display:flex;align-items:center;gap:12px;margin-bottom:4px}
-  .detHead img{width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:2px solid var(--accent);background:var(--line);flex:0 0 56px}
-  .empty{margin:auto;text-align:center;color:var(--mute);font-size:14px;max-width:34ch}
-  body:not(.owner) .owner-only{display:none!important}
-  .owner-bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-bg);color:var(--ink);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:14px}
-  .lab{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:10px 0 4px}
-  .ownbox{margin-top:18px;padding:14px;border:1px dashed var(--line2);border-radius:10px}
-  .ownbox h3{margin:0 0 6px;font-size:15px;color:var(--ink)}
-  .prods{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
-  .prod{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--field);display:flex;flex-direction:column;gap:6px}
-  .prod b{color:var(--ink);font-size:15px}
-  .prod span{color:var(--text);font-size:14px}
-  .prod .tag{align-self:flex-start;font-style:normal}
-  body.demo #musicCard,body.demo #calCard,body.demo #newsCard,body.demo #connCard{display:none!important}
-  .demonote{display:none;margin:0 0 12px;padding:10px 14px;border:1px dashed var(--line2);border-radius:10px;color:var(--text);font-size:14px;max-width:70ch}
-  body.demo .demonote{display:block}
-  .demo-only{display:none}
-  body.demo .demo-only{display:block}
-  body.demo #keyCard{order:90}
-  body.demo .prodpick{display:none}
-  .quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:12px}
-  .quiz button{display:flex;align-items:center;gap:10px;text-align:left;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.3}
-  .quiz button img,.quiz button .initial{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 20%;flex:0 0 40px}
-  .quiz button b{display:block;font-size:13px;color:var(--ink)}
-  .ask{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .ask input[type=email]{flex:1 1 220px;min-width:0}
-  .prod .more{align-self:flex-start;margin-top:4px;font-size:13px;padding:5px 10px}
-  .story{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:var(--field);flex:1 1 100%}
-  .story summary{cursor:pointer;font-weight:600;color:var(--ink)}
-  .story p{margin:8px 0 0;color:var(--text);font-size:14px;line-height:1.55}
-  .story .gift{color:var(--accent);font-style:italic}
-  .gcnote{margin:14px 0 0;font-size:14px;color:var(--text)}
+  :root{--bg:#f6f1e8;--panel:#fff;--line:#e0d8c8;--ink:#2a1d12;--text:#4d3f33;--mute:#7a6c5d;--accent:#b8531c;--on:#fff;--warm:#fbe7d8;--bad:#b3261e}
+  @media (prefers-color-scheme:dark){:root{--bg:#17110d;--panel:#211914;--line:#3a2d23;--ink:#f6ece0;--text:#d6c8b8;--mute:#9d8e7d;--accent:#f08a4b;--on:#1b1008;--warm:#3a2316;--bad:#ff8a80}}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Public Sans',system-ui,sans-serif;line-height:1.6;font-size:17px}
+  a{color:var(--accent)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:18px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+  nav b{font-family:Spectral,Georgia,serif;font-weight:500;font-size:19px;color:var(--ink);margin-right:auto}
+  nav a{font-size:14px;text-decoration:none;color:var(--text)}nav a:hover{color:var(--accent)}
+  nav a.cta{background:var(--accent);color:var(--on);padding:7px 14px;border-radius:999px;font-weight:600}
+  .hero{position:relative;color:#fff;background:#1a1109}
+  .hero img{display:block;width:100%;height:min(78vh,640px);object-fit:cover;object-position:50% 30%;opacity:.92}
+  .hero .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,12,6,.15),rgba(20,12,6,.78))}
+  .hero .copy{position:absolute;left:0;right:0;bottom:0;padding:0 0 clamp(24px,6vw,56px)}
+  .hero h1{font-family:Spectral,Georgia,serif;font-weight:400;font-size:clamp(34px,7vw,64px);line-height:1.06;margin:0 0 10px;max-width:16ch;text-shadow:0 2px 18px rgba(0,0,0,.5)}
+  .hero h1 em{font-style:italic;color:#ffc58f}
+  .hero p{font-size:clamp(17px,2.4vw,21px);max-width:44ch;margin:0 0 18px;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+  .btns{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:13px 22px;border-radius:999px;font-weight:600;text-decoration:none;font-size:16px;border:2px solid var(--accent);background:var(--accent);color:var(--on)}
+  .btn.ghost{background:transparent;color:inherit;border-color:currentColor}
+  .hero .btn.ghost{color:#fff}
+  section{padding:clamp(40px,7vw,80px) 0}
+  h2{font-family:Spectral,Georgia,serif;font-weight:400;font-size:clamp(28px,4.5vw,40px);line-height:1.12;color:var(--ink);margin:0 0 12px}
+  h2 em{font-style:italic;color:var(--accent)}
+  .lede{font-size:clamp(18px,2.4vw,21px);max-width:60ch}
+  .alt{background:var(--warm)}
+  .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:20px;margin-top:24px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .box h3{font-family:Spectral,Georgia,serif;font-weight:500;font-size:26px;margin:0 0 6px;color:var(--ink)}
+  .tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;background:var(--warm);color:var(--accent);margin-bottom:10px}
+  .box ul{padding-left:1.1rem;margin:10px 0 0}.box li{margin:4px 0}
+  .fairies{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:20px;margin-top:26px}
+  .fairy{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .fairy img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;object-position:50% 20%}
+  .fb{padding:16px 18px 20px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .fb h3{font-family:Spectral,Georgia,serif;font-weight:500;font-size:26px;margin:0;color:var(--ink)}
+  .fb p{margin:0;font-size:15px}.fb .ttl{color:var(--accent);font-weight:600;font-size:14px}.fb .gift{font-family:Spectral,Georgia,serif;font-style:italic;font-size:17px;color:var(--ink)}
+  .fb .link{margin-top:auto;padding-top:8px;font-weight:600;font-size:15px}
+  .steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:18px;margin:24px 0 0;padding:0;list-style:none}
+  .steps li{counter-increment:s;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .steps li::before{content:counter(s);display:block;font-family:Spectral,Georgia,serif;font-size:34px;color:var(--accent);line-height:1;margin-bottom:6px}
+  .friends{max-width:62ch;padding-left:1.2rem}.friends li{margin:8px 0}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 18px;margin:10px 0;max-width:760px}
+  summary{cursor:pointer;font-weight:600;color:var(--ink)}details p{margin:8px 0 0}
+  form{max-width:520px}
+  label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin:14px 0 4px}
+  input,select{width:100%;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  form button{margin-top:18px;width:100%;cursor:pointer;font:inherit}
+  .msg{min-height:1.5em;margin:12px 0 0}.msg.bad{color:var(--bad)}.msg.ok{color:var(--ink);font-weight:600}
   .trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
-  body.p-candle .lightonly{display:none!important}
-  body:not(.p-candle):not(.p-both) .candleonly{display:none!important}
-  .prodpick{margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .prodpick label{font-size:13px;font-weight:600;color:var(--ink)}
-  .eyebrow{margin:0 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-  .motto{margin:0 0 6px;font-family:var(--display);font-style:italic;font-size:18px;color:var(--accent)}
-  .hero{display:block;width:100%;height:auto;aspect-ratio:1376/768;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:0 0 14px}
-  .msg{font-size:13px;color:var(--mute);margin:8px 0 0;min-height:1.2em}
-  .msg.bad{color:var(--bad)}
+  .fine{font-size:14px;color:var(--mute)}
+  footer{border-top:1px solid var(--line);padding:28px 0 48px;font-size:14px;color:var(--mute)}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div id="ownerBar" class="owner-bar" style="display:none"><span>Owner view (ETL only). Customers do not see this.</span><button id="ownerExit" type="button">Exit owner view</button></div>
-  <div class="top"><h1>The Rising Sun <em>Court</em></h1><select id="palette" class="themebtn" aria-label="Choose a palette"><option value="">Sunrise (light or dark)</option><option value="harvest">Harvest</option><option value="seaside">Seaside</option><option value="snowline">Snowline</option><option value="fireside">Fireside</option><option value="grove">Grove</option><option value="bramble">Bramble</option><option value="tidepool">Tidepool</option><option value="confetti">Confetti</option><option value="blueprint">Blueprint</option><option value="umber">Umber</option><option value="blaze">Blaze</option><option value="understory">Understory</option><option value="wildflower">Wildflower</option><option value="twilight">Twilight</option><option value="alpine">Alpine</option><option value="canopy">Canopy</option><option value="amethyst">Amethyst</option><option value="driftwood">Driftwood</option><option value="orchard">Orchard</option><option value="terrarium">Terrarium</option><option value="bordeaux">Bordeaux</option><option value="copper">Copper</option><option value="tide">Tide</option><option value="slate">Slate</option><option value="black">Black</option><option value="ember">Ember</option></select> <button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button></div>
-  <img class="hero" src="court_hero_v2.jpg" alt="The seven fairies of the Rising Sun Court, standing together in a sunlit wood" onerror="this.style.display='none'">
-  <div class="prodpick"><label for="product">I have</label><select id="product" aria-label="Which product you have"><option value="light">The Rising Sun light</option><option value="candle">A Rising Sun candle</option><option value="both">Both the light and candles</option></select></div>
-  <p class="motto">No one greets the morning alone.</p>
-  <p class="sub">Set the wake time, choose who lives inside the sun, and hear the voice. Everything here is saved to the sun's account on the website, and the sun reads it from there.</p>
-  <p class="demonote" id="demoNote">This is a preview of what you get: the seven fairies of the Rising Sun Court, the sunrise, reminders and chat. Try anything. Say hello and they answer for real, a few messages a day for free. Hear each fairy's hello. Sign in to ETL to hear them answer out loud. To use your own sun, connect it with its access code at the bottom.</p>
-  <span class="status" id="status"><span class="dot"></span><span id="statusText">Enter the key to connect</span></span>
+<nav><div class="wrap">
+  <b>The Rising Sun Court</b>
+  <a href="#court">Meet the Court</a><a href="#products">The light and the candles</a><a href="#how">How it works</a><a href="panel.html">Try it free</a><a class="cta" href="#notify">Tell me when it is ready</a>
+</div></nav>
 
-  <div class="grid">
-    <section class="card wide" id="keyCard">
-      <h2>Your sun's access code</h2>
-      <p class="hint">The access code for your sun. It stays in this browser. Without it nothing here can be read or changed.</p>
-      <label class="lab" for="key">Rising Sun access code</label>
-      <div class="row"><input type="password" id="key" autocomplete="off"><button class="primary" id="connect">Connect</button></div>
-      <p class="msg" id="keyMsg"></p>
-      <div class="owner-only ownbox">
-        <h3>ETL owner only: save the access code (first time only)</h3>
-        <p class="hint">Step 1: type the Rising Sun access code in the box above. Step 2: type the ETL owner key here. Step 3: press the button below. Then press Connect above.</p>
-        <label class="lab" for="ownKey">ETL owner key</label>
-        <div class="row"><input type="password" id="ownKey" autocomplete="off"></div>
-        <div class="row" style="margin-top:8px"><button id="setKey">Save the Rising Sun access code</button></div>
-        <p class="msg" id="setKeyMsg"></p>
-        <h3 style="margin-top:16px">Give a tester a code of their own</h3>
-        <p class="hint">Uses the ETL owner key above. The tester gets their own settings and chats, and never sees the provider keys. Adding the same name again replaces their code. Remove takes it away.</p>
-        <label class="lab" for="tName">Tester's name</label>
-        <div class="row"><input type="text" id="tName" autocomplete="off"></div>
-        <label class="lab" for="tKey">Tester's code (12 or more characters, no spaces)</label>
-        <div class="row"><input type="text" id="tKey" autocomplete="off"></div>
-        <div class="row" style="margin-top:8px"><button id="tAdd">Add the tester</button><button id="tRemove">Remove the tester</button></div>
-        <p class="msg" id="tMsg"></p>
-      </div>
-    </section>
+<header class="hero">
+  <img src="court_hero_v2.jpg" alt="The seven fairies of the Rising Sun Court, standing together in a sunlit wood" width="1376" height="768">
+  <div class="shade"></div>
+  <div class="copy"><div class="wrap">
+    <h1>No one greets the morning <em>alone.</em></h1>
+    <p>A sunrise that wakes you slowly, and a fairy inside who says good morning, listens, and remembers. Soon, flameless candles to say goodnight with.</p>
+    <div class="btns"><a class="btn" href="panel.html">Meet them, free</a><a class="btn ghost" href="#notify">Tell me when it is ready</a></div>
+  </div></div>
+</header>
 
-    <section class="card wide demo-only" id="quizCard">
-      <h2>Who should greet your morning?</h2>
-      <p class="hint">Pick what you need most. The fairy who keeps it says hello.</p>
-      <div class="quiz" id="quiz"></div>
-    </section>
-
-    <section class="card wide" id="fairyCard">
-      <h2>The Rising Sun Court</h2>
-      <p class="hint">No one greets the morning alone. Pick a fairy to talk to and to see what they keep.</p>
-      <div class="tiles" id="tiles"><p class="hint" style="grid-column:1/-1;margin:0">The seven fairies appear here once you connect with the access code at the top.</p></div>
-      <div class="curHead" id="curHead"></div>
-      <p class="gcnote">Loved A.L.I.C.E.? More friends live in <a href="../good-company/" style="color:var(--accent)">Good Company</a>.</p>
-      <div class="row owner-only" style="margin-top:12px"><button id="newFairy">Make another fairy</button></div>
-    </section>
-
-    <section class="card wide" id="editCard" style="display:none">
-      <h2 id="editTitle">Words and voice</h2>
-      <p class="hint">Anything about their life that is not written in the backstory box, the fairy answers with "I don't know that one". They say they are not a real person if anyone sincerely asks.</p>
-      <label for="fName">Name</label><input type="text" id="fName" maxlength="60">
-      <label for="fGreet">The greeting when you wake</label><input type="text" id="fGreet" maxlength="300">
-      <label for="fAsk">The question that comes next</label><input type="text" id="fAsk" maxlength="300">
-      <label for="fManner">Manner, in a few words (for example: warm and teasing)</label><input type="text" id="fManner" maxlength="300">
-      <label class="owner-only" for="fImage">Her picture: the filename of the image you uploaded to the rising-sun folder (for example, velvet_v1.png). It shows on her card here and nowhere else.</label><input class="owner-only" type="text" id="fImage" maxlength="120">
-      <label for="fBack">Backstory (leave empty until you have written one)</label><textarea id="fBack" maxlength="3000" rows="6"></textarea>
-      <label class="owner-only" for="fVoice">Her voice: an ElevenLabs voice id. With no voice she shows words and makes no sound. If a fairy sounds like the wrong one, paste the right id here.</label><input class="owner-only" type="text" id="fVoice" maxlength="80">
-      <div class="row" style="margin-top:12px"><button class="primary" id="saveFairy">Save</button><button id="hearFairy">Save and hear it</button><button id="delFairy">Remove</button></div>
-      <p class="msg" id="fairyMsg"></p>
-    </section>
-
-    <section class="card wide" id="productsCard">
-      <h2>Made by the Rising Sun Court</h2>
-      <p class="hint">Two products so far. Each holds one of the fairies.</p>
-      <div class="prods">
-        <div class="prod"><b>The Rising Sun light</b><span>The light you are using now. It wakes you with a sunrise, and the fairy of your choice greets you.</span><em class="tag">Available</em><button type="button" class="more" data-p="light">Tell me when it is ready</button></div>
-        <div class="prod"><b>The candles</b><span>Artificial candles, flameless, with one fairy in each. A silhouette of the fairy shows on the outside.</span><em class="tag">Coming</em><button type="button" class="more" data-p="candle">Tell me when it is ready</button></div>
-      </div>
-    </section>
-
-    <section class="card wide" id="interestCard">
-      <h2>Want one?</h2>
-      <p class="hint">Leave your email and ETL will tell you when the light or a candle is ready. ETL Lab members get 15% off. Your email is used for that and nothing else.</p>
-      <form class="ask" id="askForm" novalidate>
-        <input type="email" id="aEmail" placeholder="Your email" autocomplete="email" aria-label="Your email">
-        <select id="aProduct" aria-label="Which one"><option value="both">The light and candles</option><option value="light">The light</option><option value="candle">A candle</option></select>
-        <input class="trap" type="text" id="aTrap" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <button class="primary" type="submit">Tell me</button>
-      </form>
-      <p class="msg" id="aMsg"></p>
-    </section>
-
-    <section class="card wide" id="tryCard">
-      <h2 id="chatTitle">Chat</h2>
-      <p class="hint">Write to them the way you would text a friend. They remember what you told them, so tomorrow they can ask how it went. Each fairy keeps a conversation of their own. What you write is kept on the website behind your sun's access code, and "Clear our chat" wipes it.</p>
-      <div class="row"><select id="chatWho" aria-label="Who are you talking to" style="display:none"></select><button id="wakeBtn" class="lightonly">Wake me</button><button id="goodnightBtn" class="candleonly">Say goodnight</button><button id="clearChat">Clear our chat</button></div>
-      <div class="thread" id="thread" aria-live="polite" style="margin-top:10px"></div>
-      <div class="row" style="margin-top:8px"><input type="text" id="heard" placeholder="Write a message" aria-label="Your message" maxlength="500"><button class="primary" id="send">Send</button><button id="micBtn" title="Uses this browser's own listening">Speak</button></div>
-      <div id="news" style="display:none;margin-top:10px"></div>
-      <label class="wopt" style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="wantAudio" style="width:auto"> Play the voice</label>
-      <p class="msg demo-only" id="leftMsg"></p>
-      <p class="hint demo-only" id="signInHint">To hear them answer out loud, <a href="/member-login?next=/rising-sun/" style="color:var(--accent)">sign in to ETL</a>. ETL Lab members get more messages and more voice.</p>
-    </section>
-
-    <h2 class="keepHead" id="keepHead" style="display:none"></h2>
-
-    <section data-keep="wake" class="card wide lightonly" id="wakeCard">
-      <h2>Wake time</h2>
-      <p class="hint">The sun is at full strength at this time. It starts coming up before it.</p>
-      <div class="row">
-        <div><label for="wh">Hour (0 to 23)</label><input type="number" id="wh" min="0" max="23"></div>
-        <div><label for="wm">Minute</label><input type="number" id="wm" min="0" max="59"></div>
-      </div>
-      <label for="len">How long the sunrise takes: <span id="lenOut"></span> minutes</label>
-      <input type="range" id="len" min="5" max="90" step="5">
-      <label for="zone">Where you live</label>
-      <select id="zone">
-        <option value="eastern">Eastern</option><option value="central">Central</option><option value="mountain">Mountain</option>
-        <option value="arizona">Arizona</option><option value="pacific">Pacific</option><option value="alaska">Alaska</option><option value="hawaii">Hawaii</option>
-      </select>
-      <div class="row" style="margin-top:12px"><button class="primary" id="saveWake">Save</button></div>
-      <p class="msg" id="wakeMsg"></p>
-    </section>
-    <section data-keep="sunrise" class="card wide lightonly" id="skyCard">
-      <h2>The sunrise</h2>
-      <p class="hint">A preview of the colors on this screen. Drag to see any moment. The real strip will look a little different.</p>
-      <div class="sky" id="sky"><div class="sun" id="sun"></div></div>
-      <input type="range" id="scrub" min="0" max="100" value="60" aria-label="Moment in the sunrise">
-      <div class="row" style="margin-top:8px"><button id="play">Play it</button></div>
-    </section>
-    <section data-keep="reminders" class="card wide lightonly" id="remCard">
-      <h2>Reminders</h2>
-      <p class="hint">Write one reminder per line, for example "Take your morning pills." The fairy says them in your words, after the greeting and before the question about the news. Nothing is added and no advice is given. Up to five. They are kept on the website behind your sun's access code.</p>
-      <textarea id="rems" rows="4" maxlength="1200" aria-label="Reminders, one per line"></textarea>
-      <div class="row" style="margin-top:12px"><button class="primary" id="saveRem">Save the reminders</button></div>
-      <p class="msg" id="remMsg"></p>
-    </section>
-    <section data-keep="music" class="card wide lightonly" id="musicCard">
-      <h2>Music</h2>
-      <p class="hint">Play Apple Music or Spotify from here. Each listener signs in with their own subscription (Spotify needs Premium). Apple Music plays on the device that has this panel open. Spotify can play on this panel in a computer browser, or this panel can act as a remote for any other Spotify device, such as a phone. Your browser needs a tap first, so music cannot start by itself at wake time.</p>
-      <p class="msg" id="musicNeed" style="display:none"></p>
-      <div class="row"><select id="musicSvc" aria-label="Music service"><option value="apple">Apple Music</option><option value="spotify">Spotify</option></select><button class="primary" id="musicConnect">Connect Apple Music</button><span class="msg" id="musicState" style="margin:0"></span></div>
-      <div id="musicBox" style="display:none">
-        <div id="spDevRow" style="display:none;margin-top:12px"><div class="row"><select id="spDevice" aria-label="Play on which device"></select><button id="spDevRefresh">Refresh devices</button></div><p class="hint" style="margin:6px 0 0">Play on this panel (computer browsers only) or on any other Spotify device you are signed in on, such as your phone. Open the Spotify app on a device first if it is not listed.</p></div>
-        <div class="row" style="margin-top:12px"><input type="text" id="musicTerm" placeholder="A song, an artist, an album or a playlist" aria-label="Search Apple Music"><button id="musicGo">Search</button><button id="musicMine">My playlists</button></div>
-        <div id="musicList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
-        <div class="said" id="nowPlaying" style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span id="npText" style="flex:1 1 160px">Nothing playing.</span>
-          <button id="mPrev" aria-label="Previous">Prev</button><button id="mPlay" aria-label="Play or pause">Play</button><button id="mNext" aria-label="Next">Next</button>
-          <input type="range" id="mVol" min="0" max="100" value="70" aria-label="Volume" style="flex:1 1 100px">
+<main>
+<section id="court"><div class="wrap">
+  <h2>Seven fairies, one for each part of your <em>morning</em></h2>
+  <p class="lede">The Rising Sun Court is a small court of fairies who greet the morning. Each keeps something different for you, and each has her or his own voice. You choose who lives in your light, or in your candle.</p>
+  <div class="fairies">
+      <article class="fairy">
+        <img src="velvet_sun_v1.jpg" alt="Velvet, Keeper of the Hearth" loading="lazy" width="300" height="400">
+        <div class="fb">
+          <h3>Velvet</h3>
+          <p class="ttl">Keeper of the Hearth</p>
+          <p>She is the keeper of the Hearth. Warm, smoky, mysterious, and comforting.</p>
+          <p class="gift">Velvet gives comfort.</p>
+          <a class="link" href="panel.html?f=velvet">Say hello to Velvet</a>
         </div>
-      </div>
-    </section>
-    <section data-keep="details" class="card wide" id="detCard">
-      <div class="detHead"><img id="detFairy" alt="" style="display:none"><div><h2 style="margin:0">Little details</h2><span class="hint" id="detWho" style="margin:0"></span></div></div>
-      <p class="hint">Birthdays, favorite songs, the names of the people you love. Write one per line. Start a line with the date as month and day, like 05-14, and your fairy says it on that morning, in their own voice. Lines without a date are things they can bring up when you talk. Up to forty. They are kept on the website behind your sun's access code.</p>
-      <textarea id="dets" rows="5" maxlength="4000" aria-label="Little details, one per line" placeholder="05-14 Mom's birthday&#10;Dad's favorite song is Moon River&#10;My sister is named Anna"></textarea>
-      <div class="row" style="margin-top:12px"><button class="primary" id="saveDet">Save the details</button></div>
-      <p class="msg" id="detMsg"></p>
-    </section>
-    <section data-keep="calendar" class="card wide" id="calCard">
-      <h2>Your calendar</h2>
-      <p class="hint">Outlook: Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then paste the ICS link. Anyone who has the link can read the calendar, so it is kept on the website and never shown again here. Nothing can be added, changed or deleted.</p>
-      <div class="row"><input type="text" id="calUrl" placeholder="https://..." aria-label="Calendar link"><button id="saveCal">Save the link</button><button id="clearCal">Remove it</button></div>
-      <p class="msg" id="calMsg"></p>
-      <p class="hint" style="margin:8px 0 0">Your fairy cannot read your calendar yet. Ask for the news and Above the Fold from ETL Newswire plays, the daily briefing.</p>
-    </section>
-    <section data-keep="selfcare" class="card wide" id="selfCard">
-      <h2>A day about us</h2>
-      <p class="hint">Some days are for taking care of yourself. Ask for a slow one.</p>
-      <div class="row"><button class="primary" id="selfBtn">Let's make today about us</button></div>
-    </section>
-
-    <section data-keep="fun" class="card wide" id="funCard">
-      <h2>Something fun</h2>
-      <p class="hint">Stuck for what to do today? Ask for an idea.</p>
-      <div class="row"><button class="primary" id="funBtn">What should we do today?</button></div>
-    </section>
-
-    <section data-keep="news" class="card wide" id="newsCard">
-      <h2>The news</h2>
-      <p class="hint">Above the Fold from ETL Newswire, the daily briefing.</p>
-      <div class="row"><button class="primary" id="newsBtn">Play today's briefing</button></div>
-    </section>
-
-    <section class="card wide owner-only" id="connCard">
-      <h2>Owner setup (ETL only)</h2>
-      <p class="hint"><b>Customers never see this section.</b> ETL holds the provider keys and pays for the thinking, the voice and the music setup. A customer only signs in to their own music account, and later sees their plan and credits. These fields are for ETL while the sun is a prototype.</p>
-      <p class="hint">The fairies' thinking runs on Claude through Amazon Bedrock, so the AWS credits pay for it. Paste the Bedrock key here once (from the AWS console: Bedrock, API keys). It is kept on the website and never shown again here. The voice uses the Azure key the site already has, and the Anthropic key the site already has is the backup. Nothing else to paste.</p>
-      <div class="row"><input type="password" id="bedKey" autocomplete="off" placeholder="Bedrock key" aria-label="Bedrock key"><button id="saveBed">Save the key</button><button id="clearBed">Remove it</button></div>
-      <p class="msg" id="bedMsg"></p>
-      <h2 style="margin-top:18px;font-size:18px">Apple Music</h2>
-      <p class="hint">For the music player below. Three things from your Apple developer account: the Team ID, the Key ID, and the private key file (the .p8). Open the .p8 in a text editor and paste all of it. They are kept on the website and never shown again here. Not shown on screen: the listener signs in with their own Apple Music subscription, so ETL pays nothing for the music.</p>
-      <div class="row"><input type="text" id="apTeam" autocomplete="off" placeholder="Team ID (10 characters)" aria-label="Apple Team ID"><input type="text" id="apKey" autocomplete="off" placeholder="Key ID (10 characters)" aria-label="Apple Key ID"></div>
-      <textarea id="apPem" rows="4" autocomplete="off" placeholder="Paste the whole .p8 file here" aria-label="Apple private key" style="margin-top:8px"></textarea>
-      <div class="row" style="margin-top:8px"><button id="saveApple">Save the Apple key</button><button id="clearApple">Remove it</button></div>
-      <p class="msg" id="appleMsg"></p>
-      <h2 style="margin-top:18px;font-size:18px">Spotify</h2>
-      <p class="hint">For the music player. Make a free app at developer.spotify.com, then paste its Client ID here. The Client ID is public and not a secret, and no Spotify secret is used or kept anywhere. In the Spotify app's settings, add this exact address as a Redirect URI: <code id="spRedirect"></code>. The listener signs in with their own Spotify Premium account.</p>
-      <div class="row"><input type="text" id="spClient" autocomplete="off" placeholder="Client ID (32 letters and numbers)" aria-label="Spotify client id"><button id="saveSp">Save the Client ID</button><button id="clearSp">Remove it</button></div>
-      <p class="msg" id="spMsg"></p>
-    </section>
-
-
-
-
-
-
-
-
-
-
+      </article>
+      <article class="fairy">
+        <img src="ember_sun_v1.jpg" alt="Ember, Keeper of First Light" loading="lazy" width="300" height="400">
+        <div class="fb">
+          <h3>Ember</h3>
+          <p class="ttl">Keeper of First Light</p>
+          <p>She is the keeper of First Light. Soft, intimate, peaceful, and deeply reflective.</p>
+          <p class="gift">Ember gives peace.</p>
+          <a class="link" href="panel.html?f=ember">Say hello to Ember</a>
+        </div>
+      </article>
+      <article class="fairy">
+        <img src="ash_sun_v1.jpg" alt="Ash, Guardian of time" loading="lazy" width="300" height="400">
+        <div class="fb">
+          <h3>Ash</h3>
+          <p class="ttl">Guardian of time</p>
+          <p>He is the guardian and protector of the Court. Strong, dependable, practical, and quietly dominant.</p>
+          <p class="gift">Ash gives strength.</p>
+          <a class="link" href="panel.html?f=ash">Say hello to Ash</a>
+        </div>
+      </article>
+      <article class="fairy">
+        <img src="flint_sun_v1.jpg" alt="Flint, Spark of Joy" loading="lazy" width="300" height="400">
+        <div class="fb">
+          <h3>Flint</h3>
+          <p class="ttl">Spark of Joy</p>
+          <p>He is the spark of joy of the Court. Playful, clever, empathetic, and mischievous.</p>
+          <p class="gift">Flint gives joy.</p>
+          <a class="link" href="panel.html?f=flint">Say hello to Flint</a>
+        </div>
+      </article>
+      <article class="fairy">
+        <img src="poppy_sun_v1.jpg" alt="Poppy, Heart of the Court" loading="lazy" width="300" height="400">
+        <div class="fb">
+          <h3>Poppy</h3>
+          <p class="ttl">Heart of the Court</p>
+          <p>Poppy is Tansy&#x27;s little sister, a fairy who adores humans, openly, which mortifies Tansy. She is small by default, her wings a near-constant blur even at rest, and she can pass at full human size when she wants to, though she rarely bothers.</p>
+          <p class="gift">Poppy gives kindness.</p>
+          <a class="link" href="panel.html?f=poppy">Say hello to Poppy</a>
+        </div>
+      </article>
+      <article class="fairy">
+        <img src="tansy_sun_v1.jpg" alt="Tansy, Visionary and adventurer" loading="lazy" width="300" height="400">
+        <div class="fb">
+          <h3>Tansy</h3>
+          <p class="ttl">Visionary and adventurer</p>
+          <p>Tansy acts like she is above humans entirely, and would never admit otherwise. Her little sister Poppy adores humans, openly, which mortifies her.</p>
+          <p class="gift">Tansy gives motivation.</p>
+          <a class="link" href="panel.html?f=tansy">Say hello to Tansy</a>
+        </div>
+      </article>
+      <article class="fairy">
+        <img src="blue_sun_v2.jpg" alt="Blue, Highest of the Court" loading="lazy" width="300" height="400">
+        <div class="fb">
+          <h3>Blue</h3>
+          <p class="ttl">Highest of the Court</p>
+          <p>Blue is Tansy&#x27;s cousin, a fairy from the fairy royals. She is small by default, her wings catching light that is not quite there to catch, and she can pass at full human size when she wants to.</p>
+          <p class="gift">Blue gives wisdom.</p>
+          <a class="link" href="panel.html?f=blue">Say hello to Blue</a>
+        </div>
+      </article>
   </div>
-</div>
+  <h2 style="margin-top:56px">How they are with each other</h2>
+  <ul class="friends"><li>Blue and Poppy are best friends, the emotional center of the Court, often found together. Blue trusts Poppy completely.</li><li>Tansy and Ash are the dominant personalities, the builders, doers and protectors, constantly balancing one another and the most likely to take charge.</li><li>Velvet and Ember are sisters in spirit, even if not by blood: warmth and calm, hearth and dawn, comfort and restoration.</li><li>Flint teases Tansy, tests Ash&#x27;s patience, admires Blue, loves Poppy, steals Velvet&#x27;s pastries, and tries to make Ember laugh.</li></ul>
+  <p class="fine" style="margin-top:18px">The fairies are written characters with generated voices. They are not real people, and they will tell you so if you ask.</p>
+</div></section>
 
-<script src="spotify.js"></script>
+<section id="products" class="alt"><div class="wrap">
+  <h2>Two ways to bring the Court <em>home</em></h2>
+  <div class="two">
+    <div class="box">
+      <span class="tag">Coming</span>
+      <h3>The Rising Sun light</h3>
+      <p>An artificial sunrise of acrylic and light. It brightens slowly before you wake, and when the sun is up, the fairy you chose says good morning.</p>
+      <ul>
+        <li>You set the wake time and how long the sunrise lasts.</li>
+        <li>Chat with your fairy and hear the reply in her or his own voice. They remember what you told them.</li>
+        <li>Ask for the news from ETL Newswire, and set reminders such as your pills.</li>
+        <li>Play your own Apple Music or Spotify.</li>
+      </ul>
+      <p style="margin-top:16px"><a class="btn" href="panel.html">Try the panel free</a></p>
+    </div>
+    <div class="box">
+      <span class="tag">Coming</span>
+      <h3>The Rising Sun candles</h3>
+      <p>Artificial candles with no flame. Each one holds one fairy, and the silhouette of the fairy shows on the outside.</p>
+      <ul>
+        <li>Unwrap it and find a card with your fairy's portrait and story.</li>
+        <li>Turn the candle on and your fairy wakes. Talk, and say goodnight.</li>
+        <li>Turn it off and the fairy is off too. Nothing is listening.</li>
+        <li>Planned: set several on a base, and the fairies talk to each other.</li>
+      </ul>
+      <p style="margin-top:16px"><a class="btn" href="#notify">Tell me when they are ready</a></p>
+    </div>
+  </div>
+  <p class="fine" style="margin-top:20px">ETL Lab members get 15% off. Both are bought through the ETL Lab.</p>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <h2>A morning with the <em>Court</em></h2>
+  <ol class="steps">
+    <li><b>The sun rises.</b><br>At the time you set, the light comes up slowly, the way a real morning does.</li>
+    <li><b>Your fairy says good morning.</b><br>In her or his own voice, with a greeting only that fairy would give.</li>
+    <li><b>You talk.</b><br>Ask what you need. Ask about the Court. Tell them about your day, and ask how it went tomorrow.</li>
+    <li><b>You say goodnight.</b><br>A candle at the bedside closes the day the same way the sun opens it.</li>
+  </ol>
+</div></section>
+
+<section class="alt"><div class="wrap">
+  <h2>Try it before you <em>decide</em></h2>
+  <p class="lede">The preview is free and needs no account. Pick a fairy, say hello, and watch the sunrise. A few messages a day are free. Sign in to ETL to hear the fairies answer out loud, and ETL Lab members get more.</p>
+  <p style="margin-top:18px"><a class="btn" href="panel.html">Open the preview</a></p>
+</div></section>
+
+<section id="notify"><div class="wrap">
+  <h2>Be told when it is <em>ready</em></h2>
+  <p class="lede">Leave your email and we will write to you when the Rising Sun light or a candle is available. ETL Lab members get 15% off.</p>
+  <form id="f" novalidate>
+    <label for="email">Your email</label>
+    <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+    <label for="product">What are you waiting for?</label>
+    <select id="product"><option value="both">The light and the candles</option><option value="light">The Rising Sun light</option><option value="candle">A candle</option></select>
+    <label for="fairy">Which fairy would you like? (optional)</label>
+    <select id="fairy"><option value="">Surprise me</option><option value="velvet">Velvet, Keeper of the Hearth</option><option value="ember">Ember, Keeper of First Light</option><option value="ash">Ash, Guardian of time</option><option value="flint">Flint, Spark of Joy</option><option value="poppy">Poppy, Heart of the Court</option><option value="tansy">Tansy, Visionary and adventurer</option><option value="blue">Blue, Highest of the Court</option></select>
+    <input class="trap" id="trap" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button class="btn" type="submit">Tell me when it is ready</button>
+    <p class="msg" id="msg" role="status"></p>
+  </form>
+  <p class="fine">We use your email to tell you when the light or a candle is ready, and for nothing else. Every message has a link to take yourself off the list.</p>
+</div></section>
+
+<section class="alt"><div class="wrap">
+  <h2>Questions</h2>
+  <details><summary>Are the fairies real?</summary><p>No. They are written characters with generated voices, and nobody is behind them. They have stories, families and favorite things, and they will tell you they are not real people if you ask.</p></details>
+  <details><summary>Does it need a flame?</summary><p>No. The candles are artificial and flameless.</p></details>
+  <details><summary>What does it cost?</summary><p>The price is not set yet. ETL Lab members get 15% off, and both products are bought through the ETL Lab.</p></details>
+  <details><summary>Do I have to sign in to try it?</summary><p>No. The preview is free with a few messages a day. Sign in to ETL to hear the fairies answer out loud.</p></details>
+  <details><summary>Who makes this?</summary><p>The Rising Sun Court is made by the Emerging Technologies Laboratory, the same place as Good Company and Astra-9 Lite.</p></details>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p><b>The Rising Sun Court</b> is a product of <a href="/">Emerging Technologies Laboratory</a>. More friends live in <a href="/good-company/">Good Company</a>.</p>
+</div></footer>
+
 <script>
 (function () {
-  var SET = '/.netlify/functions/sun-settings', BRAIN = '/.netlify/functions/sun-morning';
-  /* Light or dark, like the Astra-9 Lite panel: follows the device until the button is pressed, then remembers the choice in this browser. */
-  (function () {
-    var root = document.documentElement, btn = document.getElementById('themeBtn');
-    function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
-    function label() { btn.textContent = isDark() ? 'Light mode' : 'Dark mode'; }
-    try { var saved = localStorage.getItem('sun_panel_theme'); if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved); } catch (e) {}
-    var pal = document.getElementById('palette');
-    function palette(v) { if (v) root.setAttribute('data-palette', v); else root.removeAttribute('data-palette'); btn.style.display = v ? 'none' : ''; }
-    try { var sp = localStorage.getItem('sun_palette'); if (sp && pal.querySelector('option[value="' + sp + '"]')) { pal.value = sp; palette(sp); } else root.removeAttribute('data-palette'); } catch (e) {}
-    pal.addEventListener('change', function () { palette(pal.value); try { localStorage.setItem('sun_palette', pal.value); } catch (e) {} });
-    label();
-    btn.addEventListener('click', function () { var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); try { localStorage.setItem('sun_panel_theme', n); } catch (e) {} label(); });
-  })();
-  /* Which product the owner has: the light, a candle, or both. It only decides which cards show; later the code that comes with each product will say it. */
-  (function () {
-    var sel = document.getElementById('product');
-    function apply(v) { document.body.classList.remove('p-light', 'p-candle', 'p-both'); document.body.classList.add('p-' + v); }
-    var saved = 'light'; try { var x = localStorage.getItem('sun_product'); if (x === 'candle' || x === 'both' || x === 'light') saved = x; } catch (e) {}
-    sel.value = saved; apply(saved);
-    sel.addEventListener('change', function () { apply(sel.value); try { localStorage.setItem('sun_product', sel.value); } catch (e) {} });
-  })();
-  /* Owner view: ETL only. ?owner=1 turns it on in this browser, ?owner=0 turns it off. Customers never have it: ETL holds the provider keys, they sign in to their own music account. */
-  var OWNER = false;
-  try {
-    localStorage.removeItem('sun_owner');                                                     // an older version kept this in the browser for good; it never does now
-    var oq = new URLSearchParams(location.search).get('owner');
-    if (oq === '1') sessionStorage.setItem('sun_owner', '1'); else if (oq === '0') sessionStorage.removeItem('sun_owner');
-    OWNER = sessionStorage.getItem('sun_owner') === '1';
-  } catch (e) { OWNER = false; }
-  if (OWNER) {
-    document.body.classList.add('owner');
-    var ob = document.getElementById('ownerBar'); ob.style.display = '';
-    document.getElementById('ownerExit').onclick = function () { try { sessionStorage.removeItem('sun_owner'); } catch (e) {} location.href = location.pathname; };
-  }
-  var s = null, all = {}, editing = null, key = '', COURT = null;
-  try { fetch('personas.json').then(function (r) { return r.json(); }).then(function (P) { COURT = P.court || null; if (current) renderCourt(); }).catch(function () {}); } catch (e) {}
-  function $(id) { return document.getElementById(id); }
-  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
-  function say(id, text, bad) { var el = $(id); el.textContent = text; el.className = 'msg' + (bad ? ' bad' : ''); }
-  /* DEMO, like the Astra-9 Lite panel: with no access code the panel still works as a preview. The fairies come from the shipped personas file, the controls change only what is on screen, the answers are examples, and nothing is sent or spent. Entering a code ends it. */
-  var DEMO = false, demoS = null, demoChat = {};
-  function demoApi(url, body) {
-    return new Promise(function (resolve) {
-      var f = (body && body.fairy) || (demoS && demoS.fairy) || 'velvet', p = all[f] || {};
-      if (url === SET) {
-        if (body) {
-          ['wake_hour', 'wake_min', 'sunrise_minutes'].forEach(function (k) { if (body[k] !== undefined) demoS[k] = +body[k]; });
-          if (body.zone) demoS.zone = body.zone;
-          if (body.fairy && all[body.fairy]) demoS.fairy = body.fairy;
-          if (Array.isArray(body.reminders)) demoS.reminders = body.reminders.slice(0, 5);
-          if (Array.isArray(body.details)) demoS.details = body.details.slice(0, 40);
-        }
-        return resolve({ settings: demoS, fairies: all });
-      }
-      var th = demoChat[f] = demoChat[f] || [];
-      if (body.step === 'history') return resolve({ history: th, fairy: f });
-      if (body.step === 'clear') { demoChat[f] = []; return resolve({ ok: true, fairy: f }); }
-      if (body.step === 'wake') {
-        var w = (p.greeting || 'Good morning, human.') + ' ' + (p.ask || '');
-        th.push({ role: 'fairy', text: w });
-        return resolve({ say: w, audio_url: '/.netlify/functions/sun-greeting?fairy=' + encodeURIComponent(f) });
-      }
-      if (body.step === 'news') return resolve({ say: 'In the preview I cannot read you the news. Your own sun reads it to you each morning.' });
-      var hist = th.slice(-10).map(function (m) { return { role: m.role === 'user' ? 'user' : 'fairy', text: m.text }; });
-      th.push({ role: 'user', text: body.text });
-      var hd = { 'content-type': 'application/json' }, tk = etlToken(); if (tk) hd.authorization = 'Bearer ' + tk;
-      fetch('/.netlify/functions/sun-guest', { method: 'POST', headers: hd, body: JSON.stringify({ fairy: f, text: body.text, history: hist, audio: !!(body.audio && tk) }) })
-        .then(function (r) { return r.json().then(function (j) { return [r.status, j]; }); })
-        .then(function (a) {
-          var st = a[0], j = a[1], say = st === 200 ? j.say : (j.message || j.say || 'I cannot answer just now. Try again in a moment.');
-          th.push({ role: 'fairy', text: say });
-          resolve(st === 200 ? j : { say: say, limit: st === 429 });
-        })
-        .catch(function () { var say = 'I cannot answer just now. Try again in a moment.'; th.push({ role: 'fairy', text: say }); resolve({ say: say }); });
-    });
-  }
-  function etlToken() { try { var t = JSON.parse(localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token') || 'null'); return (t && t.access_token) || ''; } catch (e) { return ''; } }
-  function api(url, body) {
-    if (DEMO) return demoApi(url, body);
-    var o = { headers: { 'x-sun-key': key, 'content-type': 'application/json' } };
-    if (body) { o.method = 'POST'; o.body = JSON.stringify(body); }
-    return fetch(url, o).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That key was not accepted.' : r.status === 503 ? 'The site has no sun key set yet.' : (j.error || 'Something went wrong.')); return j; }); });
-  }
-  function fairyOf(id) { return all[id] || {}; }
-  function paint() {
-    $('wh').value = s.wake_hour; $('wm').value = s.wake_min; $('len').value = s.sunrise_minutes; $('lenOut').textContent = s.sunrise_minutes; $('zone').value = s.zone;
-    $('rems').value = (s.reminders || []).join('\n');
-    $('dets').value = (s.details || []).map(function (x) { return (x.date ? x.date + ' ' : '') + x.text; }).join('\n');
-    $('status').className = 'status live'; $('statusText').textContent = 'Connected. Wake time ' + pad(s.wake_hour) + ':' + pad(s.wake_min) + (s.calendar_set ? ', calendar link saved' : '') + (OWNER ? (s.bedrock_set ? ', Bedrock key saved' : ', no Bedrock key yet') + (s.apple_set ? ', Apple key saved' : '') + (s.spotify_client_id ? ', Spotify id saved' : '') : '');
-    musicSvcChanged();
-    var df = all[s.fairy] || {}, di = $('detFairy');
-    if (df.image) { di.src = encodeURI(df.image); di.style.display = ''; di.onerror = function () { di.style.display = 'none'; }; } else di.style.display = 'none';
-    $('detWho').textContent = df.name ? 'Kept for you. ' + df.name + ', the fairy in your sun, says them on the morning.' : '';
-    var sel = $('chatWho'), keep = sel.value, first = !sel.options.length;
-    sel.innerHTML = '';
-    Object.keys(all).forEach(function (id) { var o = document.createElement('option'); o.value = id; o.textContent = all[id].name || id; sel.appendChild(o); });
-    sel.value = all[keep] ? keep : s.fairy;
-    var wasFirst = first;
-    if (!current || !all[current]) current = all[s.fairy] ? s.fairy : Object.keys(all)[0];
-    sel.value = current;
-    renderCourt();
-    if (wasFirst) loadThread();
-  }
-
-  /* The Court: seven tiles, the chosen one's header, and only the parts of the panel that fairy keeps. */
-  var current = null;
-  function initialDot(f, cls) { var d = document.createElement('div'); d.className = cls + ' initial'; d.textContent = (f.name || '?').charAt(0); return d; }
-  function avatarOf(f, cls) {
-    if (!f.image) return initialDot(f, cls);
-    var im = document.createElement('img'); im.className = cls; im.alt = ''; im.src = encodeURI(f.image);
-    im.onerror = function () { im.replaceWith(initialDot(f, cls)); };
-    return im;
-  }
-  function renderCourt() {
-    var tiles = $('tiles'); tiles.innerHTML = '';
-    Object.keys(all).forEach(function (id) {
-      var f = all[id], b = document.createElement('button'); b.type = 'button'; b.className = 'tile' + (id === current ? ' sel' : '');
-      b.setAttribute('aria-pressed', id === current ? 'true' : 'false');
-      b.appendChild(avatarOf(f, 'av'));
-      var n = document.createElement('span'); n.className = 'tn'; n.textContent = f.name || id; b.appendChild(n);
-      var t = document.createElement('span'); t.className = 'tt'; t.textContent = f.title || ''; b.appendChild(t);
-      if (id === s.fairy) { var m = document.createElement('span'); m.className = 'sunmark'; m.textContent = 'Chosen'; m.title = 'The fairy you have chosen for your sun'; b.appendChild(m); }
-      b.onclick = function () { selectFairy(id); };
-      tiles.appendChild(b);
-    });
-    var f = all[current] || {}, head = $('curHead'); head.innerHTML = '';
-    head.appendChild(avatarOf(f, 'av big'.replace(' ', ' ')));
-    var box = document.createElement('div'); box.style.cssText = 'flex:1 1 220px;min-width:0';
-    var h3 = document.createElement('h3'); h3.textContent = f.name || ''; box.appendChild(h3);
-    var tt = document.createElement('p'); tt.className = 'ttl'; tt.textContent = (f.title || '') + (current === s.fairy ? ' · In your sun now' : '') + (OWNER ? ' · ' + (f.voice ? 'voice id ends ' + f.voice.slice(-4) : 'no voice yet') : ''); box.appendChild(tt);
-    var r = document.createElement('div'); r.className = 'row'; r.style.cssText = 'gap:8px';
-    var use = document.createElement('button'); use.textContent = 'Put in the sun'; use.disabled = current === s.fairy; use.onclick = function () { save({ fairy: current }, null); };
-    var hear = document.createElement('button'); hear.textContent = 'Hear'; hear.onclick = function () { ask({ step: 'wake', fairy: current }, true); };
-    var ed = document.createElement('button'); ed.textContent = 'Change words'; ed.onclick = function () { edit(current); };
-    [use, hear, ed].forEach(function (x) { r.appendChild(x); }); box.appendChild(r); head.appendChild(box);
-    if (f.backstory) {
-      var det = document.createElement('details'); det.className = 'story';
-      var sm = document.createElement('summary'); sm.textContent = (f.name || 'Their') + '\u2019s story'; det.appendChild(sm);
-      var bp = document.createElement('p'); bp.textContent = f.backstory; det.appendChild(bp);
-      var nm = f.name || '', co = COURT || {};
-      var gift = String(co.gifts || '').split('. ').filter(function (x) { return x.indexOf(nm + ' ') === 0; })[0];
-      if (gift) { var gp = document.createElement('p'); gp.className = 'gift'; gp.textContent = gift.replace(/\.?$/, '.'); det.appendChild(gp); }
-      (co.friendships || []).filter(function (x) { return x.indexOf(nm) > -1; }).forEach(function (x) { var fp = document.createElement('p'); fp.textContent = x; det.appendChild(fp); });
-      head.appendChild(det);
-    }
-    $('chatTitle').textContent = 'Chat with ' + (f.name || 'your fairy');
-    var keeps = f.keeps || [], shown = 0;
-    document.querySelectorAll('[data-keep]').forEach(function (c) { var on = keeps.indexOf(c.getAttribute('data-keep')) > -1; c.style.display = on ? '' : 'none'; if (on) shown++; });
-    var kh = $('keepHead'); kh.style.display = shown ? '' : 'none'; kh.textContent = shown ? (f.name || 'They') + ' keeps' : '';
-  }
-  function selectFairy(id) {
-    current = id; $('chatWho').value = id; $('news').style.display = 'none'; $('editCard').style.display = 'none';
-    renderCourt(); loadThread();
-  }
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
-  function save(patch, msgId) {
-    return api(SET, patch).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); if (msgId) say(msgId, 'Saved.'); return j; }).catch(function (e) { if (msgId) say(msgId, e.message, true); else say('keyMsg', e.message, true); throw e; });
-  }
-  function load() {
-    return api(SET).then(function (j) { s = j.settings; all = j.fairies || {}; paint(); say('keyMsg', ''); store('sunKey', key); spResume(); return true; }).catch(function (e) { say('keyMsg', e.message, true); $('status').className = 'status'; $('statusText').textContent = 'Not connected'; if (!Object.keys(all).length) startDemo(); return false; });
-  }
-  $('setKey').onclick = function () {
-    var k = $('key').value.trim(), o = $('ownKey').value.trim();
-    if (!k || !o) { say('setKeyMsg', 'Type the access code above and your owner key.', true); return; }
-    fetch('/.netlify/functions/gc-config', { method: 'POST', headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + o }, body: JSON.stringify({ action: 'set_sun_key', key: k }) })
-      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That owner key was not accepted.' : (j.error || 'Something went wrong.')); say('setKeyMsg', 'Saved. Press Connect.'); $('ownKey').value = ''; }); })
-      .catch(function (e) { say('setKeyMsg', e.message, true); });
+  var src = ''; try { var m = /[?&]s=([a-z0-9-]{1,40})/.exec(location.search); if (m) src = m[1]; } catch (e) {}
+  var f = document.getElementById('f'), msg = document.getElementById('msg');
+  f.onsubmit = function (e) {
+    e.preventDefault(); msg.className = 'msg';
+    var em = document.getElementById('email').value.trim();
+    if (!em) { msg.className = 'msg bad'; msg.textContent = 'Type your email first.'; return; }
+    msg.textContent = 'One moment...';
+    fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: document.getElementById('product').value, fairy: document.getElementById('fairy').value, source: src || 'site', website: document.getElementById('trap').value }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong. Please try again.'); msg.className = 'msg ok'; msg.textContent = 'Thank you. You are on the list. Watch your inbox.'; f.reset(); }); })
+      .catch(function (err) { msg.className = 'msg bad'; msg.textContent = err.message; });
   };
-  function testerCall(action) {
-    var o = $('ownKey').value.trim(), n = $('tName').value.trim(), k = $('tKey').value.trim();
-    if (!o || !n || (action === 'add_sun_tester' && !k)) { say('tMsg', 'Fill in the ETL owner key, the tester\'s name' + (action === 'add_sun_tester' ? ' and the tester\'s code.' : '.'), true); return; }
-    fetch('/.netlify/functions/gc-config', { method: 'POST', headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + o }, body: JSON.stringify({ action: action, name: n, key: k }) })
-      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(r.status === 401 ? 'That owner key was not accepted.' : (j.error || 'Something went wrong.')); say('tMsg', action === 'add_sun_tester' ? 'Saved. ' + n + ' can connect with that code.' : 'Removed. That code no longer works.'); $('tKey').value = ''; }); })
-      .catch(function (e) { say('tMsg', e.message, true); });
-  }
-  $('tAdd').onclick = function () { testerCall('add_sun_tester'); };
-  $('tRemove').onclick = function () { testerCall('remove_sun_tester'); };
-  $('connect').onclick = function () { var k = $('key').value.trim(); if (!k) return; var wasDemo = DEMO; if (DEMO) { DEMO = false; document.body.classList.remove('demo'); var sb = document.querySelector('.sub'); if (sb && sb.getAttribute('data-was')) sb.textContent = sb.getAttribute('data-was'); var kh2 = document.querySelector('#keyCard h2'); if (kh2 && kh2.getAttribute('data-was')) kh2.textContent = kh2.getAttribute('data-was'); $('wantAudio').disabled = false; demoChat = {}; $('thread').innerHTML = ''; } key = k; load().then(function (ok) { if (!ok && wasDemo) startDemo(); }); };
-  $('saveWake').onclick = function () { save({ wake_hour: +$('wh').value, wake_min: +$('wm').value, sunrise_minutes: +$('len').value, zone: $('zone').value }, 'wakeMsg'); };
-  $('len').oninput = function () { $('lenOut').textContent = $('len').value; };
-
-  function edit(id) {
-    editing = id; var f = fairyOf(id);
-
-    $('editCard').style.display = ''; $('editTitle').textContent = 'Words and voice: ' + (f.name || id);
-    $('fName').value = f.name; $('fGreet').value = f.greeting; $('fAsk').value = f.ask; $('fManner').value = f.manner; $('fBack').value = f.backstory; $('fVoice').value = f.voice || ''; $('fImage').value = f.image || '';
-    $('delFairy').style.display = f.ships ? 'none' : '';
-    $('editCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-  function saveFairy() {
-    var f = { name: $('fName').value, greeting: $('fGreet').value, ask: $('fAsk').value, manner: $('fManner').value, backstory: $('fBack').value }, v = $('fVoice').value.trim();
-    if (v) f.voice = v;
-    var im = $('fImage').value.trim(); if (im) f.image = im;
-    var patch = { fairies: {} }; patch.fairies[editing] = f;
-    return save(patch, 'fairyMsg');
-  }
-  $('newFairy').onclick = function () {
-    var id = 'fairy-' + Date.now().toString(36);
-    all[id] = { name: 'A new fairy', greeting: 'Good morning, human.', ask: all.velvet ? all.velvet.ask : '', manner: '', backstory: '', voice: '', ships: false };
-    edit(id);
-  };
-  $('delFairy').onclick = function () { if (confirm('Remove this fairy?')) save({ delete_fairy: editing }, null).then(function () { $('editCard').style.display = 'none'; }); };
-  $('saveFairy').onclick = saveFairy;
-  $('hearFairy').onclick = function () { saveFairy().then(function () { return save({ fairy: editing }, null); }).then(function () { selectFairy(editing); return ask({ step: 'wake', fairy: editing }, true); }).catch(function () {}); };
-
-  var thread = null;
-  function who() { return current || $('chatWho').value || s.fairy; }
-  function bubble(role, text, pending) {
-    var el = $('thread'), e = el.querySelector('.empty'); if (e) e.remove();
-    var b = document.createElement('div'); b.className = 'bub ' + (role === 'user' ? 'me' : 'her') + (pending ? ' pending' : '');
-    var f = all[who()] || {};
-    if (role !== 'user') { var w = document.createElement('span'); w.className = 'who'; w.textContent = f.name || ''; b.appendChild(w); }
-    b.appendChild(document.createTextNode(text));
-    var out = b;
-    if (role !== 'user' && f.image) {
-      out = document.createElement('div'); out.className = 'mrow';
-      var a = document.createElement('img'); a.className = 'ava'; a.alt = ''; a.src = encodeURI(f.image); a.onerror = function () { a.style.display = 'none'; };
-      out.appendChild(a); out.appendChild(b);
-    }
-    el.appendChild(out); el.scrollTop = el.scrollHeight; return out;
-  }
-  function empty() { var el = $('thread'); el.innerHTML = ''; var d = document.createElement('div'); d.className = 'empty'; d.textContent = 'Nothing yet. Say good morning to ' + ((all[who()] || {}).name || 'your fairy') + '.'; el.appendChild(d); }
-  function loadThread() {
-    var f = who(); if (!f) return Promise.resolve();
-    return api(BRAIN, { step: 'history', fairy: f }).then(function (j) {
-      $('thread').innerHTML = ''; var h = j.history || [];
-      if (!h.length) return empty();
-      h.forEach(function (m) { bubble(m.role, m.text); });
-    }).catch(function () { empty(); });
-  }
-  function news(j) {
-    var box = $('news'); box.innerHTML = ''; box.style.display = 'none'; var a = null;
-    if (j.news) {
-      box.style.display = '';
-      a = document.createElement('audio'); a.controls = true; a.src = j.news.audio_url; a.style.width = '100%'; box.appendChild(a);
-      var ul = document.createElement('ul'); ul.style.cssText = 'margin:8px 0 0;padding-left:1.2rem;font-size:14px';
-      (j.news.headlines || []).forEach(function (t) { var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
-      box.appendChild(ul);
-    }
-    if (j.audio) { var v = new Audio('data:audio/mpeg;base64,' + j.audio); if (a) v.onended = function () { a.play().catch(function () {}); }; v.play().catch(function () {}); }
-    else if (a) a.play().catch(function () {});
-  }
-  function reply(j) {
-    bubble('fairy', j.say || ''); if (OWNER && j.reason) bubble('fairy', 'Owner note, customers do not see this: ' + j.reason); news(j);
-    if (j.audio_url && $('wantAudio').dataset.hello !== '0') { try { var hv = new Audio(j.audio_url); hv.play().catch(function () {}); } catch (e) {} }
-    if (DEMO && j.left) say('leftMsg', j.left.text + ' free message' + (j.left.text === 1 ? '' : 's') + ' left today.'); else if (DEMO && j.limit) say('leftMsg', '');
-  }
-  function ask(body, forceAudio) {
-    body.audio = forceAudio || $('wantAudio').checked; body.fairy = body.fairy || who();
-    return api(BRAIN, body).then(reply).catch(function (e) { bubble('fairy', e.message); });
-  }
-  function wake() { return ask({ step: 'wake' }); }
-  $('wakeBtn').onclick = wake;
-  $('goodnightBtn').onclick = function () { $('heard').value = 'Goodnight.'; $('send').onclick(); };
-  $('chatWho').onchange = function () { selectFairy($('chatWho').value); };
-  $('clearChat').onclick = function () { if (confirm('Wipe your chat with ' + ((all[who()] || {}).name || 'your fairy') + '?')) api(BRAIN, { step: 'clear', fairy: who() }).then(empty); };
-  $('send').onclick = function () {
-    var t = $('heard').value.trim(); if (!t) return; $('heard').value = '';
-    bubble('user', t); var wait = bubble('fairy', '...', true);
-    api(BRAIN, { step: 'chat', fairy: who(), text: t, audio: $('wantAudio').checked })
-      .then(function (j) { wait.remove(); reply(j); })
-      .catch(function (e) { wait.remove(); bubble('fairy', e.message); });
-  };
-  $('heard').onkeydown = function (e) { if (e.key === 'Enter') $('send').onclick(); };
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) $('micBtn').style.display = 'none';
-  else $('micBtn').onclick = function () { var r = new SR(); r.lang = 'en-US'; r.onresult = function (e) { $('heard').value = e.results[0][0].transcript; $('send').onclick(); }; r.start(); };
-
-  /* Apple Music. MusicKit JS is loaded from Apple only when the button is pressed. NOT TRIED against Apple. */
-  var mk = null;
-  function loadMusicKit() {
-    if (window.MusicKit) return Promise.resolve();
-    return new Promise(function (ok, no) {
-      var sc = document.createElement('script'); sc.src = 'https://js-cdn.music.apple.com/musickit/v3/musickit.js'; sc.async = true;
-      sc.onload = function () { if (window.MusicKit) ok(); else document.addEventListener('musickitloaded', ok, { once: true }); };
-      sc.onerror = function () { no(new Error('Apple Music could not be loaded. Check the connection.')); };
-      document.head.appendChild(sc);
-    });
-  }
-  function mstate(t, bad) { var e = $('musicState'); e.textContent = t; e.className = 'msg' + (bad ? ' bad' : ''); }
-  function artwork(a, n) { return a && a.url ? a.url.replace('{w}', n).replace('{h}', n) : ''; }
-  function musicRow(item, kind) {
-    var at = item.attributes || {}, row = document.createElement('div'); row.className = 'row'; row.style.cssText = 'gap:10px;flex-wrap:nowrap';
-    var im = document.createElement('img'); im.alt = ''; im.width = 44; im.height = 44; im.style.cssText = 'border-radius:6px;background:var(--line);flex:0 0 44px'; var u = artwork(at.artwork, 88); if (u) im.src = u; row.appendChild(im);
-    var tx = document.createElement('div'); tx.style.cssText = 'flex:1 1 auto;min-width:0';
-    var t1 = document.createElement('div'); t1.textContent = at.name || ''; t1.style.cssText = 'color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-    var t2 = document.createElement('div'); t2.textContent = (kind === 'library-playlists' ? 'Your playlist' : kind === 'playlists' ? 'Playlist' : kind === 'albums' ? 'Album' : 'Song') + (at.artistName ? ' · ' + at.artistName : ''); t2.className = 'hint'; t2.style.margin = '0';
-    tx.appendChild(t1); tx.appendChild(t2); row.appendChild(tx);
-    var b = document.createElement('button'); b.textContent = 'Play'; b.onclick = function () { playItem(item, kind); }; row.appendChild(b);
-    return row;
-  }
-  function showResults(groups) {
-    var box = $('musicList'); box.innerHTML = ''; var n = 0;
-    groups.forEach(function (g) { (g.items || []).forEach(function (it) { box.appendChild(musicRow(it, g.kind)); n++; }); });
-    if (!n) { var d = document.createElement('div'); d.className = 'hint'; d.textContent = 'Nothing found.'; box.appendChild(d); }
-  }
-  function playItem(item, kind) {
-    if (item.svc === 'spotify') return spPlay(item, kind);
-    var q = {}; var id = item.id;
-    if (kind === 'songs') q.song = id; else if (kind === 'albums') q.album = id; else q.playlist = id;
-    mk.setQueue(q).then(function () { return mk.play(); }).catch(function (e) { mstate('Could not play that: ' + (e && e.message || e), true); });
-  }
-  function refreshNow() {
-    var it = mk && mk.nowPlayingItem, at = it && it.attributes;
-    $('npText').textContent = at ? (at.name + (at.artistName ? ' · ' + at.artistName : '')) : 'Nothing playing.';
-    $('mPlay').textContent = mk && mk.isPlaying ? 'Pause' : 'Play';
-  }
-  function connectMusic() {
-    mstate('Connecting...');
-    return api('/.netlify/functions/sun-music-token').then(function (t) {
-      return loadMusicKit().then(function () {
-        return MusicKit.configure({ developerToken: t.token, app: { name: 'The Rising Sun', build: '1.0' } });
-      });
-    }).then(function () {
-      mk = MusicKit.getInstance();
-      mk.addEventListener('playbackStateDidChange', refreshNow); mk.addEventListener('nowPlayingItemDidChange', refreshNow);
-      return mk.authorize();
-    }).then(function () {
-      appleOn = true; musicSvcChanged(); mstate('Connected to Apple Music.'); refreshNow();
-    }).catch(function (e) { mstate(e && e.message ? e.message : 'Could not connect to Apple Music.', true); });
-  }
-  function musicSearch() {
-    var term = $('musicTerm').value.trim(); if (!term || !mk) return;
-    var sf = mk.storefrontId || 'us';
-    mk.api.music('/v1/catalog/' + sf + '/search', { term: term, types: 'songs,albums,playlists', limit: 8 }).then(function (r) {
-      var res = (r && r.data && r.data.results) || {};
-      showResults([{ kind: 'songs', items: (res.songs || {}).data }, { kind: 'albums', items: (res.albums || {}).data }, { kind: 'playlists', items: (res.playlists || {}).data }]);
-    }).catch(function (e) { mstate('Search failed: ' + (e && e.message || e), true); });
-  }
-  function musicMine() {
-    if (!mk) return;
-    mk.api.music('/v1/me/library/playlists', { limit: 25 }).then(function (r) { showResults([{ kind: 'library-playlists', items: (r && r.data && r.data.data) || [] }]); })
-      .catch(function (e) { mstate('Could not read your playlists: ' + (e && e.message || e), true); });
-  }
-  function svc() { return $('musicSvc').value; }
-  var appleOn = false, spOn = false;
-  function musicSvcChanged() {
-    var sp = svc() === 'spotify';
-    $('musicConnect').textContent = (sp ? (spOn ? 'Reconnect Spotify' : 'Connect Spotify') : (appleOn ? 'Reconnect Apple Music' : 'Connect Apple Music'));
-    var need = sp ? (s && s.spotify_client_id ? '' : (OWNER ? 'Save the Spotify Client ID under Owner setup first.' : 'Spotify is not set up yet.')) : (s && s.apple_set ? '' : (OWNER ? 'Save the Apple key under Owner setup first.' : 'Apple Music is not set up yet.'));
-    $('musicNeed').textContent = need; $('musicNeed').style.display = need ? '' : 'none'; $('musicConnect').disabled = !!need;
-    $('musicBox').style.display = (sp ? spOn : appleOn) ? '' : 'none';
-    $('spDevRow').style.display = sp ? '' : 'none';
-    $('musicList').innerHTML = ''; mstate('');
-    if (sp && spOn) { spPollStart(); } else { spPollStop(); }
-    if (!sp) refreshNow();
-  }
-  $('musicSvc').onchange = musicSvcChanged;
-
-  /* Spotify. Sign-in is PKCE, so no secret exists. The tokens stay in this browser only. NOT TRIED against Spotify. */
-  var SPK = 'sunSpotify', spTok = null, spPlayer = null, spThis = '', spTimer = null, spState = null;
-  try { spTok = JSON.parse(localStorage.getItem(SPK) || 'null'); } catch (e) { spTok = null; }
-  function spSaveTok(t) { spTok = t; try { if (t) localStorage.setItem(SPK, JSON.stringify(t)); else localStorage.removeItem(SPK); } catch (e) {} }
-  function redirectUri() { return location.origin + location.pathname; }
-  $('spRedirect').textContent = redirectUri();
-  function spForm(body) { return fetch('https://accounts.spotify.com/api/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error_description || j.error || 'Spotify sign-in failed.'); return j; }); }); }
-  function spToken() {
-    if (SunSpotify.fresh(spTok)) return Promise.resolve(spTok.access);
-    if (spTok && spTok.refresh && s.spotify_client_id) return spForm(SunSpotify.refreshBody({ refresh: spTok.refresh, clientId: s.spotify_client_id })).then(function (j) { spSaveTok(SunSpotify.keep(j, spTok)); return spTok.access; });
-    return Promise.reject(new Error('Sign in to Spotify again.'));
-  }
-  function spApi(method, path, body) {
-    return spToken().then(function (tk) {
-      var o = { method: method, headers: { Authorization: 'Bearer ' + tk } };
-      if (body) { o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(body); }
-      return fetch('https://api.spotify.com/v1' + path, o);
-    }).then(function (r) {
-      if (r.status === 204 || r.status === 202) return null;
-      return r.text().then(function (t) {
-        var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {}
-        if (!r.ok) throw new Error(r.status === 403 ? 'Spotify says this needs Premium, or that device cannot be controlled.' : (j && j.error && j.error.message) || ('Spotify said ' + r.status));
-        return j;
-      });
-    });
-  }
-  function spStart() {
-    var v = SunSpotify.verifier(), st = SunSpotify.randomString(16);
-    try { sessionStorage.setItem('sunSpV', v); sessionStorage.setItem('sunSpS', st); } catch (e) { mstate('This browser would not keep the sign-in step. Try another.', true); return; }
-    SunSpotify.challenge(v).then(function (c) { location.href = SunSpotify.authUrl({ clientId: s.spotify_client_id, redirectUri: redirectUri(), challenge: c, state: st }); });
-  }
-  /* Back from Spotify: ?code= and ?state= in the address. */
-  function spResume() {
-    var q = new URLSearchParams(location.search), code = q.get('code'), st = q.get('state'), v = null, want = null;
-    try { v = sessionStorage.getItem('sunSpV'); want = sessionStorage.getItem('sunSpS'); } catch (e) {}
-    if (q.get('error')) { history.replaceState(null, '', location.pathname); $('musicSvc').value = 'spotify'; musicSvcChanged(); mstate('Spotify did not sign you in: ' + q.get('error'), true); return; }
-    if (code && st && v && st === want && s && s.spotify_client_id) {
-      history.replaceState(null, '', location.pathname);
-      try { sessionStorage.removeItem('sunSpV'); sessionStorage.removeItem('sunSpS'); } catch (e) {}
-      $('musicSvc').value = 'spotify'; mstate('Signing in to Spotify...');
-      spForm(SunSpotify.codeBody({ code: code, redirectUri: redirectUri(), clientId: s.spotify_client_id, verifier: v })).then(function (j) { spSaveTok(SunSpotify.keep(j, null)); return spReady(); })
-        .catch(function (e) { mstate(e.message, true); });
-      $('musicCard').scrollIntoView({ block: 'nearest' });
-    }
-  }
-  function spConnect() {
-    if (!s.spotify_client_id) return;
-    if (!SunSpotify.fresh(spTok) && !(spTok && spTok.refresh)) return spStart();
-    mstate('Connecting...'); return spReady().catch(function () { spSaveTok(null); spStart(); });
-  }
-  function spReady() {
-    return spToken().then(function () {
-      spOn = true; $('musicSvc').value = 'spotify'; musicSvcChanged(); mstate('Connected to Spotify.');
-      spInitPlayer(); return spDevices();
-    });
-  }
-  function spInitPlayer() {
-    if (spPlayer || document.getElementById('spSdk')) return;
-    window.onSpotifyWebPlaybackSDKReady = function () {
-      try {
-        spPlayer = new Spotify.Player({ name: 'The Rising Sun panel', getOAuthToken: function (cb) { spToken().then(cb).catch(function () {}); }, volume: 0.7 });
-        spPlayer.addListener('ready', function (e) { spThis = e.device_id; spDevices(spThis); });
-        spPlayer.addListener('not_ready', function () { spThis = ''; spDevices(); });
-        spPlayer.addListener('initialization_error', function () { mstate('This browser cannot play Spotify itself. Choose another Spotify device above, such as your phone.'); });
-        spPlayer.addListener('authentication_error', function () { mstate('Spotify sign-in ran out. Press Reconnect Spotify.', true); });
-        spPlayer.addListener('account_error', function () { mstate('Spotify Premium is needed to play here.', true); });
-        spPlayer.connect();
-        try { spPlayer.activateElement(); } catch (e) {}
-      } catch (e) { mstate('Spotify player could not start.', true); }
-    };
-    var sc = document.createElement('script'); sc.id = 'spSdk'; sc.src = 'https://sdk.scdn.co/spotify-player.js'; sc.async = true; document.head.appendChild(sc);
-  }
-  function spDevices(prefer) {
-    return spApi('GET', '/me/player/devices').then(function (j) {
-      var list = (j && j.devices) || [], sel = $('spDevice'), keep = prefer || sel.value;
-      sel.innerHTML = '';
-      if (!list.length) { var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'No Spotify device found. Open Spotify on a phone or computer.'; sel.appendChild(o0); return; }
-      list.forEach(function (d) { var o = document.createElement('option'); o.value = d.id; o.textContent = d.name + (d.id === spThis ? ' (this panel)' : '') + (d.is_active ? ' (playing)' : ''); sel.appendChild(o); });
-      var act = list.filter(function (d) { return d.is_active; })[0];
-      sel.value = list.some(function (d) { return d.id === keep; }) ? keep : (act ? act.id : list[0].id);
-    }).catch(function (e) { mstate(e.message, true); });
-  }
-  function spDevParam(first) { var d = $('spDevice').value; return d ? (first ? '?' : '&') + 'device_id=' + encodeURIComponent(d) : ''; }
-  function spPlay(item, kind) {
-    var body = kind === 'songs' ? { uris: [item.uri] } : { context_uri: item.uri };
-    spApi('PUT', '/me/player/play' + spDevParam(true), body).then(function () { setTimeout(spNow, 800); }).catch(function (e) { mstate('Could not play that: ' + e.message, true); });
-  }
-  function spSearch() {
-    var term = $('musicTerm').value.trim(); if (!term) return;
-    spApi('GET', '/search?type=track,album,playlist&limit=8&q=' + encodeURIComponent(term)).then(function (j) {
-      var map = function (kind, node) { return { kind: kind, items: ((node && node.items) || []).map(function (x) { return SunSpotify.row(kind, x); }).filter(Boolean) }; };
-      showResults([map('songs', j.tracks), map('albums', j.albums), map('playlists', j.playlists)]);
-    }).catch(function (e) { mstate('Search failed: ' + e.message, true); });
-  }
-  function spMine() {
-    spApi('GET', '/me/playlists?limit=25').then(function (j) { showResults([{ kind: 'library-playlists', items: ((j && j.items) || []).map(function (x) { return SunSpotify.row('playlists', x); }).filter(Boolean) }]); })
-      .catch(function (e) { mstate('Could not read your playlists: ' + e.message, true); });
-  }
-  function spNow() {
-    if (svc() !== 'spotify' || !spOn) return;
-    spApi('GET', '/me/player').then(function (st) {
-      spState = st; var it = st && st.item;
-      $('npText').textContent = it ? it.name + ((it.artists || []).length ? ' · ' + it.artists.map(function (a) { return a.name; }).join(', ') : '') : 'Nothing playing.';
-      $('mPlay').textContent = st && st.is_playing ? 'Pause' : 'Play';
-    }).catch(function () {});
-  }
-  function spPollStart() { spPollStop(); spNow(); spTimer = setInterval(spNow, 4000); }
-  function spPollStop() { if (spTimer) { clearInterval(spTimer); spTimer = null; } }
-  function spToggle() { spApi('PUT', '/me/player/' + (spState && spState.is_playing ? 'pause' : 'play') + spDevParam(true)).then(function () { setTimeout(spNow, 500); }).catch(function (e) { mstate(e.message, true); }); }
-
-  $('musicConnect').onclick = function () { return svc() === 'spotify' ? spConnect() : connectMusic(); };
-  $('musicGo').onclick = function () { return svc() === 'spotify' ? spSearch() : musicSearch(); };
-  $('musicTerm').onkeydown = function (e) { if (e.key === 'Enter') $('musicGo').onclick(); };
-  $('musicMine').onclick = function () { return svc() === 'spotify' ? spMine() : musicMine(); };
-  $('spDevRefresh').onclick = function () { spDevices(); };
-  $('mPlay').onclick = function () { if (svc() === 'spotify') return spToggle(); if (!mk) return; (mk.isPlaying ? mk.pause() : mk.play()).catch(function () {}); };
-  $('mNext').onclick = function () { if (svc() === 'spotify') { spApi('POST', '/me/player/next' + spDevParam(true)).then(function () { setTimeout(spNow, 800); }).catch(function (e) { mstate(e.message, true); }); } else if (mk) mk.skipToNextItem().catch(function () {}); };
-  $('mPrev').onclick = function () { if (svc() === 'spotify') { spApi('POST', '/me/player/previous' + spDevParam(true)).then(function () { setTimeout(spNow, 800); }).catch(function (e) { mstate(e.message, true); }); } else if (mk) mk.skipToPreviousItem().catch(function () {}); };
-  $('mVol').oninput = function () { if (svc() === 'spotify') { spApi('PUT', '/me/player/volume?volume_percent=' + $('mVol').value + spDevParam(false)).catch(function () {}); } else if (mk) mk.volume = $('mVol').value / 100; };
-  $('saveSp').onclick = function () { var v = $('spClient').value.trim(); if (!v) return; save({ spotify_client_id: v }, 'spMsg').then(function () { if (s.spotify_client_id) $('spClient').value = ''; else say('spMsg', 'That did not look right. A Client ID is 32 letters and numbers.', true); }); };
-  $('clearSp').onclick = function () { save({ spotify_client_id: '' }, 'spMsg'); spSaveTok(null); spOn = false; spPollStop(); musicSvcChanged(); };
-  $('saveApple').onclick = function () {
-    var p = { apple_team_id: $('apTeam').value, apple_key_id: $('apKey').value, apple_private_key: $('apPem').value };
-    if (!p.apple_team_id.trim() || !p.apple_key_id.trim() || !p.apple_private_key.trim()) { say('appleMsg', 'Fill in all three.', true); return; }
-    save(p, 'appleMsg').then(function () { if (s.apple_set) { $('apTeam').value = ''; $('apKey').value = ''; $('apPem').value = ''; } else say('appleMsg', 'Saved, but one of the three did not look right. The IDs are 10 letters and numbers, and the key is the whole .p8 file.', true); });
-  };
-  $('clearApple').onclick = function () { save({ apple_team_id: '' }, 'appleMsg'); };
-
-  $('saveDet').onclick = function () {
-    var list = $('dets').value.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) {
-      var m = /^(\d{1,2})[\/-](\d{1,2})\s+(.*)$/.exec(l);
-      return m ? { date: m[1] + '-' + m[2], text: m[3] } : { date: '', text: l };
-    });
-    save({ details: list }, 'detMsg');
-  };
-  $('selfBtn').onclick = function () { $('heard').value = "Let's make today about us. A self-care day."; $('send').onclick(); };
-  $('funBtn').onclick = function () { $('heard').value = 'What should we do today? Surprise me.'; $('send').onclick(); };
-  $('newsBtn').onclick = function () { $('heard').value = 'the news please'; $('send').onclick(); };
-  $('saveRem').onclick = function () { save({ reminders: $('rems').value.split('\n') }, 'remMsg'); };
-  $('saveBed').onclick = function () { var k = $('bedKey').value.trim(); if (k) save({ bedrock_key: k }, 'bedMsg').then(function () { $('bedKey').value = ''; }); };
-  $('clearBed').onclick = function () { save({ bedrock_key: '' }, 'bedMsg'); };
-  $('saveCal').onclick = function () { var u = $('calUrl').value.trim(); if (!u) return; save({ calendar_url: u }, 'calMsg').then(function () { $('calUrl').value = ''; }); };
-  $('clearCal').onclick = function () { save({ calendar_url: '' }, 'calMsg'); };
-
-  /* The preview: the same color table as sunrise.ino and sunrise.py. */
-  var STEPS = [[0,0,0,0],[.10,40,2,0],[.35,200,40,0],[.65,255,120,20],[.85,255,190,110],[1,255,235,200]];
-  function colorAt(f) { f = Math.min(1, Math.max(0, f)); for (var i = 1; i < STEPS.length; i++) if (f <= STEPS[i][0]) { var a = STEPS[i-1], b = STEPS[i], k = (f - a[0]) / (b[0] - a[0]); return [0,1,2].map(function (j) { return Math.round(a[j+1] + (b[j+1] - a[j+1]) * k); }); } return STEPS[STEPS.length-1].slice(1); }
-  function sky(f) { var c = colorAt(f), rgb = 'rgb(' + c.join(',') + ')'; $('sky').style.background = 'linear-gradient(#000, rgba(' + c.join(',') + ',' + (0.15 + f * 0.6) + '))'; $('sun').style.background = rgb; $('sun').style.bottom = (-70 + f * 90) + 'px'; }
-  $('scrub').oninput = function () { sky($('scrub').value / 100); };
-  var timer = null;
-  $('play').onclick = function () { clearInterval(timer); var n = 0; timer = setInterval(function () { n++; $('scrub').value = n; sky(n / 100); if (n >= 100) clearInterval(timer); }, 60); };
-  sky(0.6);
-
-
-  /* The preview's front door: say what you need, the fairy who keeps it says hello. The needs are the fairies' own jobs from the Court text. */
-  var NEEDS = [['ash', 'Help me keep on track'], ['velvet', 'A slow, cozy start'], ['ember', 'Calm, when my head is loud'], ['flint', 'A reason to laugh'], ['poppy', 'Someone who is just glad I am here'], ['tansy', 'Some sass, and something new to try'], ['blue', 'Something rare and wise']];
-  function renderQuiz() {
-    var box = $('quiz'); box.innerHTML = '';
-    NEEDS.forEach(function (n) {
-      var f = all[n[0]]; if (!f) return;
-      var b = document.createElement('button'); b.type = 'button';
-      b.appendChild(avatarOf(f, 'qa'));
-      var t = document.createElement('span'); t.innerHTML = '<b></b>'; t.querySelector('b').textContent = n[1]; t.appendChild(document.createTextNode(f.name)); b.appendChild(t);
-      b.onclick = function () { selectFairy(n[0]); $('tryCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(function () { ask({ step: 'wake' }, true); }, 250); };
-      box.appendChild(b);
-    });
-  }
-  document.querySelectorAll('.prod .more').forEach(function (b) { b.onclick = function () { $('aProduct').value = b.getAttribute('data-p'); $('interestCard').scrollIntoView({ behavior: 'smooth' }); $('aEmail').focus(); }; });
-  var SOURCE = ''; try { var ms = /[?&]s=([a-z0-9-]{1,40})/.exec(location.search); if (ms) SOURCE = ms[1]; } catch (e) {}
-  $('askForm').onsubmit = function (e) {
-    e.preventDefault();
-    var em = $('aEmail').value.trim(); if (!em) { say('aMsg', 'Type your email first.', true); return; }
-    fetch('/.netlify/functions/sun-interest', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, product: $('aProduct').value, fairy: current || '', source: SOURCE, website: $('aTrap').value }) })
-      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong.'); say('aMsg', 'Thank you. We will tell you when it is ready.'); $('aEmail').value = ''; }); })
-      .catch(function (err) { say('aMsg', err.message, true); });
-  };
-  function startDemo() {
-    fetch('personas.json').then(function (r) { return r.json(); }).then(function (P) {
-      all = {};
-      Object.keys(P).forEach(function (id) {
-        var f = P[id]; if (!f || typeof f !== 'object' || id.charAt(0) === '_' || id === 'chosen' || id === 'court') return;
-        all[id] = { name: f.name || id, title: f.title || '', keeps: f.keeps || [], greeting: f.greeting || '', ask: f.ask || '', manner: f.manner || '', backstory: f.backstory || '', voice: f.voice || '', image: f.image || '', ships: true };
-      });
-      demoS = { wake_hour: 7, wake_min: 0, sunrise_minutes: 30, zone: 'eastern', fairy: P.chosen || 'velvet', fairies: {}, reminders: [], details: [], calendar_set: false, bedrock_set: false, apple_set: false };
-      DEMO = true; document.body.classList.add('demo'); s = demoS; paint(); renderQuiz();
-      var sub = document.querySelector('.sub'); if (sub && !sub.getAttribute('data-was')) { sub.setAttribute('data-was', sub.textContent); sub.textContent = 'Seven fairies, one for each part of your morning. Pick the one you need today, say hello, and watch the sunrise.'; }
-      var kh = document.querySelector('#keyCard h2'); if (kh && !kh.getAttribute('data-was')) { kh.setAttribute('data-was', kh.textContent); kh.textContent = 'Have a Rising Sun of your own?'; }
-      $('status').className = 'status'; $('statusText').textContent = 'Demo mode, no sun connected';
-      $('wantAudio').checked = false; $('wantAudio').disabled = !etlToken(); $('signInHint').style.display = etlToken() ? 'none' : '';
-    }).catch(function () {});
-  }
-  var fromLink = null; try { var mh = /[#&]k=([^&]+)/.exec(location.hash || ''); if (mh) { fromLink = decodeURIComponent(mh[1]); history.replaceState(null, '', location.pathname + location.search); } } catch (e) {}
-  var saved = fromLink || store('sunKey');
-  if (saved) { key = saved; $('key').value = saved; load(); } else startDemo();
 })();
 </script>
 </body>

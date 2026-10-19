@@ -1,6 +1,6 @@
 /* The Rising Sun panel's palettes come from Good Company's gc-skin.css. Light or dark is measured from each palette's own background, and every pair the panel reads is checked for contrast. */
 const fs = require('fs');
-const html = fs.readFileSync(__dirname + '/../rising-sun/index.html', 'utf8');
+const html = fs.readFileSync(__dirname + '/../rising-sun/panel.html', 'utf8');
 const gc = fs.readFileSync(__dirname + '/../good-company/gc-skin.css', 'utf8');
 let bad = 0;
 const check = (ok, label) => { if (!ok) bad++; console.log((ok ? '  ok    ' : '  FAIL  ') + label); };
