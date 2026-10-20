@@ -42,7 +42,7 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 
 ## The light's shape (Dr. O, 2026-10-20)
 - A horizontal bar that sits on a window sill and shines into the room like the sun waking you. It comes in several widths to fit different windows. It stands on its own foot: no installation, no adhesive, no drilling, so it is safe for rental properties. The arch that shines upward is not the plan for the window light.
-- Widths (Dr. O, 2026-10-20): 18, 24 and 30 inches. Base: wood. It must not look cheap: thick frosted cast acrylic, an even glow, a slow smooth fade, hidden electronics. The height and the foot depth are hers to decide and are not decided yet. Nothing is built from this yet; `sunrise.ino` still counts 60 LEDs.
+- Widths (Dr. O, 2026-10-20): 18, 24 and 30 inches. Base: not decided. ABS is out because it yellows in sun. It must not look cheap: thick frosted cast acrylic, an even glow, a slow smooth fade, hidden electronics. The height and the foot depth are hers to decide and are not decided yet. Only a prototype is being made now; the real product will be made by a manufacturer she finds. Nothing is built from this yet; `sunrise.ino` still counts 60 LEDs.
 
 ## Parts
 ESP32-S3 N16R8 (as in the Holopod box), WS2812B strip, its own 5V supply sized for the strip, a speaker and a microphone for her voice. Wiring is at the top of `sunrise.ino`.
