@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talk to Naomi Baptiste | Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<meta name="description" content="Talk to Naomi Baptiste, ETL's AI Director of Standardized Patient Programs, by text or out loud, and ask her advice on standardized patient cases.">
+<style>
+  :root { --paper:#f4f3ee; --ink:#161310; --soft:#4a443a; --line:#c8bba0; --accent:#28527a; --navy:#1f2c4a; --bad:#8a2a2a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:18px/1.55 Georgia,serif; }
+  main { max-width:820px; margin:0 auto; padding:24px 16px 64px; }
+  a { color:var(--accent); }
+  .top { display:flex; justify-content:space-between; gap:12px; font-size:15px; margin-bottom:18px; }
+  .hero { display:flex; gap:20px; align-items:center; margin-bottom:18px; }
+  .portrait { position:relative; flex:0 0 160px; height:180px; border-radius:10px; overflow:hidden; border:2px solid var(--navy); box-shadow:0 4px 14px rgba(0,0,0,.15); }
+  .portrait img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 12%; transform:scale(2); transform-origin:52% 16%; transition:opacity .12s ease; }
+  .portrait img.closed { opacity:0; }
+  .hero h1 { font-size:28px; margin:0; }
+  .hero .role { color:var(--accent); font-size:15px; text-transform:uppercase; letter-spacing:.05em; margin:4px 0 8px; }
+  .hero p { margin:0; color:var(--soft); font-size:16px; }
+  .badge { display:inline-block; margin-top:8px; font-size:13px; border:1px solid var(--line); border-radius:20px; padding:3px 12px; background:#fff; }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:8px; padding:16px; }
+  .chat { display:flex; flex-direction:column; gap:14px; min-height:120px; margin-bottom:14px; }
+  .msg { max-width:88%; }
+  .msg .who { font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); margin-bottom:3px; }
+  .msg.you { align-self:flex-end; text-align:right; }
+  .bubble { padding:11px 14px; border-radius:8px; white-space:pre-wrap; text-align:left; }
+  .msg.naomi .bubble { background:var(--paper); border-left:3px solid var(--accent); }
+  .msg.you .bubble { background:var(--navy); color:#fff; display:inline-block; }
+  .listen { margin-top:5px; font:inherit; font-size:14px; background:none; border:1px solid var(--line); border-radius:5px; padding:3px 10px; cursor:pointer; color:var(--accent); }
+  .row { display:flex; gap:10px; align-items:flex-end; }
+  textarea { flex:1; font:inherit; min-height:60px; padding:10px; border:1px solid var(--line); border-radius:6px; resize:vertical; }
+  button.main { font:inherit; padding:10px 18px; border:0; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
+  button.mic { font:inherit; padding:10px 14px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); cursor:pointer; }
+  button.mic.on { background:var(--bad); border-color:var(--bad); color:#fff; }
+  button:disabled { opacity:.55; cursor:wait; }
+  .opts { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:10px; font-size:15px; color:var(--soft); }
+  .opts button { font:inherit; font-size:15px; background:none; border:0; color:var(--accent); cursor:pointer; padding:0; text-decoration:underline; }
+  .thinking { font-style:italic; color:var(--soft); }
+  #msg { margin-top:10px; color:var(--bad); font-size:15px; }
+  .fine { font-size:13px; color:var(--soft); margin-top:14px; }
+  @media (max-width:560px) { .hero { flex-direction:column; text-align:center; } .portrait { flex-basis:auto; width:150px; } .msg { max-width:96%; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><a href="/sp-case-generator">&larr; Case generator</a><a href="/">Emerging Technologies Laboratory</a></div>
+
+  <div class="hero">
+    <div class="portrait">
+      <img id="p-open" src="/agents/naomi-babiste-eyes-open.png" alt="Naomi Baptiste">
+      <img id="p-closed" class="closed" src="/agents/naomi-babiste-eyes-closed.png" alt="" aria-hidden="true">
+    </div>
+    <div>
+      <h1>Naomi Baptiste</h1>
+      <div class="role">Director of Standardized Patient Programs</div>
+      <p>Ask her about a case, a scoring checklist, how hard a case should be for a learner, or how the robot patients should play it. Type, or press Talk and say it out loud.</p>
+      <span class="badge">AI agent, not a real person</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="row">
+      <textarea id="input" maxlength="4000" placeholder="Ask Naomi for advice"></textarea>
+      <button class="mic" id="mic" type="button" hidden>Talk</button>
+      <button class="main" id="send" type="button">Send</button>
+    </div>
+    <div class="opts">
+      <label><input type="checkbox" id="speak"> Read her answers out loud</label>
+      <button type="button" id="clear">Start over</button>
+    </div>
+    <div id="msg" role="status"></div>
+  </div>
+
+  <p class="fine">Naomi is an AI agent with a written background, designed and supervised by Dr. Terry L. Oroszi, Emerging Technologies Laboratory, Dayton, Ohio. Her advice is about teaching cases. She does not give medical advice, and every case still needs a faculty clinician's review.</p>
+</main>
+<script>
+(function () {
+  function el(id) { return document.getElementById(id); }
+  var chatEl = el('chat'), input = el('input'), sendBtn = el('send'), micBtn = el('mic'), speakBox = el('speak'), msgEl = el('msg');
+
+  // Blink: same open and closed swap the other ETL portraits use.
+  (function () {
+    var closed = el('p-closed');
+    function cycle() {
+      closed.classList.remove('closed');
+      setTimeout(function () { closed.classList.add('closed'); }, 140);
+      setTimeout(cycle, 3800 + Math.random() * 3000);
+    }
+    setTimeout(cycle, 2500 + Math.random() * 2000);
+  })();
+
+  var KEY = 'etl_naomi_hist', SPEAK_KEY = 'etl_naomi_speak';
+  var history = [];
+  try { history = JSON.parse(localStorage.getItem(KEY) || '[]') || []; } catch (_) { history = []; }
+  try { speakBox.checked = localStorage.getItem(SPEAK_KEY) === '1'; } catch (_) {}
+  speakBox.addEventListener('change', function () { try { localStorage.setItem(SPEAK_KEY, speakBox.checked ? '1' : '0'); } catch (_) {} });
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(history.slice(-40))); } catch (_) {} }
+
+  var audio = null;
+  async function play(text, btn) {
+    if (audio) { audio.pause(); audio = null; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
+    try {
+      var r = await fetch('/.netlify/functions/naomi-voice', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text.slice(0, 2500) }) });
+      if (!r.ok) throw new Error(r.status === 503 ? 'Her voice is not set up yet.' : 'Her voice did not load. Try again.');
+      audio = new Audio(URL.createObjectURL(await r.blob()));
+      if (btn) btn.textContent = 'Playing...';
+      audio.addEventListener('ended', function () { if (btn) { btn.textContent = 'Listen'; btn.disabled = false; } });
+      await audio.play();
+    } catch (e) {
+      msgEl.textContent = e.message || 'Her voice did not load.';
+      if (btn) btn.textContent = 'Listen';
+    } finally { if (btn) btn.disabled = false; }
+  }
+
+  function render(role, text) {
+    var wrap = document.createElement('div');
+    wrap.className = 'msg ' + (role === 'user' ? 'you' : 'naomi');
+    var who = document.createElement('div'); who.className = 'who'; who.textContent = role === 'user' ? 'You' : 'Naomi';
+    var b = document.createElement('div'); b.className = 'bubble'; b.textContent = text;
+    wrap.appendChild(who); wrap.appendChild(b);
+    var btn = null;
+    if (role !== 'user') {
+      btn = document.createElement('button'); btn.type = 'button'; btn.className = 'listen'; btn.textContent = 'Listen';
+      btn.addEventListener('click', function () { play(text, btn); });
+      wrap.appendChild(btn);
+    }
+    chatEl.appendChild(wrap);
+    wrap.scrollIntoView({ block: 'nearest' });
+    return btn;
+  }
+
+  var GREETING = "Hi, I'm Naomi. I run the standardized patient program here, and I'm an AI agent, not a real person. What are you working on? Hand me a case, or ask me anything about building one.";
+  function start() {
+    chatEl.innerHTML = '';
+    history.forEach(function (m) { render(m.role, m.content); });
+    if (!history.length) render('assistant', GREETING);
+  }
+  start();
+
+  function busy(on) {
+    sendBtn.disabled = on; input.disabled = on; micBtn.disabled = on;
+    var t = el('thinking');
+    if (on && !t) { t = document.createElement('div'); t.id = 'thinking'; t.className = 'thinking'; t.textContent = 'Naomi is thinking...'; chatEl.appendChild(t); }
+    if (!on && t) t.remove();
+  }
+
+  async function send() {
+    var q = input.value.trim();
+    if (!q) return;
+    msgEl.textContent = '';
+    render('user', q);
+    history.push({ role: 'user', content: q });
+    input.value = '';
+    busy(true);
+    try {
+      var r = await fetch('/.netlify/functions/naomi-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: history }) });
+      var d = await r.json().catch(function () { return {}; });
+      if (!r.ok || !d.answer) throw new Error(d.error || 'Naomi had trouble answering that. Try again.');
+      history.push({ role: 'assistant', content: d.answer });
+      save();
+      busy(false);
+      var btn = render('assistant', d.answer);
+      if (speakBox.checked) play(d.answer, btn);
+    } catch (e) {
+      history.pop();
+      msgEl.textContent = e.message;
+      busy(false);
+    }
+    input.focus();
+  }
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+  el('clear').addEventListener('click', function () { history = []; save(); if (audio) audio.pause(); start(); });
+
+  // Talk: the browser's own speech to text. Says it once, then sends it, and turns her voice on.
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    micBtn.hidden = false;
+    var rec = new SR(); rec.lang = 'en-US'; rec.interimResults = true; rec.continuous = false;
+    var on = false, heard = '';
+    rec.onresult = function (e) {
+      heard = '';
+      for (var i = 0; i < e.results.length; i++) heard += e.results[i][0].transcript;
+      input.value = heard;
+    };
+    rec.onerror = function (e) {
+      msgEl.textContent = e.error === 'not-allowed' ? 'The microphone is blocked. Allow it from the icon next to the page address, then reload.' : 'I did not catch that. Press Talk and try again.';
+    };
+    rec.onend = function () {
+      on = false; micBtn.classList.remove('on'); micBtn.textContent = 'Talk';
+      if (heard.trim()) { speakBox.checked = true; send(); }
+    };
+    micBtn.addEventListener('click', function () {
+      if (on) { rec.stop(); return; }
+      if (audio) audio.pause();
+      heard = ''; msgEl.textContent = '';
+      try { rec.start(); on = true; micBtn.classList.add('on'); micBtn.textContent = 'Listening'; } catch (_) {}
+    });
+  }
+})();
+</script>
+</body>
+</html>

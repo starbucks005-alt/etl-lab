@@ -23,12 +23,22 @@
   .sec pre { white-space:pre-wrap; margin:0; font:inherit; }
   .note { font-style:italic; color:var(--soft); }
   .row { display:flex; gap:10px; } .row button { margin-top:10px; }
+  .naomi { display:flex; gap:14px; align-items:center; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin:0 0 20px; text-decoration:none; color:var(--ink); }
+  .naomi .face { position:relative; flex:0 0 64px; height:80px; border-radius:8px; overflow:hidden; }
+  .naomi .face img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 12%; transform:scale(2); transform-origin:52% 16%; transition:opacity .12s ease; }
+  .naomi .face img.closed { opacity:0; }
+  .naomi b { display:block; }
+  .naomi span { color:var(--accent); }
 </style>
 </head>
 <body>
 <main>
   <h1>Standardized Patient Case Generator</h1>
   <p class="sub">Choose the learner and the field. The case is written once and the robot plays it the same way for every student.</p>
+  <a class="naomi" href="/naomi">
+    <div class="face"><img src="/agents/naomi-babiste-eyes-open.png" alt="Naomi Baptiste"><img id="naomi-closed" class="closed" src="/agents/naomi-babiste-eyes-closed.png" alt="" aria-hidden="true"></div>
+    <div><b>Naomi Baptiste reviews every case.</b><span>Talk to Naomi and ask her advice, by text or out loud.</span></div>
+  </a>
 
   <label for="learner">Who is the student?</label>
   <select id="learner"></select>
@@ -85,6 +95,13 @@
         el('msg').textContent = ''; lastCase = j.case; render(j.case, j.review_note);
       }).catch(function () { b.disabled = false; el('msg').textContent = 'Could not reach the generator.'; });
   };
+})();
+</script>
+<script>
+(function () {
+  var c = document.getElementById('naomi-closed');
+  function cycle() { c.classList.remove('closed'); setTimeout(function () { c.classList.add('closed'); }, 140); setTimeout(cycle, 3800 + Math.random() * 3000); }
+  setTimeout(cycle, 2500 + Math.random() * 2000);
 })();
 </script>
 </body>
