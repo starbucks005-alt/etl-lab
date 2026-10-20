@@ -1086,7 +1086,10 @@ FLOOR_OFF_FILE = os.path.join(HERE, "no_floor")     # `touch ~/al_panel/no_floor
 def floor_call(action):
     try:
         r = requests.post(FLOOR_URL, json={"action": action, "room": FLOOR_ROOM, "who": sisters["me"], "ttl": 25}, timeout=4)
-        return r.json() if r.status_code == 200 else None
+        if r.status_code != 200:
+            print("FLOOR answered %s: %s, so she speaks anyway" % (r.status_code, r.text[:80]), flush=True)       # 2026-10-20: this used to be silent
+            return None
+        return r.json()
     except Exception as e:
         print("FLOOR unreachable (%s), speaking anyway" % str(e)[:80], flush=True)
         return None
