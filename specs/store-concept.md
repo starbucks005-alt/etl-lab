@@ -591,6 +591,16 @@ What is different from Dr. O's plan:
 
 Not known: how well FR-NIA works in practice (the release is a company announcement, no review found), whether it ships, and whether any patent or trademark of theirs touches her figurines. A lawyer would have to say that last one.
 
+## Strategy: start cheap, then add better (Dr. O, 2026-10-20)
+
+Dr. O's decision, said right after seeing FR-NIA at $599 and up: she is going for disruptive innovation. Bring in a cheap version with fewer options to reach lower budgets, then gradually introduce better ones.
+
+What that means for this record:
+- The first thing sold is the entry version: a plinth with the fewest parts, and figurines. Options such as the camera and motion detector come later as upgrades.
+- Cloud brain and no computer in the plinth is what makes the entry price possible, so it stays the starting point.
+- The premium line (Astra 9, Astrad, ETL Security, LumVivo, the full hologram pod) comes after, to the people who started cheap.
+- Prices are not set. The entry price and what the entry version leaves out are still hers to decide.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
