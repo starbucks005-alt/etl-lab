@@ -603,6 +603,20 @@ What that means for this record:
 
 Dr. O, same day: her robots only think and talk, which is why they can cost less than robots that move a face or body. Her target for the full-size robot is $2,000. That is her number. The cost of building one and the cost of the voice per month have not been worked out yet, so whether $2,000 leaves anything after parts and voice is not known.
 
+## The biggest problem: the monthly cost of talking (2026-10-20)
+
+Dr. O: the biggest problem with all of the products will be the monthly charge for text and audio. A one-time price is paid once, but every conversation costs money for as long as the product is used.
+
+Nothing is chosen. The options on the table:
+1. Hardware plus a monthly fee that pays for the talking. Fits the plinth and figurines. My Echo already works this way.
+2. A monthly lease for businesses, covering the robot and all the talking. Fits the full-size robots and ETL Security, and keeps the $2,000 target workable because the customer is not paying it all up front.
+3. Run part of the thinking and speech on the device. Fixed phrases such as goodnight can be recorded once and replayed free. Running the whole conversation on a small device would sound simpler than the cloud brain, so it is not assumed.
+4. A daily talking allowance included in the price, with top-ups for heavy users. Fits the cheap entry version.
+
+Also noted for any of them: talk only when asked (button, tag tap on the plinth, or motion sensor) costs less than always listening; Azure voices cost less than ElevenLabs cast voices and Azure credits pay for them.
+
+Not known yet: what one minute of conversation actually costs on the Azure and ElevenLabs bills, which sets what any monthly price has to be. Figurobot's release does not say how FR-NIA pays for its AI (nothing found on a subscription), so what a competitor does about this is also not known.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
