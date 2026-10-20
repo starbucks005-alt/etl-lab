@@ -40,6 +40,10 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 - ETL holds every provider key (thinking, voice, music setup) and pays for them. A customer never types or sees a key. A customer signs in to their own Apple Music or Spotify account, and later will see their plan and credits (not built).
 - The panel has an owner view for ETL only: add `?owner=1` to the address. It lasts for that browser tab only, shows a bar saying "Owner view" with an Exit button, and ends when the tab closes. `?owner=0` also turns it off. It shows the "Owner setup" section (Bedrock key, Apple key, Spotify Client ID) and the voice id and picture boxes on each fairy. A customer's view has none of them. This is a view, not a lock: the real protection today is that every call needs the sun's access code. Before units are sold, each sun needs its own access code and the provider keys must be writable only with an ETL owner credential, not a customer's.
 
+## The light's shape (Dr. O, 2026-10-20)
+- A horizontal bar that sits on a window sill and shines into the room like the sun waking you. It comes in several widths to fit different windows. It stands on its own foot: no installation, no adhesive, no drilling, so it is safe for rental properties. The arch that shines upward is not the plan for the window light.
+- Which widths to offer first, the height, and the foot depth are hers to decide and are not decided yet. Nothing is built from this yet; `sunrise.ino` still counts 60 LEDs.
+
 ## Parts
 ESP32-S3 N16R8 (as in the Holopod box), WS2812B strip, its own 5V supply sized for the strip, a speaker and a microphone for her voice. Wiring is at the top of `sunrise.ino`.
 
