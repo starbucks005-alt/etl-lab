@@ -554,7 +554,9 @@
     {id:'assistant', name:'Personal assistant', color:'#8e6bff', line:'Keeps your day: reminders, lists, timers and a daily briefing. Short, organized and on your side.',
      demo:'Assistant mode. Ask me for your day, or tell me what to remember.'},
     {id:'bench', name:'Bench and workshop', color:'#ff8a3d', line:'Hands free: short answers, one step at a time, timers for the waits.',
-     demo:'Bench mode. Tell me the steps and I will read them one at a time.'}
+     demo:'Bench mode. Tell me the steps and I will read them one at a time.'},
+    {id:'sp', name:'Standardized patient', color:'#c2417a', line:'A student says "Patient 12" and she becomes that patient, the same for every student. "End patient" stops.',
+     demo:'Standardized patient mode. Say patient and a number to begin.'}
   ];
   var COLORS = [
     ['Teal','#1fb7c9'],['Electric blue','#2f6bff'],['Emerald','#00c878'],['Amber','#ff9500'],
@@ -1055,7 +1057,7 @@
       box.appendChild(b);
     });
     var cur = MODES.filter(function(m){ return m.id === state.mode; })[0];
-    $('modeNote').textContent = cur ? ('In ' + cur.name + ' mode. ' + (cur.id === 'kids' ? 'She keeps notes for a parent and nothing else. Skills and personalities are filtered to everyone under 13.' : cur.id === 'event' || cur.id === 'bench' || cur.id === 'guardian' ? 'She keeps no notes about anyone in this mode.' : 'She keeps her usual notes.')) : 'No mode chosen: she behaves as she usually does.';
+    $('modeNote').textContent = cur ? ('In ' + cur.name + ' mode. ' + (cur.id === 'kids' ? 'She keeps notes for a parent and nothing else. Skills and personalities are filtered to everyone under 13.' : cur.id === 'sp' ? 'She keeps no notes. Say "Patient" and a number to load a patient, a new number to switch, and "End patient" to stop.' : cur.id === 'event' || cur.id === 'bench' || cur.id === 'guardian' ? 'She keeps no notes about anyone in this mode.' : 'She keeps her usual notes.')) : 'No mode chosen: she behaves as she usually does.';
   }
   function chooseMode(id){
     var m = MODES.filter(function(x){ return x.id === id; })[0]; if(!m){ return; }

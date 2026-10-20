@@ -48,6 +48,13 @@ except Exception:
     house = None
 
 try:
+    import sp_mode  # noqa: E402  (standardized patient mode: "Patient 12" loads a patient from the case library; if the file is missing she simply answers as before)
+    SP = sp_mode.SPMode()
+except Exception as _e:           # pragma: no cover
+    SP = None
+    print("SP MODE not loaded:", str(_e)[:120], flush=True)
+
+try:
     import science_sources as ss  # noqa: E402  (answers from journals in science mode; if the file is missing she simply answers as before)
 except Exception as _e:           # pragma: no cover
     ss = None
@@ -762,6 +769,16 @@ MODES = {
                   "steps, read one step at a time, wait for them to say next, and repeat or go back when asked. When a step has a wait, offer to set a timer for it. "
                   "Read numbers and units back to be sure you heard them right. Never make up safety information: say to check the safety data sheet or ask the person "
                   "in charge. If you are not sure of a step, say so.")},
+    # 2026-10-20, Dr. O: "a nursing or med student will say to Elle Patient 12 and that will trigger an SP patient with x symptoms. Then the student can say
+    # patient 13 and Elle will switch to a different SP patient." The patients come from the standardized-patients repository through sp_mode.py. While a patient
+    # is loaded her whole prompt is that patient's robot script and nothing else of hers, she keeps no notes, and each new number starts from nothing.
+    "sp": {
+        "name": "Standardized patient", "color": "#c2417a", "memory": "off", "skills": [],
+        "welcome": {"greet": False, "chat": True, "always": True, "crowd": False, "wait": 300},
+        "line": "A student says Patient 12 and she becomes that patient, the same for every student. End patient stops.",
+        "say": "Standardized patient mode. Say patient and a number to begin.",
+        "rules": ("You are in standardized patient mode with no patient loaded yet. Answer in one short sentence and tell the person to say patient and a number, "
+                  "for example patient 12, to begin. Do not play any patient until a number is given.")},
 }
 PARENT_FILE = os.path.join(HERE, "notes_for_parent.json")
 PARENT_MAX = 150
@@ -889,6 +906,9 @@ NAME_NOTE = " Dr. Terry Oroszi's last name is written Oroszi and said as one wor
 
 
 def apply_prompt():
+    if SP is not None and SP.active:
+        al.AL_SYSTEM_PROMPT = SP.system_prompt()        # a loaded patient is the whole prompt: no lab facts, memory, mood or character of hers
+        return
     persona = PERSONAS.get(state["persona"]) if state["persona"] else None
     extra = " ".join(SKILL_TEXT[s] for s in state["skills"] if not (persona and s == "tour"))
     skills = (" Skills you have: " + extra if extra else "")
@@ -2024,13 +2044,15 @@ def mode_get():
 
 @app.post("/api/mode")
 def mode_set():
-    """Choose how she behaves: companion, science, kids, event or bench (or none to go back to her usual self)."""
+    """Choose how she behaves: companion, science, kids, event, bench or sp (or none to go back to her usual self)."""
     d = request.get_json(silent=True) or {}
     mid = d.get("id") or None
     if mid is not None and mid not in MODES:
         return jsonify(error="unknown mode"), 400
     state["mode"] = mid
     save_mode(mid)
+    if SP is not None:
+        SP.patient = None                       # a mode change from the panel always drops a loaded patient
     memory_turns.update(n=0, recent=[])
     state["history"] = []
     cfg = MODES.get(mid)
@@ -2223,6 +2245,9 @@ def say():
     text = str(d.get("text", "")).strip()[:1000]
     if not text:
         return jsonify(error="empty"), 400
+    said_sp = sp_command(text, speak=speak_async)      # typing "patient 12" in the panel works the same as saying it
+    if said_sp is not None:
+        return jsonify(reply=said_sp)
     said_clock = clock_reply(text)
     if said_clock:
         state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said_clock}]
@@ -3305,9 +3330,38 @@ def clock_stop():
     return jsonify(ok=True)
 
 
+def sp_command(text, speak=None):
+    """Patient 12, Patient 13, End patient. Returns what she said, or None when the words were not a patient command.
+    Saying a patient number in any mode puts her in standardized patient mode, so a student never has to touch the panel."""
+    if SP is None:
+        return None
+    said = SP.handle(text)
+    if said is None:
+        return None
+    if SP.active and state.get("mode") != "sp":
+        cfg = MODES["sp"]
+        state["mode"] = "sp"
+        save_mode("sp")
+        state["color"] = cfg["color"]
+        state["welcome"] = clean_welcome({**state["welcome"], **cfg["welcome"]})
+        save_welcome()
+        write_eyes()
+    state["history"] = []                     # every patient starts from nothing
+    memory_turns.update(n=0, recent=[])
+    apply_prompt()
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said or "(patient %s)" % (SP.patient or {}).get("number", "ended")}]
+    print("SP %s" % (("patient %d" % SP.patient["number"]) if SP.active else "no patient"), flush=True)
+    if said:
+        (speak or speak_now)(said)
+    return said
+
+
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
     t0 = time.time()
+    said_sp = sp_command(text)
+    if said_sp is not None:
+        return said_sp
     said_clock = clock_reply(text)
     if said_clock:
         state["history"].append('They said "%s" and you said "%s".' % (text, said_clock))
