@@ -601,6 +601,8 @@ What that means for this record:
 - The premium line (Astra 9, Astrad, ETL Security, LumVivo, the full hologram pod) comes after, to the people who started cheap.
 - Prices are not set. The entry price and what the entry version leaves out are still hers to decide.
 
+Dr. O, same day: her robots only think and talk, which is why they can cost less than robots that move a face or body. Her target for the full-size robot is $2,000. That is her number. The cost of building one and the cost of the voice per month have not been worked out yet, so whether $2,000 leaves anything after parts and voice is not known.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
