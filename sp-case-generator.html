@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Standardized Patient Case Generator | Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+  :root { --paper:#f4f3ee; --ink:#161310; --soft:#4a443a; --line:#c8bba0; --accent:#28527a; --bad:#8a2a2a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:18px/1.55 Georgia,serif; }
+  main { max-width:820px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { font-size:28px; margin:0 0 4px; }
+  p.sub { color:var(--soft); margin:0 0 20px; }
+  label { display:block; font-weight:bold; margin:14px 0 4px; }
+  select, textarea, button { font:inherit; width:100%; padding:10px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  button { background:var(--accent); color:#fff; border:0; margin-top:18px; cursor:pointer; }
+  button:disabled { opacity:.6; cursor:wait; }
+  #msg { margin-top:14px; color:var(--bad); }
+  #out { margin-top:28px; }
+  .sec { background:#fff; border:1px solid var(--line); border-radius:6px; padding:12px 14px; margin:10px 0; }
+  .sec h3 { margin:0 0 6px; font-size:16px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); }
+  .sec pre { white-space:pre-wrap; margin:0; font:inherit; }
+  .note { font-style:italic; color:var(--soft); }
+  .row { display:flex; gap:10px; } .row button { margin-top:10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Standardized Patient Case Generator</h1>
+  <p class="sub">Choose the learner and the field. The case is written once and the robot plays it the same way for every student.</p>
+
+  <label for="learner">Who is the student?</label>
+  <select id="learner"></select>
+  <label for="field">What field?</label>
+  <select id="field"></select>
+  <label for="level">What level?</label>
+  <select id="level"></select>
+  <label for="focus">Anything you want the case to teach? (optional)</label>
+  <textarea id="focus" rows="2" maxlength="300"></textarea>
+
+  <button id="go">Write the case</button>
+  <div id="msg" role="status"></div>
+  <div id="out"></div>
+</main>
+<script>
+(function () {
+  var API = '/.netlify/functions/sp-case';
+  var lastCase = null;
+  function el(id) { return document.getElementById(id); }
+  function fill(id, list) {
+    var s = el(id); s.innerHTML = '';
+    list.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; s.appendChild(o); });
+  }
+  function label(k) { return k.replace(/_/g, ' '); }
+  function text(v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); }
+  function render(c, note) {
+    var out = el('out'); out.innerHTML = '';
+    var h = document.createElement('h2'); h.textContent = c.title; out.appendChild(h);
+    var n = document.createElement('p'); n.className = 'note'; n.textContent = note; out.appendChild(n);
+    Object.keys(c).forEach(function (k) {
+      if (k === 'title') return;
+      var d = document.createElement('div'); d.className = 'sec';
+      var t = document.createElement('h3'); t.textContent = label(k);
+      var p = document.createElement('pre'); p.textContent = text(c[k]);
+      d.appendChild(t); d.appendChild(p); out.appendChild(d);
+    });
+    var row = document.createElement('div'); row.className = 'row';
+    var b = document.createElement('button'); b.textContent = 'Copy the robot script';
+    b.onclick = function () { navigator.clipboard.writeText(c.robot_script).then(function () { b.textContent = 'Copied'; }); };
+    row.appendChild(b); out.appendChild(row);
+  }
+  fetch(API).then(function (r) { return r.json(); }).then(function (j) {
+    fill('learner', j.options.learner); fill('field', j.options.field); fill('level', j.options.level);
+    if (!j.configured) el('msg').textContent = 'The Azure model is not set up yet, so a case cannot be written.';
+  }).catch(function () { el('msg').textContent = 'Could not reach the generator.'; });
+  el('go').onclick = function () {
+    var b = el('go'); b.disabled = true; el('msg').textContent = 'Writing the case. This takes up to a minute.'; el('out').innerHTML = '';
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      learner: el('learner').value, field: el('field').value, level: el('level').value, focus: el('focus').value }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        b.disabled = false;
+        if (!j.ok) { el('msg').textContent = j.error || 'It did not work.'; return; }
+        el('msg').textContent = ''; lastCase = j.case; render(j.case, j.review_note);
+      }).catch(function () { b.disabled = false; el('msg').textContent = 'Could not reach the generator.'; });
+  };
+})();
+</script>
+</body>
+</html>
