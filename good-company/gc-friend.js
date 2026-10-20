@@ -5047,9 +5047,9 @@ var GC_ASH = {
   cameos: [],
   skin: 'umber',
   timezone: 'America/New_York',
-  portrait: 'photos/ash-portrait.jpg',
+  portrait: 'photos/ash-portrait_v2.jpg',
   scenes: [
-    { key: 'portrait', label: 'Of the Rising Sun Court', src: null, thumb: 'photos/ash-portrait.jpg' },
+    { key: 'portrait', label: 'Of the Rising Sun Court', src: null, thumb: 'photos/ash-portrait_v2.jpg' },
   ],
 };
 
