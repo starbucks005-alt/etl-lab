@@ -3,7 +3,7 @@ const fs = require('fs');
 const R = (f) => fs.readFileSync(__dirname + '/../' + f, 'utf8');
 let bad = 0; const check = (ok, l) => { if (!ok) bad++; console.log((ok ? '  ok    ' : '  FAIL  ') + l); };
 const land = R('rising-sun/index.html'), panel = R('rising-sun/panel.html'), notify = R('rising-sun/notify.html'), owner = R('rising-sun/interest.html'), map = R('sitemap.xml');
-const ID = 'G-3GQ2KLSGX4';
+const ID = 'G-TC3L7MNC66';
 const title = (land.match(/<title>(.*?)<\/title>/) || [])[1] || '', desc = (land.match(/name="description" content="(.*?)"/) || [])[1] || '';
 check(title.length > 20 && title.length <= 65, 'title is ' + title.length + ' characters');
 check(desc.length >= 80 && desc.length <= 160, 'description is ' + desc.length + ' characters');
