@@ -13,6 +13,13 @@ const sp = require('../netlify/functions/sp-case.js');
   for (const bad of [String.fromCharCode(0x2014), String.fromCharCode(0x2013), String.fromCharCode(0x2011), 'plainly']) assert(!n.persona.includes(bad), 'persona has ' + bad);
   assert.strictEqual(sp.loadPersona(), n.persona);
 
+  // Naomi's standard lives in two repositories: here (the staff registry) and standardized-patients (reviewer/naomi-persona.txt).
+  // Both pin this same fingerprint. Change her in one place and this fails until the other copy and BOTH fingerprints are updated.
+  const crypto = require('crypto');
+  const NAOMI_SHA256 = 'ad4229f5496b93f502efaf1d817d588ec59088655e280e71ffecd69946a32236';
+  assert.strictEqual(crypto.createHash('sha256').update(n.persona.trim()).digest('hex'), NAOMI_SHA256,
+    "Naomi's persona changed. Update reviewer/naomi-persona.txt in the standardized-patients repository to match, then both fingerprints.");
+
   // parse: fenced json, and junk
   const ok = {}; sp.REQUIRED.forEach((k) => { ok[k] = 'x'; });
   assert.deepStrictEqual(sp.parseCase('```json\n' + JSON.stringify(ok) + '\n```'), ok);
