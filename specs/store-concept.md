@@ -613,6 +613,14 @@ Nothing is chosen. The options on the table:
 3. Run part of the thinking and speech on the device. Fixed phrases such as goodnight can be recorded once and replayed free. Running the whole conversation on a small device would sound simpler than the cloud brain, so it is not assumed.
 4. A daily talking allowance included in the price, with top-ups for heavy users. Fits the cheap entry version.
 
+If the monthly lease (option 2) is used, a damaged robot has to be answered in the lease. Nothing is chosen. Ideas on the table, none priced, and a lawyer would word the real lease:
+- Two kinds of damage. Wear and failure with no one at fault is the owner's cost and is built into the monthly price. Damage by the customer or their visitors (knocked over, spilled on, stolen) is paid by the customer or by a damage waiver.
+- Ways to handle customer damage: a deposit returned if the robot comes back fine; an optional damage waiver for a small extra monthly fee; business insurance carried by the customer or by Dr. O's policy with the cost built into the lease; a fixed repair price list shown before signing.
+- The robots only think and talk, with no motors or moving face, so the parts that can break are the mannequin, the Pi, the speaker, the microphone and the camera. A spare parts kit the customer swaps in may cover most repairs without a trip.
+- The brain is in the cloud, so a damaged robot loses nothing. The character, the memory and the monthly carry on, and a replacement unit picks up where it left off.
+- Things the lease should say: who owns the robot; replacement speed and who pays shipping; lost or stolen units; what happens to camera recordings when a robot with a camera comes back (matters most for ETL Security).
+- For the first few leases a deposit plus an optional waiver is the simplest. Neither is priced because the full-size build cost is not known yet.
+
 Also noted for any of them: talk only when asked (button, tag tap on the plinth, or motion sensor) costs less than always listening; Azure voices cost less than ElevenLabs cast voices and Azure credits pay for them.
 
 Not known yet: what one minute of conversation actually costs on the Azure and ElevenLabs bills, which sets what any monthly price has to be. Figurobot's release does not say how FR-NIA pays for its AI (nothing found on a subscription), so what a competitor does about this is also not known.
