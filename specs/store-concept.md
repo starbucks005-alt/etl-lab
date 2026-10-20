@@ -572,6 +572,25 @@ Rising Sun Court, after the Rising Sun light.
   may talk on their own, whether it belongs to the Rising Sun line or starts a line of its
   own under the Radiant Court, and whether the light also sells one fairy at a time.
 
+## A competitor: Figurobot FR-NIA (2026-10-20)
+
+Dr. O found this on 2026-10-20 and said: "I need to get my products out."
+Source: a Figurobot press release (GlobeNewswire, 2026-10-19) shown on Business Insider's Markets page.
+
+What it is, as the release states it:
+- FR-NIA, an 11-inch desktop companion robot with a silicone face (2 mm skin), 10 points of movement in the face and neck, moving eyes, eyebrows and mouth.
+- It senses where the person is and which direction sound comes from.
+- Customizable look, personality and expression. Memory and "relationship" features are listed as planned, not shipped.
+- On Kickstarter now in Lite, Pro and Pro Max, early-bird price from $599.
+- The company (founded 2024) describes four pillars: Hardware, Soul, Content, Accessories. It also has a 60 cm walking desktop humanoid.
+
+What is different from Dr. O's plan:
+- Theirs is one robot with an expressive face. Hers is a plinth plus separate small figurines, with the brain in the cloud, so a client collects figurines over time.
+- Her characters have written lives and cast voices, they talk to each other across plinths, and they are tied to the goodnight idea and to Good Company, My Echo and Almost Human.
+- Her price point and size are not the same product, so the two may not compete head to head.
+
+Not known: how well FR-NIA works in practice (the release is a company announcement, no review found), whether it ships, and whether any patent or trademark of theirs touches her figurines. A lawyer would have to say that last one.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
