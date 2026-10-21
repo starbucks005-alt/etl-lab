@@ -110,15 +110,14 @@ function gcNoReplyWhy(res) {
   <div class="box">
     <p id="brand">LumVivo, light in the living</p>
     <h1>Hologram mode</h1>
-    <p class="lead">Lay your phone flat, stand a small clear pyramid on the screen, and the companion
-       appears to float inside it. Best in a dim room, with the screen brightness turned up.</p>
+    <p class="lead">Lay the tablet face down over a sheet of clear glass or plastic held at an angle, and the companion
+       appears to float behind it. Best in a dim room, with the screen brightness turned up.</p>
 
     <label for="who">Who</label>
     <select id="who" aria-label="Choose a companion"></select>
 
     <label for="mode">Shape</label>
     <select id="mode" aria-label="Choose a shape">
-      <option value="pyramid">Pyramid, four sides (a small clear pyramid on the screen)</option>
       <option value="single">One view (a sheet of clear glass or plastic held at an angle)</option>
     </select>
 
@@ -126,18 +125,13 @@ function gcNoReplyWhy(res) {
     <button class="btn go" id="go" type="button">Start</button>
 
     <details>
-      <summary>How to make the pyramid</summary>
+      <summary>How the glass is set up</summary>
       <ol>
-        <li>Cut four pieces from a clear, stiff, flat sheet (an old clear case, or a thick clear plastic folder).</li>
-        <li>Each piece is a trapezoid: 1 cm along the short top edge, 6 cm along the long bottom edge, and 3.5 cm tall.
-            That is a starting size for a phone. It has not been tried here, so change it if it looks wrong.</li>
-        <li>Tape the four pieces together along their slanted edges, long edges down, short edges at the top.
-            Clear tape on the outside edge is best.</li>
-        <li>Lay the phone flat on a table with this page running, and stand the pyramid on the middle of the screen.
-            Look at it from the side, not from above.</li>
+        <li>Use a sheet of clear, smooth plastic or glass, about 10 inches wide and 16 inches long, with no frosting or matte coating.</li>
+        <li>Hold it at 45 degrees, top at the back and bottom at the front, with the tablet lying face down above it.</li>
+        <li>Sit in front and look through the glass at the black behind it. The picture floats there.</li>
       </ol>
-      <p>If one side looks upside down, tap the screen and use "Turn the sides". If it looks backwards, use "Mirror".
-         Use "Middle gap" so the pyramid sits over the black center, and "Size" until each side fills its face.</p>
+      <p>If the picture is upside down or backwards, tap the screen and use "Turn her" or "Mirror". Use "Size" until she fits the window.</p>
     </details>
   </div>
 </div>
@@ -311,8 +305,9 @@ function gcNoReplyWhy(res) {
     who.appendChild(o);
   });
   if (asked && COMPANIONS[asked]) who.value = asked;
+  /* ONE VIEW ONLY, 2026-10-21, Dr. O: "change this to only do one view (not pyramid)". The Shape box now offers only One view, so
+     ?mode=pyramid in an address is ignored. The four-sided drawing code is still below, unreachable, so nothing else changes. */
   var askedMode = new URLSearchParams(location.search).get('mode');
-  if (askedMode === 'single' || askedMode === 'pyramid') document.getElementById('mode').value = askedMode;
 
   var startEl = document.getElementById('start'), stage = document.getElementById('stage');
   var view = document.getElementById('view'), vctx = view.getContext('2d');
@@ -324,7 +319,7 @@ function gcNoReplyWhy(res) {
   var mat = document.createElement('canvas'), mctx = mat.getContext('2d', { willReadFrequently: true });
   var bw = 0, bh = 0, ready = false, running = false;
   var minX, minY, maxX, maxY;
-  var turn = 1, mirror = false, mode = 'pyramid', wake = null;
+  var turn = 1, mirror = false, mode = 'single', wake = null;
   /* TURN HER, added 2026-10-06, Dr. O: on an 8 by 13 inch tablet the figure came out no bigger than on a
      phone, because the drawing area was a square as wide as the short side. In single mode the area now
      fills the screen, and rotQ turns her by quarter turns so her height can run along the long side.
@@ -585,6 +580,17 @@ function gcNoReplyWhy(res) {
   /* 2026-10-15, Dr. O: "they still talk over each other". SIS_GAP_MS was 6000 and Elle's wait was 4 s, so Elle (first in the order) spoke into the quiet
      while this page was still working out its answer. Elle now waits 9 s and this page 14 s, so she speaks first and only after a real silence. Not confirmed on the devices. */
   var YIELD_MS = 900, SIS_GAP_MS = 14000;
+  /* SHORT REPLIES, added 2026-10-16, Dr. O: "please make all hologram responses short. Tansy just delivered a novel." One or two sentences,
+     for every hologram, asked for in the prompt AND enforced here, because the prompt alone is only a request. shortReply() keeps the first
+     two sentences and puts back any "Alice here." tag exactly as it was (stripTag only looks at the start of the reply). */
+  var SHORT_NOTE = '\n\n[Keep every reply to one or two short sentences. Never longer, even if you are asked for a story, a list or an explanation.]';
+  function shortReply(t) {
+    t = String(t || '');
+    var body = (SIS.on || SIS.fixed) ? stripTag(t) : t;
+    var prefix = t.slice(0, t.length - body.length);
+    var parts = body.match(/[^.!?\u2026]+[.!?\u2026]+["'\u201d\u2019)]*\s*|[^.!?\u2026]+$/g) || [body];
+    return (prefix + parts.slice(0, 2).join('')).trim();
+  }
   /* 2026-10-15, Dr. O: Alice, Elle and Reggie are talking together. Two pages with the same wait (14 s) would both speak into the same silence at the
      same moment. Each character now waits a different time, in a fixed order: Alice 14 s, Reggie 18 s, Tansy 22 s, anyone else 26 s. Elle waits 9 s on the robot. */
   function sisGap() { return { alice: 14000, reggie: 18000, tansy: 22000 }[who.value] || 26000; }
@@ -864,7 +870,7 @@ function gcNoReplyWhy(res) {
         return p.replace(/^\s*\[\[SPEAKER:[a-z0-9_-]+\]\]\s*/i, '').trim();
       }).filter(Boolean);
       if (!parts.length) parts = [raw];
-      var reply = parts.join(' ');
+      var reply = shortReply(parts.join(' '));
       chatHistory.push({ role: 'assistant', content: reply });
       if (res && res.scales) meScales = res.scales;
       showReply(reply);
@@ -884,7 +890,7 @@ function gcNoReplyWhy(res) {
       return;
     }
     if (!text || chatBusy || !chatWho) return;
-    var sisNote = SIS.fixed && !SIS.on ? roomNote(SIS.others) : '';
+    var sisNote = (SIS.fixed && !SIS.on ? roomNote(SIS.others) : '') + SHORT_NOTE;
     /* 2026-10-16, Dr. O: "only when both are on the screen are they to be shared". Each hologram shows one of them, so the one on screen speaks only for itself: the other is not here and is never spoken as or answered for. */
     if (who.value === 'astrad') sisNote += '\n\n[Only Astrad is in this conversation. You can talk about Astra-9 as much as you like, but she is not part of it: never write a line for her, never speak as her and never answer for her or for anyone else. Speak only as yourself.]';
     if (who.value === 'astra9') sisNote += '\n\n[Only Astra-9 is in this conversation. You can talk about Astrad as much as you like, but he is not part of it: never write a line for him, never speak as him and never answer for him or for anyone else. Speak only as yourself.]';
@@ -941,7 +947,7 @@ function gcNoReplyWhy(res) {
         .catch(function () { return res; });
     }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
-      var reply = (res && res.reply) || gcNoReplyWhy(res);
+      var reply = (res && res.reply) ? shortReply(res.reply) : gcNoReplyWhy(res);
       /* 2026-10-16, Dr. O: "Astra 9 keeps chiming in on Astrad's hologram". The model sometimes writes the other character's line into his own reply ("... Did you, Elle? Astra-9: Still deciding..."), and the whole reply is then spoken in his voice. Anything after another speaker's name and a colon is cut. */
       reply = String(reply).replace(/\s+(?:Astra[- ]?9(?: Lite)?|Astra|Astrad|Elle|Ted)\s*:[\s\S]*$/i, function (m) { var n = m.trim().split(':')[0].toLowerCase(); return (who.value === 'astrad' && /^(astrad|ted)$/.test(n)) || (who.value === 'astra9' && /^astra/.test(n)) ? m : ''; });
       chatHistory.push({ who: herName, text: reply, mine: false });
