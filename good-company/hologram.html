@@ -83,10 +83,22 @@ function gcNoReplyWhy(res) {
          display:flex; gap:8px; flex-wrap:wrap; justify-content:center; background:rgba(12,11,9,.92);
          transition:opacity .4s; }
   #bar.hide { opacity:0; pointer-events:none; }
-  #bar button { padding:9px 12px; font-size:14px; border-radius:9px; border:1px solid var(--line);
+  #bar button, #menuModal button { padding:9px 12px; font-size:14px; border-radius:9px; border:1px solid var(--line);
                 background:#16140f; color:var(--ink); font-family:inherit; cursor:pointer; }
-  #bar .rng { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--mute); }
-  #bar input[type=range] { width:90px; }
+  #bar .rng, #menuModal .rng { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--mute); }
+  #bar input[type=range], #menuModal input[type=range] { width:140px; }
+  /* THE MENU, 2026-10-21, Dr. O: "every time we had an issue a new button was added and now it is crazy full". One Menu (M) button on the bar;
+     everything else lives in this panel. The controls keep their ids and their handlers, only where they sit changed. */
+  #menuModal { position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.78); padding:16px; }
+  #menuModal.open { display:flex; }
+  #menuModal .panel { width:100%; max-width:560px; max-height:88vh; overflow-y:auto; background:#12100c; border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; }
+  #menuModal h2 { font-family:Spectral, Georgia, serif; font-weight:500; font-size:20px; margin:0 0 4px; }
+  #menuModal h3 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#c9a24b; margin:16px 0 8px; font-weight:600; }
+  #menuModal .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  #menuModal .note { font-size:.8rem; color:#b7ab98; }
+  #menuModal .foot { display:flex; gap:8px; justify-content:space-between; margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
+  #bMenu { flex-basis:auto; }
+  #lockNote { position:fixed; top:12px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; transition:opacity 1s; }
   #holoReply { flex-basis:100%; text-align:center; font-size:14px; line-height:1.4; color:var(--ink); max-height:4.2em; overflow-y:auto; display:none; }
   #holoChat { display:none; flex-basis:100%; gap:8px; justify-content:center; }
   #holoChat.on { display:flex; }
@@ -137,7 +149,7 @@ function gcNoReplyWhy(res) {
 </div>
 
 <div id="stage"><canvas id="view"></canvas></div>
-<div id="tapHint" style="display:none">Tap the screen to show or hide the buttons</div>
+<div id="tapHint" style="display:none">Tap the screen for the talk bar. Menu (M) has the rest</div>
 <div id="bar" class="hide">
   <!-- TALK TO THE HOLOGRAM, added 2026-10-06, Dr. O: "I would like to be able to speak to her
        hologram but there is no option for this" (Wright Brothers AI and Innovation event). The
@@ -148,28 +160,64 @@ function gcNoReplyWhy(res) {
     <input id="holoInput" type="text" placeholder="Or type here" aria-label="Type your message">
     <button id="holoSend" type="submit">Send</button>
   </form>
-  <!-- ALWAYS-ON MICROPHONE, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. -->
-  <!-- MEMORY, added 2026-10-07, Dr. O: house characters remember a visitor by their browser, as the built companions do. -->
-  <span id="holoMemory" style="display:none;font-size:.8rem;color:#b7ab98;"><span id="holoMemoryText"></span> <button id="bForget" type="button">Forget me</button></span>
-  <!-- WHO IS TALKING, added 2026-10-11, Dr. O: Alice took her for David on a phone that had his name saved. The characters go by the name saved in this browser, not by voice. -->
-  <button id="bWho" type="button" style="display:none">Not me? Change name</button>
-  <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
-  <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Name1,Name2 names who is with her (it asks when you start if the address has none). -->
-  <button id="bSisters" type="button" style="display:none">Let them talk</button>
-  <!-- ACCENT, added 2026-10-10, Dr. O: "can the hologram Astra change her accent?" The same five voices and the same saved choice as the room page (gc_voice_style). Only shown for a character that has them (Astra-9, Astrad). -->
-  <button id="bAccent" type="button" style="display:none">Voice: Robot</button>
-  <span id="bHandsState" aria-live="polite" style="font-size:.8rem;color:#b7ab98;"></span>
-  <button id="bMove" type="button">Move this character's memory to another device</button>
-  <button id="bBack" type="button">Back</button>
-  <button id="bSound" type="button">Sound off</button>
-  <button id="bVoice" type="button" style="display:none">Voice: on</button>
-  <button id="bTurn" type="button">Turn the sides</button>
-  <button id="bMirror" type="button">Mirror</button>
-  <button id="bRot" type="button">Turn the hologram</button>
-  <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="70"></span>
-  <span class="rng"><label for="rGap" style="margin:0">Middle gap</label><input id="rGap" type="range" min="0" max="40" value="12"></span>
-  <button id="bFull" type="button">Full screen</button>
+  <button id="bMenu" type="button" aria-label="Open the menu">Menu (M)</button>
 </div>
+
+<!-- THE MENU, 2026-10-21. Same ids and handlers as before, moved here from the bar. bMove, bTurn and rGap are kept (hidden) because the script still
+     looks for them: "Move this character's memory" was removed from the screen at Dr. O's request, and "Turn the sides" and "Middle gap" only
+     ever worked for the four-sided pyramid, which is gone. -->
+<div id="menuModal" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+  <div class="panel">
+    <h2 id="menuTitle">Menu</h2>
+    <p class="note">Press M, or Close, to leave this menu.</p>
+
+    <h3>Listening</h3>
+    <div class="row">
+      <!-- ALWAYS-ON MICROPHONE, added 2026-10-07, Dr. O: for the speakerphone. Off until chosen; see gc-handsfree.js. -->
+      <button id="bHands" type="button" style="display:none">Mic: tap to talk</button>
+      <span id="bHandsState" aria-live="polite" class="note"></span>
+      <!-- LET THEM TALK, added 2026-10-10, Dr. O: the hologram and Astra (later Astrad and Astra-9) talk to each other. See SISTERS below. ?with=Name1,Name2 names who is with her (it asks when you start if the address has none). -->
+      <button id="bSisters" type="button" style="display:none">Let them talk</button>
+    </div>
+
+    <h3>Sound</h3>
+    <div class="row">
+      <button id="bSound" type="button">Sound off</button>
+      <button id="bVoice" type="button" style="display:none">Voice: on</button>
+      <!-- ACCENT, added 2026-10-10, Dr. O: "can the hologram Astra change her accent?" The same five voices and the same saved choice as the room page (gc_voice_style). Only shown for a character that has them (Astra-9, Astrad). -->
+      <button id="bAccent" type="button" style="display:none">Voice: Robot</button>
+    </div>
+
+    <h3>Picture</h3>
+    <div class="row">
+      <button id="bRot" type="button">Turn the hologram</button>
+      <button id="bMirror" type="button">Mirror</button>
+      <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="70"></span>
+      <button id="bFull" type="button">Full screen</button>
+    </div>
+
+    <h3>Memory</h3>
+    <div class="row">
+      <!-- MEMORY, added 2026-10-07, Dr. O: house characters remember a visitor by their browser, as the built companions do. -->
+      <span id="holoMemory" style="display:none;font-size:.8rem;color:#b7ab98;"><span id="holoMemoryText"></span> <button id="bForget" type="button">Forget me</button></span>
+      <!-- WHO IS TALKING, added 2026-10-11, Dr. O: Alice took her for David on a phone that had his name saved. The characters go by the name saved in this browser, not by voice. -->
+      <button id="bWho" type="button" style="display:none">Not me? Change name</button>
+    </div>
+
+    <div style="display:none">
+      <button id="bMove" type="button">Move this character's memory to another device</button>
+      <button id="bTurn" type="button">Turn the sides</button>
+      <input id="rGap" type="range" min="0" max="40" value="12">
+    </div>
+
+    <div class="foot">
+      <button id="bBack" type="button">Back</button>
+      <button id="bMenuClose" type="button">Close</button>
+    </div>
+  </div>
+</div>
+<div id="lockNote" style="opacity:0">Locked. Press M for the menu.</div>
+
 
 <video id="colorVideo" playsinline muted loop></video>
 <video id="matteVideo" playsinline muted loop></video>
@@ -1084,9 +1132,6 @@ function gcNoReplyWhy(res) {
         e.preventDefault(); e.stopPropagation();
       }, true);
     });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'm' || e.key === 'M') document.body.classList.toggle('setup');
-    });
   }
   /* MOVE HER MEMORY TO ANOTHER DEVICE, added 2026-10-15, Dr. O: a character moves from one device to another and "is there a way to
      transfer her memories". What she remembers is kept by the browser, not by her: the website's notes are filed under this browser's visitor id, the
@@ -1165,6 +1210,34 @@ function gcNoReplyWhy(res) {
     else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {});
   });
   stage.addEventListener('click', function () { bar.classList.toggle('hide'); });
+
+  /* THE MENU, 2026-10-21. Menu (M) opens it, Close and the M key and Escape and a tap on the dark edge close it. M is ignored while typing in a box.
+     In box mode ("locked") every touch is ignored once a hologram is showing, EXCEPT while this menu is open, so the menu sets the same "setup" flag the
+     old M key set. Closing it locks the screen again. */
+  var menuModal = document.getElementById('menuModal');
+  function menuOpen() { return menuModal.classList.contains('open'); }
+  function setMenu(on) {
+    menuModal.classList.toggle('open', !!on);
+    if (BOX) document.body.classList.toggle('setup', !!on);
+  }
+  document.getElementById('bMenu').addEventListener('click', function () { setMenu(true); });
+  document.getElementById('bMenuClose').addEventListener('click', function () { setMenu(false); });
+  document.getElementById('bBack').addEventListener('click', function () { setMenu(false); });
+  menuModal.addEventListener('click', function (e) { if (e.target === menuModal) setMenu(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    var t = e.target && e.target.tagName;
+    if (e.key === 'Escape' && menuOpen()) { setMenu(false); return; }
+    if ((e.key === 'm' || e.key === 'M') && t !== 'INPUT' && t !== 'TEXTAREA') { e.preventDefault(); setMenu(!menuOpen()); }
+  });
+  /* A short "Locked" note when a hologram starts in box mode, then it fades. */
+  if (BOX) {
+    var lockNote = document.getElementById('lockNote');
+    document.getElementById('go').addEventListener('click', function () {
+      lockNote.style.opacity = '1';
+      setTimeout(function () { lockNote.style.opacity = '0'; }, 6000);
+    });
+  }
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible' && running && navigator.wakeLock) {
       navigator.wakeLock.request('screen').then(function (w) { wake = w; }).catch(function () {});
