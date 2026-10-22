@@ -79,7 +79,9 @@ function gcNoReplyWhy(res) {
   summary { cursor:pointer; color:var(--ink); font-size:15px; }
   ol { padding-left:20px; margin:10px 0 0; }
   #err { color:#e58f84; display:none; margin-top:14px; }
-  #bar { position:fixed; left:0; right:0; bottom:0; padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  /* TALK BAR ON TOP, 2026-10-22, Dr. O: "lower the hologram on good company and put the texting on the top. The image is too high in the holopod."
+     The bar (reply, Talk, type box, Send, Menu) sits along the top edge and the figure is drawn lower, in drawSingle. */
+  #bar { position:fixed; left:0; right:0; top:0; padding:calc(10px + env(safe-area-inset-top)) 12px 10px;
          display:flex; gap:8px; flex-wrap:wrap; justify-content:center; background:rgba(12,11,9,.92);
          transition:opacity .4s; }
   #bar.hide { opacity:0; pointer-events:none; }
@@ -98,7 +100,7 @@ function gcNoReplyWhy(res) {
   #menuModal .note { font-size:.8rem; color:#b7ab98; }
   #menuModal .foot { display:flex; gap:8px; justify-content:space-between; margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
   #bMenu { flex-basis:auto; }
-  #lockNote { position:fixed; top:12px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; transition:opacity 1s; }
+  #lockNote { position:fixed; bottom:12px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; transition:opacity 1s; }
   #holoReply { flex-basis:100%; text-align:center; font-size:14px; line-height:1.4; color:var(--ink); max-height:4.2em; overflow-y:auto; display:none; }
   #holoChat { display:none; flex-basis:100%; gap:8px; justify-content:center; }
   #holoChat.on { display:flex; }
@@ -106,7 +108,7 @@ function gcNoReplyWhy(res) {
                     background:#16140f; color:var(--ink); font-family:inherit; }
   #bMic.listening { background:#c9a24b; color:#1a1408; border-color:#c9a24b; }
   #bHands.listening { background:#c9a24b; color:#1a1408; border-color:#c9a24b; }
-  #tapHint { position:fixed; top:10px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; }
+  #tapHint { position:fixed; bottom:10px; left:0; right:0; text-align:center; font-size:12px; color:#6f6b62; pointer-events:none; }
   video { display:none; }
   #brand { margin:0 0 6px; font-size:13px; letter-spacing:.08em; color:#c9a24b; }
   /* BOX MODE, 2026-10-15, Dr. O: the tablet lies face down in the lid of the LumVivo box, so nobody can reach it and its stray touches must not
@@ -434,6 +436,9 @@ function gcNoReplyWhy(res) {
   var topFrac = parseFloat(new URLSearchParams(location.search).get('top'));
   if (!(topFrac >= 0.2 && topFrac < 1)) topFrac = 1;
 
+  var lowFrac = parseFloat(new URLSearchParams(location.search).get('low'));
+  if (!(lowFrac >= 0 && lowFrac <= 0.4)) lowFrac = 0.15;
+
   function drawSingle(size) {
     var W = view.width, H = view.height;
     var sw = Math.max(8, maxX - minX + 1), sh = Math.max(8, maxY - minY + 1);
@@ -441,7 +446,10 @@ function gcNoReplyWhy(res) {
     var f = 0.95 * size / 0.7, odd = rotQ & 1;
     var k = odd ? Math.min(W * f / shv, H * f / sw) : Math.min(W * f / sw, H * f / shv);
     vctx.save();
-    vctx.translate(W / 2, H / 2);
+    /* LOWER HER, 2026-10-22, Dr. O: the figure sat too high in the holopod. She is drawn LOW of the middle, by a fraction of the screen height
+       (0.15 unless ?low= says otherwise, 0 puts her back in the middle). It is capped so her feet never go past the bottom edge. Not yet tried in the real pod. */
+    var half = (odd ? sw : shv) * k / 2, dy = Math.max(0, Math.min(lowFrac * H, H / 2 - half));
+    vctx.translate(W / 2, H / 2 + dy);
     vctx.rotate(rotQ * Math.PI / 2);
     if (mirror) vctx.scale(-1, 1);
     vctx.drawImage(fig, minX, minY, sw, shv, -sw * k / 2, -shv * k / 2, sw * k, shv * k);
