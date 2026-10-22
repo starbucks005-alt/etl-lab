@@ -194,7 +194,7 @@ function gcNoReplyWhy(res) {
     <div class="row">
       <button id="bRot" type="button">Turn the hologram</button>
       <button id="bMirror" type="button">Mirror</button>
-      <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="70"></span>
+      <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="73"></span>
       <button id="bFull" type="button">Full screen</button>
     </div>
 
@@ -437,7 +437,7 @@ function gcNoReplyWhy(res) {
   if (!(topFrac >= 0.2 && topFrac < 1)) topFrac = 1;
 
   var lowFrac = parseFloat(new URLSearchParams(location.search).get('low'));
-  if (!(lowFrac >= 0 && lowFrac <= 0.4)) lowFrac = 0.15;
+  if (!(lowFrac >= 0 && lowFrac <= 1)) lowFrac = 1;
 
   function drawSingle(size) {
     var W = view.width, H = view.height;
@@ -447,7 +447,7 @@ function gcNoReplyWhy(res) {
     var k = odd ? Math.min(W * f / shv, H * f / sw) : Math.min(W * f / sw, H * f / shv);
     vctx.save();
     /* LOWER HER, 2026-10-22, Dr. O: the figure sat too high in the holopod. She is drawn LOW of the middle, by a fraction of the screen height
-       (0.15 unless ?low= says otherwise, 0 puts her back in the middle). It is capped so her feet never go past the bottom edge. Not yet tried in the real pod. */
+       (2026-10-22, second ask: as big and as low as it goes. All the way down is the default, so her feet rest on the bottom edge; ?low=0.15 gives the smaller drop, 0 puts her in the middle. Size starts at 73 so she fills the width edge to edge). It is capped so her feet never go past the bottom edge. Not yet tried in the real pod. */
     var half = (odd ? sw : shv) * k / 2, dy = Math.max(0, Math.min(lowFrac * H, H / 2 - half));
     vctx.translate(W / 2, H / 2 + dy);
     vctx.rotate(rotQ * Math.PI / 2);
