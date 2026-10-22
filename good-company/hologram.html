@@ -878,7 +878,7 @@ function gcNoReplyWhy(res) {
       return fetch(ME_BASE + 'me-voice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: pieces[i], chunk: i, client_key: key })
+        body: JSON.stringify({ text: pieces[i], chunk: i, client_key: key, owner_key: GC_ownerKey() || undefined })
       }).then(function (r) {
         if (!r.ok) throw new Error('voice_failed');
         return r.blob();
@@ -916,7 +916,8 @@ function gcNoReplyWhy(res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         client_key: chatWho.echo, message: text, history: chatHistory.slice(-20),
-        scales: meScales, tester_key: TESTER_KEY || undefined
+        scales: meScales, tester_key: TESTER_KEY || undefined,
+        owner_key: GC_ownerKey() || undefined      // 2026-10-22, Dr. O: capped on her own laptop. The owner key saved in this browser (from ?key=) lifts the daily limit for her own Echo
       })
     }).then(function (r) { return r.json(); }).then(function (res) {
       chatBusy = false; chatSend.disabled = false;
