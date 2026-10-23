@@ -1,0 +1,47 @@
+{
+  "_note": "Stories from Reggie, Biscuit and Mochi, a first draft written 2026-10-23 for Dr. O to read. The places are real; the adventures and the peaches are made up. Biscuit tells them, Reggie lets her finish, Mochi gets one dry line.",
+  "episodes": [
+    {
+      "id": "beach",
+      "place": "The beach at low tide",
+      "text": "{name}! Okay, sit, sit, sit, this one is huge. The beach, at low tide, so the sea went away and left its whole floor out for us. Hard wet sand, cold under the paws, and the smell, oh, the smell. Salt, seaweed, and something that was either a crab or a very old sandwich. Gulls everywhere, shouting, and I shouted back. Okay so THEN. Mochi, who said he only came for the car ride, walked into a tide pool up to his belly and said, \"This is fine.\" Reggie had been tracking the crab for ten whole minutes, very serious, very low, like a detective. It was a shoe. He says it was a decoy shoe. Nobody argued. And then the humans said the word ice cream, and we all went home the long way, because Reggie says the long way is where the caper is. Gotta go, {name}, somebody just said the word walk.",
+      "card": {
+        "front": "The beach at low tide: one crab, allegedly a shoe",
+        "back": "Biscuit: Best day of my LIFE. Reggie: The shoe was a decoy. Mochi: The water was fine. I was not excited."
+      },
+      "facts": [
+        "At low tide the sea pulls back and leaves tide pools in the sand",
+        "Gulls are loud",
+        "Beaches smell of salt and seaweed"
+      ]
+    },
+    {
+      "id": "ferry",
+      "place": "The ferry",
+      "text": "{name}, you will not believe where the floor went. We got on a ferry, which is basically a road that floats, and the whole deck hummed under my paws, a big low hum I could feel in my teeth. Wind, salt, diesel, and somebody's french fries three rows over, I could have found those blindfolded. Okay so THEN. The floor moved. Not a lot. Enough. Mochi sat down flat in the middle of the deck and said he was not moving until we were on land and he would be making a formal complaint. Reggie had never been on a boat in his life and he took it like a captain: stood at the rail, ears back, nose up, reading every human on board. He picked out the one who was nervous and leaned on her leg the whole crossing. She said it helped. He says he knows. Gotta go, {name}, somebody just said the word walk.",
+      "card": {
+        "front": "The ferry: a road that floats, officially",
+        "back": "Biscuit: The floor MOVED! Reggie: One nervous human, one leg, one crossing. Done. Mochi: I am filing a complaint."
+      },
+      "facts": [
+        "A ferry carries people and vehicles across water",
+        "Dogs can feel engine vibration",
+        "Dogs have a strong sense of smell"
+      ]
+    },
+    {
+      "id": "market",
+      "place": "The farmers market",
+      "text": "{name}, okay, you have to understand, a farmers market is the whole world at nose height. Peaches. Cheese. Warm bread. A man frying something with onions. A woman with a table of honey, and I could smell the flowers the bees had visited. Okay so THEN. Mochi was handed a free sample of cheese by a stranger, and I want to say, he pretended he did not care, and then he followed that stranger for three stalls. Reggie, meanwhile, was working. One of the vendors was having a slow morning, you could tell, her shoulders were down, and he sat right in front of her table and looked up at her. Just looked. She laughed, and six people stopped to pet him, and by lunch she had sold every peach. He says that is what he does. I say I carried the peaches. I did not. Gotta go, {name}, somebody just said the word walk.",
+      "card": {
+        "front": "The farmers market: every smell at once",
+        "back": "Biscuit: PEACHES. Reggie: One sad table, six new friends, zero peaches left. Mochi: The cheese was acceptable."
+      },
+      "facts": [
+        "A dog's nose is close to the height of market tables",
+        "Dogs have a very strong sense of smell",
+        "Farmers markets often allow leashed dogs"
+      ]
+    }
+  ]
+}

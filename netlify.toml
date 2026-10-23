@@ -51,6 +51,11 @@
   timeout = 60
   included_files = ["explorer-episodes.json"]
 
+# Reggie, Biscuit and Mochi (story generator). Same shape as the explorer.
+[functions."pack-story"]
+  timeout = 60
+  included_files = ["pack-episodes.json"]
+
 # THE HARVEST CIRCUIT. A partner now checks a real source before answering
 # (up to a few seconds), and Vic's wine-list photo turns run on Sonnet. Past the
 # default ten seconds that surfaces as a 504, so give it the same room.

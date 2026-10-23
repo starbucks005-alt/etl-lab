@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Pack Tales | Emerging Technologies Laboratory</title>
+<meta name="description" content="Reggie, Biscuit and Mochi are back from somewhere new, and Biscuit is telling it.">
+<style>
+  /* FIRST DRAFT, 2026-10-23, for Dr. O to read. Not linked from anywhere and not indexed. */
+  :root {
+    --bg: #f4ecdd; --paper: #fffaf0; --ink: #2a2118; --muted: #6f604d; --line: #d9c9aa; --accent: #b5532a; --accent-ink: #fff; --shadow: rgba(60, 40, 10, .18);
+    --stamp: #8a3b1a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #1d1812; --paper: #2a231a; --ink: #f1e7d3; --muted: #b8a98d; --line: #4b3f2e; --accent: #e08a5a; --accent-ink: #1d1812; --shadow: rgba(0, 0, 0, .5); --stamp: #e08a5a; }
+  }
+  :root[data-theme="dark"] { --bg: #1d1812; --paper: #2a231a; --ink: #f1e7d3; --muted: #b8a98d; --line: #4b3f2e; --accent: #e08a5a; --accent-ink: #1d1812; --shadow: rgba(0, 0, 0, .5); --stamp: #e08a5a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 18px/1.6 Georgia, "Iowan Old Style", "Times New Roman", serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 28px 16px 64px; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.3rem); line-height: 1.15; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .story { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 18px; box-shadow: 0 6px 18px var(--shadow); }
+  .place { font: 700 .78rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+  .story p { margin: 0; white-space: pre-line; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  button { font: 600 .95rem ui-sans-serif, system-ui, sans-serif; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); padding: 11px 20px; min-height: 44px; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--accent); }
+  button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  h2 { font-size: 1.15rem; margin: 34px 0 10px; }
+  .card { perspective: 900px; }
+  .card button.flip { all: unset; display: block; width: 100%; cursor: pointer; }
+  .card .face { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px 16px 14px; min-height: 150px; box-shadow: 0 4px 12px var(--shadow); position: relative; }
+  .card .face::after { content: "COLLAR TAG"; position: absolute; top: 10px; right: 12px; font: 700 .62rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .18em; color: var(--stamp); border: 2px solid var(--stamp); border-radius: 4px; padding: 4px 6px; transform: rotate(6deg); opacity: .8; }
+  .card .cap { font-style: italic; padding-right: 76px; }
+  .card .back { font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive; font-size: .98rem; line-height: 1.5; padding-right: 0; }
+  .card .hint { color: var(--muted); font: .78rem ui-sans-serif, system-ui, sans-serif; margin-top: 10px; }
+  .wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .empty { color: var(--muted); }
+  .note { color: var(--muted); font-size: .9rem; margin-top: 28px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1 id="title">What have they been up to?</h1>
+  <p class="sub" id="sub">Biscuit is telling it. Reggie is letting her finish. Mochi is not impressed.</p>
+
+  <section class="story" id="story" aria-live="polite">
+    <p class="place" id="place">Loading</p>
+    <p id="text">Biscuit is catching her breath.</p>
+    <div class="actions">
+      <button id="next" type="button" hidden>Another one</button>
+    </div>
+  </section>
+
+  <h2>Their collar tag</h2>
+  <div id="postcard"><p class="empty">The tag shows up with the story.</p></div>
+
+  <h2>Your collar tag wall</h2>
+  <div class="wall" id="wall"><p class="empty">Nothing here yet. Every story leaves a tag.</p></div>
+
+  <p class="note">A first draft. The places are real and so are the facts about dogs and about them. The adventures, the crab and the shoe are made up.</p>
+</main>
+<script>
+(function () {
+  var EXPLORER_NAME = 'Reggie, Biscuit and Mochi';
+  var SEEN = 'pack_seen', CARDS = 'pack_cards';
+  var $ = function (id) { return document.getElementById(id); };
+  function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  var you = load('gc-you', null);
+  var name = (you && typeof you.name === 'string' && you.name.trim()) || 'friend';
+  var seen = load(SEEN, []), cards = load(CARDS, []);
+  $('title').textContent = 'What have ' + EXPLORER_NAME + ' been up to?';
+
+  function fill(t) { return String(t || '').split('{name}').join(name); }
+
+  function cardEl(c, flippable) {
+    var wrap = document.createElement('div'); wrap.className = 'card';
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'flip'; b.setAttribute('aria-label', 'Turn the tag over');
+    var face = document.createElement('div'); face.className = 'face';
+    var cap = document.createElement('div'); cap.className = 'cap'; cap.textContent = c.front;
+    var hint = document.createElement('div'); hint.className = 'hint'; hint.textContent = 'Tap to turn it over';
+    face.appendChild(cap); face.appendChild(hint); b.appendChild(face); wrap.appendChild(b);
+    var front = true;
+    b.addEventListener('click', function () {
+      front = !front;
+      cap.className = front ? 'cap' : 'cap back';
+      cap.textContent = front ? c.front : c.back;
+      hint.textContent = front ? 'Tap to turn it over' : 'Tap to turn it back';
+    });
+    return wrap;
+  }
+
+  function renderWall() {
+    var wall = $('wall'); wall.innerHTML = '';
+    if (!cards.length) { var p = document.createElement('p'); p.className = 'empty'; p.textContent = 'Nothing here yet. Every story leaves a tag.'; wall.appendChild(p); return; }
+    cards.slice().reverse().forEach(function (c) { wall.appendChild(cardEl(c.card)); });
+  }
+
+  function show(ep) {
+    $('place').textContent = ep.place;
+    $('text').textContent = fill(ep.text);
+    var pc = $('postcard'); pc.innerHTML = ''; pc.appendChild(cardEl({ front: fill(ep.card.front), back: fill(ep.card.back) }));
+    if (seen.indexOf(ep.id) === -1) { seen.push(ep.id); save(SEEN, seen); cards.push({ id: ep.id, card: { front: fill(ep.card.front), back: fill(ep.card.back) } }); save(CARDS, cards); }
+    renderWall();
+    $('next').hidden = false;
+  }
+
+  function none() {
+    $('place').textContent = 'Out on a walk';
+    $('text').textContent = 'Biscuit has told you everything she has for now. They are out finding somewhere new. Come back soon.';
+    $('next').hidden = true;
+  }
+
+  function get() {
+    $('next').disabled = true;
+    return fetch('/.netlify/functions/pack-story', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seen: seen }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j && j.episode) show(j.episode); else none(); })
+      .catch(function () {
+        // the function is not reachable (a local preview, or no network): fall back to the stories that ship with the page
+        return fetch('pack-episodes.json').then(function (r) { return r.json(); }).then(function (d) {
+          var open = (d.episodes || []).filter(function (e) { return seen.indexOf(e.id) === -1; })[0];
+          if (open) show(open); else none();
+        }).catch(function () { $('place').textContent = 'Offline'; $('text').textContent = 'They could not be reached. Try again in a minute.'; });
+      })
+      .then(function () { $('next').disabled = false; });
+  }
+
+  $('next').addEventListener('click', get);
+  renderWall();
+  get();
+})();
+</script>
+</body>
+</html>
