@@ -44,6 +44,13 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 - A horizontal bar that sits on a window sill and shines into the room like the sun waking you. It comes in several widths to fit different windows. It stands on its own foot: no installation, no adhesive, no drilling, so it is safe for rental properties. The arch that shines upward is not the plan for the window light.
 - Widths (Dr. O, 2026-10-20): 18, 24 and 30 inches. Base: not decided. ABS is out because it yellows in sun. It must not look cheap: thick frosted cast acrylic, an even glow, a slow smooth fade, hidden electronics. The height and the foot depth are hers to decide and are not decided yet. Only a prototype is being made now; the real product will be made by a manufacturer she finds. Nothing is built from this yet; `sunrise.ino` still counts 60 LEDs.
 
+## Shape and materials (Dr. O, 2026-10-23)
+- Decided by Dr. O: horizontal is best. The bar sits on a sill or a mantel. A tower for a nightstand was considered and is not the plan now; the foot is the only thing that would differ, so it can be added later.
+- Acrylic (a suggestion, not tried): cast acrylic, frosted on both faces, 1/2 inch thick (3/8 inch is the least). Clear acrylic shows the LEDs as dots. The amber comes from the LED color, not from tinted acrylic.
+- Wood (a suggestion, not tried): black walnut, 1 inch thick by 4 inches wide. The foot is the acrylic length plus 1 inch. A groove about 1/2 inch wide and 1/2 inch deep holds the strip at the bottom and the acrylic above it, with a small notch at the back for the wire. Test fit with a piece of the acrylic before cutting.
+- Strip length at 60 LEDs per meter: about 27, 36 and 45 LEDs for the 18, 24 and 30 inch bars. `LED_COUNT` in `sunrise.ino` is still the placeholder 60 and the pins are not changed for the Waveshare ESP32-S3 AI Smart Speaker board yet.
+- Engraving: no laser is bought. The fairy is engraved by a makerspace or an engraving service; a cheap diode laser does not mark clear or frosted acrylic.
+
 ## Parts
 ESP32-S3 N16R8 (as in the Holopod box), WS2812B strip, its own 5V supply sized for the strip, a speaker and a microphone for her voice. Wiring is at the top of `sunrise.ino`.
 
