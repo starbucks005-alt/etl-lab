@@ -195,6 +195,8 @@ function gcNoReplyWhy(res) {
       <button id="bRot" type="button">Turn the hologram</button>
       <button id="bMirror" type="button">Mirror</button>
       <span class="rng"><label for="rSize" style="margin:0">Size</label><input id="rSize" type="range" min="30" max="100" value="73"></span>
+      <!-- PICTURE HEIGHT, 2026-10-23, Dr. O ("go ahead with the hologram tablet change"): the same drop as ?low=, on a slider so it can be set in the pod. 0 is all the way down (feet on the bottom edge), 100 is the middle of the screen. Remembered on this tablet. -->
+      <span class="rng"><label for="rHeight" style="margin:0">Picture height</label><input id="rHeight" type="range" min="0" max="100" value="0"></span>
       <button id="bFull" type="button">Full screen</button>
     </div>
 
@@ -443,6 +445,17 @@ function gcNoReplyWhy(res) {
 
   var lowFrac = parseFloat(new URLSearchParams(location.search).get('low'));
   if (!(lowFrac >= 0 && lowFrac <= 1)) lowFrac = 1;
+  /* A saved slider setting is used unless the address names ?low= itself. */
+  var lowGiven = new URLSearchParams(location.search).has('low');
+  if (!lowGiven) { try { var sv = parseFloat(localStorage.getItem('holo_picture_height')); if (sv >= 0 && sv <= 100) lowFrac = 1 - sv / 100; } catch (_) {} }
+  (function () {
+    var r = document.getElementById('rHeight'); if (!r) return;
+    r.value = String(Math.round((1 - lowFrac) * 100));
+    r.addEventListener('input', function () {
+      lowFrac = 1 - (+r.value) / 100;
+      try { localStorage.setItem('holo_picture_height', String(r.value)); } catch (_) {}
+    });
+  })();
 
   function drawSingle(size) {
     var W = view.width, H = view.height;
