@@ -48,7 +48,7 @@ void loop() {
     if (reading == LOW) lit = !lit;
   }
 
-  if (now - nextPick > 0 && now >= nextPick) {              // every 60 to 140 ms some of the ring picks a new, slightly different brightness
+  if (now >= nextPick) {              // every 60 to 140 ms some of the ring picks a new, slightly different brightness
     nextPick = now + 60 + random(0, 80);
     for (int i = 0; i < RING_COUNT; i++) {
       if (random(0, 3) == 0) target[i] = 0.55 + random(0, 45) / 100.0;
