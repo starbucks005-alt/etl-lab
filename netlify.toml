@@ -46,6 +46,11 @@
   timeout = 30
   included_files = ["data/studio-staff-registry.json"]
 
+# The explorer (story generator). Two model calls when a new story is written, and the three seed stories travel with it.
+[functions."explorer-story"]
+  timeout = 60
+  included_files = ["explorer-episodes.json"]
+
 # THE HARVEST CIRCUIT. A partner now checks a real source before answering
 # (up to a few seconds), and Vic's wine-list photo turns run on Sonnet. Past the
 # default ten seconds that surfaces as a 504, so give it the same room.
