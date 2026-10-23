@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Field Notes | Emerging Technologies Laboratory</title>
-<meta name="description" content="The explorer is back from somewhere real, and she has a story about it.">
+<meta name="description" content="Lady Catherine Ashcroft, called Kit, is back from somewhere real, and she has a story about it.">
 <style>
   /* FIRST DRAFT, 2026-10-23, for Dr. O to read. Not linked from anywhere and not indexed. The explorer has no name yet: change EXPLORER_NAME below. */
   :root {
@@ -45,7 +45,7 @@
 <body>
 <main class="wrap">
   <h1 id="title">What has she been up to?</h1>
-  <p class="sub" id="sub">Open her up and see where she has been.</p>
+  <p class="sub" id="sub">Lady Catherine Ashcroft, called Kit. Sit with Tilly and hear where she has been.</p>
 
   <section class="story" id="story" aria-live="polite">
     <p class="place" id="place">Loading</p>
@@ -55,17 +55,17 @@
     </div>
   </section>
 
-  <h2>The postcard</h2>
-  <div id="postcard"><p class="empty">Her postcard shows up with her story.</p></div>
+  <h2>Her postcard to Tilly</h2>
+  <div id="postcard"><p class="empty">Her postcard to Tilly shows up with her story.</p></div>
 
-  <h2>Your postcard wall</h2>
-  <div class="wall" id="wall"><p class="empty">Nothing here yet. Every story she tells you leaves a postcard.</p></div>
+  <h2>Tilly's postcard wall</h2>
+  <div class="wall" id="wall"><p class="empty">Nothing here yet. Every story leaves a postcard for Tilly.</p></div>
 
-  <p class="note">A first draft. The places are real and so are the facts about them. The discoveries, the niece and the camel are made up.</p>
+  <p class="note">A first draft. The places are real and so are the facts about them. The discoveries, the family and the camel are made up.</p>
 </main>
 <script>
 (function () {
-  var EXPLORER_NAME = 'The Explorer';        // she has no name yet. Her niece calls her Aunt (nickname), still to be chosen.
+  var EXPLORER_NAME = 'Aunt Kit';
   var SEEN = 'explorer_seen', CARDS = 'explorer_cards';
   var $ = function (id) { return document.getElementById(id); };
   function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch (e) { return d; } }
@@ -73,8 +73,7 @@
   var you = load('gc-you', null);
   var name = (you && typeof you.name === 'string' && you.name.trim()) || 'friend';
   var seen = load(SEEN, []), cards = load(CARDS, []);
-  $('title').textContent = 'What has ' + EXPLORER_NAME.replace(/^The /, 'the ').replace(/^the explorer$/, 'she') + ' been up to?';
-  if (EXPLORER_NAME !== 'The Explorer') $('title').textContent = 'What has ' + EXPLORER_NAME + ' been up to?';
+  $('title').textContent = 'What has ' + EXPLORER_NAME + ' been up to?';
 
   function fill(t) { return String(t || '').split('{name}').join(name); }
 
@@ -97,7 +96,7 @@
 
   function renderWall() {
     var wall = $('wall'); wall.innerHTML = '';
-    if (!cards.length) { var p = document.createElement('p'); p.className = 'empty'; p.textContent = 'Nothing here yet. Every story she tells you leaves a postcard.'; wall.appendChild(p); return; }
+    if (!cards.length) { var p = document.createElement('p'); p.className = 'empty'; p.textContent = 'Nothing here yet. Every story leaves a postcard for Tilly.'; wall.appendChild(p); return; }
     cards.slice().reverse().forEach(function (c) { wall.appendChild(cardEl(c.card)); });
   }
 

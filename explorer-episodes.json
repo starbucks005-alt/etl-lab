@@ -1,13 +1,13 @@
 {
-  "_note": "Field notes from the explorer, a first draft written 2026-10-23 for Dr. O to read. Every place detail is meant to be real; the discoveries, the thermos, the camel and the niece are fiction. The niece is a made-up character and stays unnamed. 'facts' lists what to check before anything goes live, and is never shown on the page. {name} is replaced with the visitor's name.",
+  "_note": "Field notes from the explorer, a first draft written 2026-10-23 for Dr. O to read. Every place detail is meant to be real; the discoveries, the thermos, the camel and the family are fiction. Tilly is Kit's niece, 15, in Dr. O's lore. 'facts' lists what to check before anything goes live, and is never shown on the page. {name} is replaced with the visitor's name.",
   "episodes": [
     {
       "id": "mongolia",
       "place": "Mongolia",
-      "text": "Oh good, {name}, sit down, this one is still in my boots. The Gobi, and I mean the south, where the cliffs at a place called Bayanzag turn the color of a campfire at sunset. Sky from edge to edge, no fences, a herder's tent with tea so salty my niece would have demanded a refund. This is where an expedition in the 1920s first found dinosaur eggs, so yes, I dug, in my good hat. I found something round, buried deep, and brushed it for an hour. It was a very old thermos. My niece texted, \"Did you find a dinosaur?\" I said, \"A thermos.\" She said, \"Best one ever.\" I told her not to put that on a poster. She is making the poster. Sorry, {name}, I have to go, they're on to me.",
+      "text": "Oh good, {name}, sit down, this one is still in my boots. The Gobi, and I mean the south, where the cliffs at a place called Bayanzag turn the color of a campfire at sunset. Sky from edge to edge, no fences, a herder's tent with tea so salty Tilly would have demanded a refund. This is where an expedition in the 1920s first found dinosaur eggs, so yes, I dug, in my good hat. I found something round, buried deep, and brushed it for an hour. It was a very old thermos. Tilly texted, \"Did you find a dinosaur?\" I said, \"A thermos.\" She said, \"Best one ever.\" I told her not to put that on a poster. She is making the poster. Sorry, {name}, I have to go, they're on to me.",
       "postcard": {
         "front": "The Flaming Cliffs, Gobi Desert, Mongolia",
-        "back": "Dear niece, here is the proof. No dinosaur. One thermos. The cliffs really do look like they are on fire at sunset, and I took ninety-one photos, so you can have the three where I am not blinking. The tea was very salty. Love, your aunt."
+        "back": "Dear Tilly, here is the proof. No dinosaur. One thermos. The cliffs really do look like they are on fire at sunset, and I took ninety-one photos, so you can have the three where I am not blinking. The tea was very salty. Love, Aunt Kit."
       },
       "facts": [
         "The Flaming Cliffs (Bayanzag) are in the southern Gobi, Mongolia",
@@ -19,10 +19,10 @@
     {
       "id": "jordan",
       "place": "Jordan",
-      "text": "You're early, {name}, good, I've still got the sand in my teeth. Jordan. Wadi Rum first: red sand, sandstone mountains standing up like they're waiting for a bus, and a silence you can actually hear. Then Petra. You walk a narrow canyon called the Siq, rock walls closing in, and then it opens and there's a tomb carved straight into the cliff, taller than a building, pink in the morning light. I sent my niece a postcard. A camel ate it. Calmly. My niece wrote back, \"I want to do what you do.\" I told her, \"Please don't, I lose things in three countries at once.\" Then I told her the truth, which is that standing in front of something that old makes you feel the right size. And then I told her to forget I said it. Sorry, {name}, I have to go, they're on to me.",
+      "text": "You're early, {name}, good, I've still got the sand in my teeth. Jordan. Wadi Rum first: red sand, sandstone mountains standing up like they're waiting for a bus, and a silence you can actually hear. Then Petra. You walk a narrow canyon called the Siq, rock walls closing in, and then it opens and there's a tomb carved straight into the cliff, taller than a building, pink in the morning light. I sent Tilly a postcard. A camel ate it. Calmly. Tilly wrote back, \"I want to do what you do.\" I told her, \"Please don't, I lose things in three countries at once.\" Then I told her the truth, which is that standing in front of something that old makes you feel the right size. And then I told her to forget I said it. Sorry, {name}, I have to go, they're on to me.",
       "postcard": {
         "front": "Wadi Rum, Jordan: red sand and one very patient camel",
-        "back": "Dear niece, I owe you a postcard. The camel ate the first one, so this is the second. I am alive. The camel is not sorry. Love, your aunt. P.S. Do not tell your mother about the camel."
+        "back": "Dear Tilly, I owe you a postcard. The camel ate the first one, so this is the second. I am alive. The camel is not sorry. Love, Aunt Kit. P.S. Do not tell your mother about the camel."
       },
       "facts": [
         "Wadi Rum has red sand and sandstone mountains",
@@ -33,10 +33,10 @@
     {
       "id": "ohio",
       "place": "Ohio",
-      "text": "Hi, {name}, and before you say anything, no, Ohio is not a vacation. Ohio is a prehistoric ocean, and I'll prove it. About 360 million years ago the whole state was under a warm shallow sea, and the thing running it was an armored fish called Dunkleosteus, about the size of a car and basically all head. I spent a Saturday in Cleveland's shale, hammer in hand, hunting for one. My niece asked how I knew where to dig. I said luck. She said, \"You always say luck.\" I said, \"Then it's working.\" (I read maps for three days before that trip. Don't tell her.) I found a trilobite, a shell, and a very good lunch. The fish has bone plates, no real teeth, which I find reassuring. Sorry, {name}, I have to go, they're on to me.",
+      "text": "Hi, {name}, and before you say anything, no, Ohio is not a vacation. Ohio is a prehistoric ocean, and I'll prove it. About 360 million years ago the whole state was under a warm shallow sea, and the thing running it was an armored fish called Dunkleosteus, about the size of a car and basically all head. I spent a Saturday in Cleveland's shale, hammer in hand, hunting for one. Tilly asked how I knew where to dig. I said luck. She said, \"You always say luck.\" I said, \"Then it's working.\" (I read maps for three days before that trip. Don't tell her.) I found a trilobite, a shell, and a very good lunch. The fish has bone plates, no real teeth, which I find reassuring. Sorry, {name}, I have to go, they're on to me.",
       "postcard": {
         "front": "Cleveland, Ohio: 360 million years too late",
-        "back": "Dear niece, no fish with a helmet this time. I did find a trilobite, which is basically a very old pill bug with ambition. Keep it. Do not tell your mother about the hammer. Love, your aunt."
+        "back": "Dear Tilly, no fish with a helmet this time. I did find a trilobite, which is basically a very old pill bug with ambition. Keep it. Do not tell your mother about the hammer. Love, Aunt Kit."
       },
       "facts": [
         "VERIFY: about 360 million years (Late Devonian) for the Cleveland Shale",
