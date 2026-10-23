@@ -26,6 +26,7 @@ al-panel/pi/alarm_chime.wav
 
 # Robot A.L.I.C.E.: her Azure Speech key and region. Stays on the robot and must never be committed.
 al-panel/pi/azure_speech.json
+al-panel/pi/azure_model.json
 al-panel/pi/_azure_say.wav
 al-panel/pi/_azure_listen.wav
 al-panel/pi/friends_*.json

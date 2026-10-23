@@ -60,3 +60,18 @@ spend anything.
 Cost data can lag by up to a day, and the "streak" is an estimate. Microsoft's own count is in the Microsoft for Startups
 portal. The tracker assumes a service must have spent at least $1 in the last 30 days and have some spend in the last 7.
 The tracker cannot make a service spend: each workload has to be doing real work for the count to hold.
+
+## The robots on an Azure model (2026-10-23)
+`al-panel/pi/al_model.py` sends the robot's text-only questions to an Azure model instead of Claude. Those are the memory notes, the
+parent notes, the opening greeting and the sources questions. It is OFF until you make `azure_model.json` on the Pi, next to
+`al_panel_server.py`. That file is kept out of git:
+
+    {"endpoint": "https://YOUR-RESOURCE.openai.azure.com", "key": "...", "deployment": "the name you gave the model"}
+
+Same three values as the website's `AZURE_OPENAI_*` settings (the environment variables of those names work too). Copy `al_model.py` and
+the new `al_panel_server.py` to the Pi, restart the panel, and the log prints `MODEL answering on Azure (...)` on the first question.
+If Azure says no, the log prints `MODEL Azure failed, asking Claude instead` and Claude answers, so she never goes quiet.
+Add `"on": false` to the file to send everything back to Claude without deleting the settings.
+
+Still on Claude: the robot's main spoken reply (it is made inside `~/al.py` on the Pi, which is not in this repository), and the photo and
+file readers, which send pictures and documents. Not tried on the real Azure service or the real robot. Test one robot first.

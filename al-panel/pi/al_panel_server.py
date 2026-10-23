@@ -27,6 +27,7 @@ from flask import Flask, jsonify, request, send_from_directory
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.expanduser("~"))
 import al  # noqa: E402  (the existing script, in the home folder)
+import al_model  # noqa: E402  (text-only questions on an Azure model when one is set up, else Claude)
 try:
     import al_skills as sk  # noqa: E402  (notebook, bench guide and knowledge shelf; if the file is missing she simply answers as before)
 except Exception as _e:         # pragma: no cover
@@ -500,18 +501,11 @@ def distill_memory(pid, exchanges):
                   "You cannot recognize anyone by voice or face, so write it as what they told you, for example that someone who said her name is Dr. Terry Oroszi told you she built you. Never write that you recognized a person. "
                   "Do not use any dash characters. Return ONLY JSON, no code fences: {\"memories\": [\"...\", \"...\"]}. "
                   "If honestly nothing new and memorable came up, return {\"memories\": []}.%s\n\nRecent conversation:\n%s") % (name, known, talk)
-        key = header_value("x-api-key")
-        r = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={"x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID,
-                     "content-type": "application/json"},
-            json={"model": "claude-sonnet-5", "max_tokens": 300, "messages": [{"role": "user", "content": prompt}]},
-            timeout=60,
-        )
-        if r.status_code != 200:
-            print("MEMORY could not write notes: the service said %d" % r.status_code, flush=True)
+        try:
+            text = ask_model(None, prompt, 300)
+        except Exception as e:
+            print("MEMORY could not write notes:", str(e)[:120], flush=True)
             return
-        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
         text = re.sub(r"^```(json)?", "", text).rstrip("`").strip()
         new = [re.sub(r"\s*[\u2014\u2013]\s*", ", ", m).strip() for m in json.loads(text).get("memories", []) if isinstance(m, str) and m.strip()][:4]
         with memory_lock:
@@ -876,15 +870,11 @@ def distill_parent(exchanges):
                   "the child's age if they said it, and anything a parent should know, for example if the child seemed sad, scared, or said they were hurt or unsafe. "
                   "Leave out names, addresses, schools, phone numbers and any other identifying detail. Do not use dash characters. "
                   "Return ONLY JSON, no code fences: {\"notes\": [\"...\", \"...\"]}. If there is nothing worth a parent's attention, return {\"notes\": []}.\n\nConversation:\n" + talk)
-        key = header_value("x-api-key")
-        r = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={"x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID, "content-type": "application/json"},
-            json={"model": "claude-sonnet-5", "max_tokens": 300, "messages": [{"role": "user", "content": prompt}]}, timeout=60)
-        if r.status_code != 200:
-            print("PARENT NOTES could not be written: the service said %d" % r.status_code, flush=True)
+        try:
+            text = ask_model(None, prompt, 300)
+        except Exception as e:
+            print("PARENT NOTES could not be written:", str(e)[:120], flush=True)
             return
-        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
         text = re.sub(r"^```(json)?", "", text).rstrip("`").strip()
         day = time.strftime("%Y-%m-%d")
         new = ["%s: %s" % (day, re.sub(r"\s*[\u2014\u2013]\s*", ", ", n).strip()) for n in json.loads(text).get("notes", []) if isinstance(n, str) and n.strip()][:3]
@@ -1361,14 +1351,7 @@ def make_opening(kind=None):
         extra = ("Say that you are still learning how people do this, a little playfully, and ask them for help with something small, "
                  "such as what they would say first to a stranger.")
     try:
-        r = requests.post("https://api.anthropic.com/v1/messages",
-                          headers={"x-api-key": header_value("x-api-key"), "anthropic-version": "2023-06-01",
-                                   "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID, "content-type": "application/json"},
-                          json={"model": "claude-sonnet-5", "max_tokens": 120, "messages": [{"role": "user", "content": base + extra}]}, timeout=30)
-        if r.status_code != 200:
-            print("OPENING the service said %d" % r.status_code, flush=True)
-            return ""
-        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip().strip('"')
+        text = ask_model(None, base + extra, 120, 30).strip('"')
     except Exception as e:
         print("OPENING problem:", str(e)[:120], flush=True)
         return ""
@@ -2645,15 +2628,28 @@ CLASSIFY_SYSTEM = ("You decide whether a spoken message to a laboratory companio
                    "{\"needs_sources\": true or false, \"query\": \"six to twelve search words for a scholarly search, empty if no sources are needed\"}")
 
 
-def _ask_claude(system, user, max_tokens=300):
+def _claude_text(system, user, max_tokens=300, timeout=60):
     key = header_value("x-api-key")
+    body = {"model": "claude-sonnet-5", "max_tokens": max_tokens, "messages": [{"role": "user", "content": user}]}
+    if system:
+        body["system"] = system
     r = requests.post("https://api.anthropic.com/v1/messages",
                       headers={"x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-workspace-id": al.ANTHROPIC_WORKSPACE_ID,
                                "content-type": "application/json"},
-                      json={"model": "claude-sonnet-5", "max_tokens": max_tokens, "system": system, "messages": [{"role": "user", "content": user}]}, timeout=60)
+                      json=body, timeout=timeout)
     if r.status_code != 200:
         raise RuntimeError("the service said %d" % r.status_code)
     return "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
+
+
+def ask_model(system, user, max_tokens=300, timeout=60):
+    """One text-only question. Azure when azure_model.json (or AZURE_OPENAI_*) is set up, else Claude, and Claude if Azure fails (al_model.py).
+    The photo and file readers do not use this: they send pictures and documents and stay on Claude."""
+    return al_model.ask(system, user, max_tokens, timeout, lambda: _claude_text(system, user, max_tokens, timeout))
+
+
+def _ask_claude(system, user, max_tokens=300):
+    return ask_model(system, user, max_tokens)
 
 
 SHELF_RULES = (" You are answering from files that someone put on your knowledge shelf, listed below as numbered sources. Answer ONLY from them, in two to four short sentences, "
