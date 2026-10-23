@@ -22,8 +22,8 @@
 #include <ArduinoJson.h>
 
 const int LED_PIN = 5;
-const int LED_COUNT = 117;                // 144 LEDs per meter, for the 32 inch bar (Dr. O, 2026-10-23): 0.81 m is about 117. 24 inch would be 88
-const int MAX_BRIGHTNESS = 145;           // of 255. Keeps 117 LEDs under a 5 amp supply (117 x 60 mA is 7 A at full white). With a 10 amp supply this can go to 200
+const int LED_COUNT = 132;                // 144 LEDs per meter, for the 36 inch bar (Dr. O, 2026-10-23): 0.91 m is about 132. 32 inch would be 117, 24 inch 88
+const int MAX_BRIGHTNESS = 130;           // of 255. Keeps 132 LEDs under a 5 amp supply (132 x 60 mA is 7.9 A at full white). With a 10 amp supply this can go to 200
 const bool DEMO_MODE = true;              // true: skip Wi-Fi and the clock and play the whole sunrise in DEMO_SECONDS, over and over. Set false for the real thing.
 const int DEMO_SECONDS = 90;
 int SUNRISE_MINUTES = 30;
