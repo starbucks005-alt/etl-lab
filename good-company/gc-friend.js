@@ -6244,7 +6244,7 @@ var GC_KIT = {
   scenes: [
     { key: 'map-table', label: 'At the Map Table', src: 'video/woman-listening-to-camera-20261023060850_v1.mp4',
       where: 'At a wooden crate in a jungle clearing, a map spread out in front of her, listening.' },
-    { key: 'library', label: 'In the Library', src: 'video/kit-in-the-study_v1.mp4', thumb: 'photos/kit_v1.jpg',
+    { key: 'library', label: 'In the Library', src: 'video/kit-in-the-study_v1.mp4',
       where: 'At a desk in a library, a lamp lit beside her, shelves of books and framed pictures behind her, arms folded, a leather notebook, maps and a small carved figure in front of her, listening.' },
     { key: 'path', label: 'On the Forest Path', src: 'video/woman-walking-and-listening-20261023060902_v1.mp4',
       where: 'Walking down a path through a forest, a leather satchel on her shoulder, looking toward the camera.' },
