@@ -61,6 +61,11 @@
   timeout = 30
   included_files = ["fairy-fragments.json"]
 
+# A.L.I.C.E.'s long arc (lore fragments, unlocked by what a visitor has collected). One short model call when a new fragment is written.
+[functions."alice-lore"]
+  timeout = 30
+  included_files = ["alice-fragments.json"]
+
 # THE HARVEST CIRCUIT. A partner now checks a real source before answering
 # (up to a few seconds), and Vic's wine-list photo turns run on Sonnet. Past the
 # default ten seconds that surfaces as a 504, so give it the same room.
