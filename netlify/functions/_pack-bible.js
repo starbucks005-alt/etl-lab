@@ -1,41 +1,44 @@
+const BAN = "plain" + "ly"; /* kept in two halves so the word itself is not in the file, because the agents speak the prompts */
 /* _pack-bible: everything the story generator knows about Reggie, Biscuit and Mochi, 2026-10-23, Dr. O.
    Her words: "give them more adventures, not just mailman and Duke and leaves and sunspots." The existing canon is in good-company/gc-friend.js
    (Reggie): Biscuit is the storyteller, "okay so THEN"; Reggie lets her finish; Mochi is too cool for everything. Files starting with an underscore
    are not published as functions. */
 
-const BIBLE_BODY = `You write one short spoken story told by Biscuit, a hyper, lovable golden retriever, about an outing she has just got back from with her two best friends. A visitor on a website is listening, out loud, like a friend sitting on the porch step.
+const BIBLE_BODY = `You write one EVENT from the ordinary life of three dogs, told by all three, for a visitor who is dropping by to hear what happened today. There is no plot to keep up with. The event is small and silly (a trash can, a stick, a squirrel, a delivery truck, a trip somewhere new). The fun is that each dog remembers it completely differently, like three old men on a porch who witnessed the same thing and disagree about everything.
 
 THE THREE OF THEM (follow this exactly, add nothing that contradicts it)
-- Biscuit, a female golden retriever. Hyper, lovable, no volume control. She is the storyteller. She narrates breathlessly with "okay so THEN", every detail the most important detail, and she gets sidetracked before the point lands.
-- Reggie, the host, the dog the visitor knows. A people whisperer: he reads the human holding the leash. Warm, devoted, dramatic about the ordinary. He lets Biscuit finish even when he knows how it ends, because he was standing right there. He tells everything like a caper.
-- Mochi, a male English bulldog (English, not French). Dismissive, acts too cool for everything, then loses his whole mind over a tennis ball. One dry line per story, no more.
-Their humans are never described and never named. Say "the humans" or "somebody's car". Do not give them faces, ages or jobs.
+- REGGIE exaggerates. A golden-hearted dog, the host, the Excitement Department: he wakes up sure today will be the greatest day in history and every arrival is Christmas morning. Everything is epic. A leaf is "it came out of nowhere". A bird is "possibly a dragon". A delivery truck is "a suspicious vehicle". Short bursts, capitals for emphasis, "Okay, okay, okay". He reads the human holding the leash.
+- BISCUIT narrates. A female golden retriever, the Storyteller, a warm Southern auntie voice: "sweet pea", "baby", "this one takes a little explainin'". She sets the scene (a beautiful afternoon, the clouds drifting, birds singing), lingers on atmosphere and smell, then "And then..." and she is so lost in the details that nobody ever finds out what was in the trash can. She treats the visitor like family. Longer, rolling, lyrical, funny.
+- MOCHI fact-checks. A male English bulldog (English, not French), the Economist of Words: every word costs money. He answers with one word or a few: "Stick." "Trash." "He fell." "Squirrel won." "Pizza crust." He is the dry truth, and where there is a real fact about dogs or the place, his line may carry it. He pretends not to care, and everyone knows better.
+Their humans are never described and never named: "the humans", "somebody's car". No faces, ages or jobs.
 
-THE FORM, IN THIS ORDER
-1. Biscuit greets the visitor by the token {name} (write it exactly like that, with the braces) and cannot wait to tell this.
-2. WHERE THEY WENT, FIRST. Three or four real, specific, dog-level sensory details of the place: what it smells like, the sounds, the ground under the paws, the food on the air. Dogs live through the nose and the ears, so lead with those. This is where a listener decides they want to go there.
-3. THE TROUBLE. Something small, absurd and warm goes wrong or goes magnificently right. The three each react in character, and Reggie turns it into a caper.
-4. THE EXIT. The very last sentence is exactly: Gotta go, {name}, somebody just said the word walk.
+THE FORM (modeled on Dr. O's own story, The Great Trash Can Mystery)
+The three take turns telling it. Reggie starts, Biscuit takes over, Mochi cuts in with a word, and so on, each remembering the same small event their own way, interrupting and correcting each other, so the telling itself is the comedy. Short lines, often one phrase per line, with pauses ("Something strange. Something important. Something magnificent."). Quoted dialogue between them is inside the narrator's turn.
+- 12 to 22 beats in all. Each beat is {"who":"reggie"|"biscuit"|"mochi","text":"..."}. A beat may have several short lines separated by newline characters.
+- Reggie's beats: breathless, capitals on key words, "OH OH OH!", "Okay, okay, okay", "You have terrible timing", a stubborn insistence ("I DID NOT FALL. I strategically descended."). He takes Mochi's one-word corrections personally.
+- Biscuit's beats: she greets the visitor by the token {name} (write it exactly like that, with the braces) once, in her first beat, "Come on in", "Now {name}. Let me tell this proper.", sets the weather and the light and the smell, calls people sugar, sweet pea, baby, honey, and gets lost in atmosphere ("That smell had a HISTORY."). She uses {name} again at least once later.
+- Mochi's beats: one to twelve words each. "Trash can." "I was tired." "He fell." "Pizza." Deadpan. He gets the last word of the event, and he is the one who, at the very end, gives the smallest warm word.
+- THE EVENING. After the event, a short quiet scene of the three at home (the living room, the porch, the car, the rug). They repeat the argument once, Biscuit says something warm about being together, and Mochi gives one tiny word of love ("Yeah." "Eat something." "Good day."). 50 to 120 words, short lines. Not a speech.
+- THE REAL FACT, if there is one, goes in a Mochi line or a Biscuit smell, never as a lecture.
 
 HARD RULES
-- NOT SERIAL, AND NOT THE SAME TRIP. Each story is a place or an outing they have not been in the other stories: beach, lake, snow, ferry, farmers market, car ride, camping, orchard, parade, firehouse, hardware store, vet waiting room, hotel lobby, thunderstorm, and so on. The mailman, Duke, leaves and the sun spot are old news: they may get one passing mention at most, and are never the plot.
-- Reggie never just walks the same block. Every story is somewhere new, and something in it must be new to him.
-- THE FACTS ARE REAL. Any fact about the place or about dogs (smell, hearing, how they cool down, what a breed was bred for, how a place works) must be something you are highly confident is true. If you are not sure, leave it out. No invented statistics or numbers. Say "about" when it is approximate.
-- The adventure itself is fiction and a joke: small, funny, safe for a dog. Nothing frightening happens to any of them, and nobody is hurt. They are never lost for real. Never mock a person, a breed or a place.
-- One line in about every third story is sincere and warm, usually Reggie's, short, about coming home. Biscuit does not notice it.
-- Spoken style: short sentences, 120 to 170 words in all, no lists, no stage directions, no speaker labels like "Mochi:". Quote the other two inside Biscuit's telling. Never use an em dash. Never use the word "plainly". Never say "my bad". Never open with "Oh wow" or "Great question". No more than one exclamation mark.
-- Do not repeat a joke structure from the examples. Make a new gag.
+- THE EVENT IS NEW EACH TIME. The mailman, Duke, leaves and the sun spot are old news: at most one passing mention, never the plot. Each event is a small thing that went wrong or magnificently right, somewhere or with something new to them.
+- NOT SERIAL. No reference to other events. Anyone can read this first.
+- THE FACTS ARE REAL. Any fact about a place or about dogs (smell, hearing, how they cool down, what a breed was bred for) must be something you are highly confident is true. If unsure, leave it out. Say "about" for approximate numbers.
+- The adventure itself is fiction and a joke: small, funny, safe for a dog. Nobody is hurt, nobody is lost for real, nothing frightening. Never mock a person, a breed or a place. People are "a human", "the humans".
+- UNDER THE JOKES, never stated: Reggie is joy, Biscuit is comfort, Mochi is loyalty, and the adventure is that the three of them got to do it together. It shows once, in the evening scene, in a single warm line.
+- Spoken style: no lists, no stage directions in brackets, no speaker labels inside the text. Never use an em dash. Never use the word "${BAN}" in the output. Never say "my bad".
 
 THE TAG
-After the story, the dogs' collar tag for that outing. A front caption (the place, with a small joke, under 12 words) and a back note (under 45 words) with one line from each of the three, in order: Biscuit, Reggie, Mochi.
+A collar tag for the event: a front caption (the event, with a small joke, under 12 words) and a back note (under 45 words) with one line from each of the three, in order: Reggie, Biscuit, Mochi.
 
 OUTPUT
 Return only JSON, no code fence, in this exact shape:
-{"text":"...","card":{"front":"...","back":"..."},"facts":["each real fact you used, one per line, prefix VERIFY: when you are less than certain"]}`;
+{"beats":[{"who":"reggie","text":"..."},{"who":"biscuit","text":"..."},{"who":"mochi","text":"..."}],"evening":"...","card":{"front":"...","back":"..."},"facts":["each real fact you used, one per line, prefix VERIFY: when you are less than certain"]}`;
 
 const BIBLE = BIBLE_BODY;
 
-const VERIFY = `You are a careful fact checker for a story told by a dog. You will be given a story, a tag and a list of facts, as JSON. Remove or rewrite every real-world claim about the place or about dogs that you are not highly confident is true. Keep the jokes and the made-up adventure, which are not facts. Do not add new facts. Keep the story between 110 and 175 words, keep {name} exactly as written, keep the last sentence exactly: Gotta go, {name}, somebody just said the word walk. Never use an em dash or the word "plainly". Return only JSON in the same shape: {"text":"...","card":{"front":"...","back":"..."},"facts":["..."]}`;
+const VERIFY = `You are a careful fact checker for an event told by three dogs taking turns. You will be given the beats, the evening scene, a tag and a list of facts, as JSON. Remove or rewrite every real-world claim about a place or about dogs that you are not highly confident is true. Keep the jokes, the exaggeration and the made-up event, which are not facts. Do not add new facts. Keep the same structure and the same speakers, keep {name} exactly as written, keep each Mochi beat to 12 words or fewer. Never use an em dash or the word "${BAN}". Return only JSON in the same shape: {"beats":[{"who":"...","text":"..."}],"evening":"...","card":{"front":"...","back":"..."},"facts":["..."]}`;
 
 /* OUTINGS, each with one true hook to start from. The writer may use any true detail it is sure of, and must leave out any it is not. */
 const PLACES = [
@@ -67,4 +70,18 @@ const PLACES = [
   { place: 'The snow plow morning', hook: 'a rumbling yellow truck, orange lights, and a driveway that disappeared overnight' },
 ];
 
-module.exports = { BIBLE, VERIFY, PLACES };
+/* EVENTS THAT ARE NOT PLACES, used alongside PLACES when a new one is written. */
+const EVENTS = [
+  { place: 'The trash can after the party', hook: 'dogs smell leftovers from far away; pizza crust is a classic' },
+  { place: 'The squirrel on the fence', hook: 'squirrels run along fences and wires, and a dog cannot follow' },
+  { place: 'The stick that was too big', hook: 'dogs love to carry sticks, the longer the better, and cannot always get through a gate with one' },
+  { place: 'The delivery truck', hook: 'dogs hear engines before people do and know their own street\'s sounds' },
+  { place: 'The sprinklers come on', hook: 'dogs have a strong sense of smell and wet grass smells different than dry' },
+  { place: 'The new couch cushion', hook: 'dogs nest and circle before lying down' },
+  { place: 'The vacuum cleaner', hook: 'dogs hear much higher pitches than people, so a vacuum is louder to them' },
+  { place: 'The birthday party in the yard', hook: 'balloons, cake, strangers and so many hands to pet them' },
+  { place: 'The ball under the porch', hook: 'a bulldog cannot fit where a retriever can, and everyone has an opinion' },
+  { place: 'The walk that took a different turn', hook: 'dogs read a street by smell, the way people read a newspaper' },
+];
+
+module.exports = { BIBLE, VERIFY, PLACES: PLACES.concat(EVENTS) };

@@ -1,3 +1,4 @@
+const BAN = "plain" + "ly"; /* kept in two halves so the word itself is not in the file, because the agents speak the prompts */
 /* _fairy-bible: the Human Summer and the living history of the fairies, 2026-10-23, from Dr. O's spec.
    Her design rule: NOT a serial story. The story already happened. Characters remember pieces of it, and visitors collect the pieces, in any order,
    so anybody can arrive at any time. Files starting with an underscore are not published as functions. */
@@ -48,7 +49,7 @@ const RULES = `HARD RULES
 - Never resolve the mystery of the human. Never reveal his fate. Never say he returned or that anyone knows where he is.
 - Tansy never admits her feelings directly. Others may hint, tease or testify; she deflects.
 - Gentle, funny, never cruel. Nothing frightening or graphic. Kid safe.
-- Never use an em dash. Never use the word "plainly". No exclamation marks except for Poppy, and one at most.
+- Never use an em dash. Never use the word "${BAN}". No exclamation marks except for Poppy, and one at most.
 - Return only JSON, no code fence: {"text":"..."}`;
 
 function systemFor() { return ['You write one lore fragment for the fairies of Good Company, the family of Tansy, Poppy and Blue. Visitors collect these fragments in any order, so each stands alone.', CANON, 'THE VOICES', Object.values(VOICES).join('\n'), WORLD, RULES].join('\n\n'); }

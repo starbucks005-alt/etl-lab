@@ -1,46 +1,221 @@
 {
-  "_note": "Stories from Reggie, Biscuit and Mochi, a first draft written 2026-10-23 for Dr. O to read. The places are real; the adventures and the peaches are made up. Biscuit tells them, Reggie lets her finish, Mochi gets one dry line.",
+  "_note": "Events from Reggie, Biscuit and Mochi, 2026-10-23. THE GREAT TRASH CAN MYSTERY is Dr. O's own text, verbatim, with only her name changed to the {name} token. It is the model for the others: Reggie, Biscuit and Mochi take turns, each remembers the same small event differently, and the day ends with a quiet scene and Mochi's smallest word. The other five are short drafts in that shape for her to rewrite. Facts to check are in facts.",
   "episodes": [
+    {
+      "id": "trash",
+      "place": "The Great Trash Can Mystery",
+      "beats": [
+        {
+          "who": "reggie",
+          "text": "\"OH OH OH!\"\n\"You're here!\"\n\"Okay, so you know how sometimes destiny happens?\"\nMochi looked up from his nap.\n\"It doesn't.\"\n\"It DOES.\"\nI ignored him because this is my story.\nAnyway.\nIt started at 9:14 in the morning.\nOr maybe 9:15.\nDefinitely morning.\nBiscuit and I were conducting neighborhood security operations.\n\"Sniffing,\" Mochi said.\nWe were conducting security operations when I detected something.\nSomething strange.\nSomething important.\nSomething magnificent.\nI stopped so suddenly Biscuit walked right into me.\n\"What is it, sugar?\" she asked.\nI raised my nose to the wind.\n\"There.\"\n\"What?\"\n\"That.\"\n\"What is 'that'?\"\n\"The smell.\"\nEverything went silent.\nEven the birds.\nWe all smelled it.\nA smell so incredible.\nSo mysterious.\nSo powerful.\nThat we knew immediately:\nAn adventure had begun."
+        },
+        {
+          "who": "biscuit",
+          "text": "Now {name}.\nLet me tell this proper.\nIt was a lovely morning.\nBlue sky.\nGentle breeze.\nThe kind of day that makes you grateful to have paws.\nThe three of us were enjoying a pleasant stroll when Reggie froze.\nNot unusual.\nReggie has stopped for dandelions.\nClouds.\nA particularly ambitious ant.\nSo naturally I thought nothing of it.\nThen I saw his face.\nWell.\nHis eyes got big.\nHis ears perked up.\nAnd I knew.\nTrouble had arrived.\n\"Do you smell that?\" asked Reggie.\nAnd honey...\nI surely did.\nThe breeze carried a scent so fascinating that I cannot adequately describe it.\nIt had notes of barbecue.\nA hint of pizza.\nPossibly cheese.\nAnd maybe...\nMaybe...\nHot dogs.\nThe smell drifted from a large green trash can behind a fence.\nA trash can, {name}.\nA trash can with stories to tell."
+        },
+        {
+          "who": "mochi",
+          "text": "Trash can."
+        },
+        {
+          "who": "reggie",
+          "text": "We approached carefully.\nVery carefully.\nLike explorers.\nOr detectives.\nOr detective explorers.\nThe smell got stronger.\nBiscuit gasped.\nI gasped.\nMochi didn't gasp because Mochi never gasps.\nHe barely participates.\n\"It could be anything,\" I whispered.\n\"Probably trash,\" said Mochi.\n\"It could be treasure.\"\n\"Trash.\"\n\"It could be evidence.\"\n\"Trash.\"\n\"It could be an international conspiracy.\"\n\"Trash.\"\nHonestly I don't know why he's like that."
+        },
+        {
+          "who": "biscuit",
+          "text": "Now I believe every mystery deserves respect.\nSo I examined the situation.\nThe fence was tall.\nThe gate was closed.\nThe trash can sat beyond our reach like some distant green monument.\nAnd that smell...\nMercy.\nThat smell was singing.\nCalling.\nInviting.\nPromising answers.\nReggie looked at me.\nI looked at Reggie.\nWe both looked at Mochi.\nMochi looked tired."
+        },
+        {
+          "who": "mochi",
+          "text": "I was tired."
+        },
+        {
+          "who": "reggie",
+          "text": "Then inspiration struck.\nA plan.\nA brilliant plan.\nOne of my best.\nTop ten easily.\nMaybe top five.\n\"Boost me.\"\nBiscuit squinted.\n\"I don't know about that.\"\n\"We need answers.\"\n\"We do not.\"\n\"We absolutely do.\"\nMochi sighed.\nThat should have been our warning."
+        },
+        {
+          "who": "biscuit",
+          "text": "Now when Mochi sighs like that, one of two things is happening.\nEither trouble is coming.\nOr trouble is already here.\nThis turned out to be both."
+        },
+        {
+          "who": "reggie",
+          "text": "Biscuit gave me a boost.\nI climbed onto a flower pot.\nThen onto a decorative rock.\nThen onto a garden statue.\nThen...\nThe statue tilted.\nThe flower pot tipped.\nThe rock moved.\nAnd suddenly I discovered gravity.\nAgain."
+        },
+        {
+          "who": "biscuit",
+          "text": "What happened next occurred very quickly.\nReggie fell.\nThe flower pot fell.\nThe statue fell.\nA watering can fell.\nThree rakes became involved for reasons still unclear."
+        },
+        {
+          "who": "mochi",
+          "text": "He fell."
+        },
+        {
+          "who": "reggie",
+          "text": "I DID NOT FALL.\nI strategically descended.\nUnexpectedly.\nAt speed."
+        },
+        {
+          "who": "biscuit",
+          "text": "The commotion brought a human outside.\nNow normally that might be concerning.\nBut this lovely person simply walked over to the trash can.\nOpened the lid.\nAnd revealed the source of our mystery."
+        },
+        {
+          "who": "reggie",
+          "text": "You know what was inside?\nYou'll never guess.\nNever.\nNot in a million years."
+        },
+        {
+          "who": "mochi",
+          "text": "Pizza."
+        },
+        {
+          "who": "reggie",
+          "text": "YES.\nPizza.\nAn entire pizza box.\nThe smell of legends.\nThe aroma of champions.\nThe treasure at the end of our journey."
+        },
+        {
+          "who": "biscuit",
+          "text": "And there we stood.\nThree explorers.\nOne mystery solved.\nOne friendship strengthened.\nOne flower pot sacrificed in the pursuit of truth.\nA very successful morning all around."
+        },
+        {
+          "who": "mochi",
+          "text": "We found pizza.\nReggie fell.\nThe end."
+        }
+      ],
+      "evening": "Reggie stretched across the living room.\n\"That was a great adventure.\"\n\"It was a trash can.\"\n\"It was a mystery.\"\n\"It was a trash can.\"\n\"It was BOTH.\"\nBiscuit smiled.\n\"I think the real treasure was spending the day together.\"\nSilence.\nMochi looked at both of them.\nThen gave the smallest nod.\n\"Yeah.\"\nReggie grinned.\nBiscuit smiled.\nAnd somehow that one word felt a lot bigger than all the others.",
+      "card": {
+        "front": "The Great Trash Can Mystery: one pizza box",
+        "back": "Reggie: It was BOTH. Biscuit: The real treasure was the day together. Mochi: Yeah."
+      },
+      "facts": []
+    },
+    {
+      "id": "squirrel",
+      "place": "The Great Squirrel Incident",
+      "beats": [
+        {
+          "who": "reggie",
+          "text": "\"OH OH OH!\"\n\"You have terrible timing!\"\nThe squirrel situation JUST escalated.\nIt was a BATTLE.\nHe came down the fence like a lightning bolt with a tail and I held the line.\nBiscuit was behind me.\nMochi was also there."
+        },
+        {
+          "who": "biscuit",
+          "text": "Well hello there, sweet pea. Come on in, {name}.\nI've got a story for you and it takes a little explainin'.\nA beautiful morning.\nDew on the grass.\nA bird somewhere doing scales.\nAnd on top of that fence sat a squirrel with a look on his face.\nReggie went to speak to him, politely.\nThe squirrel said something I won't repeat.\nSo I, being a lady, tried to negotiate.\nWe offered terms.\nWe offered a biscuit.\nThe talks, baby, did not go well."
+        },
+        {
+          "who": "mochi",
+          "text": "Squirrel won."
+        }
+      ],
+      "evening": "Reggie lay flat on the kitchen floor.\n\"That was a battle.\"\n\"Negotiation failed,\" said Biscuit.\nMochi did not open his eyes.\n\"Squirrel won.\"\nReggie thought about it for a long time.\n\"Okay, technically.\"\nBiscuit leaned against him, and Mochi, without a word, moved closer too.",
+      "card": {
+        "front": "The Great Squirrel Incident: negotiations failed",
+        "back": "Reggie: BATTLE. Biscuit: Negotiation failed. Mochi: Squirrel won."
+      },
+      "facts": [
+        "VERIFY: squirrels run along fences and wires, where a dog cannot follow"
+      ]
+    },
+    {
+      "id": "stick",
+      "place": "The Stick of Destiny",
+      "beats": [
+        {
+          "who": "reggie",
+          "text": "\"OH OH OH, YOU'RE HERE!\"\nIt was the BIGGEST STICK we've ever found!\nChosen by fate!\nIt was lying in the leaves like it was waiting for ME.\nI carried it nearly the whole way."
+        },
+        {
+          "who": "biscuit",
+          "text": "Well hello, sweet pea. Come in, {name}.\nNow this stick.\nRemarkable craftsmanship.\nA good six feet of oak, straight as a preacher, and the bark, baby, the bark had character.\nReggie found it, but I want you to know that I recognized it first, in my heart.\nAnd then we got to the gate.\nThe stick had its own opinions about the gate."
+        },
+        {
+          "who": "mochi",
+          "text": "Stick."
+        }
+      ],
+      "evening": "Reggie lay on the porch with his chin on the step.\n\"It was a good stick.\"\n\"Remarkable craftsmanship,\" said Biscuit.\nMochi did not lift his head.\n\"Stick.\"\nReggie smiled.\n\"The best one.\"\nMochi, very quietly, scooted over to make room.",
+      "card": {
+        "front": "The Stick of Destiny: too wide for the gate",
+        "back": "Reggie: Chosen by fate. Biscuit: Remarkable craftsmanship. Mochi: Stick."
+      },
+      "facts": [
+        "Dogs love to carry sticks"
+      ]
+    },
     {
       "id": "beach",
       "place": "The beach at low tide",
-      "text": "{name}! Okay, sit, sit, sit, this one is huge. The beach, at low tide, so the sea went away and left its whole floor out for us. Hard wet sand, cold under the paws, and the smell, oh, the smell. Salt, seaweed, and something that was either a crab or a very old sandwich. Gulls everywhere, shouting, and I shouted back. Okay so THEN. Mochi, who said he only came for the car ride, walked into a tide pool up to his belly and said, \"This is fine.\" Reggie had been tracking the crab for ten whole minutes, very serious, very low, like a detective. It was a shoe. He says it was a decoy shoe. Nobody argued. And then the humans said the word ice cream, and we all went home the long way, because Reggie says the long way is where the caper is. Gotta go, {name}, somebody just said the word walk.",
+      "beats": [
+        {
+          "who": "reggie",
+          "text": "\"OKAY, OKAY, OKAY!\"\nThe BEACH!\nThe sea left, and the whole bottom of it was just THERE.\nI tracked a crab for ten minutes, a crab with a plan.\nThen it turned out to be a shoe.\nA decoy shoe.\nThat is what I said."
+        },
+        {
+          "who": "biscuit",
+          "text": "Come on in, {name}. I've got a story for you.\nA beautiful afternoon at the shore.\nThe tide had gone out and left the sand hard and cold and shining.\nThe gulls were hollerin'.\nAnd the air tasted like salt and seaweed and something that was either a crab or a very old sandwich.\nReggie, lord love him, followed that something for ten solemn minutes, low to the ground, like a detective in a picture show."
+        },
+        {
+          "who": "mochi",
+          "text": "Shoe."
+        }
+      ],
+      "evening": "In the car on the way home, Reggie fell asleep with his head on Biscuit.\nMochi looked out the window.\n\"Best day of my life,\" Biscuit whispered.\nMochi did not turn around.\n\"Fine day.\"\nThen, a little later, \"Tide pool was good.\"",
       "card": {
         "front": "The beach at low tide: one crab, allegedly a shoe",
-        "back": "Biscuit: Best day of my LIFE. Reggie: The shoe was a decoy. Mochi: The water was fine. I was not excited."
+        "back": "Reggie: Decoy shoe. Biscuit: Best day of my life. Mochi: Shoe."
       },
       "facts": [
         "At low tide the sea pulls back and leaves tide pools in the sand",
-        "Gulls are loud",
-        "Beaches smell of salt and seaweed"
+        "Gulls are loud"
       ]
     },
     {
       "id": "ferry",
       "place": "The ferry",
-      "text": "{name}, you will not believe where the floor went. We got on a ferry, which is basically a road that floats, and the whole deck hummed under my paws, a big low hum I could feel in my teeth. Wind, salt, diesel, and somebody's french fries three rows over, I could have found those blindfolded. Okay so THEN. The floor moved. Not a lot. Enough. Mochi sat down flat in the middle of the deck and said he was not moving until we were on land and he would be making a formal complaint. Reggie had never been on a boat in his life and he took it like a captain: stood at the rail, ears back, nose up, reading every human on board. He picked out the one who was nervous and leaned on her leg the whole crossing. She said it helped. He says he knows. Gotta go, {name}, somebody just said the word walk.",
+      "beats": [
+        {
+          "who": "reggie",
+          "text": "\"YOU'RE HERE!\"\nYou will NOT believe where the floor went.\nWe were on a BOAT, a road that floats, my FIRST boat.\nI stood at the rail like a captain.\nThe nervous human on deck?\nI SAVED her.\nI leaned on her leg."
+        },
+        {
+          "who": "biscuit",
+          "text": "Well hello there, {name}. Come in, have a seat.\nIt was a ferry, and I do not mind sayin' it was the grandest thing.\nThe whole deck hummed under my paws, a low steady hum I felt in my teeth.\nSalt wind.\nA little diesel.\nAnd somewhere three rows over, somebody's french fries.\nAnd, baby, the floor moved.\nNot much.\nEnough.\nMochi sat down flat in the middle of the deck and declared he'd be filing a formal complaint."
+        },
+        {
+          "who": "mochi",
+          "text": "Floor moved."
+        }
+      ],
+      "evening": "That night all three were in a pile on the rug.\n\"My first boat,\" said Reggie, to nobody.\n\"The floor moved,\" said Mochi.\n\"It did,\" said Biscuit.\nMochi sighed.\n\"Wasn't bad.\"\nReggie was already asleep, smiling.",
       "card": {
         "front": "The ferry: a road that floats, officially",
-        "back": "Biscuit: The floor MOVED! Reggie: One nervous human, one leg, one crossing. Done. Mochi: I am filing a complaint."
+        "back": "Reggie: Rescued a human. Biscuit: The floor MOVED. Mochi: Floor moved."
       },
       "facts": [
-        "A ferry carries people and vehicles across water",
-        "Dogs can feel engine vibration",
-        "Dogs have a strong sense of smell"
+        "A ferry carries people and cars across water",
+        "Dogs can feel vibration through their paws"
       ]
     },
     {
       "id": "market",
       "place": "The farmers market",
-      "text": "{name}, okay, you have to understand, a farmers market is the whole world at nose height. Peaches. Cheese. Warm bread. A man frying something with onions. A woman with a table of honey, and I could smell the flowers the bees had visited. Okay so THEN. Mochi was handed a free sample of cheese by a stranger, and I want to say, he pretended he did not care, and then he followed that stranger for three stalls. Reggie, meanwhile, was working. One of the vendors was having a slow morning, you could tell, her shoulders were down, and he sat right in front of her table and looked up at her. Just looked. She laughed, and six people stopped to pet him, and by lunch she had sold every peach. He says that is what he does. I say I carried the peaches. I did not. Gotta go, {name}, somebody just said the word walk.",
+      "beats": [
+        {
+          "who": "reggie",
+          "text": "\"OKAY, OKAY, OKAY!\"\nThe MARKET!\nA whole parking lot of smells!\nThere was a sad table, a slow morning, and I fixed it.\nI sat there and I looked at her and SIX PEOPLE came over.\nShe sold every peach.\nEvery one."
+        },
+        {
+          "who": "biscuit",
+          "text": "Come on in, {name}. I've got a story for you.\nPeaches, baby.\nPeaches, and warm bread, and a man frying onions in a pan, and a lady with honey you could smell from the car.\nA farmers market is the whole world at nose height.\nAnd Reggie, my sweet friend, spotted a vendor having a slow mornin', shoulders down.\nHe sat himself right in front of her table.\nDidn't say a word.\nJust looked."
+        },
+        {
+          "who": "mochi",
+          "text": "Cheese sample. Acceptable."
+        }
+      ],
+      "evening": "Reggie told it again at dinner, to the humans, who did not understand a word.\nBiscuit narrated over him.\nMochi ate quietly, then looked up.\n\"Good day.\"\nReggie stopped mid-sentence and stared at him.\nMochi went back to his bowl.",
       "card": {
-        "front": "The farmers market: every smell at once",
-        "back": "Biscuit: PEACHES. Reggie: One sad table, six new friends, zero peaches left. Mochi: The cheese was acceptable."
+        "front": "The farmers market: one slow table, six new friends",
+        "back": "Reggie: Fixed her morning. Biscuit: PEACHES. Mochi: Cheese sample. Acceptable."
       },
       "facts": [
-        "A dog's nose is close to the height of market tables",
-        "Dogs have a very strong sense of smell",
-        "Farmers markets often allow leashed dogs"
+        "Farmers markets often allow leashed dogs",
+        "A dog's nose sits close to the height of market tables"
       ]
     }
   ]

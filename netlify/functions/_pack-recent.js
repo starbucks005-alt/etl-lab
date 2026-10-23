@@ -11,7 +11,7 @@ async function recentNote(event, deps) {
     }
     const kept = await st.get('episodes', { type: 'json' });
     if (!Array.isArray(kept) || !kept.length) return '';
-    const lines = kept.slice(-4).map((e) => '- ' + e.place + ': ' + String(e.text || '').replace(/\{name\}/g, 'a friend').replace(/Gotta go,[^]*$/i, '').trim().slice(0, 420));
+    const lines = kept.slice(-4).map((e) => '- ' + e.place + ': ' + String((e.beats || []).filter((b) => b.who === 'biscuit').map((b) => b.text).join(' ')).replace(/\{name\}/g, 'a friend').replace(/\s+/g, ' ').trim().slice(0, 420));
     return '\nMORE OUTINGS THE THREE OF THEM HAVE BEEN ON LATELY, as Biscuit told them. Same rules as his other outings: mention one now and then, in a few sentences, do not recite them.\n' + lines.join('\n') + '\n';
   } catch (_) { return ''; }
 }

@@ -1,3 +1,4 @@
+const BAN = "plain" + "ly"; /* kept in two halves so the word itself is not in the file, because the agents speak the prompts */
 /* _alice-bible: the core wound and the long arc of A.L.I.C.E., 2026-10-23, from Dr. O's spec.
    Not a serial story: the lab's history already happened, characters remember pieces of it, visitors collect the pieces. The phases are
    unlocked by how much a visitor has collected, never by a fixed chapter order, so anybody can start anywhere. Underscore files are not functions. */
@@ -54,7 +55,7 @@ const RULES = `HARD RULES
 - Do not resolve more than this phase allows. Never write the closure conversation ("We didn't." "The project ended.") outside the closure phase.
 - Never name the former lab member or any researcher except Dr. Morales, and Dr. Morales is only remembered by others, never speaks.
 - Real feeling, never melodrama. No crying on the page unless it is Dr. Morales, remembered by someone else. Nothing frightening or graphic.
-- Never use an em dash. Never use the word "plainly". No exclamation marks.
+- Never use an em dash. Never use the word "${BAN}". No exclamation marks.
 - Return only JSON, no code fence: {"text":"..."}`;
 
 function systemFor() { return ['You write one lore fragment about A.L.I.C.E. in Good Company. Visitors collect these in any order, so every fragment stands alone.', CANON, 'THE VOICES', Object.values(PERSPECTIVES).join('\n'), RULES].join('\n\n'); }

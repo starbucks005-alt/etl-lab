@@ -24,6 +24,12 @@
   .story { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 18px; box-shadow: 0 6px 18px var(--shadow); }
   .place { font: 700 .78rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
   .story p { margin: 0; white-space: pre-line; }
+  .beat { margin: 0 0 14px; padding-left: 12px; border-left: 4px solid var(--line); }
+  .beat .who { font: 700 .72rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 4px; color: var(--accent); }
+  .beat.reggie { border-color: #d9822b; } .beat.biscuit { border-color: #c9a227; } .beat.mochi { border-color: #6b7a8f; }
+  .beat.mochi p:last-child { font-style: italic; }
+  .evening { margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--line); color: var(--muted); }
+  .evening .who { font: 700 .72rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
   .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
   button { font: 600 .95rem ui-sans-serif, system-ui, sans-serif; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); padding: 11px 20px; min-height: 44px; cursor: pointer; }
   button.ghost { background: transparent; color: var(--accent); }
@@ -49,7 +55,7 @@
 
   <section class="story" id="story" aria-live="polite">
     <p class="place" id="place">Loading</p>
-    <p id="text">Biscuit is catching her breath.</p>
+    <div id="text"><p>Biscuit is catching her breath.</p></div>
     <div class="actions">
       <button id="next" type="button" hidden>Another one</button>
     </div>
@@ -102,7 +108,20 @@
 
   function show(ep) {
     $('place').textContent = ep.place;
-    $('text').textContent = fill(ep.text);
+    var box = $('text'); box.innerHTML = '';
+    var NAMES = { reggie: 'Reggie', biscuit: 'Biscuit', mochi: 'Mochi' };
+    (ep.beats || []).forEach(function (b) {
+      var d = document.createElement('div'); d.className = 'beat ' + b.who;
+      var w = document.createElement('p'); w.className = 'who'; w.textContent = NAMES[b.who] || b.who;
+      var t = document.createElement('p'); t.textContent = fill(b.text);
+      d.appendChild(w); d.appendChild(t); box.appendChild(d);
+    });
+    if (ep.evening) {
+      var ev = document.createElement('div'); ev.className = 'evening';
+      var ew = document.createElement('p'); ew.className = 'who'; ew.textContent = 'Later that evening';
+      var et = document.createElement('p'); et.textContent = fill(ep.evening);
+      ev.appendChild(ew); ev.appendChild(et); box.appendChild(ev);
+    }
     var pc = $('postcard'); pc.innerHTML = ''; pc.appendChild(cardEl({ front: fill(ep.card.front), back: fill(ep.card.back) }));
     if (seen.indexOf(ep.id) === -1) { seen.push(ep.id); save(SEEN, seen); cards.push({ id: ep.id, card: { front: fill(ep.card.front), back: fill(ep.card.back) } }); save(CARDS, cards); }
     renderWall();

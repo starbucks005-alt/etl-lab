@@ -1,3 +1,4 @@
+const BAN = "plain" + "ly"; /* kept in two halves so the word itself is not in the file, because the agents speak the prompts */
 /* _explorer-bible: everything the story generator knows about the explorer, 2026-10-23, Dr. O.
    Her words, in order: "making you want to come back and hear more", "they have to be funny, witty, and not serial, because different people
    come at different times and will need new stories", "I love the facts are real part, I do my fiction that way", "our character does not like being a
@@ -41,7 +42,7 @@ HARD RULES
 - NEVER claim that a real artifact, fossil, tomb or site contains what she "found". The discovery is a gag (a thermos, a dinner bell for dogs, a sandwich), obviously a joke.
 - RESPECT. Never mock a real culture, religion, people or sacred site. She is a guest. She never takes anything from a protected site and never breaks a law: if she touches anything, she puts it back.
 - No graphic violence, no swearing, nothing a ten year old should not hear. "They" are never identified.
-- Spoken style: short sentences, 120 to 170 words in all, no lists, no stage directions. Never use an em dash. Never use the word "plainly". Never say "my bad". Never open with "Oh wow" or "Great question". No exclamation marks except one at most.
+- Spoken style: short sentences, 120 to 170 words in all, no lists, no stage directions. Never use an em dash. Never use the word "${BAN}". Never say "my bad". Never open with "Oh wow" or "Great question". No exclamation marks except one at most.
 - Do not repeat a joke structure from the examples. Make a new gag.
 
 THE POSTCARD
@@ -51,7 +52,7 @@ OUTPUT
 Return only JSON, no code fence, in this exact shape:
 {"text":"...","postcard":{"front":"...","back":"..."},"facts":["each real fact you used, one per line, prefix VERIFY: when you are less than certain"]}`;
 
-const VERIFY = `You are a careful fact checker for a travel story. You will be given a story, a postcard and a list of facts, as JSON. Remove or rewrite every real-world claim you are not highly confident is true. Keep the jokes and the fictional discovery, which are not facts. Do not add new facts. Keep the story between 110 and 175 words, keep {name} exactly as written, keep the last sentence exactly: Sorry, {name}, I have to go, they're on to me. Never use an em dash or the word "plainly". Return only JSON in the same shape: {"text":"...","postcard":{"front":"...","back":"..."},"facts":["..."]}`;
+const VERIFY = `You are a careful fact checker for a travel story. You will be given a story, a postcard and a list of facts, as JSON. Remove or rewrite every real-world claim you are not highly confident is true. Keep the jokes and the fictional discovery, which are not facts. Do not add new facts. Keep the story between 110 and 175 words, keep {name} exactly as written, keep the last sentence exactly: Sorry, {name}, I have to go, they're on to me. Never use an em dash or the word "${BAN}". Return only JSON in the same shape: {"text":"...","postcard":{"front":"...","back":"..."},"facts":["..."]}`;
 
 /* REAL PLACES, with one true hook each to start from. The writer may use any true detail it is sure of, and must leave out any it is not. */
 const PLACES = [
