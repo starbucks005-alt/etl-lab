@@ -5438,7 +5438,7 @@ function speak(text, voiceId, onDone, bubble) {
     if (!j || !j.audio) {
       /* Says which problem rather than failing silently, and only once: a
          missing voice key should not nag on every single line. */
-      if (!speak._warned) { speak._warned = true; post("Not wired yet", "Could not fetch his voice: " + ((j && j.error) || "unknown") + ". Text still works."); }
+      if (!speak._warned) { speak._warned = true; post("Not wired yet", "Could not fetch " + (/woman/i.test(FRIEND.gender || "") ? "her" : /man/i.test(FRIEND.gender || "") ? "his" : "the") + " voice: " + ((j && j.error) || "unknown") + ". Text still works."); }
       if (onDone) onDone();
       return;
     }
