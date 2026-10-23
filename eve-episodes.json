@@ -1,0 +1,54 @@
+{
+  "_note": "Eve Black episodes, a first draft written 2026-10-23 for Dr. O to read. Not wired to anything yet. Characters used lightly from the books (Eve, her husband Franklin, Jackson). Real facts to verify are marked VERIFY. Nothing here describes how to do anything harmful.",
+  "exit": "I have to go, {name}. There is a car outside that has been idling for eleven minutes.",
+  "episodes": [
+    {
+      "id": "the-legend",
+      "place": "The legend",
+      "text": "{name}, come in, shut the door, and do not mention my coffee. In the Bureau, a cover identity is called a legend, and the dull details are what hold it up. Where you grew up. What you drink. How you sign your name. I was a visiting professor at a conference that week, and my legend drank tea. Black tea, two sugars, a person with an opinion about steeping. The first morning I walked up to the counter and heard myself say, \"Large coffee, black.\" The barista looked at me for a very long time. I said, \"It is a medical thing.\" He wrote it on the cup like a diagnosis. For four days, strangers brought me tea. I drank all of it. I hate tea. The cover held, though. Nobody doubted a woman who suffered for her story. I have to go, {name}. There is a car outside that has been idling for eleven minutes.",
+      "card": {
+        "front": "Case file: The legend, two sugars",
+        "back": "A cover is built from small boring facts. The one you forget is the one that gets you. I have since learned to like tea. Do not tell anyone."
+      },
+      "facts": [
+        "VERIFY: law enforcement calls a cover identity a legend",
+        "VERIFY: undercover cover identities are built from ordinary personal details"
+      ]
+    },
+    {
+      "id": "baseline",
+      "place": "Baseline",
+      "text": "{name}, sit, I want to tell you the most boring useful thing I know. People who read behavior for a living do not look for a lying face. They look for a change from that person's own normal, which is called a baseline. One man's fidgeting is another man's Tuesday. So, a school bake sale, a Saturday. Franklin, my husband, a man who narrates his own sandwiches, had gone quiet. Checked his phone twice. Refused a brownie, which is a medical event. I said, \"What are you hiding?\" He said, \"Nothing,\" in a voice one tone too high. I followed him to the garage, ready for anything. It was a banner. It said happy birthday. It was for me, I am told, and it was spelled wrong. I have never been more relieved or more insulted. I have to go, {name}. There is a car outside that has been idling for eleven minutes.",
+      "card": {
+        "front": "Case file: Baseline, one wrong banner",
+        "back": "Look for the change from normal, not for a tell. Franklin's normal is talking. When he stops, either something is wrong or something is being made for me."
+      },
+      "facts": [
+        "VERIFY: behavior analysts compare a person's behavior to their own baseline rather than looking for a single universal tell"
+      ]
+    },
+    {
+      "id": "the-rota",
+      "place": "The rota",
+      "text": "{name}, here is something nobody puts on my file. I grew up in a house with a lot of people and one bathroom, which means I learned to run a meeting before I learned to ride a bike. We had a rota for everything. Dishes, laundry, who got the hot water. So, the stakeout. Four of us, one car, all night, all of us hungry, all of us politely saying, \"I do not mind, whatever you want.\" I know that sentence. It is how a house starves. I said, \"Everyone name one food, one only, and the loudest person loses.\" We were eating in six minutes. Jackson, who has seen worse in his life than a car full of agents, said it was the most dangerous thing he had seen me do. We got dumplings. Nobody got hurt. I have to go, {name}. There is a car outside that has been idling for eleven minutes.",
+      "card": {
+        "front": "Case file: The rota, dumplings",
+        "back": "A commune teaches you one thing for life: if nobody decides, everybody sulks. The loudest person loses. It works in cars too."
+      },
+      "facts": []
+    },
+    {
+      "id": "hogans-alley",
+      "place": "Quantico",
+      "text": "{name}, there is a little town in Virginia that does not exist, and I have been arrested in it. The FBI Academy at Quantico has a training set called Hogan's Alley, a pretend main street with a bank, a hotel, a few storefronts, where new agents practice on actors. I was there as a visitor, in sensible shoes, watching trainees. One of them took a very serious interest in the delivery driver, decided something was off about him, and went at him with the whole speech. The driver was real. He had just come to drop off a pallet of printer paper. He signed the form, handed it back, and said, \"Do I get a receipt?\" I looked at the trainee. The trainee looked at the floor. I told him it was the best save I had seen all week. I have to go, {name}. There is a car outside that has been idling for eleven minutes.",
+      "card": {
+        "front": "Case file: Hogan's Alley, one pallet of paper",
+        "back": "The town is fake. The mistakes are real. That is what it is for. Everyone on that street, including the driver, was kind about it."
+      },
+      "facts": [
+        "VERIFY: the FBI Academy is at Quantico, Virginia",
+        "VERIFY: Hogan's Alley is a mock town used for training at the FBI Academy"
+      ]
+    }
+  ]
+}
