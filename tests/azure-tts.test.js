@@ -9,6 +9,10 @@ const { azureVoiceName, azureSpeak, ssml } = require('../netlify/functions/_azur
   const s = ssml('Tom & "Jerry" <hi> it\'s fine', 'en-US-ChristopherMultilingualNeural');
   assert(s.includes("xml:lang='en-US'") && s.includes("name='en-US-ChristopherMultilingualNeural'"));
   assert(s.includes('Tom &amp; &quot;Jerry&quot; &lt;hi&gt; it&apos;s fine') && !s.includes('<hi>'));   // nothing in the text can break out of the SSML
+  assert.strictEqual(azureVoiceName('azure:en-US-AvaMultilingualNeural@en-GB'), 'en-US-AvaMultilingualNeural@en-GB');   // language tag kept
+  assert.strictEqual(azureVoiceName('azure:en-US-AvaMultilingualNeural@x'), null);
+  const g = ssml('Hello', 'en-US-AvaMultilingualNeural@en-GB');
+  assert(g.includes("xml:lang='en-GB'") && g.includes("name='en-US-AvaMultilingualNeural'") && !g.includes('@'));
   let seen;
   const fetchFn = async (url, o) => { seen = { url, o }; return { ok: true, arrayBuffer: async () => Buffer.from('mp3bytes') }; };
   const buf = await azureSpeak('Hello there.', 'en-US-ChristopherMultilingualNeural', { fetchFn, env: { AZURE_SPEECH_KEY: 'test-key', AZURE_SPEECH_REGION: 'eastus' } });

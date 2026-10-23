@@ -7,7 +7,7 @@
    If the key is not set, or Azure says no, azureSpeak() throws and gc-voice.js falls back to the ElevenLabs voice that was used before, so nobody goes silent.
 
    Not tried against the real Azure service from here; the request shape follows Azure's published text to speech REST call. */
-const NAME_RE = /^azure:([A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]{3,60})$/;
+const NAME_RE = /^azure:([A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]{3,60}(?:@[A-Za-z]{2}-[A-Za-z]{2})?)$/;
 
 function azureVoiceName(voiceId) {
   const m = NAME_RE.exec(String(voiceId || ''));
@@ -18,9 +18,12 @@ function escapeXml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
+/* 2026-10-23, Dr. O (Kit): an id may end in @en-GB. A Multilingual voice then speaks that language setting, so Ava (en-US) can have a British accent. Without the tag the voice's own language is used, as before. */
 function ssml(text, voiceName) {
-  const lang = voiceName.split('-').slice(0, 2).join('-');
-  return `<speak version='1.0' xml:lang='${lang}'><voice name='${voiceName}'>${escapeXml(text)}</voice></speak>`;
+  const parts = String(voiceName).split('@');
+  const name = parts[0];
+  const lang = parts[1] || name.split('-').slice(0, 2).join('-');
+  return `<speak version='1.0' xml:lang='${lang}'><voice name='${name}'>${escapeXml(text)}</voice></speak>`;
 }
 
 /* Returns a Buffer of mp3 audio. fetchFn and env are passed in so it can be tested without the network. */
