@@ -326,6 +326,8 @@ function buildSystem(friend, you, idle, scene, room, spectate) {
   /* Last, and therefore closest to the reply: the boundary is his life, not a policy. */
   if (f.now)        bits.push(f.now);
   if (f.underneath) bits.push(f.underneath);
+  /* Reggie's outings (gc-friend.js), 2026-10-23. */
+  if (f.adventures) bits.push(f.adventures);
   /* Last, and therefore closest to the reply. */
   /* THE LIMIT ON WHAT THEY KNOW, LAST, WITH THE OTHER HARD ONES. Knowing a lot
      makes this MORE necessary rather than less: somebody worried about a real
