@@ -13,6 +13,9 @@ const { azureVoiceName, azureSpeak, ssml } = require('../netlify/functions/_azur
   assert.strictEqual(azureVoiceName('azure:en-US-AvaMultilingualNeural@x'), null);
   const g = ssml('Hello', 'en-US-AvaMultilingualNeural@en-GB');
   assert(g.includes("xml:lang='en-GB'") && g.includes("name='en-US-AvaMultilingualNeural'") && !g.includes('@'));
+  assert.strictEqual(azureVoiceName('azure:en-GB-Ada:DragonHDLatestNeural'), 'en-GB-Ada:DragonHDLatestNeural');   // an HD voice name has a colon
+  assert.strictEqual(azureVoiceName('azure:en-GB-Ada:'), null);
+  assert.strictEqual(azureVoiceName('azure:en-GB-Ada:x:y'), null);
   let seen;
   const fetchFn = async (url, o) => { seen = { url, o }; return { ok: true, arrayBuffer: async () => Buffer.from('mp3bytes') }; };
   const buf = await azureSpeak('Hello there.', 'en-US-ChristopherMultilingualNeural', { fetchFn, env: { AZURE_SPEECH_KEY: 'test-key', AZURE_SPEECH_REGION: 'eastus' } });

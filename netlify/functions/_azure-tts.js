@@ -7,7 +7,7 @@
    If the key is not set, or Azure says no, azureSpeak() throws and gc-voice.js falls back to the ElevenLabs voice that was used before, so nobody goes silent.
 
    Not tried against the real Azure service from here; the request shape follows Azure's published text to speech REST call. */
-const NAME_RE = /^azure:([A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]{3,60}(?:@[A-Za-z]{2}-[A-Za-z]{2})?)$/;
+const NAME_RE = /^azure:([A-Za-z]{2}-[A-Za-z]{2}-[A-Za-z0-9]{3,60}(?::[A-Za-z0-9]{3,60})?(?:@[A-Za-z]{2}-[A-Za-z]{2})?)$/;
 
 function azureVoiceName(voiceId) {
   const m = NAME_RE.exec(String(voiceId || ''));

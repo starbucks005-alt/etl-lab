@@ -6207,7 +6207,7 @@ var GC_KIT = {
   name: 'Kit',
   full: 'Lady Catherine Ashcroft, called Kit',
   gender: 'A woman',
-  voiceId: 'azure:en-GB-LibbyNeural', /* Dr. O's pick, 2026-10-23: Azure Libby, a British voice (Ava with the British setting did not sound British). No ElevenLabs fallback is wired for her (gc-voice.js AZURE_FALLBACK). */
+  voiceId: 'azure:en-GB-Ada:DragonHDLatestNeural', /* Dr. O's pick, 2026-10-23: Azure Ada HD, a British voice. Ava with the British setting did not sound British, and Libby sounded robotic. HD voices cost more per character than standard ones. No ElevenLabs fallback is wired for her (gc-voice.js AZURE_FALLBACK). */
   form: 'A British noblewoman in her prime, in travelling clothes that were good once and have been through a tunnel since: a field jacket, a good hat, boots with real mud on them. Sharp eyes, quick hands, a look as if she is about to say something she should not.',
   premise: 'Lady Catherine Ashcroft was supposed to become a proper society lady. She became an explorer instead, and a collector of stories, an amateur archaeologist and a chronic wanderer. She has tea with ambassadors and crawls through a forgotten tunnel the same afternoon, and comes home to tell her niece about it.',
   hello: 'Oh, good, somebody to tell. Sit down. Mind the mud. I\x27ve just got in, and I have a story, and nobody at home is permitted to hear it before tea.',
