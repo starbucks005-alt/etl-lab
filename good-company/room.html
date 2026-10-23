@@ -535,6 +535,8 @@ html{ zoom:90%; }
        Tansy specifically (see nameEverything()), not a general capability
        every companion has yet. -->
   <a class="btn" id="arLink" href="ar.html" style="display:none; text-decoration:none;">&#128241; In your room</a>
+  <!-- Kit only, 2026-10-23, Dr. O. The stories page stays noindex until she says otherwise. -->
+  <a class="btn" id="kitStories" href="../explorer.html" style="display:none; text-decoration:none;">What has Kit been up to?</a>
   <button class="btn" id="fsBtn" type="button">&#9974; Fullscreen</button>
   <button class="btn" id="closeBtn" type="button">&times; Close</button>
 </div>
@@ -899,6 +901,7 @@ function nameEverything() {
   document.title = 'Good Company: ' + FRIEND.name;
   /* Pilot, Tansy only -- see the button's own note above .chrome. */
   $('arLink').style.display = (FRIEND.name === 'Tansy') ? '' : 'none';
+  $('kitStories').style.display = (FRIEND.name === 'Kit') ? '' : 'none';
   /* THE AR INVITATION UNDER THE SCENES, added 2026-10-11 (see .ar-invite). Shown for a house
      companion that has a color/matte pair in ar.html's registry, pointed at that companion by
      ?who=. A friend somebody built never has one, and absence never resolves to a link: no

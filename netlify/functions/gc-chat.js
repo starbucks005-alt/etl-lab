@@ -106,6 +106,7 @@ const DAILY_FREE_LIMIT  = 15;  // free messages/day with a house demo, matching 
 /* 2026-10-16: more tester keys can be added without touching the code: a Netlify environment setting called GC_TESTER_KEYS, one key or several separated by commas. */
 const gcConfig = require('./_gc-config.js');
 const packRecent = require('./_pack-recent.js');
+const explorerRecent = require('./_explorer-recent.js');
 const GC_TESTER_KEYS = ['pookie-test-2026'].concat(String(process.env.GC_TESTER_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean));
 
 function safeVisitorId(v) {
@@ -1399,7 +1400,9 @@ exports.handler = async function (event) {
   const staticSystem = buildSystem(friendForPrompt, you, idle, body.scene, body.room, spectate);
   /* Reggie only: outings the pack-story generator has written since his three seed ones (2026-10-23). */
   const packNote = activeFriend && activeFriend.name === 'Reggie' ? await packRecent.recentNote(event) : '';
-  const dynamicSystem = packNote + when.nowNote(activeFriend, new Date()) + web.pageNote(pages) + headlinesNote(liveHeadlines) + [
+  /* Kit learns the stories she has just told, 2026-10-23, Dr. O. Empty when the store is empty or down. */
+  const kitNote = activeFriend && activeFriend.name === 'Kit' ? await explorerRecent.recentNote(event) : '';
+  const dynamicSystem = packNote + kitNote + when.nowNote(activeFriend, new Date()) + web.pageNote(pages) + headlinesNote(liveHeadlines) + [
     '',
     'AFTER your reply, on its own last line, write:',
     /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read
