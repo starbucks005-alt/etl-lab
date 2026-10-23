@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Fairy Lore | Emerging Technologies Laboratory</title>
+<meta name="description" content="Pieces of the fairies' history, collected in any order.">
+<style>
+  /* FIRST DRAFT, 2026-10-23, for Dr. O to read. Not linked from anywhere and not indexed. */
+  :root { --bg:#eef3ea; --paper:#fbfdf8; --ink:#1f2b21; --muted:#5d6f5f; --line:#cfdcc9; --accent:#6a4aa8; --accent-ink:#fff; --shadow:rgba(30,50,30,.15); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141a16; --paper:#1e2620; --ink:#e8f0e6; --muted:#a2b5a4; --line:#34443a; --accent:#b79cf0; --accent-ink:#141a16; --shadow:rgba(0,0,0,.5); } }
+  :root[data-theme="dark"] { --bg:#141a16; --paper:#1e2620; --ink:#e8f0e6; --muted:#a2b5a4; --line:#34443a; --accent:#b79cf0; --accent-ink:#141a16; --shadow:rgba(0,0,0,.5); }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:18px/1.6 Georgia,"Iowan Old Style","Times New Roman",serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:28px 16px 64px; }
+  h1 { font-size:clamp(1.7rem,5vw,2.3rem); line-height:1.15; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 24px; }
+  .frag { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 6px 18px var(--shadow); }
+  .who { font:700 .78rem/1 ui-sans-serif,system-ui,sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 12px; }
+  .frag p.t { margin:0; white-space:pre-line; }
+  .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  button { font:600 .95rem ui-sans-serif,system-ui,sans-serif; border-radius:999px; border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); padding:11px 20px; min-height:44px; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--accent); }
+  button[aria-pressed="true"] { outline:2px solid var(--ink); }
+  button:focus-visible { outline:3px solid var(--ink); outline-offset:2px; }
+  h2 { font-size:1.15rem; margin:34px 0 10px; }
+  .filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .shelf { display:grid; gap:12px; }
+  .item { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .item .who { margin-bottom:6px; }
+  .item p { margin:0; white-space:pre-line; font-size:.97rem; }
+  .empty, .note { color:var(--muted); }
+  .note { font-size:.9rem; margin-top:28px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>The fairies were here before you</h1>
+  <p class="sub">Nobody tells it in order. Everyone remembers a piece. Collect what you hear.</p>
+
+  <section class="frag" aria-live="polite">
+    <p class="who" id="who">Listening</p>
+    <p class="t" id="text">The forest is quiet, for now.</p>
+    <div class="actions"><button id="more" type="button">Listen again</button></div>
+  </section>
+
+  <h2>What you have collected <span id="count" class="empty"></span></h2>
+  <div class="filters" id="filters" role="group" aria-label="Filter by who remembers it"></div>
+  <div class="shelf" id="shelf"><p class="empty">Nothing yet. Listen, and the first piece lands here.</p></div>
+
+  <p class="note">A first draft. The fairies and their history are made up.</p>
+</main>
+<script>
+(function () {
+  var KEY = 'fairy_collected';
+  var NAMES = { tansy: 'Tansy', poppy: 'Poppy', blue: 'Blue', mother: 'Their mother', narrator: 'It is said' };
+  var $ = function (id) { return document.getElementById(id); };
+  function load() { try { var v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+  function save(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+  var got = load(), filter = 'all';
+
+  function render() {
+    $('count').textContent = got.length ? '(' + got.length + ')' : '';
+    var f = $('filters'); f.innerHTML = '';
+    if (got.length) ['all', 'tansy', 'poppy', 'blue', 'mother', 'narrator'].forEach(function (k) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'ghost';
+      b.textContent = k === 'all' ? 'All' : NAMES[k]; b.setAttribute('aria-pressed', String(filter === k));
+      b.addEventListener('click', function () { filter = k; render(); }); f.appendChild(b);
+    });
+    var s = $('shelf'); s.innerHTML = '';
+    var list = got.filter(function (g) { return filter === 'all' || g.perspective === filter; }).slice().reverse();
+    if (!list.length) { var p = document.createElement('p'); p.className = 'empty'; p.textContent = got.length ? 'Nothing from them yet.' : 'Nothing yet. Listen, and the first piece lands here.'; s.appendChild(p); return; }
+    list.forEach(function (g) {
+      var d = document.createElement('div'); d.className = 'item';
+      var w = document.createElement('p'); w.className = 'who'; w.textContent = NAMES[g.perspective] || 'It is said';
+      var t = document.createElement('p'); t.textContent = g.text; d.appendChild(w); d.appendChild(t); s.appendChild(d);
+    });
+  }
+
+  function show(g) {
+    $('who').textContent = NAMES[g.perspective] || 'It is said';
+    $('text').textContent = g.text;
+    if (!got.some(function (x) { return x.id === g.id; })) { got.push({ id: g.id, perspective: g.perspective, text: g.text }); save(got); }
+    render();
+  }
+  function done() { $('who').textContent = 'The forest'; $('text').textContent = 'You have heard everything they are willing to say for now. Come back after the next rain.'; $('more').hidden = true; }
+
+  function listen() {
+    $('more').disabled = true;
+    var ids = got.map(function (g) { return g.id; });
+    return fetch('/.netlify/functions/fairy-lore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seen: ids }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j && j.fragment) show(j.fragment); else done(); })
+      .catch(function () { $('who').textContent = 'Far away'; $('text').textContent = 'The forest could not be reached. Try again in a minute.'; })
+      .then(function () { $('more').disabled = false; });
+  }
+  $('more').addEventListener('click', listen);
+  render(); listen();
+})();
+</script>
+</body>
+</html>

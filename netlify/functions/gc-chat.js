@@ -329,6 +329,8 @@ function buildSystem(friend, you, idle, scene, room, spectate) {
   if (f.underneath) bits.push(f.underneath);
   /* Reggie's outings (gc-friend.js), 2026-10-23. */
   if (f.adventures) bits.push(f.adventures);
+  /* The Human Summer (Tansy, Poppy, Blue), 2026-10-23. */
+  if (f.humanSummer) bits.push(f.humanSummer);
   /* Last, and therefore closest to the reply. */
   /* THE LIMIT ON WHAT THEY KNOW, LAST, WITH THE OTHER HARD ONES. Knowing a lot
      makes this MORE necessary rather than less: somebody worried about a real

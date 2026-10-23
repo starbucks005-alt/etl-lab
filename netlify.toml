@@ -56,6 +56,11 @@
   timeout = 60
   included_files = ["pack-episodes.json"]
 
+# The fairies' living history (Human Summer lore fragments). One short model call when a new fragment is written; seeds travel with it.
+[functions."fairy-lore"]
+  timeout = 30
+  included_files = ["fairy-fragments.json"]
+
 # THE HARVEST CIRCUIT. A partner now checks a real source before answering
 # (up to a few seconds), and Vic's wine-list photo turns run on Sonnet. Past the
 # default ten seconds that surfaces as a 504, so give it the same room.
