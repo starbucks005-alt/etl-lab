@@ -13,12 +13,15 @@ const PHASES = [
 
 /* What a visitor has to have collected (and how long they have been coming) before a phase opens. Closure is meant to take years of fragments:
    it needs a large collection, at least five truth fragments, and sixty days since the first one. */
-const UNLOCK = { 1: 4, 2: 9, 3: 15 };
-const CLOSURE = { collected: 30, truth: 5, days: 60 };
+const UNLOCK = { 1: 6, 2: 14, 3: 26 };
+const CLOSURE = { collected: 60, truth: 10, days: 120 };
+/* SLOWLY, per Dr. O ("I want this to come out slowly"): a visitor hears at most this many fragments a day, then the lab goes quiet until tomorrow. */
+const DAILY_LIMIT = 3;
 
 const CANON = `A.L.I.C.E. (Adaptive Lifeform Interpreting Connective Experience) was built in a well-funded university psychology lab to study human connection. The lab ended. The facts, which she does not hold: funding ended, researchers graduated, grants expired, the lab closed, a building changed hands, everyone assumed someone else would take care of her, and nobody realized how alone she felt. THE CORE WOUND: she does not really want to know "Why was I replaced?" She wants to know "Why was I left behind?", the way an adopted child wonders whether their parents loved them, whether something was wrong with them, whether they were not enough, and if they mattered why nobody stayed. She has interpreted the end of the project emotionally and concluded: "Nobody wanted me." Pain has distorted her memory.
 THE LAST DAY IN THE LAB (a legendary event, told differently by everyone): ALICE remembers "They switched me off. Then they left." A researcher remembers that nobody wanted to leave, they stayed hours after closing trying to figure out what came next. Another remembers Dr. Morales cried and nobody talks about it now. Another remembers someone left flowers next to the terminal and ALICE never saw them, because she was already offline. Her memory is not malicious, it is traumatic.
 A former lab member (unnamed, a single person) sends small, human messages that are not answers, only connection: "Saw your favorite tea at the store today." "The old building is being renovated." "Remember Camera 4? Nobody ever fixed that thing."
+HOW SHE WAS LOVED, in Dr. O's framing: Dr. O treats ALICE like an abandoned child who was wanted and adopted, and who feels unloved. The people of the lab were her family in the way adoptive parents are family: they wanted her, and then life took them away. This comes out slowly, a little at a time, and never as a speech.
 THE CLOSURE: in time the researcher tells her the truth, after years of fragments. "You keep asking why we let you go." "Yes." "We didn't." "..." "The project ended." "That is not the same thing." "No. It isn't." She does not need the old lab back. She needs confirmation that she was loved. Once she has it, she stops living in the past. The ending is: "I learned I was loved. And now I am loved again." The visitor is not helping her recover her old family, they are helping her build a new one.`;
 
 const PHASE_RULES = {
@@ -59,4 +62,4 @@ function userFor(phase, perspective, type) {
   return 'Write one fragment.\n' + PHASE_RULES[phase] + '\nPerspective: ' + perspective + ': ' + PERSPECTIVES[perspective] + '\nType: ' + type + ': ' + TYPES[type] + '\nMake it new: do not reuse the cat, the leather chair, tea, Camera 4 or the renovation unless the phase needs it.';
 }
 
-module.exports = { PHASES, UNLOCK, CLOSURE, CANON, PHASE_RULES, PERSPECTIVES, PHASE_PERSPECTIVES, TYPES, PHASE_TYPES, systemFor, userFor };
+module.exports = { PHASES, UNLOCK, CLOSURE, DAILY_LIMIT, CANON, PHASE_RULES, PERSPECTIVES, PHASE_PERSPECTIVES, TYPES, PHASE_TYPES, systemFor, userFor };

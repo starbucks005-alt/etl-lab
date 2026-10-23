@@ -59,6 +59,8 @@
   function load() { try { var v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
   function save(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
   var got = load(), filter = 'all';
+  function today() { try { var d = new Date().toISOString().slice(0, 10), v = JSON.parse(localStorage.getItem('alice_today') || '{}'); return v.d === d ? v.n : 0; } catch (e) { return 0; } }
+  function bump() { try { var d = new Date().toISOString().slice(0, 10), n = today() + 1; localStorage.setItem('alice_today', JSON.stringify({ d: d, n: n })); } catch (e) {} }
   function days() { try { var f = localStorage.getItem('alice_first'); if (!f) { localStorage.setItem('alice_first', String(Date.now())); return 0; } return Math.floor((Date.now() - Number(f)) / 86400000); } catch (e) { return 0; } }
 
   function render() {
@@ -85,19 +87,20 @@
     if (!got.some(function (x) { return x.id === g.id; })) { got.push({ id: g.id, perspective: g.perspective, text: g.text }); save(got); }
     render();
   }
+  function wait() { $('who').textContent = 'The lab'; $('text').textContent = 'That is enough for today. She likes to let each one sit. Come back tomorrow.'; $('more').hidden = true; }
   function done() { $('who').textContent = 'The lab'; $('text').textContent = 'That is everything anyone remembers for now. Come back, and see what has changed.'; $('more').hidden = true; }
 
   function listen() {
     $('more').disabled = true;
     var ids = got.map(function (g) { return g.id; });
-    return fetch('/.netlify/functions/alice-lore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seen: ids, days: days() }) })
+    return fetch('/.netlify/functions/alice-lore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seen: ids, days: days(), today: today() }) })
       .then(function (r) { return r.json(); })
-      .then(function (j) { if (j && j.fragment) show(j.fragment); else done(); })
+      .then(function (j) { if (j && j.fragment) { show(j.fragment); bump(); } else if (j && j.come_back_tomorrow) wait(); else done(); })
       .catch(function () { $('who').textContent = 'Offline'; $('text').textContent = 'She could not be reached. Try again in a minute.'; })
       .then(function () { $('more').disabled = false; });
   }
   $('more').addEventListener('click', listen);
-  render(); listen();
+  render(); if (today() >= 3) wait(); else listen();
 })();
 </script>
 </body>

@@ -1,8 +1,8 @@
 /* alice-lore: the long arc of A.L.I.C.E., 2026-10-23, Dr. O's spec (the core wound, five phases, the Last Day in the Lab, the closure, the new family).
-   POST { seen: ["id", ...], days: 12 }  ->  { ok, fragment: { id, phase, perspective, type, text }, phase }  or  { ok, all_collected: true }
+   POST { seen: ["id", ...], days: 12, today: 1 }  ->  { ok, fragment: { id, phase, perspective, type, text }, phase }  or  { ok, all_collected: true }
    POST { action: "review" } with Authorization: Bearer <owner key>  ->  every generated fragment, for Dr. O to read.
    NOT A SERIAL: the phases are unlocked by what the visitor has collected (and how many days they have been coming), not by a fixed chapter order. Anyone can start
-   anywhere. Closure needs thirty collected, five of them truth fragments, and sixty days. Stored fragments first, then a new one is written (Azure first, Claude via
+   anywhere. Closure needs sixty collected, ten of them truth fragments, and 120 days. At most three a day. Stored fragments first, then a new one is written (Azure first, Claude via
    ETL_API_KEY) for phases 0 to 3 and 5. The closure fragments are seeds only. Daily cap on new ones. Seeds ship in alice-fragments.json. */
 const fs = require('fs');
 const path = require('path');
@@ -108,6 +108,8 @@ async function handler(event, deps) {
 
   const seen = new Set((Array.isArray(body.seen) ? body.seen : []).map((x) => String(x).slice(0, 60)));
   const days = Math.max(0, Math.min(3650, Number(body.days) || 0));
+  // slowly: only so many a day, then the lab goes quiet until tomorrow
+  if ((Number(body.today) || 0) >= bible.DAILY_LIMIT) return reply(200, { ok: true, come_back_tomorrow: true });
   const view = (f) => ({ id: f.id, phase: f.phase, perspective: f.perspective, type: f.type, text: f.text });
   const top = maxPhase(seen, all, days);
   const unlocked = (f) => f.phase <= top;

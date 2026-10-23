@@ -25,15 +25,25 @@ const text = 'She still counts the footsteps in the hallway by habit, and she is
   const all = seeds;
   const mk = (n, ph) => new Set(all.filter((s) => ph.includes(s.phase)).slice(0, n).map((s) => s.id));
   assert.strictEqual(al.maxPhase(new Set(), all, 0), 0);
-  assert.strictEqual(al.maxPhase(mk(4, [0]), all, 0), 1);
-  assert.strictEqual(al.maxPhase(mk(9, [0, 1]), all, 0), 2);
-  assert.strictEqual(al.maxPhase(mk(15, [0, 1, 2]), all, 0), 3);
-  assert.strictEqual(al.maxPhase(new Set(all.filter((s) => s.phase <= 3).map((s) => s.id)), all, 10), 3, 'not enough days');
-  const many = new Set(all.filter((s) => s.phase <= 3).map((s) => s.id));
-  for (let i = 0; i < 6; i++) many.add('g-fake' + i);
-  assert.strictEqual(al.maxPhase(many, all, 90), 4, 'thirty, five truth, sixty days');
-  const closed = new Set([...many, 'a-x-conversation']);
-  assert.strictEqual(al.maxPhase(closed, all, 90), 5);
+  const U = bible.UNLOCK, C = bible.CLOSURE;
+  const pad = (set, n) => { for (let i = 0; set.size < n; i++) set.add('g-pad' + i); return set; };
+  assert.strictEqual(al.maxPhase(pad(new Set(), U[1] - 1), all, 0), 0);
+  assert.strictEqual(al.maxPhase(pad(new Set(), U[1]), all, 0), 1);
+  assert.strictEqual(al.maxPhase(pad(new Set(), U[2]), all, 0), 2);
+  assert.strictEqual(al.maxPhase(pad(new Set(), U[3]), all, 0), 3);
+  const many = pad(new Set(all.filter((s) => s.phase <= 3).map((s) => s.id)), C.collected);
+  assert.strictEqual(al.maxPhase(many, all, C.days - 1), 3, 'not enough days');
+  const truth3 = all.filter((s) => s.phase === 3).length;
+  if (truth3 >= C.truth) assert.strictEqual(al.maxPhase(many, all, C.days), 4);
+  // truth fragments are counted from the stored ones too, so a visitor who has them via generated ones counts
+  const gen = all.concat(Array.from({ length: C.truth }, (_, i) => ({ id: 'g-t' + i, phase: 3 })));
+  const many2 = pad(new Set(gen.filter((s) => s.phase <= 3).map((s) => s.id)), C.collected);
+  assert.strictEqual(al.maxPhase(many2, gen, C.days), 4, 'sixty, ten truth, 120 days');
+  assert.strictEqual(al.maxPhase(many2, gen, C.days - 1), 3);
+  assert.strictEqual(al.maxPhase(new Set([...many2, 'a-x-conversation']), gen, C.days), 5);
+  // only so many a day
+  let rr = await al.run(post({ seen: [], days: 0, today: bible.DAILY_LIMIT }), { store: fakeStore() });
+  assert.strictEqual(JSON.parse(rr.body).come_back_tomorrow, true);
 
   // a first-time visitor only ever hears the silence
   const store = fakeStore();
