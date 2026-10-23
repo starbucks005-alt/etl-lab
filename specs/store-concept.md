@@ -572,6 +572,14 @@ Rising Sun Court, after the Rising Sun light.
   may talk on their own, whether it belongs to the Rising Sun line or starts a line of its
   own under the Radiant Court, and whether the light also sells one fairy at a time.
 
+### Candle shape and build, decided by Dr. O 2026-10-23
+- The candle is a solid clear cast acrylic rod, not a hollow tube. Her picture of three tinted cylinders with engraved fairies on round wooden bases is the target. She considered a hollow tube with a liner, a tube filled with epoxy, and a water based acrylic coat, and chose the solid rod.
+- The wooden base holds everything: the board, the speaker, the microphone, the switch and the LEDs. Nothing is outside it. The light shines up from the base into the flat bottom of the rod.
+- The light and the candle are one product line: the same black walnut, the same engraved fairy art, the same board, speaker, microphone and switch, and the same warm amber glow that turns to each fairy's color. A 6 inch rod matches the 6 inch height of the light's panel.
+- The rod is built first and engraved afterward, once she has seen it lit. Do not glue the rod into the base, so it can come out for engraving.
+- Not decided: the rod's diameter (3 or 4 inches) and height, the price (rods cost far more than tube; a quote from TAP Plastics or another supplier is needed), and the first fairy.
+- Not tried: the light spreading through a solid rod, the engraving on cast acrylic, the pocket size in the base (needs the board's measurements), and the weight on the base (a 4 inch by 6 inch rod weighs over 3 pounds). Confirm the rod is cast acrylic, not PVC or polycarbonate, before any laser touches it.
+
 ## A competitor: Figurobot FR-NIA (2026-10-20)
 
 Dr. O found this on 2026-10-20 and said: "I need to get my products out."
