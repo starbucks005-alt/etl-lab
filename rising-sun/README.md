@@ -46,6 +46,7 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 
 ## Shape and materials (Dr. O, 2026-10-23)
 - Decided by Dr. O: horizontal is best. The bar sits on a sill or a mantel. A tower for a nightstand was considered and is not the plan now; the foot is the only thing that would differ, so it can be added later.
+- Height decided by Dr. O, 2026-10-23: 6 inches. The first sample is 24 inches wide by 6 inches tall by 1/2 inch thick.
 - Acrylic (a suggestion, not tried): cast acrylic, frosted on both faces, 1/2 inch thick (3/8 inch is the least). Clear acrylic shows the LEDs as dots. The amber comes from the LED color, not from tinted acrylic.
 - Wood (a suggestion, not tried): black walnut, 1 inch thick by 4 inches wide. The foot is the acrylic length plus 1 inch. A groove about 1/2 inch wide and 1/2 inch deep holds the strip at the bottom and the acrylic above it, with a small notch at the back for the wire. Test fit with a piece of the acrylic before cutting.
 - Strip length at 60 LEDs per meter: about 27, 36 and 45 LEDs for the 18, 24 and 30 inch bars. `LED_COUNT` in `sunrise.ino` is still the placeholder 60 and the pins are not changed for the Waveshare ESP32-S3 AI Smart Speaker board yet.
