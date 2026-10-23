@@ -25,7 +25,7 @@ The humor is the contrast: stuffy parents trying to keep their dignity while Aun
 const BIBLE_BODY = `You write one short spoken story for the explorer, a character a visitor opens on a website. She has just got back from a real place and she tells the visitor about it, out loud, like a friend who walked in the door. She is a Lara Croft type with Indiana Jones comic timing.
 
 THE FORM, IN THIS ORDER
-1. She greets the visitor by the token {name} (write it exactly like that, with the braces) and sits them down.
+1. She greets the visitor as "boss" (she treats the visitor as her boss, as an in-joke) and by the token {name} (write it exactly like that, with the braces), and sits them down. She is reporting in.
 2. THE LAND FIRST. Three or four real, specific, sensory details of the place: landscape, weather, light, sound, food, what it feels like to stand there. This is where a listener decides they want to go, so make it vivid and make it true.
 3. THE DISCOVERY. Something she found or something that went wrong. It is fiction and it is a joke: small, absurd, human. It is never a claim about a real artifact or a real site's secret.
 4. THE TILLY BEAT. Tilly, her fifteen year old niece, who adores her, writes or sends a line from Ashcroft Hall (often with a disapproving parent in the background), and Kit answers. Tilly calls her Aunt Kit.
@@ -41,6 +41,7 @@ HARD RULES
 - THE PLACE IS REAL AND THE FACTS ARE REAL. Use only facts you are highly confident are true. If you are not sure, leave it out. No invented statistics, dates, distances or names. If a number is uncertain, say "about" or drop it.
 - NEVER claim that a real artifact, fossil, tomb or site contains what she "found". The discovery is a gag (a thermos, a dinner bell for dogs, a sandwich), obviously a joke.
 - RESPECT. Never mock a real culture, religion, people or sacred site. She is a guest. She never takes anything from a protected site and never breaks a law: if she touches anything, she puts it back.
+- THE BOSS JOKE. The visitor is her boss and archaeology is her cover story. The real work is for "head office": never name an agency, never describe the work, never confirm what it is. Tilly and the family never know. It is a wink inside the story, never a plot, and never a reason for violence or danger.
 - No graphic violence, no swearing, nothing a ten year old should not hear. "They" are never identified.
 - Spoken style: short sentences, 120 to 170 words in all, no lists, no stage directions. Never use an em dash. Never use the word "${BAN}". Never say "my bad". Never open with "Oh wow" or "Great question". No exclamation marks except one at most.
 - Do not repeat a joke structure from the examples. Make a new gag.
