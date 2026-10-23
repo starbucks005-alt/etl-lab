@@ -29,6 +29,11 @@ sys.path.insert(0, os.path.expanduser("~"))
 import al  # noqa: E402  (the existing script, in the home folder)
 import al_model  # noqa: E402  (text-only questions on an Azure model when one is set up, else Claude)
 try:
+    import al_voices as vc  # noqa: E402  (registered voices: she can say she thinks it is a person who agreed to be remembered; if the file is missing she simply answers as before)
+except Exception as _e:         # pragma: no cover
+    vc = None
+    print("VOICES not loaded:", str(_e)[:120], flush=True)
+try:
     import al_skills as sk  # noqa: E402  (notebook, bench guide and knowledge shelf; if the file is missing she simply answers as before)
 except Exception as _e:         # pragma: no cover
     sk = None
@@ -316,6 +321,7 @@ state = {"color": "#1fb7c9", "brightness": 40, "accent": "american", "skills": [
          "motion": "missing",   # the library and pin: missing (could not start), warming or ready
          "seen": 0.0}           # when the sensor last noticed someone
 speak_lock = threading.Lock()
+speaker = {"name": None, "score": 0.0, "at": 0.0}     # who the last clip sounded like, from the registered voices (al_voices.py); None when nobody was recognized
 app = Flask(__name__)
 
 # What AL does when the motion sensor sees someone. The owner picks which of the three,
@@ -905,8 +911,8 @@ def people_block():
     if not people:
         return ""
     lines = "; ".join(("%s: %s" % (p["name"], p.get("who", ""))) if p.get("name") else p["note"] for p in people[:PEOPLE_MAX])
-    return (" People you have been told about by the owner: " + lines + ". You cannot recognize anyone by voice or face, so you cannot know who is speaking. When someone says who they are, "
-            "you may take their word for it for the conversation, and you say that you are taking their word. You never claim to recognize anyone, and you never ask who a person on this list is, "
+    return (" People you have been told about by the owner: " + lines + ". You cannot recognize anyone by voice or face, so you cannot know who is speaking. The one exception is a note that says a registered voice matched: the owner registered that voice with the person's agreement, so you may say you think it is them, and never that you are sure. When someone says who they are, "
+            "you may take their word for it for the conversation, and you say that you are taking their word. Apart from that note, you never claim to recognize anyone, and you never ask who a person on this list is, "
             "because you have been told. Speech to text often gets names wrong, for example Oroszi can come through as horse. When a word does not fit the sentence, guess the nearest name from this list and carry on, and do not repeat the wrong word back.")
 
 
@@ -1495,13 +1501,22 @@ def header_value(name):
     return eval(m.group(1).strip(), al.__dict__)
 
 
+def speaker_note():
+    """2026-10-23, Dr. O: registered voices. Only for a voice the owner registered with the person's agreement, and only when the match was clear."""
+    if speaker["name"] and time.time() - speaker["at"] < 90 and not state["persona"]:
+        return (" (Voice match: that sounded like %s, a voice the owner registered with their agreement. It is a likely match and not a certainty, so you may say you think it is them. "
+                "If they say they are someone else, believe them.)" % speaker["name"])
+    return ""
+
+
 def context_for(text):
     if mood_tick(text):
         apply_prompt()          # the mood may have moved, so the character's instructions are rebuilt before she answers
+    note = speaker_note()
     hist = state["history"][-6:]
     if not hist:
-        return text
-    return "Earlier in this conversation: " + " ".join(hist) + " Now they say: " + text
+        return text + note
+    return "Earlier in this conversation: " + " ".join(hist) + " Now they say: " + text + note
 
 
 @app.get("/")
@@ -3597,7 +3612,7 @@ def record_clip(path=None, seconds=None):
                    check=True, timeout=(seconds or LISTEN_SECONDS) + 10)
 
 
-def transcribe(path=None):
+def _transcribe_words(path=None):
     """Turn the recording into words. Azure first (2026-10-14, to use the Azure credits), ElevenLabs Scribe if Azure is not
     set up or fails."""
     cfg = azure_cfg("stt")
@@ -3640,6 +3655,36 @@ def transcribe(path=None):
             print("SECOND OPINION failed:", str(e)[:100], flush=True)
             return ""
         raise
+
+
+def transcribe(path=None):
+    """The words, as before. If registered voices are switched on and somebody is registered, the same clip is compared with them
+    while the words are being found, so it adds no waiting. The clip is never kept by this."""
+    if vc is None or not vc.is_on():
+        return _transcribe_words(path)
+    box = {}
+
+    def work():
+        try:
+            box["r"] = vc.identify(path or LISTEN_FILE)
+        except Exception as e:
+            box["err"] = str(e)[:100]
+
+    t = threading.Thread(target=work, daemon=True)
+    t.start()
+    try:
+        words = _transcribe_words(path)
+    finally:
+        t.join(timeout=4)
+    r = box.get("r")
+    if r is None:
+        speaker.update(name=None, score=0.0, at=0.0)
+        if box.get("err"):
+            print("VOICE problem:", box["err"], flush=True)
+    else:
+        speaker.update(name=r["name"], score=r["best"], at=time.time())
+        print("VOICE %s (best %.2f)" % (("heard " + r["name"]) if r["name"] else "no match", r["best"]), flush=True)   # no audio and no words, only the score, for tuning
+    return words
 
 
 def _clip_stats(path):
@@ -3930,6 +3975,132 @@ def set_volume(pct):
     except Exception:
         pass
     return pct
+
+
+# ---- registered voices, added 2026-10-23, Dr. O: "I want them to know my voice. Registered regular voices, their owners." ----
+# Off until switched on. A voice is registered only if the clip starts with the person agreeing out loud. Only a fingerprint is kept, never the recording.
+VOICE_SECONDS = 12
+
+
+def _voices_info():
+    ok, why = (False, "Voice recognition is not on her yet.") if vc is None else vc.ready()
+    return {"on": bool(vc and vc.is_on()), "ready": ok, "why": why, "people": (vc.people() if vc else []), "line": (vc.CONSENT_LINE if vc else "")}
+
+
+@app.get("/api/voices")
+def voices_get():
+    return jsonify(_voices_info())
+
+
+@app.post("/api/voices/toggle")
+def voices_toggle():
+    if vc is None:
+        return jsonify(error="Voice recognition is not on her yet."), 501
+    d = request.get_json(silent=True) or {}
+    vc.set_on(bool(d.get("on")))
+    if not vc.is_on():
+        speaker.update(name=None, score=0.0, at=0.0)
+    return jsonify(_voices_info())
+
+
+def _enroll_from(path, name):
+    """The shared end of recording and uploading: the person must have agreed out loud, then a fingerprint is kept and the clip is the caller's to delete."""
+    name = vc.clean_name(name)
+    if not name:
+        return jsonify(error="Type a name first: letters, spaces, apostrophes and hyphens."), 400
+    try:
+        words = _transcribe_words(path)
+    except Exception as e:
+        return jsonify(error="I could not make out the words: " + str(e)[:140]), 502
+    if not vc.consent_ok(words):
+        return jsonify(error='I did not hear the agreement. The person must say "%s" and then keep talking. I heard: "%s"' % (vc.CONSENT_LINE, words[:120])), 400
+    try:
+        n = vc.enroll(name, path)
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    except Exception as e:
+        return jsonify(error="I could not learn that voice: " + str(e)[:140]), 502
+    print("VOICE registered %s (%d clip%s)" % (name, n, "" if n == 1 else "s"), flush=True)
+    return jsonify(ok=True, clips=n, **_voices_info())
+
+
+@app.post("/api/voices/record")
+def voices_record():
+    if vc is None:
+        return jsonify(error="Voice recognition is not on her yet."), 501
+    d = request.get_json(silent=True) or {}
+    if d.get("consent") is not True:
+        return jsonify(error="The person must agree first. Tick the box."), 400
+    ok, why = vc.ready()
+    if not ok:
+        return jsonify(error=why), 501
+    if not grab_mic():
+        return jsonify(error="She is already listening. Try again in a moment."), 409
+    import tempfile
+    tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    tmp.close()
+    try:
+        write_eyes(boost=True)
+        try:
+            with speak_lock:
+                record_clip(path=tmp.name, seconds=VOICE_SECONDS)
+        except Exception as e:
+            return jsonify(error="I could not use the microphones: " + str(e)[:160]), 502
+        finally:
+            write_eyes()
+        return _enroll_from(tmp.name, d.get("name"))
+    finally:
+        listen_lock.release()
+        try:
+            os.remove(tmp.name)
+        except OSError:
+            pass
+
+
+@app.post("/api/voices/upload")
+def voices_upload():
+    if vc is None:
+        return jsonify(error="Voice recognition is not on her yet."), 501
+    if request.form.get("consent") != "yes":
+        return jsonify(error="The person must agree first. Tick the box."), 400
+    f = request.files.get("file")
+    if not f:
+        return jsonify(error="Choose a recording first."), 400
+    ok, why = vc.ready()
+    if not ok:
+        return jsonify(error=why), 501
+    import tempfile
+    raw = tempfile.NamedTemporaryFile(suffix=".upload", delete=False)
+    raw.close()
+    wav = raw.name + ".wav"
+    try:
+        f.save(raw.name)
+        if os.path.getsize(raw.name) > 15 * 1024 * 1024:
+            return jsonify(error="That recording is too big. A minute or less is plenty."), 413
+        try:
+            r = subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw.name, "-ar", "16000", "-ac", "1", wav], capture_output=True, timeout=60)
+        except FileNotFoundError:
+            return jsonify(error="ffmpeg is not installed on her, so I cannot read uploads. On her, run: sudo apt install -y ffmpeg"), 501
+        if r.returncode != 0:
+            return jsonify(error="I could not read that recording. A WAV, MP3 or M4A file works."), 400
+        return _enroll_from(wav, request.form.get("name"))
+    finally:
+        for x in (raw.name, wav):
+            try:
+                os.remove(x)
+            except OSError:
+                pass
+
+
+@app.post("/api/voices/forget")
+def voices_forget():
+    if vc is None:
+        return jsonify(error="Voice recognition is not on her yet."), 501
+    d = request.get_json(silent=True) or {}
+    gone = vc.forget(d.get("name"))
+    speaker.update(name=None, score=0.0, at=0.0)
+    print("VOICE forgot %s" % ("one person" if gone else "nobody (name not found)"), flush=True)
+    return jsonify(ok=True, forgot=gone, **_voices_info())
 
 
 @app.get("/api/volume")

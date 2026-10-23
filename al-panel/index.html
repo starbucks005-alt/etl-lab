@@ -400,6 +400,27 @@
       <div class="row" style="margin-top:12px"><button class="primary" id="peopleSave" type="button">Save</button><span class="hint" id="peopleStatus" style="margin:0"></span></div>
     </section>
 
+    <!-- VOICES SHE KNOWS, added 2026-10-23, Dr. O: "I want them to know my voice. Registered regular voices, their owners." Names and voices live on the robot only, never in this file, which is public. -->
+    <section class="card wide" id="voicesCard">
+      <h2>Voices she knows</h2>
+      <p class="hint">She can learn to tell registered voices apart, but only for people who agree. A person agrees by saying so out loud while she listens. She keeps a fingerprint of the voice, which is a list of numbers, and never the recording. It only helps her choose a greeting. It is not a lock, because a recording of someone could fool it, so keep anything important behind the access code. Everyone else is still a visitor, and she does not guess.</p>
+      <label class="wopt"><input type="checkbox" id="voicesOn"> Let her recognize registered voices</label>
+      <p class="hint" id="voicesNote" style="margin:4px 0"></p>
+      <div id="voicesList" class="hint" style="margin:8px 0"></div>
+      <p class="hint" style="margin-bottom:6px"><strong>Add a voice.</strong> The person says: <em>I agree that this robot may remember my voice.</em> and then keeps talking for about ten seconds. A second recording makes it surer.</p>
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        <input type="text" id="voicesName" placeholder="Their name" maxlength="40" aria-label="Name of the person" style="min-width:180px">
+        <label class="wopt" style="margin:0"><input type="checkbox" id="voicesConsent"> This person agrees</label>
+      </div>
+      <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px">
+        <button class="primary" id="voicesRecord" type="button">Record 12 seconds with her microphone</button>
+        <span class="hint" style="margin:0">or</span>
+        <input type="file" id="voicesFile" accept="audio/*" aria-label="Recording of the person">
+        <button id="voicesUpload" type="button">Use this recording</button>
+      </div>
+      <p class="hint" id="voicesStatus" style="margin-top:8px"></p>
+    </section>
+
     <!-- PET COMPANION, added 2026-10-16, Dr. O: "a skill for pet owners that feel bad about leaving their pet alone all day." Off until switched on. -->
     <section class="card wide" id="petCard" style="display:none">
       <h2>Pet companion</h2>
@@ -613,7 +634,7 @@
     if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
       state.mode = info.mode || null; store('mode', state.mode);
       if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
-      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople();
+      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople(); refreshVoices();
     }
     paintSensor(on ? info : null);
     if(on && info){
@@ -968,6 +989,46 @@
     api('/api/people', {text:$('peopleText').value}).then(function(j){ $('peopleStatus').textContent = 'Saved. She knows about ' + j.n + (j.n === 1 ? ' person.' : ' people.'); }).catch(function(e){ $('peopleStatus').textContent = 'Not saved: ' + e.message; });
   });
 
+  // ---------- voices she knows ----------
+  function paintVoices(j){
+    if(!j){ return; }
+    $('voicesOn').checked = !!j.on;
+    $('voicesNote').textContent = j.ready ? '' : j.why;
+    var box = $('voicesList'); box.textContent = '';
+    (j.people || []).forEach(function(p){
+      var row = document.createElement('div'); row.style.marginBottom = '6px';
+      var t = document.createElement('span'); t.textContent = p.name + ' (' + p.clips + (p.clips === 1 ? ' recording' : ' recordings') + (p.created ? ', ' + p.created : '') + ')';
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Forget'; b.style.marginLeft = '10px';
+      b.addEventListener('click', function(){ api('/api/voices/forget', {name:p.name}).then(function(j2){ $('voicesStatus').textContent = 'Forgot ' + p.name + '.'; paintVoices(j2); }).catch(function(e){ $('voicesStatus').textContent = e.message; }); });
+      row.appendChild(t); row.appendChild(b); box.appendChild(row);
+    });
+    if(!(j.people || []).length){ box.textContent = 'Nobody is registered yet.'; }
+  }
+  function refreshVoices(){
+    if(!live){ return; }
+    fetch('/api/voices').then(function(r){ return r.ok ? r.json() : null; }).then(paintVoices).catch(function(){});
+  }
+  function voicesDone(j){
+    $('voicesStatus').textContent = 'Registered. ' + j.clips + (j.clips === 1 ? ' recording' : ' recordings') + ' kept as a fingerprint. The recording itself is gone.';
+    paintVoices(j);
+  }
+  $('voicesOn').addEventListener('click', function(){
+    api('/api/voices/toggle', {on:$('voicesOn').checked}).then(paintVoices).catch(function(e){ $('voicesStatus').textContent = e.message; refreshVoices(); });
+  });
+  $('voicesRecord').addEventListener('click', function(){
+    if(!$('voicesConsent').checked){ $('voicesStatus').textContent = 'Tick the box first: the person must agree.'; return; }
+    $('voicesStatus').textContent = 'Listening for 12 seconds. Say the sentence, then keep talking...';
+    api('/api/voices/record', {name:$('voicesName').value, consent:true}).then(voicesDone).catch(function(e){ $('voicesStatus').textContent = e.message; });
+  });
+  $('voicesUpload').addEventListener('click', function(){
+    if(!$('voicesConsent').checked){ $('voicesStatus').textContent = 'Tick the box first: the person must agree.'; return; }
+    var f = $('voicesFile').files[0];
+    if(!f){ $('voicesStatus').textContent = 'Choose a recording first.'; return; }
+    var fd = new FormData(); fd.append('name', $('voicesName').value); fd.append('consent', 'yes'); fd.append('file', f);
+    $('voicesStatus').textContent = 'Checking the recording...';
+    api('/api/voices/upload', fd, true).then(voicesDone).catch(function(e){ $('voicesStatus').textContent = e.message; });
+  });
+
   // ---------- pet companion ----------
   var petLoaded = false;
   function refreshPet(){
@@ -1074,7 +1135,7 @@
         if(j.welcome){ state.welcome = j.welcome; paintWelcome(); }
         if(j.skills){ state.skills = j.skills.slice(); }
         state.persona = j.persona || null; store('persona', state.persona);
-        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople();
+        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople(); refreshVoices();
       }).catch(function(e){ state.mode = was; store('mode', was); renderModes(); addMsg('al', '(I could not change my mode: ' + e.message + ')'); });
     } else {
       if(id === 'kids' && state.persona){ var cp = PERSONAS.filter(function(p){ return p.id === state.persona; })[0]; if(!cp || !cp.kids){ state.persona = null; store('persona', null); } }
@@ -1142,7 +1203,7 @@
     function finish(){
       if(state.skills.indexOf(s.id) === -1){ state.skills.push(s.id); }
       store('skills', state.skills);
-      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
+      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople(); refreshVoices(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
       setTimeout(renderSkills, 250);
     }
   }

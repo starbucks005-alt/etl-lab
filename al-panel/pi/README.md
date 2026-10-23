@@ -148,3 +148,27 @@ Dr. O: Astra Lite keeps asking to "see" and saying she cannot see. A camera woul
 - **The light:** a small NeoPixel ring around the window. Dr. O decided the pendant mirrors the eye color. Because it then glows all the time, it would not show when the camera is looking, so one option is to mirror the eye color and brighten or pulse the ring while a picture is taken. The ring cannot be chained after the eye rings, because the end of that chain is inside the head, so it needs its own data pin. The pin is not chosen: it has to be checked against the audio card.
 - **What she does with it:** one still when asked to look, or when she decides to, described and then thrown away. No stored images, no recognizing faces (her instructions already say she cannot recognize anyone), a daily limit, and a posted sign near her. The panel already has a route that describes a photo someone shares, so a camera only supplies the picture.
 - **Her words:** the main prompt is in `~/al.py` on the Pi, not in this repository. If it says she cannot see, that sentence needs a patch script in the style of `patch_al_prompt*.py`. Send the lines from `grep -n -i "see" ~/al.py`, with the key line removed.
+
+## Registered voices for Elle (written 2026-10-23, NOT TRIED on the robot or with the real model)
+
+Dr. O: "I want them to know my voice. Registered regular voices, their owners." Elle can tell registered voices apart and say she thinks it is that person. Only for people who agreed, only Elle (never a character), and OFF until the box in the panel's "Voices she knows" card is ticked.
+
+**What is kept:** a name and a voice fingerprint (a list of numbers) per person, in `voices.json` beside the server, which is kept out of git. Never the recording: the clip is deleted as soon as the fingerprint is made. Nothing is sent anywhere. "Forget" in the panel removes a person.
+
+**Consent:** a voice is registered only if the clip begins with the person saying "I agree that this robot may remember my voice." The words are checked with the listening service she already uses, so a recording of someone who never agreed is turned away. Voice prints are legally sensitive in some states (Illinois and Texas, for example). Ask a lawyer before using this where she meets the public in those states.
+
+**It only chooses a greeting.** It is not a lock. Anyone with a recording of a voice could fool it. The panel's access code and anything important stay separate.
+
+**How it reaches her:** while the words are found, the same clip is compared with the registered voices. If one matches closely and is clearly ahead of the next, a note is added to that turn: "Voice match: that sounded like NAME ... a likely match and not a certainty." Otherwise nothing is added and she answers as before. Her instructions still say she cannot recognize anyone, with that note as the one exception.
+
+**Setup on the Pi (once):**
+1. `sudo pip3 install resemblyzer --break-system-packages`. This pulls in a large machine learning library and may take a long time on a Pi 4. Not checked.
+2. `sudo apt install -y ffmpeg` (only for the Use this recording button; recording with her microphone does not need it).
+3. Check: `cd ~/al_panel && python3 -c "import al_voices; print(al_voices.ready())"`, which should print `(True, '')`. The panel card also shows why if it is not ready.
+4. Restart the panel: `sudo systemctl restart al-panel.service`.
+
+**Try it:** in the panel, tick the card's box. Type a name, tick "This person agrees", press Record, say the agreement and keep talking for about ten seconds. Do it twice. Then talk to her and watch the log: lines starting `VOICE` show who she thought it was and the score, never the words or the audio.
+
+**Two numbers are guesses to tune from that log:** `MATCH_MIN` (0.78) and `MARGIN` (0.06) in `al_voices.py`. If she names the wrong person, raise them; if she never knows a registered voice, lower `MATCH_MIN` a little.
+
+**Tests:** `python3 -m unittest tests/al_voices_test.py` (the fingerprint logic with stand-ins) and `python3 -m unittest tests/al_panel_voices_test.py` (the panel routes and the hook, with Flask and stand-ins). Both pass here. Neither uses the real model, a real microphone or the robot.
