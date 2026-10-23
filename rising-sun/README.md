@@ -49,7 +49,7 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 - Height decided by Dr. O, 2026-10-23: 6 inches. The first sample is 24 inches wide by 6 inches tall by 1/2 inch thick.
 - Acrylic (a suggestion, not tried): cast acrylic, frosted on both faces, 1/2 inch thick (3/8 inch is the least). Clear acrylic shows the LEDs as dots. The amber comes from the LED color, not from tinted acrylic.
 - Wood (a suggestion, not tried): black walnut, 1 inch thick by 4 inches wide. The foot is the acrylic length plus 1 inch. A groove about 1/2 inch wide and 1/2 inch deep holds the strip at the bottom and the acrylic above it, with a small notch at the back for the wire. Test fit with a piece of the acrylic before cutting.
-- Strip length at 60 LEDs per meter: about 27, 36 and 45 LEDs for the 18, 24 and 30 inch bars. `LED_COUNT` in `sunrise.ino` is still the placeholder 60 and the pins are not changed for the Waveshare ESP32-S3 AI Smart Speaker board yet.
+- Strip decided by Dr. O, 2026-10-23: 144 LEDs per meter, for a smoother glow (it replaces the 60 per meter roll). About 66, 88 and 110 LEDs for the 18, 24 and 30 inch bars. `LED_COUNT` in `sunrise.ino` is 88 (the 24 inch bar) with `MAX_BRIGHTNESS` 180 so it stays under the 5 amp supply; the 30 inch bar needs a 10 amp supply or a lower cap. Strips of this density are usually about 12 mm wide, so check the groove against the real strip. The pins are not changed for the Waveshare ESP32-S3 AI Smart Speaker board yet. Not compiled or tried on the board.
 - Engraving: no laser is bought. The fairy is engraved by a makerspace or an engraving service; a cheap diode laser does not mark clear or frosted acrylic.
 
 ## Parts

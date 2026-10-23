@@ -22,7 +22,8 @@
 #include <ArduinoJson.h>
 
 const int LED_PIN = 5;
-const int LED_COUNT = 60;                 // placeholder until the acrylic layout is decided
+const int LED_COUNT = 88;                 // 144 LEDs per meter, for the 24 inch bar: 0.61 m is about 88. 18 inch is 66, 30 inch is 110. Dr. O's strip choice, 2026-10-23
+const int MAX_BRIGHTNESS = 180;           // of 255. Keeps 88 LEDs under the 5 amp supply (88 x 60 mA is 5.3 A at full white). Raise it only with a bigger supply
 const bool DEMO_MODE = true;              // true: skip Wi-Fi and the clock and play the whole sunrise in DEMO_SECONDS, over and over. Set false for the real thing.
 const int DEMO_SECONDS = 90;
 int SUNRISE_MINUTES = 30;
@@ -91,6 +92,7 @@ void readSettings() {
 
 void setup() {
   strip.begin();
+  strip.setBrightness(MAX_BRIGHTNESS);
   strip.clear();
   strip.show();
   WiFi.begin(WIFI_NAME, WIFI_PASS);
