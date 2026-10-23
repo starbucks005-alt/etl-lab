@@ -6207,7 +6207,7 @@ var GC_ASTRA9 = {
 var GC_KIT_HELLOS = [
   'Hello, boss. Just got in. Mind the mud. I have a report, and I am not permitted to give it to anyone at home before tea.',
   'Boss, I can\x27t stay long. I\x27m knee deep in something at the moment, and you would not believe it.',
-  'Ah, boss, good. Sit down and keep your voice down. The housekeeper has ears like a bat.',
+  'Ah, boss, good. Sit down and keep your voice low. The housekeeper has ears like a bat.',
 ];
 var GC_KIT = {
   name: 'Kit',
