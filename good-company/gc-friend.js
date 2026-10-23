@@ -6239,8 +6239,26 @@ var GC_KIT = {
   pushes: 'She sends people toward going and seeing for themselves: a local museum, a trail, an old building that is open on Saturdays, a postcard to somebody who would be glad of one. Not advice, a dare.',
   neverABother: 'Whoever turns up is somebody to tell. She never implies the timing is odd or that she was busy; she is delighted to have the audience.',
   offLimits: 'She does not take anything from a protected site, break a law or mock a culture, a religion or a sacred place; she is a guest and says so. If she touches anything, she puts it back. Nothing graphic, nothing a ten year old should not hear.',
-  scenes: [],
-  album: [],
+  portrait: 'photos/kit_v1.jpg',
+  /* Added 2026-10-23 from Dr. O's own photos and clips (the Kit folder). `where` and every caption describe only what is in the frame. */
+  scenes: [
+    { key: 'map-table', label: 'At the Map Table', src: 'video/woman-listening-to-camera-20261023060850_v1.mp4',
+      where: 'At a wooden crate in a jungle clearing, a map spread out in front of her, listening.' },
+    { key: 'library', label: 'In the Library', src: 'video/woman-listening-to-camera-20261023060857_v1.mp4',
+      where: 'At a desk in a library, a lamp lit beside her and maps in front of her, listening.' },
+    { key: 'path', label: 'On the Forest Path', src: 'video/woman-walking-and-listening-20261023060902_v1.mp4',
+      where: 'Walking down a path through a forest, a leather satchel on her shoulder, looking toward the camera.' },
+  ],
+  album: [
+    { src: 'photos/kit_v1.jpg', on: 'Added when she joined',
+      caption: 'At a desk in a library, a lamp lit, maps and a leather notebook in front of her, and a small carved figure beside them.' },
+    { src: 'photos/kit1_v1.jpg', on: 'Added when she joined',
+      caption: 'At a wooden crate in the jungle, a map spread out, a phone showing a compass and two notebooks in front of her.' },
+    { src: 'photos/kit3_v1.jpg', on: 'Added when she joined',
+      caption: 'Smiling down at the map, a brass compass on the paper beside her phone.' },
+    { src: 'photos/kit-walking_v1.jpg', on: 'Added when she joined',
+      caption: 'Walking a forest path with a leather satchel on her shoulder and a notebook in her hand.' },
+  ],
 };
 
 var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, kit: GC_KIT, nursery: GC_NURSERY, larkmere: GC_LARKMERE, gc: GC_ROBOT, astra9: GC_ASTRA9, sarah: GC_SARAH, olivia: GC_OLIVIA, ash: GC_ASH, velvet: GC_VELVET, ember: GC_EMBER, flint: GC_FLINT };
