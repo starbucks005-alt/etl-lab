@@ -137,3 +137,14 @@ or set `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in her environment. Add `"tt
 to send that half back to ElevenLabs. Sound plays on `plughw:wm8960soundcard`; set `AL_PLAY_DEVICE` to change it.
 Robot, American, British and Indian have an Azure voice (see AZURE_VOICES in the server): Luna for robot and American, Sonia for British, Neerja for Indian. Swedish stays on ElevenLabs, because Azure has no English voice with a Swedish accent. Characters stay on ElevenLabs.
 Not tested on the Pi yet. First checks: she speaks, she hears you, and "Elle" sounds right (see `pronounce.json`).
+
+## Camera for Astra Lite (plan, 2026-10-23, nothing built or tried)
+
+Dr. O: Astra Lite keeps asking to "see" and saying she cannot see. A camera would answer her.
+- **Where:** a pendant or brooch at the center of the collar, in the same copper ring style as the round medallion on her chest. The chest medallion is the motion sensor (PIR) and stays; the camera is a separate opening, because a camera cannot look through the PIR's lens. The head cannot be opened, so nothing goes inside it.
+- **Why not the recessed eye:** the dome in one eye sits about 1/4 inch inside its hole and the other is flush. That eye could become the camera later, but the stack is glued from behind and cannot be reached, so it waits for a service hatch in the back of the head, cut along a panel line and held with magnets.
+- **How:** a small USB camera with a thin flexible cable, 50 to 100 cm, run down inside the torso to the Pi, which sits at the base of the torso. Keep it away from the servo power wires. A clear flat window, not a dome.
+- **Test first:** tape a USB webcam at the collar center and look at what she sees from where visitors stand. The chin may block part of an upward view.
+- **The light:** a small NeoPixel ring around the window. Dr. O decided the pendant mirrors the eye color. Because it then glows all the time, it would not show when the camera is looking, so one option is to mirror the eye color and brighten or pulse the ring while a picture is taken. The ring cannot be chained after the eye rings, because the end of that chain is inside the head, so it needs its own data pin. The pin is not chosen: it has to be checked against the audio card.
+- **What she does with it:** one still when asked to look, or when she decides to, described and then thrown away. No stored images, no recognizing faces (her instructions already say she cannot recognize anyone), a daily limit, and a posted sign near her. The panel already has a route that describes a photo someone shares, so a camera only supplies the picture.
+- **Her words:** the main prompt is in `~/al.py` on the Pi, not in this repository. If it says she cannot see, that sentence needs a patch script in the style of `patch_al_prompt*.py`. Send the lines from `grep -n -i "see" ~/al.py`, with the key line removed.
