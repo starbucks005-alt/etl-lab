@@ -21,7 +21,7 @@
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 
-const int LED_PIN = 5;
+const int LED_PIN = 7;                    // Waveshare ESP32-S3 AI Smart Speaker board, 18 pin header pin 2 (GPIO7). Not GPIO19 or 20 (USB), 3 (boot), 10 or 11 (audio chip). Strip data only; the strip's power is the separate 5V supply and its ground must meet the board's GND
 const int LED_COUNT = 132;                // 144 LEDs per meter, for the 36 inch bar (Dr. O, 2026-10-23): 0.91 m is about 132. 32 inch would be 117, 24 inch 88
 const int MAX_BRIGHTNESS = 130;           // of 255. Keeps 132 LEDs under a 5 amp supply (132 x 60 mA is 7.9 A at full white). With a 10 amp supply this can go to 200
 const bool DEMO_MODE = true;              // true: skip Wi-Fi and the clock and play the whole sunrise in DEMO_SECONDS, over and over. Set false for the real thing.
