@@ -174,6 +174,20 @@
   .stage p:last-child{margin:0;font-size:18px}
   .stage p.stage-how{margin:.8rem 0 0;font-size:16px;color:var(--dim)}
   .stage p:last-child{font-size:16px}
+  .match{max-width:760px;margin:0 auto;text-align:left;display:grid;gap:1.4rem}
+  .match fieldset{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.6rem}
+  .match legend{font-family:var(--serif);font-size:22px;margin-bottom:.6rem;padding:0}
+  .opt{background:var(--bg3);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.6rem 1.1rem;font:inherit;font-size:15px;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}
+  .opt:hover{border-color:var(--blue);box-shadow:0 0 18px var(--blue-soft)}
+  .opt.on{background:var(--blue);border-color:var(--blue);color:#02111f;font-weight:600}
+  .result{border:1px solid var(--gold);border-radius:8px;padding:1.2rem 1.4rem;background:rgba(217,182,96,.06)}
+  .result[hidden]{display:none}
+  .result h3{margin:0 0 .6rem;font-family:var(--serif);font-weight:500;font-size:24px}
+  .result ul{list-style:none;margin:0;padding:0;display:grid;gap:.8rem}
+  .result li{display:grid;gap:2px}
+  .result li a{color:var(--ink);font-size:18px}
+  .result li span{color:var(--dim);font-size:14px}
+  .result .fine{margin:1rem 0 0;font-size:14px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -495,6 +509,27 @@
     </div>
   </section>
 
+  <section class="band" id="match">
+    <p class="eyebrow">Find my match</p>
+    <h2>Which companion is right for you?</h2>
+    <p class="lead">Two questions. Everything here is concept art, coming soon, except Astra-9 Lite and LumVivo, which are built and working.</p>
+    <div class="match" id="matchBox">
+      <fieldset><legend>Who is it for?</legend>
+        <button type="button" class="opt" data-q="who" data-v="me">Me</button>
+        <button type="button" class="opt" data-q="who" data-v="loved">Someone I care for</button>
+        <button type="button" class="opt" data-q="who" data-v="dog">My dog</button>
+        <button type="button" class="opt" data-q="who" data-v="work">My business or lab</button>
+      </fieldset>
+      <fieldset><legend>What matters most?</legend>
+        <button type="button" class="opt" data-q="want" data-v="talk">Someone to talk with</button>
+        <button type="button" class="opt" data-q="want" data-v="watch">Safety and watching over</button>
+        <button type="button" class="opt" data-q="want" data-v="morning">A gentle start to the day</button>
+        <button type="button" class="opt" data-q="want" data-v="memory">Remembering what matters</button>
+      </fieldset>
+      <div class="result" id="matchResult" aria-live="polite" hidden></div>
+    </div>
+  </section>
+
   <section class="band contact-band" id="contact">
     <p class="eyebrow">Contact</p>
     <h2>Contact Dr. Oroszi</h2>
@@ -538,7 +573,7 @@
   <img src="/images/etl-store/family-auggie-v1.jpg" alt="Auggie">
   <div>
     <p><strong>Hello, I'm Auggie.</strong> Would you like help finding the right companion?</p>
-    <p class="ab"><a href="#robots">Meet the robots</a> <a href="#companions">See the companions</a> <a href="#contact">Ask Dr. Oroszi</a></p>
+    <p class="ab"><a href="#match">Find my match</a> <a href="#robots">Meet the robots</a> <a href="#companions">See the companions</a> <a href="#contact">Ask Dr. Oroszi</a></p>
   </div>
 </aside>
 
@@ -553,6 +588,46 @@
     fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:d.toString()})
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); f.reset(); ok.classList.add('on'); btn.textContent='Sent'; })
       .catch(function(){ er.textContent='The message did not send. Please email drterryoroszi@emerging-tech-lab.com.'; er.classList.add('on'); btn.disabled=false; btn.textContent='Send'; });
+  });
+})();
+</script>
+<script>
+(function(){
+  var box=document.getElementById('matchBox'); if(!box) return;
+  var st={who:null,want:null}, out=document.getElementById('matchResult');
+  var P={
+    collar:['The Talking Pet Collar','#collar','Your dog talks in a voice you choose, with Walk, At home, pat and potty buttons. Concept art, coming soon.'],
+    lite:['Astra-9 Lite','#lite','A 17 inch head and bust for a desk or front desk. She is built and working.'],
+    guard:['The Guardians','#robots','Robots that keep watch. Concept art, coming soon.'],
+    astra:['Astra-9 and Astrad','#robots','Full size companions with a written life. Concept art, coming soon.'],
+    plinth:['Figurines and plinths','#companions','Place an 8 inch figurine on a plinth and it comes alive. Concept art, coming soon.'],
+    frame:['The Companion Frame','#frame','A wall frame where a Good Company companion talks to you. Concept art, coming soon.'],
+    sun:['Rising Sun Court','#rising-sun','A sunrise light or candles with a fairy who lives inside. Concept art, coming soon.'],
+    echo:['My Echo','#my-echo','Keep what matters: the recipes, the names, the stories, in a voice that always answers.'],
+    lumvivo:['LumVivo Holopod','#lumvivo','A hologram that talks with you, five characters at the press of a button. Built and working.']
+  };
+  function pick(){
+    var w=st.who, x=st.want;
+    if(w==='dog') return ['collar','plinth'];
+    if(x==='memory') return w==='loved' ? ['echo','frame'] : ['echo','lite'];
+    if(x==='morning') return ['sun','lite'];
+    if(x==='watch') return w==='work' ? ['guard','lite'] : ['guard','astra'];
+    if(w==='work') return ['lite','lumvivo'];
+    if(w==='loved') return ['frame','echo'];
+    return ['lite','plinth'];
+  }
+  function show(){
+    if(!st.who||!st.want) return;
+    var r=pick(), h='<h3>Your match</h3><ul>';
+    r.forEach(function(k){ var p=P[k]; h+='<li><a href="'+p[1]+'"><strong>'+p[0]+'</strong></a><span>'+p[2]+'</span></li>'; });
+    h+='</ul><p class="fine">Want to talk it over? <a href="#contact">Contact Dr. Oroszi</a>.</p>';
+    out.innerHTML=h; out.hidden=false;
+  }
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('.opt'); if(!b) return;
+    var q=b.getAttribute('data-q'); st[q]=b.getAttribute('data-v');
+    box.querySelectorAll('.opt[data-q="'+q+'"]').forEach(function(o){ o.classList.toggle('on',o===b); o.setAttribute('aria-pressed',o===b?'true':'false'); });
+    show();
   });
 })();
 </script>
