@@ -627,6 +627,16 @@ Dr. O asked for a price comparison against a competitor to Astra Lite.
 - Ratio: about 242 times as much at $300, about 201 times at $360.55.
 - Parts cost only, not a price: nothing of hers is for sale yet, and her time is not counted. Anything public should say "about $300 to $360 in parts" and should be checked against her sheet first.
 
+## The portable companion for the car (idea, 2026-10-24, nothing built or priced)
+
+Dr. O's idea: a product that charges, then unplugs and still talks to the companions. She noted that laptops already do this, and that phones are everywhere, so it may be moot, but she wants something portable that charges all night and goes in the car, "not distracting like a phone." She listens to audiobooks in the car.
+- Look, hers: a black or white glossy box, an LED strip around the bottom, the ETL logo. (Her sentence trailed off after the logo; the rest is not recorded.) It matches the black plinths with the warm light strip.
+- A screen-free puck, as suggested and not decided: one large button, a speaker, a microphone, a soft light; it joins the phone's hotspot on its own; charged overnight or from the car's USB charger.
+- Story mode: a companion tells a story like an audiobook, with no reply needed (the Grimm Brothers, Julian, Reggie, Biscuit and Mochi's adventures). A story recorded once and played back needs no cloud thinking and no new voice cost. Published books would need their rights cleared; the Grimm tales are old enough to be public domain, but that was not checked for each edition.
+- Driver mode, a suggestion: short answers, no questions back, silent unless the driver speaks first. Dr. O's point: music, radio and GPS already ask for attention too. Conversation is two way and is usually treated as the heavier load even when hands-free (from memory, not checked). Rules on in-car devices differ by state and were not researched.
+- Needs: a small rechargeable battery with USB-C charging and Wi-Fi or a phone hotspot to reach the cloud. How long a small battery lasts on a charge is not measured.
+- The cheapest test, not done: Good Company with voice on a phone in the car, screen off, through a speaker.
+
 ## Strategy: start cheap, then add better (Dr. O, 2026-10-20)
 
 Dr. O's decision, said right after seeing FR-NIA at $599 and up: she is going for disruptive innovation. Bring in a cheap version with fewer options to reach lower budgets, then gradually introduce better ones.
