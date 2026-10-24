@@ -37,8 +37,8 @@
    Options  --file path.json   --out dir (default recorded-stories)   --pause 0.5
             --model eleven_turbo_v2_5   --only id,id   --dry
             --fragments file.json   --voice who=VOICEID   --name saga-name
-            --library story-library.json   fill in the story's file and length in the library page's list
-            (record into the site's audio folder, for example --out audio/stories)
+            --library good-company/stories.json   fill in the episode's file and length in the library
+            (record into the site's audio folder, for example --out good-company/audio/stories)
 
    Needs: Node 18 or newer, ffmpeg on the PATH, and an ElevenLabs key. The voice
    ids are the ones already used by Good Company (gc-friend.js). Check that your
@@ -137,7 +137,9 @@ function arg(name, dflt) {
 function updateLibrary(libPath, id, outDir, fileName, minutes) {
   if (!libPath) return;
   const lib = JSON.parse(fs.readFileSync(libPath, 'utf8'));
-  const entry = (lib.stories || []).find((x) => x.id === id);
+  let entry = null;
+  (lib.series || []).forEach((sr) => (sr.episodes || []).forEach((ep) => { if (ep.id === id) entry = ep; }));
+  if (!entry) entry = (lib.stories || []).find((x) => x.id === id);
   if (!entry) { console.log('  (no library entry called ' + id + ', add one to ' + libPath + ')'); return; }
   const rel = path.relative(process.cwd(), path.join(outDir, fileName)).split(path.sep).join('/');
   entry.file = '/' + rel;

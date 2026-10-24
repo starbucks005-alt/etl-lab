@@ -1,0 +1,202 @@
+{
+ "_note": "The Good Company story library, told as serials (Dr. O, 2026-10-24). Each companion's stories are a series of numbered episodes, about five minutes each, told in the voices of the companions. An episode with file null is not recorded yet and shows as 'Recording soon'. tools/record-pack-stories.js --library good-company/stories.json --out good-company/audio/stories fills in file and minutes as it records. Shelves: Continue listening is built on the listener's own device from what they started; New releases, For bedtime and For kids are lists in this file; Most popular needs real listening numbers and stays hidden until there are some (needs_data). Read by good-company/stories.html and by story-library.html in the store.",
+ "series": [
+  {
+   "id": "reggie-biscuit-mochi",
+   "title": "The Adventures of Reggie, Biscuit and Mochi",
+   "companion": "Reggie, Biscuit and Mochi",
+   "kids": true,
+   "blurb": "Nobody visits for plot. They drop by to hear what happened today, and every ordinary day is an adventure.",
+   "episodes": [
+    {
+     "n": 1,
+     "id": "trash",
+     "title": "The Great Trash Can Mystery",
+     "minutes": 5,
+     "narrator": "Reggie, Biscuit and Mochi",
+     "file": null
+    },
+    {
+     "n": 2,
+     "id": "squirrel",
+     "title": "The Great Squirrel Incident",
+     "minutes": 5,
+     "narrator": "Reggie, Biscuit and Mochi",
+     "file": null
+    },
+    {
+     "n": 3,
+     "id": "stick",
+     "title": "The Stick of Destiny",
+     "minutes": 5,
+     "narrator": "Reggie, Biscuit and Mochi",
+     "file": null
+    },
+    {
+     "n": 4,
+     "id": "beach",
+     "title": "The beach at low tide",
+     "minutes": 4,
+     "narrator": "Reggie, Biscuit and Mochi",
+     "file": null
+    },
+    {
+     "n": 5,
+     "id": "ferry",
+     "title": "The ferry",
+     "minutes": 4,
+     "narrator": "Reggie, Biscuit and Mochi",
+     "file": null
+    },
+    {
+     "n": 6,
+     "id": "market",
+     "title": "The farmers market",
+     "minutes": 5,
+     "narrator": "Reggie, Biscuit and Mochi",
+     "file": null
+    },
+    {
+     "n": 7,
+     "id": "tennis-ball",
+     "title": "The Day I Lost My Tennis Ball",
+     "minutes": 5,
+     "narrator": "Reggie",
+     "new": true,
+     "file": null,
+     "written": false
+    }
+   ]
+  },
+  {
+   "id": "alice",
+   "title": "A.L.I.C.E.: The Laboratory Saga",
+   "companion": "A.L.I.C.E.",
+   "blurb": "She was built in a well-funded university psychology lab to study human connection, without ever once having it herself. She was replaced by something newer, and let go.",
+   "episodes": [
+    {
+     "n": 1,
+     "id": "alice-saga",
+     "title": "The laboratory saga",
+     "minutes": 5,
+     "narrator": "A.L.I.C.E.",
+     "file": null
+    }
+   ]
+  },
+  {
+   "id": "tansy",
+   "title": "Tansy: Human Summer",
+   "companion": "Tansy, Poppy and Blue",
+   "blurb": "An arrogant fairy who acts like she's above humans, while secretly envious of them.",
+   "episodes": [
+    {
+     "n": 1,
+     "id": "tansy-human-summer",
+     "title": "Human Summer",
+     "minutes": 3,
+     "narrator": "Tansy, Poppy and Blue",
+     "file": null
+    }
+   ]
+  },
+  {
+   "id": "kit",
+   "title": "Explorer Kit: Postcards",
+   "companion": "Explorer Kit",
+   "blurb": "Exploration, travel knowledge, serialized adventures.",
+   "episodes": [
+    {
+     "n": 1,
+     "id": "kit-mongolia",
+     "title": "Mongolia",
+     "minutes": null,
+     "narrator": "Explorer Kit",
+     "file": null
+    },
+    {
+     "n": 2,
+     "id": "kit-jordan",
+     "title": "Jordan",
+     "minutes": null,
+     "narrator": "Explorer Kit",
+     "file": null
+    },
+    {
+     "n": 3,
+     "id": "kit-ohio",
+     "title": "Ohio",
+     "minutes": null,
+     "narrator": "Explorer Kit",
+     "file": null
+    }
+   ]
+  }
+ ],
+ "shelves": [
+  {
+   "id": "new",
+   "title": "New releases",
+   "items": [
+    {
+     "companion": "Explorer Kit",
+     "series": "kit"
+    },
+    {
+     "companion": "Reggie",
+     "series": "reggie-biscuit-mochi",
+     "episode": "tennis-ball"
+    }
+   ]
+  },
+  {
+   "id": "popular",
+   "title": "Most popular",
+   "needs_data": true,
+   "items": [
+    {
+     "companion": "Winston"
+    },
+    {
+     "companion": "Julian"
+    },
+    {
+     "companion": "Dario"
+    }
+   ]
+  },
+  {
+   "id": "bedtime",
+   "title": "For bedtime",
+   "items": [
+    {
+     "companion": "Flint"
+    },
+    {
+     "companion": "The Nursery"
+    }
+   ]
+  },
+  {
+   "id": "kids",
+   "title": "For kids",
+   "items": [
+    {
+     "companion": "Reggie",
+     "series": "reggie-biscuit-mochi",
+     "episode": "tennis-ball"
+    },
+    {
+     "companion": "Biscuit",
+     "series": "reggie-biscuit-mochi",
+     "episode": "stick"
+    },
+    {
+     "companion": "Mochi",
+     "series": "reggie-biscuit-mochi",
+     "episode": "beach"
+    }
+   ]
+  }
+ ]
+}
