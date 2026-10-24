@@ -253,6 +253,10 @@
   .prob span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
   .prob .gcrow span{color:var(--blue)}
   .prob .pfoot{margin:.7rem 0 0;font-size:14px;color:var(--dim)}
+  .pc-img[hidden]{display:none}
+  .swatches{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(0,0,0,.6);padding:5px;border-radius:999px;border:1px solid var(--line)}
+  .sw{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:transparent;border:0;border-radius:999px;padding:.35rem .9rem;cursor:pointer}
+  .sw.on{background:var(--gold);color:#1a1405;font-weight:600}
 </style>
 </head>
 <body>
@@ -317,11 +321,11 @@
       </div>
     </section>
     <section class="feature flip" id="portable">
-      <div class="f-media"><img src="/images/etl-store/portable-companion-v1.jpg" alt="A glossy black box with a teal light strip around the bottom and the ETL logo on the front." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="f-media"><img class="pc-img" id="pcBlack" src="/images/etl-store/portable-companion-v1.jpg" alt="The Portable Companion in glossy black, with a teal light strip around the bottom and the ETL logo on the front." loading="lazy"><img class="pc-img" id="pcWhite" src="/images/etl-store/portable-companion-white-v1.jpg" alt="The Portable Companion in glossy white, with a teal light strip around the bottom and the ETL logo on the front." loading="lazy" hidden><span class="tag">Concept art</span><div class="swatches" role="group" aria-label="Color"><button type="button" class="sw on" data-c="Black">Black</button><button type="button" class="sw" data-c="White">White</button></div></div>
       <div class="f-text">
         <p class="eyebrow">On the road</p>
         <h2>The Portable Companion</h2>
-        <p class="f-body">A glossy black box that charges overnight, then unplugs and goes with you, in the car or anywhere. There is no screen to distract you. It connects to the Good Company companions over Wi-Fi or your phone's hotspot, and plays prerecorded stories as an add-on, like the adventures of Reggie, Biscuit and Mochi.</p>
+        <p class="f-body">A glossy black or white box that charges overnight, then unplugs and goes with you, in the car or anywhere. There is no screen to distract you. It connects to the Good Company companions over Wi-Fi or your phone's hotspot, and plays prerecorded stories as an add-on, like the adventures of Reggie, Biscuit and Mochi.</p>
         
         <p class="f-meta"><span class="price">Price to be announced</span> <span class="pill soon">Concept art, coming soon</span></p>
         <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a></p>
@@ -766,6 +770,18 @@
     var g=b.getAttribute('data-g');
     bar.querySelectorAll('.gp').forEach(function(x){ x.classList.toggle('on',x===b); });
     cards.forEach(function(c){ var show=g==='all'||(' '+c.getAttribute('data-genre')+' ').indexOf(' '+g+' ')>-1; c.hidden=!show; });
+  });
+})();
+</script>
+<script>
+(function(){
+  var bar=document.querySelector('.swatches'); if(!bar) return;
+  var imgs={Black:document.getElementById('pcBlack'),White:document.getElementById('pcWhite')};
+  bar.addEventListener('click',function(e){
+    var b=e.target.closest('.sw'); if(!b) return;
+    var c=b.getAttribute('data-c');
+    bar.querySelectorAll('.sw').forEach(function(x){ x.classList.toggle('on',x===b); });
+    Object.keys(imgs).forEach(function(k){ imgs[k].hidden=(k!==c); });
   });
 })();
 </script>
