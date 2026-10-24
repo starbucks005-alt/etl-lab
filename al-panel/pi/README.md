@@ -55,6 +55,12 @@ Measure that socket's power pin with a meter before connecting the board's logic
 4. `python3 ~/al_panel/al_neck.py` waits for the panel server to ask for a glance.
    The head is limited to 60 degrees each side of the middle. One motion sensor cannot
    tell where a person is, so the head makes a small glance and comes back; it does not aim.
+5. If her face does not look straight ahead when the head is in the middle, set the straight
+   ahead number without taking the head off. `python3 ~/al_panel/al_neck.py --hold 100` moves
+   to 100 and holds for a minute, then lets go. Try other numbers (between 30 and 150) until her
+   face looks straight ahead, then keep it with `python3 ~/al_panel/al_neck.py --save 100` and
+   `sudo systemctl restart al-neck`. The number is kept in `~/al_neck_middle.txt`. Not tried on the
+   real head: which direction a bigger number turns it is not known yet.
 
 ## Start the eyes and the neck by themselves (after both have worked by hand)
 `al-eyes.service` and `al-neck.service` start the two drivers when the Pi starts, the same

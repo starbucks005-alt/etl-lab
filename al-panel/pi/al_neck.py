@@ -14,16 +14,29 @@ Check:   i2cdetect -y 1        (the PCA9685 shows up as 40)
 Bench:   python3 ~/al_panel/al_neck.py --test        (one glance, then stops)
 Run:     python3 ~/al_panel/al_neck.py
 
-The head is limited to 60 degrees each side of the middle (90). The glance uses 25.
+The head is limited to 60 degrees each side of the middle (90 unless a number was saved with --save). The glance uses 25.
 """
 import json
+import os
 import sys
 import time
 
 from adafruit_servokit import ServoKit
 
 CHANNEL = 8         # found by trying each channel in turn: the motor moved on 8
-MIDDLE = 90
+MIDDLE_FILE = os.path.expanduser("~/al_neck_middle.txt")   # where the straight ahead number is kept
+
+
+def read_middle():
+    """The angle where her face looks straight ahead. 90 unless a number was saved."""
+    try:
+        with open(MIDDLE_FILE) as f:
+            return max(30, min(150, int(f.read().strip())))
+    except Exception:
+        return 90
+
+
+MIDDLE = read_middle()
 LIMIT = 60          # the most the head may ever turn from the middle, in degrees
 GLANCE = 25         # how far the glance goes each way
 STEP = 1            # degrees per step
@@ -38,7 +51,7 @@ here = MIDDLE
 def go(target):
     """Move slowly to the target angle, never past the limit."""
     global here
-    target = max(MIDDLE - LIMIT, min(MIDDLE + LIMIT, target))
+    target = max(max(0, MIDDLE - LIMIT), min(min(180, MIDDLE + LIMIT), target))
     while here != target:
         here += STEP if target > here else -STEP
         servo.angle = here
@@ -54,6 +67,31 @@ def glance():
     time.sleep(0.3)
     servo.angle = None   # let go so the servo does not buzz while it waits
 
+
+def argument(flag):
+    """The number after a flag, such as --hold 100, or None."""
+    if flag in sys.argv:
+        try:
+            return max(30, min(150, int(sys.argv[sys.argv.index(flag) + 1])))
+        except (IndexError, ValueError):
+            print(flag + " needs a number, for example " + flag + " 100")
+            sys.exit(1)
+    return None
+
+
+# Setting the straight ahead number, with no glance:
+#   python3 ~/al_panel/al_neck.py --hold 100    moves to 100 and holds for 60 seconds, then lets go
+#   python3 ~/al_panel/al_neck.py --save 100    keeps 100 as the straight ahead number
+if argument("--hold") is not None:
+    servo.angle = argument("--hold")
+    time.sleep(60)
+    servo.angle = None
+    sys.exit(0)
+if argument("--save") is not None:
+    with open(MIDDLE_FILE, "w") as f:
+        f.write(str(argument("--save")))
+    print("Straight ahead is now " + str(argument("--save")) + ". Restart the neck: sudo systemctl restart al-neck")
+    sys.exit(0)
 
 servo.angle = MIDDLE
 time.sleep(0.5)
