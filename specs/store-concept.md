@@ -504,6 +504,10 @@ Screens she found on Waveshare (the pages she screenshotted on 2026-10-24; price
 
 Open: which of these has an HDMI version at the 10 inch size, the real brightness of each, and what a wall mount needs for the 21.5 inch.
 
+## Everly princesses on the shells (Dr. O, 2026-10-24)
+
+Dr. O: Everly Castle was a product that had been ignored, and the Everly princesses should be included, not only Good Company and My Echo. Everly Castle is already built in this repository as a web page with a page for each wing and as an iPhone app wrapper (`everly-castle.html`, `everly-castle-wing.html`, `everly-castle-ios`). Its header reads "Ten princesses. Ten real subjects. Learned by playing." The store page now says the Everly princesses can go on the hologram (LumVivo), the Companion Frame, Use with your TV and the Portable Companion, next to the Good Company companions; Tansy knows it. Not decided or tested: how a princess looks on a black hologram background, whether the figurines should include princesses, and whether "translate on a screen" means showing a princess on a screen or a language feature (asked, not yet answered). Everly Castle is not yet on the dashboard.
+
 ## The Rising Sun (new product, prototype, 2026-10-18)
 
 Dr. O's design, started 2026-10-18, details still being worked out. From
