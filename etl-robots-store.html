@@ -12,339 +12,469 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Almost Human: The ETL Robots Store | Emerging Technologies Laboratory</title>
-<link rel="icon" type="image/png" href="/favicon_etl_512.png">
-<meta name="description" content="Almost Human, the ETL Robots Store: robots, figurines on a plinth, and plinths. Concept art, coming soon. Astra-9 Lite is built and working.">
-<link rel="canonical" href="https://emerging-tech-lab.com/etl-robots-store">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Emerging Technologies Laboratory">
-<meta property="og:title" content="Almost Human: The ETL Robots Store | Emerging Technologies Laboratory">
-<meta property="og:description" content="Robots, figurines on a plinth, and plinths from Emerging Technologies Laboratory. Concept art, coming soon.">
-<meta property="og:url" content="https://emerging-tech-lab.com/etl-robots-store">
-<meta property="og:image" content="https://emerging-tech-lab.com/images/etl-store/astra9-lite-real-v1.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
-<script src="/good-company/gc-skin.js"></script>
-<link rel="stylesheet" href="/good-company/gc-skin.css">
+<meta name="theme-color" content="#050505">
 <style>
-  /* Palette and body come from gc-skin.css, the same skins as Good Company. No wrap padding,
-     no gaps: the cards run edge to edge. Text keeps only a hairline of room so it is not glued to the glass. */
+  :root{--bg:#050505;--bg2:#0a0e13;--bg3:#101820;--blue:#2fa4ff;--blue-soft:rgba(47,164,255,.35);--gold:#d9b660;--ink:#f2f4f7;--dim:#a9b3be;--line:rgba(255,255,255,.12);--mono:'IBM Plex Mono',ui-monospace,monospace;--serif:'Spectral',Georgia,serif;--sans:'Public Sans',system-ui,sans-serif}
   *{box-sizing:border-box}
-  body{margin:0}
-  a{color:var(--accent)}
-  header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:.5rem .6rem;background:var(--chrome);border-bottom:1px solid var(--line)}
-  header a.brand{text-decoration:none;display:flex;align-items:center;gap:10px;color:var(--ink)}
-  header .mark{font-size:26px;letter-spacing:.02em}
-  header .word{font-size:13px;line-height:1.25;color:var(--ink-dim);border-left:1px solid var(--line);padding-left:10px}
-  .btn{background:transparent;color:var(--ink);border:1px solid var(--ink-dim);border-radius:4px;padding:.4rem .7rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
-  .intro{padding:1rem .6rem .4rem}
-  h1{font-size:clamp(30px,5.5vw,48px);margin:0 0 6px;color:var(--ink);line-height:1.15;font-weight:500}
-  .lede{font-size:18px;color:var(--ink);max-width:640px;margin:0 0 6px}
-  .sub{font-size:15px;max-width:640px;margin:0;color:var(--ink-dim)}
-  h2{font-size:24px;color:var(--ink);margin:0;padding:1.5rem .6rem .1rem;font-weight:500}
-  .section-note{margin:0;padding:0 .6rem .6rem;font-size:14px;color:var(--ink-dim)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0}
-  .card{background:var(--panel);display:flex;flex-direction:column;border-top:1px solid var(--line)}
-  .card .shot{aspect-ratio:4/5;background:#000;overflow:hidden}
-  .card .shot img{width:100%;height:100%;object-fit:cover;display:block}
-  .card .body{padding:.5rem .6rem .7rem;display:flex;flex-direction:column;gap:6px;flex:1}
-  .card h3{margin:0;font-size:21px;color:var(--ink);font-weight:500}
-  .card h3 a{color:inherit;text-decoration:none}
-  .card h3 a:hover{text-decoration:underline}
-  .card p{margin:0;font-size:14px;color:var(--ink-dim)}
-  .pill{align-self:flex-start;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-top:auto;border:1px solid var(--accent);color:var(--accent)}
-  .pill.done{background:var(--accent);color:var(--accent-ink)}
-  .pill.soon{border-color:var(--ink-dim);color:var(--ink-dim)}
-  .banner{display:block;width:100%;height:auto}
-  .banner.hero{margin-top:.6rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .card .body p+p{margin-top:2px}
-  .summary{padding:0 0 .4rem}
-  .summary p{max-width:640px;margin:0;padding:0 .6rem .55rem;font-size:16px;color:var(--ink)}
-  .more{font-size:14px;margin:0;padding:.6rem}
-  footer{padding:1rem .6rem 1.5rem;border-top:1px solid var(--line);color:var(--ink-dim);font-size:13px}
-  @media (max-width:520px){.grid{grid-template-columns:1fr 1fr}.card h3{font-size:18px}}
+  html{scroll-behavior:smooth;scroll-padding-top:70px}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55}
+  a{color:var(--blue)}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 
-  .shot{position:relative}
-  .card .shot.square{aspect-ratio:1/1}
-  .card .shot.wide{aspect-ratio:2/1}
-  .tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px}
-  .price{font-size:13px;color:var(--ink-dim);font-family:var(--mono);letter-spacing:.04em}
-  .buy{align-self:flex-start;background:transparent;color:var(--ink-dim);border:1px solid var(--ink-dim);border-radius:4px;padding:.4rem .8rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7;cursor:not-allowed}
-  .intro-text{max-width:640px;margin:0;padding:0 .6rem .6rem;font-size:15px;color:var(--ink)}
-  .card .shot.tall{aspect-ratio:3/4}
-  .card .shot.land{aspect-ratio:4/3}
-  .card .shot.poster{aspect-ratio:3/4}
-  .soonpanel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1c1a17,#34302a);color:#e8dcc0;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:1rem}
-  .grid.rs{grid-template-columns:9fr 16fr}
-  @media (max-width:700px){.grid.rs{grid-template-columns:1fr}}
-  .contact{padding:0 .6rem 1rem;max-width:640px}
-  .contact form{display:grid;gap:.6rem}
-  .contact label{font-size:14px;color:var(--ink-dim);display:grid;gap:3px}
-  .contact input,.contact select,.contact textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:.5rem .6rem;width:100%}
-  .contact textarea{min-height:120px;resize:vertical}
-  .contact .send{justify-self:start;background:var(--accent);color:var(--accent-ink);border:0;border-radius:4px;padding:.55rem 1.1rem;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+  /* top bar */
+  .top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:.6rem 1.2rem;background:rgba(5,5,5,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex:none}
+  .brand .mark{font-family:var(--serif);font-size:26px;letter-spacing:.04em}
+  .brand .word{font-size:12px;line-height:1.25;color:var(--dim);border-left:1px solid var(--line);padding-left:10px}
+  .top nav{display:flex;align-items:center;gap:1.1rem;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+  .top nav::-webkit-scrollbar{display:none}
+  .top nav a{color:var(--dim);text-decoration:none;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+  .top nav a:hover{color:var(--ink)}
+  .top nav a.cta{color:var(--bg);background:var(--gold);padding:.4rem .9rem;border-radius:3px;font-weight:600}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:1.05fr 1fr;align-items:center;min-height:min(92vh,880px);padding:3rem 2rem;gap:2rem;background:radial-gradient(ellipse at 72% 50%,rgba(47,164,255,.22),transparent 55%),linear-gradient(180deg,var(--bg),var(--bg2))}
+  .hero-text{max-width:600px;justify-self:center}
+  .eyebrow{margin:0 0 .6rem;font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(52px,9vw,112px);line-height:1;margin:0 0 1rem;letter-spacing:-.01em}
+  .hero-sub{font-size:clamp(18px,2.2vw,24px);line-height:1.4;margin:0 0 1rem;color:var(--ink)}
+  .hero-by{margin:0 0 1.6rem;color:var(--dim);font-size:15px}
+  .hero-buttons{display:flex;flex-wrap:wrap;gap:.8rem;margin:0}
+  .btn{display:inline-block;padding:.75rem 1.4rem;border:1px solid var(--line);border-radius:3px;color:var(--ink);text-decoration:none;font-size:14px;letter-spacing:.08em;text-transform:uppercase;transition:border-color .25s,box-shadow .25s,transform .25s}
+  .btn:hover{border-color:var(--blue);box-shadow:0 0 22px var(--blue-soft);transform:translateY(-2px)}
+  .btn.primary{background:var(--blue);border-color:var(--blue);color:#02111f;font-weight:600}
+  .hero-media{position:relative;justify-self:center;width:min(100%,640px);border-radius:6px;overflow:hidden;box-shadow:0 0 90px rgba(47,164,255,.22)}
+  .hero-media img{width:100%;height:auto}
+
+  .tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;border:1px solid var(--line)}
+
+  /* feature rows: one product, one screen */
+  .feature{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:3rem;min-height:min(86vh,780px);padding:3rem 2rem;max-width:1280px;margin:0 auto}
+  .feature.flip .f-media{order:2}
+  .features{background:var(--bg)}
+  .feature+.feature{border-top:1px solid var(--line)}
+  .f-media{position:relative;border-radius:6px;overflow:hidden;background:#000;justify-self:center;width:min(100%,520px)}
+  .f-media img{width:100%;height:auto;max-height:78vh;object-fit:cover}
+  .f-text h2{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,60px);line-height:1.05;margin:0 0 1rem}
+  .f-body{font-size:18px;color:var(--ink);margin:0 0 1rem;max-width:520px}
+  .f-meta{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin:0 0 1rem}
+  .note{color:var(--dim);font-size:15px;max-width:520px}
+  .ghost{display:inline-block;margin-left:.6rem;color:var(--ink);font-size:13px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+  .ghost:hover{border-color:var(--blue)}
+
+  /* about */
+  .about{background:linear-gradient(180deg,var(--bg),var(--bg3));padding:5rem 1.5rem;text-align:center;border-top:1px solid var(--line)}
+  .about h2,.band h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4.4vw,52px);line-height:1.1;margin:0 0 1rem}
+  .about p{max-width:720px;margin:0 auto 1rem;font-size:18px}
+  .about .eyebrow{text-align:center}
+
+  /* bands */
+  .band{padding:4.5rem 1.5rem;text-align:center;border-top:1px solid var(--line)}
+  .band:nth-of-type(even){background:var(--bg2)}
+  .lead{max-width:760px;margin:0 auto 2rem;color:var(--dim);font-size:17px}
+  .more{margin:2rem 0 0}
+  .faces{display:flex;flex-wrap:wrap;justify-content:center;gap:1.2rem;margin-top:2rem}
+  .face{margin:0;width:200px;text-align:left}
+  .face .media{aspect-ratio:3/4;border-radius:6px;overflow:hidden;background:#000;border:1px solid var(--line);transition:transform .35s,border-color .35s,box-shadow .35s}
+  .face:hover .media{transform:translateY(-6px);border-color:var(--blue);box-shadow:0 12px 40px var(--blue-soft)}
+  .face img{width:100%;height:100%;object-fit:cover}
+  .face figcaption{padding:.6rem .2rem}
+  .face strong{display:block;font-family:var(--serif);font-size:20px;font-weight:500}
+  .face span{display:block;font-size:13px;color:var(--dim)}
+
+  /* poster */
+  .poster{position:relative;margin:0 auto 2rem;max-width:520px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+  .poster img{width:100%;height:auto}
+  .poster figcaption{padding:.7rem 1rem;font-size:14px;color:var(--dim);background:var(--bg3);text-align:left}
+
+  /* one card shape for every product */
+  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:1.4rem;max-width:1240px;margin:0 auto;text-align:left}
+  .card{position:relative;width:268px;display:flex;flex-direction:column;background:var(--bg3);border:1px solid var(--line);border-radius:8px;overflow:hidden;transition:transform .35s,border-color .35s,box-shadow .35s}
+  .card .media{position:relative;aspect-ratio:4/5;background:#000;overflow:hidden}
+  .card .media img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+  .card .media::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(47,164,255,.35) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s;pointer-events:none}
+  .card::before{content:"";position:absolute;left:12%;right:12%;bottom:-1px;height:3px;background:var(--blue);box-shadow:0 0 20px 4px var(--blue);opacity:.0;transition:opacity .35s;z-index:2}
+  .card:hover{transform:translateY(-8px);border-color:var(--blue);box-shadow:0 18px 50px rgba(47,164,255,.25)}
+  .card:hover .media img{transform:scale(1.05) rotate(.4deg)}
+  .card:hover .media::after{transform:translateX(120%)}
+  .card:hover::before{opacity:.9}
+  .info{display:flex;flex-direction:column;gap:7px;padding:.9rem 1rem 1.1rem;flex:1}
+  .info h3{margin:0;font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.15}
+  .info h3 a{color:inherit;text-decoration:none}
+  .info h3 a:hover{text-decoration:underline}
+  .info p{margin:0;font-size:14px;color:var(--dim)}
+  .price{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--dim)}
+  .pill{align-self:flex-start;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-top:auto;border:1px solid var(--blue);color:var(--blue)}
+  .pill.built{background:var(--gold);border-color:var(--gold);color:#1a1405;font-weight:600}
+  .pill.soon{border-color:rgba(255,255,255,.3);color:var(--ink)}
+  .buy{align-self:flex-start;background:transparent;color:var(--dim);border:1px solid var(--line);border-radius:3px;padding:.4rem .9rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.65;cursor:not-allowed}
+
+  /* contact */
+  .contact-band{background:linear-gradient(180deg,var(--bg2),var(--bg))}
+  .contact{max-width:640px;margin:0 auto;text-align:left}
+  .contact form{display:grid;gap:.8rem}
+  .contact label{font-size:14px;color:var(--dim);display:grid;gap:4px}
+  .contact input,.contact select,.contact textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg3);border:1px solid var(--line);border-radius:4px;padding:.6rem .7rem;width:100%}
+  .contact input:focus,.contact select:focus,.contact textarea:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px var(--blue-soft)}
+  .contact textarea{min-height:130px;resize:vertical}
+  .contact .send{justify-self:start;background:var(--gold);color:#1a1405;border:0;border-radius:3px;padding:.65rem 1.4rem;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;cursor:pointer}
   .contact .send[disabled]{opacity:.6;cursor:wait}
-  .contact .fine{font-size:13px;color:var(--ink-dim);margin:0}
-  .contact .msg{display:none;font-size:15px;color:var(--ink);padding:.6rem .8rem;border:1px solid var(--accent)}
+  .contact .fine{font-size:13px;color:var(--dim);margin:0}
+  .contact .msg{display:none;font-size:15px;color:var(--ink);padding:.6rem .8rem;border:1px solid var(--blue)}
   .contact .msg.on{display:block}
   .contact .bot{position:absolute;left:-9999px}
-  .grid.one.wide{grid-template-columns:minmax(240px,720px)}
-  .card .shot.hd{aspect-ratio:16/9}
-  .grid.one{grid-template-columns:minmax(240px,420px)}
-  .grid.four{grid-template-columns:repeat(4,1fr)}
-  .grid.two{grid-template-columns:repeat(2,1fr)}
-  @media (max-width:900px){.grid.four{grid-template-columns:repeat(2,1fr)}}
-  .options{margin:0;padding:0 .6rem .6rem 1.6rem;max-width:640px;font-size:15px;color:var(--ink)}
+
+  .foot{padding:2rem 1.2rem 3rem;text-align:center;border-top:1px solid var(--line);color:var(--dim);font-size:13px}
+
+  /* Auggie */
+  .auggie{position:fixed;right:16px;bottom:16px;z-index:30;display:flex;gap:12px;align-items:center;max-width:360px;padding:12px 16px 12px 12px;background:rgba(16,24,32,.96);border:1px solid var(--blue);border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.6),0 0 30px var(--blue-soft);animation:rise .5s ease-out}
+  .auggie[hidden]{display:none}
+  .auggie img{width:64px;height:84px;object-fit:cover;border-radius:6px;flex:none}
+  .auggie p{margin:0 0 .5rem;font-size:14px}
+  .auggie .ab{display:flex;flex-wrap:wrap;gap:6px 12px;margin:0;font-size:12px}
+  .auggie .ab a{color:var(--blue)}
+  .auggie .x{position:absolute;top:2px;right:8px;background:none;border:0;color:var(--dim);font-size:20px;cursor:pointer}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  @media (max-width:860px){
+    .brand .word{display:none}
+    .hero{grid-template-columns:1fr;padding:2rem 1.2rem;min-height:0;text-align:left}
+    .hero-media{order:-1;width:min(100%,420px)}
+    .feature{grid-template-columns:1fr;gap:1.5rem;min-height:0;padding:2.5rem 1.2rem}
+    .feature.flip .f-media{order:0}
+    .f-media{width:min(100%,420px)}
+  }
+  @media (max-width:600px){
+    .card{width:calc(50% - .7rem)}
+    .info h3{font-size:18px}
+    .face{width:calc(50% - .6rem)}
+    .auggie{left:12px;right:12px;max-width:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+  .skills{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;max-width:1240px;margin:0 auto;text-align:left}
+  .skill{background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem;transition:transform .3s,border-color .3s,box-shadow .3s}
+  .skill:hover{transform:translateY(-4px);border-color:var(--blue);box-shadow:0 10px 30px var(--blue-soft)}
+  .skill h3{margin:0 0 .2rem;font-family:var(--serif);font-weight:500;font-size:21px}
+  .skill .sk{margin:0 0 .3rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+  .skill p{margin:0;font-size:14px;color:var(--dim)}
+  .skill p.sk{color:var(--gold)}
+  .lead.small{font-size:14px;margin-top:1.5rem}
+  .f-media .soonpanel{position:relative;aspect-ratio:4/5;min-height:360px}
+  .soonpanel{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1620,#1b2a3a);color:#dfe8f2;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:1rem}
 </style>
 </head>
 <body>
-<div>
-  <header>
-    <a class="brand" href="/"><span class="mark">ETL</span><span class="word">Emerging<br>Technologies Laboratory</span></a>
-    <div class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></div>
-  </header>
+<header class="top">
+  <a class="brand" href="/"><span class="mark">ETL</span><span class="word">Emerging<br>Technologies Laboratory</span></a>
+  <nav aria-label="Store sections">
+    <a href="#robots">Robots</a>
+    <a href="#companions">Companions</a>
+    <a href="#lumvivo">Holograms</a>
+    <a href="#rising-sun">Rising Sun</a>
+    <a href="#collar">Collars</a>
+    <a href="#skills">Skills</a>
+    <a href="#about">About</a>
+    <a class="cta" href="#contact">Contact</a>
+  </nav>
+</header>
 
-  <div class="intro">
-  <h1>Almost Human</h1>
-  <p class="lede">The ETL Robots Store. Companions. Brains with personalities capable of interacting with humans and each other.</p>
-  <p class="sub">Designed by Dr. Terry Oroszi. The prototypes are in various stages of production in her laboratory. <a href="#contact">Contact her for more information.</a></p>
+<main>
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">The ETL Robots Store</p>
+      <h1>Almost Human</h1>
+      <p class="hero-sub">Companions. Brains with personalities capable of interacting with humans and each other.</p>
+      <p class="hero-by">Designed by Dr. Terry Oroszi. The prototypes are in various stages of production in her laboratory.</p>
+      <p class="hero-buttons"><a class="btn primary" href="#robots">Explore the robots</a> <a class="btn" href="#contact">Contact Dr. Oroszi</a></p>
+    </div>
+    <div class="hero-media"><img src="/images/etl-store/figurine-alice-standing-v1.jpg" alt="A.L.I.C.E. standing on a round black plinth with a glowing light ring, with metal arms and a sleeveless black top." fetchpriority="high"><span class="tag">Concept art</span></div>
+  </section>
+
+  <div class="features">
+    <section class="feature" id="lite">
+      <div class="f-media"><img src="/images/etl-store/astra9-lite-real-v1.jpg" alt="Astra-9 Lite on a table, a head and bust with copper panel lines, a dark collar and glowing blue eyes." loading="lazy"></div>
+      <div class="f-text">
+        <p class="eyebrow">Built and working</p>
+        <h2>Astra-9 Lite</h2>
+        <p class="f-body">A head and bust, 17 inches tall, that you can keep on a desk or a workbench. She answers to Elle, Astra, Astra Lite or AL.</p>
+        <p class="note">A video of Astra-9 Lite talking is coming to this page. <a href="/astra9">See the Astra-9 page and join the list &rarr;</a></p>
+        <p class="f-meta"><span class="price">Price to be announced</span> <span class="pill built">Built and working</span></p>
+        <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a></p>
+      </div>
+    </section>
+    <section class="feature flip" id="lumvivo">
+      <div class="f-media"><img src="/images/etl-store/lumvivo-holopod-v1.jpg" alt="The LumVivo holopod, a tabletop pod showing a small floating A.L.I.C.E. hologram, with five lit buttons along the bottom." loading="lazy"><span class="tag">Concept art picture</span></div>
+      <div class="f-text">
+        <p class="eyebrow">Holograms</p>
+        <h2>LumVivo Holopod</h2>
+        <p class="f-body">A tabletop pod, 20 inches tall. Program up to five fully interactive holograms. Each is a character about 15 cm tall who floats in the dark and talks with you in real time, and five lit buttons choose which one appears. Each hologram is available on the Good Company or My Echo website.</p>
+        
+        <p class="f-meta"><span class="price">Price to be announced</span> <span class="pill built">Built and working</span></p>
+        <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a></p>
+      </div>
+    </section>
+    <section class="feature" id="collar">
+      <div class="f-media"><img src="/images/etl-store/talking-collar-cupcake-v1.jpg" alt="A white Maltese dog named Cupcake wearing a pink collar with a small black speaker, saying hi in a speech bubble, next to a phone panel with Walk, At home, Pet and Potty buttons." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="f-text">
+        <p class="eyebrow">For dogs</p>
+        <h2>Talking Pet Collar</h2>
+        <p class="f-body">Plays recorded voice clips in a character voice you pick for your dog. A phone panel switches between Walk and At home, with buttons for a pat and potty time. The first voice is Cupcake, for a small Maltese. Planned in five sizes, XS to XL.</p>
+        
+        <p class="f-meta"><span class="price">Price to be announced</span> <span class="pill soon">Concept art, coming soon</span></p>
+        <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a></p>
+      </div>
+    </section>
+    <section class="feature flip" id="frame">
+      <div class="f-media"><div class="soonpanel"><span>Concept art coming soon</span></div><span class="tag">Concept art</span></div>
+      <div class="f-text">
+        <p class="eyebrow">Companion Frame</p>
+        <h2>The Companion Frame</h2>
+        <p class="f-body">A wall frame where a Good Company companion shows as a picture and talks. Every Good Company companion can go into the frame, with their name, voice, scenes and memory.</p>
+        
+        <p class="f-meta"><span class="price">Price to be announced</span> <span class="pill soon">Concept art, coming soon</span></p>
+        <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a></p>
+      </div>
+    </section>
   </div>
 
-  <h2>Astra-9 Lite</h2>
-  <p class="section-note">The bench top version of Astra-9, built and working.</p>
-  <div class="grid one">
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-store/astra9-lite-real-v1.jpg" alt="Astra-9 Lite on a table, a head and bust with copper panel lines, a dark collar and glowing blue eyes." loading="lazy"></div>
-      <div class="body">
-        <h3><a href="/astra9">Astra-9 Lite</a></h3>
-        <p>A head and bust, 17 inches tall, that you can keep on a desk or a workbench. She answers to Elle, Astra, Astra Lite or AL.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill done">Built and working</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-  </div>
-  <p class="intro-text">A video of Astra-9 Lite talking is coming to this page.</p>
-  <p class="more"><a href="/astra9">See the Astra-9 page and join the list &rarr;</a></p>
+  <section class="about" id="about">
+    <p class="eyebrow">The Emerging Technologies Laboratory</p>
+    <h2>Almost human</h2>
+    <p>Every robot here was designed, decided on and built by Dr. Terry Oroszi, one person, in the Emerging Technologies Laboratory. They are companion robots: a brain with a host body.</p>
+    <p>The brain is the character. Each one has a written life: a childhood, a family, a school, a favorite drink, along with their own voice and their own way of talking. Nearly a hundred personalities can step into the same body, each with their own skills. They are built to keep their own memory of the people they talk with.</p>
+    <p>Ask any of them whether they are a real person and they will tell you no. Almost human means they feel like someone, and they never pretend to be someone.</p>
+  </section>
 
-  <h2>LumVivo Holopod</h2>
-  <p class="section-note">The talking hologram pod. Built and working.</p>
-  <div class="grid one">
-    <article class="card">
-      <div class="shot tall"><img src="/images/etl-store/lumvivo-holopod-v1.jpg" alt="The LumVivo holopod, a tabletop pod showing a small floating A.L.I.C.E. hologram, with five lit buttons along the bottom." loading="lazy"><span class="tag">Concept art picture</span></div>
-      <div class="body">
-        <h3>LumVivo Holopod</h3>
-        <p>A tabletop pod, 20 inches tall. Program up to five fully interactive holograms. Each is a character about 15 cm tall who floats in the dark and talks with you in real time, and five lit buttons choose which one appears. Each hologram is available on the Good Company or My Echo website.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill done">Built and working</span>
-        <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
-      </div>
-    </article>
-  </div>
+  <section class="band" id="family">
+    <p class="eyebrow">Meet the ETL family</p>
+    <h2>Characters with a life of their own</h2>
+    <div class="faces">
+      <figure class="face"><div class="media"><img src="/images/etl-store/family-auggie-v1.jpg" alt="August &quot;Auggie&quot; Vidal, a man in a tan jacket and yellow shirt." loading="lazy"></div><figcaption><strong>Auggie</strong><span>From Almost Human</span></figcaption></figure>
+      <figure class="face"><div class="media"><img src="/images/etl-store/family-alice-v1.jpg" alt="A.L.I.C.E. sitting with her arms around her knees, with metal arms and legs." loading="lazy"></div><figcaption><strong>A.L.I.C.E.</strong><span>Synthetic personhood and connection</span></figcaption></figure>
+      <figure class="face"><div class="media"><img src="/images/etl-store/family-blue-v1.jpg" alt="Blue, a fairy in a pale blue gown with clear wings." loading="lazy"></div><figcaption><strong>Blue</strong><span>Highest of the Court</span></figcaption></figure>
+      <figure class="face"><div class="media"><img src="/images/etl-store/family-poppy-v1.jpg" alt="Poppy, a smiling fairy in a pink gown with pink wings." loading="lazy"></div><figcaption><strong>Poppy</strong><span>Heart of the Court</span></figcaption></figure>
+      <figure class="face"><div class="media"><img src="/images/etl-store/family-tansy-v1.jpg" alt="Tansy, a fairy in a green and gold gown with green wings." loading="lazy"></div><figcaption><strong>Tansy</strong><span>Visionary and adventurer</span></figcaption></figure>
+      <figure class="face"><div class="media"><img src="/images/etl-store/family-flint-v1.jpg" alt="Flint, a fairy with curly red hair and amber wings." loading="lazy"></div><figcaption><strong>Flint</strong><span>Spark of Joy</span></figcaption></figure>
+    </div>
+  </section>
 
-  <h2>Figurines</h2>
-  <p class="section-note">Concept art, coming soon. 3D printed Good Company companions, 8 inches tall.</p>
-  <p class="intro-text">Place a figurine on a plinth and it comes alive. Figurines are sold separately from plinths, so you can collect as many figurines as you like.</p>
-  <div class="grid one">
-    <article class="card">
-      <div class="shot poster"><img src="/images/etl-store/good-company-companions-v1.jpg" alt="Good Company: Meet Your Companions. Ten collectible figurines on glowing round plinths: Velvet, A.L.I.C.E., Julian, Dario, Nora, Marion, Flint, Rin, Viv and Aaron." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>Meet Your Companions</h3>
-        <p>Velvet, A.L.I.C.E., Julian, Dario, Nora, Marion, Flint, Rin, Viv and Aaron. Collect them all.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-      </div>
-    </article>
-  </div>
-  <div class="grid">
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-store/figurine-alice-standing-v1.jpg" alt="A.L.I.C.E. standing on a round black plinth, with metal arms, a sleeveless black top and boots." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>A.L.I.C.E., standing</h3>
-        <p>A figurine of A.L.I.C.E., 8 inches tall.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-store/figurine-alice-seated-v1.jpg" alt="A.L.I.C.E. seated on a rectangular black plinth, with her arms around her knee." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>A.L.I.C.E., seated</h3>
-        <p>A figurine of A.L.I.C.E. sitting, 8 inches tall.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-store/figurine-golden-retriever-v1.jpg" alt="A golden retriever sitting on a rectangular black plinth with a speaker grille and a warm light strip." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>Golden Retriever</h3>
-        <p>A figurine of a golden retriever, 8 inches tall.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-store/figurine-fairy-v1.jpg" alt="A fairy with clear wings and a petal skirt standing on a round black plinth." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>Fairy</h3>
-        <p>A figurine of a fairy, 8 inches tall.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-  </div>
+  <section class="band" id="skills">
+    <p class="eyebrow">Skills</p>
+    <h2>Each companion is a department</h2>
+    <p class="lead">The skills that go into each personality. Every one of these Good Company companions can also go into the Companion Frame.</p>
+    <div class="skills">
+      <div class="skill"><h3>Kioko</h3><p class="sk">Emergency response</p><p>Moral fatigue, and first aid.</p></div>
+      <div class="skill"><h3>Nina</h3><p class="sk">Late-life companionship</p><p>Quiet resilience, and cooking.</p></div>
+      <div class="skill"><h3>Sophia</h3><p class="sk">Animal care</p><p>Night-shift identity, and animal care.</p></div>
+      <div class="skill"><h3>Tansy</h3><p class="sk">Fantasy hierarchy</p><p>Pride, and fairy lore.</p></div>
+      <div class="skill"><h3>Reggie</h3><p class="sk">Relational joy</p><p>Unconditional presence, and dog training.</p></div>
+      <div class="skill"><h3>Julian</h3><p class="sk">Longevity psychology</p><p>Era psychology, and history.</p></div>
+      <div class="skill"><h3>A.L.I.C.E.</h3><p class="sk">Synthetic personhood</p><p>Connection.</p></div>
+      <div class="skill"><h3>Viv</h3><p class="sk">Boundary-setting</p><p>Dual identity. A school teacher.</p></div>
+      <div class="skill"><h3>Winston</h3><p class="sk">Etiquette and mediation</p><p>A chimpanzee.</p></div>
+      <div class="skill"><h3>Aaron</h3><p class="sk">Clinical psychology</p><p>OCD. A therapist.</p></div>
+      <div class="skill"><h3>Marion and family</h3><p class="sk">Micro-survival</p><p>Resourcefulness. Little people, like the Borrowers.</p></div>
+      <div class="skill"><h3>Eli and Nell</h3><p class="sk">Craft and family systems</p><p>A family of puppets.</p></div>
+      <div class="skill"><h3>The Grimm Brothers</h3><p class="sk">Language and folklore</p><p>They tell stories.</p></div>
+      <div class="skill"><h3>Marcus</h3><p class="sk">Policy and information integrity</p><p>Provides the news.</p></div>
+      <div class="skill"><h3>Theo</h3><p class="sk">Visibility and communication</p><p>Provides clothes and confidence.</p></div>
+      <div class="skill"><h3>Cressida</h3><p class="sk">Historical identity</p><p>An Edwardian ghost.</p></div>
+      <div class="skill"><h3>Meera</h3><p class="sk">Burnout and somatic regulation</p><p>Law and yoga.</p></div>
+      <div class="skill"><h3>Dario</h3><p class="sk">Mobility and cultural fluency</p><p>World travel.</p></div>
+      <div class="skill"><h3>Nora</h3><p class="sk">Time and material continuity</p><p>Time travel and antiquities.</p></div>
+      <div class="skill"><h3>Zoe</h3><p class="sk">Public identity</p><p>Emotional economics. An influencer asking whether it is worth it.</p></div>
+      <div class="skill"><h3>Rin</h3><p class="sk">Digital safety</p><p>A white hat hacker who will help you with cyber issues.</p></div>
+      <div class="skill"><h3>The Nursery</h3><p class="sk">Shared emotional regulation</p><p>Four stuffed animals come to life.</p></div>
+    </div>
+    <p class="lead small">Good Company is social resilience. My Echo is continuity and memory.</p>
+  </section>
 
-  <h2>Plinths</h2>
-  <p class="section-note">Concept art, coming soon. Sold separately from the figurines.</p>
-  <p class="intro-text">Collect the figurines and own only one or two plinths. With several plinths, the companions can talk to each other.</p>
-  <p class="intro-text">Choose your plinth with a motion detector, a camera, both, or neither.</p>
-  <div class="grid two">
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-store/plinth-round-v3.jpg" alt="A round black plinth with a speaker grille, a status light and a warm light strip around the base, shown with a fairy figurine." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>Plinth, round</h3>
-        <p>Shown with the fairy figurine, sold separately. Holds the speaker and the brain for one figurine. Choose a motion detector, a camera, both, or neither.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-store/plinth-rectangle-v3.jpg" alt="A rectangular black plinth with a speaker grille, a status light and a warm light strip along the top edge, shown with a golden retriever figurine." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>Plinth, rectangular</h3>
-        <p>Shown with the golden retriever figurine, sold separately. Holds the speaker and the brain for one figurine. Choose a motion detector, a camera, both, or neither.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-  </div>
+  <section class="band" id="robots">
+    <p class="eyebrow">Robots</p>
+    <h2>Companion robots</h2>
+    <p class="lead">Concept art, coming soon. A brain with a host body.</p>
+    <div class="grid">
+      <article class="card">
+        <div class="media"><img src="/images/etl-robots/astra9-labcoat-v1.jpg" alt="Astra-9, the full size figure, in a white ETL lab coat and cream dress." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3><a href="/etl-robots">Astra-9</a></h3>
+          <p>The ninth build in an early android line, a proud robot who has never bothered trying to pass as human.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-robots/astrad-labcoat-v1.jpg" alt="Astrad, known as Ted, the full size figure, in a white ETL lab coat and khaki trousers." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3><a href="/etl-robots">Astrad (Ted)</a></h3>
+          <p>Astra-9's companion, in here with her and getting his own body the same way.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-robots/guardian-crop-v1.jpg" alt="An ETL Guardian in a black uniform with a glossy black head and a red light." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3><a href="/etl-robots">The Guardians</a></h3>
+          <p>ETL robots that keep watch.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-robots/alice-seated-v1.jpg" alt="A.L.I.C.E. sitting with her arms around her knees, with metal arms and legs." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3><a href="/etl-robots">A.L.I.C.E.</a></h3>
+          <p>Adaptive Lifeform Interpreting Connective Experience. Skill: synthetic personhood and connection.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-robots/reggie-bot-v2.jpg" alt="Reggie, a beagle robot dog with green eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3><a href="/etl-robots">Reggie</a></h3>
+          <p>A beagle. Good dog. Friends with Biscuit and Mochi. Skill: relational joy and dog training.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-robots/biscuit-bot-v2.jpg" alt="Biscuit, a lab robot dog with blue eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3><a href="/etl-robots">Biscuit</a></h3>
+          <p>A lab. Good dog. Friends with Reggie and Mochi.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-robots/mochi-bot-v2.jpg" alt="Mochi, a French bulldog robot dog with amber eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3><a href="/etl-robots">Mochi</a></h3>
+          <p>A French bulldog. Good dog. Friends with Reggie and Biscuit.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+    </div>
+    <p class="more"><a href="/etl-robots">Read about all the ETL robots &rarr;</a></p>
+  </section>
 
-  <h2>Rising Sun Court</h2>
-  <p class="section-note">Concept art, coming soon. Candles and lights with fairies who live inside. No one greets the morning alone.</p>
-  <p class="intro-text">A sunrise that wakes you slowly, and a fairy inside who says good morning, listens, and remembers. Each one comes with a panel where you can interact with your fairies.</p>
-  <div class="grid rs">
-    <article class="card">
-      <div class="shot tall"><img src="/images/etl-store/rising-sun-light-v1.jpg" alt="The Rising Sun light, a tall frosted amber acrylic bar on a wooden base in a sunny window, with a fairy engraved near the bottom." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>The Rising Sun Light</h3>
-        <p>A light for your window with a fairy who lives inside. It wakes the room with a slow sunrise.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot land"><img src="/images/etl-store/rising-sun-candles-v1.jpg" alt="Three flameless Rising Sun candles in pink, green and amber, each with a different fairy engraved in it, on round wooden bases." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>The Rising Sun Candles</h3>
-        <p>Flameless candles to say goodnight with, and to collect. A different fairy lives in each one.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-  </div>
+  <section class="band" id="companions">
+    <p class="eyebrow">Companions</p>
+    <h2>Figurines and plinths</h2>
+    <p class="lead">Concept art, coming soon. 3D printed Good Company companions, 8 inches tall. Place a figurine on a plinth and it comes alive. Figurines are sold separately from plinths, so you can collect as many figurines as you like.</p>
+    <figure class="poster"><img src="/images/etl-store/good-company-companions-v1.jpg" alt="Good Company: Meet Your Companions. Ten collectible figurines on glowing round plinths: Velvet, A.L.I.C.E., Julian, Dario, Nora, Marion, Flint, Rin, Viv and Aaron." loading="lazy"><span class="tag">Concept art</span><figcaption>Meet Your Companions: Velvet, A.L.I.C.E., Julian, Dario, Nora, Marion, Flint, Rin, Viv and Aaron. Collect them all.</figcaption></figure>
+    <p class="lead">Collect the figurines and own only one or two plinths. With several plinths, the companions can talk to each other. Choose your plinth with a motion detector, a camera, both, or neither.</p>
+    <div class="grid">
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/figurine-alice-standing-v1.jpg" alt="A.L.I.C.E. standing on a round black plinth, with metal arms, a sleeveless black top and boots." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>A.L.I.C.E., standing</h3>
+          <p>A figurine of A.L.I.C.E., 8 inches tall. Skill: synthetic personhood and connection.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/figurine-alice-seated-v1.jpg" alt="A.L.I.C.E. seated on a rectangular black plinth, with her arms around her knee." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>A.L.I.C.E., seated</h3>
+          <p>A figurine of A.L.I.C.E. sitting, 8 inches tall. Skill: synthetic personhood and connection.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/figurine-golden-retriever-v1.jpg" alt="A golden retriever sitting on a rectangular black plinth with a speaker grille and a warm light strip." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>Golden Retriever</h3>
+          <p>A figurine of a golden retriever, 8 inches tall.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/figurine-fairy-v1.jpg" alt="A fairy with clear wings and a petal skirt standing on a round black plinth." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>Fairy</h3>
+          <p>A figurine of a fairy, 8 inches tall.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/plinth-round-v3.jpg" alt="A round black plinth with a speaker grille, a status light and a warm light strip around the base, shown with a fairy figurine." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>Plinth, round</h3>
+          <p>Shown with the fairy figurine, sold separately. Holds the speaker and the brain for one figurine. Choose a motion detector, a camera, both, or neither.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/plinth-rectangle-v3.jpg" alt="A rectangular black plinth with a speaker grille, a status light and a warm light strip along the top edge, shown with a golden retriever figurine." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>Plinth, rectangular</h3>
+          <p>Shown with the golden retriever figurine, sold separately. Holds the speaker and the brain for one figurine. Choose a motion detector, a camera, both, or neither.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+    </div>
+  </section>
 
-  <h2>Talking Pet Collars</h2>
-  <p class="section-note">Concept art, coming soon. For dogs.</p>
-  <div class="grid one wide">
-    <article class="card">
-      <div class="shot hd"><img src="/images/etl-store/talking-collar-cupcake-v1.jpg" alt="A white Maltese dog named Cupcake wearing a pink collar with a small black speaker, saying hi in a speech bubble, next to a phone panel with Walk, At home, Pet and Potty buttons." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3>Talking Pet Collar</h3>
-        <p>Plays recorded voice clips in a character voice you pick for your dog. A phone panel switches between Walk and At home, with buttons for a pat and potty time. The first voice is Cupcake, for a small Maltese. Planned in five sizes, XS to XL.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-  </div>
+  <section class="band" id="rising-sun">
+    <p class="eyebrow">Rising Sun Court</p>
+    <h2>No one greets the morning alone</h2>
+    <p class="lead">Concept art, coming soon. A sunrise that wakes you slowly, and a fairy inside who says good morning, listens, and remembers. Each one comes with a panel where you can interact with your fairies.</p>
+    <div class="grid">
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/rising-sun-light-v1.jpg" alt="The Rising Sun light, a tall frosted amber acrylic bar on a wooden base in a sunny window, with a fairy engraved near the bottom." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>The Rising Sun Light</h3>
+          <p>A light for your window with a fairy who lives inside. It wakes the room with a slow sunrise.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="media"><img src="/images/etl-store/rising-sun-candles-v1.jpg" alt="Three flameless Rising Sun candles in pink, green and amber, each with a different fairy engraved in it, on round wooden bases." loading="lazy"><span class="tag">Concept art</span></div>
+        <div class="info">
+          <h3>The Rising Sun Candles</h3>
+          <p>Flameless candles to say goodnight with, and to collect. A different fairy lives in each one.</p>
+          <span class="price">Price to be announced</span>
+          <span class="pill soon">Concept art, coming soon</span>
+          <button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button>
+        </div>
+      </article>
+    </div>
+  </section>
 
-  <h2>Robots</h2>
-  <p class="section-note">Concept art, coming soon. Companion robots: a brain with a host body.</p>
-  <div class="grid four">
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-robots/astra9-labcoat-v1.jpg" alt="Astra-9, the full size figure, in a white ETL lab coat and cream dress." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3><a href="/etl-robots">Astra-9</a></h3>
-        <p>The ninth build in an early android line, a proud robot who has never bothered trying to pass as human.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-robots/astrad-labcoat-v1.jpg" alt="Astrad, known as Ted, the full size figure, in a white ETL lab coat and khaki trousers." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3><a href="/etl-robots">Astrad (Ted)</a></h3>
-        <p>Astra-9's companion, in here with her and getting his own body the same way.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-robots/guardian-crop-v1.jpg" alt="An ETL Guardian in a black uniform with a glossy black head and a red light." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3><a href="/etl-robots">The Guardians</a></h3>
-        <p>ETL robots that keep watch.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-robots/alice-seated-v1.jpg" alt="A.L.I.C.E. sitting with her arms around her knees, with metal arms and legs." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3><a href="/etl-robots">A.L.I.C.E.</a></h3>
-        <p>Adaptive Lifeform Interpreting Connective Experience.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-robots/reggie-bot-v2.jpg" alt="Reggie, a beagle robot dog with green eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3><a href="/etl-robots">Reggie</a></h3>
-        <p>A beagle. Good dog. Friends with Biscuit and Mochi.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-robots/biscuit-bot-v2.jpg" alt="Biscuit, a lab robot dog with blue eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3><a href="/etl-robots">Biscuit</a></h3>
-        <p>A lab. Good dog. Friends with Reggie and Mochi.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-    <article class="card">
-      <div class="shot square"><img src="/images/etl-robots/mochi-bot-v2.jpg" alt="Mochi, a French bulldog robot dog with amber eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
-      <div class="body">
-        <h3><a href="/etl-robots">Mochi</a></h3>
-        <p>A French bulldog. Good dog. Friends with Reggie and Biscuit.</p>
-        <span class="price">Price to be announced</span>
-        <span class="pill soon">Concept art, coming soon</span>
-        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
-      </div>
-    </article>
-  </div>
-  <p class="more"><a href="/etl-robots">Read about all the ETL robots &rarr;</a></p>
-
-  <h2 id="contact">Contact Dr. Oroszi</h2>
-  <p class="section-note">For more information about any robot, figurine, plinth, light, candle or collar.</p>
-  <div class="contact">
+  <section class="band contact-band" id="contact">
+    <p class="eyebrow">Contact</p>
+    <h2>Contact Dr. Oroszi</h2>
+    <p class="lead">For more information about any robot, figurine, plinth, light, candle or collar.</p>
+<div class="contact">
     <form name="robot-store-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="contactForm">
       <input type="hidden" name="form-name" value="robot-store-contact">
       <p class="bot"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
@@ -370,12 +500,23 @@
       <p class="msg" id="contactErr"></p>
     </form>
   </div>
+  </section>
+</main>
 
-  <footer>
-    Emerging Technologies Laboratory
-    <br><a href="/">&larr; Back to Emerging Technologies Laboratory</a>
-  </footer>
-</div>
+<footer class="foot">
+  Emerging Technologies Laboratory
+  <br><a href="/">&larr; Back to Emerging Technologies Laboratory</a>
+</footer>
+
+<aside class="auggie" id="auggie" hidden aria-label="Auggie">
+  <button class="x" type="button" id="auggieX" aria-label="Close">&times;</button>
+  <img src="/images/etl-store/family-auggie-v1.jpg" alt="Auggie">
+  <div>
+    <p><strong>Hello, I'm Auggie.</strong> Would you like help finding the right companion?</p>
+    <p class="ab"><a href="#robots">Meet the robots</a> <a href="#companions">See the companions</a> <a href="#contact">Ask Dr. Oroszi</a></p>
+  </div>
+</aside>
+
 <script>
 (function(){
   var f=document.getElementById('contactForm'); if(!f) return;
@@ -390,6 +531,15 @@
   });
 })();
 </script>
-<script>gcMountSkinPicker(document.getElementById('picker'), document.getElementById('skinBtn'));</script>
+<script>
+(function(){
+  var a=document.getElementById('auggie'); if(!a) return;
+  var gone=false; try{ gone=sessionStorage.getItem('auggieGone')==='1'; }catch(e){}
+  if(!gone){ setTimeout(function(){ a.hidden=false; },1500); }
+  function close(){ a.hidden=true; try{ sessionStorage.setItem('auggieGone','1'); }catch(e){} }
+  document.getElementById('auggieX').addEventListener('click',close);
+  a.querySelectorAll('.ab a').forEach(function(l){ l.addEventListener('click',close); });
+})();
+</script>
 </body>
 </html>
