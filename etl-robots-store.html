@@ -63,8 +63,6 @@
   footer{padding:1rem .6rem 1.5rem;border-top:1px solid var(--line);color:var(--ink-dim);font-size:13px}
   @media (max-width:520px){.grid{grid-template-columns:1fr 1fr}.card h3{font-size:18px}}
 
-  .notice{margin:.6rem .6rem 0;padding:.7rem .8rem;border:1px solid var(--accent);color:var(--ink);font-size:15px;max-width:720px}
-  .notice strong{font-weight:600}
   .shot{position:relative}
   .card .shot.square{aspect-ratio:1/1}
   .card .shot.wide{aspect-ratio:2/1}
@@ -72,6 +70,12 @@
   .price{font-size:13px;color:var(--ink-dim);font-family:var(--mono);letter-spacing:.04em}
   .buy{align-self:flex-start;background:transparent;color:var(--ink-dim);border:1px solid var(--ink-dim);border-radius:4px;padding:.4rem .8rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7;cursor:not-allowed}
   .intro-text{max-width:640px;margin:0;padding:0 .6rem .6rem;font-size:15px;color:var(--ink)}
+  .card .shot.tall{aspect-ratio:3/4}
+  .card .shot.land{aspect-ratio:4/3}
+  .card .shot.poster{aspect-ratio:3/4}
+  .soonpanel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1c1a17,#34302a);color:#e8dcc0;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:1rem}
+  .grid.rs{grid-template-columns:9fr 16fr}
+  @media (max-width:700px){.grid.rs{grid-template-columns:1fr}}
   .grid.one{grid-template-columns:minmax(240px,420px)}
   .grid.four{grid-template-columns:repeat(4,1fr)}
   .grid.two{grid-template-columns:repeat(2,1fr)}
@@ -91,7 +95,6 @@
   <p class="lede">The ETL Robots Store. Companions you can stand next to, and small ones you can collect.</p>
   <p class="sub">Everything here was designed by Dr. Terry Oroszi at the Emerging Technologies Laboratory.</p>
   </div>
-  <p class="notice"><strong>Concept art, coming soon.</strong> Nothing in this store can be bought yet, and the pictures are concept art. Astra-9 Lite is the one exception: she is built and working.</p>
 
   <h2>Astra-9 Lite</h2>
   <p class="section-note">The bench top version of Astra-9, built and working.</p>
@@ -113,6 +116,17 @@
   <h2>Figurines</h2>
   <p class="section-note">Concept art, coming soon. 3D printed Good Company companions, 8 inches tall.</p>
   <p class="intro-text">Place a figurine on a plinth and it comes alive. Figurines are sold separately from plinths, so you can collect as many figurines as you like.</p>
+  <div class="grid one">
+    <article class="card">
+      <div class="shot poster"><img src="/images/etl-store/good-company-companions-v1.jpg" alt="Good Company: Meet Your Companions. Ten collectible figurines on glowing round plinths: Velvet, A.L.I.C.E., Julian, Dario, Nora, Marion, Flint, Rin, Viv and Aaron." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>Meet Your Companions</h3>
+        <p>Velvet, A.L.I.C.E., Julian, Dario, Nora, Marion, Flint, Rin, Viv and Aaron. Collect them all.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+      </div>
+    </article>
+  </div>
   <div class="grid">
     <article class="card">
       <div class="shot square"><img src="/images/etl-store/figurine-alice-standing-v1.jpg" alt="A.L.I.C.E. standing on a round black plinth, with metal arms, a sleeveless black top and boots." loading="lazy"><span class="tag">Concept art</span></div>
@@ -176,6 +190,47 @@
       <div class="body">
         <h3>Plinth, rectangular</h3>
         <p>Holds the speaker and the brain for one figurine. Choose a motion detector, a camera, both, or neither.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+  </div>
+
+  <h2>Rising Sun Court</h2>
+  <p class="section-note">Concept art, coming soon. Candles and lights with fairies who live inside. No one greets the morning alone.</p>
+  <p class="intro-text">A sunrise that wakes you slowly, and a fairy inside who says good morning, listens, and remembers. Each one comes with a panel where you can interact with your fairies.</p>
+  <div class="grid rs">
+    <article class="card">
+      <div class="shot tall"><img src="/images/etl-store/rising-sun-light-v1.jpg" alt="The Rising Sun light, a tall frosted amber acrylic bar on a wooden base in a sunny window, with a fairy engraved near the bottom." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>The Rising Sun Light</h3>
+        <p>A light for your window with a fairy who lives inside. It wakes the room with a slow sunrise.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot land"><img src="/images/etl-store/rising-sun-candles-v1.jpg" alt="Three flameless Rising Sun candles in pink, green and amber, each with a different fairy engraved in it, on round wooden bases." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>The Rising Sun Candles</h3>
+        <p>Flameless candles to say goodnight with, and to collect. A different fairy lives in each one.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+  </div>
+
+  <h2>Talking Pet Collars</h2>
+  <p class="section-note">Concept art, coming soon. For dogs.</p>
+  <div class="grid one">
+    <article class="card">
+      <div class="shot square"><div class="soonpanel"><span>Concept art coming soon</span></div><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>Talking Pet Collar</h3>
+        <p>Plays recorded voice clips in a character voice you pick for your dog. A phone panel switches between a walk and being at home, with buttons for hello, stop, a pat and a bathroom break. Planned in five sizes, XS to XL.</p>
         <span class="price">Price to be announced</span>
         <span class="pill soon">Concept art, coming soon</span>
         <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
