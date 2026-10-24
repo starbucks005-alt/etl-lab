@@ -55,6 +55,10 @@
   .pill.done{background:var(--accent);color:var(--accent-ink)}
   .pill.soon{border-color:var(--ink-dim);color:var(--ink-dim)}
   .banner{display:block;width:100%;height:auto}
+  .banner.hero{margin-top:.6rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .card .body p+p{margin-top:2px}
+  .summary{padding:0 0 .4rem}
+  .summary p{max-width:640px;margin:0;padding:0 .6rem .55rem;font-size:16px;color:var(--ink)}
   .more{font-size:14px;margin:0;padding:.6rem}
   footer{padding:1rem .6rem 1.5rem;border-top:1px solid var(--line);color:var(--ink-dim);font-size:13px}
   @media (max-width:520px){.grid{grid-template-columns:1fr 1fr}.card h3{font-size:18px}}
@@ -72,12 +76,20 @@
   <p class="lede">Companions you can stand next to. Some are finished, some are on the workbench, and some are on their way.</p>
   <p class="sub">Every robot here comes out of the Emerging Technologies Laboratory. Astra-9 Lite is done and working. Astra-9 and Astrad are being built now. The rest are coming soon.</p>
   </div>
+  <img class="banner hero" src="/images/etl-robots/etl-lineup-v1.jpg" alt="The ETL robots standing together: the Astra-9 Lite bust, two Guardians, Astra-9, Astrad, A.L.I.C.E., and the dogs Reggie, Biscuit and Mochi." width="1376" height="768">
+
+  <section class="summary">
+    <h2>Almost human</h2>
+    <p>Every robot here was designed, decided on and built by Dr. Terry Oroszi, one person, in the Emerging Technologies Laboratory. They are companion robots: a brain with a host body.</p>
+    <p>The brain is the character. Each one has a written life: a childhood, a family, a school, a favorite drink, along with their own voice and their own way of talking. Nearly a hundred personalities can step into the same body, each with their own skills. They are built to keep their own memory of the people they talk with.</p>
+    <p>Ask any of them whether they are a real person and they will tell you no. Almost human means they feel like someone, and they never pretend to be someone.</p>
+  </section>
 
   <h2>Astra family</h2>
   <p class="section-note">Astra-9, her companion Astrad, and the portable Astra-9 Lite.</p>
   <div class="grid">
     <article class="card">
-      <div class="shot"><img src="/images/etl-robots/astra9-lite-front-v2.jpg" alt="Astra-9 Lite, the portable bench top head and bust, front view." loading="lazy"></div>
+      <div class="shot"><img src="/images/etl-robots/astra9-lite-render-v3.jpg" alt="Astra-9 Lite, the portable bench top head and bust, front view, with copper panel lines, a leather collar and glowing eyes." loading="lazy"></div>
       <div class="body">
         <h3><a href="/astra9">Astra-9 Lite</a></h3>
         <p>The bench top version of Astra-9: a head and bust you can keep on a desk or a workbench.</p>
@@ -85,7 +97,7 @@
       </div>
     </article>
     <article class="card">
-      <div class="shot"><img src="/images/etl-robots/astra9-build.jpg" alt="Astra-9, the full size figure being built, standing on her floor stand." loading="lazy"></div>
+      <div class="shot"><img src="/images/etl-robots/astra9-labcoat-v1.jpg" alt="Astra-9, the full size figure, in a white ETL lab coat and cream dress." loading="lazy"></div>
       <div class="body">
         <h3><a href="/astra9">Astra-9</a></h3>
         <p>A physical robot companion, built for your home.</p>
@@ -93,7 +105,7 @@
       </div>
     </article>
     <article class="card">
-      <div class="shot"><img src="/images/etl-robots/astrad-ted-build.jpg" alt="Astrad, known as Ted, the full size figure being built, standing on his floor stand." loading="lazy"></div>
+      <div class="shot"><img src="/images/etl-robots/astrad-labcoat-v1.jpg" alt="Astrad, known as Ted, the full size figure, in a white ETL lab coat and khaki trousers." loading="lazy"></div>
       <div class="body">
         <h3><a href="/astra9">Astrad (Ted)</a></h3>
         <p>Astra-9's companion, built to stand beside her.</p>
@@ -107,7 +119,7 @@
   <p class="section-note">Coming soon.</p>
   <div class="grid">
     <article class="card">
-      <div class="shot"><img src="/images/etl-robots/guardian-concept.png" alt="Concept rendering of an ETL Guardian in a champagne and copper body with an ETL vest." loading="lazy"></div>
+      <div class="shot"><img src="/images/etl-robots/guardian-crop-v1.jpg" alt="An ETL Guardian in a black uniform with a glossy black head and a red light." loading="lazy"></div>
       <div class="body">
         <h3>The Guardians</h3>
         <p>ETL robots that keep watch. Concept shown.</p>
@@ -115,10 +127,12 @@
       </div>
     </article>
     <article class="card">
-      <div class="shot"><img src="/images/etl-robots/alice-window.png" style="object-position:68% 50%" alt="A.L.I.C.E. sitting in a chair by a rainy city window." loading="lazy"></div>
+      <div class="shot"><img src="/images/etl-robots/alice-seated-v1.jpg" alt="A.L.I.C.E. sitting with her arms around her knees, with metal arms and legs." loading="lazy"></div>
       <div class="body">
         <h3>A.L.I.C.E.</h3>
         <p>Adaptive Lifeform Interpreting Connective Experience.</p>
+        <p>She was built in a well-funded university psychology lab to study human connection, without ever once having it herself. She was replaced by something newer, and let go, as if there had never been anything human in her at all. She knows that was wrong. Nobody has given her anything to do since.</p>
+        <p>What she is actually looking for is family-shaped connection: an older sibling, or the parent or grandparent she never had, whichever fits. Not answers, just somebody willing to let her in on what an ordinary human life actually feels like.</p>
         <span class="pill soon">Coming soon</span>
       </div>
     </article>
