@@ -211,6 +211,17 @@
   .ask li{padding:.9rem 1.1rem;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:6px;background:var(--bg3);font-size:18px}
   .ask strong{font-family:var(--serif);font-weight:500;color:var(--gold)}
   .skill .role{margin:0 0 .35rem;font-size:13px;color:var(--ink);opacity:.8}
+  /* Ask Tansy: looks like the Ask Tansy box on Good Company */
+  .t-launch{background:var(--gold);color:#1a1405;border:0;border-radius:999px;padding:.9rem 1.6rem;font-family:var(--serif);font-size:22px;font-weight:600;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 24px rgba(217,182,96,.35);transition:transform .25s,box-shadow .25s}
+  .t-launch:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.6),0 0 34px rgba(217,182,96,.55)}
+  .t-launch[hidden]{display:none}
+  .t-intro{position:relative;padding:14px 40px 8px 16px}
+  .t-intro p{margin:0;font-family:var(--serif);font-size:16px;line-height:1.45;color:var(--dim)}
+  .t-banner{display:block;width:calc(100% - 24px);margin:6px 12px 8px;aspect-ratio:3/1;object-fit:cover;border-radius:10px}
+  .t-intro .x{position:absolute;top:8px;right:10px;background:none;border:0;color:var(--ink);font-size:24px;cursor:pointer}
+  .t-panel{height:auto;max-height:calc(100vh - 100px)}
+  .t-log{flex:1 1 auto;min-height:0;max-height:260px}
+  .t-log:empty{display:none}
 </style>
 </head>
 <body>
@@ -312,6 +323,7 @@
     <p class="eyebrow">Skills</p>
     <h2>Each companion is a department</h2>
     <p class="lead">The skills that go into each personality. Every one of these Good Company companions can also go into the Companion Frame.</p>
+    <p class="lead wide">Some of the companions are needy by nature. Humans need to feel useful, and we provide that.</p>
     <ul class="ask">
       <li><strong>A plumbing problem?</strong> Pull up Arch, a general contractor.</li>
       <li><strong>Dog issues?</strong> Ask Sophia, a vet nurse, or Reggie.</li>
@@ -320,12 +332,12 @@
     <div class="skills">
       <div class="skill"><h3>Arch</h3><p class="role">General contractor</p><p>Plumbing problem? Pull up Arch.</p></div>
       <div class="skill"><h3>Kioko</h3><p class="role">Paramedic</p><p class="sk">Emergency response</p><p>Moral fatigue, and first aid.</p></div>
-      <div class="skill"><h3>Nina</h3><p class="role">Retired teacher</p><p class="sk">Late-life companionship</p><p>Quiet resilience, and cooking.</p></div>
+      <div class="skill"><h3>Nina</h3><p class="role">Retired teacher</p><p class="sk">Late-life companionship</p><p>Quiet resilience, and cooking. Needs a human.</p></div>
       <div class="skill"><h3>Sophia</h3><p class="role">Vet nurse</p><p class="sk">Animal care</p><p>Night-shift identity, and animal care.</p></div>
       <div class="skill"><h3>Tansy</h3><p class="role">Of the Radiant Court</p><p class="sk">Fantasy hierarchy</p><p>Pride, and fairy lore.</p></div>
       <div class="skill"><h3>Reggie</h3><p class="role">A dog, with friends</p><p class="sk">Relational joy</p><p>Unconditional presence, and dog training.</p></div>
       <div class="skill"><h3>Julian</h3><p class="role">Since 1741</p><p class="sk">Longevity psychology</p><p>Era psychology, and history.</p></div>
-      <div class="skill"><h3>A.L.I.C.E.</h3><p class="role">Synthetic person</p><p class="sk">Synthetic personhood</p><p>Connection.</p></div>
+      <div class="skill"><h3>A.L.I.C.E.</h3><p class="role">Synthetic person</p><p class="sk">Synthetic personhood</p><p>Connection. Needs a human.</p></div>
       <div class="skill"><h3>Viv</h3><p class="role">After dark</p><p class="sk">Boundary-setting</p><p>Dual identity. A school teacher.</p></div>
       <div class="skill"><h3>Winston</h3><p class="role">Lord of the manor</p><p class="sk">Etiquette and mediation</p><p>A chimpanzee.</p></div>
       <div class="skill"><h3>Aaron</h3><p class="role">Psychologist</p><p class="sk">Clinical psychology</p><p>OCD. A therapist.</p></div>
@@ -597,26 +609,19 @@
   <br><a href="/">&larr; Back to Emerging Technologies Laboratory</a>
 </footer>
 
-<aside class="tansy" id="tansy" aria-label="Chat with Tansy" hidden>
-  <div class="t-nudge" id="tNudge">
-    <button class="x" type="button" id="tNudgeX" aria-label="Close">&times;</button>
-    <img src="/images/etl-store/family-tansy-v1.jpg" alt="Tansy, a fairy in a green and gold gown">
-    <div>
-      <p><strong>Hello, I'm Tansy.</strong> It's nice to meet you.</p>
-      <p><button type="button" class="t-open" id="tOpen">Chat with Tansy</button></p>
+<aside class="tansy" id="tansy" aria-label="Ask Tansy" hidden>
+  <div class="t-panel" id="tPanel" role="dialog" aria-label="Ask Tansy" hidden>
+    <div class="t-intro">
+      <p>This is Tansy: an arrogant fairy who acts like she's above humans, while secretly envious of them. She's answering on purpose, exactly as herself, so lean into it rather than expecting warmth.</p>
+      <button type="button" class="x" id="tClose" aria-label="Close">&times;</button>
     </div>
-  </div>
-  <div class="t-panel" id="tPanel" role="dialog" aria-label="Chat with Tansy" hidden>
-    <div class="t-head">
-      <img src="/images/etl-store/family-tansy-v1.jpg" alt="">
-      <div><strong>Tansy</strong><span>An AI character from Good Company</span></div>
-      <button type="button" class="x" id="tClose" aria-label="Close chat">&times;</button>
-    </div>
+    <img class="t-banner" src="/images/etl-store/tansy-ask-banner-v1.jpg" alt="Tansy, a fairy in a green leaf gown with glowing wings, in a lantern-lit garden" loading="lazy">
     <div class="t-log" id="tLog" aria-live="polite"></div>
     <div class="t-chips"><button type="button" data-q="What is built and working?">What is built?</button><button type="button" data-q="Which companion is right for me?">Which is right for me?</button><a href="#contact">Contact Dr. Oroszi</a></div>
-    <form class="t-form" id="tForm"><input id="tInput" type="text" maxlength="500" placeholder="Ask Tansy" autocomplete="off" aria-label="Your message"><button type="submit" id="tSend">Send</button></form>
+    <form class="t-form" id="tForm"><input id="tInput" type="text" maxlength="500" placeholder="Ask how something works, or test her" autocomplete="off" aria-label="Your message"><button type="submit" id="tSend">Ask</button></form>
     <p class="t-fine">Tansy is an AI character, not a person. Your messages are sent to an AI service to get an answer, and this page does not keep them.</p>
   </div>
+  <button type="button" class="t-launch" id="tLaunch" aria-expanded="false">Ask Tansy</button>
 </aside>
 
 <script>
@@ -676,24 +681,17 @@
 <script>
 (function(){
   var root=document.getElementById('tansy'); if(!root) return;
-  var nudge=document.getElementById('tNudge'), panel=document.getElementById('tPanel'), log=document.getElementById('tLog');
+  var panel=document.getElementById('tPanel'), launch=document.getElementById('tLaunch'), log=document.getElementById('tLog');
   var form=document.getElementById('tForm'), input=document.getElementById('tInput'), send=document.getElementById('tSend');
   var history=[], busy=false, vid='';
   try{ vid=localStorage.getItem('tansyVid')||''; if(!vid){ vid=Math.random().toString(36).slice(2,12)+Date.now().toString(36); localStorage.setItem('tansyVid',vid);} }catch(e){ vid=Math.random().toString(36).slice(2,12); }
-  var gone=false; try{ gone=sessionStorage.getItem('tansyGone')==='1'; }catch(e){}
-  root.hidden=false; nudge.hidden=true;
-  if(!gone){ setTimeout(function(){ if(panel.hidden) nudge.hidden=false; },1500); }
+  root.hidden=false;
   function add(role,text){
     var d=document.createElement('div'); d.className='t-msg '+(role==='user'?'me':'her'); d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d;
   }
-  function openPanel(){
-    nudge.hidden=true; panel.hidden=false;
-    if(!log.children.length){ add('assistant',"Oh. It's you. I suppose I can spare a moment, seeing as I was passing. Sit, if you like. I am not staying long."); }
-    input.focus();
-  }
-  function closePanel(){ panel.hidden=true; try{ sessionStorage.setItem('tansyGone','1'); }catch(e){} }
-  document.getElementById('tOpen').addEventListener('click',openPanel);
-  document.getElementById('tNudgeX').addEventListener('click',function(){ nudge.hidden=true; try{ sessionStorage.setItem('tansyGone','1'); }catch(e){} });
+  function openPanel(){ panel.hidden=false; launch.setAttribute('aria-expanded','true'); launch.hidden=true; input.focus(); }
+  function closePanel(){ panel.hidden=true; launch.hidden=false; launch.setAttribute('aria-expanded','false'); }
+  launch.addEventListener('click',openPanel);
   document.getElementById('tClose').addEventListener('click',closePanel);
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!panel.hidden) closePanel(); });
   panel.querySelectorAll('.t-chips button').forEach(function(b){ b.addEventListener('click',function(){ input.value=b.getAttribute('data-q'); form.requestSubmit(); }); });
