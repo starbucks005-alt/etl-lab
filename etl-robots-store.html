@@ -207,6 +207,10 @@
   .t-fine{margin:0;padding:0 12px 10px;font-size:11px;color:var(--dim)}
   @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
   @media (max-width:600px){.tansy{right:8px;left:8px;bottom:8px;align-items:stretch}.t-nudge{max-width:none}.t-panel{width:100%}}
+  .ask{list-style:none;margin:0 auto 2rem;padding:0;max-width:760px;display:grid;gap:.7rem;text-align:left}
+  .ask li{padding:.9rem 1.1rem;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:6px;background:var(--bg3);font-size:18px}
+  .ask strong{font-family:var(--serif);font-weight:500;color:var(--gold)}
+  .skill .role{margin:0 0 .35rem;font-size:13px;color:var(--ink);opacity:.8}
 </style>
 </head>
 <body>
@@ -308,29 +312,35 @@
     <p class="eyebrow">Skills</p>
     <h2>Each companion is a department</h2>
     <p class="lead">The skills that go into each personality. Every one of these Good Company companions can also go into the Companion Frame.</p>
+    <ul class="ask">
+      <li><strong>A plumbing problem?</strong> Pull up Arch, a general contractor.</li>
+      <li><strong>Dog issues?</strong> Ask Sophia, a vet nurse, or Reggie.</li>
+      <li><strong>Where to go for your next vacation?</strong> Who better than Dario, the pilot?</li>
+    </ul>
     <div class="skills">
-      <div class="skill"><h3>Kioko</h3><p class="sk">Emergency response</p><p>Moral fatigue, and first aid.</p></div>
-      <div class="skill"><h3>Nina</h3><p class="sk">Late-life companionship</p><p>Quiet resilience, and cooking.</p></div>
-      <div class="skill"><h3>Sophia</h3><p class="sk">Animal care</p><p>Night-shift identity, and animal care.</p></div>
-      <div class="skill"><h3>Tansy</h3><p class="sk">Fantasy hierarchy</p><p>Pride, and fairy lore.</p></div>
-      <div class="skill"><h3>Reggie</h3><p class="sk">Relational joy</p><p>Unconditional presence, and dog training.</p></div>
-      <div class="skill"><h3>Julian</h3><p class="sk">Longevity psychology</p><p>Era psychology, and history.</p></div>
-      <div class="skill"><h3>A.L.I.C.E.</h3><p class="sk">Synthetic personhood</p><p>Connection.</p></div>
-      <div class="skill"><h3>Viv</h3><p class="sk">Boundary-setting</p><p>Dual identity. A school teacher.</p></div>
-      <div class="skill"><h3>Winston</h3><p class="sk">Etiquette and mediation</p><p>A chimpanzee.</p></div>
-      <div class="skill"><h3>Aaron</h3><p class="sk">Clinical psychology</p><p>OCD. A therapist.</p></div>
-      <div class="skill"><h3>Marion and family</h3><p class="sk">Micro-survival</p><p>Resourcefulness. Little people, like the Borrowers.</p></div>
-      <div class="skill"><h3>Eli and Nell</h3><p class="sk">Craft and family systems</p><p>A family of puppets.</p></div>
-      <div class="skill"><h3>The Grimm Brothers</h3><p class="sk">Language and folklore</p><p>They tell stories.</p></div>
-      <div class="skill"><h3>Marcus</h3><p class="sk">Policy and information integrity</p><p>Provides the news.</p></div>
-      <div class="skill"><h3>Theo</h3><p class="sk">Visibility and communication</p><p>Provides clothes and confidence.</p></div>
-      <div class="skill"><h3>Cressida</h3><p class="sk">Historical identity</p><p>An Edwardian ghost.</p></div>
-      <div class="skill"><h3>Meera</h3><p class="sk">Burnout and somatic regulation</p><p>Law and yoga.</p></div>
-      <div class="skill"><h3>Dario</h3><p class="sk">Mobility and cultural fluency</p><p>World travel.</p></div>
-      <div class="skill"><h3>Nora</h3><p class="sk">Time and material continuity</p><p>Time travel and antiquities.</p></div>
-      <div class="skill"><h3>Zoe</h3><p class="sk">Public identity</p><p>Emotional economics. An influencer asking whether it is worth it.</p></div>
-      <div class="skill"><h3>Rin</h3><p class="sk">Digital safety</p><p>A white hat hacker who will help you with cyber issues.</p></div>
-      <div class="skill"><h3>The Nursery</h3><p class="sk">Shared emotional regulation</p><p>Four stuffed animals come to life.</p></div>
+      <div class="skill"><h3>Arch</h3><p class="role">General contractor</p><p>Plumbing problem? Pull up Arch.</p></div>
+      <div class="skill"><h3>Kioko</h3><p class="role">Paramedic</p><p class="sk">Emergency response</p><p>Moral fatigue, and first aid.</p></div>
+      <div class="skill"><h3>Nina</h3><p class="role">Retired teacher</p><p class="sk">Late-life companionship</p><p>Quiet resilience, and cooking.</p></div>
+      <div class="skill"><h3>Sophia</h3><p class="role">Vet nurse</p><p class="sk">Animal care</p><p>Night-shift identity, and animal care.</p></div>
+      <div class="skill"><h3>Tansy</h3><p class="role">Of the Radiant Court</p><p class="sk">Fantasy hierarchy</p><p>Pride, and fairy lore.</p></div>
+      <div class="skill"><h3>Reggie</h3><p class="role">A dog, with friends</p><p class="sk">Relational joy</p><p>Unconditional presence, and dog training.</p></div>
+      <div class="skill"><h3>Julian</h3><p class="role">Since 1741</p><p class="sk">Longevity psychology</p><p>Era psychology, and history.</p></div>
+      <div class="skill"><h3>A.L.I.C.E.</h3><p class="role">Synthetic person</p><p class="sk">Synthetic personhood</p><p>Connection.</p></div>
+      <div class="skill"><h3>Viv</h3><p class="role">After dark</p><p class="sk">Boundary-setting</p><p>Dual identity. A school teacher.</p></div>
+      <div class="skill"><h3>Winston</h3><p class="role">Lord of the manor</p><p class="sk">Etiquette and mediation</p><p>A chimpanzee.</p></div>
+      <div class="skill"><h3>Aaron</h3><p class="role">Psychologist</p><p class="sk">Clinical psychology</p><p>OCD. A therapist.</p></div>
+      <div class="skill"><h3>Marion and family</h3><p class="role">The Littles</p><p class="sk">Micro-survival</p><p>Resourcefulness. Little people, like the Borrowers.</p></div>
+      <div class="skill"><h3>Eli and Nell</h3><p class="role">The Puppet Family</p><p class="sk">Craft and family systems</p><p>A family of puppets.</p></div>
+      <div class="skill"><h3>The Grimm Brothers</h3><p class="role">Jacob and Wilhelm</p><p class="sk">Language and folklore</p><p>They tell stories.</p></div>
+      <div class="skill"><h3>Marcus</h3><p class="role">Reyes, on deadline</p><p class="sk">Policy and information integrity</p><p>Provides the news.</p></div>
+      <div class="skill"><h3>Theo</h3><p class="role">Stylist</p><p class="sk">Visibility and communication</p><p>Provides clothes and confidence.</p></div>
+      <div class="skill"><h3>Cressida</h3><p class="role">Lady, a ghost</p><p class="sk">Historical identity</p><p>An Edwardian ghost.</p></div>
+      <div class="skill"><h3>Meera</h3><p class="role">Yoga teacher</p><p class="sk">Burnout and somatic regulation</p><p>Law and yoga.</p></div>
+      <div class="skill"><h3>Dario</h3><p class="role">Pilot</p><p class="sk">Mobility and cultural fluency</p><p>World travel.</p></div>
+      <div class="skill"><h3>Nora</h3><p class="role">Unstuck in time</p><p class="sk">Time and material continuity</p><p>Time travel and antiquities.</p></div>
+      <div class="skill"><h3>Zoe</h3><p class="role">Influencer</p><p class="sk">Public identity</p><p>Emotional economics. An influencer asking whether it is worth it.</p></div>
+      <div class="skill"><h3>Rin</h3><p class="role">White hat</p><p class="sk">Digital safety</p><p>A white hat hacker who will help you with cyber issues.</p></div>
+      <div class="skill"><h3>The Nursery</h3><p class="role">Four stuffed animals</p><p class="sk">Shared emotional regulation</p><p>Four stuffed animals come to life.</p></div>
     </div>
     <p class="lead small">Good Company is social resilience. My Echo is continuity and memory.</p>
   </section>
