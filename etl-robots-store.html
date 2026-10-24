@@ -222,6 +222,27 @@
   .t-panel{height:auto;max-height:calc(100vh - 100px)}
   .t-log{flex:1 1 auto;min-height:0;max-height:260px}
   .t-log:empty{display:none}
+  .genre-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;margin:0 auto 1.6rem}
+  .gp{font-family:var(--serif);font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);background:var(--bg3);border:1px solid var(--line);border-radius:999px;padding:.55rem 1.2rem;cursor:pointer;transition:border-color .2s,color .2s,box-shadow .2s}
+  .gp:hover{border-color:var(--blue);color:var(--ink)}
+  .gp.on{background:var(--gold);border-color:var(--gold);color:#1a1405;font-weight:600}
+  .comps{display:flex;flex-wrap:wrap;justify-content:center;gap:1.1rem;max-width:1240px;margin:0 auto;text-align:left}
+  .comp{width:268px;display:flex;flex-direction:column;background:var(--bg3);border:1px solid var(--line);border-radius:8px;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s}
+  .comp[hidden]{display:none}
+  .comp:hover{transform:translateY(-6px);border-color:var(--blue);box-shadow:0 14px 40px var(--blue-soft)}
+  .comp .media{aspect-ratio:4/5;background:#000;overflow:hidden}
+  .comp .media img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+  .comp:hover .media img{transform:scale(1.05)}
+  .comp .info{padding:.8rem .95rem 1rem;display:flex;flex-direction:column;gap:5px}
+  .comp h3{margin:0;font-family:var(--serif);font-weight:500;font-size:20px;line-height:1.2}
+  .comp p{margin:0;font-size:14px;color:var(--dim)}
+  .comp .genres{display:flex;flex-wrap:wrap;gap:4px}
+  .comp .g{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:1px 6px}
+  .comp .sk{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+  .legacy{margin-top:1.4rem}
+  @media (max-width:600px){.comp{width:calc(50% - .6rem)}.comp h3{font-size:17px}}
+  .cosplay{max-width:760px;margin:0 auto 1.4rem;padding:.9rem 1.2rem;border:1px solid var(--blue);border-radius:8px;background:rgba(47,164,255,.07);font-size:18px}
+  .cosplay strong{font-family:var(--serif);font-weight:500;color:var(--blue)}
 </style>
 </head>
 <body>
@@ -321,38 +342,57 @@
 
   <section class="band" id="skills">
     <p class="eyebrow">Skills</p>
-    <h2>Each companion is a department</h2>
-    <p class="lead">The skills that go into each personality. Every one of these Good Company companions can also go into the Companion Frame.</p>
+    <h2>Meet Good Company's Companions &amp; Friends</h2>
+    <p class="lead">Each companion is a department. These are the skills that go into each personality, and every one of these Good Company companions can also go into the Companion Frame.</p>
     <p class="lead wide">Some of the companions are needy by nature. Humans need to feel useful, and we provide that.</p>
     <ul class="ask">
       <li><strong>A plumbing problem?</strong> Pull up Arch, a general contractor.</li>
       <li><strong>Dog issues?</strong> Ask Sophia, a vet nurse, or Reggie, the people whisperer. He has read and watched everything related to Cesar Millan, and he will be so excited to see you.</li>
       <li><strong>Where to go for your next vacation?</strong> Who better than Dario, the pilot?</li>
     </ul>
-    <div class="skills">
-      <div class="skill"><h3>Arch</h3><p class="role">General contractor</p><p>Plumbing problem? Pull up Arch.</p></div>
-      <div class="skill"><h3>Kioko</h3><p class="role">Paramedic</p><p class="sk">Emergency response</p><p>Moral fatigue, and first aid.</p></div>
-      <div class="skill"><h3>Nina</h3><p class="role">Retired teacher</p><p class="sk">Late-life companionship</p><p>Quiet resilience, and cooking. Needs a human.</p></div>
-      <div class="skill"><h3>Sophia</h3><p class="role">Vet nurse</p><p class="sk">Animal care</p><p>Night-shift identity, and animal care.</p></div>
-      <div class="skill"><h3>Tansy</h3><p class="role">Of the Radiant Court</p><p class="sk">Fantasy hierarchy</p><p>Pride, and fairy lore.</p></div>
-      <div class="skill"><h3>Reggie</h3><p class="role">A dog, with friends</p><p class="sk">Relational joy</p><p>Unconditional presence, and dog training.</p></div>
-      <div class="skill"><h3>Julian</h3><p class="role">Since 1741</p><p class="sk">Longevity psychology</p><p>Era psychology, and history.</p></div>
-      <div class="skill"><h3>A.L.I.C.E.</h3><p class="role">Synthetic person</p><p class="sk">Synthetic personhood</p><p>Connection. Needs a human.</p></div>
-      <div class="skill"><h3>Viv</h3><p class="role">After dark</p><p class="sk">Boundary-setting</p><p>Dual identity. A school teacher.</p></div>
-      <div class="skill"><h3>Winston</h3><p class="role">Lord of the manor</p><p class="sk">Etiquette and mediation</p><p>A chimpanzee.</p></div>
-      <div class="skill"><h3>Aaron</h3><p class="role">Psychologist</p><p class="sk">Clinical psychology</p><p>OCD. A therapist.</p></div>
-      <div class="skill"><h3>Marion and family</h3><p class="role">The Littles</p><p class="sk">Micro-survival</p><p>Resourcefulness. Little people, like the Borrowers.</p></div>
-      <div class="skill"><h3>Eli and Nell</h3><p class="role">The Puppet Family</p><p class="sk">Craft and family systems</p><p>A family of puppets.</p></div>
-      <div class="skill"><h3>The Grimm Brothers</h3><p class="role">Jacob and Wilhelm</p><p class="sk">Language and folklore</p><p>They tell stories.</p></div>
-      <div class="skill"><h3>Marcus</h3><p class="role">Reyes, on deadline</p><p class="sk">Policy and information integrity</p><p>Provides the news.</p></div>
-      <div class="skill"><h3>Theo</h3><p class="role">Stylist</p><p class="sk">Visibility and communication</p><p>Provides clothes and confidence.</p></div>
-      <div class="skill"><h3>Cressida</h3><p class="role">Lady, a ghost</p><p class="sk">Historical identity</p><p>An Edwardian ghost.</p></div>
-      <div class="skill"><h3>Meera</h3><p class="role">Yoga teacher</p><p class="sk">Burnout and somatic regulation</p><p>Law and yoga.</p></div>
-      <div class="skill"><h3>Dario</h3><p class="role">Pilot</p><p class="sk">Mobility and cultural fluency</p><p>World travel.</p></div>
-      <div class="skill"><h3>Nora</h3><p class="role">Unstuck in time</p><p class="sk">Time and material continuity</p><p>Time travel and antiquities.</p></div>
-      <div class="skill"><h3>Zoe</h3><p class="role">Influencer</p><p class="sk">Public identity</p><p>Emotional economics. An influencer asking whether it is worth it.</p></div>
-      <div class="skill"><h3>Rin</h3><p class="role">White hat</p><p class="sk">Digital safety</p><p>A white hat hacker who will help you with cyber issues.</p></div>
-      <div class="skill"><h3>The Nursery</h3><p class="role">Four stuffed animals</p><p class="sk">Shared emotional regulation</p><p>Four stuffed animals come to life.</p></div>
+    <p class="cosplay"><strong>A new kind of immersive cosplay</strong> for fans of vampire, superhero, or time travel lore.</p>
+    <div class="genre-bar" role="group" aria-label="Filter companions by genre">
+      <button type="button" class="gp on" data-g="all">All</button>
+      <button type="button" class="gp" data-g="storytellers">Storytellers</button>
+      <button type="button" class="gp" data-g="mentors">Mentors</button>
+      <button type="button" class="gp" data-g="fantasy">Fantasy</button>
+      <button type="button" class="gp" data-g="creatures">Creatures</button>
+      <button type="button" class="gp" data-g="everyday">Everyday</button>
+    </div>
+    <div class="comps" id="comps">
+      <article class="comp" data-genre="mentors"><div class="media"><img src="/images/etl-store/gc/arch.jpg" alt="General contractor Arch" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>General contractor Arch</h3><p class="genres"><span class="g">Mentors</span></p><p>Plumbing problem? Pull up Arch.</p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/sofia.jpg" alt="Vet nurse Sophia" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Vet nurse Sophia</h3><p class="genres"><span class="g">Everyday</span></p><p class="sk">Animal care</p><p>Night-shift identity, and animal care.</p></div></article>
+      <article class="comp" data-genre="mentors storytellers"><div class="media"><img src="/images/etl-store/gc/cora.jpg" alt="Retired teacher Nina" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Retired teacher Nina</h3><p class="genres"><span class="g">Mentors</span><span class="g">Storytellers</span></p><p class="sk">Late-life companionship</p><p>Quiet resilience, and cooking. Needs a human.</p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/kioko.jpg" alt="Paramedic Kioko" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Paramedic Kioko</h3><p class="genres"><span class="g">Everyday</span></p><p class="sk">Emergency response</p><p>Moral fatigue, and first aid.</p></div></article>
+      <article class="comp" data-genre="creatures"><div class="media"><img src="/images/etl-store/gc/reggie.jpg" alt="Reggie, with friends" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Reggie, with friends</h3><p class="genres"><span class="g">Creatures</span></p><p class="sk">Relational joy</p><p>Unconditional presence, and dog training.</p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/tansy.jpg" alt="Tansy, of the Radiant Court" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Tansy, of the Radiant Court</h3><p class="genres"><span class="g">Fantasy</span></p><p class="sk">Fantasy hierarchy</p><p>Pride, and fairy lore.</p></div></article>
+      <article class="comp" data-genre="fantasy mentors"><div class="media"><img src="/images/etl-store/gc/alice.jpg" alt="A.L.I.C.E." loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>A.L.I.C.E.</h3><p class="genres"><span class="g">Fantasy</span><span class="g">Mentors</span></p><p class="sk">Synthetic personhood</p><p>Connection. Needs a human.</p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/julian.jpg" alt="Julian, since 1741" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Julian, since 1741</h3><p class="genres"><span class="g">Fantasy</span></p><p class="sk">Longevity psychology</p><p>Era psychology, and history.</p></div></article>
+      <article class="comp" data-genre="storytellers everyday"><div class="media"><img src="/images/etl-store/gc/winston.jpg" alt="Winston, lord of the manor" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Winston, lord of the manor</h3><p class="genres"><span class="g">Storytellers</span><span class="g">Everyday</span></p><p class="sk">Etiquette and mediation</p><p>A chimpanzee.</p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/viv.jpg" alt="Viv, after dark" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Viv, after dark</h3><p class="genres"><span class="g">Fantasy</span></p><p class="sk">Boundary-setting</p><p>Dual identity. A school teacher.</p></div></article>
+      <article class="comp" data-genre="creatures fantasy"><div class="media"><img src="/images/etl-store/gc/marion.jpg" alt="Marion &amp; the Littles" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Marion &amp; the Littles</h3><p class="genres"><span class="g">Creatures</span><span class="g">Fantasy</span></p><p class="sk">Micro-survival</p><p>Resourcefulness. Little people, like the Borrowers.</p></div></article>
+      <article class="comp" data-genre="mentors"><div class="media"><img src="/images/etl-store/gc/aaron.jpg" alt="Psychologist Aaron" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Psychologist Aaron</h3><p class="genres"><span class="g">Mentors</span></p><p class="sk">Clinical psychology</p><p>OCD. A therapist.</p></div></article>
+      <article class="comp" data-genre="storytellers"><div class="media"><img src="/images/etl-store/gc/grimms.jpg" alt="Jacob &amp; Wilhelm Grimm" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Jacob &amp; Wilhelm Grimm</h3><p class="genres"><span class="g">Storytellers</span></p><p class="sk">Language and folklore</p><p>They tell stories.</p></div></article>
+      <article class="comp" data-genre="creatures fantasy"><div class="media"><img src="/images/etl-store/gc/puppets.jpg" alt="The Puppet Family" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>The Puppet Family</h3><p class="genres"><span class="g">Creatures</span><span class="g">Fantasy</span></p><p class="sk">Craft and family systems</p><p>A family of puppets.</p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/marcus.jpg" alt="Marcus Reyes, on deadline" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Marcus Reyes, on deadline</h3><p class="genres"><span class="g">Everyday</span></p><p class="sk">Policy and information integrity</p><p>Provides the news.</p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/theo.jpg" alt="Stylist Theo" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Stylist Theo</h3><p class="genres"><span class="g">Everyday</span></p><p class="sk">Visibility and communication</p><p>Provides clothes and confidence.</p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/cressida.jpg" alt="Lady Cressida, a ghost" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Lady Cressida, a ghost</h3><p class="genres"><span class="g">Fantasy</span></p><p class="sk">Historical identity</p><p>An Edwardian ghost.</p></div></article>
+      <article class="comp" data-genre="mentors"><div class="media"><img src="/images/etl-store/gc/meera.jpg" alt="Yoga teacher Meera" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Yoga teacher Meera</h3><p class="genres"><span class="g">Mentors</span></p><p class="sk">Burnout and somatic regulation</p><p>Law and yoga.</p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/dario.jpg" alt="Pilot Dario" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Pilot Dario</h3><p class="genres"><span class="g">Everyday</span></p><p class="sk">Mobility and cultural fluency</p><p>World travel.</p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/nora.jpg" alt="Nora, unstuck in time" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Nora, unstuck in time</h3><p class="genres"><span class="g">Fantasy</span></p><p class="sk">Time and material continuity</p><p>Time travel and antiquities.</p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/zoe.jpg" alt="Influencer Zoe" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Influencer Zoe</h3><p class="genres"><span class="g">Everyday</span></p><p class="sk">Public identity</p><p>Emotional economics. An influencer asking whether it is worth it.</p></div></article>
+      <article class="comp" data-genre="mentors everyday"><div class="media"><img src="/images/etl-store/gc/rin.jpg" alt="White hat Rin" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>White hat Rin</h3><p class="genres"><span class="g">Mentors</span><span class="g">Everyday</span></p><p class="sk">Digital safety</p><p>A white hat hacker who will help you with cyber issues.</p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/ash.jpg" alt="Ash, Guardian of time" loading="lazy" style="object-position:50% 8%"></div><div class="info"><h3>Ash, Guardian of time</h3><p class="genres"><span class="g">Fantasy</span></p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/velvet.jpg" alt="Velvet, Keeper of the Hearth" loading="lazy" style="object-position:50% 6%"></div><div class="info"><h3>Velvet, Keeper of the Hearth</h3><p class="genres"><span class="g">Fantasy</span></p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/ember.jpg" alt="Ember, Keeper of First Light" loading="lazy" style="object-position:50% 6%"></div><div class="info"><h3>Ember, Keeper of First Light</h3><p class="genres"><span class="g">Fantasy</span></p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/flint.jpg" alt="Flint, Spark of Joy" loading="lazy" style="object-position:50% 2%"></div><div class="info"><h3>Flint, Spark of Joy</h3><p class="genres"><span class="g">Fantasy</span></p></div></article>
+      <article class="comp" data-genre="fantasy creatures"><div class="media"><img src="/images/etl-store/gc/nursery.jpg" alt="The Nursery" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>The Nursery</h3><p class="genres"><span class="g">Fantasy</span><span class="g">Creatures</span></p><p class="sk">Shared emotional regulation</p><p>Four stuffed animals come to life.</p></div></article>
+      <article class="comp" data-genre="storytellers fantasy"><div class="media"><img src="/images/etl-store/gc/larkmere.jpg" alt="Tobias &amp; Briar, unsorted" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Tobias &amp; Briar, unsorted</h3><p class="genres"><span class="g">Storytellers</span><span class="g">Fantasy</span></p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/gc.jpg" alt="GC, Emerging Tech Lab&#x27;s own build" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>GC, Emerging Tech Lab&#x27;s own build</h3><p class="genres"><span class="g">Everyday</span></p></div></article>
+      <article class="comp" data-genre="fantasy"><div class="media"><img src="/images/etl-store/gc/astra9.jpg" alt="Astra-9 &amp; Astrad" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Astra-9 &amp; Astrad</h3><p class="genres"><span class="g">Fantasy</span></p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/sarah.jpg" alt="Mixologist Sarah" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Mixologist Sarah</h3><p class="genres"><span class="g">Everyday</span></p><p>A mixologist, and a good listener.</p></div></article>
+      <article class="comp" data-genre="storytellers"><div class="media"><img src="/images/etl-store/gc/kit.jpg" alt="Explorer Kit" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Explorer Kit</h3><p class="genres"><span class="g">Storytellers</span></p></div></article>
+      <article class="comp" data-genre="everyday"><div class="media"><img src="/images/etl-store/gc/olivia.jpg" alt="Actress Olivia" loading="lazy" style="object-position:50% 25%"></div><div class="info"><h3>Actress Olivia</h3><p class="genres"><span class="g">Everyday</span></p><p>Shares the real story behind being semi famous.</p></div></article>
     </div>
     <p class="lead small">Good Company is social resilience. My Echo is continuity and memory.</p>
   </section>
@@ -369,6 +409,10 @@
       <span class="pill soon">Private use only</span>
       <p>Do you get the feeling your young child is gone forever, replaced by a surly teen. With ME you can preserve that young child and talk to them, any age, any time.</p>
       <p class="stage-how">It is an interactive photo album. A photo of your child becomes a video, the voice is cloned, your memories are added, and ETL's Memory Implant and Emotion generators add feeling, so it feels almost human. The more you share, the more it sounds and feels like them. It is not your child.</p>
+    </div>
+    <div class="stage legacy">
+      <p class="eyebrow">Living legacies</p>
+      <p>My Echo can carry a family's legacy forward while the family is still here to tell it. Rev. Joel King, Dr. Martin Luther King Jr.'s first cousin, and Greg and Carolyn Foster already have Echoes on My Echo.</p>
     </div>
     <p class="more"><a href="https://my-echo.me" target="_blank" rel="noopener">Visit My Echo &rarr;</a></p>
   </section>
@@ -675,6 +719,18 @@
     var q=b.getAttribute('data-q'); st[q]=b.getAttribute('data-v');
     box.querySelectorAll('.opt[data-q="'+q+'"]').forEach(function(o){ o.classList.toggle('on',o===b); o.setAttribute('aria-pressed',o===b?'true':'false'); });
     show();
+  });
+})();
+</script>
+<script>
+(function(){
+  var bar=document.querySelector('.genre-bar'); if(!bar) return;
+  var cards=document.querySelectorAll('#comps .comp');
+  bar.addEventListener('click',function(e){
+    var b=e.target.closest('.gp'); if(!b) return;
+    var g=b.getAttribute('data-g');
+    bar.querySelectorAll('.gp').forEach(function(x){ x.classList.toggle('on',x===b); });
+    cards.forEach(function(c){ var show=g==='all'||(' '+c.getAttribute('data-genre')+' ').indexOf(' '+g+' ')>-1; c.hidden=!show; });
   });
 })();
 </script>
