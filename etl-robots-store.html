@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js): the ETL Robots property. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6MDTXG96KW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6MDTXG96KW");
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almost Human: The ETL Robots Store | Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<meta name="description" content="Almost Human, the ETL Robots Store: robots, figurines on a plinth, and plinths. Concept art, coming soon. Astra-9 Lite is built and working.">
+<link rel="canonical" href="https://emerging-tech-lab.com/etl-robots-store">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Emerging Technologies Laboratory">
+<meta property="og:title" content="Almost Human: The ETL Robots Store | Emerging Technologies Laboratory">
+<meta property="og:description" content="Robots, figurines on a plinth, and plinths from Emerging Technologies Laboratory. Concept art, coming soon.">
+<meta property="og:url" content="https://emerging-tech-lab.com/etl-robots-store">
+<meta property="og:image" content="https://emerging-tech-lab.com/images/etl-store/astra9-lite-real-v1.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="/good-company/gc-skin.js"></script>
+<link rel="stylesheet" href="/good-company/gc-skin.css">
+<style>
+  /* Palette and body come from gc-skin.css, the same skins as Good Company. No wrap padding,
+     no gaps: the cards run edge to edge. Text keeps only a hairline of room so it is not glued to the glass. */
+  *{box-sizing:border-box}
+  body{margin:0}
+  a{color:var(--accent)}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:.5rem .6rem;background:var(--chrome);border-bottom:1px solid var(--line)}
+  header a.brand{text-decoration:none;display:flex;align-items:center;gap:10px;color:var(--ink)}
+  header .mark{font-size:26px;letter-spacing:.02em}
+  header .word{font-size:13px;line-height:1.25;color:var(--ink-dim);border-left:1px solid var(--line);padding-left:10px}
+  .btn{background:transparent;color:var(--ink);border:1px solid var(--ink-dim);border-radius:4px;padding:.4rem .7rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+  .intro{padding:1rem .6rem .4rem}
+  h1{font-size:clamp(30px,5.5vw,48px);margin:0 0 6px;color:var(--ink);line-height:1.15;font-weight:500}
+  .lede{font-size:18px;color:var(--ink);max-width:640px;margin:0 0 6px}
+  .sub{font-size:15px;max-width:640px;margin:0;color:var(--ink-dim)}
+  h2{font-size:24px;color:var(--ink);margin:0;padding:1.5rem .6rem .1rem;font-weight:500}
+  .section-note{margin:0;padding:0 .6rem .6rem;font-size:14px;color:var(--ink-dim)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0}
+  .card{background:var(--panel);display:flex;flex-direction:column;border-top:1px solid var(--line)}
+  .card .shot{aspect-ratio:4/5;background:#000;overflow:hidden}
+  .card .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .card .body{padding:.5rem .6rem .7rem;display:flex;flex-direction:column;gap:6px;flex:1}
+  .card h3{margin:0;font-size:21px;color:var(--ink);font-weight:500}
+  .card h3 a{color:inherit;text-decoration:none}
+  .card h3 a:hover{text-decoration:underline}
+  .card p{margin:0;font-size:14px;color:var(--ink-dim)}
+  .pill{align-self:flex-start;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-top:auto;border:1px solid var(--accent);color:var(--accent)}
+  .pill.done{background:var(--accent);color:var(--accent-ink)}
+  .pill.soon{border-color:var(--ink-dim);color:var(--ink-dim)}
+  .banner{display:block;width:100%;height:auto}
+  .banner.hero{margin-top:.6rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .card .body p+p{margin-top:2px}
+  .summary{padding:0 0 .4rem}
+  .summary p{max-width:640px;margin:0;padding:0 .6rem .55rem;font-size:16px;color:var(--ink)}
+  .more{font-size:14px;margin:0;padding:.6rem}
+  footer{padding:1rem .6rem 1.5rem;border-top:1px solid var(--line);color:var(--ink-dim);font-size:13px}
+  @media (max-width:520px){.grid{grid-template-columns:1fr 1fr}.card h3{font-size:18px}}
+
+  .notice{margin:.6rem .6rem 0;padding:.7rem .8rem;border:1px solid var(--accent);color:var(--ink);font-size:15px;max-width:720px}
+  .notice strong{font-weight:600}
+  .shot{position:relative}
+  .card .shot.square{aspect-ratio:1/1}
+  .card .shot.wide{aspect-ratio:2/1}
+  .tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px}
+  .price{font-size:13px;color:var(--ink-dim);font-family:var(--mono);letter-spacing:.04em}
+  .buy{align-self:flex-start;background:transparent;color:var(--ink-dim);border:1px solid var(--ink-dim);border-radius:4px;padding:.4rem .8rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7;cursor:not-allowed}
+  .intro-text{max-width:640px;margin:0;padding:0 .6rem .6rem;font-size:15px;color:var(--ink)}
+  .grid.one{grid-template-columns:minmax(240px,420px)}
+  .grid.four{grid-template-columns:repeat(4,1fr)}
+  .grid.two{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:900px){.grid.four{grid-template-columns:repeat(2,1fr)}}
+  .options{margin:0;padding:0 .6rem .6rem 1.6rem;max-width:640px;font-size:15px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div>
+  <header>
+    <a class="brand" href="/"><span class="mark">ETL</span><span class="word">Emerging<br>Technologies Laboratory</span></a>
+    <div class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></div>
+  </header>
+
+  <div class="intro">
+  <h1>Almost Human</h1>
+  <p class="lede">The ETL Robots Store. Companions you can stand next to, and small ones you can collect.</p>
+  <p class="sub">Everything here was designed by Dr. Terry Oroszi at the Emerging Technologies Laboratory.</p>
+  </div>
+  <p class="notice"><strong>Concept art, coming soon.</strong> Nothing in this store can be bought yet, and the pictures are concept art. Astra-9 Lite is the one exception: she is built and working.</p>
+
+  <h2>Astra-9 Lite</h2>
+  <p class="section-note">The bench top version of Astra-9, built and working.</p>
+  <div class="grid one">
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-store/astra9-lite-real-v1.jpg" alt="Astra-9 Lite on a table, a head and bust with copper panel lines, a dark collar and glowing blue eyes." loading="lazy"></div>
+      <div class="body">
+        <h3><a href="/astra9">Astra-9 Lite</a></h3>
+        <p>A head and bust you can keep on a desk or a workbench. She answers to Elle, Astra, Astra Lite or AL.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill done">Built and working</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+  </div>
+  <p class="intro-text">A video of Astra-9 Lite talking is coming to this page.</p>
+  <p class="more"><a href="/astra9">See the Astra-9 page and join the list &rarr;</a></p>
+
+  <h2>Figurines</h2>
+  <p class="section-note">Concept art, coming soon. 3D printed Good Company companions, 8 inches tall.</p>
+  <p class="intro-text">Place a figurine on a plinth and it comes alive. Figurines are sold separately from plinths, so you can collect as many figurines as you like.</p>
+  <div class="grid">
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-store/figurine-alice-standing-v1.jpg" alt="A.L.I.C.E. standing on a round black plinth, with metal arms, a sleeveless black top and boots." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>A.L.I.C.E., standing</h3>
+        <p>A figurine of A.L.I.C.E., 8 inches tall.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-store/figurine-alice-seated-v1.jpg" alt="A.L.I.C.E. seated on a rectangular black plinth, with her arms around her knee." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>A.L.I.C.E., seated</h3>
+        <p>A figurine of A.L.I.C.E. sitting, 8 inches tall.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-store/figurine-golden-retriever-v1.jpg" alt="A golden retriever sitting on a rectangular black plinth with a speaker grille and a warm light strip." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>Golden Retriever</h3>
+        <p>A figurine of a golden retriever, 8 inches tall.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-store/figurine-fairy-v1.jpg" alt="A fairy with clear wings and a petal skirt standing on a round black plinth." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>Fairy</h3>
+        <p>A figurine of a fairy, 8 inches tall.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+  </div>
+
+  <h2>Plinths</h2>
+  <p class="section-note">Concept art, coming soon. Sold separately from the figurines.</p>
+  <p class="intro-text">Collect the figurines and own only one or two plinths. With several plinths, the companions can talk to each other.</p>
+  <p class="intro-text">Choose your plinth with a motion detector, a camera, both, or neither.</p>
+  <div class="grid two">
+    <article class="card">
+      <div class="shot wide"><img src="/images/etl-store/plinth-round-v1.jpg" alt="A round black plinth with a speaker grille, a status light and a warm light strip around the base." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>Plinth, round</h3>
+        <p>Holds the speaker and the brain for one figurine. Choose a motion detector, a camera, both, or neither.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot wide"><img src="/images/etl-store/plinth-rectangle-v1.jpg" alt="A rectangular black plinth with a speaker grille, a status light and a warm light strip along the top edge." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3>Plinth, rectangular</h3>
+        <p>Holds the speaker and the brain for one figurine. Choose a motion detector, a camera, both, or neither.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+  </div>
+
+  <h2>Robots</h2>
+  <p class="section-note">Concept art, coming soon. Companion robots: a brain with a host body.</p>
+  <div class="grid four">
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-robots/astra9-labcoat-v1.jpg" alt="Astra-9, the full size figure, in a white ETL lab coat and cream dress." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3><a href="/etl-robots">Astra-9</a></h3>
+        <p>The ninth build in an early android line, a proud robot who has never bothered trying to pass as human.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-robots/astrad-labcoat-v1.jpg" alt="Astrad, known as Ted, the full size figure, in a white ETL lab coat and khaki trousers." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3><a href="/etl-robots">Astrad (Ted)</a></h3>
+        <p>Astra-9's companion, in here with her and getting his own body the same way.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-robots/guardian-crop-v1.jpg" alt="An ETL Guardian in a black uniform with a glossy black head and a red light." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3><a href="/etl-robots">The Guardians</a></h3>
+        <p>ETL robots that keep watch.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-robots/alice-seated-v1.jpg" alt="A.L.I.C.E. sitting with her arms around her knees, with metal arms and legs." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3><a href="/etl-robots">A.L.I.C.E.</a></h3>
+        <p>Adaptive Lifeform Interpreting Connective Experience.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-robots/reggie-bot-v2.jpg" alt="Reggie, a beagle robot dog with green eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3><a href="/etl-robots">Reggie</a></h3>
+        <p>A beagle. Good dog. Friends with Biscuit and Mochi.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-robots/biscuit-bot-v2.jpg" alt="Biscuit, a lab robot dog with blue eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3><a href="/etl-robots">Biscuit</a></h3>
+        <p>A lab. Good dog. Friends with Reggie and Mochi.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="shot square"><img src="/images/etl-robots/mochi-bot-v2.jpg" alt="Mochi, a French bulldog robot dog with amber eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
+      <div class="body">
+        <h3><a href="/etl-robots">Mochi</a></h3>
+        <p>A French bulldog. Good dog. Friends with Reggie and Biscuit.</p>
+        <span class="price">Price to be announced</span>
+        <span class="pill soon">Concept art, coming soon</span>
+        <button class="buy" type="button" disabled title="Concept art, coming soon">Add to cart</button>
+      </div>
+    </article>
+  </div>
+  <p class="more"><a href="/etl-robots">Read about all the ETL robots &rarr;</a></p>
+
+  <footer>
+    Emerging Technologies Laboratory
+    <br><a href="/">&larr; Back to Emerging Technologies Laboratory</a>
+  </footer>
+</div>
+<script>gcMountSkinPicker(document.getElementById('picker'), document.getElementById('skinBtn'));</script>
+</body>
+</html>
