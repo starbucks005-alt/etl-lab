@@ -14,7 +14,7 @@ Check:   i2cdetect -y 1        (the PCA9685 shows up as 40)
 Bench:   python3 ~/al_panel/al_neck.py --test        (one glance, then stops)
 Run:     python3 ~/al_panel/al_neck.py
 
-The head is limited to 60 degrees each side of the middle (90 unless a number was saved with --save). The glance uses 25.
+The head is limited to 60 degrees each side of the middle (90 unless a number was saved with --save). The glance uses 25 unless a smaller number was saved with --save-glance.
 """
 import json
 import os
@@ -38,7 +38,19 @@ def read_middle():
 
 MIDDLE = read_middle()
 LIMIT = 60          # the most the head may ever turn from the middle, in degrees
-GLANCE = 25         # how far the glance goes each way
+GLANCE_FILE = os.path.expanduser("~/al_neck_glance.txt")   # how far the glance goes each way, if one was saved
+
+
+def read_glance():
+    """How far the glance goes each way, in degrees. 25 unless a number was saved."""
+    try:
+        with open(GLANCE_FILE) as f:
+            return max(0, min(40, int(f.read().strip())))
+    except Exception:
+        return 25
+
+
+GLANCE = read_glance()
 STEP = 1            # degrees per step
 STEP_DELAY = 0.02   # seconds per step, so the head moves slowly and quietly
 
@@ -86,6 +98,16 @@ if argument("--hold") is not None:
     servo.angle = argument("--hold")
     time.sleep(60)
     servo.angle = None
+    sys.exit(0)
+if "--save-glance" in sys.argv:
+    try:
+        number = max(0, min(40, int(sys.argv[sys.argv.index("--save-glance") + 1])))
+    except (IndexError, ValueError):
+        print("--save-glance needs a number from 0 to 40, for example --save-glance 12")
+        sys.exit(1)
+    with open(GLANCE_FILE, "w") as f:
+        f.write(str(number))
+    print("The glance now goes " + str(number) + " degrees each way. Restart the neck: sudo systemctl restart al-neck")
     sys.exit(0)
 if argument("--save") is not None:
     with open(MIDDLE_FILE, "w") as f:

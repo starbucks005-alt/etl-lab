@@ -61,6 +61,9 @@ Measure that socket's power pin with a meter before connecting the board's logic
    face looks straight ahead, then keep it with `python3 ~/al_panel/al_neck.py --save 100` and
    `sudo systemctl restart al-neck`. The number is kept in `~/al_neck_middle.txt`. Not tried on the
    real head: which direction a bigger number turns it is not known yet.
+6. If the neck only turns a short way, make the glance smaller so the servo never pushes against what blocks it:
+   `python3 ~/al_panel/al_neck.py --save-glance 12` (0 to 40 degrees each way), then
+   `sudo systemctl restart al-neck`. The number is kept in `~/al_neck_glance.txt`. Not tried on the real head.
 
 ## Start the eyes and the neck by themselves (after both have worked by hand)
 `al-eyes.service` and `al-neck.service` start the two drivers when the Pi starts, the same
