@@ -171,6 +171,7 @@ Dr. O's decisions: the dogs wag their tails when petted or happy, and the touch 
 - **Wag:** cut the tail off and fix it to a small servo (SG90 or MG90S type), driven from the servo board, one channel per dog. Mochi's tail is a short stub, so his wag may need a small made tail or a rear end wiggle. Wear a respirator when cutting fiberglass.
 - **Petting:** a touch sensor (TTP223 type) behind the shell. Whether it works through the fiberglass is not known and is the first test. If not, a thin foam or fur layer over the spots, or a pressure pad inside.
 - **Happy:** software, not hardware: a happy line or hearing its name starts a wag, faster when happier.
+- **Mannequin sizes from the listings (Dr. O's screenshots, 2026-10-24; length x width x height):** Reggie, the beagle, 65 x 19.1 x 51.3 cm, 3.16 kg net, $166. Mochi, the French bulldog, 60 x 22.6 x 48.9 cm, 3.12 kg net, $195. Biscuit, the Labrador, 100.8 x 35.2 x 70 cm, 6.5 kg net, $358, in a 100 x 63 x 40 cm box. Biscuit is about 1.5 times as long as the others and about twice the weight. Whether any is hollow is not known.
 - **Not known:** which board runs each dog, whether the bodies are hollow, how the tails attach. Pins are not chosen. Check these when the bodies are in hand.
 
 ## Registered voices for Elle (written 2026-10-23, NOT TRIED on the robot or with the real model)
