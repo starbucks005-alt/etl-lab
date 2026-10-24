@@ -27,6 +27,7 @@
   .story h3{margin:0;font-family:var(--serif);font-weight:500;font-size:20px}
   .story p{margin:0;font-size:14px;color:var(--dim)}
   .story .grow{flex:1}
+  .newtag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#02111f;background:var(--blue);border-radius:3px;padding:2px 8px}
   .heard{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
   .play{background:var(--gold);color:#1a1405;border:0;border-radius:999px;padding:.55rem 1.2rem;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;cursor:pointer}
   .play[disabled]{background:transparent;color:var(--dim);border:1px solid var(--line);cursor:not-allowed;font-weight:400}
@@ -88,8 +89,9 @@
       groups[g].forEach(function(s){
         var row=el('div','story'+(current&&current.id===s.id?' on':''));
         var info=el('div','grow'); info.appendChild(el('h3','',s.title));
-        info.appendChild(el('p','',s.minutes+' minutes'+(s.file?'':' · Recording soon')));
+        info.appendChild(el('p','',s.minutes+' minutes'+(s.narrator?' · Narrated by '+s.narrator:'')+(s.file?'':' · Recording soon')));
         row.appendChild(info);
+        if(s.new&&!heard[s.id]) row.appendChild(el('span','newtag','New'));
         if(heard[s.id]) row.appendChild(el('span','heard','Heard'));
         var b=el('button','play',s.file?'Play':'Soon'); if(!s.file) b.disabled=true; else b.addEventListener('click',function(){ play(s); });
         row.appendChild(b); list.appendChild(row);
