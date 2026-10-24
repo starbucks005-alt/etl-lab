@@ -1,0 +1,61 @@
+{
+ "_note": "The story library (2026-10-24, Dr. O: stories in their voices, a library, the listener chooses the next one). A story with file null is not recorded yet and shows as 'Recording soon'. tools/record-pack-stories.js --library story-library.json fills in file and minutes when it records a story.",
+ "stories": [
+  {
+   "id": "trash",
+   "companion": "Reggie, Biscuit and Mochi",
+   "title": "The Great Trash Can Mystery",
+   "minutes": 5,
+   "file": null
+  },
+  {
+   "id": "squirrel",
+   "companion": "Reggie, Biscuit and Mochi",
+   "title": "The Great Squirrel Incident",
+   "minutes": 5,
+   "file": null
+  },
+  {
+   "id": "stick",
+   "companion": "Reggie, Biscuit and Mochi",
+   "title": "The Stick of Destiny",
+   "minutes": 5,
+   "file": null
+  },
+  {
+   "id": "beach",
+   "companion": "Reggie, Biscuit and Mochi",
+   "title": "The beach at low tide",
+   "minutes": 4,
+   "file": null
+  },
+  {
+   "id": "ferry",
+   "companion": "Reggie, Biscuit and Mochi",
+   "title": "The ferry",
+   "minutes": 4,
+   "file": null
+  },
+  {
+   "id": "market",
+   "companion": "Reggie, Biscuit and Mochi",
+   "title": "The farmers market",
+   "minutes": 5,
+   "file": null
+  },
+  {
+   "id": "alice-saga",
+   "companion": "A.L.I.C.E.",
+   "title": "The laboratory saga",
+   "minutes": 5,
+   "file": null
+  },
+  {
+   "id": "tansy-human-summer",
+   "companion": "Tansy, Poppy and Blue",
+   "title": "Human Summer",
+   "minutes": 3,
+   "file": null
+  }
+ ]
+}

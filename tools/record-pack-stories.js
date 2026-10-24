@@ -37,6 +37,8 @@
    Options  --file path.json   --out dir (default recorded-stories)   --pause 0.5
             --model eleven_turbo_v2_5   --only id,id   --dry
             --fragments file.json   --voice who=VOICEID   --name saga-name
+            --library story-library.json   fill in the story's file and length in the library page's list
+            (record into the site's audio folder, for example --out audio/stories)
 
    Needs: Node 18 or newer, ffmpeg on the PATH, and an ElevenLabs key. The voice
    ids are the ones already used by Good Company (gc-friend.js). Check that your
@@ -131,6 +133,19 @@ function arg(name, dflt) {
   return v && !v.startsWith('--') ? v : true;
 }
 
+/* Fill in the library page's list once a story is recorded. The file is the web path of the recording. */
+function updateLibrary(libPath, id, outDir, fileName, minutes) {
+  if (!libPath) return;
+  const lib = JSON.parse(fs.readFileSync(libPath, 'utf8'));
+  const entry = (lib.stories || []).find((x) => x.id === id);
+  if (!entry) { console.log('  (no library entry called ' + id + ', add one to ' + libPath + ')'); return; }
+  const rel = path.relative(process.cwd(), path.join(outDir, fileName)).split(path.sep).join('/');
+  entry.file = '/' + rel;
+  if (minutes) entry.minutes = minutes;
+  fs.writeFileSync(libPath, JSON.stringify(lib, null, 1) + '\n');
+  console.log('  library: ' + id + ' -> ' + entry.file);
+}
+
 function voiceFlags() {
   const out = {};
   process.argv.forEach((a, i) => {
@@ -184,6 +199,7 @@ async function mainFragments() {
   const target = path.join(out, name + '_v' + version + '.mp3');
   await recordParts(key, model, parts, target, tmp, silence, name);
   console.log('\n  wrote ' + target + ' (' + Math.round(fs.statSync(target).size / 1024) + ' KB)');
+  updateLibrary(arg('library', ''), name, out, path.basename(target), Math.round(w / 150));
   fs.writeFileSync(path.join(out, name + '_manifest_v' + version + '.json'), JSON.stringify({ made: new Date().toISOString().slice(0, 10), saga: name, fragments: parts.map((p) => p.id), skipped }, null, 2));
 }
 
@@ -242,6 +258,7 @@ async function main() {
     const target = path.join(out, 'reggie-biscuit-mochi_' + ep.id + '_v' + version + '.mp3');
     execFileSync('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', target], { stdio: 'ignore' });
     const bytes = fs.statSync(target).size;
+    updateLibrary(arg('library', ''), ep.id, out, path.basename(target), Math.round(parts.reduce((n, p) => n + words(p.text), 0) / 150));
     manifest.push({ id: ep.id, title: ep.place, file: path.basename(target), bytes, voices: Object.keys(VOICES), nameSlot: 'sweet pea' });
     console.log('\n  wrote ' + target + ' (' + Math.round(bytes / 1024) + ' KB)');
   }
