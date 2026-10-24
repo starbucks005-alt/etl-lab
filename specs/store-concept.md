@@ -792,3 +792,18 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - `astra9-handout.html`: a one page handout with a QR code to `/astra9?src=uni-expo`.
 - `good-company/hologram.html`: hologram mode for a phone laid flat.
 - Run `supabase_astra9_waitlist_source_migration.sql` in Supabase for the count.
+
+## Project manager mode for Astra (2026-10-24)
+
+- Dr. Brian Polkinghorn, ambassador of the Gandhi-King Center, asked Dr. O on
+  WhatsApp whether the companion can link to a project management application to
+  remind of short, mid and long term tasks. Dr. O told him yes, she can make a
+  project management mode.
+- Dr. O decided: each user defines what short, mid and long term mean, because it
+  varies from person to person.
+- Not known: which project management application he uses, and whether he meant
+  one person or a team. He did not say. Nothing is linked to any application, and
+  the mode says so if asked. What would settle it: asking him which application.
+- Built in `al-panel/pi/al_panel_server.py` as the mode `projects`, eye color
+  brown (Dr. O's choice). Written with Claude's help, and Dr. O tells people so.
+  Not yet tried on Astra.
