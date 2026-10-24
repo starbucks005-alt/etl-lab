@@ -22,8 +22,21 @@
      node tools/record-pack-stories.js --only trash          one story
      ELEVENLABS_API_KEY=... node tools/record-pack-stories.js    record all
 
+   The sagas (A.L.I.C.E.'s story and the fairies' Human Summer, which includes
+   Tansy as the jilted human lover) are told in fragments, not stories. Record
+   them with --fragments:
+     node tools/record-pack-stories.js --fragments alice-fragments.json --dry
+     node tools/record-pack-stories.js --fragments fairy-fragments.json --dry
+   Each fragment is read in the voice of the one who tells it: A.L.I.C.E., Tansy,
+   Poppy and Blue have their Good Company voices. The narrator, the researchers,
+   the colleagues and the mother have no voice yet, so give each one with
+   --voice narrator=VOICEID (repeat for researcher, colleague, mother). A
+   fragment with no voice is SKIPPED and the tool says so; it never guesses.
+   A.L.I.C.E.'s fragments are read in order of their phase, 0 to 5.
+
    Options  --file path.json   --out dir (default recorded-stories)   --pause 0.5
             --model eleven_turbo_v2_5   --only id,id   --dry
+            --fragments file.json   --voice who=VOICEID   --name saga-name
 
    Needs: Node 18 or newer, ffmpeg on the PATH, and an ElevenLabs key. The voice
    ids are the ones already used by Good Company (gc-friend.js). Check that your
@@ -41,6 +54,13 @@ const VOICES = {
   reggie: 'uq0HIbNZKn11Hs5ifEdd',
   biscuit: 'MgqVq3OCTPeVHCEDr4HU',
   mochi: 'I8ERYU9lOxALy2vtIvHd'
+};
+/* The saga voices already in Good Company (gc-friend.js). The other tellers have none yet. */
+const SAGA_VOICES = {
+  alice: 'gZL79pBTvaNfNPOCXh6n',
+  tansy: 'thfYL0Elyru2qqTtNQsE',
+  poppy: 'VJFN2gyaDzoKekQ8ZuKB',
+  blue: 'WUyjxM8OTY6l8LhTmdkq'
 };
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true }; /* same as gc-voice.js */
 const PER_MILLION_CHARS = 16; /* the neural voice rate quoted in the one-pager, a rough guide only */
@@ -76,6 +96,22 @@ function plan(ep) {
   return parts;
 }
 
+/* Fragments: each one is read in the voice of whoever tells it. A teller with no voice is skipped, and reported. */
+function planFragments(data, extraVoices) {
+  const voices = Object.assign({}, SAGA_VOICES, extraVoices || {});
+  const list = (data.fragments || data).slice();
+  if (list.every((f) => typeof f.phase === 'number')) list.sort((a, b) => a.phase - b.phase); /* stable: file order inside a phase */
+  const parts = [], skipped = [];
+  list.forEach((f) => {
+    const who = String(f.perspective || '').toLowerCase();
+    const text = speakable(f.text);
+    if (!text) return;
+    if (!voices[who]) { skipped.push({ id: f.id, who }); return; }
+    parts.push({ who, voice: voices[who], text, id: f.id });
+  });
+  return { parts, skipped };
+}
+
 const words = (s) => String(s || '').split(/\s+/).filter(Boolean).length;
 
 async function tts(key, model, voiceId, text) {
@@ -95,7 +131,64 @@ function arg(name, dflt) {
   return v && !v.startsWith('--') ? v : true;
 }
 
+function voiceFlags() {
+  const out = {};
+  process.argv.forEach((a, i) => {
+    if (a === '--voice' && process.argv[i + 1] && process.argv[i + 1].includes('=')) {
+      const [k, v] = process.argv[i + 1].split('=');
+      out[k.toLowerCase()] = v;
+    }
+  });
+  return out;
+}
+
+async function recordParts(key, model, parts, target, tmp, silence, label) {
+  const files = [];
+  for (let i = 0; i < parts.length; i++) {
+    const f = path.join(tmp, label + '-' + String(i).padStart(3, '0') + '.mp3');
+    fs.writeFileSync(f, await tts(key, model, parts[i].voice || VOICES[parts[i].who], parts[i].text));
+    files.push(f);
+    process.stdout.write('.');
+  }
+  const list = path.join(tmp, label + '.txt');
+  fs.writeFileSync(list, files.map((f) => "file '" + f + "'\nfile '" + silence + "'").join('\n') + '\n');
+  execFileSync('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', target], { stdio: 'ignore' });
+}
+
+async function mainFragments() {
+  const file = arg('fragments');
+  const out = arg('out', 'recorded-stories');
+  const version = String(arg('version', '1'));
+  const pause = Number(arg('pause', '0.8'));
+  const model = arg('model', 'eleven_turbo_v2_5');
+  const dry = !!arg('dry', false);
+  const name = String(arg('name', path.basename(String(file), '.json').replace(/-fragments$/, '-saga')));
+  const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const { parts, skipped } = planFragments(data, voiceFlags());
+  const chars = parts.reduce((n, p) => n + p.text.length, 0);
+  const w = parts.reduce((n, p) => n + words(p.text), 0);
+  const who = {}; parts.forEach((p) => { who[p.who] = (who[p.who] || 0) + 1; });
+  console.log('%s: %d fragments voiced (%s), %d words, about %d minutes, %d characters, about $%s (a guide, not a quote).', name, parts.length, Object.entries(who).map(([k, v]) => k + ' ' + v).join(', '), w, Math.round(w / 150), chars, (chars * PER_MILLION_CHARS / 1e6).toFixed(2));
+  if (skipped.length) {
+    const by = {}; skipped.forEach((s) => { by[s.who] = (by[s.who] || 0) + 1; });
+    console.log('SKIPPED, no voice yet: ' + Object.entries(by).map(([k, v]) => k + ' ' + v).join(', ') + '. Give one with --voice teller=VOICEID.');
+  }
+  if (dry) return;
+  const key = process.env.ELEVENLABS_API_KEY;
+  if (!key) { console.error('Set ELEVENLABS_API_KEY to record, or use --dry.'); process.exit(1); }
+  try { execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' }); } catch (e) { console.error('ffmpeg is needed to join the pieces.'); process.exit(1); }
+  fs.mkdirSync(out, { recursive: true });
+  const tmp = fs.mkdtempSync(path.join(require('os').tmpdir(), 'saga-'));
+  const silence = path.join(tmp, 'silence.mp3');
+  execFileSync('ffmpeg', ['-y', '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=mono', '-t', String(pause), '-q:a', '9', silence], { stdio: 'ignore' });
+  const target = path.join(out, name + '_v' + version + '.mp3');
+  await recordParts(key, model, parts, target, tmp, silence, name);
+  console.log('\n  wrote ' + target + ' (' + Math.round(fs.statSync(target).size / 1024) + ' KB)');
+  fs.writeFileSync(path.join(out, name + '_manifest_v' + version + '.json'), JSON.stringify({ made: new Date().toISOString().slice(0, 10), saga: name, fragments: parts.map((p) => p.id), skipped }, null, 2));
+}
+
 async function main() {
+  if (arg('fragments', false)) return mainFragments();
   const file = arg('file', path.join(__dirname, '..', 'pack-episodes.json'));
   const out = arg('out', 'recorded-stories');
   const version = String(arg('version', '1'));
@@ -157,4 +250,4 @@ async function main() {
 }
 
 if (require.main === module) main().catch((e) => { console.error(e.message); process.exit(1); });
-module.exports = { fixNameSlot, speakable, plan, VOICES };
+module.exports = { fixNameSlot, speakable, plan, planFragments, VOICES, SAGA_VOICES };

@@ -26,3 +26,22 @@ eps.forEach((ep) => {
   assert.strictEqual(parts[parts.length - 1].evening, true);
 });
 console.log('record-pack-stories tests passed');
+
+/* sagas */
+const { planFragments, SAGA_VOICES } = require('../tools/record-pack-stories.js');
+const alice = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'alice-fragments.json'), 'utf8'));
+const fairy = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fairy-fragments.json'), 'utf8'));
+let r = planFragments(alice, {});
+assert.strictEqual(r.parts.length, 22, 'only Alice fragments have a voice by default');
+assert.strictEqual(r.skipped.length, 11);
+assert(r.parts.every((p) => p.who === 'alice' && p.voice === SAGA_VOICES.alice));
+r = planFragments(alice, { narrator: 'N', researcher: 'R', colleague: 'C' });
+assert.strictEqual(r.parts.length, 33);
+assert.strictEqual(r.skipped.length, 0);
+const phases = alice.fragments.map((f) => f.id);
+assert.strictEqual(r.parts[0].id.length > 0, true);
+r = planFragments(fairy, {});
+assert.strictEqual(r.parts.length, 13, 'tansy 5, poppy 4, blue 4');
+assert.strictEqual(r.skipped.length, 11, 'narrator 8, mother 3');
+assert(r.parts.every((p) => !p.text.includes('{')));
+console.log('saga tests passed');
