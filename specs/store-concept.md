@@ -799,11 +799,12 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
   WhatsApp whether the companion can link to a project management application to
   remind of short, mid and long term tasks. Dr. O told him yes, she can make a
   project management mode.
-- Dr. O decided: each user defines what short, mid and long term mean, because it
-  varies from person to person.
+- The idea came from Dr. Polkinghorn's question. Dr. O decided how the mode works:
+  each user defines what short, mid and long term mean, because it varies from
+  person to person.
 - Not known: which project management application he uses, and whether he meant
   one person or a team. He did not say. Nothing is linked to any application, and
   the mode says so if asked. What would settle it: asking him which application.
 - Built in `al-panel/pi/al_panel_server.py` as the mode `projects`, eye color
-  brown (Dr. O's choice). Written with Claude's help, and Dr. O tells people so.
+  brown (Dr. O's choice). Claude wrote the code and the prompt wording from Dr. O's decisions, and Dr. O tells people so.
   Not yet tried on Astra.
