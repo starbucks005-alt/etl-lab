@@ -267,6 +267,9 @@
   .imagine .il{margin:0 0 .4rem;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
   .imagine p{margin:0 0 .4rem;font-size:15px}
   .imagine em{font-family:var(--serif);font-size:17px}
+  .fr-img[hidden]{display:none}
+  .f-media.wide16{width:min(100%,640px)}
+  .f-media.wide16 img{max-height:none}
 </style>
 </head>
 <body>
@@ -342,11 +345,11 @@
       </div>
     </section>
     <section class="feature" id="frame">
-      <div class="f-media"><div class="soonpanel"><span>Concept art coming soon</span></div><span class="tag">Concept art</span></div>
+      <div class="f-media wide16"><img class="fr-img" data-f="Walnut" src="/images/etl-store/frame-walnut-dogs-v1.jpg" alt="The Companion Frame in walnut, showing Reggie, Biscuit and Mochi, next to a phone with Choose Your Companion and the modes Greet, Storyteller and Companion." loading="lazy"><img class="fr-img" data-f="Cream" src="/images/etl-store/frame-cream-ash-v1.jpg" alt="The Companion Frame in cream, showing Ash the fairy, next to a phone with Choose Your Companion." loading="lazy" hidden><img class="fr-img" data-f="Black" src="/images/etl-store/frame-black-nina-v1.jpg" alt="The Companion Frame in black, showing Nina the retired teacher, next to a phone with Choose Your Companion." loading="lazy" hidden><span class="tag">Concept art</span><div class="swatches" id="frSw" role="group" aria-label="Frame finish"><button type="button" class="sw on" data-c="Walnut">Walnut</button><button type="button" class="sw" data-c="Cream">Cream</button><button type="button" class="sw" data-c="Black">Black</button></div></div>
       <div class="f-text">
         <p class="eyebrow">Companion Frame</p>
         <h2>The Companion Frame</h2>
-        <p class="f-body">A wall frame where a Good Company companion shows as a picture and talks. Every Good Company companion can go into the frame, with their name, voice, scenes and memory.</p>
+        <p class="f-body">A wall frame where a Good Company companion shows as a picture and talks. Every Good Company companion can go into the frame, with their name, voice, scenes and memory. Choose your companion and a mode from your phone: Greet, Storyteller or Companion.</p>
         
         <p class="f-meta"><span class="price">Price to be announced</span> <span class="pill soon">Concept art, coming soon</span></p>
         <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a></p>
@@ -816,6 +819,17 @@
     var c=b.getAttribute('data-c');
     bar.querySelectorAll('.sw').forEach(function(x){ x.classList.toggle('on',x===b); });
     Object.keys(imgs).forEach(function(k){ imgs[k].hidden=(k!==c); });
+  });
+})();
+</script>
+<script>
+(function(){
+  var bar=document.getElementById('frSw'); if(!bar) return;
+  var imgs=document.querySelectorAll('.fr-img');
+  bar.addEventListener('click',function(e){
+    var b=e.target.closest('.sw'); if(!b) return; var c=b.getAttribute('data-c');
+    bar.querySelectorAll('.sw').forEach(function(x){ x.classList.toggle('on',x===b); });
+    imgs.forEach(function(i){ i.hidden=(i.getAttribute('data-f')!==c); });
   });
 })();
 </script>
