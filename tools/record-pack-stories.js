@@ -30,7 +30,9 @@
    Each fragment is read in the voice of the one who tells it: A.L.I.C.E., Tansy,
    Poppy and Blue have their Good Company voices. The narrator, the researchers,
    the colleagues and the mother have no voice yet, so give each one with
-   --voice narrator=VOICEID (repeat for researcher, colleague, mother). A
+   --voice narrator=VOICEID (repeat for researcher, colleague, mother). A voice can be an
+   Azure one, written azure:en-US-AvaMultilingualNeural (needs AZURE_SPEECH_KEY and
+   AZURE_SPEECH_REGION in your environment); anything else is an ElevenLabs id. A
    fragment with no voice is SKIPPED and the tool says so; it never guesses.
    A.L.I.C.E.'s fragments are read in order of their phase, 0 to 5.
 
@@ -116,7 +118,16 @@ function planFragments(data, extraVoices) {
 
 const words = (s) => String(s || '').split(/\s+/).filter(Boolean).length;
 
+/* A voice id like azure:en-US-AvaMultilingualNeural is spoken by Azure (AZURE_SPEECH_KEY and AZURE_SPEECH_REGION), the same
+   convention the site uses in netlify/functions/_azure-tts.js. Any other id is an ElevenLabs voice. */
 async function tts(key, model, voiceId, text) {
+  if (String(voiceId).startsWith('azure:')) {
+    const { azureVoiceName, azureSpeak } = require('../netlify/functions/_azure-tts.js');
+    const name = azureVoiceName(voiceId);
+    if (!name) throw new Error('Not an Azure voice id: ' + voiceId);
+    return azureSpeak(text, name);
+  }
+  if (!key) throw new Error('This voice needs ELEVENLABS_API_KEY: ' + voiceId);
   const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voiceId), {
     method: 'POST',
     headers: { 'xi-api-key': key, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
@@ -192,7 +203,7 @@ async function mainFragments() {
   }
   if (dry) return;
   const key = process.env.ELEVENLABS_API_KEY;
-  if (!key) { console.error('Set ELEVENLABS_API_KEY to record, or use --dry.'); process.exit(1); }
+  if (!key && !process.env.AZURE_SPEECH_KEY) { console.error('Set ELEVENLABS_API_KEY (and AZURE_SPEECH_KEY for azure: voices) to record, or use --dry.'); process.exit(1); }
   try { execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' }); } catch (e) { console.error('ffmpeg is needed to join the pieces.'); process.exit(1); }
   fs.mkdirSync(out, { recursive: true });
   const tmp = fs.mkdtempSync(path.join(require('os').tmpdir(), 'saga-'));
@@ -237,7 +248,7 @@ async function main() {
   }
 
   const key = process.env.ELEVENLABS_API_KEY;
-  if (!key) { console.error('Set ELEVENLABS_API_KEY to record, or use --dry.'); process.exit(1); }
+  if (!key && !process.env.AZURE_SPEECH_KEY) { console.error('Set ELEVENLABS_API_KEY (and AZURE_SPEECH_KEY for azure: voices) to record, or use --dry.'); process.exit(1); }
   try { execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' }); } catch (e) { console.error('ffmpeg is needed to join the pieces.'); process.exit(1); }
 
   fs.mkdirSync(out, { recursive: true });

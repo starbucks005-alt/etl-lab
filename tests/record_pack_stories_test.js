@@ -45,3 +45,11 @@ assert.strictEqual(r.parts.length, 13, 'tansy 5, poppy 4, blue 4');
 assert.strictEqual(r.skipped.length, 11, 'narrator 8, mother 3');
 assert(r.parts.every((p) => !p.text.includes('{')));
 console.log('saga tests passed');
+
+/* azure voice ids are accepted for the tellers that have no ElevenLabs voice */
+const az = planFragments(alice, { narrator: 'azure:en-US-AvaMultilingualNeural', researcher: 'azure:en-US-AndrewMultilingualNeural', colleague: 'azure:en-US-BrianMultilingualNeural' });
+assert.strictEqual(az.parts.length, 33);
+assert(az.parts.filter((p) => String(p.voice).startsWith('azure:')).length === 11);
+const { azureVoiceName } = require('../netlify/functions/_azure-tts.js');
+assert.strictEqual(azureVoiceName('azure:en-US-AvaMultilingualNeural'), 'en-US-AvaMultilingualNeural');
+console.log('azure voice tests passed');
