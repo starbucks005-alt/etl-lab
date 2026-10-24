@@ -486,6 +486,24 @@ Dr. O built it, and she is the one deciding what changes. Everything here is fro
 - Sizes from Waveshare's drawing, 2026-10-24: the 13.3 inch screen is 307 x 183 x 10 mm outside, with a picture area of 293.65 x 165.7 mm. The Galaxy Tab S7+ (model SM-T970) is about 285 x 185 x 5.7 mm (Samsung's size, from memory, not measured). So the screen is the same height, about 22 mm wider and about 4 mm thicker; the opening needs about 310 mm of width. The Amazon listing for the tablet gives "9.99 x 6.51" and contradicts itself on screen type and aspect ratio, so measure the real sleeve. The listing says the tablet is currently unavailable.
 - Decision, Dr. O, 2026-10-24: wait for the Waveshare 13.3 inch screen and keep going with it. No hurry. The tablet crib is cut out and the screen goes in that cutout. The screen is used only for this product, so it can be fixed in place; the hatch stays for repairs. The privacy filter is for the new screen, a clear 13.3 inch 16:9 one (picture area 293.65 x 165.7 mm), not the ProCase one for the Samsung tablet. Test the screen bare first, and add the filter if the tablet shows at the low angle.
 
+## Screen range for the shells (2026-10-24)
+
+Dr. O, 2026-10-24: if we show the range, and know the range, the ideas are limitless. Sizes can be offered if there is interest. For the Companion Frame the store page now lists three sizes being considered (small about 10 inch, large about 21 inch, round about 7 inch), each with a Tell me when it is ready button, so the contact messages show which size people want. Her point that a frame screen does not need hologram quality: a cheap IPS screen is enough for a frame, and AMOLED and high brightness matter only for the hologram.
+
+Screens she found on Waveshare (the pages she screenshotted on 2026-10-24; prices as listed that day; sizes in the titles; nothing checked or ordered except where noted):
+- 1.46 inch round touch LCD, 412 x 412, $16.99, for microcontroller boards (QSPI and I2C). A face for a plinth or box. Pins on the ESP32-S3 audio board not checked.
+- 1.85 inch round touch LCD, 360 x 360, $17.99, same kind.
+- 5 inch AMOLED, HDMI, 960 x 544, $82.99. Too small for the pod.
+- 5.5 inch AMOLED, HDMI, 1080 x 1920, $121.99 (a version with a case, $124.99).
+- 7 inch round, HDMI, IPS, 1080 x 1080, 10 point touch, $159.99. A round porthole style frame.
+- 10.1 inch DSI touch, IPS: 800 x 1280 at $59.99 and 720 x 1280 at $64.99. DSI plugs straight into the Pi with a short ribbon, so the Pi sits right behind the screen. It does not fit the thin frame with a hidden box. A Pi Zero 2 W has no DSI port.
+- 10.5 inch AMOLED, HDMI, 2560 x 1600, $199.99.
+- 13.3 inch FHD AMOLED, HDMI, 1920 x 1080, $219.99. Her pick for the LumVivo hologram (outside 307 x 183 x 10 mm, picture 293.65 x 165.7 mm).
+- 21.5 inch Luckfox IPS touch monitor with foldable stand, 1920 x 1080, 144 Hz, $159.99. A large wall piece; thickness and mounting not known.
+- Industrial all in one touch kit for a Raspberry Pi Compute Module 5, $125.99 to $129.99, with a 5 MP front camera. The part number ends in ACCE, so the Compute Module is probably not included (check the options). Not for the thin frame; a camera on a wall frame is a privacy question.
+
+Open: which of these has an HDMI version at the 10 inch size, the real brightness of each, and what a wall mount needs for the 21.5 inch.
+
 ## The Rising Sun (new product, prototype, 2026-10-18)
 
 Dr. O's design, started 2026-10-18, details still being worked out. From
