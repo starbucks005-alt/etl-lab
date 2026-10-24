@@ -243,6 +243,16 @@
   @media (max-width:600px){.comp{width:calc(50% - .6rem)}.comp h3{font-size:17px}}
   .cosplay{max-width:760px;margin:0 auto 1.4rem;padding:.9rem 1.2rem;border:1px solid var(--blue);border-radius:8px;background:rgba(47,164,255,.07);font-size:18px}
   .cosplay strong{font-family:var(--serif);font-weight:500;color:var(--blue)}
+  .probs{display:flex;flex-wrap:wrap;justify-content:center;gap:1.2rem;max-width:960px;margin:0 auto 1.6rem}
+  .prob{flex:1 1 380px;max-width:470px;text-align:left;background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:1.2rem 1.3rem}
+  .prob .plabel{margin:0 0 .3rem;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .prob .pq{margin:0 0 1rem;font-family:var(--serif);font-size:22px;line-height:1.3}
+  .prob .generic,.prob .gcrow{margin:0 0 .5rem;padding:.55rem .8rem;border-radius:6px;font-size:16px}
+  .prob .generic{background:rgba(255,255,255,.04);color:var(--dim)}
+  .prob .gcrow{background:rgba(47,164,255,.1);border:1px solid var(--blue-soft);color:var(--ink)}
+  .prob span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+  .prob .gcrow span{color:var(--blue)}
+  .prob .pfoot{margin:.7rem 0 0;font-size:14px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -345,8 +355,22 @@
     <h2>Meet Good Company's Companions &amp; Friends</h2>
     <p class="lead">Each companion is a department. These are the skills that go into each personality, and every one of these Good Company companions can also go into the Companion Frame.</p>
     <p class="lead wide">Some of the companions are needy by nature. Humans need to feel useful, and we provide that.</p>
+    <div class="probs">
+      <article class="prob">
+        <p class="plabel">Problem</p>
+        <p class="pq">My water heater is making a weird noise.</p>
+        <p class="generic"><span>Most AI platforms</span> Ask Generic Assistant</p>
+        <p class="gcrow"><span>Good Company</span> Ask Arch, the General Contractor</p>
+        <p class="pfoot">You know right away who should answer.</p>
+      </article>
+      <article class="prob">
+        <p class="plabel">Problem</p>
+        <p class="pq">My dog is suddenly anxious during thunderstorms.</p>
+        <p class="gcrow"><span>Ask Sophia</span> for animal care and resilience.</p>
+        <p class="gcrow"><span>Ask Reggie</span> for relational joy, presence, and dog-training style guidance.</p>
+      </article>
+    </div>
     <ul class="ask">
-      <li><strong>A plumbing problem?</strong> Pull up Arch, a general contractor.</li>
       <li><strong>Dog issues?</strong> Ask Sophia, a vet nurse, or Reggie, the people whisperer. He has read and watched everything related to Cesar Millan, and he will be so excited to see you.</li>
       <li><strong>Where to go for your next vacation?</strong> Who better than Dario, the pilot?</li>
     </ul>
