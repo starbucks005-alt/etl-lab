@@ -617,6 +617,14 @@ What is different from Dr. O's plan:
 
 Not known: how well FR-NIA works in practice (the release is a company announcement, no review found), whether it ships, and whether any patent or trademark of theirs touches her figurines. A lawyer would have to say that last one.
 
+## A price comparison: Ami and Astra Lite (2026-10-24)
+
+Dr. O asked for a price comparison against a competitor to Astra Lite.
+- Engineered Arts Ami Desktop Social Humanoid Robot, a desktop head and shoulders bust: $72,515.00 on RobotShop (SKU RBC-Eni-01, "only 2 units left" when she looked on 2026-10-24). One listing only. What Ami can do (face, cameras, software) was not checked.
+- Astra Lite, built by Dr. O alone: about $300 in parts, the figure from her own session that added everything up and split shared packs (for example a battery pack that fills more than one need). That sheet was not seen here. The Astra-9 Lite build document she sent shows $360.55 spent to 2026-10-03 with the shared packs not split out, and it does not yet count the rings, paint, the camera pendant parts bought 2026-10-23 or anything since.
+- Ratio: about 242 times as much at $300, about 201 times at $360.55.
+- Parts cost only, not a price: nothing of hers is for sale yet, and her time is not counted. Anything public should say "about $300 to $360 in parts" and should be checked against her sheet first.
+
 ## Strategy: start cheap, then add better (Dr. O, 2026-10-20)
 
 Dr. O's decision, said right after seeing FR-NIA at $599 and up: she is going for disruptive innovation. Bring in a cheap version with fewer options to reach lower budgets, then gradually introduce better ones.
