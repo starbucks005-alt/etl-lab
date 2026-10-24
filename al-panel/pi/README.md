@@ -154,6 +154,16 @@ Dr. O: Astra Lite keeps asking to "see" and saying she cannot see. A camera woul
 
 Dr. O's decision: ALICE gets a hand that can grip. First a cheaper kit to test on the bench, with the Honpine 17 DoF dexterous hand (about $2,263 on sale, ships from China, not checked: seller, specs, controller) as the wish list hand. ALICE is a cyborg, so a visible, imperfect fit suits her: no glove, mechanics left showing. Her body is the same fiberglass mannequin as Astra, Astrad and the Guardians, due after Monday Oct 26. The arms are not checked yet: do they come off, is the forearm hollow and how wide, wrist width, is the hand a separate piece. The kit is chosen after that. DFRobot Bionic Robot Hand Kit (ROB0143) was the pick from the listings checked, stock not confirmed; the SainSmart hand is discontinued and the BinHex hand is sold out.
 
+## The dogs: touch and tail (plan, 2026-10-24, nothing built, bought or tried)
+
+Dr. O's decisions: the dogs wag their tails when petted or happy, and the touch map below is copied from the Hasbro Joy for All Pup care guide (sensors on head, both cheeks, mouth and back, a light sensor and a microphone; the guide lists no tail movement, so the wag is Dr. O's own addition).
+- **Bodies:** Sunraymascota matte white fiberglass dog mannequins. Biscuit is the lab ($358.00 on the listing), Reggie the beagle ($166.00), Mochi the French bulldog ($195.00); names and breeds as Dr. O said on 2026-10-24. Shipping not known. Not ordered: she is getting the two human mannequins first and will decide on the rest after inspecting them. The older dog story and voice files still say Biscuit is a golden retriever and Mochi an English bulldog ("English, not French"); Dr. O will adjust the stories herself.
+- **Touch map to copy:** head or cheek touch: wag and look at the person. Back, slow petting: slow calm wag. Name spoken: quick wag. Several minutes of nothing: goes to sleep, wakes when someone walks by or gives the head a pat. A MUTE setting that keeps the movement without sound is also in the guide.
+- **Wag:** cut the tail off and fix it to a small servo (SG90 or MG90S type), driven from the servo board, one channel per dog. Mochi's tail is a short stub, so his wag may need a small made tail or a rear end wiggle. Wear a respirator when cutting fiberglass.
+- **Petting:** a touch sensor (TTP223 type) behind the shell. Whether it works through the fiberglass is not known and is the first test. If not, a thin foam or fur layer over the spots, or a pressure pad inside.
+- **Happy:** software, not hardware: a happy line or hearing its name starts a wag, faster when happier.
+- **Not known:** which board runs each dog, whether the bodies are hollow, how the tails attach. Pins are not chosen. Check these when the bodies are in hand.
+
 ## Registered voices for Elle (written 2026-10-23, NOT TRIED on the robot or with the real model)
 
 Dr. O: "I want them to know my voice. Registered regular voices, their owners." Elle can tell registered voices apart and say she thinks it is that person. Only for people who agreed, only Elle (never a character), and OFF until the box in the panel's "Voices she knows" card is ticked.
