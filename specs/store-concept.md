@@ -514,6 +514,10 @@ Dr. O, 2026-10-24: the Everly Castle app is on Google Play and has both versions
 
 What the princess page shows (Dr. O's screenshots of Posy, 2026-10-24, and the text in `everly-castle-wing.html`): a video of the princess in her setting, who speaks with her own voice; a mood row for the child (happy and others); "Her story"; buttons for Hear, Speak, Game, Pet, Family, Country and Story; pictures; a project the child keeps (Posy's is a sunflower); and yes and no answers. Each princess lives in a different country and speaks its language: the page names America (English), Brazil (Portuguese), France (French), Germany (German), Greece (Greek), Kenya (Swahili), Mongolia (Mongolian), Nepal (Nepali), New Zealand (English, with a second language the file cuts off) and Norway (Norwegian). So the "translate on a screen" idea is probably each princess teaching words in her language, with the words shown on the screen; Dr. O has not confirmed that. Her point, 2026-10-24: the learning (the projects and the pets) can live in the app, alongside the product.
 
+## The 14 October show (Dr. O, 2026-10-24)
+
+Dr. O had one week to build Astra for a show on 14 October 2026, and it was best in show, by her account. She had three tables. On them: Astra (the robot), a hologram she built that morning from her fold phone and a box (the first LumVivo), and five laptops, one with AR Professor Duffy on it. A huge screen behind her live streamed her campus and her agents texting. Event name: not yet written down. While Astra was being built the week before, Dr. O had back spasms and was on medication, which is why parts of the build were done by others. Afterwards: the head sits turned, one eye is sunk, the neck turns only about 20 to 30 degrees, and her voice is static from a speaker with a disconnected wire; a neck straight ahead setting and a glance size setting were added to `al_neck.py` on 2026-10-24, not yet tried on the real head.
+
 ## The Rising Sun (new product, prototype, 2026-10-18)
 
 Dr. O's design, started 2026-10-18, details still being worked out. From
