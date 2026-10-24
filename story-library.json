@@ -74,6 +74,16 @@
    "minutes": 3,
    "file": null,
    "narrator": "Tansy, Poppy and Blue"
+  },
+  {
+   "id": "alice-7",
+   "companion": "A.L.I.C.E.",
+   "title": "Episode 7: He's here",
+   "minutes": 2,
+   "narrator": "A.L.I.C.E.",
+   "file": null,
+   "written": true,
+   "draft": true
   }
  ]
 }
