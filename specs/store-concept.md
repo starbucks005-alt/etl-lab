@@ -636,6 +636,7 @@ Dr. O's idea: a product that charges, then unplugs and still talks to the compan
 - Driver mode, a suggestion: short answers, no questions back, silent unless the driver speaks first. Dr. O's point: music, radio and GPS already ask for attention too. Conversation is two way and is usually treated as the heavier load even when hands-free (from memory, not checked). Rules on in-car devices differ by state and were not researched.
 - Needs: a small rechargeable battery with USB-C charging and Wi-Fi or a phone hotspot to reach the cloud. How long a small battery lasts on a charge is not measured.
 - The cheapest test, not done: Good Company with voice on a phone in the car, screen off, through a speaker.
+- Stories as an add-on (Dr. O, 2026-10-24): prerecorded stories that the owner downloads and plays, for example the adventures of Reggie, Biscuit and Mochi. Plays with no cloud thinking and no new voice cost per listen, so the running cost is only the one-time recording. Needs: storage on the device (a memory card or the board's flash), a way to download new stories over Wi-Fi or from a phone, and a voice licence that allows selling recordings (the voice service's terms for commercial use were not checked). Price and how stories are sold (single story, pack, subscription) are not decided. The story generator for the three dogs already exists in the Good Company code (`netlify/functions/_pack-bible.js`); whether its stories are recorded once and kept is not known.
 
 ## Strategy: start cheap, then add better (Dr. O, 2026-10-20)
 
