@@ -468,6 +468,31 @@
 
 # END MD BLOCK
 
+# ─── Client data files are not for the public ───────────────────────────────
+# Dr. O, 2026-10-24: "start with the client file." These hold client email addresses. Only server functions read them (they are
+# bundled by included_files above, not fetched by any page), so the web address can return "not found" without breaking anything.
+# Still in the repository and its history: make the repository private, and consider moving the addresses out.
+# BEGIN PRIVATE DATA BLOCK
+[[redirects]]
+  from = "/data/provisioned-clients.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/data/caroline-inma-company.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/data/vikram-sethi-company.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+# END PRIVATE DATA BLOCK
+
 # ─── Reid slick viewer ────────────────────────────────────────────────────
 # Pretty URL for a generated tailored slick. Owner shares /slick/<slug>;
 # the page is public (no auth) and prints to PDF.
