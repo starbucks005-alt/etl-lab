@@ -270,6 +270,11 @@
   .fr-img[hidden]{display:none}
   .f-media.wide16{width:min(100%,640px)}
   .f-media.wide16 img{max-height:none}
+  .inuse{display:flex;flex-wrap:wrap;justify-content:center;gap:1.2rem;max-width:1100px;margin:0 auto;padding:0 1.5rem 3rem}
+  .inuse figure{margin:0;flex:1 1 420px;max-width:520px}
+  .inuse .mm{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .inuse img{width:100%;height:auto}
+  .inuse figcaption{margin-top:.5rem;font-family:var(--serif);font-size:20px;text-align:center}
 </style>
 </head>
 <body>
@@ -344,6 +349,7 @@
         <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a></p>
       </div>
     </section>
+    <section class="inuse" aria-label="The Portable Companion in use"><figure><div class="mm"><img src="/images/etl-store/portable-lunch-v1.jpg" alt="A woman laughing and talking with a white Portable Companion box on her cafe table next to a bowl of soup." loading="lazy"><span class="tag">Concept art</span></div><figcaption>At lunch</figcaption></figure><figure><div class="mm"><img src="/images/etl-store/portable-school-run-v1.jpg" alt="A father driving and smiling, with two children in the back seat watching a black Portable Companion box on the dashboard." loading="lazy"><span class="tag">Concept art</span></div><figcaption>On the way to school</figcaption></figure></section>
     <section class="feature" id="frame">
       <div class="f-media wide16"><img class="fr-img" data-f="Walnut" src="/images/etl-store/frame-walnut-dogs-v1.jpg" alt="The Companion Frame in walnut, showing Reggie, Biscuit and Mochi, next to a phone with Choose Your Companion and the modes Greet, Storyteller and Companion." loading="lazy"><img class="fr-img" data-f="Cream" src="/images/etl-store/frame-cream-ash-v1.jpg" alt="The Companion Frame in cream, showing Ash the fairy, next to a phone with Choose Your Companion." loading="lazy" hidden><img class="fr-img" data-f="Black" src="/images/etl-store/frame-black-nina-v1.jpg" alt="The Companion Frame in black, showing Nina the retired teacher, next to a phone with Choose Your Companion." loading="lazy" hidden><span class="tag">Concept art</span><div class="swatches" id="frSw" role="group" aria-label="Frame finish"><button type="button" class="sw on" data-c="Walnut">Walnut</button><button type="button" class="sw" data-c="Cream">Cream</button><button type="button" class="sw" data-c="Black">Black</button></div></div>
       <div class="f-text">
