@@ -860,3 +860,16 @@
 # described in AZURE_SETUP.md, and does nothing until they exist.
 [functions."azure-spend-daily"]
   schedule = "0 12 * * *"
+
+# The store page, added 2026-10-24 because Dr. O opened emerging-tech-lab.com/etl-robots-store
+# and saw the old page while the new one was on main. The cause is not confirmed.
+# This stops the browser keeping a saved copy of the page itself.
+[[headers]]
+  for = "/etl-robots-store"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/etl-robots-store.html"
+  [headers.values]
+    Cache-Control = "no-store"
