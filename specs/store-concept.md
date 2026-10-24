@@ -469,6 +469,18 @@ Suggestions, not decisions:
 - Scale: the hologram figure is about 15 cm tall, so audience figures would be smaller,
   perhaps 6 to 8 cm. Small pieces need age labels for children.
 
+## LumVivo holopod build notes (2026-10-24)
+
+Dr. O built it, and she is the one deciding what changes. Everything here is from her photos and words, and nothing in the second half is tested.
+- Built around one tablet: a Samsung Galaxy Tab S7+ (12.4 inch). The box was sized for that tablet, so a different size of tablet needs a different box.
+- Layout now: the tablet sits face down in a compartment at the top, with the clear glass running from under it down to the front. The box is tall on purpose, to hide the tablet. The first build had the tablet on the floor, and looking down into the box showed the tablet, so she moved it to the top.
+- What she tried: museum non glare glass hid the hologram. Plain glass shows the viewer and the ceiling. At the brightest screen setting the hologram shows, and a good viewing angle hides the ceiling.
+- The ceiling in her home (white, with the sprinkler head) shows in the glass from some angles. Her reading of the photos: the glass faces up, so it mirrors the ceiling. Not tested. She decided on 2026-10-24 that the reflection may be something to live with.
+- From a low angle the ceiling is gone, but a small upside down picture of the tablet shows near the top. Cause not known. A test that would settle it: a strip of black card across the front of the tablet compartment, below the screen edge, viewed from the same low angle. If the picture goes away it was the tablet seen directly.
+- Privacy filter on the tablet, to hide the screen from the sides and above and to allow the first layout (tablet on the floor, box not so tall). Her idea, not tried. Seen on Amazon 2026-10-24, not checked: ProCase privacy tempered glass for Galaxy Tab S10+, S9 FE+, S9+, S8+, S7 FE and S7+, $15.99, 4.2 stars from 793 ratings, 30 day returns. A paper feel film ($14.99, 9 ratings) was set aside because a matte surface could blur the hologram. Test when the new tablet arrives: tape it on first, brightest setting, look from the low angle, and check the hologram stays bright and sharp.
+- The current tablet has ghost touch problems and is being returned. The replacement is the same model so the build still fits. She is waiting for it before ordering the filter.
+- Her idea, 2026-10-24: build our own tablet, a screen that is buy and plug in, so a customer does not need a tablet of this size. It adds cost. Nothing is designed or priced. Open questions: which 12 inch class screen and how bright it is, what small computer plays the hologram pages, how it is powered, and what it adds to the cost per box.
+
 ## The Rising Sun (new product, prototype, 2026-10-18)
 
 Dr. O's design, started 2026-10-18, details still being worked out. From
