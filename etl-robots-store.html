@@ -253,7 +253,7 @@
   .prob span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
   .prob .gcrow span{color:var(--blue)}
   .prob .pfoot{margin:.7rem 0 0;font-size:14px;color:var(--dim)}
-  .pc-img[hidden]{display:none}
+  .pc-img[hidden],.lv-img[hidden]{display:none}
   .swatches{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(0,0,0,.6);padding:5px;border-radius:999px;border:1px solid var(--line)}
   .sw{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:transparent;border:0;border-radius:999px;padding:.35rem .9rem;cursor:pointer}
   .sw.on{background:var(--gold);color:#1a1405;font-weight:600}
@@ -323,11 +323,11 @@
       </div>
     </section>
     <section class="feature flip" id="lumvivo">
-      <div class="f-media"><img src="/images/etl-store/lumvivo-holopod-v1.jpg" alt="The LumVivo holopod, a tabletop pod showing a small floating A.L.I.C.E. hologram, with five lit buttons along the bottom." loading="lazy"><span class="tag">Concept art picture</span></div>
+      <div class="f-media"><img class="lv-img" id="lvBlack" src="/images/etl-store/lumvivo-holopod-v1.jpg" alt="The LumVivo holopod in black, a tabletop pod showing a small floating A.L.I.C.E. hologram, with five lit buttons along the bottom." loading="lazy"><img class="lv-img" id="lvWhite" src="/images/etl-store/lumvivo-holopod-white-v1.jpg" alt="The LumVivo holopod in white, a tabletop pod showing a small floating A.L.I.C.E. hologram, with five lit buttons along the bottom." loading="lazy" hidden><span class="tag">Concept art picture</span><div class="swatches" id="lvSw" role="group" aria-label="Color"><button type="button" class="sw on" data-c="Black">Black</button><button type="button" class="sw" data-c="White">White</button></div></div>
       <div class="f-text">
         <p class="eyebrow">Holograms</p>
         <h2>LumVivo Holopod</h2>
-        <p class="f-body">A tabletop pod, 20 inches tall. Program up to five fully interactive holograms. Each is a character about 15 cm tall who floats in the dark and talks with you in real time, and five lit buttons choose which one appears. Each hologram is available on the Good Company, My Echo or Everly Castle website.</p>
+        <p class="f-body">A tabletop pod in black or white, 20 inches tall. Program up to five fully interactive holograms. Each is a character about 15 cm tall who floats in the dark and talks with you in real time, and five lit buttons choose which one appears. Each hologram is available on the Good Company, My Echo or Everly Castle website.</p>
         
         <p class="f-meta"><span class="price">Price to be announced</span> <span class="pill built">Built and working</span></p>
         <p><button class="buy" type="button" disabled title="Not for sale yet">Add to cart</button> <a class="ghost" href="#contact">Contact Dr. Oroszi</a> </p>
@@ -926,8 +926,20 @@
 </script>
 <script>
 (function(){
-  var bar=document.querySelector('.swatches'); if(!bar) return;
+  var bar=document.getElementById('pcBlack').parentNode.querySelector('.swatches'); if(!bar) return;
   var imgs={Black:document.getElementById('pcBlack'),White:document.getElementById('pcWhite')};
+  bar.addEventListener('click',function(e){
+    var b=e.target.closest('.sw'); if(!b) return;
+    var c=b.getAttribute('data-c');
+    bar.querySelectorAll('.sw').forEach(function(x){ x.classList.toggle('on',x===b); });
+    Object.keys(imgs).forEach(function(k){ imgs[k].hidden=(k!==c); });
+  });
+})();
+</script>
+<script>
+(function(){
+  var bar=document.getElementById('lvSw'); if(!bar) return;
+  var imgs={Black:document.getElementById('lvBlack'),White:document.getElementById('lvWhite')};
   bar.addEventListener('click',function(e){
     var b=e.target.closest('.sw'); if(!b) return;
     var c=b.getAttribute('data-c');
