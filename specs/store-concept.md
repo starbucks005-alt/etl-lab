@@ -843,5 +843,6 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 ## Use with your TV: cost (Dr. O, 2026-10-25)
 
 - The cost depends on which Pi goes in the box. Dr. O's own prices right now: a Pi 5 about $200 each (what she paid), a Pi 4 about $50 to $60. Pis are expensive now.
+- What a Pi 4 cost Dr. O: $65.11 for the order, a Raspberry Pi 4 Model B 2GB bundle with a SanDisk 16GB microSD card and a USB-C cable, new and sealed (eBay, ordered 16 September 2026, seller kollectedbyque).
 - The older estimate of $75 to $90 for the box (in the Word build notes of 2026-10-24) assumed a Pi 4 and is not a price. No price is set; the store page says "Price to be announced".
 - The store page no longer says the box is the Companion Frame without the frame or that it costs less.
