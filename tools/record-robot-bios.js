@@ -24,9 +24,9 @@
             --voice astrad=VOICEID   (Astrad and Elle have no voice set here: give one, or they are skipped)
             --model eleven_turbo_v2_5   --update-page   --dry
 
-   Elle, Astra-9, Astrad, A.L.I.C.E., Reggie and Mochi: Dr. O recorded their bios herself (audio/robots/elle-voice_v1.mp3,
-   astra9-voice_v1.mp3, astrad-voice_v1.mp3, alice-voice_v1.mp3, reggie-voice_v1.mp3 and mochi-voice_v1.mp3, 2026-10-25; Astrad's is the Azure
-   voice Brandon), so run this with --only for the others, for example --only biscuit. Elle has no voice set here unless you give one.
+   Elle, Astra-9, Astrad, A.L.I.C.E., Reggie, Biscuit and Mochi: Dr. O recorded their bios herself (audio/robots/elle-voice_v1.mp3,
+   astra9-voice_v1.mp3, astrad-voice_v1.mp3, alice-voice_v1.mp3, reggie-voice_v1.mp3, biscuit-voice_v1.mp3 and mochi-voice_v1.mp3, 2026-10-25; Astrad's is the Azure
+   voice Brandon), so every robot on the page has a recording and this tool is only needed to make a new one. Elle has no voice set here unless you give one.
 
    Needs: Node 18 or newer and an ElevenLabs key. A voice written azure:en-US-... is spoken
    by Azure (AZURE_SPEECH_KEY and AZURE_SPEECH_REGION). Astrad has no voice set here: give his with --voice astrad=azure:en-US-NameNeural or an
