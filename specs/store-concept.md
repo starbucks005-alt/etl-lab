@@ -839,3 +839,9 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - Detection: a DFRobot HuskyLens vision sensor ($41.28 with tax, arriving 26 October) finds and can recognize a person. It is too big for the cheek plate (its own 2 inch screen), so it goes in the body, at the collar or chest behind the turtleneck. It does not turn with the head. Not tried: how it connects to the Pi 5, and how it is told which face is Dr. O.
 - Hands: a hand that can grip, a left and a right (the wooden hands are the first try).
 - Camera: in the cheek plate, so she can see.
+
+## Use with your TV: cost (Dr. O, 2026-10-25)
+
+- The cost depends on which Pi goes in the box. Dr. O's own prices right now: a Pi 5 about $200 each (what she paid), a Pi 4 about $50 to $60. Pis are expensive now.
+- The older estimate of $75 to $90 for the box (in the Word build notes of 2026-10-24) assumed a Pi 4 and is not a price. No price is set; the store page says "Price to be announced".
+- The store page no longer says the box is the Companion Frame without the frame or that it costs less.
