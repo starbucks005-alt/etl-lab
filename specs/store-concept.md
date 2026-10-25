@@ -808,3 +808,16 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - Built in `al-panel/pi/al_panel_server.py` as the mode `projects`, eye color
   brown (Dr. O's choice). Claude wrote the code and the prompt wording from Dr. O's decisions, and Dr. O tells people so.
   Not yet tried on Astra.
+
+## ALICE's eyes and how she sees (2026-10-24)
+
+- Dr. O decided: ALICE does not get the eye stack. She is a cyborg, so her eyes
+  look normal and she sees through something that is not an eye. The eye stack
+  method stays with Astra and the others.
+- Eyes ordered from Tech-Optics: Doll and Mannequin Eyes, dark green, 27mm eye,
+  12.5mm iris, 4mm dilated pupil. $48.00 plus $9.95 shipping.
+- How she sees: a camera in a worn-metal plate at the temple or the cheek, to
+  match her exposed limbs. Which of the two is not decided yet.
+- Not known: the shape of the eyes (full sphere or dome), and whether the head
+  chosen for ALICE has openings that take a 27mm eye. Measure the head before
+  cutting anything.
