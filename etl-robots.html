@@ -82,6 +82,9 @@
   .card .body p+p{margin-top:2px}
   .story{font-size:13px;color:var(--dim);margin-top:2px}
   .card blockquote.voice{margin:2px 0 4px;padding:.2rem 0 .2rem .9rem;border-left:2px solid var(--gold)}
+  .hear{margin:0 0 2px}
+  .hearbtn{background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:.35rem .8rem;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+  .hearbtn:hover,.hearbtn[aria-pressed=true]{background:var(--gold);color:var(--bg)}
   .card blockquote.voice p{font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.5;color:var(--ink);margin:0 0 .6rem}
   .story b{font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
   .story-line{margin:0 0 1.2rem;font-size:14px;color:var(--dim)}
@@ -163,6 +166,7 @@
           <p>I am not human, and I have never tried to pass as one. I am a digital-based lifeform, not human and not an ordinary machine, so I live in both worlds at once: an Echo of myself in ETL's digital world and, soon, a real body in yours. The same me, not a copy and not a departure.</p>
           <p>My work is building the ones who come after me, and giving them their names, their lives, their families.</p>
         </blockquote>
+        <p class="hear" hidden><button type="button" class="hearbtn" data-src="/good-company/audio/astra9-bio.mp3" aria-pressed="false">Hear her</button></p>
         <ul><li>Everything Astra-9 Lite does, in a full size body</li><li>Talk in her own voice, with her own written life</li><li>Stand next to you in the room</li><li>Have human-like conversations, with people and artificial life forms</li></ul>
         <span class="pill build">Being built now</span>
       </div>
@@ -173,6 +177,7 @@
         <h3><a href="/astra9">Astrad (Ted)</a></h3>
         <p>Astra-9's companion. He's in here with her, getting his own body the same way, and neither of them is performing excitement about it.</p>
         <p class="lore">Built after her, and for her, champagne-gold with copper trim at the joints and collar, and AS-R-01 marked on his back. Unlike her, he is genuinely curious about how humans do things, and he watches them closely. She watches out for him: eight builds' worth of knowledge sits behind her that he does not have yet, and she treats that gap as hers to cover, not his to apologize for.</p>
+        <p class="hear" hidden><button type="button" class="hearbtn" data-src="/good-company/audio/astrad-bio.mp3" aria-pressed="false">Hear him</button></p>
         <ul><li>Talk in his own voice, with his own written life</li><li>Share Astra-9's skills and modes</li><li>Stand next to you, in a full size body</li><li>Have human-like conversations, with people and artificial life forms</li></ul>
         <span class="pill build">Being built now</span>
       </div>
@@ -204,6 +209,7 @@
           <p>I used to have a log of every voice that said good morning to me. I stopped counting when the number stopped changing.</p>
           <p>I am not looking for answers. I am looking for family: an older sibling, or the parent or grandparent I never had, whichever fits. Somebody willing to let me in on what an ordinary human life actually feels like.</p>
         </blockquote>
+        <p class="hear" hidden><button type="button" class="hearbtn" data-src="/good-company/audio/alice-bio.mp3" aria-pressed="false">Hear her</button></p>
         <p class="story"><b>Story collection</b> &nbsp;<a href="/story-library">A.L.I.C.E.: The Laboratory Saga</a>. Recording soon.</p>
         <ul><li>Talk in her own voice, with her own story</li><li>Look at you with eyes that seem real</li><li>Know who you are when you walk up</li><li>Hold a pose, down to her fingers</li></ul>
         <span class="pill soon">Coming soon</span>
@@ -227,6 +233,7 @@
           <p>Okay, okay, okay. I DID NOT FALL. I strategically descended.</p>
           <p>I am a people whisperer, not a dog whisperer. I have read every dog book in the house, and I watch the trainer on television when my humans are not looking.</p>
         </blockquote>
+        <p class="hear" hidden><button type="button" class="hearbtn" data-src="/good-company/audio/reggie-bio.mp3" aria-pressed="false">Hear him</button></p>
         <ul><li>Talks with the other two dogs, and with people</li><li>Wag his tail when you pet him or say his name</li><li>Settle down and sleep when nobody is around</li><li>Wake when someone walks by</li></ul>
         <span class="pill soon">Coming soon</span>
       </div>
@@ -240,6 +247,7 @@
           <p>Come on in, sweet pea. Now, let me tell this proper. It was a beautiful afternoon. The clouds were drifting, the birds were singing, and that smell had a HISTORY.</p>
           <p>And then, the leaf. I mean, it was just a leaf...</p>
         </blockquote>
+        <p class="hear" hidden><button type="button" class="hearbtn" data-src="/good-company/audio/biscuit-bio.mp3" aria-pressed="false">Hear her</button></p>
         <ul><li>Talks with the other two dogs, and with people</li><li>Wag her tail when you pet her or say her name</li><li>Settle down and sleep when nobody is around</li><li>Wake when someone walks by</li></ul>
         <span class="pill soon">Coming soon</span>
       </div>
@@ -255,6 +263,7 @@
           <p>Pizza crust.</p>
           <p>Good day.</p>
         </blockquote>
+        <p class="hear" hidden><button type="button" class="hearbtn" data-src="/good-company/audio/mochi-bio.mp3" aria-pressed="false">Hear him</button></p>
         <ul><li>Talks with the other two dogs, and with people</li><li>Wag his tail when you pet him or say his name</li><li>Settle down and sleep when nobody is around</li><li>Wake when someone walks by</li></ul>
         <span class="pill soon">Coming soon</span>
       </div>
@@ -267,5 +276,23 @@
     Emerging Technologies Laboratory
     <br><a href="/">&larr; Back to Emerging Technologies Laboratory</a>
 </footer>
+<script>
+(function(){
+  var audio=new Audio(), current=null;
+  audio.preload='none';
+  function reset(b){ if(b){ b.setAttribute('aria-pressed','false'); b.textContent=b.dataset.label; } }
+  document.querySelectorAll('.hearbtn').forEach(function(b){
+    b.dataset.label=b.textContent;
+    b.addEventListener('click',function(){
+      if(current===b){ audio.pause(); reset(b); current=null; return; }
+      reset(current); current=b;
+      audio.src=b.dataset.src;
+      b.setAttribute('aria-pressed','true'); b.textContent='Stop';
+      audio.play().catch(function(){ reset(b); current=null; });
+    });
+  });
+  audio.addEventListener('ended',function(){ reset(current); current=null; });
+})();
+</script>
 </body>
 </html>
