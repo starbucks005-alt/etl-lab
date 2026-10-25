@@ -846,5 +846,6 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - What a Pi 4 cost Dr. O: $65.11 for the order, a Raspberry Pi 4 Model B 2GB bundle with a SanDisk 16GB microSD card and a USB-C cable, new and sealed (eBay, ordered 16 September 2026, seller kollectedbyque).
   That was a one time eBay find, with no guarantee it is available again, so it is not a basis for a price.
 - Adafruit, 2026-10-25 (Dr. O's screenshot): Raspberry Pi 4 Model B, 1GB $38.50 and 2GB both out of stock, 4GB $120.00, 8GB $190.00.
+- Another shop, 2026-10-25 (Dr. O's screenshot, a Raspberry Pi approved reseller): Raspberry Pi 4 Model B 1GB $35.00, out of stock, limit of one per customer. Its list of extras for a Pi 4 box: case, 5.1V 3A USB-C power supply, microSD card with the operating system, and a micro-HDMI to HDMI cable (the Pi 4 has micro-HDMI ports). Not checked: whether 1GB is enough to show the Good Company room page full screen on a TV.
 - The older estimate of $75 to $90 for the box (in the Word build notes of 2026-10-24) assumed a Pi 4 and is not a price. No price is set; the store page says "Price to be announced".
 - The store page no longer says the box is the Companion Frame without the frame or that it costs less.
