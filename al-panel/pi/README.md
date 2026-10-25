@@ -240,3 +240,10 @@ Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the s
 
 - The Pi boards and the HATs on them take **M2.5** screws and standoffs. The Vibit 640 piece M3 nylon kit bought earlier did not fit the Pi 4.
 - Ordered 2026-10-25: a 365 piece M2.5 black nylon hex standoff, screw and nut kit (AvrestYPT), $10.74 with tax, arriving 2026-10-26. Not tried yet: whether it has a length that suits the HAT (about 10 to 12 mm).
+
+## Astra Lite: the two 470 ohm resistors (Dr. O, 2026-10-25)
+
+- **Blue heat shrink:** the 470 Ω resistor on the **yellow** wire of the HAT's GPIO12 plug. Its other end goes to the eye ring data wire. On 2026-10-25 the ring side was loose, with a bare resistor lead sticking out of the blue sleeve and the ring's data wire free. It is to be soldered or put on a screw terminal and covered, with the Pi and the strips off.
+- **Yellow heat shrink:** the 470 Ω resistor on the **white** wire (GPIO13). Its other end goes to the motion sensor OUT.
+- Check before power, with a meter and everything off: about 470 Ω across each resistor.
+- A black wire with a bare end was also loose near the resistor. What it is has not been found out yet. Do not power up until it is identified.
