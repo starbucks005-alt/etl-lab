@@ -199,3 +199,14 @@ Dr. O: "I want them to know my voice. Registered regular voices, their owners." 
 **Two numbers are guesses to tune from that log:** `MATCH_MIN` (0.78) and `MARGIN` (0.06) in `al_voices.py`. If she names the wrong person, raise them; if she never knows a registered voice, lower `MATCH_MIN` a little.
 
 **Tests:** `python3 -m unittest tests/al_voices_test.py` (the fingerprint logic with stand-ins) and `python3 -m unittest tests/al_panel_voices_test.py` (the panel routes and the hook, with Flask and stand-ins). Both pass here. Neither uses the real model, a real microphone or the robot.
+
+## ALICE's joints and worn metal look (plan, 2026-10-25, nothing bought, built or tried)
+
+Dr. O's goal: ALICE's joints look like metal with open gaps and visible mechanism, as in her reference picture, not like a mannequin. The body is the RoxyDisplay FFXF fiberglass mannequin (eBay, American Dress Forms, arriving 27 to 29 October): detachable arms, torso and legs, separate segments with visible gaps already, a metal base with a calf rod. Not checked until it arrives: how far the knees bend (the reference pose is sitting with the knees to the chest), how tight the joints hold, how thick the fiberglass is, and how the neck attaches.
+
+- **Method (Dr. O's, from Astra Lite's chest ring):** cut a gasket and center it, then paint it with craft metallic paint. For ALICE, gaskets and O-rings in a few sizes sit on each side of a joint gap as collars. Black tubing or braided cable fills the gap as a dark core, with a few small details (a bolt, a spring, fine wire for looks only, never power).
+- **Colors:** bronze on the legs, a darker gunmetal on the arms. Then a dark wash rubbed into the low spots and wiped off the high ones, a light dry brush on the edges, and a matte clear coat.
+- **Try first:** one knee, adding the core and collars without cutting anything. Cutting a gap into the fiberglass would weaken the joint and cannot be undone. Test the finish on the wooden hand, then on a spare piece of fiberglass, before the body.
+- **Shopping list, after measuring each joint (knee, elbow, wrist, ankle):** flat gaskets and O-rings to fit, black tubing for the cores, bronze and gunmetal craft paint, a dark wash, matte clear coat.
+- **Dust:** cutting or sanding fiberglass makes fine dust. Respirator, gloves and long sleeves, outdoors.
+- **Access:** Astra Lite's head cannot be reopened, which made her eye and neck hard to fix. Keep the camera, the eyes and the wiring on ALICE reachable.
