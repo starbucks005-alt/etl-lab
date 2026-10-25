@@ -210,3 +210,16 @@ Dr. O's goal: ALICE's joints look like metal with open gaps and visible mechanis
 - **Shopping list, after measuring each joint (knee, elbow, wrist, ankle):** flat gaskets and O-rings to fit, black tubing for the cores, bronze and gunmetal craft paint, a dark wash, matte clear coat.
 - **Dust:** cutting or sanding fiberglass makes fine dust. Respirator, gloves and long sleeves, outdoors.
 - **Access:** Astra Lite's head cannot be reopened, which made her eye and neck hard to fix. Keep the camera, the eyes and the wiring on ALICE reachable.
+
+## ALICE and the HuskyLens: how each mode applies (plan, 2026-10-25, nothing wired or tried)
+
+Dr. O: apply everything the HuskyLens does to ALICE. It sits in her body at the collar or chest (too big for the cheek plate) and tells the Pi what it sees; the Pi decides what she says and does. The list of modes is from DFRobot's video. The uses below are proposals for Dr. O to accept or change. How it connects to a Pi 5 is not checked.
+
+- **Face recognition:** learns a face with one button press, on the sensor. First use: she knows Dr. O when she walks up. Teach it more than one view (the video's person wears glasses), in the light ALICE will sit in. Learn a face only for a person who agrees. It is for greetings, never for letting anyone in or allowing anything.
+- **Object tracking:** locks onto something and follows it. Use: keep a person in view and have the Pi turn the neck servo to follow, inside the neck's limits.
+- **Object recognition:** names things from a fixed list the sensor already knows (from memory, about 20 everyday kinds, such as person, chair, cup and dog; check DFRobot's page). Use: she can tell a person from a chair, and a dog from a cat.
+- **Color recognition:** learns a color. Use: a colored card shown to her could be a signal, for example a particular color to start or stop talking.
+- **Tag recognition:** reads printed tags like a small QR code. Use: a card with a tag for each of Astra's modes could switch the mode when it is shown to her. An idea, not decided.
+- **Line tracking:** follows a line on the floor. Not used: ALICE sits and does not move.
+
+Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the sensor's own screen can be turned off or hidden under the turtleneck; and how a learned face is deleted.
