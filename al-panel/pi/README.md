@@ -224,3 +224,5 @@ Dr. O: apply everything the HuskyLens does to ALICE. It sits in her body at the 
 - **Line tracking:** follows a line on the floor. Not used: ALICE sits and does not move.
 
 Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the sensor's own screen can be turned off or hidden under the turtleneck; and how a learned face is deleted.
+
+**Seeing and detecting are two jobs (Dr. O's description, 2026-10-25):** the HuskyLens finds and knows, the camera sees. The HuskyLens reports a result to the Pi (a face is here, it is Dr. O, this far to the left) and does not hand the Pi a picture. The cheek camera takes the picture that goes to the model to be described, the same way Astra describes a photo someone shares. So ALICE knows who and where from the HuskyLens, and says what is in front of her from the camera. To check on DFRobot's page: that the HuskyLens cannot send the Pi its camera pictures.
