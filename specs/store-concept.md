@@ -870,4 +870,4 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 
 ## The Guardians are service robots (Dr. O, 2026-10-25)
 
-- The Guardians are service robots, not companions. The robots page now says the Astra family, A.L.I.C.E. and the dogs are companion robots and the Guardians are service robots. The store already calls them "robots that keep watch".
+- The Astra family is both, depending on the mode. A.L.I.C.E. and the dogs are companions. The Guardians are service robots, not companions. The robots page now says the Astra family, A.L.I.C.E. and the dogs are companion robots and the Guardians are service robots. The store already calls them "robots that keep watch".
