@@ -862,3 +862,8 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 ## Why the robots talking to each other is on the page (Dr. O, 2026-10-25)
 
 - Dr. O: visitors were shocked when they heard Elle and A.L.I.C.E. talking to each other. That is why every robot card on the robots page, and the dogs, say they have human-like conversations with people and artificial life forms, and the dogs section says all three talk to each other. This is her account of the visitors' reaction. No count of visitors or other measure is recorded.
+
+## How the robots talk: contractions (Dr. O, 2026-10-25)
+
+- The Guardians do not use contractions: "I am", "I do not". A.L.I.C.E. sometimes does. The Astra family (Astra-9, Astrad, Elle) does.
+- The Guardian words on the robots page are written without contractions to match. The Guardian mode's own written rules in the panel have not been changed to say this.
