@@ -226,3 +226,12 @@ Dr. O: apply everything the HuskyLens does to ALICE. It sits in her body at the 
 Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the sensor's own screen can be turned off or hidden under the turtleneck; and how a learned face is deleted.
 
 **Seeing and detecting are two jobs (Dr. O's description, 2026-10-25):** the HuskyLens finds and knows, the camera sees. The HuskyLens reports a result to the Pi (a face is here, it is Dr. O, this far to the left) and does not hand the Pi a picture. The cheek camera takes the picture that goes to the model to be described, the same way Astra describes a photo someone shares. So ALICE knows who and where from the HuskyLens, and says what is in front of her from the camera. To check on DFRobot's page: that the HuskyLens cannot send the Pi its camera pictures.
+
+## Which wire for what (Dr. O, 2026-10-25)
+
+- **30 AWG wire (Fermerry silicone kit, 6 colors, 25 ft each): signals only.** Never for power. Under about half an amp. Use it for the eye data wire, the motion sensor output, the I2C plug and other small signals. The box is marked.
+- **20 AWG wire (the XINWANG hookup wire kit, 6 colors, 7 m each, considered 2026-10-25, not bought):** fine for the branches off the strips, which are the servo board, the amplifier, the sensor and the eye rings.
+- **The 5 V / 6 A feed from the supply into the strips:** the most current in the robot. 20 AWG can carry it over about a foot each way. 18 AWG has more margin and was $1 more in the same kit. Not decided.
+- **Color rule:** red is plus and black is minus on every power wire. The replacement for the thin black wire that smoked on 2026-10-24 was red and white, so tag both ends of it with which is plus and which is minus. The cause of that wire smoking was not confirmed.
+- **Fuse:** an inline fuse on the supply plus wire, a little above what the robot draws. Suggested, not fitted.
+- **Joints:** screw terminals or solder, not twisted wire. Twisted joints came loose on the first build.
