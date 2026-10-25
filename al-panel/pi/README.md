@@ -257,10 +257,10 @@ Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the s
 - **Not powered until:** the eye data wire is joined to the blue-sleeve resistor, the black wire is on the minus bridge, the red 3.3 V wire is capped, each 470 ohm resistor reads about 470 ohms, and plus to minus does not beep.
 - **The old wiring picture (CH0, GPIO4, no resistors) is out of date.** The Astra-9 Lite build document says so itself. The code and the bench have the neck servo on channel 8, the sensor on GPIO13 and a 470 ohm resistor on each data line. A corrected picture has not been drawn.
 
-## Astra Lite: where the head and the Pi 4 were bought (Dr. O, 2026-10-25)
+## Astra Lite: where the head and bust and the Pi 4 were bought (Dr. O, 2026-10-25)
 
-- Both were bought on eBay on 2026-09-16. The Pi 4 is order 02-15191-57036, $65.11 (2GB bundle). The head, Astra Lite's body, is order 14-15166-73592, $58.53, which shipped untracked.
-- The Astra-9 Lite build document lists the head as the American Dress Forms test head at $54.45. The difference of $4.08 is 7.5 percent of $54.45, which looks like tax. Not confirmed from the order page.
+- Both were bought on eBay on 2026-09-16. The Pi 4 is order 02-15191-57036, $65.11 (2GB bundle). The head and bust (Astra Lite is a head and bust, not a body) is order 14-15166-73592, $58.53, which shipped untracked.
+- The Astra-9 Lite build document lists the head and bust as the American Dress Forms test head at $54.45. The difference of $4.08 is 7.5 percent of $54.45, which looks like tax. Not confirmed from the order page.
 
 ## ALICE: parts, cost and build decisions (Dr. O, 2026-10-25, nothing built or tried)
 
