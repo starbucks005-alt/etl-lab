@@ -817,7 +817,10 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - Eyes ordered from Tech-Optics: Doll and Mannequin Eyes, dark green, 27mm eye,
   12.5mm iris, 4mm dilated pupil. $48.00 plus $9.95 shipping.
 - How she sees: a camera in a worn-metal plate at the temple or the cheek, to
-  match her exposed limbs. Which of the two is not decided yet.
+  match her exposed limbs. Dr. O chose the cheek (2026-10-25). Head ordered: plastic
+  mannequin head, SKU 70399, Store Supply Warehouse, $64.40 with shipping and tax. Its
+  painted eyes are cut out and replaced by the dark green eyes. Not tried: tape a camera
+  at the cheek first and see what it sees; the view from low down may need a small upward tilt.
 - Not known: the shape of the eyes (full sphere or dome), and whether the head
   chosen for ALICE has openings that take a 27mm eye. Measure the head before
   cutting anything.
