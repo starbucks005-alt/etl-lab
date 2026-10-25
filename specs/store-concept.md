@@ -871,3 +871,10 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 ## The Guardians are service robots (Dr. O, 2026-10-25)
 
 - The Astra family is both, depending on the mode. A.L.I.C.E. and the dogs are companions. The Guardians are service robots, not companions. The robots page now says the Astra family, A.L.I.C.E. and the dogs are companion robots and the Guardians are service robots. The store already calls them "robots that keep watch".
+
+## ALICE: parts and orders (Dr. O, 2026-10-25)
+
+- The full parts list, what each part cost, the build decisions (no soldering, camera wire inside the head, cheek plate on the front of the cheek, two given wigs) and what has not been checked are in `al-panel/pi/README.md`, under "ALICE: parts, cost and build decisions". Recorded cost so far: $1,194.10, without paint, the chair, the bag or clothes.
+- ALICE uses a Pi 5, and the HAT and panel software have not been tried on one. Astra Lite, built from the first set of parts, uses a Pi 4.
+- Four or more robots still need a Raspberry Pi: Astra, Astrad, both Guardians, and probably the three dogs. One spare Pi 5 is in hand.
+

@@ -246,4 +246,63 @@ Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the s
 - **Blue heat shrink:** the 470 Ω resistor on the **yellow** wire of the HAT's GPIO12 plug. Its other end goes to the eye ring data wire. On 2026-10-25 the ring side was loose, with a bare resistor lead sticking out of the blue sleeve and the ring's data wire free. It is to be soldered or put on a screw terminal and covered, with the Pi and the strips off.
 - **Yellow heat shrink:** the 470 Ω resistor on the **white** wire (GPIO13). Its other end goes to the motion sensor OUT.
 - Check before power, with a meter and everything off: about 470 Ω across each resistor.
-- A black wire with a bare end was also loose near the resistor. What it is has not been found out yet. Do not power up until it is identified.
+- A black wire with a bare end was also loose near the resistor. Found 2026-10-25: it is the Pi's ground (a meter beeped from it to a ground on the Pi). It is meant to join the minus bridge, on a screw terminal. Not confirmed here that this has been done. Do not power up until it is.
+
+## Astra Lite repair: facts so far (Dr. O, 2026-10-25)
+
+- **The plug on the HAT's GPIO12 socket has fixed colors:** yellow is GPIO12 (eye data), white is GPIO13 (the sensor line), black is the Pi's ground, red is 3.3 V and is not used. Cap the red end so it cannot touch anything.
+- **Every other wire color is Dr. O's own memory aid.** The wire colors came from a kit at random, so a color does not say what a wire does. Find out what a wire does with the meter, not by color.
+- **Dr. O's wiring notes, as she wrote them:** eye stack orange to red to the plus bridge, green to black to the minus bridge, white through a resistor to the yellow wire to the GPIO12 socket. Arcade button white through a resistor to the white wire to the GPIO12 socket, which also goes to the orange wire on the motion sensor board (so the button shares the sensor's line, as the code expects). Her note says GP12 for the socket in both places, which is the socket name, not the pin.
+- **Not confirmed:** where the arcade button's brown wire goes. It should go to ground (the black wire in the plug or the minus bridge), never to the yellow wire. A meter check settles it: with everything off, the brown side should beep to ground.
+- **Not powered until:** the eye data wire is joined to the blue-sleeve resistor, the black wire is on the minus bridge, the red 3.3 V wire is capped, each 470 ohm resistor reads about 470 ohms, and plus to minus does not beep.
+- **The old wiring picture (CH0, GPIO4, no resistors) is out of date.** The Astra-9 Lite build document says so itself. The code and the bench have the neck servo on channel 8, the sensor on GPIO13 and a 470 ohm resistor on each data line. A corrected picture has not been drawn.
+
+## ALICE: parts, cost and build decisions (Dr. O, 2026-10-25, nothing built or tried)
+
+**Who she is and what she has.** ALICE has a Raspberry Pi 5 (8GB), no eye rings and no back button. She sees through a camera in a plate on the cheek, and the HuskyLens sits in her body. Two wigs were given to Dr. O: a short black bob with bangs, like her reference picture (seated, arms around her knees, hair framing the face with the cheek showing).
+
+**What was bought for her, and what it cost** (with tax where the order showed it; parts from the second set are priced from the Astra-9 build brief, shared packs split as the brief splits them):
+
+| Item | Cost |
+|---|---|
+| Mannequin body and the pair of wooden hands (eBay) | $610.61 |
+| Plastic head, SKU 70399 (Store Supply Warehouse, with shipping and tax) | $64.40 |
+| Dark green 27 mm eyes (Tech-Optics) | $57.95 |
+| HuskyLens | $41.28 |
+| Arducam Camera Module 3, 75 degrees, autofocus | $38.70 |
+| Camera cable for Pi 5, 0.5 m, pack of 2 (her half) | $5.37 |
+| Aves Apoxie Sculpt (cheek plate) | $20.37 |
+| DROK 5W+5W amp board (PAM8406) | $10.74 |
+| CQRobot speakers, 2 to 3 W pair | $9.66 |
+| 3.5 mm plug to screw terminal audio cable | $7.84 |
+| Micro-HDMI cable | $7.51 |
+| M2.5 standoff kit (one eighth) | $1.34 |
+| Raspberry Pi 5, 8GB (build brief price) | $200.00 |
+| microSD 128GB SanDisk Extreme (one of two) | $41.40 |
+| Pi 5 27 W power supply (build brief price) | $12.99 |
+| ReSpeaker 2-Mic HAT | $11.99 |
+| Motion sensor (share of the 5-pack) | $1.90 |
+| Neck servo MG996R | $6.99 |
+| Servo board PCA9685 | $6.50 |
+| Lazy Susan bearing, as listed | $9.98 |
+| 5 V / 6 A supply | $14.99 |
+| Heat shrink kit (half) | $1.75 |
+| 1000 uF capacitor (one of 20, $5.36 with tax) | $0.27 |
+| 470 ohm resistor (one of 40, listing price) | $0.12 |
+| WAGO 221-413 lever connectors (one eighth of $25.75) | $3.22 |
+| Female jumper to Grove cables (2 of the 5 pack, $9.57) | $3.83 |
+| **Total** | **$1,194.10** |
+
+Not counted: paint, the chair, the cargo bag, her clothes, the twisted red and white wire, the Dupont wires, the old amp boards (the DROK replaced the old amp, which was priced at $4.00 as half of the $7.99 pack and left out), and the standoff, wire and terminal packs bought for other robots.
+
+**Arrival.** Camera, camera cable, DROK amp, audio cable, micro-HDMI cable, WAGO connectors and the Grove cables: Mon 26 Oct. HuskyLens and M2.5 standoffs: 26 Oct. CQRobot speakers and Apoxie Sculpt: Tue 27 Oct. Body and hands: 27 to 29 Oct. Head and eyes: dates not shown on the orders.
+
+**Decisions.**
+- **No soldering on ALICE.** WAGO 221-413 lever connectors for joins and the ground and power bundles. A 4 pin female jumper to Grove cable from the HAT's I2C socket to the servo board's pins (it has pins fitted); plug only GND, SCL, SDA and VCC, never V+. Speakers, amp power and the audio cable go on screw terminals; the CQRobot speaker plugs (JST 1.25) are cut off. The motion sensor goes to the HAT's GPIO12 socket on GPIO13 through a 470 ohm resistor, as on Astra Lite, not GPIO4 as the old brief says.
+- **Camera wire goes inside the head**, not outside: through a slot behind the camera plate (about 18 mm by 3 mm), down the back wall, a loose loop of 10 to 15 cm at the neck, then through the open center of the lazy Susan beside the servo shaft to the Pi. Nothing else crosses the neck, because she has no eye stack.
+- **Cheek plate** goes on the front of the cheek, in front of where the wig falls, as in the reference picture. Scuff the surface with 120 to 150 grit and wipe it with alcohol before the Apoxie Sculpt. Put the wig on first, then mark the plate.
+- **Sound test first, with earphones** in the HAT's headset jack, until the speakers arrive.
+- **Cooling:** Astra Lite has none. Measure with `vcgencmd measure_temp` with ALICE running and her body closed; buy a cooler only if it stays above about 65 C.
+- **Pis:** two Pi 5 boards were bought for Astra and Astrad, and a Pi 4 for Astra Lite. One Pi 5 now goes to ALICE and one is spare. Astra, Astrad, both Guardians, and probably the three dogs still need one each (the dogs are not decided).
+
+**Not checked.** The HAT working on a Pi 5, and the panel software on a Pi 5, have not been tried. The bag marked Motor has not been confirmed as the MG996R. The head's neck opening, the hole in the middle of the bearing (the ribbon needs about 20 mm) and the round hole inside the head near the ear have not been measured or explained. Whether the 0.5 m cable is long enough with the loop has not been measured.
