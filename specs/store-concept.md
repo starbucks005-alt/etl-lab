@@ -824,3 +824,11 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - Not known: the shape of the eyes (full sphere or dome), and whether the head
   chosen for ALICE has openings that take a 27mm eye. Measure the head before
   cutting anything.
+
+## ALICE: what goes where (Dr. O, 2026-10-25)
+
+- Head: the new eyes and the camera (cheek plate).
+- Neck: a lazy Susan, a motor and a servo.
+- Body: the Pi, the amp, the speakers and the PIR sensor.
+- No back button. Dr. O does not use the back button on Astra at all, and ALICE does not need it.
+- Open: the camera cable has to run from the head, through the neck, to the Pi in the body, and the neck turns. Leave slack and limit how far the neck turns until it is tried.
