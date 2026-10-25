@@ -854,3 +854,7 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - The older estimate of $75 to $90 for the box (in the Word build notes of 2026-10-24) assumed a Pi 4 and is not a price. No price is set; the store page says "Price to be announced".
 - The store page no longer says the box is the Companion Frame without the frame or that it costs less.
 - Dr. O, 2026-10-25: do not say the TV box costs less. The reason is the cost of the Pi. The sentence in the frame section above, "at a lower price because there is no screen or frame to supply", and its figure of about $15 for a Pi Zero 2 W, are from 2026-10-24 and are not to be repeated on any page. The Pi Zero 2 W price was not checked and may be out of date.
+
+## The Guardians' voice (Dr. O, 2026-10-25)
+
+- The Guardians use the same robot voice as Astra-9 and Astrad.
