@@ -19,9 +19,9 @@
      ELEVENLABS_API_KEY=... node tools/record-robot-bios.js    record all
      ELEVENLABS_API_KEY=... node tools/record-robot-bios.js --only alice,reggie --update-page
 
-   Options  --only astra9,elle,alice,reggie,biscuit,mochi   --out dir (default audio/robots)
+   Options  --only astra9,astrad,elle,alice,reggie,biscuit,mochi   --out dir (default audio/robots)
             --version 1 (bump to 2 to make a new file and keep the old one)
-            --voice elle=VOICEID   (Elle has no voice set here: give one, or she is skipped)
+            --voice astrad=VOICEID   (Astrad and Elle have no voice set here: give one, or they are skipped)
             --model eleven_turbo_v2_5   --update-page   --dry
 
    Elle and Astra-9: Dr. O recorded their bios herself (audio/robots/elle-voice_v1.mp3 and
@@ -29,8 +29,8 @@
    --only alice,reggie,biscuit,mochi. Elle has no voice set here unless you give one.
 
    Needs: Node 18 or newer and an ElevenLabs key. A voice written azure:en-US-... is spoken
-   by Azure (AZURE_SPEECH_KEY and AZURE_SPEECH_REGION). Astrad has no first-person bio on the
-   page yet, so he is not recorded. Check that your ElevenLabs plan allows these recordings to
+   by Azure (AZURE_SPEECH_KEY and AZURE_SPEECH_REGION). Astrad has no voice set here: give his with --voice astrad=azure:en-US-NameNeural or an
+   ElevenLabs id. Check that your ElevenLabs plan allows these recordings to
    be played on a public page: that was not checked. */
 
 const fs = require('fs');
@@ -46,7 +46,7 @@ const VOICES = {
   mochi: 'I8ERYU9lOxALy2vtIvHd'
 };
 /* The page heading each robot's card has, to find its quote block. */
-const HEADINGS = { astra9: 'Astra-9', elle: 'Astra-9 Lite', alice: 'A.L.I.C.E.', reggie: 'Reggie', biscuit: 'Biscuit', mochi: 'Mochi' };
+const HEADINGS = { astra9: 'Astra-9', astrad: 'Astrad (Ted)', elle: 'Astra-9 Lite', alice: 'A.L.I.C.E.', reggie: 'Reggie', biscuit: 'Biscuit', mochi: 'Mochi' };
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true }; /* same as the story tool */
 const PER_MILLION_CHARS = 16; /* a rough guide only */
 
