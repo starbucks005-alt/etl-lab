@@ -24,6 +24,9 @@
             --voice elle=VOICEID   (Elle has no voice set here: give one, or she is skipped)
             --model eleven_turbo_v2_5   --update-page   --dry
 
+   Elle: Dr. O recorded her own bio (audio/robots/elle-voice_v1.mp3, 2026-10-25), so she is
+   not recorded here unless you give her a voice and ask for her with --only elle.
+
    Needs: Node 18 or newer and an ElevenLabs key. A voice written azure:en-US-... is spoken
    by Azure (AZURE_SPEECH_KEY and AZURE_SPEECH_REGION). Astrad has no first-person bio on the
    page yet, so he is not recorded. Check that your ElevenLabs plan allows these recordings to
