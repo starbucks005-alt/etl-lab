@@ -303,6 +303,6 @@ Not counted: paint, the chair, the cargo bag, her clothes, the twisted red and w
 - **Cheek plate** goes on the front of the cheek, in front of where the wig falls, as in the reference picture. Scuff the surface with 120 to 150 grit and wipe it with alcohol before the Apoxie Sculpt. Put the wig on first, then mark the plate.
 - **Sound test first, with earphones** in the HAT's headset jack, until the speakers arrive.
 - **Cooling:** Astra Lite has none. Measure with `vcgencmd measure_temp` with ALICE running and her body closed; buy a cooler only if it stays above about 65 C.
-- **Pis:** two Pi 5 boards were bought for Astra and Astrad, and a Pi 4 for Astra Lite. One Pi 5 now goes to ALICE and one is spare. Astra, Astrad, both Guardians, and probably the three dogs still need one each (the dogs are not decided).
+- **Pis:** two Pi 5 boards were bought for Astra and Astrad, and a Pi 4 for Astra Lite. One Pi 5 now goes to ALICE and one is spare. The spare Pi 5 goes to Astra. Still to buy, one each: Astrad (Ted), Guardian M, Guardian F and the three dogs, six in all (Dr. O, 2026-10-25). Pi 4 or Pi 5 for each is not decided.
 
 **Not checked.** The HAT working on a Pi 5, and the panel software on a Pi 5, have not been tried. The bag marked Motor has not been confirmed as the MG996R. The head's neck opening, the hole in the middle of the bearing (the ribbon needs about 20 mm) and the round hole inside the head near the ear have not been measured or explained. Whether the 0.5 m cable is long enough with the loop has not been measured.

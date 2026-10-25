@@ -876,5 +876,5 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 
 - The full parts list, what each part cost, the build decisions (no soldering, camera wire inside the head, cheek plate on the front of the cheek, two given wigs) and what has not been checked are in `al-panel/pi/README.md`, under "ALICE: parts, cost and build decisions". Recorded cost so far: $1,194.10, without paint, the chair, the bag or clothes.
 - ALICE uses a Pi 5, and the HAT and panel software have not been tried on one. Astra Lite, built from the first set of parts, uses a Pi 4.
-- Four or more robots still need a Raspberry Pi: Astra, Astrad, both Guardians, and probably the three dogs. One spare Pi 5 is in hand.
+- Six more Raspberry Pi boards are needed, one each for Astrad (Ted), Guardian M, Guardian F and the three dogs. The one spare Pi 5 goes to Astra.
 
