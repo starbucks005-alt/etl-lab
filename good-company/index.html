@@ -587,7 +587,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
 }
 .elevator .wrap{
   height:61px; display:flex; align-items:center; justify-content:space-between; gap:24px;
-  max-width:1200px; margin:0 auto; padding:0 var(--pad);
+  max-width:1640px; margin:0 auto; padding:0 var(--pad);
 }
 .elevator .mark{font-size:16px; letter-spacing:.14em; color:var(--ink); border:0;}
 .elevator .floors{display:flex; gap:6px; flex-wrap:wrap; margin:0; padding:0; list-style:none; align-items:center;}
@@ -600,6 +600,19 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
   transition:color .4s ease, border-color .4s ease;
 }
 .floor-btn:hover{color:var(--accent);}
+/* CROWDED, fixed 2026-10-25, Dr. O: "this looks crowded, when there is space on the sides." The
+   bar was held to 1200px, so on a wide screen the last button (Companion Skills) dropped to a
+   second line with empty space either side. It now uses up to 1640px; between 901 and 1500px the
+   letter spacing tightens a little so the row still fits on one line. */
+@media (min-width:901px) and (max-width:1500px){
+  .elevator .floors{gap:2px;}
+  .floor-btn{letter-spacing:.14em; padding:.5rem .45rem;}
+}
+@media (min-width:901px) and (max-width:1250px){
+  .elevator .wrap{gap:12px;}
+  .floor-btn{letter-spacing:.08em; padding:.5rem .3rem; font-size:10.5px;}
+  .elevator .floors .btn{letter-spacing:.06em; padding:.4rem .5rem; font-size:10.5px;}
+}
 .floor-btn[aria-current="page"]{
   color:var(--ink); border-color:var(--accent);
   box-shadow:0 0 0 3px var(--panel) inset;
