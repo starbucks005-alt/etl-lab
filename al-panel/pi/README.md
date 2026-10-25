@@ -277,9 +277,9 @@ Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the s
 | 3.5 mm plug to screw terminal audio cable | $7.84 |
 | Micro-HDMI cable | $7.51 |
 | M2.5 standoff kit (one eighth) | $1.34 |
-| Raspberry Pi 5, 8GB (build brief price) | $200.00 |
+| Raspberry Pi 5, 8GB (Amazon, MemoryWhiz, $200.00 each, 2 bought) | $200.00 |
 | microSD 128GB SanDisk Extreme (one of two) | $41.40 |
-| Pi 5 27 W power supply (build brief price) | $12.99 |
+| Pi 5 power adapter (Amazon, RasTech US, $12.99 each, 2 bought) | $12.99 |
 | ReSpeaker 2-Mic HAT | $11.99 |
 | Motion sensor (share of the 5-pack) | $1.90 |
 | Neck servo MG996R | $6.99 |
@@ -303,6 +303,6 @@ Not counted: paint, the chair, the cargo bag, her clothes, the twisted red and w
 - **Cheek plate** goes on the front of the cheek, in front of where the wig falls, as in the reference picture. Scuff the surface with 120 to 150 grit and wipe it with alcohol before the Apoxie Sculpt. Put the wig on first, then mark the plate.
 - **Sound test first, with earphones** in the HAT's headset jack, until the speakers arrive.
 - **Cooling:** Astra Lite has none. Measure with `vcgencmd measure_temp` with ALICE running and her body closed; buy a cooler only if it stays above about 65 C.
-- **Pis:** two Pi 5 boards were bought on Amazon for Astra and Astrad ($200 each in the Astra-9 build brief), and a Pi 4 for Astra Lite: Raspberry Pi 4 Model B 2GB bundle with a SanDisk 16GB microSD and a USB-C cable (new, sealed), bought on eBay on 2026-09-16 for $65.11, order 02-15191-57036, seller kollectedbyque, no returns (eBay purchase page, 2026-10-25). The Astra-9 Lite build document says Amazon for this order, which is wrong. One Pi 5 now goes to ALICE and one is spare. The spare Pi 5 goes to Astra. Still to buy, one each: Astrad (Ted), Guardian M, Guardian F and the three dogs, six in all (Dr. O, 2026-10-25). Pi 4 or Pi 5 for each is not decided.
+- **Pis:** two Pi 5 boards and two RasTech power adapters were bought on Amazon for Astra and Astrad (order 111-7457292-7008204: the Pi 5 8GB from MemoryWhiz at $200.00 each, the adapters from RasTech US at $12.99 each; the same order also holds a QSYZAIL 54 piece perf board kit), and a Pi 4 for Astra Lite: Raspberry Pi 4 Model B 2GB bundle with a SanDisk 16GB microSD and a USB-C cable (new, sealed), bought on eBay on 2026-09-16 for $65.11, order 02-15191-57036, seller kollectedbyque, no returns (eBay purchase page, 2026-10-25). The Astra-9 Lite build document says Amazon for this order, which is wrong. One Pi 5 now goes to ALICE and one is spare. The spare Pi 5 goes to Astra. Still to buy, one each: Astrad (Ted), Guardian M, Guardian F and the three dogs, six in all (Dr. O, 2026-10-25). Pi 4 or Pi 5 for each is not decided.
 
 **Not checked.** The HAT working on a Pi 5, and the panel software on a Pi 5, have not been tried. The bag marked Motor has not been confirmed as the MG996R. The head's neck opening, the hole in the middle of the bearing (the ribbon needs about 20 mm) and the round hole inside the head near the ear have not been measured or explained. Whether the 0.5 m cable is long enough with the loop has not been measured.
