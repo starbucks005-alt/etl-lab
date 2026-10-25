@@ -235,3 +235,8 @@ Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the s
 - **Color rule:** red is plus and black is minus on every power wire. The replacement for the thin black wire that smoked on 2026-10-24 was red and white, so tag both ends of it with which is plus and which is minus. The cause of that wire smoking was not confirmed.
 - **Fuse:** an inline fuse on the supply plus wire, a little above what the robot draws. Suggested, not fitted.
 - **Joints:** screw terminals or solder, not twisted wire. Twisted joints came loose on the first build.
+
+## Standoffs: M2.5, not M3 (Dr. O, 2026-10-25)
+
+- The Pi boards and the HATs on them take **M2.5** screws and standoffs. The Vibit 640 piece M3 nylon kit bought earlier did not fit the Pi 4.
+- Ordered 2026-10-25: a 365 piece M2.5 black nylon hex standoff, screw and nut kit (AvrestYPT), $10.74 with tax, arriving 2026-10-26. Not tried yet: whether it has a length that suits the HAT (about 10 to 12 mm).
