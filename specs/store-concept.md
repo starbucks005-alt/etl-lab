@@ -832,3 +832,10 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 - Body: the Pi, the amp, the speakers and the PIR sensor.
 - No back button. Dr. O does not use the back button on Astra at all, and ALICE does not need it.
 - Open: the camera cable has to run from the head, through the neck, to the Pi in the body, and the neck turns. Leave slack and limit how far the neck turns until it is tried.
+
+## What is new on ALICE compared with Astra (Dr. O, 2026-10-25)
+
+- Eyes: real doll eyes (dark green, 27mm), no eye stack.
+- Detection: a DFRobot HuskyLens vision sensor ($41.28 with tax, arriving 26 October) finds and can recognize a person. It is too big for the cheek plate (its own 2 inch screen), so it goes in the body, at the collar or chest behind the turtleneck. It does not turn with the head. Not tried: how it connects to the Pi 5, and how it is told which face is Dr. O.
+- Hands: a hand that can grip, a left and a right (the wooden hands are the first try).
+- Camera: in the cheek plate, so she can see.
