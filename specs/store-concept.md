@@ -867,3 +867,7 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 
 - The Guardians do not use contractions: "I am", "I do not". A.L.I.C.E. sometimes does. The Astra family (Astra-9, Astrad, Elle) does.
 - The Guardian words on the robots page are written without contractions to match. The Guardian mode's own written rules in the panel have not been changed to say this.
+
+## The Guardians are service robots (Dr. O, 2026-10-25)
+
+- The Guardians are service robots, not companions. The robots page now says the Astra family, A.L.I.C.E. and the dogs are companion robots and the Guardians are service robots. The store already calls them "robots that keep watch".
