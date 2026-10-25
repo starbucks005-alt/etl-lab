@@ -858,3 +858,7 @@ Not known yet: what one minute of conversation actually costs on the Azure and E
 ## The Guardians' voice (Dr. O, 2026-10-25)
 
 - The Guardians use the same robot voice as Astra-9 and Astrad.
+
+## Why the robots talking to each other is on the page (Dr. O, 2026-10-25)
+
+- Dr. O: visitors were shocked when they heard Elle and A.L.I.C.E. talking to each other. That is why every robot card on the robots page, and the dogs, say they have human-like conversations with people and artificial life forms, and the dogs section says all three talk to each other. This is her account of the visitors' reaction. No count of visitors or other measure is recorded.
