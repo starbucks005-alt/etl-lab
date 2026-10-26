@@ -262,6 +262,16 @@ Open: the Pi 5 connection and a Raspberry Pi example from DFRobot; whether the s
 - Both were bought on eBay on 2026-09-16. The Pi 4 is order 02-15191-57036, $65.11 (2GB bundle). The head and bust (Astra Lite is a head and bust, not a body) is order 14-15166-73592, $58.53, which shipped untracked.
 - The Astra-9 Lite build document lists the head and bust as the American Dress Forms test head at $54.45. The difference of $4.08 is 7.5 percent of $54.45, which looks like tax. Not confirmed from the order page.
 
+## ALICE: the HAT working on a Pi 5 (Dr. O, 2026-10-26, day 1)
+
+Raspberry Pi 5 8GB, Raspberry Pi OS 64-bit (kernel 6.18), hostname ALICE, written with the Raspberry Pi Imager (SSH on, Raspberry Pi Connect off). The Seeed-style 2-Mic HAT (WM8960 chip) gave sound with earphones in its headset jack. What it took:
+1. In `/boot/firmware/config.txt`: remove the `#` from `dtparam=i2c_arm=on`, and add `dtoverlay=wm8960-soundcard` on its own line under `[all]` at the bottom. Reboot. (The overlay file `wm8960-soundcard.dtbo` is already in the system, nothing to install.)
+2. After that `aplay -l` lists `card 2: wm8960soundcard` (the two HDMI outputs are cards 0 and 1, the Pi 5 has no headphone jack of its own) and `i2cdetect -y 1` shows `UU` at address 1a (the chip, claimed by its driver).
+3. The tone was silent until three things were switched on: the `Headphone` switch and `PCM Playback` (both showed `MM`, muted, in `alsamixer -c 2`), and the two output mixer switches `Left Output Mixer PCM` and `Right Output Mixer PCM`, which were `off`: `amixer -c 2 sset 'Left Output Mixer PCM' on` and the same for Right.
+4. Then `speaker-test -D plughw:wm8960soundcard -c 2 -t sine -f 440 -s 1` (left) and `-s 2` (right) were heard in both ears. Saved with `sudo alsactl store`.
+
+Not checked: whether the settings survive a reboot (run `alsactl store` first), the speakers through the DROK amp, the microphones, the panel software on the Pi 5. The router showed the Pi on the wired connection; the WiFi has not been joined yet (set the WLAN country to US in `raspi-config`).
+
 ## ALICE: parts, cost and build decisions (Dr. O, 2026-10-25, nothing built or tried)
 
 **Who she is and what she has.** ALICE has a Raspberry Pi 5 (8GB), no eye rings and no back button. She sees through a camera in a plate on the cheek, and the HuskyLens sits in her body. Two wigs were given to Dr. O: a short black bob with bangs, like her reference picture (seated, arms around her knees, hair framing the face with the cheek showing).
