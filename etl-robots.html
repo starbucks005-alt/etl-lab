@@ -89,6 +89,9 @@
   .tab:hover{color:var(--ink)}
   .tab[aria-selected=true]{color:var(--gold);border-bottom-color:var(--gold)}
   .tabpanel[hidden]{display:none}
+  html.embed header.top,html.embed footer{display:none}
+  html.embed body{background:transparent}
+  html.embed .hero-buttons{display:none}
   .hearbtn{background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:.35rem .8rem;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
   .hearbtn:hover,.hearbtn[aria-pressed=true]{background:var(--gold);color:var(--bg)}
   .card blockquote.voice p{font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.5;color:var(--ink);margin:0 0 .6rem}
@@ -112,6 +115,7 @@
 </style>
 </head>
 <body>
+<script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=" embed";</script>
 <header class="top">
   <a class="brand" href="/"><span class="mark">ETL</span><span class="word">Emerging<br>Technologies Laboratory</span></a>
   <nav aria-label="Robot sections">
@@ -350,6 +354,14 @@
       });
     });
   });
+})();
+</script>
+<script>
+(function(){
+  if(!/embed/.test(document.documentElement.className)||parent===window) return;
+  function send(){ parent.postMessage({etlRobotsHeight:document.documentElement.scrollHeight},location.origin); }
+  addEventListener('load',send); addEventListener('resize',send);
+  if(window.ResizeObserver) new ResizeObserver(send).observe(document.body);
 })();
 </script>
 </body>

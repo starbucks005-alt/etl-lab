@@ -44,6 +44,14 @@
   .hero-buttons{display:flex;flex-wrap:wrap;gap:.8rem;margin:0}
   .btn{display:inline-block;padding:.75rem 1.4rem;border:1px solid var(--line);border-radius:3px;color:var(--ink);text-decoration:none;font-size:14px;letter-spacing:.08em;text-transform:uppercase;transition:border-color .25s,box-shadow .25s,transform .25s}
   .btn:hover{border-color:var(--blue);box-shadow:0 0 22px var(--blue-soft);transform:translateY(-2px)}
+  .hearbar{margin:0 0 1.6rem;color:var(--dim);font-size:14px}
+  .hearbar .btn{margin-right:.6rem}
+  .hearbar .btn[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:#02111f}
+  .card[data-voice].speaking{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),0 12px 40px var(--blue-soft)}
+  .card[data-voice] .media{cursor:pointer}
+  .tabs{display:flex;justify-content:center;gap:.4rem;padding:.6rem 1rem 0;background:var(--bg)}
+  .tabs [role=tab]{font:inherit;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);background:transparent;border:1px solid var(--line);border-bottom:2px solid transparent;border-radius:4px 4px 0 0;padding:.6rem 1.6rem;cursor:pointer}
+  .tabs [role=tab][aria-selected=true]{color:var(--ink);border-bottom-color:var(--gold)}
   .btn.primary{background:var(--blue);border-color:var(--blue);color:#02111f;font-weight:600}
   .hero-media{position:relative;justify-self:center;width:min(100%,640px);border-radius:6px;overflow:hidden;box-shadow:0 0 90px rgba(47,164,255,.22)}
   .hero-media img{width:100%;height:auto}
@@ -296,7 +304,7 @@
 <header class="top">
   <a class="brand" href="/"><span class="mark">ETL</span><span class="word">Emerging<br>Technologies Laboratory</span></a>
   <nav aria-label="Store sections">
-    <a href="#robots">Robots</a>
+    <a href="#robots-tab" data-opentab="robots">Robots</a>
     <a href="#companions">Companions</a>
     <a href="#lumvivo">Holograms</a>
     <a href="#everly">Everly</a>
@@ -309,7 +317,12 @@
   </nav>
 </header>
 
-<main>
+<div class="tabs" role="tablist" aria-label="Store and robots">
+  <button type="button" role="tab" id="tab-store" aria-selected="true" aria-controls="storeMain">Store</button>
+  <button type="button" role="tab" id="tab-robots" aria-selected="false" aria-controls="robotsTab">Robots</button>
+</div>
+
+<main id="storeMain">
   <section class="hero">
     <div class="hero-text">
       <p class="eyebrow">The ETL Robots Store</p>
@@ -558,72 +571,73 @@
     <p class="eyebrow">Robots</p>
     <h2>Companion and service robots</h2>
     <p class="lead">Concept art, coming soon. A brain with a host body.</p>
-    <p style="margin:0 0 1.6rem"><a class="btn primary" href="/etl-robots">See the robots page &rarr;</a></p>
+    <p style="margin:0 0 1.6rem"><a class="btn primary" href="#robots-tab" data-opentab="robots">See the robots tab &rarr;</a></p>
+    <p class="hearbar"><button type="button" id="soundBtn" class="btn" aria-pressed="false">&#128266; Hear the robots</button> <span id="soundNote">One tap, then each robot speaks as you scroll to it.</span></p>
     <div class="grid">
-      <article class="card">
+      <article class="card" data-voice="astra9">
         <div class="media"><img src="/images/etl-robots/astra9-labcoat-v1.jpg" alt="Astra-9, the full size figure, in a white ETL lab coat and cream dress." loading="lazy"><span class="tag">Concept art</span></div>
         <div class="info">
-          <h3><a href="/etl-robots">Astra-9</a></h3>
+          <h3><a href="#robots-tab" data-opentab="robots">Astra-9</a></h3>
           <p>The ninth build in an early android line, a proud robot who has never bothered trying to pass as human.</p>
           <span class="price">Price to be announced</span>
           <span class="pill soon">Concept art, coming soon</span>
           <button class="notify" type="button" data-item="Astra-9">Tell me when it is ready</button>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-voice="astrad">
         <div class="media"><img src="/images/etl-robots/astrad-labcoat-v1.jpg" alt="Astrad, known as Ted, the full size figure, in a white ETL lab coat and khaki trousers." loading="lazy"><span class="tag">Concept art</span></div>
         <div class="info">
-          <h3><a href="/etl-robots">Astrad (Ted)</a></h3>
+          <h3><a href="#robots-tab" data-opentab="robots">Astrad (Ted)</a></h3>
           <p>Astra-9's companion, in here with her and getting his own body the same way.</p>
           <span class="price">Price to be announced</span>
           <span class="pill soon">Concept art, coming soon</span>
           <button class="notify" type="button" data-item="Astrad (Ted)">Tell me when it is ready</button>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-voice="guardian-f,guardian-m">
         <div class="media"><img src="/images/etl-robots/guardian-crop-v1.jpg" alt="An ETL Guardian in a black uniform with a glossy black head and a red light." loading="lazy"><span class="tag">Concept art</span></div>
         <div class="info">
-          <h3><a href="/etl-robots">The Guardians</a></h3>
+          <h3><a href="#robots-tab" data-opentab="robots">The Guardians</a></h3>
           <p>ETL robots that keep watch.</p>
           <span class="price">Price to be announced</span>
           <span class="pill soon">Concept art, coming soon</span>
           <button class="notify" type="button" data-item="The Guardians">Tell me when it is ready</button>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-voice="alice">
         <div class="media"><img src="/images/etl-robots/alice-seated-v1.jpg" alt="A.L.I.C.E. sitting with her arms around her knees, with metal arms and legs." loading="lazy"><span class="tag">Concept art</span></div>
         <div class="info">
-          <h3><a href="/etl-robots">A.L.I.C.E.</a></h3>
+          <h3><a href="#robots-tab" data-opentab="robots">A.L.I.C.E.</a></h3>
           <p>Adaptive Lifeform Interpreting Connective Experience. Skill: synthetic personhood and connection.</p>
           <span class="price">Price to be announced</span>
           <span class="pill soon">Concept art, coming soon</span>
           <button class="notify" type="button" data-item="A.L.I.C.E.">Tell me when it is ready</button>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-voice="reggie">
         <div class="media"><img src="/images/etl-robots/reggie-bot-v2.jpg" alt="Reggie, a beagle robot dog with green eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
         <div class="info">
-          <h3><a href="/etl-robots">Reggie</a></h3>
+          <h3><a href="#robots-tab" data-opentab="robots">Reggie</a></h3>
           <p>A beagle. Good dog. Friends with Biscuit and Mochi. Skill: relational joy and dog training.</p>
           <span class="price">Price to be announced</span>
           <span class="pill soon">Concept art, coming soon</span>
           <button class="notify" type="button" data-item="Reggie">Tell me when it is ready</button>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-voice="biscuit">
         <div class="media"><img src="/images/etl-robots/biscuit-bot-v2.jpg" alt="Biscuit, a lab robot dog with blue eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
         <div class="info">
-          <h3><a href="/etl-robots">Biscuit</a></h3>
+          <h3><a href="#robots-tab" data-opentab="robots">Biscuit</a></h3>
           <p>A lab. Good dog. Friends with Reggie and Mochi.</p>
           <span class="price">Price to be announced</span>
           <span class="pill soon">Concept art, coming soon</span>
           <button class="notify" type="button" data-item="Biscuit">Tell me when it is ready</button>
         </div>
       </article>
-      <article class="card">
+      <article class="card" data-voice="mochi">
         <div class="media"><img src="/images/etl-robots/mochi-bot-v2.jpg" alt="Mochi, a French bulldog robot dog with amber eyes and an ETL tag." loading="lazy"><span class="tag">Concept art</span></div>
         <div class="info">
-          <h3><a href="/etl-robots">Mochi</a></h3>
+          <h3><a href="#robots-tab" data-opentab="robots">Mochi</a></h3>
           <p>A French bulldog. Good dog. Friends with Reggie and Biscuit.</p>
           <span class="price">Price to be announced</span>
           <span class="pill soon">Concept art, coming soon</span>
@@ -632,7 +646,7 @@
       </article>
     </div>
     <figure class="dogs-group"><img src="/images/etl-robots/robot-dogs-group-v1.jpg" alt="Three robot dogs standing side by side, each with an ETL tag: Biscuit the golden lab with teal eyes, Reggie the beagle with green eyes, and Mochi the black and white French bulldog with amber eyes." loading="lazy"><figcaption>Biscuit, Reggie and Mochi. Concept art.</figcaption></figure>
-    <p class="more"><a class="btn primary" href="/etl-robots">See the robots page &rarr;</a></p>
+    <p class="more"><a class="btn primary" href="#robots-tab" data-opentab="robots">See the robots tab &rarr;</a></p>
   </section>
 
   <section class="band" id="companions">
@@ -848,6 +862,8 @@
   </section>
 </main>
 
+<section id="robotsTab" role="tabpanel" aria-labelledby="tab-robots" hidden><iframe id="robotsFrame" title="The ETL robots" data-src="/etl-robots.html?embed=1" style="width:100%;border:0;display:block;min-height:70vh" scrolling="no"></iframe></section>
+
 <footer class="foot">
   Emerging Technologies Laboratory
   <br><a href="/">&larr; Back to Emerging Technologies Laboratory</a>
@@ -1018,6 +1034,65 @@
       .catch(function(){ wait.classList.remove('wait'); wait.textContent='I could not reach her just now. Please use the contact form below.'; })
       .then(function(){ busy=false; send.disabled=false; log.scrollTop=log.scrollHeight; input.focus(); });
   });
+})();
+</script>
+<script>
+(function(){
+  var cards=[].slice.call(document.querySelectorAll('#robots .card[data-voice]'));
+  if(!cards.length) return;
+  var btn=document.getElementById('soundBtn'), note=document.getElementById('soundNote');
+  var audio=new Audio(), on=false, queue=[], busy=null, heard={};
+  audio.preload='none';
+  function clear(){ cards.forEach(function(c){c.classList.remove('speaking');}); }
+  function next(){
+    if(!queue.length){ busy=null; clear(); return; }
+    audio.src='/audio/robots/'+queue.shift()+'-voice_v1.mp3';
+    audio.play().catch(function(){ busy=null; clear(); });
+  }
+  function say(card){
+    audio.pause(); clear(); busy=card; card.classList.add('speaking');
+    queue=card.dataset.voice.split(',');
+    next();
+  }
+  audio.addEventListener('ended',next);
+  function setOn(v){
+    on=v; btn.setAttribute('aria-pressed',on);
+    btn.innerHTML=on?'&#128264; Sound on':'&#128266; Hear the robots';
+    note.textContent=on?'Each robot speaks as you scroll to it. Tap a picture to hear it again. Tap here to stop.':'One tap, then each robot speaks as you scroll to it.';
+    if(!on){ audio.pause(); queue=[]; busy=null; clear(); }
+    else{ heard={}; check(); }
+  }
+  btn.addEventListener('click',function(){ setOn(!on); });
+  cards.forEach(function(c){ c.querySelector('.media').addEventListener('click',function(){ if(!on) on=true, btn.setAttribute('aria-pressed',true), btn.innerHTML='&#128264; Sound on'; say(c); }); });
+  function check(){
+    if(!on||busy) return;
+    var mid=innerHeight/2, best=null, bd=1e9;
+    cards.forEach(function(c,i){
+      if(heard[i]) return;
+      var r=c.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) return;
+      var d=Math.abs((r.top+r.bottom)/2-mid); if(d<bd){bd=d;best=i;}
+    });
+    if(best!==null && bd<innerHeight*0.45){ heard[best]=1; say(cards[best]); }
+  }
+  addEventListener('scroll',check,{passive:true}); audio.addEventListener('ended',function(){ setTimeout(check,400); });
+})();
+</script>
+<script>
+(function(){
+  var tS=document.getElementById('tab-store'), tR=document.getElementById('tab-robots'), main=document.getElementById('storeMain'), pan=document.getElementById('robotsTab'), fr=document.getElementById('robotsFrame');
+  function show(which,noScroll){
+    var r=which==='robots';
+    tS.setAttribute('aria-selected',!r); tR.setAttribute('aria-selected',r);
+    main.hidden=r; pan.hidden=!r;
+    if(r&&!fr.src) fr.src=fr.dataset.src;
+    if(!noScroll) scrollTo(0,0);
+    if(history.replaceState) history.replaceState(null,'',r?'#robots-tab':location.pathname);
+  }
+  tS.addEventListener('click',function(){show('store');});
+  tR.addEventListener('click',function(){show('robots');});
+  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-opentab]'); if(a){e.preventDefault(); show(a.dataset.opentab);}});
+  addEventListener('message',function(e){ if(e.origin===location.origin&&e.data&&e.data.etlRobotsHeight) fr.style.height=e.data.etlRobotsHeight+'px'; });
+  if(location.hash==='#robots-tab') show('robots',true);
 })();
 </script>
 </body>
