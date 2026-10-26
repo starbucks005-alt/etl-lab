@@ -270,7 +270,9 @@ Raspberry Pi 5 8GB, Raspberry Pi OS 64-bit (kernel 6.18), hostname ALICE, writte
 3. The tone was silent until three things were switched on: the `Headphone` switch and `PCM Playback` (both showed `MM`, muted, in `alsamixer -c 2`), and the two output mixer switches `Left Output Mixer PCM` and `Right Output Mixer PCM`, which were `off`: `amixer -c 2 sset 'Left Output Mixer PCM' on` and the same for Right.
 4. Then `speaker-test -D plughw:wm8960soundcard -c 2 -t sine -f 440 -s 1` (left) and `-s 2` (right) were heard in both ears. Saved with `sudo alsactl store`.
 
-Not checked: whether the settings survive a reboot (run `alsactl store` first), the speakers through the DROK amp, the microphones, the panel software on the Pi 5. The router showed the Pi on the wired connection; the WiFi has not been joined yet (set the WLAN country to US in `raspi-config`).
+5. The settings did NOT survive a reboot. `alsactl store` saved them, but after boot the Headphone volume was 0 (the two output mixer switches stayed on). The same thing happened on Astra Lite (Dr. O remembers; how that was fixed is not written down). Fix on ALICE: a small boot script `/usr/local/bin/alice-audio.sh` that waits 20 seconds (`sleep 20` as its second line), then sets `Left Output Mixer PCM` and `Right Output Mixer PCM` on, `Headphone` to 91% and `Playback` to 84%, run by a systemd service `/etc/systemd/system/alice-audio.service` (Type=oneshot, enabled). Cause not confirmed: something resets the volume after the script would otherwise have run; the wait works around it. After the 20 second wait was added, the sound held through a reboot (Dr. O, 2026-10-26).
+
+Not checked: the speakers through the DROK amp, the microphones, the panel software on the Pi 5. The router showed the Pi on the wired connection; the WiFi has not been joined yet (set the WLAN country to US in `raspi-config`).
 
 ## ALICE: parts, cost and build decisions (Dr. O, 2026-10-25, nothing built or tried)
 
