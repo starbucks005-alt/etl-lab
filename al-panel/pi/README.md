@@ -344,7 +344,7 @@ The carrier page shows the head arriving Wed 28 Oct 2026, between 11:30 AM and 3
 
 ## Orders placed 2026-10-25 on eBay: cargo bag and transport chair (Dr. O, 2026-10-27)
 
-From her order screenshot. The chair is for transporting ALICE and the other robots. The bag is for ALICE's parts.
+From her order screenshot. The chair is for transporting ALICE and the other robots: when Dr. O takes the robots to events she cannot carry them. The bag is for ALICE's parts.
 
 | Item | Seller | Order number | Total | Estimated delivery |
 |---|---|---|---|---|
