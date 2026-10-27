@@ -352,4 +352,4 @@ From her order screenshot. The chair is for transporting ALICE and the other rob
 | Small Mini Parachute Cargo Bag, black canvas, new with tags | armyuniverse | 27-15309-81617 | $32.24 | Sat 31 Oct |
 | Lightweight Elderly Transport Wheelchair, portable folding transport chair, 250 lb, black and blue, new | pinguaabiy | 27-15309-79263 | $106.10 | Fri 30 Oct |
 
-Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. The chair's cost is shared by all 9 robots (Dr. O, 2026-10-27): $11.79 each, which is in ALICE's total above. The bag has not been decided and is not counted.
+Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. The chair's cost is shared by all 9 robots (Dr. O, 2026-10-27): $11.79 each, which is in ALICE's total above. The bag has not been decided and is not counted. Dr. O is getting two chairs, but only one has been bought so far (2026-10-27); the second is not ordered and not counted. When it is bought, the shared cost is both chairs divided by 9.
