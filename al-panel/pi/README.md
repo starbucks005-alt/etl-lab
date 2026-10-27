@@ -308,9 +308,10 @@ Not checked: the speakers through the DROK amp, the microphones, the panel softw
 | 470 ohm resistor (one of 40, listing price) | $0.12 |
 | WAGO 221-413 lever connectors (one eighth of $25.75) | $3.22 |
 | Female jumper to Grove cables (2 of the 5 pack, $9.57) | $3.83 |
-| **Total** | **$1,194.10** |
+| Transport chair (one ninth of $106.10, shared by all 9 robots, Dr. O 2026-10-27) | $11.79 |
+| **Total** | **$1,205.89** |
 
-Not counted: paint, the chair, the cargo bag, her clothes, the twisted red and white wire, the Dupont wires, the old amp boards (the DROK replaced the old amp, which was priced at $4.00 as half of the $7.99 pack and left out), and the standoff, wire and terminal packs bought for other robots.
+Not counted: paint, the cargo bag (for her parts, not yet decided whether it is hers alone or shared), her clothes, the twisted red and white wire, the Dupont wires, the old amp boards (the DROK replaced the old amp, which was priced at $4.00 as half of the $7.99 pack and left out), and the standoff, wire and terminal packs bought for other robots.
 
 **Arrival.** Camera, camera cable, DROK amp, audio cable, micro-HDMI cable, WAGO connectors and the Grove cables: Mon 26 Oct. HuskyLens and M2.5 standoffs: 26 Oct. CQRobot speakers and Apoxie Sculpt: Tue 27 Oct. Body and hands: shipped 26 Oct by FedEx Ground, due 27 to 29 Oct, may come sooner (eBay order 27-15308-37718). Eyes (Tech-Optics): estimated Wed 28 Oct at checkout (standard ground, $9.95); the listing said as soon as Sat 31 Oct, and the confirmation email has not been seen. Head: shipped (Dr. O, 2026-10-26), arrival date not shown yet. The eye openings cannot be cut until the eyes are here.
 
@@ -351,4 +352,4 @@ From her order screenshot. The chair is for transporting ALICE and the other rob
 | Small Mini Parachute Cargo Bag, black canvas, new with tags | armyuniverse | 27-15309-81617 | $32.24 | Sat 31 Oct |
 | Lightweight Elderly Transport Wheelchair, portable folding transport chair, 250 lb, black and blue, new | pinguaabiy | 27-15309-79263 | $106.10 | Fri 30 Oct |
 
-Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. Whether these two count in ALICE's cost, or are shared across the robots, has not been decided.
+Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. The chair's cost is shared by all 9 robots (Dr. O, 2026-10-27): $11.79 each, which is in ALICE's total above. The bag has not been decided and is not counted.
