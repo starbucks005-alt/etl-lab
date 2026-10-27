@@ -353,3 +353,17 @@ From her order screenshot. The chair is for transporting ALICE and the other rob
 | Lightweight Elderly Transport Wheelchair, portable folding transport chair, 250 lb, black and blue, new | pinguaabiy | 27-15309-79263 | $106.10 | Fri 30 Oct |
 
 Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. The chair's cost is shared by all 9 robots (Dr. O, 2026-10-27): $11.79 each, which is in ALICE's total above. The bag has not been decided and is not counted. Dr. O is getting two chairs, but only one has been bought so far (2026-10-27); the second is not ordered and not counted. When it is bought, the shared cost is both chairs divided by 9.
+
+## ALICE: WiFi (Dr. O, 2026-10-27, tried and working)
+
+Done over SSH from her laptop while the Ethernet cable was still in:
+
+1. `sudo raspi-config nonint do_wifi_country US`
+2. `sudo nmcli radio wifi on`
+3. `nmcli device wifi list` (her network showed in the list)
+4. `sudo nmcli device wifi connect "NETWORK NAME" password "PASSWORD"`
+5. `ip -4 addr show wlan0` gave 192.168.0.139. The address is handed out by the router, so it can change.
+
+Then the Ethernet cable came out and she reconnected over WiFi at 192.168.0.139. After `sudo reboot` the Pi joined WiFi by itself at the same address, and the HAT volume was back at 91% from the boot script.
+
+A ping with the cable still in does not prove WiFi, because it can go out through the cable. The test is to unplug the cable and reconnect.
