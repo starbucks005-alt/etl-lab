@@ -344,11 +344,11 @@ The carrier page shows the head arriving Wed 28 Oct 2026, between 11:30 AM and 3
 
 ## Orders placed 2026-10-25 on eBay: cargo bag and transport chair (Dr. O, 2026-10-27)
 
-From her order screenshot. What each is for has not been written down yet.
+From her order screenshot. The chair is for transporting ALICE and the other robots. The bag is for ALICE's parts.
 
 | Item | Seller | Order number | Total | Estimated delivery |
 |---|---|---|---|---|
 | Small Mini Parachute Cargo Bag, black canvas, new with tags | armyuniverse | 27-15309-81617 | $32.24 | Sat 31 Oct |
 | Lightweight Elderly Transport Wheelchair, portable folding transport chair, 250 lb, black and blue, new | pinguaabiy | 27-15309-79263 | $106.10 | Fri 30 Oct |
 
-Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), so the chair is due before it, on day 7.
+Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. Whether these two count in ALICE's cost, or are shared across the robots, has not been decided.
