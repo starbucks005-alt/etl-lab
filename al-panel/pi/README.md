@@ -341,3 +341,14 @@ What was built at the bench and what was found. Dr. O did all of it herself.
 ## ALICE head: delivery (Dr. O, 2026-10-27)
 
 The carrier page shows the head arriving Wed 28 Oct 2026, between 11:30 AM and 3:30 PM, last seen in Pooler, GA. That is day 3 of the ten day plan. Not received yet.
+
+## Orders placed 2026-10-25 on eBay: cargo bag and transport chair (Dr. O, 2026-10-27)
+
+From her order screenshot. What each is for has not been written down yet.
+
+| Item | Seller | Order number | Total | Estimated delivery |
+|---|---|---|---|---|
+| Small Mini Parachute Cargo Bag, black canvas, new with tags | armyuniverse | 27-15309-81617 | $32.24 | Sat 31 Oct |
+| Lightweight Elderly Transport Wheelchair, portable folding transport chair, 250 lb, black and blue, new | pinguaabiy | 27-15309-79263 | $106.10 | Fri 30 Oct |
+
+Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), so the chair is due before it, on day 7.
