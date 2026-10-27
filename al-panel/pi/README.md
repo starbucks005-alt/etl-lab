@@ -337,3 +337,7 @@ What was built at the bench and what was found. Dr. O did all of it herself.
 5. **Polarity lesson:** red wire under the plus screw, black under the minus screw. The first marking on the board was reversed, and the wires went on the wrong screws first. Dr. O checked it with the multimeter (continuity and Ω, probes firm on bare metal): no short between red and black, and the reading climbs to OL because of the board's capacitor, which is normal. A short chirp from the meter across V+ and GND is also the capacitor.
 6. **The 5 V adapter** is an AC/DC adapter, model YS-0506, input 100 to 265 VAC, output 5 V 6 A. Its round plug has a screw terminal piece attached. Before connecting, set the meter to DC volts, put the red probe on one screw and the black on the other, and read about 5.0 with the adapter in the wall (a minus sign means the red probe is on minus). Power order: Pi first, then the 5 V. Ring off.
 7. **Not yet done:** the 5 V is not connected, and the motor has not been moved. The program is `al_neck.py`, which drives channel 8. Whether channel 8 is the top row of the third group of sockets is the standard layout but has not been tested. If the motor does not move, try the neighbouring channels.
+
+## ALICE head: delivery (Dr. O, 2026-10-27)
+
+The carrier page shows the head arriving Wed 28 Oct 2026, between 11:30 AM and 3:30 PM, last seen in Pooler, GA. That is day 3 of the ten day plan. Not received yet.
