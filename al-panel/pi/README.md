@@ -461,3 +461,13 @@ The transport chair and the cargo bag are shared by all 9 robots (Dr. O, 2026-10
 
 Plan: two transport chairs and two cargo bags in all, each with an ETL patch put on, so the robots are branded when they travel. One chair and one bag are bought so far. The second of each, and the patches, are not bought and not counted. When the second chair and bag are bought, the shared cost is both of each divided by 9 robots (at the same prices, about $23.58 for the chairs and $7.16 for the bags per robot, against $11.79 and $3.58 counted now). The cost of the patches has not been seen.
 The patches have to be made first (Dr. O, 2026-10-28). Then they go on the cargo bags, and optionally on the chairs. No maker, price or date yet.
+
+## ALICE: camera on the Pi 5 (Dr. O, 2026-10-28, day 3)
+
+Arducam 12MP Camera Module 3 (imx708). It came with a grey 15-pin ribbon cable, which does not fit the Pi 5's smaller 22-pin camera port. It was replaced with the orange cable that has a wide 15-pin end (camera) and a narrow 22-pin end (Pi). The Pi was off for the swap, and the 5 V adapter was not plugged in (the camera takes its power through the cable from the Pi).
+
+1. First try: `rpicam-hello --list-cameras` said "No cameras available!". The log (`dmesg`) had no imx708 line, `camera_auto_detect=1` was in `/boot/firmware/config.txt`, and `i2c-10` and `i2c-11` did not exist.
+2. After the Pi was shut down and the cable reseated, `rpicam-hello --list-cameras` found `0 : imx708 [4608x2592 10-bit RGGB]` at `/base/axi/pcie@1000120000/rp1/i2c@88000/imx708@1a`, with modes 1536x864 at 120 fps, 2304x1296 at 56 fps and 4608x2592 at 14 fps.
+3. Which end of the cable was not seated, or whether it was the way round, was not written down. The words were "reset worked" (Dr. O). It was not a software problem.
+4. The fit that worked, in her own note 13b: remove the grey cable, replace with the gold cable, wide end on the camera, narrow end on the Pi.
+5. Not yet done: a picture saved with `rpicam-still -n -t 2000 -o ~/test.jpg` and copied to the laptop.
