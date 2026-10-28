@@ -565,3 +565,10 @@ ALICE's Pi now runs the panel and answers as A.L.I.C.E. Dr. O decided to use the
 - The panel does not start by itself after a reboot. A service like Astra Lite's `al-panel.service` is still to be set up, and `al-neck.service` so the neck listens.
 - "Turn her head" when someone walks up (PIR to neck) has not been tested together.
 - The `~/al-panel-repo2` copy on the Pi can be deleted.
+
+## ALICE: her own page and the Palette menu (Dr. O, 2026-10-28)
+
+- `al-panel/pi/make_alice_page.py` builds `al-panel/index_alice.html` from the shared `index.html`. Astra-9 Lite's page is not touched. The server serves `index_alice.html` when it sits beside `al_panel_server.py`, and `index.html` otherwise. After any change to `index.html`, run `python3 al-panel/pi/make_alice_page.py` again.
+- ALICE's page keeps: talk to her, show her a photo or a file, people she knows, voices she knows, when someone walks up, switching off. It has no modes, eye colour, accent, name, skills, personalities, or Astra photos and wording. The removed parts are hidden, not deleted, because the page's own script looks for them by name.
+- **Palette menu**, as on Good Company and My Echo: A.L.I.C.E.'s own palette first (bronze, warm grey and near-black, taken from her picture), then the 26 Good Company palettes, read from `good-company/gc-skin.css` and `gc-skin.js` so they stay the same. The choice is kept in the browser (`alice-skin`). Where a Good Company palette's accent or grey was too weak to read on this page, the build moves it toward the ink colour until every text pair reaches 4.5 to 1 (checked for all 27).
+- To put it on ALICE's Pi: copy `index_alice.html` and `al_panel_server.py` into `~/al_panel`, then stop and start the panel.
