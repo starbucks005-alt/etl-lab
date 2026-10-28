@@ -538,7 +538,7 @@ Log started 12:20:21, last line seen 13:22:21, one line per minute (`vcgencmd me
 
 ## ALICE: hours worked (Dr. O, 2026-10-28)
 
-- Day 1, Mon 26 Oct: 4 hours (an earlier note said 5).
+- Day 1, Mon 26 Oct: 5 hours, 4:30 PM to 9:30 PM (corrected by Dr. O the same afternoon: an earlier note in this section said 4).
 - Day 2, Tue 27 Oct: 1 hour (back spasms).
 - Day 3, Wed 28 Oct: 7 hours.
-- **Total so far: 12 hours.** Start and stop times were not kept; the plan's log asks for them.
+- **Total so far: 13 hours.** Start and stop times for days 2 and 3 were not kept; the plan's log asks for them.
