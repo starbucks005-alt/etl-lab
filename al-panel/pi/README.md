@@ -417,7 +417,7 @@ Built at the bench with two WAGO 221-413 lever connectors and no soldering:
 
 ## ALICE: Dr. O's numbered bench sheets (her handwriting, photographed 2026-10-28)
 
-Her own steps for the servo board and neck motor, kept here as she wrote them. Steps 5 and 6 were not in the photos sent.
+Her own steps for the servo board and neck motor, kept here as she wrote them. Steps 5 and 6 and the second photo of step 4 were sent a little later and are added after the list.
 
 1. **Servo board.** The six header pins are numbered in her list. 1 is GND, 3 is SCL, 4 is SDA, 5 is VCC. Pins 2 and 6 are hidden by the wires in the photo. The four channel groups are marked 0-3, 4-7, 8-11 and 12-15, with an arrow to 8-11. The green power terminal is marked V- on one side and V+ on the other.
 2. **Neck motor** (MG996R, Deegoo-FPV label). Brown is ground, orange is power, yellow is signal. On the board's pins: brown to the black pin, orange to the red pin, yellow to the yellow pin.
@@ -428,3 +428,10 @@ Her own steps for the servo board and neck motor, kept here as she wrote them. S
 9. Speakers (arrow to the amp).
 10. 2 pieces of 8 in red, 2 pieces of 8 in black, and the servo's plus and minus, into the WAGOs.
 11. Connect from the WAGO plus and minus to the power block.
+
+Added from the later photos (2026-10-28):
+- **4B.** A red and a black wire, cut 8 in each and stripped 1/4 in at the end, marked RED + and BLK -, for 5 V to the neck motor.
+- **5.** Black to minus, red to plus, onto the green block of the servo board. The photo shows the red and black wires in the green block, with their far ends bare.
+- **5, header.** Her list of the six header pins, in the order she wrote them: V+, VCC, SDA, SCL, OE, GND, with arrows. Only GND, SCL, SDA and VCC carry wires.
+- **6. Connect.** The cable with the wide white plug (bare wires on the far end) is joined to the servo board's jumper wires with the WAGOs. The photo shows one WAGO and the plug laid out, before the join.
+- **7. Power back on.** Four WAGOs joining the HAT cable to the servo board's jumper wires, the two power wires taped at the far ends.
