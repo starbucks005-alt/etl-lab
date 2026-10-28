@@ -44,6 +44,14 @@ s = s.replace("<title>Astra-9 Lite Companion Panel | Emerging Technologies Labor
               "<title>A.L.I.C.E. Panel | Emerging Technologies Laboratory</title>")
 s = s.replace("<h1>Meet <em>Astra-9 Lite</em>, a companion you can shape</h1>",
               "<h1>A.L.I.C.E.</h1>")
+# a stand-in picture until her real one is finished (Dr. O, 2026-10-28); the Astra hero stays hidden
+# if the picture file is missing (on the Pi, where only the page and the server are copied) the figure hides itself
+PIC = ('<figure class="alicepic"><img src="images/alice-placeholder_v1.jpg" '
+       'alt="A placeholder picture of A.L.I.C.E., seated with her arms around her knees." '
+       'style="width:100%;max-width:760px;height:auto;display:block;border-radius:12px;border:1px solid var(--line)" '
+       'onerror="this.closest(\'figure\').style.display=\'none\'">'
+       '<figcaption style="font-size:13px;color:var(--mute);margin-top:8px">A.L.I.C.E. The real photo is coming.</figcaption></figure>')
+s = s.replace("<h1>A.L.I.C.E.</h1>", "<h1>A.L.I.C.E.</h1>\n  " + PIC, 1)
 s = s.replace('<span class="tab">Astra-9 Lite, companion panel</span>', "")
 s = s.replace("Open this panel from Astra-9 Lite to use this button.", "Open this panel from A.L.I.C.E. to use this button.")
 
