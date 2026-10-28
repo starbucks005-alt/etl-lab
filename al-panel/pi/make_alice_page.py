@@ -72,7 +72,7 @@ s = s.replace("A.L.I.C.E..", "A.L.I.C.E.")
 if 'id="palBtn"' not in s:
     raise SystemExit("index.html has no Palette menu yet: run  python3 palette_menu.py  first")
 s = s.replace('"sw": ["#35806f", "#28527a", "#f4f3ee"]', '"sw": ["#7D5A20", "#5A4A2E", "#E6E3DE"]')
-s = s.replace("</style>", "#themeBtn{display:none !important}\n</style>", 1)
+s = s.replace("</style>", "#themeBtn,#listenAzure{display:none !important}\n</style>", 1)   # her voice is ElevenLabs only (Dr. O, 2026-10-28)
 
 open(OUT, "w", encoding="utf-8").write(s)
 print("wrote", os.path.normpath(OUT), len(s), "bytes")

@@ -1089,7 +1089,11 @@ def stt_language():
 
 
 def azure_cfg(part):
-    """(key, region) when Azure is set up and `part` ("tts" or "stt") is not switched off, else None."""
+    """(key, region) when Azure is set up and `part` ("tts" or "stt") is not switched off, else None.
+    Dr. O, 2026-10-28: "her voice is elevenlabs, it will never be Azure." On A.L.I.C.E.'s Pi (the one with index_alice.html) this is always None,
+    for her voice and her hearing, whatever files or settings are found."""
+    if SELF_PERSONA is not None:
+        return None
     key = os.environ.get("AZURE_SPEECH_KEY")
     region = os.environ.get("AZURE_SPEECH_REGION")
     file_cfg = {}

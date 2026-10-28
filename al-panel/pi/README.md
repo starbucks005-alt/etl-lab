@@ -598,3 +598,8 @@ Dr. O registered her voice on ALICE as **Dr O** (2 recordings; the name box take
 - What it took: her background listening holds the microphone, so the Record button was refused with a 409 until **Quiet for an hour** was pressed first. The name `Terry Oroszi` was registered first and removed with **Forget**.
 - Seen in that conversation, left as it is by Dr. O's decision: ALICE answered during a phone call Dr. O was having, and said two times "work on my end" about a meeting with no calendar connected. Cause of the second one: not known; she has no calendar tool on ALICE.
 - Also fixed the same day: the **Listen now** button never showed on either page because two rows shared the id `listenRow`.
+
+## ALICE's voice is ElevenLabs only (Dr. O, 2026-10-28)
+
+Dr. O: "her voice is elevenlabs, it will never be Azure." On the Pi that has `index_alice.html`, `azure_cfg()` in `al_panel_server.py` always returns nothing, for her voice and for her hearing, even if an `azure_speech.json` or the Azure environment settings were ever put there. Her page also hides the **Azure** button (the ElevenLabs button stays). Astra-9 Lite is unchanged. Tested with a stand-in Azure file on both layouts. Her log already said `SPEAK via ElevenLabs` before this.
+To put it on ALICE: copy `al_panel_server.py` (new size below) and `index_alice.html` (128,301 bytes) into `~/al_panel`, then stop and start the panel.
