@@ -488,3 +488,8 @@ HuskyLens (DFRobot, Kendryte K210, screen on one side, camera on the back). It c
 7. **Not done yet:** a face seen through the Pi (reading it with a program), and whether it stays on I2C after it is unplugged.
 
 The head delivery moved to Thu 29 Oct, between 11 AM and 3 PM (Dr. O, 2026-10-28). That is day 4, the same day the body is due and the plug-to-plug audio cable arrives. Not received yet.
+
+## ALICE: the motion sensor board is the HC-SR501 (Dr. O, 2026-10-28)
+
+The motion sensor is the **DIYmall 5 Pack HC-SR501 PIR Motion IR Sensor Body Module**, Amazon order of 15 Sep 2026 (found by searching her orders for HC-SR501). Five boards, each a small green board with a white dome on top. On 2026-10-28 she had the domes but could not find the boards. Not known yet where the boards are: one went into Astra Lite, the rest were not found in the box marked PIR Motion. Not reordered.
+Facts about the board type, from memory and not checked on hers: three pins (VCC, OUT, GND), two small orange adjustment screws, power about 5 to 20 V, output about 3.3 V.
