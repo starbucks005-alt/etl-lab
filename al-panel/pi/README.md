@@ -367,3 +367,14 @@ Done over SSH from her laptop while the Ethernet cable was still in:
 Then the Ethernet cable came out and she reconnected over WiFi at 192.168.0.139. After `sudo reboot` the Pi joined WiFi by itself at the same address, and the HAT volume was back at 91% from the boot script.
 
 A ping with the cable still in does not prove WiFi, because it can go out through the cable. The test is to unplug the cable and reconnect.
+
+## ALICE: where day 2 stopped (Dr. O, 2026-10-27, one hour logged, back spasms)
+
+- The neck program is on the Pi at `~/al_panel/al_neck.py`. The download address returned 14 bytes ("not found" is the likely text, cause not checked), so it was pasted in instead. It matches the repository copy (md5 1cafe59c28147707b189a3102c1fd251, 4722 bytes, 141 lines) and compiles.
+- `vcgencmd get_throttled` gave 0x0. `i2cdetect -y 1` shows 40, 70 and UU at 1a.
+- The 5 V adapter's green block is marked + and -. The meter read 5.37 V with the red probe on +, so the marks are right. The red wire is under +, black under -.
+- The neck motor test (`python3 ~/al_panel/al_neck.py --test`) was NOT reported back. Not known whether the motor moved.
+- The Pi dropped off the network once during the day (connection reset, no green light, red light on). A press of the small power button brought it back. Cause not known: there was no persistent journal to read. It later showed WiFi connected (Serenity) at 192.168.0.139, and the cable address is 192.168.0.140.
+- The panel server will not start on ALICE yet: it loads `~/al.py`, which holds the keys and is not in the repository. The only copy is on Astra Lite's Pi. Not done, and not urgent for the neck test.
+- Speakers (CQRobot) arrived. Each has its own twisted orange and black pair ending in a small white 2-pin plug. To use the amp's screw terminals the plugs have to be cut off and the wire stripped. Not cut yet.
+- The amp is the DROK 5W+5W (PAM8406), a 5 V board. Its labels for the four speaker screws were not readable in photos. Next: with no power, find which of the two top screws is ground by continuity to the G pad by the audio jack. Do not feed the amp more than 5 V.
