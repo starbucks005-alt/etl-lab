@@ -322,6 +322,17 @@ state = {"color": "#1fb7c9", "brightness": 40, "accent": "american", "skills": [
          "motion": "missing",   # the library and pin: missing (could not start), warming or ready
          "seen": 0.0}           # when the sensor last noticed someone
 speak_lock = threading.Lock()
+# 2026-10-28, Dr. O: voice recognition has to be a known feature of both robots. On A.L.I.C.E. the robot's own character is a "character" to this
+# file, and a character is never given the people list or a voice match. So on the Pi that has index_alice.html, her own character
+# counts as the robot herself. Every other character is still kept apart. On Astra-9 Lite this is None and nothing changes.
+SELF_PERSONA = "gc-a-l-i-c-e" if os.path.exists(os.path.join(HERE, "index_alice.html")) else None
+
+
+def is_self(pid):
+    """True when the robot is speaking as herself: no character, or the one character that is this robot."""
+    return (not pid) or pid == SELF_PERSONA
+
+
 speaker = {"name": None, "score": 0.0, "at": 0.0}     # who the last clip sounded like, from the registered voices (al_voices.py); None when nobody was recognized
 app = Flask(__name__)
 
@@ -941,7 +952,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + (people_block() if is_self(state["persona"]) else "") + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE
 
 
 # ---- QUIET, added 2026-10-16, Dr. O: she was in an online meeting with Elle listening, and Elle answered something sad that was said IN the meeting. She cannot tell a meeting from a
@@ -1516,7 +1527,7 @@ def header_value(name):
 
 def speaker_note():
     """2026-10-23, Dr. O: registered voices. Only for a voice the owner registered with the person's agreement, and only when the match was clear."""
-    if speaker["name"] and time.time() - speaker["at"] < 90 and not state["persona"]:
+    if speaker["name"] and time.time() - speaker["at"] < 90 and is_self(state["persona"]):
         return (" (Voice match: that sounded like %s, a voice the owner registered with their agreement. It is a likely match and not a certainty, so you may say you think it is them. "
                 "If they say they are someone else, believe them.)" % speaker["name"])
     return ""
