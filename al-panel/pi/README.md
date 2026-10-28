@@ -508,3 +508,22 @@ What went wrong on the way, so it is not repeated:
 1. VCC read 1.68 V, then 2.67 V, then 1.66 V, with no motion. First cause: the 5 V power supply was unplugged. Then, with it plugged in, the amp's wire and the sensor's wire were each in a WAGO that was not joined to the rest of the power wiring (the link wires were missing). It took rebuilding the red and the black link wires by wire name, and measuring the voltage at four points with the supply plugged in (all four read 5.33 V), to find it.
 2. A beep test with the meter said no beep even where there was a connection; the voltage test on the powered circuit was the one to trust. The meter's beep setting is the sound waves symbol on the dial.
 3. The Pi once showed only the red light with the green light off (halted); a power strip cycle did not wake it. The green light came back after the HuskyLens USB cable was unplugged and replugged. Not known whether the HuskyLens was the cause.
+
+## ALICE: the 5 V power wiring as it stands (Dr. O, 2026-10-28, afternoon)
+
+This replaces the "second + WAGO and second - WAGO" arrangement described in the HuskyLens section above. That arrangement left the amp and the sensor without power: the amp's wires and the sensor's wire each sat in a WAGO that was not joined to the rest. Written by wire, because the WAGOs had no good names.
+
+**Power supply:** the 5 V supply (YS-0506) reads 5.38 V at its green block with nothing else on it.
+
+**Red (plus), rebuilt by wire name, with the power supply unplugged:**
+- First WAGO: the red wire from the power supply, the red wire from the servo board, and one end of a short red wire (about 6 in).
+- Second WAGO: the other end of that short red wire, the red wire from the amp, and the red wire going to the sensor.
+- Checked with the power supply plugged in, black probe on the servo board's minus screw: **5.33 V** at the power supply's + screw, the servo board's red screw, the amp's + screw and the sensor's VCC pin. The servo board's red light and the amp's green light both came on.
+
+**Black (minus):** the amp's green light came on, so the amp has its minus. How the black wires are joined was not rebuilt or written down here; to be recorded the next time the black wires are touched. The sensor's own black wire is not part of this: it goes with the HAT cable's black wire in a separate small WAGO (see the motion sensor section).
+
+**HuskyLens:** powered by a USB-C cable from one of the Pi's USB ports, not from these wires. Its orange wire is not used.
+
+**What did not work, for next time:**
+- A continuity (beep) test said "no beep" between the power supply's screws and the amp and the sensor even though the voltage was there once the supply was plugged in. The voltage test on the powered circuit was the one to trust. Her meter (Klein MM325) beeps on the sound waves symbol on the dial; touching the probe tips together should beep.
+- Wires cannot be traced by looking at the bench. Naming each wire (POWER, SERVO, AMP, PIR) and joining them by name worked.
