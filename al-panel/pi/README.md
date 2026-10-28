@@ -542,3 +542,26 @@ Log started 12:20:21, last line seen 13:22:21, one line per minute (`vcgencmd me
 - Day 2, Tue 27 Oct: 1 hour (back spasms).
 - Day 3, Wed 28 Oct: 7 hours.
 - **Total so far: 13 hours.** Start and stop times for days 2 and 3 were not kept; the plan's log asks for them.
+
+## ALICE: the panel and her brain (Dr. O, 2026-10-28, day 3, about 3 PM)
+
+ALICE's Pi now runs the panel and answers as A.L.I.C.E. Dr. O decided to use the same services as Astra Lite (Anthropic for the thinking, ElevenLabs for the voice) and did the setup herself, step by step.
+
+**What is on the Pi (`terryoroszi@ALICE`, 192.168.0.139 on WiFi):**
+- `~/al_panel/` holds the current panel files (al_panel_server.py 225,487 bytes, al_model.py, al_voices.py, and the rest), copied from the GitHub zip. Flask installed with `sudo apt install python3-flask`.
+- `~/al.py` is a **new short file for ALICE**, not a copy of Astra Lite's. Astra Lite was unplugged (taken apart), so her file could not be copied. It holds the keys, the voice ID, the workspace ID, and two small functions the panel calls: `get_al_reply(ask)` (one question to Claude, no memory of its own) and `speak(text)` (ElevenLabs, played through the HAT with aplay). Only the panel's own context is added to each question. These two functions were written fresh. Astra Lite's real versions were not seen, so ALICE may answer differently from her.
+- The keys are **new keys made for ALICE** (the first set was shown in a screenshot in a session and was replaced). File mode is 600. Never paste or photograph `~/al.py`.
+- Start by hand: `cd ~/al_panel` then `python3 al_panel_server.py`, open `http://192.168.0.139:8000`. It runs until Ctrl+C.
+- Character: A.L.I.C.E. installed from section 5 (search `alice`) and set as main. First answer to "Hello, who are you?": she gave her full name, said she is not a person, and asked what was going on with the visitor.
+
+**What did not work, for next time:**
+- Pasting a multi-line block into the shell while the panel was still running sent it to the panel, not the shell. Stop the panel first.
+- nano closed from outside writes `al.py.save` beside the file with everything typed so far, keys included. Delete it (`rm ~/al.py.save`).
+- Typing the keys into the file by hand left a space after the opening quote on four lines. Entering them through a hidden prompt (getpass) and stripping spaces fixed it.
+- The page still says "Astra-9 Lite" in its title and text. That is the page's own wording, not ALICE's persona.
+
+**Not done yet:**
+- Sound out loud (speaker cable arrives Thursday).
+- The panel does not start by itself after a reboot. A service like Astra Lite's `al-panel.service` is still to be set up, and `al-neck.service` so the neck listens.
+- "Turn her head" when someone walks up (PIR to neck) has not been tested together.
+- The `~/al-panel-repo2` copy on the Pi can be deleted.
