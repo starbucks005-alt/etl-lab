@@ -414,3 +414,17 @@ Built at the bench with two WAGO 221-413 lever connectors and no soldering:
 4. Red WAGO (plus): the servo board's red, one short red to the amp, one short red to the adapter's + screw. Black WAGO (minus): the same with black. Three wires in each, all three slots used.
 5. The amp's two wire ends are taped for now. The red goes under the amp's + screw and the black under its - screw once the voltage has been read at those ends.
 6. Not yet done: the voltage reading at the amp's wire ends (expected about 5.3 to 5.4 V with the adapter at 5.37 V unloaded; the amp is a 5 V board and was not read against its manual), connecting the amp, and the test sound.
+
+## ALICE: Dr. O's numbered bench sheets (her handwriting, photographed 2026-10-28)
+
+Her own steps for the servo board and neck motor, kept here as she wrote them. Steps 5 and 6 were not in the photos sent.
+
+1. **Servo board.** The six header pins are numbered in her list. 1 is GND, 3 is SCL, 4 is SDA, 5 is VCC. Pins 2 and 6 are hidden by the wires in the photo. The four channel groups are marked 0-3, 4-7, 8-11 and 12-15, with an arrow to 8-11. The green power terminal is marked V- on one side and V+ on the other.
+2. **Neck motor** (MG996R, Deegoo-FPV label). Brown is ground, orange is power, yellow is signal. On the board's pins: brown to the black pin, orange to the red pin, yellow to the yellow pin.
+3. **Motor plugged in at channel 8** (the arrow on her sheet marks #8, the first position of the 8-11 group).
+4. **Wire.** Two 20 gauge spools, labelled PLUS (red) and NEG (black). Her note: cut 8 in each, strip 1/4 in from each end, 5 V to the neck motor. (Dr. O stripped to about 7/16 in for the WAGOs in the end, the length the WAGO case shows. If a wire is stripped short, check through the clear case that bare copper reaches the metal clamp, not insulation.)
+7. Power back on.
+8. Power block (arrow to the adapter's screw block).
+9. Speakers (arrow to the amp).
+10. 2 pieces of 8 in red, 2 pieces of 8 in black, and the servo's plus and minus, into the WAGOs.
+11. Connect from the WAGO plus and minus to the power block.
