@@ -404,3 +404,13 @@ What that means for the build, still to be settled when the body is here (day 4 
 ## Astra Lite (AL): audio pigtail cable (Dr. O, 2026-10-28)
 
 Bought for AL on Amazon, order 113-1021392-2581838, placed 27 Oct 2026, total $8.59, arriving Wed 28 Oct: Jienk 2 PCS, 3 ft, 3.5 mm (1/8 in) TRS stereo male plug to 3 bare wires (pigtail), 3-pole. What it is for has not been written down here yet.
+
+## ALICE: sharing the 5 V between the servo board and the amp (Dr. O, 2026-10-28, bench, not yet powered together)
+
+Built at the bench with two WAGO 221-413 lever connectors and no soldering:
+1. The adapter's green block is marked + and -. Meter check: the screw marked - beeps to the amp's audio jack ground, the screw marked + does not (this was on the amp's own power block, not the adapter's block).
+2. Four short pieces of 20 gauge wire, about 8 in each, two red and two black, stripped about 7/16 in at both ends.
+3. The servo board's red and black wires came out of the adapter block and went into the WAGOs.
+4. Red WAGO (plus): the servo board's red, one short red to the amp, one short red to the adapter's + screw. Black WAGO (minus): the same with black. Three wires in each, all three slots used.
+5. The amp's two wire ends are taped for now. The red goes under the amp's + screw and the black under its - screw once the voltage has been read at those ends.
+6. Not yet done: the voltage reading at the amp's wire ends (expected about 5.3 to 5.4 V with the adapter at 5.37 V unloaded; the amp is a 5 V board and was not read against its manual), connecting the amp, and the test sound.
