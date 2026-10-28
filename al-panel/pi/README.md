@@ -591,3 +591,10 @@ Registered voices (the card "Voices she knows") are a feature of **both Astra-9 
 **Made to stick:** five lines added at the end of `/usr/local/bin/alice-audio.sh` (the boot script that holds her speaker volume): both Input Mixer Boost switches on, both Input Boost Mixer controls at 1, `Capture` 50. Proved without a restart: with Left Input Mixer Boost off and Capture at 20, running the script put it back to `on` and Capture 50. **Not yet proved across a real reboot.**
 
 **Not checked:** whether the panel's own listening (her name, the Listen now button, registering a voice) hears her at these levels; speech to text results; the microphone with the body closed in; and whether Capture 50 is right in a noisy room (lower it if a crowd drowns her).
+
+## ALICE: voice recognition worked (Dr. O, 2026-10-28, about 4:30 PM)
+
+Dr. O registered her voice on ALICE as **Dr O** (2 recordings; the name box takes letters and spaces only, so no full stop). With the newer server (`al_panel_server.py`, 226,438 bytes, `SELF_PERSONA`), ALICE answered her with her name and said it sounded like her from the voice match. Dr. O's own verdict: "she is working fine."
+- What it took: her background listening holds the microphone, so the Record button was refused with a 409 until **Quiet for an hour** was pressed first. The name `Terry Oroszi` was registered first and removed with **Forget**.
+- Seen in that conversation, left as it is by Dr. O's decision: ALICE answered during a phone call Dr. O was having, and said two times "work on my end" about a meeting with no calendar connected. Cause of the second one: not known; she has no calendar tool on ALICE.
+- Also fixed the same day: the **Listen now** button never showed on either page because two rows shared the id `listenRow`.
