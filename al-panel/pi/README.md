@@ -399,3 +399,4 @@ What that means for the build, still to be settled when the body is here (day 4 
 - The speaker wires were cut from their small white plugs at the bench on 2026-10-27 or 28 and are on the amp's screws. If a wire turns out too short, it can be lengthened with a WAGO and no solder.
 - Bench test: amp 5 V from the adapter through two WAGOs, polarity checked (amp marks + and - are right: the - screw beeps to the audio jack ground).
 - The 3.5 mm audio cable is about 10 in (Dr. O, 2026-10-28). That reaches only if the Pi and the amp sit close together in the torso. If they cannot, a 3.5 mm extension or a longer cable is a small purchase.
+- Audio extension cable found, not bought (2026-10-28): QianLink Headphone Extension Cable, 2-pack, 6.6 ft, 3.5 mm male to female, TRS (3-pole), $4.99 on Amazon. The second cable would go to another robot. Held until the body is here and the distance from the Pi to the amp is known.
