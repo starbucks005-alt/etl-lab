@@ -387,3 +387,14 @@ A ping with the cable still in does not prove WiFi, because it can go out throug
 2. After that, `python3 ~/al_panel/al_neck.py --test` ran with no error and the prompt came back. Dr. O heard the motor.
 3. The shaft turned (Dr. O, 2026-10-28), and it sounded like AL's neck when she turns her head. The program drives channel 8. Not yet written down: which channel number is printed beside the plug, and whether it turned both ways and came back to the middle.
 4. The Pi dropped off WiFi a second time that morning (connection reset, then timed out, then reachable again without the button). Cause not known. The cable address 192.168.0.140 is the way back in.
+
+## ALICE: where the amp goes (Dr. O's decision, 2026-10-28)
+
+The amp board goes right behind the speakers in the chest, and the speaker wires stay short. Her reason: the speaker wires are the most delicate wires in AL. Nothing is built yet.
+
+What that means for the build, still to be settled when the body is here (day 4 and 5):
+- The long runs are the 3.5 mm audio cable from the HAT's headphone jack to the amp, and the 5 V power wires. The length of the audio cable has not been measured.
+- The amp's volume knob has to be reachable, through the back panel or by setting it once and leaving it.
+- The amp board has four corner holes for mounting. Hole size has not been measured.
+- The speaker wires were cut from their small white plugs at the bench on 2026-10-27 or 28 and are on the amp's screws. If a wire turns out too short, it can be lengthened with a WAGO and no solder.
+- Bench test: amp 5 V from the adapter through two WAGOs, polarity checked (amp marks + and - are right: the - screw beeps to the audio jack ground).
