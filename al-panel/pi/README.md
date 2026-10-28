@@ -399,4 +399,8 @@ What that means for the build, still to be settled when the body is here (day 4 
 - The speaker wires were cut from their small white plugs at the bench on 2026-10-27 or 28 and are on the amp's screws. If a wire turns out too short, it can be lengthened with a WAGO and no solder.
 - Bench test: amp 5 V from the adapter through two WAGOs, polarity checked (amp marks + and - are right: the - screw beeps to the audio jack ground).
 - The 3.5 mm audio cable is about 10 in (Dr. O, 2026-10-28). That reaches only if the Pi and the amp sit close together in the torso. If they cannot, a 3.5 mm extension or a longer cable is a small purchase.
-- Audio extension cable found, not bought (2026-10-28): QianLink Headphone Extension Cable, 2-pack, 6.6 ft, 3.5 mm male to female, TRS (3-pole), $4.99 on Amazon. The second cable would go to another robot. Held until the body is here and the distance from the Pi to the amp is known.
+- Audio extension cable bought (Dr. O, 2026-10-28): QianLink Headphone Extension Cable, 2-pack, 6.6 ft, 3.5 mm male to female, TRS (3-pole), listed at $4.99 on Amazon (the order total was not in the screenshot). Arriving Thu 29 Oct. The second cable can go to another robot. Whether ALICE needs it depends on the distance from the Pi to the amp once the body is here.
+
+## Astra Lite (AL): audio pigtail cable (Dr. O, 2026-10-28)
+
+Bought for AL on Amazon, order 113-1021392-2581838, placed 27 Oct 2026, total $8.59, arriving Wed 28 Oct: Jienk 2 PCS, 3 ft, 3.5 mm (1/8 in) TRS stereo male plug to 3 bare wires (pigtail), 3-pole. What it is for has not been written down here yet.
