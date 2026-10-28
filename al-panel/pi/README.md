@@ -493,3 +493,18 @@ The head delivery moved to Thu 29 Oct, between 11 AM and 3 PM (Dr. O, 2026-10-28
 
 The motion sensor is the **DIYmall 5 Pack HC-SR501 PIR Motion IR Sensor Body Module**, Amazon order of 15 Sep 2026 (found by searching her orders for HC-SR501). Five boards, each a small green board with a white dome on top. On 2026-10-28 she had the domes but could not find the boards. Not known yet where the boards are: one went into Astra Lite, the rest were not found in the box marked PIR Motion. Not reordered.
 Facts about the board type, from memory and not checked on hers: three pins (VCC, OUT, GND), two small orange adjustment screws, power about 5 to 20 V, output about 3.3 V.
+
+## ALICE: motion sensor working on the Pi 5 (Dr. O, 2026-10-28, day 3, 12:09 PM)
+
+HC-SR501 (DIYmall 5 pack, Amazon order of 15 Sep 2026). `python3 ~/al_panel/al_motion.py` printed MOTION and STILL, about a second apart, each time she waved a hand in front of the dome (12:09:26, 12:09:32, 12:09:38).
+
+How it is wired, no soldering:
+- **Signal:** the sensor's OUT lead goes to one end of a 470 ohm resistor in a small WAGO, and the other end of the resistor goes to the HAT cable's white wire (GPIO13) in a second small WAGO. The cable is the wide-plug one in the HAT's GPIO12 socket. Its orange wire (3.3 V) and yellow wire (GPIO12) are taped and not used.
+- **Ground:** the sensor's GND lead and the HAT cable's black wire in one WAGO. With the Pi on, that black wire read 0 against the servo board's minus screw (the meter wandered before settling), the orange read 3.3 V, so black is ground.
+- **Power:** the sensor's VCC lead goes to the 5 V (+) wiring. It reads 5.33 V at the VCC pin once the power supply is plugged in.
+- **Connection to the sensor:** three Dupont sockets cut off the HuskyLens cable and pushed onto its three pins, one wire to each. From the back of the board, pins at the top: GND on the left, OUT in the middle, VCC on the right (the front labels read VCC, OUT, GND).
+
+What went wrong on the way, so it is not repeated:
+1. VCC read 1.68 V, then 2.67 V, then 1.66 V, with no motion. First cause: the 5 V power supply was unplugged. Then, with it plugged in, the amp's wire and the sensor's wire were each in a WAGO that was not joined to the rest of the power wiring (the link wires were missing). It took rebuilding the red and the black link wires by wire name, and measuring the voltage at four points with the supply plugged in (all four read 5.33 V), to find it.
+2. A beep test with the meter said no beep even where there was a connection; the voltage test on the powered circuit was the one to trust. The meter's beep setting is the sound waves symbol on the dial.
+3. The Pi once showed only the red light with the green light off (halted); a power strip cycle did not wake it. The green light came back after the HuskyLens USB cable was unplugged and replugged. Not known whether the HuskyLens was the cause.
