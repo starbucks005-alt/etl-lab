@@ -310,9 +310,10 @@ Not checked: the speakers through the DROK amp, the microphones, the panel softw
 | Female jumper to Grove cables (2 of the 5 pack, $9.57) | $3.83 |
 | Transport chair (one ninth of $106.10, shared by all 9 robots, Dr. O 2026-10-27) | $11.79 |
 | 3.5 mm plug-to-plug audio cable, Amazon Basics 4 ft (half of $10.23 with tax, split with another robot, Dr. O 2026-10-28) | $5.12 |
-| **Total** | **$1,211.01** |
+| Cargo bag (one ninth of $32.24, shared by all 9 robots, Dr. O 2026-10-28) | $3.58 |
+| **Total** | **$1,214.59** |
 
-Not counted: paint, the cargo bag (for her parts, not yet decided whether it is hers alone or shared), her clothes, the twisted red and white wire, the Dupont wires, the old amp boards (the DROK replaced the old amp, which was priced at $4.00 as half of the $7.99 pack and left out), and the standoff, wire and terminal packs bought for other robots.
+Not counted: paint, her clothes, the twisted red and white wire, the Dupont wires, the old amp boards (the DROK replaced the old amp, which was priced at $4.00 as half of the $7.99 pack and left out), and the standoff, wire and terminal packs bought for other robots.
 
 **Arrival.** Camera, camera cable, DROK amp, audio cable, micro-HDMI cable, WAGO connectors and the Grove cables: Mon 26 Oct. HuskyLens and M2.5 standoffs: 26 Oct. CQRobot speakers and Apoxie Sculpt: Tue 27 Oct. Body and hands: shipped 26 Oct by FedEx Ground, due 27 to 29 Oct, may come sooner (eBay order 27-15308-37718). Eyes (Tech-Optics): estimated Wed 28 Oct at checkout (standard ground, $9.95); the listing said as soon as Sat 31 Oct, and the confirmation email has not been seen. Head: shipped (Dr. O, 2026-10-26), arrival date not shown yet. The eye openings cannot be cut until the eyes are here.
 
@@ -353,7 +354,7 @@ From her order screenshot. The chair is for transporting ALICE and the other rob
 | Small Mini Parachute Cargo Bag, black canvas, new with tags | armyuniverse | 27-15309-81617 | $32.24 | Sat 31 Oct |
 | Lightweight Elderly Transport Wheelchair, portable folding transport chair, 250 lb, black and blue, new | pinguaabiy | 27-15309-79263 | $106.10 | Fri 30 Oct |
 
-Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. The chair's cost is shared by all 9 robots (Dr. O, 2026-10-27): $11.79 each, which is in ALICE's total above. The bag has not been decided and is not counted. Dr. O is getting two chairs, but only one has been bought so far (2026-10-27); the second is not ordered and not counted. When it is bought, the shared cost is both chairs divided by 9.
+Together $138.34. The ten day plan has a transport test in the chair on day 10 (Wed 4 Nov), and the chair is due on day 5. The chair's cost is shared by all 9 robots (Dr. O, 2026-10-27): $11.79 each, which is in ALICE's total above. The bag is shared by all 9 robots as well (2026-10-28), $3.58 each, counted in her total. Dr. O is getting two chairs, but only one has been bought so far (2026-10-27); the second is not ordered and not counted. When it is bought, the shared cost is both chairs divided by 9.
 
 ## ALICE: WiFi (Dr. O, 2026-10-27, tried and working)
 
@@ -453,5 +454,5 @@ What it is for: the HAT's headphone jack and the amp's audio input are both 3.5 
 
 Counted: split in half (Dr. O, 2026-10-28), so ALICE's share is $5.12 and it is in her total of $1,211.01 in the cost table above.
 
-**Running tally, ALICE's own cost (2026-10-28):** $1,211.01.
-Bought but not counted yet, because how they are split has not been decided: the cargo bag ($32.24, for her parts) and the QianLink 3.5 mm extension 2-pack (listed at $4.99, order total not seen). AL's Jienk pigtail ($8.59) belongs to AL's order, not ALICE's.
+**Running tally, ALICE's own cost (2026-10-28):** $1,214.59.
+The transport chair and the cargo bag are shared by all 9 robots (Dr. O, 2026-10-28). Bought but not counted yet, because how it is split has not been decided: the QianLink 3.5 mm extension 2-pack (listed at $4.99, order total not seen). AL's Jienk pigtail ($8.59) belongs to AL's order, not ALICE's.
