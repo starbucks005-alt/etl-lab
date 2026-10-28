@@ -378,3 +378,12 @@ A ping with the cable still in does not prove WiFi, because it can go out throug
 - The panel server will not start on ALICE yet: it loads `~/al.py`, which holds the keys and is not in the repository. The only copy is on Astra Lite's Pi. Not done, and not urgent for the neck test.
 - Speakers (CQRobot) arrived. Each has its own twisted orange and black pair ending in a small white 2-pin plug. To use the amp's screw terminals the plugs have to be cut off and the wire stripped. Not cut yet.
 - The amp is the DROK 5W+5W (PAM8406), a 5 V board. Its labels for the four speaker screws were not readable in photos. Next: with no power, find which of the two top screws is ground by continuity to the G pad by the audio jack. Do not feed the amp more than 5 V.
+
+## ALICE: neck program on the Pi 5 (Dr. O, 2026-10-28, day 3)
+
+1. On a Pi 5 the first run of `al_neck.py` stopped with "The platform library 'adafruit_blinka_raspberry_pi_pwm' was not found". Fix, run on the Pi:
+   `sudo pip3 install 'Adafruit-Blinka-Raspberry-Pi-PWM>=1.0.2' Adafruit-Blinka-Raspberry-Pi5-Neopixel --break-system-packages`
+   It ended with "Successfully installed" for both. The "running pip as root" warning is harmless.
+2. After that, `python3 ~/al_panel/al_neck.py --test` ran with no error and the prompt came back. Dr. O heard the motor.
+3. Not yet written down: whether the shaft turned each way and came back, and which channel number was printed beside the plug (the program drives channel 8).
+4. The Pi dropped off WiFi a second time that morning (connection reset, then timed out, then reachable again without the button). Cause not known. The cable address 192.168.0.140 is the way back in.
