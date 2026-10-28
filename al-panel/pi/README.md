@@ -443,3 +443,11 @@ Added from the later photos (2026-10-28):
 - Her sheet steps 12 (connect + and - to the amp from the WAGO) and 13 (5 V power on).
 - The audio is NOT connected yet. The amp's input is a 3.5 mm round jack with L, R and G printed beside it. The cable from the HAT's headphone jack ends in a three-screw block, not a plug, so it cannot go into the jack. Plan to try, not yet tried: the Jienk pigtail (3.5 mm plug with three bare wires, arriving Thu 29 Oct) goes plug into the amp's jack and its three bare wires under the three screws of that block, after the meter has shown which wire goes to the plug's tip, ring and sleeve. Whether the screw block is labelled L, R and G has not been checked.
 - Test sound command to use once the audio is connected: `speaker-test -D plughw:wm8960soundcard -c 2 -t wav -l 1`, with the amp's volume knob down and turned up slowly.
+
+## ALICE: 3.5 mm plug-to-plug audio cable, ordered (Dr. O, 2026-10-28)
+
+Amazon Basics 3.5 mm male-to-male stereo audio cable, 4 ft, gold plated plugs, 3-pole. The picture on the order shows two cables, so it looks like the 2-pack (listed at $9.52); the order total was $10.23 including tax. Arriving Thu 29 Oct 2026.
+
+What it is for: the HAT's headphone jack and the amp's audio input are both 3.5 mm jacks, so this goes from one to the other. The cable that was plugged into the HAT ends in a three-screw block and cannot go into the amp. The first test sound through the speakers waits for this cable.
+
+Not decided: how the $10.23 is counted (the chair was split across all 9 robots). It is not in ALICE's total of $1,205.89 yet.
