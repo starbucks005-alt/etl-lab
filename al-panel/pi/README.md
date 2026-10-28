@@ -398,3 +398,4 @@ What that means for the build, still to be settled when the body is here (day 4 
 - The amp board has four corner holes for mounting. Hole size has not been measured.
 - The speaker wires were cut from their small white plugs at the bench on 2026-10-27 or 28 and are on the amp's screws. If a wire turns out too short, it can be lengthened with a WAGO and no solder.
 - Bench test: amp 5 V from the adapter through two WAGOs, polarity checked (amp marks + and - are right: the - screw beeps to the audio jack ground).
+- The 3.5 mm audio cable is about 10 in (Dr. O, 2026-10-28). That reaches only if the Pi and the amp sit close together in the torso. If they cannot, a 3.5 mm extension or a longer cable is a small purchase.
