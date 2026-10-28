@@ -460,3 +460,4 @@ The transport chair and the cargo bag are shared by all 9 robots (Dr. O, 2026-10
 ## Transport chairs and cargo bags: two of each, with ETL patches (Dr. O, 2026-10-28)
 
 Plan: two transport chairs and two cargo bags in all, each with an ETL patch put on, so the robots are branded when they travel. One chair and one bag are bought so far. The second of each, and the patches, are not bought and not counted. When the second chair and bag are bought, the shared cost is both of each divided by 9 robots (at the same prices, about $23.58 for the chairs and $7.16 for the bags per robot, against $11.79 and $3.58 counted now). The cost of the patches has not been seen.
+The patches have to be made first (Dr. O, 2026-10-28). Then they go on the cargo bags, and optionally on the chairs. No maker, price or date yet.
