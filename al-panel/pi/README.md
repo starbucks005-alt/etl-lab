@@ -527,3 +527,11 @@ This replaces the "second + WAGO and second - WAGO" arrangement described in the
 **What did not work, for next time:**
 - A continuity (beep) test said "no beep" between the power supply's screws and the amp and the sensor even though the voltage was there once the supply was plugged in. The voltage test on the powered circuit was the one to trust. Her meter (Klein MM325) beeps on the sound waves symbol on the dial; touching the probe tips together should beep.
 - Wires cannot be traced by looking at the bench. Naming each wire (POWER, SERVO, AMP, PIR) and joining them by name worked.
+
+## ALICE: the one hour test (Dr. O, 2026-10-28, day 3)
+
+Log started 12:20:21, last line seen 13:22:21, one line per minute (`vcgencmd measure_temp` and `vcgencmd get_throttled`).
+- **Highest temperature: 43.3 C** (at 12:21:21 and 12:43:21). The start was 42.2 to 42.8 C. The plan's limit was about 65 C.
+- **`throttled=0x0` on every line** (a search for any other value found none): no low-voltage or heat warning in the hour.
+- Running during the hour: the Pi on WiFi, the HAT, the servo board and neck motor (one neck test at about 12:20), the amp (powered, no sound), the camera (connected, idle), the HuskyLens (screen on, powered by the Pi's USB port) and the motion sensor (wired; the test program ran only for a short while earlier).
+- Not checked: whether any minute is missing from the log (a line count would show it), and what the temperature is with the camera, the HuskyLens program and the sound all in use at once. The load in this test was light, so 43.3 C is for a mostly idle Pi.
