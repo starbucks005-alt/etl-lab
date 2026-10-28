@@ -385,5 +385,5 @@ A ping with the cable still in does not prove WiFi, because it can go out throug
    `sudo pip3 install 'Adafruit-Blinka-Raspberry-Pi-PWM>=1.0.2' Adafruit-Blinka-Raspberry-Pi5-Neopixel --break-system-packages`
    It ended with "Successfully installed" for both. The "running pip as root" warning is harmless.
 2. After that, `python3 ~/al_panel/al_neck.py --test` ran with no error and the prompt came back. Dr. O heard the motor.
-3. Not yet written down: whether the shaft turned each way and came back, and which channel number was printed beside the plug (the program drives channel 8).
+3. The shaft turned (Dr. O, 2026-10-28), and it sounded like AL's neck when she turns her head. The program drives channel 8. Not yet written down: which channel number is printed beside the plug, and whether it turned both ways and came back to the middle.
 4. The Pi dropped off WiFi a second time that morning (connection reset, then timed out, then reachable again without the button). Cause not known. The cable address 192.168.0.140 is the way back in.
