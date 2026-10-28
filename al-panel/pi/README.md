@@ -535,3 +535,10 @@ Log started 12:20:21, last line seen 13:22:21, one line per minute (`vcgencmd me
 - **`throttled=0x0` on every line** (a search for any other value found none): no low-voltage or heat warning in the hour.
 - Running during the hour: the Pi on WiFi, the HAT, the servo board and neck motor (one neck test at about 12:20), the amp (powered, no sound), the camera (connected, idle), the HuskyLens (screen on, powered by the Pi's USB port) and the motion sensor (wired; the test program ran only for a short while earlier).
 - Not checked: whether any minute is missing from the log (a line count would show it), and what the temperature is with the camera, the HuskyLens program and the sound all in use at once. The load in this test was light, so 43.3 C is for a mostly idle Pi.
+
+## ALICE: hours worked (Dr. O, 2026-10-28)
+
+- Day 1, Mon 26 Oct: 4 hours (an earlier note said 5).
+- Day 2, Tue 27 Oct: 1 hour (back spasms).
+- Day 3, Wed 28 Oct: 7 hours.
+- **Total so far: 12 hours.** Start and stop times were not kept; the plan's log asks for them.
