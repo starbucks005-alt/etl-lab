@@ -616,3 +616,8 @@ It should print `active` twice. Then `sudo reboot`, wait a minute, and open `htt
 The service starts after `alice-audio.service` (the 20 second volume script), so the volume is set before she can speak. Once the service runs, `python3 al_panel_server.py` by hand fails because port 8000 is taken: stop the service first with `sudo systemctl stop al-panel.service`, and start it again afterward.
 Not known: whether "Keep listening after the hello" is on by default after a boot (the panel's card 8 sets it, and it is saved in `welcome.json`). She will listen from the moment the Pi starts, so look at card 8 after the first reboot and turn it off if she should start quiet. If she is silent after a reboot, check the volume first.
 The copies of `al_panel_server.py` (226,438 bytes) and `index_alice.html` (128,206 bytes) on ALICE are older than the ones here. Copy the newer pair at the same time.
+
+## ALICE: no capacitor fitted (Dr. O, 2026-10-28)
+
+The wiring drawing made with Claude Design on 2026-10-28 (Rev D) shows no capacitor, and Dr. O confirmed: **no 1000 uF capacitor is fitted on ALICE's servo board.** One was bought (it is in the cost table at $0.27, one of 20) and was not used. Nothing has gone wrong without it: the one hour test ran with `throttled=0x0` and a highest temperature of 43.3 C, and the neck turned. If the Pi ever resets when the neck starts to move, a capacitor across the servo board's V+ and GND is the first thing to try. Not tried.
+Two things in the drawing to check against the real parts: the two taped-off wires on the HAT's GP12 cable are drawn red and yellow, and the notes from the bench say orange and yellow. Not yet looked at.
