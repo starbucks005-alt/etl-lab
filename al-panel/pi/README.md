@@ -603,3 +603,16 @@ Dr. O registered her voice on ALICE as **Dr O** (2 recordings; the name box take
 
 Dr. O: "her voice is elevenlabs, it will never be Azure." On the Pi that has `index_alice.html`, `azure_cfg()` in `al_panel_server.py` always returns nothing, for her voice and for her hearing, even if an `azure_speech.json` or the Azure environment settings were ever put there. Her page also hides the **Azure** button (the ElevenLabs button stays). Astra-9 Lite is unchanged. Tested with a stand-in Azure file on both layouts. Her log already said `SPEAK via ElevenLabs` before this.
 To put it on ALICE: copy `al_panel_server.py` (new size below) and `index_alice.html` (128,301 bytes) into `~/al_panel`, then stop and start the panel.
+
+## ALICE: start the panel and the neck by themselves (written 2026-10-28, NOT TRIED on the Pi)
+
+`al-panel.service` is new in this folder and was written for ALICE. It runs `al_panel_server.py` as `terryoroszi` from `/home/terryoroszi/al_panel` and restarts it every 5 seconds if it stops. It does not touch `~/al.py`. `al-neck.service` already waits for the panel service and needs no change. `al-eyes.service` is not for ALICE, she has no eye rings.
+The server finds `al.py` through the home folder, so the service must run as `terryoroszi`, which it does.
+Copy the two files onto the Pi, stop the panel if it is running in a window (Ctrl+C), then run on the Pi:
+```
+sudo cp ~/al_panel/al-panel.service ~/al_panel/al-neck.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now al-panel.service al-neck.service && sleep 5 && systemctl is-active al-panel.service al-neck.service
+```
+It should print `active` twice. Then `sudo reboot`, wait a minute, and open `http://192.168.0.139:8000`. To read what the panel says: `journalctl -u al-panel.service -f`.
+The service starts after `alice-audio.service` (the 20 second volume script), so the volume is set before she can speak. Once the service runs, `python3 al_panel_server.py` by hand fails because port 8000 is taken: stop the service first with `sudo systemctl stop al-panel.service`, and start it again afterward.
+Not known: whether "Keep listening after the hello" is on by default after a boot (the panel's card 8 sets it, and it is saved in `welcome.json`). She will listen from the moment the Pi starts, so look at card 8 after the first reboot and turn it off if she should start quiet. If she is silent after a reboot, check the volume first.
+The copies of `al_panel_server.py` (226,438 bytes) and `index_alice.html` (128,206 bytes) on ALICE are older than the ones here. Copy the newer pair at the same time.

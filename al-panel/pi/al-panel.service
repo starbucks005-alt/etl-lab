@@ -1,0 +1,14 @@
+[Unit]
+Description=AL panel server
+After=network-online.target sound.target alice-audio.service
+Wants=network-online.target
+
+[Service]
+User=terryoroszi
+WorkingDirectory=/home/terryoroszi/al_panel
+ExecStart=/usr/bin/python3 /home/terryoroszi/al_panel/al_panel_server.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
