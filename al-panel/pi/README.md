@@ -623,3 +623,7 @@ The wiring drawing made with Claude Design on 2026-10-28 (Rev D) shows no capaci
 Two things in the drawing to check against the real parts: the two taped-off wires on the HAT's GP12 cable are drawn red and yellow, and the notes from the bench say orange and yellow. Not yet looked at.
 
 **Checked (Dr. O, 2026-10-28):** the two unused wires on the HAT's GP12 cable are **orange and yellow**, taped off. The Claude Design wiring drawing (Rev D) shows them as red and yellow and needs the red changed to orange. In her photo the orange wire's end is inside the tape; the yellow wire's end is not visible in that photo, so whether it is taped has not been confirmed.
+
+## ALICE: wiring drawing, Rev E (Dr. O, 2026-10-28)
+
+`al-panel/wiring/alice_wiring_schematic_28oct_RevE_v1.png` is a picture of the wiring drawing Dr. O made with Claude Design, Rev E, dated 2026-10-28, the version that shows the two taped-off GP12 wires as orange and yellow (Rev D showed red and yellow) and carries "Designed and built by Dr. O". It is a picture, not the editable file; the editable and offline versions are with Dr. O. It is drawn from her photos and the bench notes, and nothing in it has been measured beyond what the build book already records (for example the HAT's I2C power line was not measured). No capacitor is drawn because none is fitted. Astra Lite's drawing is the older `al_wiring_schematic_5oct_v1` beside it.
