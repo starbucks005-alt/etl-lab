@@ -309,7 +309,8 @@ Not checked: the speakers through the DROK amp, the microphones, the panel softw
 | WAGO 221-413 lever connectors (one eighth of $25.75) | $3.22 |
 | Female jumper to Grove cables (2 of the 5 pack, $9.57) | $3.83 |
 | Transport chair (one ninth of $106.10, shared by all 9 robots, Dr. O 2026-10-27) | $11.79 |
-| **Total** | **$1,205.89** |
+| 3.5 mm plug-to-plug audio cable, Amazon Basics 4 ft (half of $10.23 with tax, split with another robot, Dr. O 2026-10-28) | $5.12 |
+| **Total** | **$1,211.01** |
 
 Not counted: paint, the cargo bag (for her parts, not yet decided whether it is hers alone or shared), her clothes, the twisted red and white wire, the Dupont wires, the old amp boards (the DROK replaced the old amp, which was priced at $4.00 as half of the $7.99 pack and left out), and the standoff, wire and terminal packs bought for other robots.
 
@@ -450,4 +451,7 @@ Amazon Basics 3.5 mm male-to-male stereo audio cable, 4 ft, gold plated plugs, 3
 
 What it is for: the HAT's headphone jack and the amp's audio input are both 3.5 mm jacks, so this goes from one to the other. The cable that was plugged into the HAT ends in a three-screw block and cannot go into the amp. The first test sound through the speakers waits for this cable.
 
-Not decided: how the $10.23 is counted (the chair was split across all 9 robots). It is not in ALICE's total of $1,205.89 yet.
+Counted: split in half (Dr. O, 2026-10-28), so ALICE's share is $5.12 and it is in her total of $1,211.01 in the cost table above.
+
+**Running tally, ALICE's own cost (2026-10-28):** $1,211.01.
+Bought but not counted yet, because how they are split has not been decided: the cargo bag ($32.24, for her parts) and the QianLink 3.5 mm extension 2-pack (listed at $4.99, order total not seen). AL's Jienk pigtail ($8.59) belongs to AL's order, not ALICE's.
