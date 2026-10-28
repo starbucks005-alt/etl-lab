@@ -520,7 +520,7 @@ This replaces the "second + WAGO and second - WAGO" arrangement described in the
 - Second WAGO: the other end of that short red wire, the red wire from the amp, and the red wire going to the sensor.
 - Checked with the power supply plugged in, black probe on the servo board's minus screw: **5.33 V** at the power supply's + screw, the servo board's red screw, the amp's + screw and the sensor's VCC pin. The servo board's red light and the amp's green light both came on.
 
-**Black (minus):** the amp's green light came on, so the amp has its minus. How the black wires are joined was not rebuilt or written down here; to be recorded the next time the black wires are touched. The sensor's own black wire is not part of this: it goes with the HAT cable's black wire in a separate small WAGO (see the motion sensor section).
+**Black (minus), as Dr. O described it from her photo, 2026-10-28:** one WAGO (the orange one at the lower left of the bench) holds three black wires: the one from the power supply, the one from the servo board and the one from the amp. No link wire is needed on this side. A second, clear WAGO nearby holds two black wires in a loop; what it is for was not written down and it may be a leftover. The sensor's own black wire is not part of this: it goes with the HAT cable's black wire in a separate small WAGO (see the motion sensor section).
 
 **HuskyLens:** powered by a USB-C cable from one of the Pi's USB ports, not from these wires. Its orange wire is not used.
 
