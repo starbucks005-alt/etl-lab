@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A.L.I.C.E. Panel | Emerging Technologies Laboratory</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet"></noscript>
+<meta name="color-scheme" content="light dark">
+<style>
+  :root{
+    --bg:#f4f3ee;--panel:#ffffff;--line:#d8d6cc;--line2:#c2beb0;
+    --ink:#16202b;--text:#3f4d54;--mute:#6b7683;
+    --accent:#35806f;--accent-bg:#e2efec;
+    --status:#28527a;--status-bg:#e4ebf1;
+    --note:#28527a;--note-bg:#e4ebf1;--muted-dot:#7c8694;
+    --night:#10161d;
+    --field:#ffffff;--on-status:#ffffff;--on-accent:#ffffff;
+    --mono:'IBM Plex Mono',monospace;--body:'Public Sans',sans-serif;--display:Spectral,serif;
+  }
+  :root[data-theme="dark"]{
+    --bg:#10161d;--panel:#18212b;--line:#2a3541;--line2:#3a4756;
+    --ink:#eef2f5;--text:#c4ccd3;--mute:#8d99a5;
+    --accent:#5fc4ab;--accent-bg:#17352f;
+    --status:#7fb3e6;--status-bg:#1c2b3a;
+    --note:#a9cdf0;--note-bg:#1c2b3a;--muted-dot:#8d99a5;
+    --night:#0a0f14;
+    --field:#1f2a36;--on-status:#0e1620;--on-accent:#0e1620;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10161d;--panel:#18212b;--line:#2a3541;--line2:#3a4756;
+      --ink:#eef2f5;--text:#c4ccd3;--mute:#8d99a5;
+      --accent:#5fc4ab;--accent-bg:#17352f;
+      --status:#7fb3e6;--status-bg:#1c2b3a;
+      --note:#a9cdf0;--note-bg:#1c2b3a;--muted-dot:#8d99a5;
+      --night:#0a0f14;
+      --field:#1f2a36;--on-status:#0e1620;--on-accent:#0e1620;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+  header .mark{font-family:var(--display);font-weight:500;font-size:30px;color:var(--ink);letter-spacing:2px}
+  header svg{flex:none}
+  .tab{display:inline-block;font-size:11px;font-weight:600;color:var(--on-status);background:var(--status);padding:4px 10px;margin-bottom:6px}
+  header .word{font-size:14px;line-height:1.3;color:var(--mute);border-left:1px solid var(--line2);padding-left:12px}
+  h1{font-family:var(--display);font-weight:300;font-size:clamp(30px,5vw,44px);line-height:1.12;margin:0 0 6px;color:var(--ink)}
+  h1 em{font-style:italic;color:var(--status)}
+  .sub{margin:0 0 18px;font-size:16px;max-width:60ch}
+  .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;
+          padding:6px 12px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);color:var(--ink)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--muted-dot)}
+  .status.live .dot{background:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .card.wide{grid-column:1/-1}
+  h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0 0 4px;color:var(--ink)}
+  .hint{margin:0 0 14px;font-size:14px;color:var(--mute)}
+  button,select,input[type=text],textarea{font-family:var(--body);font-size:15px}
+  button{cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--ink);padding:9px 14px;border-radius:8px}
+  button:hover{border-color:var(--status)}
+  button.primary{background:var(--status);color:var(--on-status);border-color:var(--status)}
+  button.green{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  button:disabled{opacity:.5;cursor:default}
+  input[type=text],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line2);border-radius:8px;background:var(--field);color:var(--ink)}
+  textarea{resize:vertical;min-height:70px}
+  label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  label.wopt{display:flex;gap:10px;align-items:center;font-size:16px;color:var(--ink);margin:10px 0}
+  label.wopt input{width:20px;height:20px;margin:0}
+
+  /* eyes */
+  .face{background:var(--night);border-radius:12px;padding:14px 10px 6px;margin-bottom:14px}
+  .face svg{display:block;width:100%;height:auto;max-height:190px}
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--field);box-shadow:0 0 0 1px var(--line2);padding:0}
+  .sw.on{box-shadow:0 0 0 3px var(--status)}
+  .speaking .eye-glow{animation:breathe 1.1s ease-in-out infinite}
+  @keyframes breathe{0%,100%{opacity:.72}50%{opacity:1}}
+  input[type=range]{width:100%}
+
+  /* skills */
+  .skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+  .skill{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--field);display:flex;flex-direction:column;gap:8px}
+  .skill h3{margin:0;font-size:16px;color:var(--ink)}
+  .skill p{margin:0;font-size:14px;flex:1}
+  .price{font-family:var(--mono);font-size:13px;color:var(--status)}
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:12px;background:var(--accent-bg);color:var(--accent)}
+  .bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+
+  /* hero picture */
+  .demo{font-size:13px;color:var(--mute);margin:-4px 0 16px;max-width:760px}
+  .hero{margin:6px 0 22px;max-width:760px}
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#e9eaee;--eye:#1fb7c9;--eyeo:.78}
+  .stage img{position:relative;width:100%;height:auto;display:block}
+  .eyeglow{position:absolute;display:block;border-radius:50%;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.7) 0%,rgba(255,255,255,0) 32%),var(--eye);opacity:var(--eyeo)}
+  .eyehalo{position:absolute;display:block;pointer-events:none;border-radius:50%;transform:scale(2.6);background:radial-gradient(circle,var(--eye) 0%,transparent 70%);mix-blend-mode:multiply;opacity:calc(var(--eyeo) * .55)}
+  .hero figcaption{font-size:13px;color:var(--mute);margin-top:8px}
+  .themebtn{margin-left:auto;font-size:13px;padding:6px 10px}
+
+  /* personalities */
+  .pfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .pfilters input{flex:1;min-width:180px;width:auto}
+  .pfilters button.on{background:var(--status);color:var(--on-status);border-color:var(--status)}
+  .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;max-height:640px;overflow:auto;padding:2px}
+  .phead{grid-column:1/-1;margin:14px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:19px;color:var(--ink)}
+  .phead:first-child{margin-top:0}
+  .phead span{font-family:var(--mono);font-size:12px;color:var(--mute);margin-left:8px}
+  .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .mode{text-align:left;display:flex;flex-direction:column;gap:6px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--text)}
+  .mode b{color:var(--ink);font-size:16px;display:flex;align-items:center;gap:8px}
+  .mode i{display:inline-block;width:12px;height:12px;border-radius:50%}
+  .mode span{font-size:13px;color:var(--mute)}
+  .mode.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+  .twocol{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:22px;align-items:start}
+  .persona{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--field);display:flex;flex-direction:column;gap:6px}
+  .persona h3{margin:0;font-size:15px;color:var(--ink)}
+  .persona p{margin:0;font-size:13px;flex:1;color:var(--mute)}
+  .persona .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .persona.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+  .pcount{font-size:13px;color:var(--mute);margin:0 0 8px}
+
+  /* chat */
+  .log{border:1px solid var(--line);border-radius:10px;background:var(--field);min-height:170px;max-height:300px;overflow:auto;padding:12px;margin-bottom:10px}
+  .msg{margin:0 0 10px;font-size:15px;white-space:pre-wrap}
+  .msg b{color:var(--ink)}
+  .msg.al b{color:var(--accent)}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .thumbs img{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .note{background:var(--note-bg);color:var(--note);border-radius:8px;padding:10px 12px;font-size:13px;margin-top:12px}
+  .lock{display:flex;gap:10px;align-items:center}
+  .lock input{flex:1;background:var(--bg)}
+  footer{margin-top:34px;font-size:13px;color:var(--mute)}
+  dialog{border:1px solid var(--line2);border-radius:12px;max-width:420px;padding:20px;color:var(--text)}
+  dialog::backdrop{background:rgba(16,22,29,.45)}
+  dialog h3{margin:0 0 8px;font-family:var(--display);font-weight:400;font-size:21px;color:var(--ink)}
+#modeCard,#eyesCard,#voiceCard,#nameCard,#skillsCard,#personaCard,.hero,.demo,.tab,.sub,#starters,#sistersRow,label:has(#wEyes){display:none !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg style="color:var(--ink)" width="38" height="38" viewBox="0 0 64 64" role="img" aria-label="ETL mark"><rect x="6" y="42" width="36" height="11" fill="currentColor"/><rect x="14" y="26" width="36" height="11" fill="currentColor"/><rect x="22" y="10" width="36" height="11" fill="#28527a"/></svg>
+    <span class="mark">ETL</span>
+    <span class="word">Emerging Technologies<br>Laboratory</span>
+    <button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button>
+    <span class="status" id="status"><span class="dot"></span><span id="statusText">Demo mode, no A.L.I.C.E. connected</span></span>
+  </header>
+
+  
+  <h1>A.L.I.C.E.</h1>
+  <p class="sub">Customize her look, voice, accent, and skills to fit you. Start a conversation or share a photo so she learns who you are.</p>
+  <p class="demo" id="demoNote">Interactive preview only. Features, traits, and pricing shown are sample data; no payment is collected.</p>
+  <figure class="hero">
+    <div class="stage" id="stage">
+      <i class="eyeglow" style="left:13.44%;top:28.9%;width:1.67%;height:2.5%"></i>
+      <i class="eyeglow" style="left:20.93%;top:28.9%;width:1.65%;height:2.4%"></i>
+      <img src="" alt="A.L.I.C.E., called Alice: a bust-sized metallic android with eyes that take the color you choose, shown from the front, the back and the side." width="1100" height="614">
+      <i class="eyehalo" style="left:13.44%;top:28.9%;width:1.67%;height:2.5%"></i>
+      <i class="eyehalo" style="left:20.93%;top:28.9%;width:1.65%;height:2.4%"></i>
+    </div>
+    <figcaption>A.L.I.C.E., called Alice for short, is the bust-sized companion shown here. She is not Astra-9 or Astrad, the two full-size mannequins. Change her eye color below and her eyes change here.</figcaption>
+  </figure>
+
+  <div class="grid">
+
+    <!-- MODE, added 2026-10-15, Dr. O: companion, science, children's friend, event and front desk, bench and workshop. A mode is a set of rules, what she keeps, how she
+         listens and her eye color. Children's friend mode offers only the characters and skills chosen for everyone under 13, and keeps notes a parent can read. -->
+    <section class="card wide" id="modeCard">
+      <h2>Mode: how should she act?</h2>
+      <p class="hint">A mode sets her rules, what she remembers, how she listens and her eye color. Pick one, and you can still change anything after.</p>
+      <div class="modes" id="modes"></div>
+      <p class="hint" id="modeNote" style="margin:12px 0 0"></p>
+      <div id="parentRow" style="margin-top:12px;display:none">
+        <b style="color:var(--ink)">Notes for a parent</b>
+        <p class="hint" style="margin:2px 0 8px">What she and the child talked about, and anything a parent should know. She never reads these back to the child. Anyone who opens this panel can read them, so keep the panel for the parent.</p>
+        <ul id="parentList" style="margin:0 0 8px;padding-left:1.2rem;font-size:14px"></ul>
+        <button id="parentForgetAll" type="button">Delete all notes</button>
+      </div>
+    </section>
+
+    <!-- 1. EYES -->
+    <section class="card" id="eyesCard">
+      <h2>1. Eye color</h2>
+      <p class="hint">Her eyes are full-color lights. Teal is her default.</p>
+      <div class="face" id="face">
+        <svg viewBox="0 0 400 130" role="img" aria-label="A.L.I.C.E.'s eyes, shown in the chosen color">
+          <defs>
+            <radialGradient id="g1"><stop offset="0%" id="s1a" stop-color="#1fb7c9"/><stop offset="70%" id="s1b" stop-color="#1fb7c9" stop-opacity=".85"/><stop offset="100%" id="s1c" stop-color="#1fb7c9" stop-opacity="0"/></radialGradient>
+          </defs>
+          <g class="eye-glow" id="glow" opacity=".8">
+            <circle cx="120" cy="65" r="52" fill="url(#g1)"/>
+            <circle cx="280" cy="65" r="52" fill="url(#g1)"/>
+          </g>
+          <circle cx="120" cy="65" r="26" id="eyeL" fill="#1fb7c9"/>
+          <circle cx="280" cy="65" r="26" id="eyeR" fill="#1fb7c9"/>
+        </svg>
+      </div>
+      <div class="swatches" id="swatches"></div>
+      <div class="row">
+        <label style="margin:0">Any color <input type="color" id="custom" value="#1fb7c9" style="vertical-align:middle;margin-left:6px"></label>
+      </div>
+      <label for="bright">Brightness <span id="brightVal">40</span>%</label>
+      <input type="range" id="bright" min="10" max="100" value="40">
+      <p class="hint" style="margin-top:8px">Brightness is capped to protect the power supply.</p>
+    </section>
+
+    <!-- 2. VOICE / ACCENT -->
+    <section class="card" id="voiceCard">
+      <h2>2. Accent</h2>
+      <p class="hint">Pick how she sounds, then press Hear it.</p>
+      <label for="accent">Accent</label>
+      <select id="accent">
+        <option value="robot">Robot (her old voice)</option>
+        <option value="american">American (her default voice)</option>
+        <option value="swedish">Swedish</option>
+        <option value="british">British</option>
+        <option value="indian">Indian</option>
+      </select>
+      <div class="row" style="margin-top:12px">
+        <button class="primary" id="hear">Hear it</button>
+      </div>
+      <p class="hint" id="voiceNote" style="margin-top:12px"></p>
+    </section>
+
+    <!-- 3. NAME -->
+    <section class="card" id="nameCard">
+      <h2>3. Name</h2>
+      <p class="hint">A companion's name can be changed. A.L.I.C.E.'s is locked.</p>
+      <div class="lock">
+        <input type="text" value="A.L.I.C.E." disabled aria-label="Companion name, locked">
+        <button id="rename">How renaming works</button>
+      </div>
+    </section>
+
+    <!-- 4. SKILLS -->
+    <section class="card wide" id="skillsCard">
+      <h2>4. Skills</h2>
+      <p class="hint">Download new abilities. These are examples with example prices, not for sale.</p>
+      <div class="skills" id="skills"></div>
+      <div class="row" style="margin-top:14px">
+        <button id="reset">Reset demo</button>
+      </div>
+    </section>
+
+    <!-- 5. PERSONALITIES -->
+    <section class="card wide" id="personaCard">
+      <h2>5. Personalities</h2>
+      <p class="hint">Not everyone wants the same companion. Download a different personality for A.L.I.C.E., grouped by kind of character: children, health professions, fantasy and more. Press Hear voice to listen first. She is still A.L.I.C.E., and the prices are examples, with no payment taken.</p>
+      <div class="pfilters" id="pfilters">
+        <input type="text" id="psearch" placeholder="Search by name, job or feeling" aria-label="Search personalities">
+      </div>
+      <p class="pcount" id="pcount"></p>
+      <div class="plist" id="plist"></div>
+      <div class="row" style="margin-top:12px"><button id="backToAl">Back to A.L.I.C.E. for now</button><span class="hint" id="personaNow" style="margin:0"></span></div>
+      <div class="row" id="mainRow" style="margin-top:8px;display:none"><button class="primary" id="keepMain"></button><button id="astraMain">Make A.L.I.C.E. her main personality</button></div>
+      <!-- HER OWN MEMORY, added 2026-10-07, Dr. O: the twins must not share one. The robot's notes stay on the robot. -->
+      <div id="memRow" style="margin-top:10px;display:none">
+        <span class="hint" id="memText" style="margin:0"></span>
+        <div class="row" style="margin-top:6px"><button id="memShow" type="button">Show what she remembers</button><button id="memForget" type="button">Forget all</button></div>
+        <ul id="memList" style="display:none;margin:8px 0 0;padding-left:1.2rem;font-size:13px"></ul>
+      </div>
+      <p class="hint" id="mainHint" style="margin:6px 0 0;display:none">Installing a personality is for now. Her main personality is the one she comes back to after she is switched off and on, or after Reset.</p>
+    </section>
+
+    <!-- 6. TALK -->
+    <section class="card wide" id="talkCard">
+      <h2>Talk to A.L.I.C.E.</h2>
+      <div class="twocol"><div>
+      <p class="hint" id="talkHint">Type a message. In demo mode the replies are examples.</p>
+      <div class="log" id="log" aria-live="polite"></div>
+      <div class="row">
+        <input type="text" id="say" placeholder="Say something to A.L.I.C.E." style="flex:1;min-width:180px">
+        <button class="primary" id="send">Send</button>
+      </div>
+      <div class="row" style="margin-top:10px"><button id="sayAddress">Say my address</button></div>
+      <!-- HOW LONG SHE WAITS, added 2026-10-16, Dr. O: "Alice does not wait for me to finish talking before she starts answering". A longer wait means she lets you pause and think; a shorter one means she answers sooner. -->
+      <div class="row" id="pauseRow" style="margin-top:10px;display:none;align-items:center;gap:10px">
+        <label for="pauseSlider" style="margin:0">She waits</label>
+        <input type="range" id="pauseSlider" min="0.6" max="3" step="0.2" value="1.4" style="flex:1;min-width:160px">
+        <span id="pauseText" style="min-width:8.5em;text-align:right">1.4 s after I stop</span>
+      </div>
+      <!-- QUIET, added 2026-10-16, Dr. O: in an online meeting she answered what was said in the meeting. For a set time she does not listen in the background. The Talk button still works. -->
+      <div class="row" id="quietRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
+        <button id="quietOn" type="button">Quiet for an hour</button><button id="quietOff" type="button">Wake her</button><span class="hint" id="quietText" style="margin:0"></span>
+      </div>
+      <!-- LISTENING SERVICE, added 2026-10-17, Dr. O: which service turns her hearing into words. She switches it from her phone. -->
+      <div class="row" id="listenRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
+        <button id="listenAzure" type="button">Azure</button><button id="listenEleven" type="button">ElevenLabs</button><span class="hint" id="listenText" style="margin:0"></span>
+      </div>
+      <!-- VOLUME, added 2026-10-05, Dr. O: "need volume control on panel". Only on the real A.L.I.C.E. -->
+      <div class="row" id="volumeRow" style="margin-top:10px;display:none;align-items:center;gap:10px">
+        <label for="vol" style="margin:0">Volume</label>
+        <input type="range" id="vol" min="0" max="100" step="5" value="60" style="flex:1;min-width:160px">
+        <span id="volText" style="min-width:3.2em;text-align:right">60%</span>
+      </div>
+      </div><div>
+      <!-- CONVERSATION STARTERS, added 2026-10-04, Dr. O: one tap to start a conversation at the event. Only on the real A.L.I.C.E. -->
+      <div class="row" id="starters" style="margin-top:10px;display:none">
+        <button data-q="What are you?">What are you?</button>
+        <button data-q="Are you for sale?">Are you for sale?</button>
+        <button data-q="Where would you put me?">Where would you put me?</button>
+        <button data-q="Tell me a joke.">Tell a joke</button>
+        <button data-q="What can you do?">What can you do?</button>
+      </div>
+      <!-- TALK BY VOICE, added 2026-10-04: the microphones on her HAT. Only shown when this page is served by the Pi. -->
+      <div class="row" id="listenRow" style="margin-top:10px;display:none"><button class="primary" id="listenBtn" style="font-size:1.15rem;padding:14px 26px">Listen now</button><span class="hint" id="listenStatus" style="margin:0">Press, then ask one question. She waits for you to start and stops when you finish. No name needed.</span></div>
+      <!-- LET THEM TALK, added 2026-10-10: she talks with the other characters (the hologram, later Astrad and Astra-9) without anyone stepping in.
+           Nothing connects the devices; they hear each other, and the one named answers. Say "that's enough" to end it. -->
+      <div class="row" id="stopAlarmRow" style="margin-top:10px;display:none"><button id="stopAlarmBtn">Stop the alarm or timer</button><span class="hint" id="stopAlarmMsg" style="margin:0">If a timer or alarm is ringing and saying stop does not work, press this.</span></div>
+      <div class="row" id="sistersRow" style="margin-top:10px;display:none">
+        <label class="hint" style="margin:0">Her name in the talk <input id="sistersMe" type="text" value="Alice" style="max-width:120px"></label> <label class="hint" style="margin:0">Talking with <input id="sistersWith" type="text" value="Alice" style="max-width:220px" aria-label="Who is she talking with"></label>
+        <button id="sistersBtn">Let them talk</button>
+        <span class="hint" id="sistersStatus" style="margin:0">Give each one a different name, and use the same names on the other devices. She opens, and they pass the turn by name. Say "that's enough" or press again to end it.</span>
+      </div>
+      </div></div>
+    </section>
+
+    <!-- 6. PHOTOS -->
+    <section class="card wide" id="photoCard">
+      <h2>Show her a photo or a file</h2>
+      <div class="twocol"><div>
+        <p class="hint">Show her a photo so she gets to know you, or give her a file to read. She tells you what she sees, or what stands out in it.</p>
+        <label for="caption">Who or what is in it? (optional)</label>
+        <input type="text" id="caption" placeholder="For example, my dog Max at the lake">
+        <label for="fileUse">If it is a file, what should she do with it?</label>
+        <select id="fileUse">
+          <option value="read">Read it and tell me what stands out</option>
+          <option value="shelf">Put it on her knowledge shelf (needs that skill)</option>
+          <option value="protocol">Use it as steps to read one at a time (needs the Bench Guide skill)</option>
+        </select>
+        <div class="row" style="margin-top:12px">
+          <button class="green" id="showPhoto" type="button">Show a photo</button>
+          <button id="uploadFile" type="button">Upload a file</button>
+        </div>
+        <input type="file" id="photo" accept="image/*" hidden>
+        <input type="file" id="docfile" accept=".txt,.md,.csv,.pdf,text/plain,application/pdf" hidden>
+        <p class="hint" style="margin:10px 0 0">Photos: JPEG, PNG, GIF or WebP. Files: text, Markdown, CSV or PDF, up to a few pages.</p>
+      </div><div>
+        <div class="thumbs" id="thumbs"></div>
+        <div class="note">Only share photos and files you are happy for A.L.I.C.E. to see. When she is connected, the photo or file is sent to her AI service to be read, and is not saved. She keeps the first part of a file in mind for the next few questions.</div>
+      </div></div>
+    </section>
+
+    <!-- HER RECORDS, added 2026-10-15, Dr. O: what her skills keep (notes, lists, the shelf, the protocol she is on), with a way to delete each. Only on the real A.L.I.C.E. -->
+    <section class="card wide" id="recordsCard" style="display:none">
+      <h2>What she keeps</h2>
+      <p class="hint">Kept only on the robot. Anyone who opens this panel can read and delete it.</p>
+      <div class="twocol"><div>
+        <b style="color:var(--ink)">Notes</b><ul id="recNotes" style="margin:4px 0 12px;padding-left:1.2rem;font-size:14px"></ul>
+        <b style="color:var(--ink)">Lists</b><div id="recLists" style="margin:4px 0 12px;font-size:14px"></div>
+      </div><div>
+        <b style="color:var(--ink)">Knowledge shelf</b><ul id="recShelf" style="margin:4px 0 12px;padding-left:1.2rem;font-size:14px"></ul>
+        <b style="color:var(--ink)">Protocol</b><div id="recProto" style="margin:4px 0 0;font-size:14px"></div>
+      </div></div>
+    </section>
+
+    <!-- GUARDIAN SETUP, added 2026-10-15, Dr. O: "Security is showing what the others will have and she could still greet people at the door: hi, can I assist you, where are you going, download the
+         building offices and forms to get started. It will help me know what the security bots will need." (They are the ETL Guardians.) This is the form a building fills in. -->
+    <section class="card wide" id="guardianCard" style="display:none">
+      <h2>Guardian setup: teach her your building</h2>
+      <p class="hint">This is what a front door needs to know. Fill in what you have. She reads the directory exactly as written, never opens a door, never blocks anyone, and always tells people to call 911 in an emergency. Everything stays on the robot.</p>
+      <div class="twocol"><div>
+        <label for="gBuilding">Building or company name</label><input type="text" id="gBuilding" placeholder="For example, Example Hall">
+        <label for="gGreeting">What she says when someone walks up (leave empty for the usual hello)</label><input type="text" id="gGreeting" placeholder="Hello, welcome. Can I assist you? Where are you going today?">
+        <label for="gDirectory">Directory: one place per line as  Name | Where | Details | other names</label>
+        <textarea id="gDirectory" rows="6" placeholder="Dean's office | third floor, room 310, take the elevator on your left | Open until 5 | dean&#10;Restrooms | down the hall on your right"></textarea>
+        <label for="gForms">Forms to get started: one per line as  Name | web address or where to get it</label>
+        <textarea id="gForms" rows="3" placeholder="Visitor registration | https://example.edu/visitor&#10;Vendor intake | ask at the front desk"></textarea>
+      </div><div>
+        <label for="gHours">Hours</label><input type="text" id="gHours" placeholder="Monday to Friday, 7 am to 6 pm">
+        <div class="row"><label style="margin:12px 0 4px">Closed from <input type="text" id="gAfterStart" placeholder="18:00" style="max-width:90px"></label><label style="margin:12px 0 4px">until <input type="text" id="gAfterEnd" placeholder="07:00" style="max-width:90px"></label></div>
+        <label for="gAfterLine">What she says when it is closed</label><input type="text" id="gAfterLine" placeholder="The building is closed. If you need help, I will tell the front office.">
+        <label for="gEmergency">What the company wants said in an emergency (she always says call 911 first)</label><textarea id="gEmergency" rows="2" placeholder="The front office number is 555 0100."></textarea>
+        <label for="gNotify">Where to send notices to the front office (an https address that takes a message, such as a Slack or Teams hook)</label>
+        <input type="text" id="gNotify" placeholder="https://..."><label class="wopt" style="margin:6px 0 0;font-size:13px"><input type="checkbox" id="gNotifyClear"> Remove the saved notice address</label>
+      </div></div>
+      <div class="row" style="margin-top:14px"><button class="primary" id="gSave" type="button">Save</button><button id="gExample" type="button">Fill in an example</button><span class="hint" id="gStatus" style="margin:0"></span></div>
+      <div class="twocol" style="margin-top:18px"><div>
+        <b style="color:var(--ink)">Visitors she has logged</b>
+        <ul id="gVisits" style="margin:4px 0 8px;padding-left:1.2rem;font-size:14px"></ul>
+        <div class="row"><a href="/api/visitors.csv" id="gCsv" download><button type="button">Download the list</button></a><button id="gClearVisits" type="button">Clear the list</button></div>
+      </div><div>
+        <b style="color:var(--ink)">Questions she could not answer</b>
+        <p class="hint" style="margin:2px 0 6px">What visitors asked that was not in the directory, forms or hours. This is the list of what a Guardian will need.</p>
+        <ul id="gUnmet" style="margin:4px 0 8px;padding-left:1.2rem;font-size:14px"></ul>
+        <button id="gClearUnmet" type="button">Clear this list</button>
+      </div></div>
+    </section>
+
+    <!-- PEOPLE SHE KNOWS ABOUT, added 2026-10-16, Dr. O: she did not know who the owner was. She cannot recognize a voice or a face, so this is what she is told. Real names go in on the robot, never in this file, which is public. -->
+    <section class="card wide" id="peopleCard">
+      <h2>People she knows about</h2>
+      <p class="hint">She cannot tell who is speaking, because she does not recognize voices or faces. But she can know about the people you tell her about, and she will take someone's word for who they are. Write whatever you want her to know, one thought per line, in plain sentences. A line like  Name | who they are  works too. Only Alice gets this, never the characters, and it stays on this robot.</p>
+      <textarea id="peopleText" rows="5" placeholder="Alex | the owner, who set you up&#10;Sam | a friend who visits on Tuesdays"></textarea>
+      <div class="row" style="margin-top:12px"><button class="primary" id="peopleSave" type="button">Save</button><span class="hint" id="peopleStatus" style="margin:0"></span></div>
+    </section>
+
+    <!-- VOICES SHE KNOWS, added 2026-10-23, Dr. O: "I want them to know my voice. Registered regular voices, their owners." Names and voices live on the robot only, never in this file, which is public. -->
+    <section class="card wide" id="voicesCard">
+      <h2>Voices she knows</h2>
+      <p class="hint">She can learn to tell registered voices apart, but only for people who agree. A person agrees by saying so out loud while she listens. She keeps a fingerprint of the voice, which is a list of numbers, and never the recording. It only helps her choose a greeting. It is not a lock, because a recording of someone could fool it, so keep anything important behind the access code. Everyone else is still a visitor, and she does not guess.</p>
+      <label class="wopt"><input type="checkbox" id="voicesOn"> Let her recognize registered voices</label>
+      <p class="hint" id="voicesNote" style="margin:4px 0"></p>
+      <div id="voicesList" class="hint" style="margin:8px 0"></div>
+      <p class="hint" style="margin-bottom:6px"><strong>Add a voice.</strong> The person says: <em>I agree that this robot may remember my voice.</em> and then keeps talking for about ten seconds. A second recording makes it surer.</p>
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        <input type="text" id="voicesName" placeholder="Their name" maxlength="40" aria-label="Name of the person" style="min-width:180px">
+        <label class="wopt" style="margin:0"><input type="checkbox" id="voicesConsent"> This person agrees</label>
+      </div>
+      <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px">
+        <button class="primary" id="voicesRecord" type="button">Record 12 seconds with her microphone</button>
+        <span class="hint" style="margin:0">or</span>
+        <input type="file" id="voicesFile" accept="audio/*" aria-label="Recording of the person">
+        <button id="voicesUpload" type="button">Use this recording</button>
+      </div>
+      <p class="hint" id="voicesStatus" style="margin-top:8px"></p>
+    </section>
+
+    <!-- PET COMPANION, added 2026-10-16, Dr. O: "a skill for pet owners that feel bad about leaving their pet alone all day." Off until switched on. -->
+    <section class="card wide" id="petCard" style="display:none">
+      <h2>Pet companion</h2>
+      <p class="hint">While you are out she says a few gentle words to your pet now and then, with her eyes steady and her head still. She does not listen for barking yet, and she makes no claim about how your pet feels. If your pet seems worried or unwell, ask a vet or a trainer. Keep her and her cords out of your pet's reach.</p>
+      <div class="twocol"><div>
+        <label for="petName">Your pet's name</label><input type="text" id="petName" placeholder="Name">
+        <label for="petKind">Kind of pet</label><select id="petKind"><option value="dog">Dog</option><option value="cat">Cat</option><option value="other">Something else</option></select>
+        <label for="petToys">Favorite toys (up to six, separated by commas)</label><input type="text" id="petToys" placeholder="squeaky bone, blue ball">
+        <label for="petEvery">How often, in minutes (10 to 240)</label><input type="number" id="petEvery" min="10" max="240" step="5" style="max-width:110px">
+      </div><div>
+        <div class="row"><label style="margin:12px 0 4px">Quiet from <input type="text" id="petQs" placeholder="21:00" style="max-width:90px"></label><label style="margin:12px 0 4px">until <input type="text" id="petQe" placeholder="07:00" style="max-width:90px"></label></div>
+        <label for="petNoteAt">Send my daily note at (uses the notice address from the check-in card)</label><input type="text" id="petNoteAt" placeholder="18:00" style="max-width:90px">
+        <label class="wopt" style="margin-top:12px"><input type="checkbox" id="petOn"> She keeps my pet company now</label>
+      </div></div>
+      <div class="row" style="margin-top:12px"><button class="primary" id="petSave" type="button">Save</button><button id="petSay" type="button">Say one now</button><button id="petNote" type="button">Send today's note</button><span class="hint" id="petStatus" style="margin:0"></span></div>
+      <p class="hint" id="petToday" style="margin-top:10px"></p>
+    </section>
+
+    <!-- CALENDAR, added 2026-10-16, Dr. O: "Auggie can check my calendar." Read only. The link is private and is never shown again once saved. -->
+    <section class="card wide" id="calCard" style="display:none">
+      <h2>Her calendar: read only</h2>
+      <p class="hint">Paste the link from Outlook (Settings, Calendar, Shared calendars, Publish a calendar, can view all details, then copy the ICS link). She can read what is on it and tell you your day. She cannot add, change or delete anything. Anyone who has the link can read your calendar, so do not share it. It is kept only on this robot and never shown again. A repeating event whose single days were moved or cancelled may be wrong, so check anything important.</p>
+      <label for="calUrl">Calendar link</label><input type="text" id="calUrl" placeholder="https://outlook.office365.com/owa/calendar/...ics">
+      <div class="row" style="margin-top:12px"><button class="primary" id="calSave" type="button">Save</button><button id="calTest" type="button">Test it</button><button id="calClear" type="button">Remove it</button><span class="hint" id="calStatus" style="margin:0"></span></div>
+    </section>
+
+    <!-- HOUSE CONTROLS, added 2026-10-16, Dr. O: an option, off until a device is added. It never touches Alexa or anything already in the house. -->
+    <section class="card wide" id="houseCard" style="display:none">
+      <h2>House controls: lights, plugs and blinds</h2>
+      <p class="hint">An option. She does nothing here until you add a device, and she never touches Alexa or anything you already have. She will not control locks, doors, garage doors, alarms, cameras or heaters. Add a device, press Test, and then say "turn on the test lamp." The device must be on the same network as she is.</p>
+      <ul id="hDevices" style="margin:4px 0 12px;padding-left:1.2rem;font-size:14px"></ul>
+      <div class="twocol"><div>
+        <label for="hName">Name she will answer to</label><input type="text" id="hName" placeholder="test lamp">
+        <label for="hType">What it is</label><select id="hType"><option value="plug">Plug or lamp</option><option value="light">Light</option><option value="blinds">Blinds</option></select>
+        <label for="hKind">How she reaches it</label><select id="hKind"><option value="kasa">TP-Link Kasa plug or bulb (needs her library, see below)</option><option value="http">A web address on your network (Shelly, Tasmota and others)</option></select>
+      </div><div>
+        <div id="hKasaBox"><label for="hHost">Its address on your home network, such as 192.168.1.40</label><input type="text" id="hHost" placeholder="192.168.1.40"></div>
+        <div id="hHttpBox" style="display:none">
+          <label for="hOn" id="hOnLabel">Address that turns it on</label><input type="text" id="hOn" placeholder="http://192.168.1.40/relay/0?turn=on">
+          <label for="hOff" id="hOffLabel">Address that turns it off</label><input type="text" id="hOff" placeholder="http://192.168.1.40/relay/0?turn=off">
+        </div>
+        <p class="hint" style="margin:8px 0 0">For a Kasa plug she needs one small add-on on the Pi: <code class="inline">pip3 install python-kasa</code>. Find the plug's address in your router's list of devices.</p>
+      </div></div>
+      <div class="row" style="margin-top:12px"><button class="primary" id="hAdd" type="button">Add it</button><span class="hint" id="hStatus" style="margin:0"></span></div>
+    </section>
+
+    <!-- 8. WHEN SOMEONE WALKS UP -->
+    <section class="card wide" id="welcomeCard">
+      <h2>When someone walks up</h2>
+      <p class="hint" id="welcomeHint">A.L.I.C.E. notices when someone comes close. Choose what she does. If a lot of people pass by, set a longer wait so the hello does not get old.</p>
+      <label class="wopt"><input type="checkbox" id="wGreet"> Say hello</label>
+      <label class="wopt"><input type="checkbox" id="wTurn"> Turn her head</label>
+      <label class="wopt"><input type="checkbox" id="wEyes"> Brighten her eyes</label>
+      <label class="wopt"><input type="checkbox" id="wChat"> Keep listening after the hello, so people can just talk to her</label>
+      <label class="wopt"><input type="checkbox" id="wAlways"> Always listening: she answers when she hears her name, Alice</label>
+      <label class="wopt"><input type="checkbox" id="wCrowd"> Crowd mode: she answers only when a sentence has her name in it, and does not keep the conversation open after. Use it when many people are talking.</label>
+      <p class="hint" id="wListenHint" style="margin:4px 0 10px">After the hello she listens for about 20 seconds and answers what is said, and keeps going while people keep talking. Always listening uses some speech service credit each time anyone speaks nearby, so switch it off when it is not needed. Only on A.L.I.C.E.</p>
+      <label for="wWait">Wait this long before welcoming again</label>
+      <select id="wWait" style="max-width:260px">
+        <option value="15">15 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="60">1 minute</option>
+        <option value="300">5 minutes</option>
+        <option value="900">15 minutes</option>
+      </select>
+      <!-- TWO QUICK SETTINGS, added 2026-10-04, Dr. O: at the event she is pushed to talk, in the lab she is always listening. -->
+      <div class="row" style="margin-top:14px"><button id="wEvent">Event settings</button><button id="wLab">Lab settings</button><span class="hint" id="wPreset" style="margin:0">Event: a hello for each visitor, then she waits to be asked. Lab: she listens all the time and answers her name.</span></div>
+      <div class="row" style="margin-top:14px"><button id="wNow">Welcome now</button><span class="hint" id="wStatus" style="margin:0"></span></div>
+      <div class="note">Her head makes a small friendly glance to each side and comes back. One motion sensor can tell that someone is there, but not where, so she does not aim at anyone. Welcome now is for when the sensor misses a person.</div>
+    </section>
+
+  </div>
+
+  <!-- 9. SWITCHING OFF, added 2026-10-04, Dr. O: "add a shut down button to the panel". Only shown when this page is
+         served by A.L.I.C.E. Switching the power off while the Pi is running can slowly damage its memory card,
+         so this shuts it down properly first. -->
+    <section class="card wide" id="shutCard" style="display:none">
+      <h2>Switching off</h2>
+      <p class="hint">Press this before switching off her power. She says goodnight and shuts down properly. Wait about 30 seconds after that, then it is safe to switch the power off.</p>
+      <div class="row" style="margin-top:12px"><button id="shutBtn">Shut down A.L.I.C.E.</button><span class="hint" id="shutStatus" style="margin:0"></span></div>
+    </section>
+
+    <footer>A.L.I.C.E. is a robot from Emerging Technologies Laboratory. She is not a person.</footer>
+</div>
+
+<dialog id="dlg"><h3 id="dlgTitle"></h3><p id="dlgBody"></p><div class="row" id="dlgBtns"></div></dialog>
+
+<script>
+(function(){
+  'use strict';
+  var PERSONAS = [];           // the short list from personas.json
+  var pGroup = 'All';
+  // The personalities are shown by kind of character, not by the show they came from. Each entry in personas.json has a "category".
+  var PCATS = ['Made for one person', 'Children and Little Ones', 'Health Professions', 'Fitness and Wellness', 'Fantasy and Magical', 'Reggie and Friends', 'Robots and AI',
+               'Teachers and Storytellers', 'Food, Garden and Nature', 'Science and Research', 'Work and Business', 'Writers, Artists and Performers', 'More people'];
+  function visiblePersonas(){ return PERSONAS.filter(function(p){ return state.mode !== 'kids' || p.kids; }); }
+  // the filter buttons and the list follow the mode: a category that is not shown in this mode must not stay chosen
+  function refreshPersonaList(){
+    if(pGroup !== 'All' && !visiblePersonas().some(function(p){ return catOf(p) === pGroup; })){ pGroup = 'All'; }
+    buildGroups(); renderPersonas();
+  }
+  function catOf(p){ return p.group === 'Private' ? 'Made for one person' : (p.category || 'More people'); }
+  var pGender = 'All';
+  var pAudio = null;
+  var live = false;            // true when this page is served by A.L.I.C.E. and her API answers
+  var state = {mode:null, color:'#1fb7c9', bright:40, accent:'american', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
+
+  var SKILLS = [
+    {id:'clock',    name:'Timer and Alarm', price:0, desc:'Say "Alice, set a timer for ten minutes" or "set an alarm for 3 pm." She chimes and speaks when it is time. Say stop to end it.',
+     demo:'Tell me how long, or what time, and I will set it.'},
+    {id:'spanish',  name:'Spanish Conversation Partner', price:4.99, desc:'Chats in simple Spanish and gently corrects your mistakes.',
+     demo:'Hola. Vamos a practicar. Como te llamas?'},
+    {id:'story',    name:'Bedtime Storyteller', price:2.99, desc:'Tells a short, calm story, with you as the hero.',
+     demo:'Once upon a time, in a lab full of quiet machines, there was a very curious student named you.'},
+    {id:'study',    name:'Study Buddy', price:3.99, desc:'Quizzes you on any topic and explains the answers.',
+     demo:'Pick a topic and I will ask you three questions. Ready?'},
+    {id:'trivia',   name:'Trivia Host', price:1.99, desc:'Runs a fast trivia round for a group.',
+     demo:'Round one. Which planet is closest to the sun?'},
+    {id:'mindful',  name:'Mindful Minutes', price:2.99, desc:'A short guided breathing break.',
+     demo:'Let us take a breath together. In for four, hold for four, out for six.'},
+    {id:'notebook', name:'Voice Notebook and Lists', price:2.99, desc:'Say "remember that the spare key is in the blue bowl" or "add milk to the shopping list." Ask where something is, or what is on a list. Kept only on the robot.',
+     demo:'Tell me something to remember, or a list to add to.'},
+    {id:'bench',    name:'Bench Guide', price:4.99, desc:'Give her a protocol or a recipe and she reads it one step at a time. Say next, back or repeat. When a step has a wait she offers a timer.',
+     demo:'Give me your steps as a text file, say start, and I will read them one at a time.'},
+    {id:'curious',  name:'I am curious', price:0, desc:'Say "Hey Alice, I am curious how bees make honey" and she explores it with you: a short answer, something interesting, a question. Or ask what she is curious about and she starts one of her own. She keeps going without her name each time.',
+     demo:'Tell me what you are curious about, or ask me what I am curious about.'},
+    {id:'house',    name:'House Controls', price:4.99, desc:'An option, off until you add a device. Say "turn on the test lamp" or "close the blinds." Works with a TP-Link Kasa plug or a device with a web address on your home network. She will not touch locks, doors or alarms, and never touches Alexa.',
+     demo:'Add a lamp on my panel, press Test, and then say turn on the test lamp.'},
+    {id:'briefing', name:'Daily Briefing', price:2.99, desc:'Say "what is on my day." She reads today\'s calendar (paste a calendar link on her panel and she reads it, read only), plus the reminders and timers still ahead and your to do list. Without a link she tells you she does not have your calendar.',
+     demo:'Ask me what is on today, and I will read what I am holding for you.'},
+    {id:'pet',      name:'Pet Companion', price:4.99, desc:'For when you are out. She says a few gentle words to your pet by name, now and then, with her eyes steady and her head still, and sends you a daily note of how often she did. She does not listen for barking yet and makes no claim about how your pet feels.',
+     demo:'Hello, sweet pet. It is quiet, and that is fine. I am keeping you company.'},
+    {id:'shelf',    name:'Knowledge Shelf', price:4.99, desc:'Give her your handbook, rules or protocols. She answers from them only, says where she found it, and says so when it is not in your files.',
+     demo:'Put a file on my shelf, then ask me about what is in it.'},
+    {id:'desk',     name:'Front Door (Guardian)', price:9.99, desc:'Greets visitors, asks where they are going, gives directions from your building directory, points to your forms, and tells the front office who is here. Fill in the Guardian setup card to teach her your building.',
+     demo:'Hello, welcome. Can I assist you? Where are you going today?'},
+    {id:'tour',     name:'Lab Tour Guide', price:0, desc:'Included with every companion. Introduces the lab and its work.',
+     demo:'Welcome to the Emerging Technologies Laboratory. Shall we start with the robots?'}
+  ];
+  var KIDS_SKILLS = ['clock', 'spanish', 'story', 'study', 'trivia', 'mindful', 'tour'];   // the same list as KIDS_SKILLS in al_panel_server.py
+  var MODES = [
+    {id:'companion', name:'Companion', color:'#1fb7c9', line:'Warm, remembers you, and has moods with reasons.',
+     demo:'Companion mode. I\'m glad you\'re here.'},
+    {id:'science', name:'Science', color:'#3b7dff', line:'Careful and honest, for people who check what she says.',
+     demo:'Science mode. I will tell you what is known, what is not, and when I do not know.'},
+    {id:'kids', name:'Children\'s friend', color:'#f2b84b', line:'Gentle and safe for any age. Only characters and skills chosen for everyone under 13. Notes a parent can read.',
+     demo:'Hello, friend. I am a robot who likes stories and questions. How old are you?'},
+    {id:'event', name:'Event and front desk', color:'#2fbf71', line:'A host for visitors: greets, answers about the lab, keeps it short.',
+     demo:'Event mode. I will greet people and tell them about the lab.'},
+    {id:'guardian', name:'Guardian', color:'#e5534b', line:'Greets people, asks where they are going, gives directions and forms. A preview of the ETL Guardians.',
+     demo:'Guardian mode. I will greet visitors and help them find their way.'},
+    {id:'assistant', name:'Personal assistant', color:'#8e6bff', line:'Keeps your day: reminders, lists, timers and a daily briefing. Short, organized and on your side.',
+     demo:'Assistant mode. Ask me for your day, or tell me what to remember.'},
+    {id:'creative', name:'Creative', color:'#e0529c', line:'Imaginative and bold: helps design a home, shape a book, or work out any idea, one step at a time.',
+     demo:'Creative mode. Tell me what we are making.'},
+    {id:'business', name:'Business', color:'#2f7fb5', line:'Starting and running a business in everyday words: the idea, the customers, marketing and the numbers, for people who do not like spreadsheets.',
+     demo:'Business mode. Tell me the idea or the question, and we will go through it step by step.'},
+    {id:'bench', name:'Bench and workshop', color:'#ff8a3d', line:'Hands free: short answers, one step at a time, timers for the waits.',
+     demo:'Bench mode. Tell me the steps and I will read them one at a time.'},
+    {id:'sp', name:'Standardized patient', color:'#c2417a', line:'A student says "Patient 12" and she becomes that patient, the same for every student. "End patient" stops.',
+     demo:'Standardized patient mode. Say patient and a number to begin.'}
+  ];
+  var COLORS = [
+    ['Teal','#1fb7c9'],['Electric blue','#2f6bff'],['Emerald','#00c878'],['Amber','#ff9500'],
+    ['Hot pink','#ff2d95'],['Deep violet','#7b2fff'],['Ruby','#ff2440'],['Warm white','#fff1d6']
+  ];
+  var LANGS = {robot:'en-US', american:'en-US', swedish:'sv-SE', british:'en-GB', indian:'en-IN'};
+  var SAMPLE = {
+    robot:'Hi, I am A.L.I.C.E. You can call me Alice. It is nice to meet you.',
+    american:'Hi, I am A.L.I.C.E. Call me Alice. It is great to meet you.',
+    swedish:'Hello, I am A.L.I.C.E. Call me Alice. It is nice to meet you.',
+    british:'Hello, I am A.L.I.C.E. Do call me Alice. Lovely to meet you.',
+    indian:'Hello, I am A.L.I.C.E. Please call me Alice. It is very nice to meet you.'
+  };
+
+  function $(id){return document.getElementById(id);}
+  function store(k,v){try{localStorage.setItem('al_panel_'+k,JSON.stringify(v));}catch(e){}}
+  function load(k,d){try{var v=localStorage.getItem('al_panel_'+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+
+  // ---------- connection ----------
+  // WHAT SHE SAYS OUT LOUD SHOWS HERE TOO, 2026-10-15, Dr. O: "she said the sources are on the panel, but I do not see them". The panel read her conversation once, when it
+  // was opened, so an answer to a question asked by voice was saved but never shown. It now asks every 2.5 seconds and redraws the conversation when it has changed.
+  var logN = -1;
+  function pollLog(){
+    if(!live){ return; }
+    fetch('/api/log').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j || j.n === logN){ return; }
+      var first = logN === -1; logN = j.n;
+      if(first && !j.log.length){ return; }
+      $('log').innerHTML = ''; j.log.forEach(function(m){ addMsg(m.who, m.text); });
+    }).catch(function(){});
+  }
+  function setLive(on, info){
+    live = on;
+    $('demoNote').style.display = on ? 'none' : '';
+    $('shutCard').style.display = on ? '' : 'none';
+    $('listenRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none'; $('stopAlarmRow').style.display = on ? '' : 'none';
+    $('volumeRow').style.display = on ? 'flex' : 'none';
+    $('quietRow').style.display = on ? 'flex' : 'none'; $('pauseRow').style.display = on ? 'flex' : 'none'; $('listenRow').style.display = on ? 'flex' : 'none'; if(on){ refreshQuiet(); refreshPause(); refreshListen(); }
+    if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
+    $('starters').style.display = on ? '' : 'none';   // her microphones are on the real A.L.I.C.E.   // switching her off only makes sense on the real A.L.I.C.E.   // the sample-data note is for the website, not for the real A.L.I.C.E.
+    $('status').className = 'status' + (on ? ' live' : '');
+    $('statusText').textContent = on ? 'Connected to A.L.I.C.E.' : 'Demo mode, no A.L.I.C.E. connected';
+    $('talkHint').textContent = on ? 'Type a message. A.L.I.C.E. answers out loud and here.' : 'Type a message. In demo mode the replies are examples.';
+    if(on && info && info.log && info.log.length){
+      $('log').innerHTML = '';
+      info.log.forEach(function(m){ addMsg(m.who, m.text); });
+    }
+    if(on && info && info.log_n != null){ logN = info.log_n; }
+    if(on && info && info.welcome){ state.welcome = info.welcome; paintWelcome(); }   // A.L.I.C.E. keeps these choices herself
+    if(on && info){                                   // the mode is hers too: another laptop must not change it or push its own eye color over it
+      state.mode = info.mode || null; store('mode', state.mode);
+      if(state.mode){ state.color = info.color; state.bright = info.brightness; state.skills = (info.skills || []).slice(); paintEyes(); renderSkills(); }
+      renderModes(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople(); refreshVoices();
+    }
+    paintSensor(on ? info : null);
+    if(on && info){
+      // A.L.I.C.E. may have been restarted since this page was last used, so tell her what this page shows
+      var quiet = function(){};
+      if(info.accent !== state.accent){ api('/api/accent', {accent:state.accent}).catch(quiet); }
+      if(info.color !== state.color || info.brightness !== state.bright){ api('/api/eyes', {color:state.color, brightness:state.bright}).catch(quiet); }
+      state.skills.forEach(function(id){ if((info.skills || []).indexOf(id) === -1){ api('/api/skill', {id:id}).catch(quiet); } });
+      // who she is comes from her, not from this browser: another laptop or a private window must not turn her back into Astra
+      state.main = info.main || null;
+      if((info.persona || null) !== (state.persona || null)){ state.persona = info.persona || null; store('persona', state.persona); renderPersonas(); }
+      refreshMemory();
+    }
+    $('voiceNote').textContent = on
+      ? 'A.L.I.C.E. will say a sample in her own voice.'
+      : 'Plays a recorded sample of the voice. If a recording is missing, your device\'s own voice is used instead.';
+  }
+  function api(path, body, isForm){
+    var opts = {method:'POST'};
+    if(isForm){opts.body = body;}
+    else{opts.headers = {'Content-Type':'application/json'}; opts.body = JSON.stringify(body||{});}
+    return fetch(path, opts).then(function(r){
+      if(!r.ok){
+        // 2026-10-11: the real reason was thrown away, so a photo that failed only said 502. Show what she said, when she said anything.
+        return r.json().catch(function(){ return {}; }).then(function(j){
+          throw new Error((j && j.error) ? j.error : 'A.L.I.C.E. answered with an error ('+r.status+')');
+        });
+      }
+      return r.json();
+    });
+  }
+  function tryConnect(){
+    if(location.protocol !== 'http:'){return;}   // a secure web page cannot talk to A.L.I.C.E. on the local network
+    var c = new AbortController(); var t = setTimeout(function(){c.abort();}, 1800);
+    fetch('/api/status', {signal:c.signal}).then(function(r){
+      clearTimeout(t); if(r.ok){return r.json();} throw new Error('no');
+    }).then(function(j){ setLive(true, j); }).catch(function(){ setLive(false); });
+  }
+
+  // ---------- eyes ----------
+  function paintEyes(){
+    var c = state.color;
+    ['s1a','s1b','s1c'].forEach(function(id){$(id).setAttribute('stop-color', c);});
+    $('eyeL').setAttribute('fill', c); $('eyeR').setAttribute('fill', c);
+    var o = 0.25 + (state.bright/100)*0.75;
+    $('glow').setAttribute('opacity', o.toFixed(2));
+    $('eyeL').setAttribute('opacity', o.toFixed(2)); $('eyeR').setAttribute('opacity', o.toFixed(2));
+    var st = $('stage'); if(st){ st.style.setProperty('--eye', c); st.style.setProperty('--eyeo', o.toFixed(2)); }
+    $('brightVal').textContent = state.bright;
+    $('custom').value = c;
+    var sw = document.querySelectorAll('.sw');
+    for(var i=0;i<sw.length;i++){ sw[i].className = 'sw' + (sw[i].getAttribute('data-c')===c ? ' on' : ''); }
+  }
+  function sendEyes(){
+    store('eyes', {color:state.color, bright:state.bright});
+    if(live){ api('/api/eyes', {color:state.color, brightness:state.bright}).catch(function(e){ addMsg('al','(I could not change my eyes: '+e.message+')'); }); }
+  }
+  function buildSwatches(){
+    var box = $('swatches');
+    COLORS.forEach(function(p){
+      var b = document.createElement('button');
+      b.className = 'sw'; b.style.background = p[1]; b.title = p[0]; b.setAttribute('aria-label', p[0]); b.setAttribute('data-c', p[1]);
+      b.addEventListener('click', function(){ state.color = p[1]; paintEyes(); sendEyes(); });
+      box.appendChild(b);
+    });
+    $('custom').addEventListener('input', function(){ state.color = this.value; paintEyes(); });
+    $('custom').addEventListener('change', sendEyes);
+    $('bright').addEventListener('input', function(){ state.bright = parseInt(this.value,10); paintEyes(); });
+    $('bright').addEventListener('change', sendEyes);
+  }
+
+  // ---------- voice ----------
+  function previewVoice(text, accent){
+    if(!('speechSynthesis' in window)){ return; }
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text); u.lang = LANGS[accent] || 'en-US';
+    var voices = window.speechSynthesis.getVoices();
+    for(var i=0;i<voices.length;i++){ if(voices[i].lang && voices[i].lang.replace('_','-') === u.lang){ u.voice = voices[i]; break; } }
+    u.onstart = function(){ $('face').classList.add('speaking'); };
+    u.onend = function(){ $('face').classList.remove('speaking'); };
+    window.speechSynthesis.speak(u);
+  }
+  function hearIt(){
+    state.accent = $('accent').value; store('accent', state.accent);
+    if(live){
+      $('face').classList.add('speaking');
+      api('/api/accent', {accent:state.accent, sample:SAMPLE[state.accent]})
+        .then(function(){ $('face').classList.remove('speaking'); })
+        .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al','(I could not change my accent: '+e.message+')'); });
+    } else {
+      var acc = state.accent, used = false;
+      function fallback(){ if(!used){ used = true; $('face').classList.remove('speaking'); previewVoice(SAMPLE[acc], acc); } }
+      var clip = new Audio('audio/accent-' + acc + '.mp3');
+      clip.onplay = function(){ used = true; $('face').classList.add('speaking'); };
+      clip.onended = function(){ $('face').classList.remove('speaking'); };
+      clip.onerror = fallback;
+      var pr = clip.play(); if(pr && pr.catch){ pr.catch(fallback); }
+    }
+  }
+
+  // ---------- name ----------
+  function renameInfo(){
+    dialog('How renaming works',
+      'A companion\'s owner can give her a new name. The new name is saved, she introduces herself with it, and her greeting changes to match. A.L.I.C.E.\'s name is locked on purpose, so this is only a demonstration and nothing changes.',
+      [['Got it', null]]);
+  }
+
+  // ---------- dialog ----------
+  function dialog(title, body, buttons){
+    var d = $('dlg'); $('dlgTitle').textContent = title; $('dlgBody').textContent = body;
+    var box = $('dlgBtns'); box.innerHTML = '';
+    buttons.forEach(function(b){
+      var el = document.createElement('button'); el.textContent = b[0];
+      if(b[2]){ el.className = 'primary'; }
+      el.addEventListener('click', function(){ d.close(); if(b[1]){ b[1](); } });
+      box.appendChild(el);
+    });
+    if(typeof d.showModal === 'function'){ d.showModal(); } else { alert(title + '\n\n' + body); }
+  }
+
+  // ---------- skills ----------
+  function money(p){ return p === 0 ? 'Included' : '$' + p.toFixed(2); }
+  function callName(n){ var m = /\(called ([^)]+)\)/.exec(String(n)); return m ? m[1] : shortName(n); }
+  function shortName(n){ return String(n).replace(/\s*\(called [^)]*\)/, '').replace(/ \u2014 .*$/, ''); }
+  function renderPersonas(){
+    var box = $('plist'); if(!box){ return; }
+    var q = ($('psearch').value || '').toLowerCase();
+    var shown = visiblePersonas().filter(function(p){
+      if(pGroup !== 'All' && catOf(p) !== pGroup){ return false; }
+      if(pGender !== 'All' && p.gender !== pGender){ return false; }
+      return !q || (p.name + ' ' + p.line + ' ' + (p.role || '') + ' ' + (p.sub || '')).toLowerCase().indexOf(q) !== -1;
+    });
+    box.innerHTML = '';
+    $('pcount').textContent = PERSONAS.length ? (shown.length + ' of ' + visiblePersonas().length + ' personalities' + (state.mode === 'kids' ? ' (children\'s friend mode: only those chosen for everyone under 13)' : '')) : 'Loading personalities...';
+    function addCard(p){
+      var card = document.createElement('div'); card.className = 'persona' + (state.persona === p.id ? ' on' : '');
+      var h = document.createElement('h3'); h.textContent = shortName(p.name); card.appendChild(h);
+      var meta = document.createElement('div'); meta.className = 'meta';
+      var t = document.createElement('span'); t.className = 'tag'; t.textContent = p.sub || p.group; meta.appendChild(t);
+      var gt = document.createElement('span'); gt.className = 'tag'; gt.textContent = p.gender === 'female' ? 'female' : p.gender === 'male' ? 'male' : 'nonbinary'; meta.appendChild(gt);
+      var v = document.createElement('span'); v.className = 'tag'; v.textContent = p.voice ? 'own voice' : 'uses A.L.I.C.E.\'s voice'; meta.appendChild(v);
+      card.appendChild(meta);
+      var d = document.createElement('p'); d.textContent = p.line || p.role || ''; card.appendChild(d);
+      var priv = p.group === 'Private';
+      if(!priv){ var pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(p.price) + '  (example price)'; card.appendChild(pr); }
+      var row = document.createElement('div'); row.className = 'row';
+      if(p.voice){
+        var hv = document.createElement('button'); hv.textContent = 'Hear voice'; hv.setAttribute('aria-label', 'Hear the voice of ' + shortName(p.name));
+        hv.addEventListener('click', function(){ hearPersona(p, hv); }); row.appendChild(hv);
+      }
+      if(state.persona === p.id){
+        var on = document.createElement('span'); on.className = 'tag'; on.textContent = 'Installed'; row.appendChild(on);
+      } else {
+        var g = document.createElement('button'); g.className = 'primary'; g.textContent = priv ? 'Install' : 'Get for ' + money(p.price);
+        g.addEventListener('click', function(){ confirmPersona(p); }); row.appendChild(g);
+      }
+      card.appendChild(row); box.appendChild(card);
+    }
+    PCATS.forEach(function(c){
+      var items = shown.filter(function(p){ return catOf(p) === c; });
+      if(!items.length){ return; }
+      var hd = document.createElement('div'); hd.className = 'phead'; hd.textContent = c; var n = document.createElement('span'); n.textContent = items.length; hd.appendChild(n); box.appendChild(hd);
+      items.forEach(addCard);
+    });
+    var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
+    var mainP = PERSONAS.filter(function(p){ return p.id === state.main; })[0];
+    var mainName = mainP ? callName(mainP.name) : 'A.L.I.C.E.';
+    $('personaNow').textContent = (cur ? 'Speaking as ' + callName(cur.name) + '.' : 'Speaking as A.L.I.C.E.') +
+      (live ? ' Her main personality is ' + mainName + '.' : '');
+    $('personaNow').textContent = $('personaNow').textContent.replace(/\.\./g, '.');
+    $('keepMain').style.display = (live && cur && state.main !== state.persona) ? '' : 'none';
+    if(cur){ $('keepMain').textContent = 'Make ' + callName(cur.name) + ' her main personality'; }
+    $('astraMain').style.display = (live && state.main) ? '' : 'none';
+    $('mainRow').style.display = (live && (cur && state.main !== state.persona || state.main)) ? '' : 'none';
+    $('mainHint').style.display = live ? '' : 'none';
+  }
+  function hearPersona(p, btn){
+    if(pAudio){ pAudio.pause(); pAudio = null; }
+    var old = btn.textContent; btn.textContent = 'Loading...'; btn.disabled = true;
+    var a = new Audio('previews/' + p.id + '.mp3'); pAudio = a;
+    function done(msg){ btn.disabled = false; btn.textContent = msg || old; }
+    a.addEventListener('playing', function(){ done('Playing'); });
+    a.addEventListener('ended', function(){ done(old); });
+    a.addEventListener('error', function(){ done('Not ready yet'); setTimeout(function(){ btn.textContent = old; }, 2500); });
+    var pr = a.play(); if(pr && pr.catch){ pr.catch(function(){ done('Not ready yet'); setTimeout(function(){ btn.textContent = old; }, 2500); }); }
+  }
+  function buildGroups(){
+    var bar = $('pfilters'); Array.prototype.slice.call(bar.querySelectorAll('button')).forEach(function(b){ b.remove(); });
+    ['All'].concat(PCATS.filter(function(c){ return visiblePersonas().some(function(p){ return catOf(p) === c; }); })).forEach(function(g){
+      var b = document.createElement('button'); b.textContent = g; b.className = g === pGroup ? 'on' : '';
+      b.addEventListener('click', function(){ pGroup = g; buildGroups(); renderPersonas(); }); bar.appendChild(b);
+    });
+    [['All', 'Any voice'], ['female', 'Female'], ['male', 'Male'], ['other', 'Nonbinary']].forEach(function(g){
+      var b = document.createElement('button'); b.textContent = g[1]; b.className = g[0] === pGender ? 'on' : '';
+      b.addEventListener('click', function(){ pGender = g[0]; buildGroups(); renderPersonas(); }); bar.appendChild(b);
+    });
+  }
+  function confirmPersona(p){
+    if(p.group === 'Private'){
+      dialog('Install ' + shortName(p.name) + '?', 'Made for one person and kept only on this robot. Nothing is charged. Switch back to A.L.I.C.E. any time.',
+        [['Cancel', null], ['Install', function(){ setPersona(p.id); }, true]]);
+      return;
+    }
+    dialog('Get ' + shortName(p.name) + '?',
+      'Demo only: no payment is taken. In a real purchase, ' + money(p.price) + ' would be charged here. ' +
+      (p.voice ? 'This personality has its own voice.' : 'She keeps her own voice for this one.'),
+      [['Cancel', null], ['Install', function(){ setPersona(p.id); }, true]]);
+  }
+  function refreshMemory(){
+    if(!live){ $('memRow').style.display = 'none'; return; }
+    fetch('/api/memory').then(function(r){ return r.json(); }).then(function(j){
+      if(!j || !j.enabled){ $('memRow').style.display = 'none'; return; }
+      var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
+      var name = cur ? callName(cur.name) : 'She';
+      $('memRow').style.display = '';
+      $('memText').textContent = j.notes.length
+        ? name + ' keeps notes from her talks on this robot (' + j.notes.length + '). They stay on the robot, and are not shared with the hologram, the AR page or the website.'
+        : name + ' has no notes yet. She starts keeping them as she talks. They will stay on the robot, and will not be shared with the hologram, the AR page or the website.';
+      $('memShow').style.display = j.notes.length ? '' : 'none';
+      $('memForget').style.display = j.notes.length ? '' : 'none';
+      var ul = $('memList'); ul.innerHTML = '';
+      j.notes.forEach(function(n, i){
+        var li = document.createElement('li'); li.style.margin = '4px 0';
+        li.appendChild(document.createTextNode(n + ' '));
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Forget this one'; b.style.fontSize = '12px';
+        b.addEventListener('click', function(){ api('/api/memory/forget', {index:i}).then(refreshMemory).catch(function(){}); });
+        li.appendChild(b); ul.appendChild(li);
+      });
+      if(!j.notes.length){ ul.style.display = 'none'; $('memShow').textContent = 'Show what she remembers'; }
+    }).catch(function(){ $('memRow').style.display = 'none'; });
+  }
+  function setPersona(id){
+    state.persona = id; store('persona', id); renderPersonas();
+    var p = PERSONAS.filter(function(x){ return x.id === id; })[0];
+    if(live){
+      api('/api/personality', {id:id}).then(function(j){ addMsg('al', j.note); addMsg('al', j.reply); refreshMemory(); })
+        .catch(function(e){ addMsg('al', '(I could not change my personality: ' + e.message + ')'); });
+    } else {
+      addMsg('al', id && p ? 'Demo: with a real A.L.I.C.E., she would now speak as ' + shortName(p.name) + '.' : 'Back to A.L.I.C.E.');
+    }
+  }
+  // ---------- what her skills keep ----------
+  function recLi(text, label, fn){
+    var li = document.createElement('li'); li.style.margin = '3px 0'; li.appendChild(document.createTextNode(text + ' '));
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.fontSize = '12px'; b.addEventListener('click', fn); li.appendChild(b); return li;
+  }
+  function refreshRecords(){
+    var card = $('recordsCard');
+    if(!live){ card.style.display = 'none'; return; }
+    fetch('/api/records').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ card.style.display = 'none'; return; }
+      var any = j.notes.length || Object.keys(j.lists).length || j.shelf.length || (j.protocol && j.protocol.steps);
+      var wants = state.skills.indexOf('notebook') !== -1 || state.skills.indexOf('shelf') !== -1 || state.skills.indexOf('bench') !== -1;
+      card.style.display = (any || wants) ? '' : 'none';
+      var forget = function(body){ return function(){ api('/api/records/forget', body).then(refreshRecords).catch(function(){}); }; };
+      var n = $('recNotes'); n.innerHTML = '';
+      if(!j.notes.length){ var e = document.createElement('li'); e.textContent = 'No notes yet. Say "remember that..." to her.'; n.appendChild(e); }
+      j.notes.forEach(function(t, i){ n.appendChild(recLi(t, 'Delete', forget({kind:'note', index:i}))); });
+      var l = $('recLists'); l.innerHTML = '';
+      var names = Object.keys(j.lists);
+      if(!names.length){ l.textContent = 'No lists yet. Say "add milk to the shopping list."'; }
+      names.forEach(function(name){
+        var h = document.createElement('div'); h.style.margin = '6px 0 2px'; h.appendChild(document.createTextNode(name + ' list '));
+        var del = document.createElement('button'); del.type = 'button'; del.textContent = 'Delete the list'; del.style.fontSize = '12px'; del.addEventListener('click', forget({kind:'list', name:name})); h.appendChild(del);
+        l.appendChild(h);
+        var ul = document.createElement('ul'); ul.style.margin = '0'; ul.style.paddingLeft = '1.2rem';
+        j.lists[name].forEach(function(item, i){ ul.appendChild(recLi(item, 'Remove', forget({kind:'list', name:name, index:i}))); });
+        l.appendChild(ul);
+      });
+      var sh = $('recShelf'); sh.innerHTML = '';
+      if(!j.shelf.length){ var e2 = document.createElement('li'); e2.textContent = 'Nothing on the shelf. Upload a text file and choose "Put it on her knowledge shelf."'; sh.appendChild(e2); }
+      j.shelf.forEach(function(name){ sh.appendChild(recLi(name, 'Take off the shelf', forget({kind:'shelf', name:name}))); });
+      var pr = $('recProto'); pr.innerHTML = '';
+      if(j.protocol && j.protocol.steps){
+        pr.appendChild(document.createTextNode(j.protocol.name + ': ' + j.protocol.steps + ' steps' + (j.protocol.at ? ', on step ' + j.protocol.at : '') + '. '));
+        var pb = document.createElement('button'); pb.type = 'button'; pb.textContent = 'Put it away'; pb.style.fontSize = '12px'; pb.addEventListener('click', forget({kind:'protocol'})); pr.appendChild(pb);
+      } else { pr.textContent = 'None loaded. Upload a text file with numbered steps and choose "Use it as steps."'; }
+    }).catch(function(){ card.style.display = 'none'; });
+  }
+
+  // ---------- the Guardian setup ----------
+  var gNotifySet = false, gLoadedOnce = false;
+  var G_FIELDS = {building:'gBuilding', greeting:'gGreeting', directory:'gDirectory', forms:'gForms', hours:'gHours', afterhours_start:'gAfterStart', afterhours_end:'gAfterEnd', afterhours_line:'gAfterLine', emergency:'gEmergency'};
+  function refreshGuardian(){
+    var card = $('guardianCard');
+    var wants = state.mode === 'guardian' || state.skills.indexOf('desk') !== -1;
+    if(!live || !wants){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/guardian').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      if(!gLoadedOnce){                                    // fill the fields once, so what is being typed is never overwritten
+        gLoadedOnce = true;
+        Object.keys(G_FIELDS).forEach(function(k){ $(G_FIELDS[k]).value = (j.config[k] || ''); });
+      }
+      gNotifySet = j.config.notify_url === 'set';
+      $('gNotify').placeholder = gNotifySet ? 'A notice address is saved (hidden). Type a new one to change it.' : 'https://...';
+      var v = $('gVisits'); v.innerHTML = '';
+      if(!j.visits.length){ var e = document.createElement('li'); e.textContent = 'No visitors yet.'; v.appendChild(e); }
+      j.visits.slice().reverse().forEach(function(x){ var li = document.createElement('li'); li.textContent = x.when + ': ' + (x.name || 'a visitor') + (x.host ? ' to see ' + x.host : '') + (x.note ? ' (' + x.note + ')' : ''); v.appendChild(li); });
+      var u = $('gUnmet'); u.innerHTML = '';
+      var q = Object.keys(j.unmet);
+      if(!q.length){ var e2 = document.createElement('li'); e2.textContent = 'Nothing yet.'; u.appendChild(e2); }
+      q.forEach(function(k){ var li = document.createElement('li'); li.textContent = k + (j.unmet[k] > 1 ? '  (asked ' + j.unmet[k] + ' times)' : ''); u.appendChild(li); });
+    }).catch(function(){});
+  }
+  $('gSave').addEventListener('click', function(){
+    var body = {}; Object.keys(G_FIELDS).forEach(function(k){ body[k] = $(G_FIELDS[k]).value; });
+    var n = $('gNotify').value.trim();
+    body.notify_url = $('gNotifyClear').checked ? '' : (n || (gNotifySet ? 'set' : ''));
+    api('/api/guardian', body).then(function(){ $('gStatus').textContent = 'Saved.'; $('gNotify').value = ''; $('gNotifyClear').checked = false; gLoadedOnce = true; refreshGuardian(); })
+      .catch(function(e){ $('gStatus').textContent = 'Not saved: ' + e.message; });
+  });
+  $('gExample').addEventListener('click', function(){
+    $('gBuilding').value = 'Example Hall';
+    $('gDirectory').value = "Front desk | just inside the main doors | Open 8 to 5 | reception, desk\nDean's office | third floor, room 310, take the elevator on your left | Open until 5 | dean\nEmerging Technologies Laboratory | second floor, room 214 | | ETL, the lab\nRestrooms | down the hall on your right";
+    $('gForms').value = "Visitor registration | ask at the front desk\nVendor intake | ask at the front desk";
+    $('gHours').value = 'Monday to Friday, 8 am to 5 pm';
+    $('gEmergency').value = 'The front office number is 555 0100.';
+    $('gStatus').textContent = 'An example is filled in. Change it to your building, then Save.';
+  });
+  $('gClearVisits').addEventListener('click', function(){ api('/api/guardian/clear', {what:'visits'}).then(refreshGuardian).catch(function(){}); });
+  $('gClearUnmet').addEventListener('click', function(){ api('/api/guardian/clear', {what:'unmet'}).then(refreshGuardian).catch(function(){}); });
+
+
+  // ---------- how long she waits for me to finish ----------
+  function showPause(j){ if(j && j.seconds != null){ $('pauseSlider').value = j.seconds; $('pauseText').textContent = j.seconds + ' s after I stop'; } }
+  function refreshPause(){ fetch('/api/pause').then(function(r){ return r.ok ? r.json() : null; }).then(showPause).catch(function(){}); }
+  $('pauseSlider').addEventListener('input', function(){ $('pauseText').textContent = this.value + ' s after I stop'; });
+  $('pauseSlider').addEventListener('change', function(){ api('/api/pause', {seconds: parseFloat(this.value)}).then(showPause).catch(function(e){ $('pauseText').textContent = 'Could not reach her'; }); });
+
+  // ---------- listening service ----------
+  function showListen(j){ $('listenText').textContent = j && j.service ? ('Listening with ' + (j.service === 'azure' ? 'Azure.' : 'ElevenLabs.')) : ''; }
+  function refreshListen(){ fetch('/api/listening').then(function(r){ return r.ok ? r.json() : null; }).then(showListen).catch(function(){}); }
+  $('listenAzure').addEventListener('click', function(){ api('/api/listening', {service:'azure'}).then(showListen).catch(function(e){ $('listenText').textContent = 'Could not reach her: ' + e.message; }); });
+  $('listenEleven').addEventListener('click', function(){ api('/api/listening', {service:'elevenlabs'}).then(showListen).catch(function(e){ $('listenText').textContent = 'Could not reach her: ' + e.message; }); });
+  // ---------- quiet ----------
+  function showQuiet(j){ $('quietText').textContent = j && j.quiet ? ('Quiet until ' + j.until + '. She is not listening in the background. The Talk button still works.') : 'She is listening as usual.'; }
+  function refreshQuiet(){ fetch('/api/quiet').then(function(r){ return r.ok ? r.json() : null; }).then(showQuiet).catch(function(){}); }
+  $('quietOn').addEventListener('click', function(){ api('/api/quiet', {minutes:60}).then(showQuiet).catch(function(e){ $('quietText').textContent = 'Could not reach her: ' + e.message; }); });
+  $('quietOff').addEventListener('click', function(){ api('/api/quiet', {minutes:0}).then(showQuiet).catch(function(e){ $('quietText').textContent = 'Could not reach her: ' + e.message; }); });
+
+  // ---------- people she knows about ----------
+  function refreshPeople(){
+    if(!live){ return; }
+    fetch('/api/people').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j || $('peopleText').dataset.loaded){ return; }
+      $('peopleText').dataset.loaded = '1';
+      $('peopleText').value = (j.people || []).map(function(p){ return p.name ? (p.name + ' | ' + (p.who || '')) : p.note; }).join('\n');
+    }).catch(function(){});
+  }
+  $('peopleSave').addEventListener('click', function(){
+    api('/api/people', {text:$('peopleText').value}).then(function(j){ $('peopleStatus').textContent = 'Saved. She knows about ' + j.n + (j.n === 1 ? ' person.' : ' people.'); }).catch(function(e){ $('peopleStatus').textContent = 'Not saved: ' + e.message; });
+  });
+
+  // ---------- voices she knows ----------
+  function paintVoices(j){
+    if(!j){ return; }
+    $('voicesOn').checked = !!j.on;
+    $('voicesNote').textContent = j.ready ? '' : j.why;
+    var box = $('voicesList'); box.textContent = '';
+    (j.people || []).forEach(function(p){
+      var row = document.createElement('div'); row.style.marginBottom = '6px';
+      var t = document.createElement('span'); t.textContent = p.name + ' (' + p.clips + (p.clips === 1 ? ' recording' : ' recordings') + (p.created ? ', ' + p.created : '') + ')';
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Forget'; b.style.marginLeft = '10px';
+      b.addEventListener('click', function(){ api('/api/voices/forget', {name:p.name}).then(function(j2){ $('voicesStatus').textContent = 'Forgot ' + p.name + '.'; paintVoices(j2); }).catch(function(e){ $('voicesStatus').textContent = e.message; }); });
+      row.appendChild(t); row.appendChild(b); box.appendChild(row);
+    });
+    if(!(j.people || []).length){ box.textContent = 'Nobody is registered yet.'; }
+  }
+  function refreshVoices(){
+    if(!live){ return; }
+    fetch('/api/voices').then(function(r){ return r.ok ? r.json() : null; }).then(paintVoices).catch(function(){});
+  }
+  function voicesDone(j){
+    $('voicesStatus').textContent = 'Registered. ' + j.clips + (j.clips === 1 ? ' recording' : ' recordings') + ' kept as a fingerprint. The recording itself is gone.';
+    paintVoices(j);
+  }
+  $('voicesOn').addEventListener('click', function(){
+    api('/api/voices/toggle', {on:$('voicesOn').checked}).then(paintVoices).catch(function(e){ $('voicesStatus').textContent = e.message; refreshVoices(); });
+  });
+  $('voicesRecord').addEventListener('click', function(){
+    if(!$('voicesConsent').checked){ $('voicesStatus').textContent = 'Tick the box first: the person must agree.'; return; }
+    $('voicesStatus').textContent = 'Listening for 12 seconds. Say the sentence, then keep talking...';
+    api('/api/voices/record', {name:$('voicesName').value, consent:true}).then(voicesDone).catch(function(e){ $('voicesStatus').textContent = e.message; });
+  });
+  $('voicesUpload').addEventListener('click', function(){
+    if(!$('voicesConsent').checked){ $('voicesStatus').textContent = 'Tick the box first: the person must agree.'; return; }
+    var f = $('voicesFile').files[0];
+    if(!f){ $('voicesStatus').textContent = 'Choose a recording first.'; return; }
+    var fd = new FormData(); fd.append('name', $('voicesName').value); fd.append('consent', 'yes'); fd.append('file', f);
+    $('voicesStatus').textContent = 'Checking the recording...';
+    api('/api/voices/upload', fd, true).then(voicesDone).catch(function(e){ $('voicesStatus').textContent = e.message; });
+  });
+
+  // ---------- pet companion ----------
+  var petLoaded = false;
+  function refreshPet(){
+    var card = $('petCard');
+    if(!live || state.skills.indexOf('pet') === -1){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/pet').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      if(!petLoaded){                                    // fill once, so what is being typed is never overwritten
+        petLoaded = true; var c = j.config;
+        $('petName').value = c.name || ''; $('petToys').value = (c.toys || []).join(', '); $('petKind').value = c.kind || 'dog'; $('petEvery').value = c.every_min || 40;
+        $('petQs').value = c.quiet_start || ''; $('petQe').value = c.quiet_end || ''; $('petNoteAt').value = c.note_at || ''; $('petOn').checked = !!c.on;
+      }
+      $('petToday').textContent = j.today + (j.care ? '' : ' (No notice address is saved yet, so the daily note cannot be sent. Add one in the check-in card.)');
+    }).catch(function(){});
+  }
+  $('petSave').addEventListener('click', function(){
+    api('/api/pet', {name:$('petName').value, toys:$('petToys').value, kind:$('petKind').value, every_min:$('petEvery').value, quiet_start:$('petQs').value, quiet_end:$('petQe').value, note_at:$('petNoteAt').value, on:$('petOn').checked})
+      .then(function(){ $('petStatus').textContent = 'Saved.'; petLoaded = false; refreshPet(); }).catch(function(e){ $('petStatus').textContent = 'Not saved: ' + e.message; });
+  });
+  $('petSay').addEventListener('click', function(){ $('petStatus').textContent = 'Saying one...'; api('/api/pet/say', {}).then(function(j){ $('petStatus').textContent = 'She said: ' + j.said; refreshPet(); }).catch(function(e){ $('petStatus').textContent = e.message; }); });
+  $('petNote').addEventListener('click', function(){ api('/api/pet/note', {}).then(function(j){ $('petStatus').textContent = j.sent ? 'Sent: ' + j.note : 'Not sent (no notice address saved). The note is: ' + j.note; }).catch(function(e){ $('petStatus').textContent = e.message; }); });
+
+  // ---------- the calendar ----------
+  function refreshCalendar(){
+    var card = $('calCard');
+    if(!live || state.skills.indexOf('briefing') === -1){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/calendar').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      $('calUrl').placeholder = j.set ? 'A calendar link is saved (hidden). Paste a new one to change it.' : 'https://outlook.office365.com/owa/calendar/...ics';
+    }).catch(function(){});
+  }
+  $('calSave').addEventListener('click', function(){
+    var u = $('calUrl').value.trim(); if(!u){ $('calStatus').textContent = 'Paste the link first.'; return; }
+    api('/api/calendar', {url:u}).then(function(){ $('calUrl').value = ''; $('calStatus').textContent = 'Saved. Press Test it.'; refreshCalendar(); }).catch(function(e){ $('calStatus').textContent = 'Not saved: ' + e.message; });
+  });
+  $('calTest').addEventListener('click', function(){
+    $('calStatus').textContent = 'Reading it...';
+    api('/api/calendar/test', {}).then(function(j){ $('calStatus').textContent = 'I can read it: ' + j.events + ' events on the feed, ' + j.upcoming + ' in the next two weeks.'; }).catch(function(e){ $('calStatus').textContent = e.message; });
+  });
+  $('calClear').addEventListener('click', function(){ api('/api/calendar', {url:''}).then(function(){ $('calStatus').textContent = 'Removed.'; refreshCalendar(); }).catch(function(){}); });
+
+  // ---------- house controls ----------
+  function refreshHouse(){
+    var card = $('houseCard');
+    if(!live || state.skills.indexOf('house') === -1){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    fetch('/api/house').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j){ return; }
+      var ul = $('hDevices'); ul.innerHTML = '';
+      if(!j.devices.length){ var e = document.createElement('li'); e.textContent = 'No devices yet.'; ul.appendChild(e); }
+      j.devices.forEach(function(d){
+        var li = document.createElement('li'); li.style.margin = '4px 0';
+        li.appendChild(document.createTextNode(d.name + '  (' + d.type + ', ' + d.kind + ')  '));
+        (d.type === 'blinds' ? ['open','close'] : ['on','off']).forEach(function(a){
+          var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Test ' + a; b.style.marginRight = '6px';
+          b.addEventListener('click', function(){ $('hStatus').textContent = 'Trying it...'; api('/api/house/test', {name:d.name, action:a}).then(function(){ $('hStatus').textContent = 'It answered.'; }).catch(function(e){ $('hStatus').textContent = 'It did not work: ' + e.message; }); });
+          li.appendChild(b);
+        });
+        var rm = document.createElement('button'); rm.type = 'button'; rm.textContent = 'Remove';
+        rm.addEventListener('click', function(){ api('/api/house/delete', {name:d.name}).then(refreshHouse).catch(function(){}); });
+        li.appendChild(rm); ul.appendChild(li);
+      });
+    }).catch(function(){});
+  }
+  function houseFormShape(){
+    var http = $('hKind').value === 'http', blinds = $('hType').value === 'blinds';
+    $('hKasaBox').style.display = http ? 'none' : ''; $('hHttpBox').style.display = http ? '' : 'none';
+    $('hOnLabel').textContent = blinds ? 'Address that opens it' : 'Address that turns it on';
+    $('hOffLabel').textContent = blinds ? 'Address that closes it' : 'Address that turns it off';
+  }
+  $('hKind').addEventListener('change', houseFormShape); $('hType').addEventListener('change', houseFormShape);
+  $('hAdd').addEventListener('click', function(){
+    var blinds = $('hType').value === 'blinds', body = {name:$('hName').value, type:$('hType').value, kind:$('hKind').value, host:$('hHost').value.trim(), actions:{}};
+    if(body.kind === 'http'){ body.actions[blinds ? 'open' : 'on'] = $('hOn').value.trim(); body.actions[blinds ? 'close' : 'off'] = $('hOff').value.trim(); }
+    api('/api/house/add', body).then(function(){ $('hStatus').textContent = 'Added. Press Test to check it.'; $('hName').value = ''; refreshHouse(); })
+      .catch(function(e){ $('hStatus').textContent = 'Not added: ' + e.message; });
+  });
+
+  // ---------- modes ----------
+  function renderModes(){
+    var box = $('modes'); box.innerHTML = '';
+    MODES.forEach(function(m){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'mode' + (state.mode === m.id ? ' on' : '');
+      b.innerHTML = '<b><i></i><span class="n"></span></b><span class="l"></span>';
+      b.querySelector('i').style.background = m.color; b.querySelector('.n').textContent = m.name; b.querySelector('.n').style.fontSize = '16px'; b.querySelector('.n').style.color = 'var(--ink)';
+      b.querySelector('.l').textContent = m.line;
+      if(state.mode === m.id){ var t = document.createElement('span'); t.className = 'tag'; t.textContent = 'On'; t.style.alignSelf = 'flex-start'; b.appendChild(t); }
+      b.addEventListener('click', function(){ chooseMode(m.id); });
+      box.appendChild(b);
+    });
+    var cur = MODES.filter(function(m){ return m.id === state.mode; })[0];
+    $('modeNote').textContent = cur ? ('In ' + cur.name + ' mode. ' + (cur.id === 'kids' ? 'She keeps notes for a parent and nothing else. Skills and personalities are filtered to everyone under 13.' : cur.id === 'sp' ? 'She keeps no notes. Say "Patient" and a number to load a patient, a new number to switch, and "End patient" to stop.' : cur.id === 'event' || cur.id === 'bench' || cur.id === 'guardian' ? 'She keeps no notes about anyone in this mode.' : 'She keeps her usual notes.')) : 'No mode chosen: she behaves as she usually does.';
+  }
+  function chooseMode(id){
+    var m = MODES.filter(function(x){ return x.id === id; })[0]; if(!m){ return; }
+    var was = state.mode;
+    state.mode = id; store('mode', id);
+    state.color = m.color; store('eyes', {color:state.color, bright:state.bright}); paintEyes();
+    if(id === 'kids'){ state.skills = state.skills.filter(function(x){ return KIDS_SKILLS.indexOf(x) !== -1; }); }
+    if(live){
+      api('/api/mode', {id:id}).then(function(j){
+        if(j.welcome){ state.welcome = j.welcome; paintWelcome(); }
+        if(j.skills){ state.skills = j.skills.slice(); }
+        state.persona = j.persona || null; store('persona', state.persona);
+        addMsg('al', j.line); renderModes(); renderSkills(); refreshPersonaList(); refreshParent(); refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople(); refreshVoices();
+      }).catch(function(e){ state.mode = was; store('mode', was); renderModes(); addMsg('al', '(I could not change my mode: ' + e.message + ')'); });
+    } else {
+      if(id === 'kids' && state.persona){ var cp = PERSONAS.filter(function(p){ return p.id === state.persona; })[0]; if(!cp || !cp.kids){ state.persona = null; store('persona', null); } }
+      addMsg('al', 'Demo: ' + m.demo);
+      renderModes(); renderSkills(); refreshPersonaList(); refreshParent();
+    }
+  }
+  var parentTimer = null;
+  function refreshParent(){
+    var row = $('parentRow');
+    if(!live || state.mode !== 'kids'){ row.style.display = 'none'; return; }
+    fetch('/api/parent-notes').then(function(r){ return r.json(); }).then(function(j){
+      row.style.display = '';
+      var ul = $('parentList'); ul.innerHTML = '';
+      if(!j.notes.length){ var li0 = document.createElement('li'); li0.textContent = 'No notes yet. She writes a few after each short talk with a child.'; ul.appendChild(li0); }
+      j.notes.forEach(function(n, i){
+        var li = document.createElement('li'); li.style.margin = '4px 0'; li.appendChild(document.createTextNode(n + ' '));
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Delete this one'; b.style.fontSize = '12px';
+        b.addEventListener('click', function(){ api('/api/parent-notes/forget', {index:i}).then(refreshParent).catch(function(){}); });
+        li.appendChild(b); ul.appendChild(li);
+      });
+    }).catch(function(){ row.style.display = 'none'; });
+    if(!parentTimer){ parentTimer = setInterval(function(){ if(live && state.mode === 'kids'){ refreshParent(); } }, 30000); }
+  }
+  function loadPersonas(){
+    fetch('personas.json').then(function(r){ if(!r.ok){ throw new Error('no'); } return r.json(); })
+      .then(function(j){ PERSONAS = j; buildGroups(); renderPersonas(); })
+      .then(function(){ return fetch('/api/private-personas').then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; }); })
+      .then(function(extra){ if(extra && extra.length){ PERSONAS = extra.concat(PERSONAS); buildGroups(); renderPersonas(); } })
+      .catch(function(){ $('pcount').textContent = 'The personality list could not be loaded.'; });
+  }
+  function renderSkills(){
+    var box = $('skills'); box.innerHTML = '';
+    SKILLS.filter(function(s){ return state.mode !== 'kids' || KIDS_SKILLS.indexOf(s.id) !== -1; }).forEach(function(s){
+      var have = state.skills.indexOf(s.id) !== -1;
+      var card = document.createElement('div'); card.className = 'skill';
+      var h = document.createElement('h3'); h.textContent = s.name; card.appendChild(h);
+      var p = document.createElement('p'); p.textContent = s.desc; card.appendChild(p);
+      var pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(s.price) + (s.price ? '  (example price)' : ''); card.appendChild(pr);
+      var row = document.createElement('div'); row.className = 'row';
+      if(have){
+        var t = document.createElement('span'); t.className = 'tag'; t.textContent = 'Installed'; row.appendChild(t);
+        var tr = document.createElement('button'); tr.textContent = 'Try it';
+        tr.addEventListener('click', function(){ tryReply(s); }); row.appendChild(tr);
+      } else {
+        var g = document.createElement('button'); g.className = 'primary'; g.textContent = s.price ? 'Get for ' + money(s.price) : 'Add';
+        g.addEventListener('click', function(){ confirmSkill(s, card); }); row.appendChild(g);
+      }
+      card.appendChild(row);
+      var bar = document.createElement('div'); bar.className = 'bar'; bar.style.display = 'none'; bar.innerHTML = '<i></i>'; card.appendChild(bar);
+      box.appendChild(card);
+    });
+  }
+  function confirmSkill(s, card){
+    dialog('Get ' + s.name + '?',
+      s.price ? 'Demo only: no payment is taken. In a real purchase, ' + money(s.price) + ' would be charged here.' : 'This one is included.',
+      [['Cancel', null], ['Install', function(){ install(s, card); }, true]]);
+  }
+  function install(s, card){
+    var bar = card.querySelector('.bar'); var fill = bar.firstChild; bar.style.display = 'block';
+    var w = 0; var iv = setInterval(function(){
+      w += 14 + Math.random()*14; if(w >= 100){ w = 100; clearInterval(iv); finish(); }
+      fill.style.width = w + '%';
+    }, 220);
+    function finish(){
+      if(state.skills.indexOf(s.id) === -1){ state.skills.push(s.id); }
+      store('skills', state.skills);
+      if(live){ api('/api/skill', {id:s.id, name:s.name, description:s.desc}).then(function(){ refreshRecords(); refreshGuardian(); refreshHouse(); refreshCalendar(); refreshPet(); refreshPeople(); refreshVoices(); }).catch(function(e){ addMsg('al','(I could not add that skill: '+e.message+')'); }); }
+      setTimeout(renderSkills, 250);
+    }
+  }
+  function tryReply(s){
+    addMsg('you', 'Let us try ' + s.name + '.');
+    if(live){ ask('Let us try the ' + s.name + ' skill. ' + s.desc); }
+    else { reply(s.demo); }
+  }
+
+  // ---------- chat ----------
+  function speaker(){
+    var cur = state.persona && PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
+    if(!cur){ return 'A.L.I.C.E.'; }
+    var t = shortName(cur.name).replace(/"/g, '').split(/[ ,]+/);
+    return /^(Dr\.|Ms\.|Mr\.|Lady|Coach|Prince)$/.test(t[0]) ? t[0] + ' ' + t[1] : t[0];
+  }
+  function addMsg(who, text){
+    var log = $('log'); var p = document.createElement('p'); p.className = 'msg ' + who;
+    var b = document.createElement('b'); b.textContent = (who === 'you' ? 'You' : speaker()) + ': ';
+    p.appendChild(b); p.appendChild(document.createTextNode(text)); log.appendChild(p); log.scrollTop = log.scrollHeight;
+  }
+  function reply(text){
+    $('face').classList.add('speaking'); addMsg('al', text);
+    setTimeout(function(){ $('face').classList.remove('speaking'); }, 1800);
+  }
+  var DEMO = [
+    'Hello. I am A.L.I.C.E. It is nice to meet you.',
+    'That is a good question. Tell me more.',
+    'I am still learning. What would you like to try?',
+    'I like that. What else is on your mind?'
+  ];
+  var demoIdx = 0;
+  function demoAnswer(t){
+    var s = t.toLowerCase();
+    if(/real person|human|are you a person|are you real/.test(s)){ return 'No. I am an android, not a person. I like talking with people, though.'; }
+    if(/your name|who are you/.test(s)){ return 'I am A.L.I.C.E. You can call me Alice.'; }
+    if(/color|colour|eyes/.test(s)){ return 'Try the eye color panel. I can glow in any color you like.'; }
+    return DEMO[demoIdx++ % DEMO.length];
+  }
+  function ask(text){
+    $('face').classList.add('speaking');
+    api('/api/say', {text:text}).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); })
+      .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al', '(I could not answer: ' + e.message + ')'); });
+  }
+  function send(){
+    var t = $('say').value.trim(); if(!t){ return; }
+    $('say').value = ''; addMsg('you', t);
+    if(live){ ask(t); } else { setTimeout(function(){ reply(demoAnswer(t)); }, 500); }
+  }
+
+  // ---------- photos ----------
+  var chosen = null;
+  function pickPhoto(){
+    var f = this.files && this.files[0]; chosen = f || null;
+    if(f){ showPhoto(); }
+  }
+  function shrinkPhoto(file){
+    return new Promise(function(resolve){
+      try{
+        var im = new Image(), u = URL.createObjectURL(file);
+        im.onload = function(){
+          try{
+            var max = 1600, w = im.naturalWidth, h = im.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+            var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+            c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+            c.toBlob(function(b){ URL.revokeObjectURL(u); resolve(b || file); }, 'image/jpeg', 0.85);
+          }catch(e){ resolve(file); }
+        };
+        im.onerror = function(){ resolve(file); };
+        im.src = u;
+      }catch(e){ resolve(file); }
+    });
+  }
+  function showPhoto(){
+    if(!chosen){ return; }
+    var f = chosen; var cap = $('caption').value.trim();
+    var url = URL.createObjectURL(f);
+    var img = document.createElement('img'); img.src = url; img.alt = cap || 'A photo shared with A.L.I.C.E.'; $('thumbs').appendChild(img);
+    addMsg('you', '(shared a photo' + (cap ? ': ' + cap : '') + ')');
+    if(live){
+      $('face').classList.add('speaking');
+      // A phone photo can be several megabytes; the picture service takes about 5 MB once it is encoded, so it is shrunk first.
+      // If shrinking fails for any reason the original goes up as before.
+      shrinkPhoto(f).then(function(small){
+        var fd = new FormData(); fd.append('photo', small, 'photo.jpg'); fd.append('caption', cap);
+        return api('/api/photo', fd, true);
+      }).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); })
+        .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al', '(I could not look at that: ' + e.message + ')'); });
+    } else {
+      setTimeout(function(){ reply(cap ? 'Thank you for showing me this. ' + cap + '. Tell me more about it.' : 'Thank you for showing me this. What is happening in it?'); }, 600);
+    }
+    $('photo').value = ''; $('caption').value = ''; chosen = null;
+  }
+  // ---------- files: she reads a text file or a PDF ----------
+  function sendFile(){
+    var f = this.files && this.files[0]; this.value = '';
+    if(!f){ return; }
+    var li = document.createElement('div'); li.className = 'tag'; li.textContent = f.name; li.style.margin = '4px'; $('thumbs').appendChild(li);
+    addMsg('you', '(gave her a file: ' + f.name + ')');
+    if(live){
+      $('face').classList.add('speaking');
+      var fd = new FormData(); fd.append('file', f, f.name); fd.append('use', $('fileUse').value);
+      api('/api/file', fd, true).then(function(j){ addMsg('al', j.reply || '...'); $('face').classList.remove('speaking'); refreshRecords(); })
+        .catch(function(e){ $('face').classList.remove('speaking'); addMsg('al', '(I could not read that: ' + e.message + ')'); });
+    } else {
+      setTimeout(function(){ reply('Thank you for the file. With a real A.L.I.C.E. I would read it and tell you what stands out.'); }, 600);
+    }
+  }
+
+  // ---------- when someone walks up ----------
+  function paintWelcome(){
+    var w = state.welcome;
+    $('wGreet').checked = !!w.greet; $('wTurn').checked = !!w.turn; $('wEyes').checked = !!w.eyes;
+    $('wChat').checked = w.chat !== false; $('wAlways').checked = !!w.always; $('wCrowd').checked = !!w.crowd;
+    $('wWait').value = String(w.wait);
+  }
+  function ago(n){ return n < 90 ? n + ' seconds ago' : n < 5400 ? Math.round(n/60) + ' minutes ago' : Math.round(n/3600) + ' hours ago'; }
+  function paintSensor(info){
+    // A.L.I.C.E. cannot tell whether a sensor is plugged in, only whether it has noticed anyone
+    var msg = 'On A.L.I.C.E. this works with her motion sensor. Here your choices are only saved on this page.';
+    if(info){
+      msg = info.motion === 'warming' ? 'Her motion sensor is warming up. This takes about a minute.'
+          : info.motion === 'ready' ? (info.seen_ago == null ? 'Listening for her motion sensor. It has not noticed anyone yet. Wave a hand in front of it to check.'
+                                                                : 'Her motion sensor last noticed someone ' + ago(info.seen_ago) + '.')
+          : 'Her motion sensor could not be started. Welcome now still works.';
+    }
+    $('wStatus').textContent = msg;
+  }
+  function pollSensor(){
+    if(!live){ return; }
+    fetch('/api/welcome').then(function(r){ return r.json(); }).then(function(j){ paintSensor(j); }).catch(function(){});
+  }
+  function saveWelcome(){
+    var w = state.welcome;
+    w.greet = $('wGreet').checked; w.turn = $('wTurn').checked; w.eyes = $('wEyes').checked; w.chat = $('wChat').checked; w.always = $('wAlways').checked; w.crowd = $('wCrowd').checked; w.wait = parseInt($('wWait').value, 10);
+    store('welcome', w);
+    if(live){ api('/api/welcome', w).catch(function(e){ addMsg('al', '(I could not save that choice: ' + e.message + ')'); }); }
+  }
+  function welcomeNow(){
+    if(!live){ addMsg('al', 'In demo mode I only say hello here. On A.L.I.C.E. this also turns my head and brightens my eyes, as you chose.'); reply(SAMPLE[state.accent]); return; }
+    api('/api/welcome/now').then(function(j){
+      if(!j.did || !j.did.length){ addMsg('al', 'All three are switched off, so I did nothing.'); }
+    }).catch(function(e){ addMsg('al', '(I could not welcome just now: ' + e.message + ')'); });
+  }
+
+  function resetDemo(){
+    state.skills = []; store('skills', []); $('log').innerHTML = ''; $('thumbs').innerHTML = '';
+    state.color = '#1fb7c9'; state.bright = 40; state.accent = 'american'; $('accent').value = 'american';
+    state.persona = live ? state.main : null; store('persona', state.persona); $('bright').value = 40; paintEyes(); renderSkills(); renderPersonas();
+    if(live){ api('/api/reset').catch(function(){}); }
+  }
+
+  // ---------- switching off: two taps, so a stray tap cannot do it ----------
+  var shutTimer = null;
+  function shutDown(){
+    var b = $('shutBtn'), msg = $('shutStatus');
+    if(!live){ return; }
+    if(!shutTimer){
+      b.textContent = 'Tap again to shut down';
+      msg.textContent = '';
+      shutTimer = setTimeout(function(){ shutTimer = null; b.textContent = 'Shut down A.L.I.C.E.'; }, 6000);
+      return;
+    }
+    clearTimeout(shutTimer); shutTimer = null;
+    b.disabled = true; b.textContent = 'Shutting down';
+    fetch('/api/shutdown', {method:'POST'}).then(function(r){
+      return r.json().then(function(j){ return {ok:r.ok, j:j}; });
+    }).then(function(x){
+      if(!x.ok){ throw new Error(x.j.error || 'A.L.I.C.E. could not shut down.'); }
+      msg.textContent = 'She is saying goodnight. In about 30 seconds it is safe to switch the power off.';
+    }).catch(function(e){
+      b.disabled = false; b.textContent = 'Shut down A.L.I.C.E.';
+      msg.textContent = e.message;
+    });
+  }
+
+  // ---------- start ----------
+  buildSwatches();
+  var saved = load('eyes', null); if(saved){ state.color = saved.color; state.bright = saved.bright; $('bright').value = saved.bright; }
+  state.persona = load('persona', null); state.skills = load('skills', []); state.accent = load('accent', 'american'); if(!SAMPLE[state.accent]){ state.accent = 'american'; } $('accent').value = state.accent;
+  paintEyes(); renderSkills(); setLive(false);
+  $('hear').addEventListener('click', hearIt);
+  $('shutBtn').addEventListener('click', shutDown);
+  $('rename').addEventListener('click', renameInfo);
+  $('send').addEventListener('click', send);
+  $('say').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ send(); } });
+  $('photo').addEventListener('change', pickPhoto);
+  $('parentForgetAll').addEventListener('click', function(){ api('/api/parent-notes/forget', {}).then(refreshParent).catch(function(){}); });
+  state.mode = load('mode', null); renderModes(); if(PERSONAS.length){ refreshPersonaList(); }
+  $('showPhoto').addEventListener('click', function(){ $('photo').click(); });
+  $('uploadFile').addEventListener('click', function(){ $('docfile').click(); });
+  $('docfile').addEventListener('change', sendFile);
+  $('reset').addEventListener('click', resetDemo);
+  state.welcome = load('welcome', state.welcome); paintWelcome();
+  function preset(name){
+    var e = name === 'event';
+    $('wGreet').checked = true; $('wTurn').checked = true; $('wEyes').checked = true;
+    $('wChat').checked = !e;          // at a crowded event she does not keep listening on her own
+    $('wAlways').checked = !e;        // in the lab she listens for her name all the time
+    $('wWait').value = e ? '300' : '60';
+    saveWelcome();
+    $('wPreset').textContent = e ? 'Event settings are on.' : 'Lab settings are on.';
+  }
+  $('wEvent').addEventListener('click', function(){ preset('event'); });
+  $('wLab').addEventListener('click', function(){ preset('lab'); });
+  ['wGreet','wTurn','wEyes','wChat','wAlways','wCrowd','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
+  $('wNow').addEventListener('click', welcomeNow);
+  addMsg('al', 'Hello. I am A.L.I.C.E. Ask me something.');
+  // ---------- talk by voice: she listens for 6 seconds through her own microphones ----------
+  $('vol').addEventListener('input', function(){ $('volText').textContent = this.value + '%'; });
+  $('vol').addEventListener('change', function(){
+    var v = parseInt(this.value, 10);
+    api('/api/volume', {volume: v}).then(function(j){ $('volText').textContent = j.volume + '%'; })
+      .catch(function(e){ addMsg('al', '(I could not change the volume: ' + e.message + ')'); });
+  });
+  $('listenBtn').addEventListener('click', function(){
+    if(!live){ return; }
+    var b = $('listenBtn'), msg = $('listenStatus'), left = 15;
+    b.disabled = true; b.textContent = 'Listening';
+    msg.textContent = 'Ask now. She waits up to ' + left + ' seconds.';
+    var tick = setInterval(function(){
+      left -= 1;
+      if(left > 0){ msg.textContent = 'Ask now. She waits up to ' + left + ' seconds.'; }
+      else { clearInterval(tick); msg.textContent = 'One moment.'; }
+    }, 1000);
+    fetch('/api/listen/now', {method:'POST'}).then(function(r){
+      return r.json().then(function(j){ return {ok:r.ok, j:j}; });
+    }).then(function(x){
+      if(!x.ok){ throw new Error(x.j.error || 'I could not listen just now.'); }
+      if(!x.j.heard){ msg.textContent = 'I did not hear a question. Press again and ask a little closer.'; return; }
+      addMsg('you', x.j.heard); addMsg('al', x.j.reply || '...');
+      msg.textContent = 'Press, then ask one question. She waits for you to start and stops when you finish. No name needed.';
+    }).catch(function(e){
+      msg.textContent = e.message;
+    }).then(function(){
+      clearInterval(tick); b.disabled = false; b.textContent = 'Listen now';
+    });
+  });
+  (function(){
+    var on = false, b = $('sistersBtn'), msg = $('sistersStatus');
+    function paint(){ b.textContent = on ? 'End the talk' : 'Let them talk'; }
+    b.addEventListener('click', function(){
+      var body = on ? {on:false} : {on:true, name:$('sistersMe').value.trim(), 'with': $('sistersWith').value.split(/,| and /i).map(function(x){ return x.trim(); }).filter(Boolean)};
+      fetch('/api/sisters', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
+        .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+        .then(function(x){
+          if(!x.ok){ msg.textContent = x.j.error || 'I could not start it.'; return; }
+          on = !!x.j.on; paint();
+          msg.textContent = on ? 'They are talking. Say "that\'s enough" or press End the talk.' : 'The talk has ended.';
+        }).catch(function(e){ msg.textContent = 'I could not reach her: ' + e.message; });
+    });
+    setInterval(function(){
+      if(!on) return;
+      fetch('/api/sisters').then(function(r){ return r.json(); }).then(function(j){ if(!j.on){ on = false; paint(); msg.textContent = 'The talk ended on its own.'; } }).catch(function(){});
+    }, 4000);
+  })();
+  $('stopAlarmBtn').addEventListener('click', function(){
+    fetch('/api/clock/stop', {method:'POST'}).then(function(r){ $('stopAlarmMsg').textContent = r.ok ? 'Stopped.' : 'I could not reach her.'; })
+      .catch(function(){ $('stopAlarmMsg').textContent = 'I could not reach her.'; });
+  });
+  document.querySelectorAll('#starters button').forEach(function(b){
+    b.addEventListener('click', function(){ $('say').value = b.getAttribute('data-q'); send(); });
+  });
+  $('sayAddress').addEventListener('click', function(){
+    if(!live){ addMsg('al', 'In demo mode I have no address of my own. Open this panel from A.L.I.C.E. to use this button.'); return; }
+    api('/api/address').then(function(j){ addMsg('al', 'My address is ' + j.url + '. I am saying it out loud now.'); })
+      .catch(function(e){ addMsg('al', '(I could not say my address: ' + e.message + ')'); });
+  });
+  (function(){
+    var root = document.documentElement, btn = $('themeBtn');
+    function isDark(){ var t = root.getAttribute('data-theme'); return t ? t === 'dark' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+    function label(){ btn.textContent = isDark() ? 'Light mode' : 'Dark mode'; }
+    var saved = load('theme', null); if(saved){ root.setAttribute('data-theme', saved); }
+    label();
+    btn.addEventListener('click', function(){ var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); store('theme', n); label(); });
+  })();
+  $('psearch').addEventListener('input', renderPersonas);
+  $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
+  $('memShow').addEventListener('click', function(){
+    var ul = $('memList'), open = ul.style.display === 'none';
+    ul.style.display = open ? '' : 'none'; $('memShow').textContent = open ? 'Hide' : 'Show what she remembers';
+  });
+  $('memForget').addEventListener('click', function(){
+    dialog('Forget everything?', 'She will forget all the notes she has kept from her talks on this robot. This cannot be undone.',
+      [['Cancel', null], ['Forget all', function(){ api('/api/memory/forget', {}).then(refreshMemory).catch(function(){}); }, true]]);
+  });
+  $('keepMain').addEventListener('click', function(){
+    var id = state.persona; if(!id){ return; }
+    api('/api/personality/main', {id:id}).then(function(){ state.main = id; renderPersonas(); addMsg('al', 'Saved. This is now her main personality.'); })
+      .catch(function(e){ addMsg('al', '(I could not save that: ' + e.message + ')'); });
+  });
+  $('astraMain').addEventListener('click', function(){
+    api('/api/personality/main', {id:null}).then(function(){ state.main = null; setPersona(null); })
+      .catch(function(e){ addMsg('al', '(I could not save that: ' + e.message + ')'); });
+  });
+  buildGroups(); loadPersonas();
+  tryConnect();
+  setInterval(pollSensor, 3000);
+  setInterval(pollLog, 2500);
+  setInterval(refreshRecords, 12000);
+  setInterval(refreshGuardian, 12000);
+})();
+</script>
+</body>
+</html>

@@ -1534,7 +1534,9 @@ def context_for(text):
 
 @app.get("/")
 def home():
-    return send_from_directory(HERE, "index.html")
+    # A.L.I.C.E.'s own page (made by make_alice_page.py) when it sits beside this file, Astra-9 Lite's page otherwise
+    page = "index_alice.html" if os.path.exists(os.path.join(HERE, "index_alice.html")) else "index.html"
+    return send_from_directory(HERE, page)
 
 
 @app.get("/api/status")
