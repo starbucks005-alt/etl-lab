@@ -403,7 +403,7 @@ What that means for the build, still to be settled when the body is here (day 4 
 
 ## Astra Lite (AL): audio pigtail cable (Dr. O, 2026-10-28)
 
-Bought for AL on Amazon, order 113-1021392-2581838, placed 27 Oct 2026, total $8.59, arriving Wed 28 Oct: Jienk 2 PCS, 3 ft, 3.5 mm (1/8 in) TRS stereo male plug to 3 bare wires (pigtail), 3-pole. What it is for has not been written down here yet.
+Bought for AL on Amazon, order 113-1021392-2581838, placed 27 Oct 2026, total $8.59, now arriving Thu 29 Oct (Dr. O, 2026-10-28; the order page had said Wed 28 Oct): Jienk 2 PCS, 3 ft, 3.5 mm (1/8 in) TRS stereo male plug to 3 bare wires (pigtail), 3-pole. What it is for has not been written down here yet.
 
 ## ALICE: sharing the 5 V between the servo board and the amp (Dr. O, 2026-10-28, bench, not yet powered together)
 
@@ -435,3 +435,11 @@ Added from the later photos (2026-10-28):
 - **5, header.** Her list of the six header pins, in the order she wrote them: V+, VCC, SDA, SCL, OE, GND, with arrows. Only GND, SCL, SDA and VCC carry wires.
 - **6. Connect.** The cable with the wide white plug (bare wires on the far end) is joined to the servo board's jumper wires with the WAGOs. The photo shows one WAGO and the plug laid out, before the join.
 - **7. Power back on.** Four WAGOs joining the HAT cable to the servo board's jumper wires, the two power wires taped at the far ends.
+
+## ALICE: amp powered on the bench (Dr. O, 2026-10-28, no sound yet)
+
+- Voltage at the amp's wire ends, read with the meter before connecting: 5.37 V (the adapter alone also reads 5.37 V with nothing attached).
+- The amp's red wire is under its + screw and the black under its - screw (the - screw beeps to the audio jack ground). Powered on: the amp showed a green light, the servo board its red light, and nothing was warm. Not left on for long.
+- Her sheet steps 12 (connect + and - to the amp from the WAGO) and 13 (5 V power on).
+- The audio is NOT connected yet. The amp's input is a 3.5 mm round jack with L, R and G printed beside it. The cable from the HAT's headphone jack ends in a three-screw block, not a plug, so it cannot go into the jack. Plan to try, not yet tried: the Jienk pigtail (3.5 mm plug with three bare wires, arriving Thu 29 Oct) goes plug into the amp's jack and its three bare wires under the three screws of that block, after the meter has shown which wire goes to the plug's tip, ring and sleeve. Whether the screw block is labelled L, R and G has not been checked.
+- Test sound command to use once the audio is connected: `speaker-test -D plughw:wm8960soundcard -c 2 -t wav -l 1`, with the amp's volume knob down and turned up slowly.
