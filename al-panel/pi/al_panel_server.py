@@ -3482,6 +3482,10 @@ def converse(window=None):
         deadline = time.time() + window
         false_starts = 0
         while time.time() < deadline:
+            if is_quiet():
+                print("CONVERSE: quiet was set, so she stopped answering.", flush=True)      # 2026-10-29, Dr. O: said "quiet for an hour" and she kept answering David
+                write_eyes()
+                break
             settle()
             if sisters["on"]:
                 deadline = time.time() + window        # the sisters' talk ends on its own turn count or a stop phrase, not on quiet
@@ -3523,12 +3527,19 @@ def converse(window=None):
             if not text:
                 write_eyes()
                 continue
+            if is_quiet():
+                print("CONVERSE: quiet was set while she was listening, not answering. Heard: %s" % text[:60], flush=True)
+                write_eyes()
+                break
             if sisters["on"]:
                 print("TALK heard at %s: %s" % (time.strftime("%H:%M:%S"), text[:90]), flush=True)
             if heard_herself(text, last_clip["start"]):
                 print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
                 write_eyes()
                 continue
+            if not sisters["on"] and maybe_quiet(text):          # 2026-10-29, Dr. O: "quiet for an hour" said in the middle of a talk was only answered, never obeyed
+                write_eyes()
+                break
             if sisters["on"] and STOP_TALK_RE.search(text):
                 hush_everyone()
                 sisters_stop("told to stop")
@@ -3596,6 +3607,9 @@ def watch_names():
         # 2026-10-17, Dr. O: "do not make her listen for her name to talk". Unless crowd mode is on (a room full of people), she answers whatever she hears, as long as it is
         # a real few words and not said to someone else by name. Crowd mode, a talk with the others and the quiet switch still work as before. `touch ~/al_panel/name_needed` brings the name back.
         nameless_ok = (not state["welcome"].get("crowd")) and not os.path.exists(os.path.join(HERE, "name_needed")) and len(text.split()) >= 2 and not meant_for_someone_else(text) if text else False
+        if text and is_quiet():
+            write_eyes()
+            continue                                      # quiet was set while this was being heard
         if text and (wake_name_re().search(text) or nameless_ok):
             try:
                 if maybe_quiet(text):
