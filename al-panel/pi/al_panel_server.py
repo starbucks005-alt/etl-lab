@@ -979,6 +979,8 @@ def set_quiet(minutes):
     with open(tmp, "w") as f:
         json.dump({"until": until}, f)
     os.replace(tmp, QUIET_FILE)
+    if until:
+        sisters_stop("quiet")       # 2026-10-29, Dr. O: the panel said quiet and she was still talking. A talk with another robot did not stop when she was asked to be quiet.
     return until
 
 
