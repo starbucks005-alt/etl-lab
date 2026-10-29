@@ -753,6 +753,19 @@ Also noted for any of them: talk only when asked (button, tag tap on the plinth,
 
 Not known yet: what one minute of conversation actually costs on the Azure and ElevenLabs bills, which sets what any monthly price has to be. Figurobot's release does not say how FR-NIA pays for its AI (nothing found on a subscription), so what a competitor does about this is also not known.
 
+## A soundtrack corner with a fairy host (idea, 2026-10-29)
+
+Dr. O has a corner of plants at home (a fiddle leaf fig, snake plants, crotons, an aglaonema) and joked that it needs jungle noises. Her idea, seriously: a unit that plays soundtracks, with a fairy there to host the music. It has to be an AI character, "Almost Human", to belong in the shop. Soundtracks could come from ElevenLabs.
+
+Host: Tansy, the garden fairy (Dr. O, 2026-10-29). Tansy is a Good Company companion of the Radiant Court, not one of the seven fairies of the Rising Sun Court. Her voice stays on ElevenLabs. Her lines come from what is already written about her.
+
+Why it may be cheap to run: a soundtrack is recorded once and replayed, so playing it costs nothing per minute. The host's short lines can also be recorded once. The cloud brain is only needed when someone asks her something.
+
+Open, not checked:
+- Whether an ElevenLabs plan allows its generated sound and music to be played in a shop. Dr. O's plan terms, or ElevenLabs, would say.
+- Spotify, used in the Rising Sun setup, is a separate question for a public space and has not been checked.
+- Whether this is a mode of the Rising Sun, a sibling product, or its own thing is Dr. O's decision.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
