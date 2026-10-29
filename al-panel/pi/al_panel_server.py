@@ -61,6 +61,12 @@ except Exception as _e:           # pragma: no cover
     print("SP MODE not loaded:", str(_e)[:120], flush=True)
 
 try:
+    import al_fireside  # noqa: E402  (the fireside chat: the director on the website gives the turns; if the file is missing she simply answers as before)
+except Exception as _e:           # pragma: no cover
+    al_fireside = None
+    print("FIRESIDE not loaded:", str(_e)[:120], flush=True)
+
+try:
     import science_sources as ss  # noqa: E402  (answers from journals in science mode; if the file is missing she simply answers as before)
 except Exception as _e:           # pragma: no cover
     ss = None
@@ -978,8 +984,14 @@ def quiet_until():
         return 0.0
 
 
+# FIRESIDE, added 2026-10-29, Dr. O: "a way to control the room when I have alice the robot, Astra Lite (Elle), and the Holopod (Lumvivo) all talking".
+# While a fireside chat is on, the director on the website decides who speaks (see al_fireside.py), so she does nothing by herself: it counts as quiet
+# (no listening, no hello, no pet words, no memory kept), alarms and reminders wait, and what she hears or is typed to her is not answered.
+fireside = {"on": False}
+
+
 def is_quiet(now=None):
-    return (now or time.time()) < quiet_until()
+    return fireside["on"] or (now or time.time()) < quiet_until()
 
 
 def set_quiet(minutes):
@@ -1214,7 +1226,7 @@ def floor_wait():
     """True when she holds the floor. False when she should just speak: not in a talk, the website could not be reached, or she waited too long."""
     # 2026-10-16, Dr. O: "they both think Elle is not speaking". She only took the floor inside a talk, so a page with her named in its address never saw her hold it
     # and spoke over her. She now takes it whenever she speaks (the floor is off only with the no_floor file). If the website cannot be reached she just speaks.
-    if os.path.exists(FLOOR_OFF_FILE):
+    if os.path.exists(FLOOR_OFF_FILE) or fireside["on"]:      # in a fireside chat the director already gave her the turn
         return False
     t0 = time.time()
     told = False
@@ -1851,7 +1863,8 @@ def pause_set():
 @app.get("/api/quiet")
 def quiet_get():
     u = quiet_until()
-    return jsonify(quiet=is_quiet(), minutes_left=max(0, int((u - time.time()) / 60) + 1) if is_quiet() else 0, until=time.strftime("%I:%M %p", time.localtime(u)).lstrip("0") if is_quiet() else "")
+    q = time.time() < u                 # the quiet switch itself; a fireside chat is shown on its own
+    return jsonify(quiet=q, fireside=fireside["on"], minutes_left=max(0, int((u - time.time()) / 60) + 1) if q else 0, until=time.strftime("%I:%M %p", time.localtime(u)).lstrip("0") if q else "")
 
 
 @app.post("/api/quiet")
@@ -2327,6 +2340,8 @@ def say():
     text = str(d.get("text", "")).strip()[:1000]
     if not text:
         return jsonify(error="empty"), 400
+    if fireside["on"]:
+        return jsonify(error="A fireside chat is on, so the host gives the turns. End it on the fireside page first."), 409
     said_sp = sp_command(text, speak=speak_async)      # typing "patient 12" in the panel works the same as saying it
     if said_sp is not None:
         return jsonify(reply=said_sp)
@@ -3233,6 +3248,10 @@ def clock_watcher():
             if due:
                 clock["items"] = [i for i in clock["items"] if i not in due]
                 save_clock()
+        if due and fireside["on"]:              # 2026-10-29: an alarm waits until the fireside chat has ended
+            with clock["lock"]:
+                clock["items"] = due + clock["items"]
+            continue
         if due and not clock["ringing"]:
             try:
                 ring(due)
@@ -3338,7 +3357,7 @@ def routine_watcher():
     while True:
         time.sleep(5)
         try:
-            if sk is None or routine_busy["on"] or clock["ringing"] or sisters["on"]:
+            if sk is None or routine_busy["on"] or clock["ringing"] or sisters["on"] or fireside["on"]:
                 continue
             now = time.time()
             items = sk.load_routines()
@@ -3453,6 +3472,9 @@ def sp_command(text, speak=None):
 
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
+    if fireside["on"]:
+        print("FIRESIDE: heard something, but the host gives the turns, so she stays quiet", flush=True)
+        return ""
     t0 = time.time()
     said_sp = sp_command(text)
     if said_sp is not None:
@@ -3472,7 +3494,7 @@ def answer_and_say(text):
         return reply
     reply, shown = reply_for(text)
     # 2026-10-17, Dr. O: "plainly" is a tell she hears every time ("Elle just said plainly"). Dropped from anything she says, whatever the model wrote.
-    reply = re.sub(r"\s*\bplainly\b,?", "", re.sub(r"(^|[.!?]\s+)plainly,?\s+(\w)", lambda m: m.group(1) + m.group(2).upper(), reply, flags=re.I), flags=re.I).strip() or reply
+    reply = no_plainly(reply)
     t1 = time.time()
     state["history"].append('They said "%s" and you said "%s".' % (text, reply))
     state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": shown}]
@@ -3480,6 +3502,50 @@ def answer_and_say(text):
     speak_now(reply)
     print("TIMING reply %.1f s, voice made and spoken %.1f s" % (t1 - t0, time.time() - t1), flush=True)
     return reply
+
+
+def no_plainly(reply):
+    return re.sub(r"\s*\bplainly\b,?", "", re.sub(r"(^|[.!?]\s+)plainly,?\s+(\w)", lambda m: m.group(1) + m.group(2).upper(), reply, flags=re.I), flags=re.I).strip() or reply
+
+
+def fireside_think(ask):
+    """Her answer for a turn the director gave her. The ask holds everything: the room, the topic, what was said, and what to do."""
+    reply = no_plainly(shorten(get_reply(ask, short=False), sentences=3, chars=330))
+    state["log"] += [{"who": "you", "text": "(fireside chat: her turn)"}, {"who": "al", "text": reply}]
+    return reply
+
+
+def fireside_cut():
+    hush_event.set()
+    try:
+        subprocess.run(["pkill", "-x", "aplay"], timeout=3)
+    except Exception:
+        pass
+
+
+def fireside_changed(on):
+    fireside["on"] = on
+    if on:
+        sisters_stop("fireside chat")
+        state["history"] = []
+    try:
+        write_eyes()
+    except Exception:
+        pass
+
+
+def fireside_post(url, body):
+    r = requests.post(url, json=body, timeout=5)
+    return r.json() if r.status_code == 200 else None
+
+
+def start_fireside():
+    if al_fireside is None:
+        return
+    seat, name = al_fireside.seat_for(HERE, SELF_PERSONA is not None)
+    fs = al_fireside.Fireside(seat, name, fireside_post, fireside_think, speak_now, fireside_cut, on_change=fireside_changed, here=HERE,
+                              log=lambda t: print(t, flush=True))
+    threading.Thread(target=fs.run, daemon=True).start()
 
 
 def converse(window=None):
@@ -4229,4 +4295,5 @@ if __name__ == "__main__":
     threading.Thread(target=clock_watcher, daemon=True).start()     # timers and alarms
     threading.Thread(target=routine_watcher, daemon=True).start()   # reminders, medicine questions, the daily check-in
     threading.Thread(target=pet_watcher, daemon=True).start()       # gentle words for a pet left alone, and the owner's daily note
+    start_fireside()                                                # waits for a fireside chat from the director on the website
     app.run(host="0.0.0.0", port=8000, threaded=True)

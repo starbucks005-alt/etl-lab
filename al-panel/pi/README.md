@@ -627,3 +627,30 @@ Two things in the drawing to check against the real parts: the two taped-off wir
 ## ALICE: wiring drawing, Rev E (Dr. O, 2026-10-28)
 
 `al-panel/wiring/alice_wiring_schematic_28oct_RevE_v1.png` is a picture of the wiring drawing Dr. O made with Claude Design, Rev E, dated 2026-10-28, the version that shows the two taped-off GP12 wires as orange and yellow (Rev D showed red and yellow) and carries "Designed and built by Dr. O". It is a picture, not the editable file; the editable and offline versions are with Dr. O. It is drawn from her photos and the bench notes, and nothing in it has been measured beyond what the build book already records (for example the HAT's I2C power line was not measured). No capacitor is drawn because none is fitted. Astra Lite's drawing is the older `al_wiring_schematic_5oct_v1` beside it.
+
+## Fireside chat: one speaker at a time, and the host in charge (Dr. O, 2026-10-29, NOT TRIED with the real robots)
+
+Dr. O: "a way to control the room when I have alice the robot, Astra Lite (Elle), and the Holopod (Lumvivo) all talking. A fireside chat program we can initiate that stops them from overlapping conversation." Written for the Analytics Club fireside chat at Wright State in November.
+
+**How it works.** A director on the website (`netlify/functions/fireside.js`, rules in `_fireside-core.js`) gives the turn to exactly one of them at a time. It hands that one the words to answer: the topic, the last few things said, and what to do (open the chat, answer what was just said, or answer a question). That one thinks, speaks, and tells the director it has finished; only then does the next one get a turn, after a short breath. Nobody has to hear anybody through the air, so nothing is misheard and nobody starts over another. While a chat is on, each of them does nothing by herself: no listening, no hello when someone walks up, no reminders or alarms (they wait until it ends), and what is said or typed to them is not answered. The website is used because it is the one place all three can reach: a page on the secure website cannot reach a Pi on the local network.
+
+**Who goes next.** If the one speaking asked another by name, that one answers. Otherwise the next in the order. After 12 turns in a row on their own (the host page can change it) they stop and wait for the host. With "They talk among themselves" switched off, only the host gives turns.
+
+**The host page:** `https://emerging-tech-lab.com/good-company/fireside.html`, on her phone. Green dots show which of them are switched on and connected. Set the topic, tick who is on stage in speaking order, choose a host code, Start. During the chat:
+- **Stop now, my turn:** the one speaking is cut off within about a second, and nobody speaks until she lets them.
+- **My turn after this one:** the one speaking finishes what she is saying, then they wait.
+- **Let them go on**, **Next one** (cut this one off and pass the floor), **Give the floor to** one of them.
+- **Ask a question**, from her or from the audience, to one of them or to all of them in turn (the later ones are told not to repeat the earlier answers).
+- **End the fireside chat** (two taps).
+The host code is kept on that phone. Nobody else can press anything without it. On another phone the page asks for it once.
+
+**What each one needs.**
+- **ALICE and Elle:** copy `al_fireside.py` and the new `al_panel_server.py` into `~/al_panel`, then restart the panel (`sudo systemctl restart al-panel.service`). The Pi that has `index_alice.html` is ALICE, the other is Elle. A file `fireside.json` beside the server can set `{"seat": "elle", "name": "Elle"}` if that is ever wrong, and a file called `no_fireside` switches the fireside chat off on that robot.
+- **Lumvivo:** nothing to copy. The box page (`hologram.html?box=1`) is Lumvivo's place in the chat automatically once the website has been deployed, and the name used is the character showing (A.L.I.C.E., Reggie or Tansy). With ALICE the robot on stage, a second Alice in the box would answer to the same name, so the robot (first in the order) would take every "Alice"; Reggie or Tansy in the box avoids that. Terry and Dr. Duffy talk through My Echo, whose voice has no clear end, so with them the turn ends after about the time the answer takes to say. A hologram page outside the box joins with `?fireside=lumvivo` in its address.
+
+**Timing.** Between chats each of them checks with the website every 20 seconds, so after Start it can take up to 20 seconds before the first one speaks; the director waits for the ones that were switched on. During a chat they check every second. If one does not finish within 75 seconds, or drops off the network, the floor moves on without her.
+
+**Cost.** While a chat runs, the three robots and the host page call the website about 15,000 times an hour, and once every 20 seconds each between chats. Whether that fits the website's plan has not been checked.
+
+**Tested here** with the real director and stand-ins: two pretend robots using the Pi's own fireside code, and the real hologram page in a test browser with a pretend voice. Turns went in order and to the one named, Stop now cut off the one speaking (on the Pi side and on the hologram page), a question went to the one asked, and nobody ever started while another was speaking. `node tests/fireside.test.js` and `python3 -m unittest tests/al_fireside_test.py`.
+**Not tried:** the real robots, the real voices, the real database row (the same table `gc-floor.js` uses), and the venue's Wi-Fi. The first run with all three in one room is the test. The old way of letting them talk (the sisters talk, `hush.html`) is unchanged and still works when no fireside chat is on.

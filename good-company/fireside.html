@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Fireside chat</title>
+<!-- 2026-10-29, Dr. O: "a way to control the room when I have alice the robot, Astra Lite (Elle), and the Holopod (Lumvivo) all talking.
+     A fireside chat program we can initiate that stops them from overlapping conversation."
+     This is the host's page, for her phone. The director is netlify/functions/fireside.js: it gives the turn to one of them at a time and waits until
+     that one has finished speaking. ALICE and Elle (al_panel_server.py) and Lumvivo (hologram.html) all ask it every second what to do, so nothing
+     here talks to the robots directly. The host code is chosen at the start and kept in this browser, so nobody else in the room can take the floor.
+     NOT TRIED with the real robots when it was written. -->
+<style>
+  :root { --bg:#14110f; --card:#211c18; --fg:#f4eee6; --dim:#b9ab9b; --line:#3a322b; --gold:#d9a441; --red:#c62828; --ok:#2e7d32; --blue:#2f6fb5; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:17px/1.4 system-ui, -apple-system, Segoe UI, sans-serif; padding:16px; max-width:640px; margin-inline:auto; }
+  h1 { font-size:1.5rem; margin:0 0 4px; }
+  .sub { color:var(--dim); margin:0 0 16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:14px; }
+  label { display:block; margin:10px 0 4px; color:var(--dim); font-size:.95rem; }
+  input[type=text], input[type=password], input[type=number], textarea, select { width:100%; font:inherit; color:var(--fg); background:#0f0d0b; border:1px solid var(--line); border-radius:10px; padding:10px; }
+  textarea { min-height:70px; resize:vertical; }
+  button { font:inherit; border:0; border-radius:14px; color:#fff; background:var(--blue); padding:14px 16px; cursor:pointer; }
+  button:disabled { opacity:.45; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .row > * { flex:1 1 140px; }
+  .big { width:100%; font-size:1.3rem; font-weight:700; padding:20px; }
+  .stop { background:var(--red); }
+  .go { background:var(--ok); }
+  .gold { background:var(--gold); color:#1b1510; }
+  .plain { background:#4a4038; }
+  .seat { display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
+  .seat:first-child { border-top:0; }
+  .dot { width:12px; height:12px; border-radius:50%; background:#6b5f55; flex:none; }
+  .dot.on { background:#3fbf6a; }
+  .seat .nm { flex:1; }
+  #now { font-size:1.35rem; font-weight:700; min-height:1.6em; }
+  #why { color:var(--gold); min-height:1.3em; }
+  .line { padding:6px 0; border-top:1px solid var(--line); }
+  .line b { color:var(--gold); }
+  .q { color:var(--dim); font-size:.95rem; }
+  #msg { min-height:1.4em; color:var(--gold); margin-top:8px; }
+  .hide { display:none !important; }
+  .check { display:flex; gap:10px; align-items:center; margin:8px 0; color:var(--fg); }
+  .check input { width:22px; height:22px; }
+</style>
+</head>
+<body>
+<h1>Fireside chat</h1>
+<p class="sub">One of them speaks at a time. You hold the floor whenever you want it.</p>
+
+<div class="card">
+  <div id="seats"></div>
+  <p class="q" id="seatHelp">A green dot means that one is switched on and connected. Between chats they check in about every 20 seconds, so a dot can take that long to turn green.</p>
+</div>
+
+<!-- before a chat: set it up -->
+<div id="setup" class="card">
+  <label for="topic">Topic (they are told this)</label>
+  <input id="topic" type="text" maxlength="200" placeholder="for example: what makes a machine feel almost human">
+  <label>Who is on stage, in speaking order</label>
+  <div id="pick"></div>
+  <label class="check"><input id="auto" type="checkbox" checked> They talk among themselves until you step in</label>
+  <label for="runmax">Turns in a row before they stop and wait for you</label>
+  <input id="runmax" type="number" min="2" max="40" value="12">
+  <label for="code">Host code (anything you will remember; this phone keeps it)</label>
+  <input id="code" type="password" autocomplete="off" maxlength="40">
+  <button id="start" class="big go" type="button" style="margin-top:14px">Start the fireside chat</button>
+</div>
+
+<!-- during a chat: run it -->
+<div id="live" class="hide">
+  <div class="card">
+    <div id="now"></div>
+    <div id="why"></div>
+  </div>
+  <button id="hold" class="big stop" type="button">Stop now, my turn</button>
+  <div class="row" style="margin:10px 0 14px">
+    <button id="holdAfter" class="plain" type="button">My turn after this one</button>
+    <button id="next" class="plain" type="button">Next one</button>
+    <button id="resume" class="go" type="button">Let them go on</button>
+  </div>
+
+  <div class="card">
+    <label style="margin-top:0">Give the floor to</label>
+    <div id="give" class="row"></div>
+  </div>
+
+  <div class="card">
+    <label for="ask" style="margin-top:0">Ask a question</label>
+    <textarea id="ask" maxlength="400" placeholder="Type it as it was asked"></textarea>
+    <div class="row" style="margin-top:8px">
+      <select id="askTo" aria-label="Who answers"></select>
+      <select id="askFrom" aria-label="Who is asking">
+        <option value="host">From me</option>
+        <option value="guest">From the audience</option>
+      </select>
+    </div>
+    <button id="askGo" class="gold" type="button" style="margin-top:10px;width:100%">Ask</button>
+    <div id="queue" class="q" style="margin-top:10px"></div>
+    <button id="clearQ" class="plain hide" type="button" style="margin-top:8px">Clear the waiting list</button>
+  </div>
+
+  <div class="card">
+    <label class="check" style="margin-top:0"><input id="autoLive" type="checkbox"> They talk among themselves until you step in</label>
+    <div class="q" id="runInfo"></div>
+  </div>
+
+  <div class="card">
+    <label style="margin-top:0">What they said, newest last</label>
+    <div id="lines"></div>
+  </div>
+
+  <button id="end" class="big plain" type="button">End the fireside chat</button>
+</div>
+<div id="msg" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  var URL_ = '/.netlify/functions/fireside';
+  var ROOM = new URLSearchParams(location.search).get('room') || 'etl-fireside';
+  var SEATS = [{ id: 'alice', name: 'ALICE' }, { id: 'elle', name: 'Elle' }, { id: 'lumvivo', name: 'Lumvivo' }];
+  var $ = function (id) { return document.getElementById(id); };
+  var last = null, endArmed = 0;
+  function code() { try { return localStorage.getItem('fireside-code') || ''; } catch (_) { return ''; } }
+  function call(action, extra) {
+    var b = Object.assign({ action: action, room: ROOM, code: code() }, extra || {});
+    return fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .catch(function () { return { ok: false, j: { error: 'The website could not be reached. Check the Wi-Fi.' } }; });
+  }
+  function say(t) { $('msg').textContent = t || ''; }
+  function act(action, extra, done, again) {
+    say('');
+    call(action, extra).then(function (r) {
+      if (r.ok) { paint(r.j); if (done) done(); return; }
+      if (/host code/.test(r.j.error || '') && !again && action !== 'start') {      // a new phone, or the code was cleared: ask once, then try again
+        var cd = window.prompt('Host code for this fireside chat');
+        if (cd) { try { localStorage.setItem('fireside-code', cd.trim()); } catch (_) {} act(action, extra, done, true); return; }
+      }
+      say(r.j.error || 'That did not go through. Try again.');
+    });
+  }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function nameOf(s, id) { var f = (s.seats || []).filter(function (x) { return x.id === id; })[0]; return f ? f.name : (SEATS.filter(function (x) { return x.id === id; })[0] || { name: id }).name; }
+
+  // the setup list: everyone known, ticked, in order
+  SEATS.forEach(function (s) {
+    var l = el('label', 'check'); var c = el('input'); c.type = 'checkbox'; c.checked = true; c.value = s.id; c.className = 'pickBox';
+    l.appendChild(c); l.appendChild(document.createTextNode(s.name)); $('pick').appendChild(l);
+  });
+  $('code').value = code();
+
+  function paint(s) {
+    last = s;
+    // who is switched on
+    var box = $('seats'); box.innerHTML = '';
+    var known = SEATS.map(function (x) { return x.id; });
+    (s.seats || []).forEach(function (x) { if (known.indexOf(x.id) < 0) known.push(x.id); });
+    known.forEach(function (id) {
+      var x = (s.seats || []).filter(function (y) { return y.id === id; })[0];
+      var r = el('div', 'seat'); r.appendChild(el('span', 'dot' + (x && x.alive ? ' on' : '')));
+      r.appendChild(el('span', 'nm', nameOf(s, id) + (id === 'lumvivo' && x && x.name && x.name !== 'Lumvivo' ? ' (Lumvivo)' : '')));
+      r.appendChild(el('span', 'q', x && x.alive ? 'connected' : 'not connected'));
+      box.appendChild(r);
+    });
+    $('setup').classList.toggle('hide', !!s.on);
+    $('live').classList.toggle('hide', !s.on);
+    if (!s.on) return;
+    var c = s.cue;
+    $('now').textContent = c ? (c.name + (c.speaking ? ' is speaking' : ' is thinking') + (c.kind === 'host' ? ', answering you' : c.kind === 'guest' || c.kind === 'also' ? ', answering the question' : '')) : (s.paused ? 'The floor is yours' : 'Passing the floor...');
+    $('why').textContent = s.why || '';
+    $('hold').disabled = !c && s.paused;
+    $('resume').classList.toggle('hide', !s.paused);
+    $('holdAfter').classList.toggle('hide', s.paused || !c);
+    $('next').classList.toggle('hide', !c);
+    // give the floor
+    var g = $('give'); g.innerHTML = '';
+    (s.order || []).forEach(function (id) {
+      var b = el('button', 'plain', nameOf(s, id)); b.type = 'button';
+      b.addEventListener('click', function () { act('give', { seat: id }); });
+      g.appendChild(b);
+    });
+    var to = $('askTo'), keep = to.value; to.innerHTML = '';
+    (s.order || []).forEach(function (id) { var o = el('option', null, 'To ' + nameOf(s, id)); o.value = id; to.appendChild(o); });
+    var all = el('option', null, 'To all of them, in turn'); all.value = 'all'; to.appendChild(all);
+    if (keep) to.value = keep;
+    // waiting list
+    var q = s.queue || [];
+    $('queue').textContent = q.length ? 'Waiting: ' + q.map(function (x) { return x.name + (x.prompt ? ' (question)' : ''); }).join(', ') : '';
+    $('clearQ').classList.toggle('hide', !q.length);
+    $('autoLive').checked = !!s.auto;
+    $('runInfo').textContent = s.auto ? ('After ' + s.run_max + ' turns in a row they stop and wait for you. So far: ' + s.run + '.') : 'They speak only when you give one of them the floor or ask a question.';
+    // what was said
+    var ls = $('lines'); ls.innerHTML = '';
+    (s.lines || []).forEach(function (l) { var d = el('div', 'line'); d.appendChild(el('b', null, l.who + ': ')); d.appendChild(document.createTextNode(l.text)); ls.appendChild(d); });
+  }
+
+  $('start').addEventListener('click', function () {
+    var cd = $('code').value.trim();
+    if (cd.length < 3) { say('Choose a host code of at least 3 letters or numbers first.'); return; }
+    try { localStorage.setItem('fireside-code', cd); } catch (_) {}
+    var order = Array.prototype.filter.call(document.querySelectorAll('.pickBox'), function (c) { return c.checked; }).map(function (c) { return c.value; });
+    if (!order.length) { say('Tick at least one of them.'); return; }
+    act('start', { topic: $('topic').value, order: order, auto: $('autoLive').checked = $('auto').checked, run_max: Number($('runmax').value) || 12, code: cd });
+  });
+  $('hold').addEventListener('click', function () { act('hold'); });
+  $('holdAfter').addEventListener('click', function () { act('hold_after'); });
+  $('next').addEventListener('click', function () { act('next'); });
+  $('resume').addEventListener('click', function () { act('resume'); });
+  $('clearQ').addEventListener('click', function () { act('clear_queue'); });
+  $('autoLive').addEventListener('change', function () { act('set', { auto: $('autoLive').checked }); });
+  $('askGo').addEventListener('click', function () {
+    var t = $('ask').value.trim();
+    if (!t) { say('Type the question first.'); return; }
+    act('ask', { prompt: t, seat: $('askTo').value, from: $('askFrom').value }, function () { $('ask').value = ''; say('Asked.'); });
+  });
+  $('end').addEventListener('click', function () {
+    if (Date.now() - endArmed > 4000) { endArmed = Date.now(); $('end').textContent = 'Tap again to end it'; setTimeout(function () { $('end').textContent = 'End the fireside chat'; }, 4000); return; }
+    endArmed = 0; $('end').textContent = 'End the fireside chat';
+    act('end');
+  });
+
+  function poll() { call('state').then(function (r) { if (r.ok) paint(r.j); setTimeout(poll, 1000); }); }
+  poll();
+})();
+</script>
+</body>
+</html>
