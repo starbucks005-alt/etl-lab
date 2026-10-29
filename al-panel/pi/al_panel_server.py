@@ -417,6 +417,7 @@ MEMORY_CADENCE = 4          # a few notes are written after every fourth exchang
 MEMORY_MAX = 200             # the newest this many are kept and carried into her instructions
 memory_lock = threading.Lock()
 memory_turns = {"n": 0, "recent": []}
+heard_unaddressed = {"on": False}      # true while she answers something she only overheard, with no name said and no button pressed
 
 
 def memory_path(pid):
@@ -548,6 +549,10 @@ def remember_exchange(said, reply):
     """Call after every ordinary exchange. Every character keeps notes, in its own file."""
     pid = state["persona"]
     if not memory_on() or not said or not reply or memory_policy() == "off":
+        return
+    # 2026-10-29, Dr. O: she brought up things she had heard in meetings. Nothing is kept from a moment she was only overhearing (no name, no Talk button),
+    # nor while she is quiet.
+    if is_quiet() or heard_unaddressed["on"]:
         return
     if memory_policy() == "parent":                 # children's friend mode: notes for a parent, kept apart, never read back to the child
         memory_turns["recent"] = (memory_turns["recent"] + [(said, reply)])[-MEMORY_CADENCE:]
@@ -984,6 +989,8 @@ def set_quiet(minutes):
         json.dump({"until": until}, f)
     os.replace(tmp, QUIET_FILE)
     if until:
+        state["history"] = []                         # she is not to bring up what was said just before, after a meeting
+        memory_turns.update(n=0, recent=[])
         sisters_stop("quiet")       # 2026-10-29, Dr. O: the panel said quiet and she was still talking. A talk with another robot did not stop when she was asked to be quiet.
     return until
 
@@ -3624,7 +3631,14 @@ def watch_names():
                 if maybe_quiet(text):
                     write_eyes()
                     continue
-                answer_and_say(text)
+                heard_unaddressed["on"] = not wake_name_re().search(text)       # answered without her name: nothing from this one is kept
+                hist_before = len(state["history"])
+                try:
+                    answer_and_say(text)
+                finally:
+                    if heard_unaddressed["on"]:
+                        state["history"] = state["history"][:hist_before]      # and she does not carry it into the next few answers either
+                    heard_unaddressed["on"] = False
                 converse(window=8 if state["welcome"].get("crowd") else None)   # crowd mode: a short wait for a follow up with her name, not 30 s open
             except Exception as e:
                 print("ANSWER ERROR:", e, flush=True)
