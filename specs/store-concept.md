@@ -773,6 +773,22 @@ Open, not checked:
 - Spotify, used in the Rising Sun setup, is a separate question for a public space and has not been checked.
 - Whether this is a mode of the Rising Sun, a sibling product, or its own thing is Dr. O's decision.
 
+## One shared base for the small products (Dr. O, 2026-10-29, untested)
+
+Dr. O's view: the same set of parts works for the Portable Companion, the jungle fairy box, the Rising Sun Court Candles and probably other small products.
+
+The parts she has on hand for a first test: a premade ABS project box (Raculety, 4.53 x 3.54 x 2.17 inch, about $10, to be drilled and altered), the Waveshare ESP32-S3 AI Smart Speaker board, an ESP32-S3 N16R8 board, small 2 to 3 watt speakers with a JST 1.25 mm plug (35 x 25 mm), a USB-C panel mount cable, and a WS2812B LED strip.
+
+What this session has not checked:
+- The size of each part against the inside of the box (about 4.2 x 3.3 inches and 1.8 inches deep from the listing picture). Dr. O measures first.
+- Whether the speaker plug fits the Waveshare board, and what the board's amplifier can drive.
+- The battery: the Waveshare board needs a 3.7V lithium battery per the Rising Sun notes, none is in the orders seen, and whether the board charges it is not known.
+- Whether small speakers are loud and full enough for a soundtrack in a corner.
+- Where soundtracks are stored, on the board or streamed.
+- Whether the candle's shape and heat allow the same base.
+
+Why it matters if it works: one set of firmware and parts for several products, which helps the cheap-entry plan. It stays a hypothesis until one box works on a table.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
