@@ -89,6 +89,8 @@
 
   <div class="card">
     <label for="ask" style="margin-top:0">Ask a question</label>
+    <p class="q" style="margin:0 0 8px">Start with a name to send it only to that one: "Elle, what do you want to learn?" or "ALICE and Elle, are you sisters?". A name at the very end works too: "What is your favorite color, Elle?"</p>
+    <button id="mic" class="plain" type="button" style="width:100%;margin-bottom:8px">Speak the question</button>
     <textarea id="ask" maxlength="400" placeholder="Type it as it was asked"></textarea>
     <div class="row" style="margin-top:8px">
       <select id="askTo" aria-label="Who answers"></select>
@@ -185,7 +187,8 @@
     var to = $('askTo'), keep = to.value; to.innerHTML = '';
     (s.order || []).forEach(function (id) { var o = el('option', null, 'To ' + nameOf(s, id)); o.value = id; to.appendChild(o); });
     var all = el('option', null, 'To all of them, in turn'); all.value = 'all'; to.appendChild(all);
-    if (keep) to.value = keep;
+    var nm = el('option', null, 'To the one named in the question'); nm.value = 'named'; to.insertBefore(nm, to.firstChild);
+    to.value = keep || 'named';
     // waiting list
     var q = s.queue || [];
     $('queue').textContent = q.length ? 'Waiting: ' + q.map(function (x) { return x.name + (x.prompt ? ' (question)' : ''); }).join(', ') : '';
@@ -214,8 +217,38 @@
   $('askGo').addEventListener('click', function () {
     var t = $('ask').value.trim();
     if (!t) { say('Type the question first.'); return; }
-    act('ask', { prompt: t, seat: $('askTo').value, from: $('askFrom').value }, function () { $('ask').value = ''; say('Asked.'); });
+    act('ask', { prompt: t, seat: $('askTo').value, from: $('askFrom').value }, function () { $('ask').value = ''; say('Asked: ' + t); });
   });
+
+  /* SPEAK THE QUESTION, 2026-10-29, Dr. O: the host asks the questions out loud and cues them by name. The phone's own speech to text writes it into
+     the box and sends it, so the one named answers. The robots themselves are not listening during a chat. If nobody was named, the words stay in the
+     box to be checked. Works in Chrome and Safari; NOT TRIED on her phone. */
+  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Rec) { $('mic').classList.add('hide'); }
+  else {
+    var rec = null;
+    $('mic').addEventListener('click', function () {
+      if (rec) { rec.stop(); return; }
+      rec = new Rec(); rec.lang = 'en-US'; rec.interimResults = true; rec.maxAlternatives = 1;
+      var finalText = '';
+      $('mic').textContent = 'Listening... tap to stop'; $('mic').classList.add('stop');
+      rec.onresult = function (e) {
+        var t = '';
+        for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+        $('ask').value = t; finalText = t;
+      };
+      rec.onerror = function (e) { say(e.error === 'not-allowed' ? 'This phone has not allowed the microphone for this page.' : 'Did not catch that. Try again.'); };
+      rec.onend = function () {
+        rec = null; $('mic').textContent = 'Speak the question'; $('mic').classList.remove('stop');
+        var t = finalText.trim();
+        if (!t) return;
+        t = t.charAt(0).toUpperCase() + t.slice(1);
+        $('ask').value = t;
+        act('ask', { prompt: t, seat: $('askTo').value, from: $('askFrom').value }, function () { $('ask').value = ''; say('Asked: ' + t); });
+      };
+      try { rec.start(); } catch (_) { rec = null; }
+    });
+  }
   $('end').addEventListener('click', function () {
     if (Date.now() - endArmed > 4000) { endArmed = Date.now(); $('end').textContent = 'Tap again to end it'; setTimeout(function () { $('end').textContent = 'End the fireside chat'; }, 4000); return; }
     endArmed = 0; $('end').textContent = 'End the fireside chat';

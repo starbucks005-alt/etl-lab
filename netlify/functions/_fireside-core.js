@@ -16,7 +16,7 @@
 
 const SEAT_DEFAULTS = {
   alice: { name: 'ALICE', calls: ['alice', 'a.l.i.c.e'] },
-  elle: { name: 'Elle', calls: ['elle', 'ellie', 'astra lite', 'astra-9 lite', 'astra 9 lite'] },
+  elle: { name: 'Elle', calls: ['elle', 'ellie', 'elie', 'astra lite', 'astra-9 lite', 'astra 9 lite'] },     // speech to text often writes Elle as Ellie
   lumvivo: { name: 'Lumvivo', calls: ['lumvivo'] },
 };
 const ALIVE_MS = 12000;        // during a chat, a robot that has not asked for news in this long is treated as switched off
@@ -65,6 +65,27 @@ function namedNext(st, text, speaker) {
     }
   }
   return best;
+}
+
+/* Who a question is for, from the names in it: "Elle, what do you ...", "ALICE and Elle: ...", "Hey Lumvivo, ...", or "..., ALICE?" at the end.
+   A name in the middle ("Elle, what do you think of ALICE?") is what the question is about, not who answers. Returns seats in stage order. */
+function namedIn(st, text) {
+  const t = String(text || '').toLowerCase();
+  const find = seg => st.order.filter(id => callsFor(st, id).some(c => new RegExp('(^|[^a-z0-9])' + c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\./g, '\\.?') + '(?=[^a-z0-9]|$)').test(seg)));
+  const lead = t.match(/^\s*([^,:;?!]{1,40})[,:;]/);
+  if (lead) {
+    const ids = find(lead[1]);
+    const rest = lead[1].replace(/\b(hey|hi|okay|ok|so|and|now|you|both|all|of|first|then|over to|to)\b/g, ' ');
+    const leftover = st.order.reduce((r, id) => callsFor(st, id).reduce((x, c) => x.split(c).join(' '), r), rest).replace(/[^a-z0-9]+/g, '');
+    if (ids.length && !leftover) return ids;
+  }
+  const tail = t.match(/[,;]\s*([^,;]{1,30})[?.!]*\s*$/);
+  if (tail) {
+    const ids = find(tail[1]);
+    const leftover = st.order.reduce((r, id) => callsFor(st, id).reduce((x, c) => x.split(c).join(' '), r), tail[1].replace(/\b(and|you|both|too)\b/g, ' ')).replace(/[^a-z0-9]+/g, '');
+    if (ids.length && !leftover) return ids;
+  }
+  return [];
 }
 
 /* What the robot is given to answer. Everything it needs is in here, so each robot does the same thing: think, speak, report. */
@@ -196,8 +217,15 @@ function apply(state0, body, now, opts) {
         const p = clean(body.prompt, 400);
         if (!p) return out({ error: 'Type the question first.', status: 400 });
         const from = body.from === 'guest' ? 'guest' : 'host';
-        const to = seatId(body.seat);
-        if (to && to !== 'all') {
+        // 2026-10-29, Dr. O: the host asks the questions and cues them by name ("Elle, ...", "ALICE, ..."). A question that names one of them
+        // at the start (or at the very end, "..., Elle?") goes only to the one named; the menu choice is used only when nobody is named.
+        const named = namedIn(st, p);
+        const to = named.length ? '' : seatId(body.seat);
+        if (named.length) {
+          named.forEach((id, i) => st.queue.push({ seat: id, kind: i === 0 ? from : 'also', from, prompt: p }));
+        } else if (to === 'named') {
+          return out({ error: 'Nobody was named at the start of that question, so it was not sent. Add a name ("Elle, ...") or pick who answers.', status: 400 });
+        } else if (to && to !== 'all') {
           if (!st.order.includes(to)) return out({ error: 'That one is not on stage.', status: 400 });
           st.queue.push({ seat: to, kind: from, prompt: p });
         } else {
@@ -248,4 +276,4 @@ function hostView(st, now) {
   };
 }
 
-module.exports = { fresh, apply, tick, buildAsk, namedNext, robotView, hostView, SEAT_DEFAULTS, ALIVE_MS, ALIVE_IDLE_MS, CUE_MAX_MS, GAP_MS, RUN_MAX, JOIN_MS };
+module.exports = { fresh, apply, tick, buildAsk, namedNext, namedIn, robotView, hostView, SEAT_DEFAULTS, ALIVE_MS, ALIVE_IDLE_MS, CUE_MAX_MS, GAP_MS, RUN_MAX, JOIN_MS };

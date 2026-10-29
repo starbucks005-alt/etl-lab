@@ -166,6 +166,31 @@ assert(!/plainly/i.test(require('fs').readFileSync(require.resolve('../netlify/f
   assert.strictEqual(s3.cue.seat, 'alice', 'one that is not switched on is not waited for');
 }
 
+// ---- the host cues them by name: a question that starts with a name goes only to that one
+{
+  let s4 = core.fresh();
+  s4 = pollAll(s4, ['alice', 'elle', 'lumvivo']);
+  s4 = step(s4, { action: 'start', order: ['alice', 'elle', 'lumvivo'], auto: false }, host).state;
+  s4 = step(s4, { action: 'ask', seat: 'named', prompt: 'Elle, what do you want to learn?' }, host).state;
+  assert.strictEqual(s4.cue.seat, 'elle', 'only Elle answers'); assert.strictEqual(s4.queue.length, 0);
+  s4 = step(s4, { action: 'done', seat: 'elle', cue: s4.cue.id, said: 'How to whistle.' }).state;
+  T += core.GAP_MS; s4 = pollAll(s4, ['alice', 'elle', 'lumvivo']);
+  assert.strictEqual(s4.cue, null, 'and then nobody else, with "they talk among themselves" off');
+  s4 = step(s4, { action: 'ask', seat: 'all', prompt: 'ALICE, how old are you?' }, host).state;
+  assert.strictEqual(s4.cue.seat, 'alice', 'a name wins over the menu'); assert.strictEqual(s4.queue.length, 0);
+  s4 = step(s4, { action: 'done', seat: 'alice', cue: s4.cue.id, said: 'Three days.' }).state;
+  T += core.GAP_MS;
+  s4 = step(s4, { action: 'ask', seat: 'named', prompt: 'ALICE and Elle, are you sisters?' }, host).state;
+  assert.deepStrictEqual([s4.cue.seat].concat(s4.queue.map(q => q.seat)), ['alice', 'elle']);
+  assert.strictEqual(core.apply(s4, { action: 'ask', seat: 'named', prompt: 'What do you all think?' }, T, host).status, 400, 'nobody named: not sent, the host picks');
+  const ns2 = { order: ['alice', 'elle', 'lumvivo'], seats: { lumvivo: { name: 'Reggie' } } };
+  assert.deepStrictEqual(core.namedIn(ns2, 'Elle, what do you think of ALICE?'), ['elle'], 'a name later in the question is what it is about');
+  assert.deepStrictEqual(core.namedIn(ns2, 'What is your favorite color, Elle?'), ['elle']);
+  assert.deepStrictEqual(core.namedIn(ns2, 'Hey Reggie, do you like walks?'), ['lumvivo']);
+  assert.deepStrictEqual(core.namedIn(ns2, 'Ellie, how are you?'), ['elle'], 'as speech to text writes her name');
+  assert.deepStrictEqual(core.namedIn(ns2, 'Alice was built in a week, right?'), []);
+}
+
 // ---- naming: the last one named is the one asked, and "A.L.I.C.E." counts as ALICE
 const ns = { order: ['alice', 'elle', 'lumvivo'], seats: {} };
 assert.strictEqual(core.namedNext(ns, 'Alice was right, but Elle, what do you think?', 'lumvivo'), 'elle');
