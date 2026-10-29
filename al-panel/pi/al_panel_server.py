@@ -1339,7 +1339,7 @@ def speak_async(text, use_persona=True):
 # She cannot recognize anyone, so she never says welcome back. Instead she picks up one thing from her own notes, from "someone", and asks
 # whether it was them. The line is made ahead of time, in the background, so the person who walks up never waits for it. With no notes,
 # or with memory switched off, she uses the ordinary greeting.
-prepared_opening = {"line": "", "busy": False}
+prepared_opening = {"line": "", "busy": False, "part": ""}
 OPENING_DASH = re.compile(r"\s*[\u2014\u2013\u2011]\s*")
 
 
@@ -1405,6 +1405,7 @@ def prepare_opening():
     def go():
         try:
             prepared_opening["line"] = make_opening()
+            prepared_opening["part"] = part_of_day()     # a greeting made last night must not be said this morning
         finally:
             prepared_opening["busy"] = False
     threading.Thread(target=go, daemon=True).start()
@@ -1446,6 +1447,11 @@ def welcome(force=False):
                 line = "Hello."   # a character is never given words it was not written
             elif state.get("mode") == "guardian" and sk is not None:
                 line = sk.guardian_greeting()                                     # the Guardian's own greeting, from the building setup
+            elif prepared_opening["line"] and prepared_opening["part"] != part_of_day():
+                prepared_opening["line"] = ""                                 # made in another part of the day, so it could name the wrong one
+                welcome_state["greet_i"] = (welcome_state["greet_i"] + 1) % len(GREETINGS)
+                line = GREETINGS[welcome_state["greet_i"]] + " " + HELLO_QUESTIONS[welcome_state["n"] % len(HELLO_QUESTIONS)]
+                prepare_opening()
             elif prepared_opening["line"] and welcome_state["n"] % 3 != 0:      # two greetings in three come from her notes; the rest are the usual ones
                 line = prepared_opening["line"]
                 prepared_opening["line"] = ""
@@ -1537,10 +1543,18 @@ def speaker_note():
     return ""
 
 
+def time_note():
+    """2026-10-29, Dr. O: she said it was evening at 7:08 in the morning. She was never told the time, so she guessed from the conversation. Now every question carries the real clock."""
+    lt = time.localtime()
+    clock = time.strftime("%A, %B ", lt) + str(lt.tm_mday) + ", " + str(lt.tm_hour % 12 or 12) + ":%02d " % lt.tm_min + ("AM" if lt.tm_hour < 12 else "PM")
+    return (" (The real time now is %s, which is %s. Use this whenever the time or the part of the day matters, and never guess the time from earlier in the conversation or from a greeting.)"
+            % (clock, part_of_day()))
+
+
 def context_for(text):
     if mood_tick(text):
         apply_prompt()          # the mood may have moved, so the character's instructions are rebuilt before she answers
-    note = speaker_note()
+    note = speaker_note() + time_note()
     hist = state["history"][-6:]
     if not hist:
         return text + note
