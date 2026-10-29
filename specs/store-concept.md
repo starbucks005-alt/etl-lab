@@ -762,7 +762,7 @@ Host: Tansy, the garden fairy (Dr. O, 2026-10-29). Tansy is a Good Company compa
 Why it may be cheap to run: a soundtrack is recorded once and replayed, so playing it costs nothing per minute. The host's short lines can also be recorded once. The cloud brain is only needed when someone asks her something.
 
 Open, not checked:
-- Whether an ElevenLabs plan allows its generated sound and music to be played in a shop. Dr. O's plan terms, or ElevenLabs, would say.
+- Dr. O, 2026-10-29: the ElevenLabs Pro plan ($99/month) includes full commercial use rights for all audio and content generated while the paid subscription is active. That is her statement, not read from ElevenLabs' terms by this session. Still open: whether the rights stay after the subscription ends, and whether playing generated music in a public shop needs anything more.
 - Spotify, used in the Rising Sun setup, is a separate question for a public space and has not been checked.
 - Whether this is a mode of the Rising Sun, a sibling product, or its own thing is Dr. O's decision.
 
