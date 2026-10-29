@@ -92,10 +92,18 @@ def argument(flag):
 
 
 # Setting the straight ahead number, with no glance:
-#   python3 ~/al_panel/al_neck.py --hold 100    moves to 100 and holds for 60 seconds, then lets go
+#   python3 ~/al_panel/al_neck.py --hold 100    moves slowly to 100 and holds for 60 seconds, then lets go
 #   python3 ~/al_panel/al_neck.py --save 100    keeps 100 as the straight ahead number
 if argument("--hold") is not None:
-    servo.angle = argument("--hold")
+    # slowly, one degree at a time like the glance: jumping straight to a far number can make the motor strain and buzz without moving
+    target = argument("--hold")
+    here = MIDDLE
+    servo.angle = here
+    time.sleep(0.5)
+    while here != target:
+        here += STEP if target > here else -STEP
+        servo.angle = here
+        time.sleep(STEP_DELAY)
     time.sleep(60)
     servo.angle = None
     sys.exit(0)
