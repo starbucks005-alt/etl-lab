@@ -558,7 +558,7 @@ def remember_exchange(said, reply):
         return
     # 2026-10-29, Dr. O: she brought up things she had heard in meetings. Nothing is kept from a moment she was only overhearing (no name, no Talk button),
     # nor while she is quiet.
-    if is_quiet() or heard_unaddressed["on"]:
+    if is_quiet() or meeting_on() or heard_unaddressed["on"]:
         return
     if memory_policy() == "parent":                 # children's friend mode: notes for a parent, kept apart, never read back to the child
         memory_turns["recent"] = (memory_turns["recent"] + [(said, reply)])[-MEMORY_CADENCE:]
@@ -1007,6 +1007,34 @@ def set_quiet(minutes):
     return until
 
 
+# ---- MEETING, added 2026-10-29, Dr. O: "sometimes she is awake when I have meetings that should not be shared". Unlike quiet, she is still reachable by name and the Talk
+# button, but she answers ONLY when her name is said, says no hello, keeps NOTHING from it, and drops the last few lines she was holding. It ends by itself after eight hours.
+MEETING_FILE = os.path.join(HERE, "meeting.json")
+
+
+def meeting_until():
+    try:
+        return float(json.load(open(MEETING_FILE)).get("until", 0))
+    except (OSError, ValueError, TypeError, AttributeError):
+        return 0.0
+
+
+def meeting_on():
+    return time.time() < meeting_until()
+
+
+def set_meeting(on):
+    until = time.time() + 8 * 3600 if on else 0
+    tmp = MEETING_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"until": until}, f)
+    os.replace(tmp, MEETING_FILE)
+    if on:
+        state["history"] = []
+        memory_turns.update(n=0, recent=[])
+    return until
+
+
 BE_QUIET_RE = re.compile(r"(?<!I will )(?<!I'll )(?<!I'd )(?<!will )\b(be quiet|quiet please|quiet down|shush|hush)\b", re.I)    # not "I will be quiet"
 
 
@@ -1451,7 +1479,7 @@ def welcome(force=False):
     A single motion sensor cannot tell where a person is, so the head makes a small friendly
     glance and comes back to the middle. It does not aim at anyone."""
     import time
-    if is_quiet() and not force:                 # quiet for a meeting: no hello, no head turn, no eyes
+    if (is_quiet() or meeting_on()) and not force:                 # quiet for a meeting: no hello, no head turn, no eyes
         return []
     with welcome_lock:
         w = state["welcome"]
@@ -1819,7 +1847,7 @@ def pet_watcher():
     while True:
         time.sleep(20)
         try:
-            if pet is None or "pet" not in state["skills"] or sisters["on"] or clock["ringing"] or routine_busy["on"] or speak_lock.locked() or is_quiet():
+            if pet is None or "pet" not in state["skills"] or sisters["on"] or clock["ringing"] or routine_busy["on"] or speak_lock.locked() or is_quiet() or meeting_on():
                 continue
             cfg = pet.load()
             now = time.time()
@@ -1858,6 +1886,19 @@ def pause_set():
     os.replace(tmp, PAUSE_FILE)
     _pause["t"] = 0.0
     return jsonify(seconds=round(end_quiet() / 10.0, 1))
+
+
+@app.get("/api/meeting")
+def meeting_get():
+    u = meeting_until()
+    return jsonify(meeting=meeting_on(), until=time.strftime("%I:%M %p", time.localtime(u)).lstrip("0") if meeting_on() else "")
+
+
+@app.post("/api/meeting")
+def meeting_post():
+    d = request.get_json(silent=True) or {}
+    set_meeting(bool(d.get("on")))
+    return meeting_get()
 
 
 @app.get("/api/quiet")
@@ -3631,7 +3672,7 @@ def converse(window=None):
                 print("CONVERSE: said to somebody else, not answering. Heard: %s" % text[:60], flush=True)
                 write_eyes()
                 continue
-            if (state["welcome"].get("crowd") or sisters["on"]) and not wake_name_re().search(text):
+            if (state["welcome"].get("crowd") or meeting_on() or sisters["on"]) and not wake_name_re().search(text):
                 print("CROWD mode: no name in it, not answering. Heard: %s" % text[:60], flush=True)
                 write_eyes()
                 continue
@@ -3688,7 +3729,7 @@ def watch_names():
             continue
         # 2026-10-17, Dr. O: "do not make her listen for her name to talk". Unless crowd mode is on (a room full of people), she answers whatever she hears, as long as it is
         # a real few words and not said to someone else by name. Crowd mode, a talk with the others and the quiet switch still work as before. `touch ~/al_panel/name_needed` brings the name back.
-        nameless_ok = (not state["welcome"].get("crowd")) and not os.path.exists(os.path.join(HERE, "name_needed")) and len(text.split()) >= 2 and not meant_for_someone_else(text) if text else False
+        nameless_ok = (not state["welcome"].get("crowd")) and not meeting_on() and not os.path.exists(os.path.join(HERE, "name_needed")) and len(text.split()) >= 2 and not meant_for_someone_else(text) if text else False
         if text and is_quiet():
             write_eyes()
             continue                                      # quiet was set while this was being heard

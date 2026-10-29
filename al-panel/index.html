@@ -327,6 +327,10 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <div class="row" id="quietRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
         <button id="quietOn" type="button">Quiet for an hour</button><button id="quietOff" type="button">Wake her</button><span class="hint" id="quietText" style="margin:0"></span>
       </div>
+      <!-- MEETING, added 2026-10-29, Dr. O: she is still there when her name is said, but answers nothing else, says no hello and keeps nothing from it. Ends by itself after eight hours. -->
+      <div class="row" id="meetingRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
+        <button id="meetingOn" type="button">Meeting</button><button id="meetingOff" type="button">Meeting over</button><span class="hint" id="meetingText" style="margin:0"></span>
+      </div>
       <!-- LISTENING SERVICE, added 2026-10-17, Dr. O: which service turns her hearing into words. She switches it from her phone. -->
       <div class="row" id="listenRow" style="margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
         <button id="listenAzure" type="button">Azure</button><button id="listenEleven" type="button">ElevenLabs</button><span class="hint" id="listenText" style="margin:0"></span>
@@ -658,7 +662,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     $('shutCard').style.display = on ? '' : 'none';
     $('listenRow').style.display = on ? '' : 'none'; $('listenNowRow').style.display = on ? '' : 'none'; $('sistersRow').style.display = on ? '' : 'none'; $('stopAlarmRow').style.display = on ? '' : 'none';
     $('volumeRow').style.display = on ? 'flex' : 'none';
-    $('quietRow').style.display = on ? 'flex' : 'none'; $('pauseRow').style.display = on ? 'flex' : 'none'; $('listenRow').style.display = on ? 'flex' : 'none'; if(on){ refreshQuiet(); refreshPause(); refreshListen(); }
+    $('quietRow').style.display = on ? 'flex' : 'none'; $('meetingRow').style.display = on ? 'flex' : 'none'; $('pauseRow').style.display = on ? 'flex' : 'none'; $('listenRow').style.display = on ? 'flex' : 'none'; if(on){ refreshMeeting(); refreshQuiet(); refreshPause(); refreshListen(); }
     if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
@@ -1014,6 +1018,12 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   function refreshQuiet(){ fetch('/api/quiet').then(function(r){ return r.ok ? r.json() : null; }).then(showQuiet).catch(function(){}); }
   $('quietOn').addEventListener('click', function(){ api('/api/quiet', {minutes:60}).then(showQuiet).catch(function(e){ $('quietText').textContent = 'Could not reach her: ' + e.message; }); });
   $('quietOff').addEventListener('click', function(){ api('/api/quiet', {minutes:0}).then(showQuiet).catch(function(e){ $('quietText').textContent = 'Could not reach her: ' + e.message; }); });
+
+  // ---------- meeting ----------
+  function showMeeting(j){ $('meetingText').textContent = j && j.meeting ? ('Meeting until ' + j.until + ' at the latest. She answers only when her name is said, says no hello, and keeps nothing.') : 'No meeting.'; }
+  function refreshMeeting(){ fetch('/api/meeting').then(function(r){ return r.ok ? r.json() : null; }).then(showMeeting).catch(function(){}); }
+  $('meetingOn').addEventListener('click', function(){ api('/api/meeting', {on:true}).then(showMeeting).catch(function(e){ $('meetingText').textContent = 'Could not reach her: ' + e.message; }); });
+  $('meetingOff').addEventListener('click', function(){ api('/api/meeting', {on:false}).then(showMeeting).catch(function(e){ $('meetingText').textContent = 'Could not reach her: ' + e.message; }); });
 
   // ---------- people she knows about ----------
   function refreshPeople(){
