@@ -454,7 +454,7 @@ on figures, so check the official pages):
 Questions: what is left on each, and does
 the business school have an incubator or innovation center that could give the
 referral for a larger tier?
-- Claude for Startups (Dr. O, 2026-10-29): Emerging Tech Laboratory at Mission Possible Institute was welcomed into Anthropic's Claude for Startups program (her pasted email lists live sessions, startup events and founder resources; it does not mention credits). Dr. O also says Anthropic gave her $200 in credits last week. Her statement, not seen by this session: the expiry date, what the credits can be spent on, and whether more follow are not known. Like the other credits, they would pay for the thinking, not for ElevenLabs voices.
+- Claude for Startups (Dr. O, 2026-10-29): Emerging Tech Laboratory at Mission Possible Institute was welcomed into Anthropic's Claude for Startups program (her pasted email lists live sessions, startup events and founder resources; it does not mention credits). Dr. O also says Anthropic gave her $200 in credits last week. Her statement, not seen by this session: she had from Oct 19 to Oct 22 to use them, so that window has ended and they are not available now. What they could be spent on, how much was used, and whether more follow are not known. Like the other credits, they would have paid for the thinking, not for ElevenLabs voices.
 
 
 ## LumVivo as a tiny theater (idea, 2026-10-18)
