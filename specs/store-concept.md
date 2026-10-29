@@ -789,6 +789,14 @@ What this session has not checked:
 
 Why it matters if it works: one set of firmware and parts for several products, which helps the cheap-entry plan. It stays a hypothesis until one box works on a table.
 
+## OpenAI Pro Community contact (2026-10-29)
+
+Harry Spitzer wrote to Dr. O on behalf of OpenAI's Pro Community team (his email, pasted by Dr. O): an invite-only community of advanced AI users; he plans to visit Ohio next month to meet a handful of members; he found her through the Gandhi-King Center oral-history project and her work recording family histories for interactive voice agents (My Echo), and asked for a video chat.
+
+Dr. O's account of the chat, 2026-10-29 (her words, not checked by this session): she told him about the store and that she builds on Anthropic products; he talked with Elle (Astra 9 Lite); she showed him her bench with the Astra 9 build next to her laptop and said she was waiting on the body, hands, head and eyes; he said he was blown away and did not know anyone doing anything like it. He also said the group has only about 200 members, and he wants her to be a member.
+
+Not known: what the membership is exactly (whether the 200 are a subset of the Pro community), whether it costs anything or carries conditions, and what he would do with her story. The sender's address and role were not checked by this session. Questions to put to him in writing before saying yes: what the group is and how members are chosen, what is expected of a member, what she gives up (privacy of what she shares, use of her work), any exclusivity, any cost, and what she gets. Anything shown about the oral histories needs the families and the Gandhi-King Center to agree first. Everything he says about her work should credit Dr. O as the person who designed, decided and built it.
+
 ## Open questions
 
 1. Does A.L.I.C.E. greet people, or Astra-9 as the headline product?
