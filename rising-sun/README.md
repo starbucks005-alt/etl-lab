@@ -52,6 +52,19 @@ Dr. O: "can be a brain in the cloud like the figurines." The board only runs the
 - Strip decided by Dr. O, 2026-10-23: 144 LEDs per meter, for a smoother glow (it replaces the 60 per meter roll). About 66, 88 and 110 LEDs for the 18, 24 and 30 inch bars. `LED_COUNT` in `sunrise.ino` is 88 (the 24 inch bar) with `MAX_BRIGHTNESS` 180 so it stays under the 5 amp supply; the 30 inch bar needs a 10 amp supply or a lower cap. Strips of this density are usually about 12 mm wide, so check the groove against the real strip. The strip data pin is GPIO7 (header pin 2) on the Waveshare ESP32-S3 AI Smart Speaker board, read from Waveshare's interface picture on 2026-10-23. The board's listing says it needs a 3.7V MX1.25 lithium battery to run, and some reviews from other countries report a weak microphone and speaker and two boards losing the speaker amplifier after the USB cable was plugged and unplugged. Test one board first. Not compiled or tried on the board.
 - Engraving: no laser is bought. The fairy is engraved by a makerspace or an engraving service; a cheap diode laser does not mark clear or frosted acrylic.
 
+## Waveshare board pins and what they mean for the build (read from Waveshare's diagrams, 2026-10-29, not tested)
+
+Dr. O posted Waveshare's "What's On Board" and "Interfaces Definition" pictures for the ESP32-S3 AI Smart Speaker board. Read from small print, so check each label on the real board before wiring.
+
+- LED strip: the 18 pin header has 5V5 on pin 18, GND on pins 15 and 16 and GPIO7 on pin 2. This confirms the strip data pin in `sunrise.ino`. Wire strip plus to pin 18, strip ground to pin 16, strip data to pin 2 through a 330 to 470 ohm resistor, and a 1000 microfarad capacitor across the strip's power and ground. "5V5" is an odd label: measure it with a multimeter first. How much current that pin can give is not known, so the first test is a short piece of strip. A long strip needs its own 5V supply with the grounds joined.
+- The board's own 7 lights are on GPIO38 (the back side), so they do not conflict with the strip.
+- Keep GPIO10 and GPIO11 free. They are the I2C wires the audio and expander chips use. GPIO7 is also a display pin, so a screen added to this board later would clash with the strip.
+- Speaker: the amplifier has an enable line called PA_EN on EXIO9, which sits on the pin expander chip (TCA9555), not on the main chip. The speaker can stay silent until software turns it on. If nothing is heard at first, check this before anything else. The audio uses I2S on GPIO12 to GPIO16 (ES8311 and ES7210).
+- Speaker socket: labeled SPK on the back, next to BAT, and the two look the same size (the battery one is MX1.25, 2 pin). Whether the 1.25 mm plug on the CQRobot speaker fits it is a guess until it is held against the socket. A single speaker has no wrong way round; the battery does.
+- Battery: the board charges a 3.7V lithium battery through the MX1.25 BAT socket (a battery recharge manager is listed), has a battery on/off switch, and a charge light that lights while charging and goes off when full. The light's state is not reliable when no battery is connected. Check the plug's plus and minus against the board's markings before connecting.
+- microSD: the slot is wired the SDMMC way on GPIO42 (CMD), GPIO40 (CLK) and GPIO41 (DATA), with a card detect line on EXIO4. The largest card the slot takes was not found; the first test card is 32 GB.
+- Also on the board, not used: an 18 pin display connector and a camera connector (these use GPIO2 to 9 and others), an outside antenna connector, and a 3.3V 2A power module.
+
 ## Parts
 ESP32-S3 N16R8 (as in the Holopod box), WS2812B strip, its own 5V supply sized for the strip, a speaker and a microphone for her voice. Wiring is at the top of `sunrise.ino`.
 
