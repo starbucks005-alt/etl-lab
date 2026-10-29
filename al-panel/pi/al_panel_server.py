@@ -988,13 +988,22 @@ def set_quiet(minutes):
     return until
 
 
+BE_QUIET_RE = re.compile(r"(?<!I will )(?<!I'll )(?<!I'd )(?<!will )\b(be quiet|quiet please|quiet down|shush|hush)\b", re.I)    # not "I will be quiet"
+
+
 def maybe_quiet(text):
     """True when this was a request to go quiet, after she has said so out loud."""
-    if not QUIET_RE.search(text or ""):
+    if not QUIET_RE.search(text or "") and not BE_QUIET_RE.search(text or ""):
         return False
-    set_quiet(60)
-    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": "Okay, I will be quiet for an hour."}]
-    speak_now("Okay, I will be quiet for an hour. You can turn me back on from my panel.")
+    if QUIET_RE.search(text or ""):
+        set_quiet(60)
+        said = "Okay, I will be quiet for an hour. You can turn me back on from my panel."
+    else:
+        # 2026-10-29, Dr. O: "if I say be quiet and she stops talking for an hour, or until I revive her, that is a win." Eight hours is the longest the switch allows; Wake her ends it sooner.
+        set_quiet(480)
+        said = "Okay. I will be quiet until you wake me from my panel."
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said}]
+    speak_now(said)
     return True
 
 
