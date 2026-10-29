@@ -784,7 +784,7 @@ What this session has not checked:
 - Whether the speaker plug fits the Waveshare board, and what the board's amplifier can drive.
 - The battery: the Waveshare board needs a 3.7V lithium battery per the Rising Sun notes, none is in the orders seen, and whether the board charges it is not known.
 - Whether small speakers are loud and full enough for a soundtrack in a corner.
-- Where soundtracks are stored, on the board or streamed.
+- Soundtracks: Dr. O decided 2026-10-29 they come from the cloud, with no SD card. Not worked out: what the box does when Wi-Fi drops; the store page says the Portable Companion downloads new episodes overnight while it charges, which needs storage on the board, so streaming and downloading are not the same plan; and the ElevenLabs Music Library question applies more directly when files are served to boxes sold to customers.
 - Whether the candle's shape and heat allow the same base.
 
 Why it matters if it works: one set of firmware and parts for several products, which helps the cheap-entry plan. It stays a hypothesis until one box works on a table.
