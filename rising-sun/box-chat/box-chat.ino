@@ -1,6 +1,8 @@
 /* Portable Companion box with Tansy, 2026-10-30. Dr. O: the three buttons are Gardenscape, Story time and Chat with Tansy.
 
-   CHAT:       HOLD the chat button and speak (up to 8 seconds), LET GO, and Tansy answers out loud.   (board KEY1, or a lid button on GPIO4)
+   CHAT:       SAY THE WAKE WORD "Hi ESP" (a short beep means she is listening), then speak, and Tansy answers out loud. The box finds the end of what you say by itself.
+               The button is the backup: HOLD the chat button and speak (up to 8 seconds), LET GO.   (board KEY1, or a lid button on GPIO4)
+               "Hi ESP" is the wake word that comes with the Arduino board support. A word of its own, like "Hey Tansy", needs a custom model from Espressif, which this does not have.
    STORY TIME: one tap, and Tansy tells the next fragment of the Human Summer, in turn.                (board KEY2, or a lid button on GPIO5)
    GARDENSCAPE: one tap, and Tansy introduces a nature scene, then it plays on and on (jungle, waterfall, rain, the woods at night, in turn) until a button is pressed or three minutes pass.
                (board KEY3, or a lid button on GPIO6)
@@ -11,7 +13,7 @@
    What you say in a chat is sent to the website. It goes to ElevenLabs (to turn it into words) and the words go to Anthropic or Amazon (for her reply). Tell anyone who talks to it before they do.
    The website allows 60 chat turns a day in total, so a demo cannot run up a bill.
 
-   Same board, pins and Arduino settings as board-test (rising-sun/board-test/README.md). It needs a secrets.h next to it, copied from secrets.h.example.
+   Same board, pins and Arduino settings as board-test (rising-sun/board-test/README.md), EXCEPT the Partition Scheme, which must be "ESP SR 16M (3MB APP/7MB SPIFFS/2.9MB MODEL)" so the wake word model is loaded. It needs a secrets.h next to it, copied from secrets.h.example.
    Compiled by Claude against ESP32 Arduino core 3.2.0; NOT run on the board and NOT run against the real website yet. The microphone part follows Waveshare's sample (ES7210, 16 kHz, two channels).
 
    TEST ONLY: it does not check the website's certificate (setInsecure), so on a network someone else controls, the access code and what you say could be read. That has to be fixed before a box is sold. */
@@ -23,6 +25,7 @@
 #include <HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 #include "ESP_I2S.h"
+#include "ESP_SR.h"
 #include "driver/i2c.h"
 #include "es8311.h"
 #include "es7210.h"
@@ -54,6 +57,15 @@
 #define MIN_RECORD_BYTES 16000    // half a second, the website refuses less
 #define GARDEN_MAX_BYTES 700000   // one nature loop, about 20 seconds
 #define GARDEN_MAX_MS    180000   // the garden plays for at most three minutes
+
+// One command is needed to start the speech engine; it is not used (taken from Waveshare's sample). Only the wake word matters here.
+static const sr_cmd_t sr_commands[] = {
+  {0, "play music", "PLd MYoZgK"},
+};
+volatile bool wokeUp = false;
+void onSrEvent(sr_event_t event, int command_id, int phrase_id) {
+  if (event == SR_EVENT_WAKEWORD) wokeUp = true;     // handled in loop(), not here
+}
 
 const char *TALK_URL = "https://emerging-tech-lab.com/.netlify/functions/box-talk?companion=tansy";
 const char *LINE_URL = "https://emerging-tech-lab.com/.netlify/functions/box-line?companion=tansy&line=";
@@ -274,19 +286,64 @@ bool talk(size_t bytes) {
   return true;
 }
 
-// Records while KEY1 is held. The two microphones come in as left and right, so each pair is averaged to one mono sample.
+void beep(int hz, int ms) {
+  const int frames = SAMPLE_RATE * ms / 1000;
+  int16_t pair[2];
+  for (int i = 0; i < frames; i++) {
+    float fade = 1.0f;
+    if (i < 300) fade = i / 300.0f;
+    if (i > frames - 300) fade = (frames - i) / 300.0f;
+    pair[0] = pair[1] = (int16_t)(6000 * fade * sinf(2.0f * PI * hz * i / SAMPLE_RATE));
+    i2s.write((uint8_t *)pair, sizeof(pair));
+  }
+}
+
+// Reads some stereo frames and averages the two microphones to mono samples. Returns how many mono samples.
+int readMono(int16_t *mono) {
+  int16_t frames[512];                 // 256 stereo frames
+  size_t n = i2s.readBytes((char *)frames, sizeof(frames));
+  int pairs = n / 4;
+  for (int i = 0; i < pairs; i++) mono[i] = (int16_t)(((int)frames[2 * i] + (int)frames[2 * i + 1]) / 2);
+  return pairs;
+}
+
+// Records while the chat button is held (the backup way).
 size_t record() {
   size_t have = 0;
-  int16_t frames[512];                 // 256 stereo frames
+  int16_t scratch[256];
   ringColor(255, 90, 0);
   uint32_t t0 = millis();
-  while (millis() - t0 < 250) i2s.readBytes((char *)frames, sizeof(frames));   // throw away what piled up before the key went down
+  while (millis() - t0 < 250) readMono(scratch);                 // throw away what piled up before the key went down
   while ((keysPressed() & 1) && have + 512 <= MAX_RECORD_BYTES) {
-    size_t n = i2s.readBytes((char *)frames, sizeof(frames));
-    int pairs = n / 4;
-    int16_t *mono = (int16_t *)(recordBuf + have);
-    for (int i = 0; i < pairs; i++) mono[i] = (int16_t)(((int)frames[2 * i] + (int)frames[2 * i + 1]) / 2);
+    int pairs = readMono((int16_t *)(recordBuf + have));
     have += pairs * 2;
+  }
+  return have;
+}
+
+// Records after the wake word, and stops when you stop talking: it waits for speech to start (up to 4 seconds), then ends after about 1 second of quiet, or at 8 seconds.
+size_t recordSpeech() {
+  size_t have = 0;
+  int16_t scratch[256];
+  ringColor(255, 90, 0);
+  uint32_t t0 = millis();
+  while (millis() - t0 < 200) readMono(scratch);                 // let the beep die away
+  // the room's own level, from a quarter of a second
+  long sum = 0; int cnt = 0;
+  t0 = millis();
+  while (millis() - t0 < 250) { int p = readMono(scratch); for (int i = 0; i < p; i++) { sum += abs(scratch[i]); cnt++; } }
+  long floorLevel = cnt ? sum / cnt : 100;
+  long threshold = floorLevel * 3 + 250;
+  bool spoke = false; uint32_t quietSince = 0, started = millis();
+  while (have + 512 <= MAX_RECORD_BYTES) {
+    int16_t *mono = (int16_t *)(recordBuf + have);
+    int pairs = readMono(mono);
+    long e = 0; for (int i = 0; i < pairs; i++) e += abs(mono[i]);
+    e = pairs ? e / pairs : 0;
+    have += pairs * 2;
+    if (e > threshold) { spoke = true; quietSince = 0; }
+    else if (spoke) { if (!quietSince) quietSince = millis(); else if (millis() - quietSince > 1000) break; }
+    else if (millis() - started > 4000) { Serial.println("Nothing was said."); return 0; }
   }
   return have;
 }
@@ -313,29 +370,54 @@ void setup() {
   i2s.setTimeout(1000);
   bool s = i2s.begin(I2S_MODE_STD, SAMPLE_RATE, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO, I2S_STD_SLOT_BOTH);
   bool m = micStart();
+  bool w = ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD);
+  ESP_SR.onEvent(onSrEvent);
+  Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : "FAILED (the Partition Scheme must be ESP SR 16M)");
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
 }
 
+void chatTurn(bool byButton) {
+  Serial.println(byButton ? "Listening (button)..." : "Listening (wake word)...");
+  size_t n = byButton ? record() : recordSpeech();
+  Serial.printf("Recorded %u bytes\n", (unsigned)n);
+  if (n < MIN_RECORD_BYTES) { Serial.println(byButton ? "Too short, hold the key while you speak." : "Too short."); ringColor(255, 0, 0); delay(600); }
+  else if (!talk(n)) { ringColor(255, 0, 0); delay(1500); }
+  ringColor(0, 0, 255);
+}
+
 void loop() {
   uint8_t keys = keysPressed();
-  if (keys & 1) {
-    Serial.println("Listening...");
-    size_t n = record();
-    Serial.printf("Recorded %u bytes\n", (unsigned)n);
-    if (n < MIN_RECORD_BYTES) { Serial.println("Too short, hold the key while you speak."); ringColor(255, 0, 0); delay(600); }
-    else if (!talk(n)) { ringColor(255, 0, 0); delay(1500); }
-    ringColor(0, 0, 255);
+  if (wokeUp && !keys) {
+    wokeUp = false;
+    ESP_SR.pause();                       // the speech engine stops reading the microphones while the box records them itself
+    ringColor(255, 90, 0);
+    beep(880, 120);
+    chatTurn(false);
+    wokeUp = false;
+    ESP_SR.resume();
+    delay(300);
+  } else if (keys & 1) {
+    ESP_SR.pause();
+    chatTurn(true);
+    wokeUp = false;
+    ESP_SR.resume();
     delay(300);
   } else if (keys & 2) {
     Serial.println("Story time");
+    ESP_SR.pause();                       // so her own voice cannot wake the box
     if (!playLine("story")) { ringColor(255, 0, 0); delay(1500); }
     ringColor(0, 0, 255);
+    wokeUp = false;
+    ESP_SR.resume();
     delay(400);
   } else if (keys & 4) {
     Serial.println("Gardenscape");
+    ESP_SR.pause();
     gardenscape();
     ringColor(0, 0, 255);
+    wokeUp = false;
+    ESP_SR.resume();
     delay(400);
   }
   float level = (sinf(millis() / 1000.0f * 2.0f) + 1.0f) / 2.0f;
