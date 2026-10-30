@@ -783,7 +783,7 @@ The parts she has on hand for a first test: a premade ABS project box (Raculety,
 
 What this session has not checked:
 - The size of each part against the inside of the box (about 4.2 x 3.3 inches and 1.8 inches deep from the listing picture). Dr. O measures first.
-- Whether the speaker plug fits the Waveshare board, and what the board's amplifier can drive.
+- Speaker (Dr. O, 2026-10-30, from the board in her hands): the Waveshare board comes in a round black case with a mesh grille and a clear ring, and has a speaker built in, so the separate small speakers are not needed for the first test. Not known: how to open the case to reach the BAT socket, whether a battery is inside, and how loud the built-in speaker is. The small speakers (DWEII, 35 x 25 mm) are spare.
 - The battery: the Waveshare board needs a 3.7V lithium battery per the Rising Sun notes, none is in the orders seen, and whether the board charges it is not known.
 - Whether small speakers are loud and full enough for a soundtrack in a corner.
 - Soundtracks: Dr. O said 2026-10-29 first cloud with no SD card, then "sd card makes sense". Waveshare's own page lists an onboard TF (microSD) card slot on the ESP32-S3 AI Smart Speaker board for storing audio files; the card size limit and the bus it uses were not found. Not worked out: what the box does when Wi-Fi drops; the store page says the Portable Companion downloads new episodes overnight while it charges, which needs storage on the board, so streaming and downloading are not the same plan; and the ElevenLabs Music Library question applies more directly when files are served to boxes sold to customers.
