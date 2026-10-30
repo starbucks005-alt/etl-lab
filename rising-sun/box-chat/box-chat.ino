@@ -64,6 +64,7 @@ static const sr_cmd_t sr_commands[] = {
   {0, "play music", "PLd MYoZgK"},
 };
 volatile bool wokeUp = false;
+#define WAKE_WORD 1                      // 1 = listen for "Hi ESP", 0 = buttons only (a test: if her voice plays with 0, the wake word engine is the cause)
 bool srOn = false;                        // true only when the wake word engine started
 void onSrEvent(sr_event_t event, int command_id, int phrase_id) {
   if (event == SR_EVENT_WAKEWORD) wokeUp = true;     // handled in loop(), not here
@@ -383,25 +384,29 @@ void setup() {
   // The engine crashes the board if its model is not in flash, so look for the model first.
   const esp_partition_t *model = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "model");
   bool w = false;
-  if (model) {
+  if (model && WAKE_WORD) {
     w = ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD);
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w;
-  Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
+  Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
 }
 
-// The wake word engine stops only after the read it is in the middle of, and it sets the sound timeout to "forever".
-// So wait for it to settle, and put the timeout back, before the box uses the microphones and speaker itself.
+// The library's pause stops the engine only after its current read, and the engine sets the sound timeout to "forever".
+// The box crashed while playing her voice with it paused, so it is stopped and started again around each turn. The cause is not confirmed.
 void srPause() {
   if (!srOn) return;
-  ESP_SR.pause();
-  delay(250);
+  ESP_SR.end();                           // stopped completely, not just paused, so it cannot share the sound connection
+  wokeUp = false;
   i2s.setTimeout(1000);
 }
-void srResume() { if (srOn) ESP_SR.resume(); }
+void srResume() {
+  if (!srOn) return;
+  if (ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD)) ESP_SR.onEvent(onSrEvent);
+  else { srOn = false; Serial.println("Wake word engine did not restart. The buttons still work."); }
+}
 
 void chatTurn(bool byButton) {
   Serial.println(byButton ? "Listening (button)..." : "Listening (wake word)...");
