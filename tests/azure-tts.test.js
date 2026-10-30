@@ -3,6 +3,7 @@ const assert = require('assert');
 const { azureVoiceName, azureSpeak, ssml } = require('../netlify/functions/_azure-tts.js');
 (async () => {
   assert.strictEqual(azureVoiceName('azure:en-US-ChristopherMultilingualNeural'), 'en-US-ChristopherMultilingualNeural');
+  assert.strictEqual(azureVoiceName('azure:en-US-Olivia:MAI-Voice-2-Flash'), 'en-US-Olivia:MAI-Voice-2-Flash');
   assert.strictEqual(azureVoiceName('4NZxG3SNE9sA1UE6KTRy'), null);          // an ElevenLabs id is not an Azure voice
   assert.strictEqual(azureVoiceName('azure:../../x'), null);
   assert.strictEqual(azureVoiceName('azure:'), null);

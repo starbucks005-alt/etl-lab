@@ -5704,7 +5704,7 @@ var GC_ROBOT = {
      there) so this stays a fact about GC rather than a hardcoded id check in that file. */
   voiceDefaultOn: true,
   voiceIdMale: 'wIzYfKZE8c87XZD7bDLH',
-  voiceIdFemale: 'mHX7OoPk2G45VMAuinIt',
+  voiceIdFemale: 'azure:en-US-Olivia:MAI-Voice-2-Flash',   /* 2026-10-30, Dr. O: Guardian F made with Azure. Falls back to the earlier ElevenLabs voice mHX7OoPk2G45VMAuinIt if Azure is not set up (AZURE_FALLBACK in gc-voice.js). */
   portraitMale: 'photos/gc-robot-m.png',
   portraitFemale: 'photos/gc-robot-f.jpg',
   /* BIO CLIP, added 2026-09-11 per Dr. O direct: every other companion's room gate has a "Hear
