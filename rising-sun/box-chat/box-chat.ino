@@ -171,6 +171,7 @@ bool playResponse(HTTPClient &http) {
   uint32_t lastData = millis();
   int leftover = -1;
   uint32_t played = 0;
+  Serial.println("Starting to play her voice...");
   while (http.connected() && (total > 0 || total == -1)) {
     size_t avail = stream->available();
     if (!avail) { if (millis() - lastData > 8000) break; delay(2); continue; }
@@ -182,7 +183,7 @@ bool playResponse(HTTPClient &http) {
     if (leftover >= 0) { int16_t s = (int16_t)(leftover | (in[0] << 8)); out[o++] = s; out[o++] = s; k = 1; leftover = -1; }
     for (; k + 1 < n; k += 2) { int16_t s = (int16_t)(in[k] | (in[k + 1] << 8)); out[o++] = s; out[o++] = s; }
     if (k < n) leftover = in[k];
-    if (o) { i2s.write((uint8_t *)out, o * sizeof(int16_t)); played += o / 2; }
+    if (o) { i2s.write((uint8_t *)out, o * sizeof(int16_t)); played += o / 2; if (played == o / 2) Serial.println("First piece of her voice written to the speaker."); }
   }
   Serial.printf("Played %u samples (%.1f seconds of her voice)\n", (unsigned)played, played / 16000.0f);
   return played > 0;
@@ -389,6 +390,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w;
+  Serial.printf("Version: WAKE_WORD %d, stop and restart around each turn, markers around her voice\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
