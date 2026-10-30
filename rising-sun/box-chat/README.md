@@ -28,3 +28,13 @@ The board's own KEY1, KEY2 and KEY3 do the same three things.
 - ElevenLabs' Service-Specific Terms for sound effects.
 - A false wake (the box waking when nobody said the word) and a missed wake in a noisy room.
 - The website certificate is not checked (test only).
+
+## The panel and the companion (2026-10-30)
+
+The box asks the website every four seconds who is in it and whether a button was pushed from the panel, `rising-sun/box-panel.html` at emerging-tech-lab.com/rising-sun/box-panel.html. Enter the home access code once. Pick the box and the companion. The three buttons on the page do what the lid buttons do. A companion with no recorded story has that button greyed out.
+
+Each box has a name, `BOX_NAME` in `secrets.h` (kitchen, desk), so two boxes in one home can be told apart. Without it the box is called `main`.
+
+In the first build: Tansy, Meera (Breathing, her own AR starter line, spoken once and kept), Marcus (chat and soundscape; his News is not built), Reggie and A.L.I.C.E. (Story time greyed out until stories are recorded). The Grimms and Explorer Kit are not in yet: the Grimms need chosen tales, and no voice id was found for Kit.
+
+Checked: the website functions and the panel page against stand-ins, and the sketch compiles. NOT tried on the live site or the board.

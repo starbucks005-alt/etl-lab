@@ -1,4 +1,6 @@
-/* Portable Companion box with Tansy, 2026-10-30. Dr. O: the three buttons are Gardenscape, Story time and Chat with Tansy.
+/* Portable Companion box, 2026-10-30. Dr. O: the three buttons are Gardenscape, Story time and Chat.
+   WHO IS IN THE BOX: every four seconds the box asks the website (box-control) who is in it and whether a button was pushed from the panel (rising-sun/box-panel.html).
+   It starts as Tansy until the website answers. Each box has a name (BOX_NAME in secrets.h) so two boxes in one home can be told apart. NOT TRIED on the board yet.
 
    CHAT:       SAY THE WAKE WORD "Hi ESP" (a short beep means she is listening), then speak, and Tansy answers out loud. The box finds the end of what you say by itself.
                The button is the backup: HOLD the chat button and speak (up to 8 seconds), LET GO.   (board KEY1, or a lid button on GPIO4)
@@ -64,14 +66,18 @@ static const sr_cmd_t sr_commands[] = {
 };
 volatile bool wokeUp = false;
 #define WAKE_WORD 1                      // 1 = listen for "Hi ESP", 0 = buttons only (a test: if her voice plays with 0, the wake word engine is the cause)
+uint32_t lastAsk = 0;                    // when the box last asked the website
 bool srOn = false;                        // true only when the wake word engine started
 void onSrEvent(sr_event_t event, int command_id, int phrase_id) {
   if (event == SR_EVENT_WAKEWORD) wokeUp = true;     // handled in loop(), not here
 }
 
-const char *TALK_URL = "https://emerging-tech-lab.com/.netlify/functions/box-talk?companion=tansy";
-const char *LINE_URL = "https://emerging-tech-lab.com/.netlify/functions/box-line?companion=tansy&line=";
-const char *SOUND_URL = "https://emerging-tech-lab.com/.netlify/functions/box-sound?companion=tansy&name=";
+#ifndef BOX_NAME
+#define BOX_NAME "main"                  // this box's name, so two boxes in one home can be told apart (set it in secrets.h)
+#endif
+String companion = "tansy";               // who is in the box, from the website (the panel picks), Tansy until it answers
+String secondKind = "story";              // what the second button does for her: story, starter:<id>, or none
+String webBase(const char *fn) { return String("https://emerging-tech-lab.com/.netlify/functions/") + fn + "?companion=" + companion; }
 
 static rmt_data_t ringData[RING_COUNT * 24];   // the ring is written directly, with no lock (the light library timed out on its lock while she was playing her reply)
 static bool ringReady = false;
@@ -218,7 +224,7 @@ bool playLine(const char *line, String *scene = NULL) {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY, see the note at the top
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String(LINE_URL) + line)) return false;
+  if (!http.begin(client, webBase("box-line") + "&line=" + line)) return false;
   http.addHeader("x-sun-key", BOX_KEY);
   const char *keep[] = {"X-Said", "X-Scene"}; http.collectHeaders(keep, 2);
   http.setTimeout(20000);
@@ -238,7 +244,7 @@ size_t fetchGarden(const String &scene) {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String(SOUND_URL) + scene)) return 0;
+  if (!http.begin(client, webBase("box-sound") + "&name=" + scene)) return 0;
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(30000);
   int code = http.GET();
@@ -294,7 +300,7 @@ bool talk(size_t bytes) {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);                    // no chunked reply, so the stream is only audio
-  if (!http.begin(client, TALK_URL)) return false;
+  if (!http.begin(client, webBase("box-talk"))) return false;
   http.addHeader("x-sun-key", BOX_KEY);
   http.addHeader("Content-Type", "application/octet-stream");
   const char *keep[] = {"X-Heard", "X-Said"}; http.collectHeaders(keep, 2);
@@ -377,7 +383,7 @@ size_t recordSpeech() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.println("\nPortable Companion box with Tansy: chat (hold), story time, gardenscape");
+  Serial.println("\nPortable Companion box: chat, story time, gardenscape (who is in the box comes from the panel)");
   ringColor(0, 0, 255);
 
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
@@ -422,6 +428,63 @@ void srResume() {
   else { srOn = false; Serial.println("Wake word engine did not restart. The buttons still work."); }
 }
 
+// A fixed opening line she answers in her own voice, made once on the website and kept (Meera's Breathing).
+bool playStarter(const String &id) {
+  if (!joinWifi()) return false;
+  ringColor(255, 170, 0);
+  WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, webBase("box-talk") + "&starter=" + id)) return false;
+  http.addHeader("x-sun-key", BOX_KEY);
+  http.addHeader("Content-Type", "application/octet-stream");
+  const char *keep[] = {"X-Said"}; http.collectHeaders(keep, 1);
+  http.setTimeout(60000);
+  int code = http.POST((uint8_t *)"", 0);
+  Serial.printf("Website answered: %d\n", code);
+  if (code != 200) { explain(code); Serial.println(http.getString()); http.end(); return false; }
+  playResponse(http);
+  http.end();
+  return true;
+}
+
+// The second button: the next story, or her own session, or nothing for a companion that has none.
+void secondButton() {
+  Serial.printf("Second button (%s): %s\n", companion.c_str(), secondKind.c_str());
+  bool ok = false;
+  if (secondKind == "story") ok = playLine("story");
+  else if (secondKind.startsWith("starter:")) ok = playStarter(secondKind.substring(8));
+  if (!ok) { ringColor(255, 0, 0); delay(1500); }
+  ringColor(0, 0, 255);
+}
+
+// Asks the website who is in the box and whether a button was pushed from the panel. Returns the pushed button, or "".
+String askWebsite() {
+  if (WiFi.status() != WL_CONNECTED) return "";
+  WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME)) return "";
+  http.addHeader("x-sun-key", BOX_KEY);
+  http.setTimeout(8000);
+  int code = http.GET();
+  if (code != 200) { http.end(); return ""; }
+  String body = http.getString();
+  http.end();
+  String command = "";
+  int pos = 0;
+  while (pos < (int)body.length()) {
+    int nl = body.indexOf('\n', pos); if (nl < 0) nl = body.length();
+    String line = body.substring(pos, nl); line.trim(); pos = nl + 1;
+    if (line.startsWith("companion=")) {
+      String c = line.substring(10);
+      if (c.length() && c != companion) { companion = c; Serial.printf("Companion is now %s\n", companion.c_str()); ringColor(0, 255, 0); delay(400); }
+    } else if (line.startsWith("second=")) secondKind = line.substring(7);
+    else if (line.startsWith("command=")) command = line.substring(8);
+  }
+  return command;
+}
+
 void chatTurn(bool byButton) {
   Serial.println(byButton ? "Listening (button)..." : "Listening (wake word)...");
   size_t n = byButton ? record() : recordSpeech();
@@ -449,10 +512,8 @@ void loop() {
     srResume();
     delay(300);
   } else if (keys & 2) {
-    Serial.println("Story time");
-    srPause();                       // so her own voice cannot wake the box
-    if (!playLine("story")) { ringColor(255, 0, 0); delay(1500); }
-    ringColor(0, 0, 255);
+    srPause();                            // so her own voice cannot wake the box
+    secondButton();
     wokeUp = false;
     srResume();
     delay(400);
@@ -464,6 +525,19 @@ void loop() {
     wokeUp = false;
     srResume();
     delay(400);
+  } else if (millis() - lastAsk > 4000) {
+    lastAsk = millis();
+    String cmd = askWebsite();
+    if (cmd.length()) {
+      Serial.printf("Pushed from the panel: %s\n", cmd.c_str());
+      srPause();
+      if (cmd == "chat") chatTurn(false);
+      else if (cmd == "second") secondButton();
+      else if (cmd == "soundscape") { gardenscape(); ringColor(0, 0, 255); }
+      wokeUp = false;
+      srResume();
+      delay(400);
+    }
   }
   float level = (sinf(millis() / 1000.0f * 2.0f) + 1.0f) / 2.0f;
   ringColor((uint8_t)(10 + 90 * level), 0, (uint8_t)(40 + 160 * level));
