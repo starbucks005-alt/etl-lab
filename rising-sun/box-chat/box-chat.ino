@@ -393,6 +393,16 @@ void setup() {
   joinWifi();
 }
 
+// The wake word engine stops only after the read it is in the middle of, and it sets the sound timeout to "forever".
+// So wait for it to settle, and put the timeout back, before the box uses the microphones and speaker itself.
+void srPause() {
+  if (!srOn) return;
+  ESP_SR.pause();
+  delay(250);
+  i2s.setTimeout(1000);
+}
+void srResume() { if (srOn) ESP_SR.resume(); }
+
 void chatTurn(bool byButton) {
   Serial.println(byButton ? "Listening (button)..." : "Listening (wake word)...");
   size_t n = byButton ? record() : recordSpeech();
@@ -406,34 +416,34 @@ void loop() {
   uint8_t keys = keysPressed();
   if (wokeUp && !keys) {
     wokeUp = false;
-    if (srOn) ESP_SR.pause();                       // the speech engine stops reading the microphones while the box records them itself
+    srPause();                       // the speech engine stops reading the microphones while the box records them itself
     ringColor(255, 90, 0);
     beep(880, 120);
     chatTurn(false);
     wokeUp = false;
-    if (srOn) ESP_SR.resume();
+    srResume();
     delay(300);
   } else if (keys & 1) {
-    if (srOn) ESP_SR.pause();
+    srPause();
     chatTurn(true);
     wokeUp = false;
-    if (srOn) ESP_SR.resume();
+    srResume();
     delay(300);
   } else if (keys & 2) {
     Serial.println("Story time");
-    if (srOn) ESP_SR.pause();                       // so her own voice cannot wake the box
+    srPause();                       // so her own voice cannot wake the box
     if (!playLine("story")) { ringColor(255, 0, 0); delay(1500); }
     ringColor(0, 0, 255);
     wokeUp = false;
-    if (srOn) ESP_SR.resume();
+    srResume();
     delay(400);
   } else if (keys & 4) {
     Serial.println("Gardenscape");
-    if (srOn) ESP_SR.pause();
+    srPause();
     gardenscape();
     ringColor(0, 0, 255);
     wokeUp = false;
-    if (srOn) ESP_SR.resume();
+    srResume();
     delay(400);
   }
   float level = (sinf(millis() / 1000.0f * 2.0f) + 1.0f) / 2.0f;
