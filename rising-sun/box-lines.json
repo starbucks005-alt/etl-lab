@@ -1,5 +1,5 @@
 {
-  "_note": "Words the Portable Companion box says out loud, 2026-10-30. The greeting was written by Claude as test wording, and Dr. O heard it from the box on 2026-10-30 and said \"it is a great line\", so it stays. The goodnight, didnt_hear and too_many lines are still test wording. Dr. O writes and decides the rest of the lines. Nothing here says anything about the companion's life. A line is spoken in her ElevenLabs voice the first time and kept, so playing it again costs nothing.",
+  "_note": "Words the Portable Companion box says out loud, 2026-10-30. The greeting was written by Claude as test wording, and Dr. O heard it from the box on 2026-10-30 and said \"it is a great line\", so it stays. The goodnight, didnt_hear and too_many lines are still test wording. Dr. O writes and decides the rest of the lines. Nothing here says anything about the companion's life. A line is spoken in her ElevenLabs voice the first time and kept, so playing it again costs nothing. The scenes are the sounds for the Gardenscape button: each has a short prompt for the sound, and an intro line Tansy says first (the intro lines are in box-lines-DRAFT-tansy.json until Dr. O keeps them; with no intro line the sound plays without one). Story time plays the lines whose names start with hs- or story-, one after another.",
   "companions": {
     "tansy": {
       "voiceId": "thfYL0Elyru2qqTtNQsE",
@@ -8,6 +8,24 @@
         "goodnight": "Good night. Do not stay up on my account.",
         "didnt_hear": "Speak up. I do not repeat myself for just anyone.",
         "too_many": "That is enough talking for one day. Come back tomorrow."
+      },
+      "scenes": {
+        "jungle": {
+          "intro": "nature-jungle",
+          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music"
+        },
+        "waterfall": {
+          "intro": "nature-waterfall",
+          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music"
+        },
+        "rain": {
+          "intro": "nature-rain",
+          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music"
+        },
+        "night-woods": {
+          "intro": "nature-night-woods",
+          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music"
+        }
       }
     }
   }

@@ -42,10 +42,10 @@ async function openStore(event) {
   return getStore('box_lines');
 }
 
-function sound(buf, cached) {
+function sound(buf, cached, scene) {
   return {
     statusCode: 200,
-    headers: Object.assign({ 'Content-Type': 'audio/L16; rate=16000; channels=1', 'Cache-Control': 'no-store', 'X-Kept': cached ? 'yes' : 'no' }, CORS),
+    headers: Object.assign({ 'Content-Type': 'audio/L16; rate=16000; channels=1', 'Cache-Control': 'no-store', 'X-Kept': cached ? 'yes' : 'no' }, scene ? { 'X-Scene': scene } : {}, CORS),
     body: buf.toString('base64'),
     isBase64Encoded: true,
   };
@@ -66,15 +66,37 @@ exports.handler = async (event, deps = {}) => {
 
   const lines = deps.lines || FILE;
   const c = lines.companions && lines.companions[companion];
-  const text = c && c.lines && c.lines[line];
-  if (!c || !text) return json(404, { error: 'unknown_line' });
+  if (!c) return json(404, { error: 'unknown_line' });
+
+  let store = deps.store;
+  try { if (!store) store = await openStore(event); } catch (_) { store = null; }
+
+  /* Two lines that are not one line: "story" is the next fragment in turn, "garden" is the next scene's introduction in turn. */
+  let key = line, scene = '';
+  if (line === 'story' || line === 'garden') {
+    const names = line === 'story'
+      ? Object.keys(c.lines || {}).filter((k) => /^(hs-|story-)/.test(k)).sort()
+      : Object.keys(c.scenes || {}).sort();
+    if (!names.length) return json(404, { error: line === 'story' ? 'no_stories_yet' : 'no_scenes_yet' });
+    let n = 0;
+    try { n = Number(await store.get('turn-' + line, { type: 'json' })) || 0; } catch (_) {}
+    const pick = names[n % names.length];
+    try { await store.setJSON('turn-' + line, (n + 1) % 1000); } catch (_) {}
+    if (line === 'story') key = pick;
+    else { scene = pick; key = (c.scenes[pick] || {}).intro || ''; }
+  }
+  const text = c.lines && c.lines[key];
+  if (!text) {
+    // a scene with no introduction written yet: nothing to say, the sound plays anyway
+    if (scene) return { statusCode: 204, headers: Object.assign({ 'X-Scene': scene }, CORS), body: '' };
+    return json(404, { error: 'unknown_line' });
+  }
 
   const id = crypto.createHash('sha256').update([c.voiceId, MODEL, text].join('|')).digest('hex').slice(0, 40);
-  let store = deps.store;
   try {
     if (!store) store = await openStore(event);
     const kept = await store.get('pcm-' + id, { type: 'arrayBuffer' });
-    if (kept && kept.byteLength) return sound(Buffer.from(kept), true);
+    if (kept && kept.byteLength) return sound(Buffer.from(kept), true, scene);
   } catch (_) { /* nothing kept, or the store is down: make it again */ }
 
   let buf;
@@ -82,7 +104,7 @@ exports.handler = async (event, deps = {}) => {
   catch (e) { return json(502, { error: 'voice_failed', detail: String((e && e.message) || e).slice(0, 80) }); }
   if (!buf || !buf.length) return json(502, { error: 'voice_failed', detail: 'empty' });
   try { if (store) await store.set('pcm-' + id, buf); } catch (_) { /* a line that could not be kept is still played */ }
-  return sound(buf, false);
+  return sound(buf, false, scene);
 };
 
 exports.elevenPcm = elevenPcm;
