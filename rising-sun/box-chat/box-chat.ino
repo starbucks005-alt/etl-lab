@@ -23,7 +23,6 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
-#include <Adafruit_NeoPixel.h>
 #include "ESP_I2S.h"
 #include "ESP_SR.h"
 #include "esp_partition.h"
@@ -74,7 +73,8 @@ const char *TALK_URL = "https://emerging-tech-lab.com/.netlify/functions/box-tal
 const char *LINE_URL = "https://emerging-tech-lab.com/.netlify/functions/box-line?companion=tansy&line=";
 const char *SOUND_URL = "https://emerging-tech-lab.com/.netlify/functions/box-sound?companion=tansy&name=";
 
-Adafruit_NeoPixel ring(RING_COUNT, RING_PIN, NEO_GRB + NEO_KHZ800);
+static rmt_data_t ringData[RING_COUNT * 24];   // the ring is written directly, with no lock (the light library timed out on its lock while she was playing her reply)
+static bool ringReady = false;
 I2SClass i2s;
 es8311_handle_t codec = NULL;
 es7210_dev_handle_t micChip = NULL;
@@ -136,8 +136,22 @@ bool micStart() {
 }
 
 void ringColor(uint8_t r, uint8_t g, uint8_t b) {
-  for (int i = 0; i < RING_COUNT; i++) ring.setPixelColor(i, ring.Color(r, g, b));
-  ring.show();
+  if (!ringReady) {
+    ringReady = rmtInit(RING_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 10000000);
+    if (!ringReady) return;
+  }
+  r = r * 20 / 255; g = g * 20 / 255; b = b * 20 / 255;   // the ring stays dim, as before
+  int n = 0;
+  for (int i = 0; i < RING_COUNT; i++) {
+    uint8_t px[3] = {g, r, b};                       // the ring wants green, red, blue
+    for (int k = 0; k < 3; k++) for (int bit = 7; bit >= 0; bit--) {
+      bool one = px[k] & (1 << bit);
+      ringData[n].level0 = 1; ringData[n].duration0 = one ? 8 : 4;
+      ringData[n].level1 = 0; ringData[n].duration1 = one ? 4 : 8;
+      n++;
+    }
+  }
+  rmtWrite(RING_PIN, ringData, n, 100);              // gives up after a tenth of a second instead of waiting forever
 }
 
 bool joinWifi() {
@@ -364,8 +378,6 @@ void setup() {
   Serial.begin(115200);
   delay(1500);
   Serial.println("\nPortable Companion box with Tansy: chat (hold), story time, gardenscape");
-  ring.begin();
-  ring.setBrightness(20);
   ringColor(0, 0, 255);
 
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
