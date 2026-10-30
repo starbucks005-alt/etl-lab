@@ -2264,7 +2264,7 @@ def say_address():
     ip = my_address()
     if not ip:
         return jsonify(error="I am not on a network right now"), 503
-    speak_async(address_words(ip), use_persona=False)
+    speak_async(address_words(ip), use_persona=SELF_PERSONA is not None)
     return jsonify(ok=True, address=ip, url="http://" + ip + ":8000")
 
 
@@ -4115,10 +4115,19 @@ def my_address():
         probe.close()
 
 
+# 2026-10-29, Dr. O: A.L.I.C.E. said the address in Astra's voice and told people to try "astra nine lite dot local".
+# On the Pi that has index_alice.html the address is now spoken in her own voice, and it names this Pi's own hostname.
+def local_name():
+    if SELF_PERSONA is None:
+        return "astra nine lite"
+    import socket
+    return socket.gethostname().split(".")[0].lower() or "astra nine lite"
+
+
 def address_words(ip):
     once = ", dot, ".join(", ".join(part) for part in ip.split("."))   # commas make her pause between the digits
     return ("I am ready. My address is, " + once + ", colon, eight thousand. I will say it once more. " + once
-            + ", colon, eight thousand. You can also try astra nine lite dot local, colon eight thousand.")
+            + ", colon, eight thousand. You can also try " + local_name() + " dot local, colon eight thousand.")
 
 
 def say_address_when_ready():
@@ -4133,7 +4142,7 @@ def say_address_when_ready():
     for _ in range(60):
         ip = my_address()
         if ip:
-            speak_async(address_words(ip), use_persona=False)
+            speak_async(address_words(ip), use_persona=SELF_PERSONA is not None)
             return
         time.sleep(2)
 
