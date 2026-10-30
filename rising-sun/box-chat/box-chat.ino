@@ -335,7 +335,9 @@ size_t recordSpeech() {
   t0 = millis();
   while (millis() - t0 < 250) { int p = readMono(scratch); for (int i = 0; i < p; i++) { sum += abs(scratch[i]); cnt++; } }
   long floorLevel = cnt ? sum / cnt : 100;
-  long threshold = floorLevel * 3 + 250;
+  long threshold = floorLevel * 2 + 120;
+  long peak = 0;
+  Serial.printf("Room level %ld, speech must pass %ld. Speak now.\n", floorLevel, threshold);
   bool spoke = false; uint32_t quietSince = 0, started = millis();
   while (have + 512 <= MAX_RECORD_BYTES) {
     int16_t *mono = (int16_t *)(recordBuf + have);
@@ -343,9 +345,10 @@ size_t recordSpeech() {
     long e = 0; for (int i = 0; i < pairs; i++) e += abs(mono[i]);
     e = pairs ? e / pairs : 0;
     have += pairs * 2;
+    if (e > peak) peak = e;
     if (e > threshold) { spoke = true; quietSince = 0; }
     else if (spoke) { if (!quietSince) quietSince = millis(); else if (millis() - quietSince > 1000) break; }
-    else if (millis() - started > 4000) { Serial.println("Nothing was said."); return 0; }
+    else if (millis() - started > 6000) { Serial.printf("Nothing was said. Loudest moment was %ld, it needed to pass %ld.\n", peak, threshold); return 0; }
   }
   return have;
 }
