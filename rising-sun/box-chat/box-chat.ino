@@ -169,6 +169,7 @@ bool playResponse(HTTPClient &http) {
   int16_t out[512];
   uint32_t lastData = millis();
   int leftover = -1;
+  uint32_t played = 0;
   while (http.connected() && (total > 0 || total == -1)) {
     size_t avail = stream->available();
     if (!avail) { if (millis() - lastData > 8000) break; delay(2); continue; }
@@ -180,9 +181,10 @@ bool playResponse(HTTPClient &http) {
     if (leftover >= 0) { int16_t s = (int16_t)(leftover | (in[0] << 8)); out[o++] = s; out[o++] = s; k = 1; leftover = -1; }
     for (; k + 1 < n; k += 2) { int16_t s = (int16_t)(in[k] | (in[k + 1] << 8)); out[o++] = s; out[o++] = s; }
     if (k < n) leftover = in[k];
-    if (o) i2s.write((uint8_t *)out, o * sizeof(int16_t));
+    if (o) { i2s.write((uint8_t *)out, o * sizeof(int16_t)); played += o / 2; }
   }
-  return true;
+  Serial.printf("Played %u samples (%.1f seconds of her voice)\n", (unsigned)played, played / 16000.0f);
+  return played > 0;
 }
 
 void explain(int code) {
@@ -199,6 +201,7 @@ bool playLine(const char *line, String *scene = NULL) {
   if (!joinWifi()) return false;
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY, see the note at the top
   HTTPClient http;
+  http.useHTTP10(true);
   if (!http.begin(client, String(LINE_URL) + line)) return false;
   http.addHeader("x-sun-key", BOX_KEY);
   const char *keep[] = {"X-Said", "X-Scene"}; http.collectHeaders(keep, 2);
@@ -218,6 +221,7 @@ size_t fetchGarden(const String &scene) {
   if (!joinWifi() || !gardenBuf) return 0;
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
+  http.useHTTP10(true);
   if (!http.begin(client, String(SOUND_URL) + scene)) return 0;
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(30000);
@@ -273,6 +277,7 @@ bool talk(size_t bytes) {
   ringColor(255, 170, 0);
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
+  http.useHTTP10(true);                    // no chunked reply, so the stream is only audio
   if (!http.begin(client, TALK_URL)) return false;
   http.addHeader("x-sun-key", BOX_KEY);
   http.addHeader("Content-Type", "application/octet-stream");
