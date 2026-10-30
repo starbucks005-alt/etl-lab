@@ -124,30 +124,13 @@ static const coeff_div_t *es7210_get_coeff(uint32_t mclk, uint32_t lrck)
     return NULL;
 }
 
+/* Changed from Waveshare's original: the register is written with Wire (see es7210_wire.cpp) and not with the old I2C driver, which cannot be used together with Wire in the same program. */
+extern int es7210_wire_write(uint8_t i2c_addr, uint8_t reg_addr, uint8_t reg_val);
+
 static esp_err_t es7210_write_reg(es7210_dev_handle_t handle, uint8_t reg_addr, uint8_t reg_val)
 {
     ESP_RETURN_ON_FALSE(handle, ESP_ERR_INVALID_ARG, TAG, "invalid device handle");
-    esp_err_t ret = ESP_OK;
-
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    ESP_GOTO_ON_FALSE(cmd, ESP_ERR_NO_MEM, err, TAG, "memory allocation for i2c cmd handle failed");
-
-    ESP_GOTO_ON_ERROR(i2c_master_start(cmd), err, TAG, "error while appending i2c command");
-    ESP_GOTO_ON_ERROR(i2c_master_write_byte(cmd, handle->i2c_addr << 1 | I2C_MASTER_WRITE, true),
-                      err, TAG, "error while appending i2c command");
-    ESP_GOTO_ON_ERROR(i2c_master_write_byte(cmd, reg_addr, true), err,
-                      TAG, "error while appending i2c command");
-    ESP_GOTO_ON_ERROR(i2c_master_write_byte(cmd, reg_val, true), err,
-                      TAG, "error while appending i2c command");
-    ESP_GOTO_ON_ERROR(i2c_master_stop(cmd), err, TAG, "error while appending i2c command");
-
-    ESP_GOTO_ON_ERROR(i2c_master_cmd_begin(handle->i2c_port, cmd, pdMS_TO_TICKS(1000)),
-                      err, TAG, "error while writing register");
-err:
-    if (cmd) {
-        i2c_cmd_link_delete(cmd);
-    }
-    return ret;
+    return es7210_wire_write(handle->i2c_addr, reg_addr, reg_val) == 0 ? ESP_OK : ESP_FAIL;
 }
 
 static esp_err_t es7210_set_i2s_format(es7210_dev_handle_t handle, es7210_i2s_fmt_t i2s_format,

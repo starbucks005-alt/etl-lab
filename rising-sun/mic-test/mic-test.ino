@@ -5,7 +5,7 @@
    Two numbers per line: the left microphone and the right, each as an average loudness and a peak (the loudest single sample), out of 32767.
 
    If the numbers stay near 0: change MIC_TDM below to 0 and upload again, and see whether that wakes them up. If one side is always 0 and the other moves, that is fine.
-   Same board and Arduino settings as board-test (the 3MB APP partition is fine here). Compiled by Claude against core 3.2.0; NOT run on the board yet. */
+   Needs the files beside it, including es7210_wire.cpp (see rising-sun/box-chat/README.md for why). Same board and Arduino settings as board-test (PSRAM must be OPI PSRAM) (the 3MB APP partition is fine here). Compiled by Claude against core 3.2.0; NOT run on the board yet. */
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_NeoPixel.h>
