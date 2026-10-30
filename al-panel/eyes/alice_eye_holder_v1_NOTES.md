@@ -1,6 +1,6 @@
 # A.L.I.C.E. eye holder, first draft (v1), 2026-10-30
 
-For the Tech-Optics "Doll and Mannequin Eyes 27mm" (glass ball, short neck and stem on the back). **Nothing here has been printed or tried.** Every size is a guess until the real eye is pressed into the fit test.
+For the Tech-Optics "Doll and Mannequin Eyes 27mm" (a ball with a short neck and stem on the back; the listing page does not say what it is made of, glass or acrylic). **Nothing here has been printed or tried.** Every size is a guess until the real eye is pressed into the fit test.
 
 ## Step 1. Print only the fit test first
 

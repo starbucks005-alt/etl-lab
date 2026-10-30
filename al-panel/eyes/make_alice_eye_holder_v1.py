@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""A.L.I.C.E. eye holder, first draft (v1), for the Tech-Optics "Doll and Mannequin Eyes 27mm" (glass ball, short neck and stem on the back).
+"""A.L.I.C.E. eye holder, first draft (v1), for the Tech-Optics "Doll and Mannequin Eyes 27mm" (a ball with a short neck and stem on the back; the listing page does not say what it is made of, glass or acrylic).
 Made 2026-10-30 for Dr. O. NOT PRINTED OR TRIED. Every number below is a guess to be settled by the fit test.
 
 Axes, in millimetres: the eye looks along +Z, up is +Y, +X is to the eye's right. The eye's centre is the origin.
 Parts:
-  cup        holds the rear of the glass ball (glued in). Two pins at the sides (the tilt axis, along X) and a tab at the bottom rear for a tilt rod.
+  cup        holds the rear of the ball (glued in). Two pins at the sides (the tilt axis, along X) and a tab at the bottom rear for a tilt rod.
   yoke       a frame around the cup. Two holes take the cup's pins. A bar over the top has a hole for an M3 bolt (the turn axis, along Y)
              and an arm to the rear with a hole for a turn rod.
   mount      a small plate that sits above the yoke; the M3 bolt goes through both, with a nylon lock nut.
