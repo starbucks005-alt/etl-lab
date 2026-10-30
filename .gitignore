@@ -54,3 +54,6 @@ al-panel/pi/reminders.json
 al-panel/pi/routine_log.json
 al-panel/pi/care.json
 recorded-stories/
+
+# private Wi-Fi and access codes for the box sketches
+rising-sun/**/secrets.h
