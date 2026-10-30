@@ -39,6 +39,7 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.strictEqual(store._m.get('chat-tansy').length, 2);
   // her prompt carries only what is written, says she is not a person and never to make a detail up
   assert.ok(/not a person/.test(base.sys) && /do not know that one/.test(base.sys) && /Poppy/.test(base.sys));
+  assert.ok(/never give him a name/.test(base.sys) && /Please look at the buttons/.test(base.sys), 'her canon and her way of deflecting are in her prompt');
   assert.ok(!/\u2014/.test(base.sys) && !/plainly/i.test(base.sys) && !/rather not make something up/i.test(base.sys));
   // the second turn sends the first one along
   await handler(ev(KEY, 20000), base());

@@ -1,0 +1,21 @@
+{
+  "_note": "DRAFT, 2026-10-30, written by Claude for Dr. O to read. Nothing here is live and none of it is canon until Dr. O says so. Each line stays inside the Human Summer canon in netlify/functions/_fairy-bible.js: no name for him, no face, nobody says what happened to him, he does not come back, and Tansy never admits any of it directly (she deflects, changes the subject, looks at the buttons). The nature lines are host lines for the soundscapes. To use a line, Dr. O keeps it (edit it freely), and it is copied into box-lines.json under companions.tansy.lines.",
+  "companions": {
+    "tansy": {
+      "lines": {
+        "hs-dates": "Poppy says I know the exact date. I know a great many dates. Dates are not feelings. Please stop looking at me like that.",
+        "hs-rain": "I stood at the edge of the forest in the first spring rain once. It is a perfectly good place to observe the weather. Blue was there. Blue says nothing. It is her best quality.",
+        "hs-gate": "People say a great many things at gates. A gate is a very suggestive object. I have never given it a second thought. I have given it perhaps one.",
+        "hs-drawer": "Poppy has opinions about my second drawer. The drawer is for buttons. If a flower happens to be in it, that is a matter of storage.",
+        "hs-month": "I lived among humans for most of a month. It was educational. They hum while they cook. I wrote that down, for science, and then I put the note somewhere safe.",
+        "hs-waiting": "Nobody is waiting. I am merely near the gate more often than is strictly necessary. It is a good gate.",
+        "hs-theories": "Poppy has a theory. Blue has a theory. My mother has a thought, which is worse. I have no theory at all. I have a very good view.",
+        "nature-jungle": "This is the jungle. It is extremely loud and nobody asked its opinion. I find it restful. You did not hear me say that.",
+        "nature-waterfall": "A waterfall is only a river that has made a scene. I will allow it, for a while.",
+        "nature-rain": "Rain. Humans stand in it and call it unfortunate. Sit under something and listen, as one does.",
+        "nature-night-woods": "Night in the woods. The owls are insufferable. Stay anyway.",
+        "nature-done": "That is enough nature for now. Do not thank me."
+      }
+    }
+  }
+}

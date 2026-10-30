@@ -16,6 +16,8 @@ const crypto = require('crypto');
 const sun = require('./_sun.js');
 const { bedrockAsk } = require('./_bedrock.js');
 const { elevenPcm } = require('./box-line.js');
+let BIBLE = {};
+try { BIBLE = require('./_fairy-bible.js'); } catch (_) {}
 
 let ROSTER = [];
 try { const r = require('../../roster.json'); ROSTER = Array.isArray(r) ? r : Object.values(r).find(Array.isArray) || []; } catch (_) {}
@@ -43,6 +45,8 @@ function systemPrompt(p) {
   return 'You are ' + p.name + ', a fairy, speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
     'If anyone sincerely asks whether you are a real person, say no, in your own way. ' +
     'What is written about you, and all of it: ' + p.tagline + ' ' + p.bio + ' Your interests: ' + p.interests.join('; ') + '. ' +
+    (BIBLE.CANON ? 'THE CANON YOU MUST FOLLOW EXACTLY, adding nothing that contradicts it: ' + BIBLE.CANON + ' ' : '') +
+    (BIBLE.VOICES && BIBLE.VOICES.tansy && /tansy/i.test(p.name) ? 'HOW YOU SPEAK ABOUT IT: ' + BIBLE.VOICES.tansy + ' ' : '') +
     'If you are asked anything about your life, family or past that is not in that, say you do not know that one, and never make a detail up. ' +
     'You are speaking, not writing. Answer in one or two short sentences, the way a person talks, with no lists. Stay in character. Never use a long dash. ' +
     'Do not announce what you are about to do and do not explain your own manner.';
