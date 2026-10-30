@@ -34,6 +34,10 @@ except Exception as _e:         # pragma: no cover
     vc = None
     print("VOICES not loaded:", str(_e)[:120], flush=True)
 try:
+    import al_cues as cues  # noqa: E402  (small sounds around her speech: a breath for A.L.I.C.E., mechanical sounds for Astra 9 and Ted; if the file is missing she simply speaks as before)
+except Exception:  # noqa: BLE001
+    cues = None
+try:
     import al_skills as sk  # noqa: E402  (notebook, bench guide and knowledge shelf; if the file is missing she simply answers as before)
 except Exception as _e:         # pragma: no cover
     sk = None
@@ -1371,22 +1375,43 @@ def _speak_inner(text, use_persona=True):
                   ("accent is %s, and only %s use Azure" % (state["accent"], "/".join(AZURE_ACCENTS))) if state["accent"] not in AZURE_ACCENTS else \
                   "no Azure key and region found (azure_speech.json or AZURE_SPEECH_KEY/AZURE_SPEECH_REGION), or tts is switched off"
             print("SPEAK via ElevenLabs:", why, flush=True)
-        if cfg:
-            try:
-                az_voice = AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
-                print("SPEAK via Azure", az_voice, flush=True)
-                azure_speak(spoken, cfg, az_voice)
-            except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
-                if hush_event.is_set():
-                    return                     # she was told to stop: not a failure, do not say it again in another voice
-                print("AZURE SPEAK ERROR, using ElevenLabs:", e, flush=True)
-                # robot/american fall back to the old AL voice; the other accents to their own ElevenLabs voice,
-                # which was already set above from VOICES.
-                if state["accent"] in ("robot", "american"):
-                    al.AL_VOICE_ID = ELEVEN_BACKUP_VOICE
-                al.speak(spoken)
-        else:
-            al.speak(spoken)
+        def say(part):
+            """Speak one piece of text. Returns False if she was told to stop."""
+            if cfg:
+                try:
+                    az_voice = AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
+                    print("SPEAK via Azure", az_voice, flush=True)
+                    azure_speak(part, cfg, az_voice)
+                except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
+                    if hush_event.is_set():
+                        return False       # she was told to stop: not a failure, do not say it again in another voice
+                    print("AZURE SPEAK ERROR, using ElevenLabs:", e, flush=True)
+                    # robot/american fall back to the old AL voice; the other accents to their own ElevenLabs voice,
+                    # which was already set above from VOICES.
+                    if state["accent"] in ("robot", "american"):
+                        al.AL_VOICE_ID = ELEVEN_BACKUP_VOICE
+                    al.speak(part)
+            else:
+                al.speak(part)
+            return True
+
+        # 2026-10-30, Dr. O: small sounds around her speech. A.L.I.C.E. breathes in before she speaks; Astra 9 and Ted click before, tick between
+        # sentences and give a short tone after. Astra-9 Lite has none. Nothing plays while she is idle. Set in cue_set.txt, see al_cues.py.
+        cue_set = cues.which_set(SELF_PERSONA is not None) if cues else "none"
+        parts = [spoken]
+        if cue_set == "mechanical":
+            sentences = [x.strip() for x in re.split(r"(?<=[.!?])\s+", spoken) if x.strip()]
+            if 2 <= len(sentences) <= 6:
+                parts = sentences
+        if cue_set != "none":
+            cues.play(cue_set, "before", PLAY_DEVICE, hush_event)
+        for n, part in enumerate(parts):
+            if n and cue_set != "none":
+                cues.play(cue_set, "between", PLAY_DEVICE, hush_event)
+            if hush_event.is_set() or not say(part):
+                return
+        if cue_set != "none":
+            cues.play(cue_set, "after", PLAY_DEVICE, hush_event)
         last_said["t"] = time.time()
     except Exception as e:  # keep the server alive if sound fails
         print("SPEAK ERROR:", e, flush=True)
