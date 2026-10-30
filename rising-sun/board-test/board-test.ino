@@ -43,6 +43,10 @@ Adafruit_NeoPixel ring(RING_COUNT, RING_PIN, NEO_GRB + NEO_KHZ800);
 I2SClass i2s;
 es8311_handle_t codec = NULL;
 
+// What setup found. Printed again every five seconds, so it can be read at any time.
+bool foundTca = false, foundCodec = false, foundMic = false;
+bool codecOk = false, ampOk = false, soundOk = false;
+
 bool seen(uint8_t addr) {
   Wire.beginTransmission(addr);
   return Wire.endTransmission() == 0;
@@ -106,6 +110,19 @@ void ringColor(uint8_t r, uint8_t g, uint8_t b) {
   ring.show();
 }
 
+void printReport() {
+  Serial.println("---- Board report ----");
+  Serial.printf("Pin chip (0x20): %s\n", foundTca ? "answers" : "NO ANSWER");
+  Serial.printf("Speaker chip (0x18): %s\n", foundCodec ? "answers" : "NO ANSWER");
+  Serial.printf("Microphone chip (0x40): %s\n", foundMic ? "answers" : "NO ANSWER");
+  Serial.printf("Speaker chip start: %s\n", codecOk ? "ok" : "FAILED");
+  Serial.printf("Speaker amplifier switched on: %s\n", ampOk ? "ok" : "FAILED");
+  Serial.printf("Sound output started: %s\n", soundOk ? "ok" : "FAILED");
+  float v = batteryVolts();
+  if (v > 2.5f && v < 4.5f) Serial.printf("Battery: %.2f V\n", v);
+  else Serial.printf("Battery: not connected, or not readable (the pin reads %.2f V, which is noise)\n", v);
+}
+
 void setup() {
   Serial.begin(115200);
   delay(1500);
@@ -116,21 +133,19 @@ void setup() {
   ringColor(0, 0, 255);
 
   Wire.begin(I2C_SDA, I2C_SCL);
-  Serial.printf("Pin chip (0x20): %s\n", seen(TCA_ADDR) ? "answers" : "NO ANSWER");
-  Serial.printf("Speaker chip (0x18): %s\n", seen(ES8311_ADDR) ? "answers" : "NO ANSWER");
-  Serial.printf("Microphone chip (0x40): %s\n", seen(ES7210_ADDR) ? "answers" : "NO ANSWER");
+  foundTca = seen(TCA_ADDR);
+  foundCodec = seen(ES8311_ADDR);
+  foundMic = seen(ES7210_ADDR);
 
   analogReadResolution(12);
-  Serial.printf("Battery reading: %.2f V (about 0 if no battery is connected)\n", batteryVolts());
 
-  bool ok = codecStart();
-  Serial.printf("Speaker chip start: %s\n", ok ? "ok" : "FAILED");
-  Serial.printf("Speaker amplifier on: %s\n", speakerOn(true) ? "ok" : "FAILED");
+  codecOk = codecStart();
+  ampOk = speakerOn(true);
 
   i2s.setPins(I2S_BCLK, I2S_LRCK, I2S_DOUT, I2S_DIN, I2S_MCLK);
-  if (!i2s.begin(I2S_MODE_STD, SAMPLE_RATE, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO, I2S_STD_SLOT_BOTH)) {
-    Serial.println("Sound output: FAILED to start");
-  } else {
+  soundOk = i2s.begin(I2S_MODE_STD, SAMPLE_RATE, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO, I2S_STD_SLOT_BOTH);
+  printReport();
+  if (soundOk) {
     Serial.println("Playing a short beep...");
     ringColor(0, 255, 0);
     beep(440, 700);
@@ -155,7 +170,8 @@ void loop() {
 
   if (millis() - last > 5000) {
     last = millis();
-    Serial.printf("Still running (%lu). Battery %.2f V\n", ++n, batteryVolts());
+    Serial.printf("Still running (%lu)\n", ++n);
+    printReport();
   }
   delay(40);
 }
