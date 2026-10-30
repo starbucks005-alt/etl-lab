@@ -1,6 +1,6 @@
 /* Portable Companion box, push to talk chat with Tansy, 2026-10-30. Dr. O: for the demo I want to be able to chat with her.
 
-   HOLD KEY1 and speak (up to 8 seconds), LET GO, and Tansy answers out loud. KEY2 plays her goodnight line. It uses the website's box-talk.js and box-line.js.
+   HOLD KEY1 (or a button on the box lid wired to GPIO4) and speak (up to 8 seconds), LET GO, and Tansy answers out loud. KEY2 (or a lid button on GPIO5) plays her goodnight line. It uses the website's box-talk.js and box-line.js.
    Ring colors: blue breathing = waiting, orange = it is listening, yellow = it is thinking, green = she is speaking, red = something went wrong (read the Serial Monitor).
 
    What you say is sent to the website. It goes to ElevenLabs (to turn it into words) and the words go to Anthropic or Amazon (for her reply). Tell anyone who talks to it before they do.
@@ -37,6 +37,11 @@
 #define ES8311_ADDR    0x18
 #define ES7210_ADDR    0x40
 
+// Buttons on the box lid, for when the board's own three buttons are hidden inside the box (Dr. O, 2026-10-30).
+// A push button between the pin and GND. GPIO4 is header pin 8 and GPIO5 is header pin 6, GND is header pin 16.
+#define LID_TALK_PIN   4    // hold to talk, the same as KEY1
+#define LID_LINE_PIN   5    // plays the goodnight line, the same as KEY2
+
 #define SAMPLE_RATE    16000
 #define SPEAKER_VOLUME 70    // 0 to 100, as in box-voice
 #define MAX_RECORD_BYTES 256000   // 8 seconds of 16 bit mono at 16000 a second
@@ -67,6 +72,8 @@ uint8_t keysPressed() {
   if (!(v & 0x02)) out |= 1;
   if (!(v & 0x04)) out |= 2;
   if (!(v & 0x08)) out |= 4;
+  if (digitalRead(LID_TALK_PIN) == LOW) out |= 1;
+  if (digitalRead(LID_LINE_PIN) == LOW) out |= 2;
   return out;
 }
 
@@ -227,6 +234,8 @@ void setup() {
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
 
+  pinMode(LID_TALK_PIN, INPUT_PULLUP);
+  pinMode(LID_LINE_PIN, INPUT_PULLUP);
   Wire.begin(I2C_SDA, I2C_SCL);
   bool c = codecStart();
   bool a = speakerOn(true);
