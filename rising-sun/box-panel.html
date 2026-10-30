@@ -68,6 +68,12 @@
     <p class="note">The box takes a few seconds to notice a button pushed here. It asks the website every few seconds.</p>
   </section>
 
+  <section id="batt" class="hidden">
+    <h2>Battery</h2>
+    <p id="battLine" style="margin:0"></p>
+    <p class="note">An estimate from the battery voltage. It cannot tell whether the box is charging: the charge light on the board does that.</p>
+  </section>
+
   <div id="msg" role="status" aria-live="polite"></div>
 </main>
 <script>
@@ -104,6 +110,13 @@
     if (c.second) { second.textContent = c.second.label + (c.second.ready ? '' : ' (not recorded yet)'); second.disabled = !c.second.ready; second.classList.remove('hidden'); }
     else { second.classList.add('hidden'); }
     $('pick').classList.remove('hidden'); $('buttons').classList.remove('hidden');
+    $('batt').classList.remove('hidden');
+    var bt = data.battery;
+    if (!bt) $('battLine').textContent = 'No battery reading from this box yet.';
+    else {
+      var ago = bt.secondsAgo < 90 ? 'just now' : (bt.secondsAgo < 5400 ? Math.round(bt.secondsAgo / 60) + ' minutes ago' : 'over an hour ago, so the box may be off');
+      $('battLine').textContent = 'About ' + bt.percent + '% (' + bt.volts.toFixed(2) + ' V), heard ' + ago + '.';
+    }
   }
 
   function load() {

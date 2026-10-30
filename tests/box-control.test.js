@@ -40,6 +40,14 @@ const real = require('../rising-sun/box-lines.json');
   assert.ok(two.boxes.indexOf('desk') >= 0 && two.boxes.indexOf('kitchen') >= 0 && two.box === 'desk');
   assert.strictEqual(JSON.parse((await handler(withId('GET', { id: 'Bad Name!' }), d)).body).box, 'main');
 
+  // the battery the box reports shows on the panel, as an estimate, with how long ago it was heard
+  await handler(ev('GET', KEY, { box: '1', id: 'desk', batt: '3900' }), d);
+  const bat = JSON.parse((await handler(ev('GET', KEY, { id: 'desk' }), d)).body).battery;
+  assert.ok(bat && bat.volts === 3.9 && bat.percent === 67 && bat.secondsAgo === 0);
+  await handler(ev('GET', KEY, { box: '1', id: 'desk', batt: '99' }), d);          // nonsense is ignored
+  assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'desk' }), d)).body).battery.volts, 3.9);
+  assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'kitchen' }), d)).body).battery, null);
+
   // choosing a companion; an unknown one is refused
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'nobody' }), d)).statusCode, 404);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera' }), d)).statusCode, 200);

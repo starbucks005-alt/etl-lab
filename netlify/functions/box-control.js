@@ -7,6 +7,7 @@
 
    The three buttons are chat, second (story, breathing, or nothing for a companion that has none) and soundscape. The same ones as the lid.
    Every call needs the header x-sun-key, the same home access code as the other box functions. With no code set it answers 503.
+   The box also sends its battery voltage (?batt=millivolts) each time it asks; the panel shows it.
    Each box has a name (for example kitchen or desk), sent as ?id= from the box and the panel, so two boxes in one home can be told apart and each have her own companion. No name means 'main'.
    NOT TRIED on the live site or the board. The test runs with a stand-in store. */
 const sun = require('./_sun.js');
@@ -19,6 +20,8 @@ const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content
 const text = (s) => ({ statusCode: 200, headers: Object.assign({ 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }, CORS), body: s });
 const BUTTONS = ['chat', 'second', 'soundscape'];
 const EXPIRES_MS = 60000;
+/* An estimate from the voltage of a single lithium cell: 3.3 V is nearly empty and 4.2 V is full. The real curve is not a straight line, so the panel says "about". */
+function batteryPercent(mv) { return Math.max(0, Math.min(100, Math.round((mv - 3300) / 9))); }
 const boxName = (v) => { const n = String(v || 'main').toLowerCase().trim(); return /^[a-z0-9-]{1,20}$/.test(n) ? n : 'main'; };
 
 /* What one companion's buttons are. The second button is a story only when story lines are written for her. */
@@ -71,15 +74,19 @@ exports.handler = async (event, deps = {}) => {
   if (st.command && now - st.command.at > EXPIRES_MS) st.command = null;
 
   if (event.httpMethod === 'GET' && q.box) {
+    const mv = parseInt(q.batt, 10);
+    if (mv >= 2500 && mv <= 4500) st.battery = { mv, at: now };
     const c = describe(st.companion, all[st.companion]);
     const command = st.command ? st.command.button : '';
-    if (st.command) { st.command = null; try { await store.setJSON(key, st); } catch (_) {} }
+    if (st.command) st.command = null;
+    try { await store.setJSON(key, st); } catch (_) {}
     const second = c.second ? (c.second.kind === 'story' ? 'story' : 'starter:' + c.second.id) : 'none';
     return text('companion=' + st.companion + '\nsecond=' + second + '\ncommand=' + command + '\n');
   }
 
   if (event.httpMethod === 'GET') {
-    return json(200, { box: id, boxes, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
+    const battery = st.battery ? { volts: Math.round(st.battery.mv / 10) / 100, percent: batteryPercent(st.battery.mv), secondsAgo: Math.round((now - st.battery.at) / 1000) } : null;
+    return json(200, { box: id, boxes, battery, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
   }
 
   if (body.action === 'set_companion') {
@@ -102,4 +109,4 @@ exports.handler = async (event, deps = {}) => {
   return json(400, { error: 'unknown_action' });
 };
 
-exports._test = { describe };
+exports._test = { describe, batteryPercent };

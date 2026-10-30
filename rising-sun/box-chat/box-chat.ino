@@ -459,12 +459,21 @@ void secondButton() {
 }
 
 // Asks the website who is in the box and whether a button was pushed from the panel. Returns the pushed button, or "".
+#define BATTERY_ADC 8
+// The battery voltage in millivolts, read the way Waveshare's own sample does (the board's board-test sketch used the same). 0 if it reads nothing sensible.
+int batteryMillivolts() {
+  long sum = 0;
+  for (int i = 0; i < 8; i++) { sum += analogReadMilliVolts(BATTERY_ADC); delay(2); }
+  float mv = (sum / 8.0f) * 3.0f / 0.990476f;
+  return (mv > 2500 && mv < 4500) ? (int)mv : 0;
+}
+
 String askWebsite() {
   if (WiFi.status() != WL_CONNECTED) return "";
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME)) return "";
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&batt=" + batteryMillivolts())) return "";
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(8000);
   int code = http.GET();
