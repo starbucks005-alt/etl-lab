@@ -38,3 +38,7 @@ Each box has a name, `BOX_NAME` in `secrets.h` (kitchen, desk), so two boxes in 
 In the first build: Tansy, Meera (Breathing, her own AR starter line, spoken once and kept), Marcus (chat and soundscape; his News is not built), Reggie and A.L.I.C.E. (Story time greyed out until stories are recorded). The Grimms and Explorer Kit are not in yet: the Grimms need chosen tales, and no voice id was found for Kit.
 
 Checked: the website functions and the panel page against stand-ins, and the sketch compiles. NOT tried on the live site or the board.
+
+## Verified on the board (2026-10-30)
+
+Dr. O heard Tansy answer out loud from the box. Before that the board restarted at the moment her reply should start. A decoded backtrace put the stop inside the ring light library's lock, in the green ring command at the start of her reply. The ring is now written directly in `ringColor`. Why that lock timed out is not known. Not yet tried on the board: the wake word with the fix, Story time, Gardenscape, Meera's Breathing, and the panel buttons.
