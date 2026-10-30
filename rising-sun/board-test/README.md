@@ -14,8 +14,9 @@ Dr. O fills in before handing over:
 - Photo to send back goes to: ______________
 
 Steps, one at a time:
-1. Install the Arduino IDE from arduino.cc if it is not on the computer. Open it.
-2. Open Boards Manager (the board icon on the left). Search `esp32`. Install "esp32 by Espressif Systems", version **3.2.0** exactly. (Not a newer version.)
+0. Get the five files of this folder (`board-test.ino`, `es8311.cpp`, `es8311.h`, `es8311_reg.h`, `README.md`) from GitHub: starbucks005-alt/etl-lab, folder `rising-sun/board-test`. Keep them together in a folder named `board-test`.
+1. Install the Arduino IDE from https://www.arduino.cc/en/software if it is not on the computer. Open it.
+2. File, Preferences. In "Additional boards manager URLs" paste `https://espressif.github.io/arduino-esp32/package_esp32_index.json` and click OK. Then open Boards Manager (the board icon on the left). Search `esp32`. Install "esp32 by Espressif Systems", version **3.2.0** exactly. (Not a newer version.)
 3. Open Library Manager (the books icon). Search `Adafruit NeoPixel`. Install it.
 4. Open the file `board-test.ino` from this folder. The three files named `es8311` must be in the same folder. **STOP if they are missing. Call Dr. O.**
 5. Choose the board: Tools, Board, esp32, "ESP32S3 Dev Module".
