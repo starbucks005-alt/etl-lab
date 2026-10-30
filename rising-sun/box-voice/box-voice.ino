@@ -34,7 +34,7 @@
 #define ES8311_ADDR    0x18
 
 #define SAMPLE_RATE    16000
-#define SPEAKER_VOLUME 55    // 0 to 100. Raise slowly.
+#define SPEAKER_VOLUME 70    // 0 to 100. Was 55 and Dr. O said "a little louder" (2026-10-30). Waveshare's own sample uses 98. Raise slowly, and stop if it crackles.
 
 const char *LINE_URL = "https://emerging-tech-lab.com/.netlify/functions/box-line";
 
