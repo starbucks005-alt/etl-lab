@@ -339,7 +339,21 @@ speak_lock = threading.Lock()
 # 2026-10-28, Dr. O: voice recognition has to be a known feature of both robots. On A.L.I.C.E. the robot's own character is a "character" to this
 # file, and a character is never given the people list or a voice match. So on the Pi that has index_alice.html, her own character
 # counts as the robot herself. Every other character is still kept apart. On Astra-9 Lite this is None and nothing changes.
-SELF_PERSONA = "gc-a-l-i-c-e" if os.path.exists(os.path.join(HERE, "index_alice.html")) else None
+# 2026-10-30, Dr. O: one panel for every robot. Which robot this Pi is comes from one small setting file, robot.txt, holding an id from
+# robots.json. No file means a generic robot, never Astra-9 Lite and never A.L.I.C.E. The one carry-over: a Pi that still has
+# index_alice.html and no robot.txt keeps counting as A.L.I.C.E. until robot.txt is written there.
+def _read_robot_id():
+    try:
+        rid = open(os.path.join(HERE, "robot.txt"), encoding="utf-8").read().strip().lower()
+        if re.fullmatch(r"[a-z0-9-]{1,40}", rid):
+            return rid
+    except OSError:
+        pass
+    return "alice" if os.path.exists(os.path.join(HERE, "index_alice.html")) else None
+
+
+ROBOT_ID = _read_robot_id()
+SELF_PERSONA = "gc-a-l-i-c-e" if ROBOT_ID == "alice" else None
 
 
 def is_self(pid):
@@ -1309,6 +1323,23 @@ def _hush_watch(stop):
             return
 
 
+def _quiet_breath(fn):
+    """2026-10-30, Dr. O: she breathes while idle (al_cues.py, off unless idle_breath.txt says on). That breath must be stopped before anything else uses the speaker or the
+    microphone, so this wraps speaking, listening and the alarm chime: stop it first, let it resume a couple of seconds after."""
+    def wrapped(*a, **kw):
+        if cues and hasattr(cues, "idle_hold"):
+            cues.idle_hold()
+        try:
+            return fn(*a, **kw)
+        finally:
+            if cues and hasattr(cues, "idle_release"):
+                cues.idle_release()
+    wrapped.__name__ = fn.__name__
+    wrapped.__doc__ = fn.__doc__
+    return wrapped
+
+
+@_quiet_breath
 def speak_now(text, use_persona=True):
     """Say it and come back only when she has finished."""
     with speak_lock:
@@ -1650,9 +1681,20 @@ def context_for(text):
 
 @app.get("/")
 def home():
-    # A.L.I.C.E.'s own page (made by make_alice_page.py) when it sits beside this file, Astra-9 Lite's page otherwise
-    page = "index_alice.html" if os.path.exists(os.path.join(HERE, "index_alice.html")) else "index.html"
-    return send_from_directory(HERE, page)
+    # One page for every robot (2026-10-30). The page asks /api/robot which robot this is and shows that robot's cards.
+    return send_from_directory(HERE, "index.html")
+
+
+@app.get("/robots.json")
+def robots_roster():
+    """The list of robots the page's dropdown is built from."""
+    return send_from_directory(HERE, "robots.json", mimetype="application/json")
+
+
+@app.get("/api/robot")
+def robot_id():
+    """Which robot this Pi is. The page's dropdown asks every listed robot this to decide Connected or Demo mode."""
+    return jsonify(ok=True, id=ROBOT_ID)
 
 
 @app.get("/api/status")
@@ -1757,12 +1799,24 @@ def preview(pid):
     return send_from_directory(PREVIEW_DIR, pid + ".mp3", mimetype="audio/mpeg")
 
 
+_LOCAL_ORIGIN = re.compile(r"http://(localhost|127\.0\.0\.1|[a-z0-9-]+\.local|10(\.\d{1,3}){3}|192\.168(\.\d{1,3}){2}|172\.(1[6-9]|2\d|3[01])(\.\d{1,3}){2})(:\d{2,5})?")
+
+
 @app.after_request
 def never_keep_old_pages(resp):
     """Phones keep old copies of pages. After an update that shows the old page, so tell the browser to ask every time
     (voice samples are the exception: they never change, and keeping them makes the Hear voice button instant)."""
     if not request.path.startswith("/previews/"):
         resp.headers["Cache-Control"] = "no-store"
+    # 2026-10-30: a panel page served by one robot may ask another robot "who are you", for the dropdown. Only pages that come from a
+    # home or local network address (or localhost, or a .local name) are let in, never an ordinary website, because this server
+    # also has a shut-down button.
+    origin = request.headers.get("Origin", "")
+    if origin and _LOCAL_ORIGIN.fullmatch(origin):
+        resp.headers["Access-Control-Allow-Origin"] = origin
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        resp.headers["Vary"] = "Origin"
     return resp
 
 
@@ -2533,6 +2587,7 @@ def _samples(c):
 room_memory = {"floor": None}      # the room level from the listens before, so one voice or her own tail cannot move the bar far
 
 
+@_quiet_breath
 def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_start=None):
     """Wait for someone to start speaking, record until they stop, and return the wav path.
     Returns None if nobody spoke within wait_seconds, if abort() says stop, or if she begins to speak herself.
@@ -3237,6 +3292,7 @@ def make_chime():
         w.writeframes(b"".join(struct.pack("<h", v) for v in out))
 
 
+@_quiet_breath
 def play_chime():
     try:
         make_chime()
@@ -4365,6 +4421,8 @@ if __name__ == "__main__":
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()
     threading.Thread(target=watch_motion, daemon=True).start()
+    if cues and hasattr(cues, "idle_start"):
+        cues.idle_start(PLAY_DEVICE)       # breathing while idle, only if idle_breath.txt says on
     threading.Thread(target=watch_names, daemon=True).start()
     prepare_opening()          # her first greeting from the notes is ready before anyone walks up
     threading.Thread(target=clock_watcher, daemon=True).start()     # timers and alarms

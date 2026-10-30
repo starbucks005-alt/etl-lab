@@ -1585,5 +1585,180 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ shut(); } });
     })();
     </script>
+
+    <!-- ROBOT DROPDOWN, added 2026-10-30, Dr. O: one panel for every robot. Always at the top. Each robot in robots.json is listed with the address it
+         answers on and Connected or Demo mode. Picking a connected robot opens that robot's own panel; picking one that is not connected shows
+         that robot's cards as a look-only demo that cannot reach any robot. If robots.json is not there (the public site), nothing here runs and the page is as it was. -->
+    <style>
+    #robotBar{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);font:15px/1.3 inherit}
+    #robotBar .rb-label{font-size:13px;color:var(--mute)}
+    #robotBtn{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--field);color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+    #robotBtn:focus-visible,.rb-opt:focus-visible,#robotAddr:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+    .rb-dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--muted-dot)}
+    .rb-dot.up{background:#2e7d4f}
+    .rb-sub{font-size:13px;color:var(--mute)}
+    #robotMenu{display:none;position:absolute;top:100%;left:16px;right:16px;max-width:560px;max-height:70vh;overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);padding:6px}
+    #robotMenu.open{display:block}
+    .rb-opt{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+    .rb-opt:hover,.rb-opt.on{background:var(--accent-bg)}
+    .rb-opt .rb-name{flex:1}
+    .rb-chip{font-size:13px;padding:2px 8px;border-radius:99px;background:var(--status-bg);color:var(--status);white-space:nowrap}
+    .rb-chip.up{background:#dff0e5;color:#17432a}
+    #robotAddr{min-height:44px;padding:8px 12px;border:1px solid var(--line2);border-radius:10px;background:var(--field);color:var(--ink);font:inherit;cursor:pointer}
+    #robotDemo{display:none;margin:12px 16px 0;padding:12px 14px;border-radius:10px;background:var(--note-bg);color:var(--note);border:1px solid var(--line2)}
+    #robotDemo.show{display:block}
+    .grid.rb-look{opacity:.6}
+    @media (prefers-color-scheme:dark){.rb-chip.up{background:#17432a;color:#dff0e5}}
+    :root[data-theme="dark"] .rb-chip.up{background:#17432a;color:#dff0e5}
+    :root[data-theme="light"] .rb-chip.up{background:#dff0e5;color:#17432a}
+    </style>
+    <script>
+    (function(){
+      'use strict';
+      var ROB = [], SELF = null, cur = null, up = {}, base = {}, WALK = new WeakMap();
+      var PORT = 8000;
+      var bar, btn, menu, demo, addrBtn;
+      function el(t, c, txt){ var e = document.createElement(t); if(c){ e.className = c; } if(txt != null){ e.textContent = txt; } return e; }
+      function find(id){ for(var i=0;i<ROB.length;i++){ if(ROB[i].id === id){ return ROB[i]; } } return null; }
+      function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+      function lsSet(k, v){ try{ if(v == null){ localStorage.removeItem(k); } else { localStorage.setItem(k, v); } }catch(e){} }
+
+      // where to look for a robot: an address Dr. O typed, then its name on the network, then where it was last found
+      function candidates(r){
+        var out = [], typed = lsGet('panel-robot-addr-' + r.id);
+        if(typed){ out.push(typed); }
+        if(r.hostname){ out.push(r.hostname.toLowerCase() + '.local'); }
+        if(r.last_seen_address){ out.push(r.last_seen_address); }
+        return out;
+      }
+      function shownAddress(r){
+        if(r.id === SELF){ return location.host; }
+        if(up[r.id] && base[r.id]){ return base[r.id].replace(/^http:\/\//, ''); }
+        var c = candidates(r);
+        return c.length ? c[0] + ':' + PORT : 'no address yet';
+      }
+      function probeOne(r, cand){
+        return new Promise(function(res){
+          var c = new AbortController(), t = setTimeout(function(){ c.abort(); }, 1800);
+          fetch('http://' + cand + ':' + PORT + '/api/robot', {signal: c.signal, cache: 'no-store'})
+            .then(function(x){ clearTimeout(t); return x.ok ? x.json() : null; })
+            .then(function(j){ res(j && j.id === r.id ? 'http://' + cand + ':' + PORT : null); })
+            .catch(function(){ clearTimeout(t); res(null); });
+        });
+      }
+      function probe(r){
+        if(r.id === SELF){ up[r.id] = true; base[r.id] = location.origin; return Promise.resolve(); }
+        if(location.protocol !== 'http:'){ up[r.id] = false; return Promise.resolve(); }   // a secure page cannot reach a robot on the local network
+        var list = candidates(r), i = 0;
+        function next(){
+          if(i >= list.length){ up[r.id] = false; base[r.id] = null; return Promise.resolve(); }
+          return probeOne(r, list[i++]).then(function(b){ if(b){ up[r.id] = true; base[r.id] = b; } else { return next(); } });
+        }
+        return next();
+      }
+      function probeAll(){ return Promise.all(ROB.map(probe)).then(paint); }
+
+      function paint(){
+        var r = find(cur); if(!r){ return; }
+        btn.innerHTML = '';
+        var d = el('span', 'rb-dot' + (up[r.id] ? ' up' : '')); btn.appendChild(d);
+        var w = el('span'); w.appendChild(el('span', '', r.name)); w.appendChild(document.createElement('br'));
+        w.appendChild(el('span', 'rb-sub', shownAddress(r) + ' · ' + (up[r.id] ? 'Connected' : 'Demo mode')));
+        btn.appendChild(w); btn.appendChild(el('span', 'rb-sub', '▾'));
+        menu.innerHTML = '';
+        ROB.forEach(function(x){
+          var o = el('button', 'rb-opt' + (x.id === cur ? ' on' : '')); o.type = 'button'; o.setAttribute('role', 'option');
+          o.setAttribute('aria-selected', x.id === cur ? 'true' : 'false');
+          o.appendChild(el('span', 'rb-dot' + (up[x.id] ? ' up' : '')));
+          var n = el('span', 'rb-name'); n.appendChild(el('span', '', x.name)); n.appendChild(document.createElement('br'));
+          n.appendChild(el('span', 'rb-sub', shownAddress(x))); o.appendChild(n);
+          o.appendChild(el('span', 'rb-chip' + (up[x.id] ? ' up' : ''), up[x.id] ? 'Connected' : 'Demo mode'));
+          o.addEventListener('click', function(){ choose(x.id); });
+          menu.appendChild(o);
+        });
+        addrBtn.style.display = (r.id === SELF) ? 'none' : '';
+        var wasDemo = demo.classList.contains('show');
+        var isDemo = (r.id !== SELF);
+        demo.textContent = 'Demo mode. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
+        demo.classList.toggle('show', isDemo);
+        var g = document.querySelector('.grid');
+        if(g){ g.classList.toggle('rb-look', isDemo); if(isDemo){ g.setAttribute('inert', ''); } else { g.removeAttribute('inert'); } }
+        if(isDemo !== wasDemo){ /* nothing else to redo */ }
+      }
+
+      function styleTag(id){ var s = document.getElementById(id); if(!s){ s = document.createElement('style'); s.id = id; document.head.appendChild(s); } return s; }
+      function rename(r){
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null), n, nodes = [];
+        while((n = walker.nextNode())){
+          var p = n.parentNode && n.parentNode.nodeName;
+          if(p === 'SCRIPT' || p === 'STYLE' || (n.parentNode.closest && n.parentNode.closest('#robotBar,#robotDemo'))){ continue; }
+          nodes.push(n);
+        }
+        nodes.forEach(function(t){
+          if(!WALK.has(t)){ WALK.set(t, t.nodeValue); }
+          var o = WALK.get(t);
+          t.nodeValue = (r.id === 'astra-lite') ? o : o.replace(/Astra-9 Lite/g, r.name).replace(/\bElle\b/g, r.short || r.name);
+        });
+        var h = document.querySelector('h1');
+        if(h){
+          if(!h.hasAttribute('data-rb-orig')){ h.setAttribute('data-rb-orig', h.innerHTML); }
+          if(r.id === 'astra-lite'){ h.innerHTML = h.getAttribute('data-rb-orig'); } else { h.textContent = r.name; }
+        }
+        if(!document.documentElement.hasAttribute('data-rb-title')){ document.documentElement.setAttribute('data-rb-title', document.title); }
+        document.title = (r.id === 'astra-lite') ? document.documentElement.getAttribute('data-rb-title') : r.name + ' Panel | Emerging Technologies Laboratory';
+      }
+      function applyLook(r){
+        var sel = (r.hide || []).map(function(i){ return '#' + i; });
+        if(r.hide_selectors){ sel.push(r.hide_selectors); }
+        styleTag('robotHide').textContent = sel.length ? sel.join(',') + '{display:none !important}' : '';
+        var th = '';
+        if(r.theme_light && r.theme_dark){
+          th = ':root{' + r.theme_light + '}\n:root[data-theme="dark"]{' + r.theme_dark + '}\n@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){' + r.theme_dark + '}}\n';
+        }
+        styleTag('robotTheme').textContent = th;
+        rename(r);
+      }
+
+      function choose(id){
+        menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
+        var r = find(id); if(!r){ return; }
+        if(id !== SELF && up[id] && base[id]){ lsSet('panel-robot', id); location.href = base[id] + '/'; return; }
+        cur = id; lsSet('panel-robot', id); applyLook(r); paint();
+      }
+
+      function start(roster, who){
+        ROB = roster.robots || []; SELF = who; if(!ROB.length){ return; }
+        PORT = roster.port || 8000;
+        cur = (SELF && find(SELF)) ? SELF : ((find(lsGet('panel-robot')) || ROB[0]).id);
+        bar = el('div'); bar.id = 'robotBar'; bar.style.position = 'sticky';
+        bar.appendChild(el('span', 'rb-label', 'Robot'));
+        btn = el('button'); btn.id = 'robotBtn'; btn.type = 'button'; btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+        menu = el('div'); menu.id = 'robotMenu'; menu.setAttribute('role', 'listbox');
+        addrBtn = el('button', '', 'Set address'); addrBtn.id = 'robotAddr'; addrBtn.type = 'button';
+        bar.appendChild(btn); bar.appendChild(addrBtn); bar.appendChild(menu);
+        var hdr = document.querySelector('header'); hdr.parentNode.insertBefore(bar, hdr.nextSibling);
+        demo = el('div'); demo.id = 'robotDemo'; demo.setAttribute('role', 'status'); bar.parentNode.insertBefore(demo, bar.nextSibling);
+        btn.addEventListener('click', function(e){ e.stopPropagation(); var o = menu.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); if(o){ probeAll(); } });
+        menu.addEventListener('click', function(e){ e.stopPropagation(); });
+        document.addEventListener('click', function(){ menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); });
+        document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+        addrBtn.addEventListener('click', function(){
+          var r = find(cur); if(!r){ return; }
+          var v = window.prompt('Address or name for ' + r.name + ', for example 192.168.0.50 or ' + (r.hostname || 'name').toLowerCase() + '.local. Leave empty to forget it.', lsGet('panel-robot-addr-' + r.id) || '');
+          if(v === null){ return; }
+          v = v.trim().replace(/^https?:\/\//, '').replace(/[:\/].*$/, '');
+          if(v && !/^[A-Za-z0-9.-]{1,100}$/.test(v)){ window.alert('That does not look like an address.'); return; }
+          lsSet('panel-robot-addr-' + r.id, v || null); probeAll();
+        });
+        applyLook(find(cur)); paint(); probeAll();
+        setInterval(function(){ if(!document.hidden){ probeAll(); } }, 8000);
+      }
+
+      // the roster and who this Pi is; if the roster is not there (the public site) nothing happens
+      fetch('robots.json', {cache: 'no-store'}).then(function(r){ if(!r.ok){ throw new Error('no roster'); } return r.json(); }).then(function(roster){
+        return fetch('/api/robot', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).catch(function(){ return {}; }).then(function(j){ start(roster, j && j.id ? j.id : null); });
+      }).catch(function(){});
+    })();
+    </script>
     </body>
 </html>

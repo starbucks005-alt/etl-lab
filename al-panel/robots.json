@@ -1,0 +1,256 @@
+{
+  "_about": "The robots the panel's dropdown lists (2026-10-30). Read by the page, served by each Pi as /robots.json. A null is not known yet, never a guess. 'hide' is the list of card ids that robot does not use; the card ids are the ids in index.html. Only 'id', 'name', 'short', 'hostname', 'last_seen_address', 'port', 'hide', 'hide_selectors', 'theme_light', 'theme_dark', 'kind', 'status' are read by the page; the rest is notes for Dr. O. last_seen_address is only where the robot was last found, since a hotspot gives out a new one each time.",
+  "port": 8000,
+  "robots": [
+    {
+      "id": "astra-lite",
+      "name": "Astra-9 Lite",
+      "short": "Elle",
+      "hostname": "astra9lite",
+      "last_seen_address": "192.168.0.87",
+      "kind": "head and bust",
+      "status": "built and working",
+      "hide": [],
+      "also_called": [
+        "Elle",
+        "AL",
+        "Astra"
+      ],
+      "character": {
+        "good_company_id": null,
+        "panel_modes": "all of the panel's modes"
+      },
+      "voice": {
+        "engine": "Azure first when set up, ElevenLabs if not",
+        "name": "set by her accent setting (default en-US-LunaNeural)"
+      },
+      "look": "champagne gold with copper trim",
+      "special": "eye rings that pulse, a neck that turns, modes (including Guardian mode)",
+      "cards": "all"
+    },
+    {
+      "id": "alice",
+      "name": "A.L.I.C.E.",
+      "short": "Alice",
+      "hostname": "ALICE",
+      "last_seen_address": "192.168.0.139",
+      "kind": "full body, posable mannequin",
+      "status": "in progress (Dr. O's 10-day build)",
+      "hide": [
+        "modeCard",
+        "eyesCard",
+        "voiceCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard"
+      ],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#starters,#sistersRow,label:has(#wEyes),#themeBtn,#listenAzure",
+      "theme_light": "--bg:#e6e3de;--panel:#f6f4f0;--line:#d4cfc5;--line2:#bdb6a8;--ink:#15130f;--text:#3d382f;--mute:#665f53;--accent:#7d5a20;--accent-bg:#efe3cc;--status:#5a4a2e;--status-bg:#e9e1d2;--note:#5a4a2e;--note-bg:#e9e1d2;--muted-dot:#8a8272;--night:#121110;--field:#ffffff;--on-status:#ffffff;--on-accent:#ffffff;",
+      "theme_dark": "--bg:#121110;--panel:#1c1a17;--line:#34302a;--line2:#4a443b;--ink:#f1ece3;--text:#cfc7b8;--mute:#9a917f;--accent:#cf9f4f;--accent-bg:#3a2d17;--status:#d9bd85;--status-bg:#2b2418;--note:#d9bd85;--note-bg:#2b2418;--muted-dot:#9a917f;--night:#0a0908;--field:#262320;--on-status:#1a1408;--on-accent:#1a1408;",
+      "character": {
+        "good_company_id": "gc-a-l-i-c-e",
+        "panel_mode": null
+      },
+      "voice": {
+        "engine": "ElevenLabs only",
+        "name": "her own voice (Dr. O: 'her voice is elevenlabs, it will never be Azure')"
+      },
+      "look": "aged bronze legs, gunmetal arms, matte black suit, metal-looking joints",
+      "special": "a camera in her cheek plate, a HuskyLens (faces, objects, colors, tags, tracking), she holds a pose, a motion sensor hello, hears and knows registered voices (not confirmed working)",
+      "cards_hidden": [
+        "modeCard",
+        "eyesCard",
+        "voiceCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard"
+      ],
+      "cards_hidden_note": "taken from make_alice_page.py. That script may hide more in places not read for this draft."
+    },
+    {
+      "id": "astra",
+      "name": "Astra-9",
+      "short": "Astra",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "full body",
+      "status": "body arrived, not built",
+      "hide": [],
+      "character": {
+        "good_company_id": null,
+        "note": "Elle's server says Astra-9 already exists in Good Company. The id was not in the panel's persona list, so it is not known here."
+      },
+      "voice": {
+        "engine": "Azure (Dr. O)",
+        "name": null
+      },
+      "look": "champagne gold, white lab coat and dress",
+      "special": "neck servos on a lazy Susan bearing, head moves when she talks, eyes pulse, a collar. Camera, no HuskyLens."
+    },
+    {
+      "id": "astrad",
+      "name": "Astrad",
+      "short": "Ted",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "full body",
+      "status": "body arrived, not built",
+      "hide": [],
+      "also_called": [
+        "Ted"
+      ],
+      "character": {
+        "good_company_id": null,
+        "note": "Elle's server says Astrad already exists in Good Company. The id was not in the panel's persona list."
+      },
+      "voice": {
+        "engine": "Azure (Dr. O)",
+        "name": "en-US-ChristopherNeural (Dr. O, 2026-10-30). Confirmed in good-company/gc-friend.js (the American option, set 2026-10-16, 'the plain one, not Multilingual'). The older note in _azure-tts.js that says Multilingual is a header comment only."
+      },
+      "look": "champagne gold, white lab coat and khakis",
+      "special": "neck servos on a lazy Susan bearing, head moves when he talks, eyes pulse, a collar. Camera, no HuskyLens."
+    },
+    {
+      "id": "guardian-f",
+      "name": "Guardian F",
+      "short": "Guardian F",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "full body",
+      "status": "planned",
+      "hide": [
+        "eyesCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard"
+      ],
+      "character": {
+        "good_company_id": null,
+        "panel_mode": "guardian",
+        "note": "Dr. O: Guardians can get a Good Company character. Not written."
+      },
+      "voice": {
+        "engine": "Azure (Dr. O)",
+        "name": null
+      },
+      "look": "gloss black head and neck, silver/chrome body, black uniform with an ETL patch",
+      "special": "one large camera lens in the center of the face, a red LED strip mouth that sweeps while she speaks"
+    },
+    {
+      "id": "guardian-m",
+      "name": "Guardian M",
+      "short": "Guardian M",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "full body",
+      "status": "planned",
+      "hide": [
+        "eyesCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard"
+      ],
+      "character": {
+        "good_company_id": null,
+        "panel_mode": "guardian",
+        "note": "Not written."
+      },
+      "voice": {
+        "engine": "Azure (Dr. O)",
+        "name": null
+      },
+      "look": "gloss black head and neck, silver/chrome body, black uniform with an ETL patch",
+      "special": "one large camera lens in the center of the face, a red LED strip mouth that sweeps while he speaks"
+    },
+    {
+      "id": "reggie",
+      "name": "Reggie",
+      "short": "Reggie",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "dog (beagle)",
+      "status": "planned",
+      "hide": [
+        "modeCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard",
+        "peopleCard",
+        "calCard",
+        "houseCard",
+        "petCard",
+        "recordsCard",
+        "guardianCard"
+      ],
+      "character": {
+        "good_company_id": null,
+        "note": "In Good Company, gc-reggie is a person. Dr. O's robot is a beagle, so a new character is needed. Kid friendly."
+      },
+      "voice": {
+        "engine": null,
+        "name": null
+      },
+      "special": "super hyped, very happy to see humans. Hello sample (Dr. O): HI HI HI... BEST part of my day is seeing YOU!!! Tail wag and touch. Follows later if light enough."
+    },
+    {
+      "id": "biscuit",
+      "name": "Biscuit",
+      "short": "Biscuit",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "dog (yellow Labrador, female)",
+      "status": "planned",
+      "hide": [
+        "modeCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard",
+        "peopleCard",
+        "calCard",
+        "houseCard",
+        "petCard",
+        "recordsCard",
+        "guardianCard"
+      ],
+      "character": {
+        "good_company_id": null,
+        "note": "In Good Company, gc-biscuit is a golden retriever. Dr. O's robot is a Labrador, so a new character is needed."
+      },
+      "voice": {
+        "engine": null,
+        "name": "southern belle (Dr. O)"
+      },
+      "special": "the consummate storyteller, can make a leaf become a saga. Tail wag and touch."
+    },
+    {
+      "id": "mochi",
+      "name": "Mochi",
+      "short": "Mochi",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "dog (French bulldog, male, the small one)",
+      "status": "planned",
+      "hide": [
+        "modeCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard",
+        "peopleCard",
+        "calCard",
+        "houseCard",
+        "petCard",
+        "recordsCard",
+        "guardianCard"
+      ],
+      "character": {
+        "good_company_id": null,
+        "note": "In Good Company, gc-mochi is an English bulldog. Dr. O's robot is a French bulldog, so a new character is needed."
+      },
+      "voice": {
+        "engine": null,
+        "name": null
+      },
+      "special": "a dog of few words. Hello sample (Dr. O): hi. Tail wag and touch."
+    }
+  ]
+}
