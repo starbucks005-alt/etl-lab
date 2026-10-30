@@ -4,7 +4,7 @@ A first program for the round board. It does not use the internet. It checks tha
 
 Status: compiled by Claude against the ESP32 Arduino core 3.2.0 (it builds with no errors). NOT run on a board yet. The pins and addresses come from Waveshare's own sample code (see the Rising Sun README).
 
-Loading it ERASES the program that is on the board now (the one that speaks Japanese about Wi-Fi). Waveshare's own demo can be loaded back from their zip, but that Japanese program may not be recoverable. Dr. O decides before anyone loads it.
+Loading it ERASES the program that is on the board now (the one that speaks Japanese about Wi-Fi). Waveshare's own demo can be loaded back from their zip, but that Japanese program may not be recoverable. Dr. O decided on 2026-10-30 that the Japanese program is of no use to her, so erasing it is fine.
 
 ## Sheet for the person loading it (to be handed over by Dr. O)
 
