@@ -26,6 +26,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "ESP_I2S.h"
 #include "ESP_SR.h"
+#include "esp_partition.h"
 #include "driver/i2c.h"
 #include "es8311.h"
 #include "es7210.h"
@@ -63,6 +64,7 @@ static const sr_cmd_t sr_commands[] = {
   {0, "play music", "PLd MYoZgK"},
 };
 volatile bool wokeUp = false;
+bool srOn = false;                        // true only when the wake word engine started
 void onSrEvent(sr_event_t event, int command_id, int phrase_id) {
   if (event == SR_EVENT_WAKEWORD) wokeUp = true;     // handled in loop(), not here
 }
@@ -370,9 +372,15 @@ void setup() {
   i2s.setTimeout(1000);
   bool s = i2s.begin(I2S_MODE_STD, SAMPLE_RATE, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO, I2S_STD_SLOT_BOTH);
   bool m = micStart();
-  bool w = ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD);
-  ESP_SR.onEvent(onSrEvent);
-  Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : "FAILED (the Partition Scheme must be ESP SR 16M)");
+  // The engine crashes the board if its model is not in flash, so look for the model first.
+  const esp_partition_t *model = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "model");
+  bool w = false;
+  if (model) {
+    w = ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD);
+    if (w) ESP_SR.onEvent(onSrEvent);
+  }
+  srOn = w;
+  Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
 }
@@ -390,34 +398,34 @@ void loop() {
   uint8_t keys = keysPressed();
   if (wokeUp && !keys) {
     wokeUp = false;
-    ESP_SR.pause();                       // the speech engine stops reading the microphones while the box records them itself
+    if (srOn) ESP_SR.pause();                       // the speech engine stops reading the microphones while the box records them itself
     ringColor(255, 90, 0);
     beep(880, 120);
     chatTurn(false);
     wokeUp = false;
-    ESP_SR.resume();
+    if (srOn) ESP_SR.resume();
     delay(300);
   } else if (keys & 1) {
-    ESP_SR.pause();
+    if (srOn) ESP_SR.pause();
     chatTurn(true);
     wokeUp = false;
-    ESP_SR.resume();
+    if (srOn) ESP_SR.resume();
     delay(300);
   } else if (keys & 2) {
     Serial.println("Story time");
-    ESP_SR.pause();                       // so her own voice cannot wake the box
+    if (srOn) ESP_SR.pause();                       // so her own voice cannot wake the box
     if (!playLine("story")) { ringColor(255, 0, 0); delay(1500); }
     ringColor(0, 0, 255);
     wokeUp = false;
-    ESP_SR.resume();
+    if (srOn) ESP_SR.resume();
     delay(400);
   } else if (keys & 4) {
     Serial.println("Gardenscape");
-    ESP_SR.pause();
+    if (srOn) ESP_SR.pause();
     gardenscape();
     ringColor(0, 0, 255);
     wokeUp = false;
-    ESP_SR.resume();
+    if (srOn) ESP_SR.resume();
     delay(400);
   }
   float level = (sinf(millis() / 1000.0f * 2.0f) + 1.0f) / 2.0f;
