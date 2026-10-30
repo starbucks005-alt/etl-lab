@@ -1,5 +1,5 @@
 {
-  "_note": "Words the Portable Companion box says out loud, 2026-10-30. The greeting was written by Claude as test wording, and Dr. O heard it from the box on 2026-10-30 and said \"it is a great line\", so it stays. The goodnight, didnt_hear and too_many lines are still test wording. Dr. O writes and decides the rest of the lines. Nothing here says anything about the companion's life. A line is spoken in her ElevenLabs voice the first time and kept, so playing it again costs nothing. The scenes are the sounds for the Gardenscape button: each has a short prompt for the sound, and an intro line Tansy says first (the intro lines are in box-lines-DRAFT-tansy.json until Dr. O keeps them; with no intro line the sound plays without one). Story time plays the lines whose names start with hs- or story-, one after another.",
+  "_note": "Words the Portable Companion box says out loud, 2026-10-30. The greeting was written by Claude as test wording, and Dr. O heard it from the box on 2026-10-30 and said \"it is a great line\", so it stays. The goodnight, didnt_hear and too_many lines are still test wording. Dr. O writes and decides the rest of the lines. Nothing here says anything about the companion's life. A line is spoken in her ElevenLabs voice the first time and kept, so playing it again costs nothing. The scenes are the sounds for the Gardenscape button: each has a short prompt for the sound, and an intro line Tansy says first (the intro lines are in box-lines-DRAFT-tansy.json until Dr. O keeps them; with no intro line the sound plays without one). Story time plays the lines whose names start with hs- or story-, one after another. Dr. O kept all 7 story lines (hs-...) on 2026-10-30. They were drafted by Claude inside Dr. O's Human Summer canon and are hers now to edit.",
   "companions": {
     "tansy": {
       "voiceId": "thfYL0Elyru2qqTtNQsE",
@@ -7,7 +7,14 @@
         "greeting": "Oh. It is you. Good morning, I suppose.",
         "goodnight": "Good night. Do not stay up on my account.",
         "didnt_hear": "Speak up. I do not repeat myself for just anyone.",
-        "too_many": "That is enough talking for one day. Come back tomorrow."
+        "too_many": "That is enough talking for one day. Come back tomorrow.",
+        "hs-dates": "Poppy says I know the exact date. I know a great many dates. Dates are not feelings. Please stop looking at me like that.",
+        "hs-rain": "I stood at the edge of the forest in the first spring rain once. It is a perfectly good place to observe the weather. Blue was there. Blue says nothing. It is her best quality.",
+        "hs-gate": "People say a great many things at gates. A gate is a very suggestive object. I have never given it a second thought. I have given it perhaps one.",
+        "hs-drawer": "Poppy has opinions about my second drawer. The drawer is for buttons. If a flower happens to be in it, that is a matter of storage.",
+        "hs-month": "I lived among humans for most of a month. It was educational. They hum while they cook. I wrote that down, for science, and then I put the note somewhere safe.",
+        "hs-waiting": "Nobody is waiting. I am merely near the gate more often than is strictly necessary. It is a good gate.",
+        "hs-theories": "Poppy has a theory. Blue has a theory. My mother has a thought, which is worse. I have no theory at all. I have a very good view."
       },
       "scenes": {
         "jungle": {
