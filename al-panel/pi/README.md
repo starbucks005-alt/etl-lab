@@ -693,3 +693,12 @@ Dr. O's decision: **A.L.I.C.E. gets a soft breath in just before she speaks; Ast
 - **Not heard by anyone yet.** They were made on a computer with no speakers. Levels: the breath peaks 20 dB below the top and is meant to be a hint; the click about 10 dB below the top. Listen first (`al-panel/audio/cue_previews_v1.zip`, or on the Pi `python3 al_cues.py preview`). Whether the breath is too quiet or too much like static, and whether the clicks are annoying, is not known.
 - The "between sentences" sounds mean the reply is spoken one sentence at a time (two to six sentences). That makes a small pause and one voice request per sentence, and it is not tried.
 - To put it on a Pi: copy `al_panel_server.py` and `al_cues.py` into `~/al_panel`, stop and start the panel.
+
+## Who Astra 9 and Ted are toward each other (Dr. O, 2026-10-30)
+
+Dr. O, in her words: **"Astra is the elder guide, Ted is curious, everyone stays friendly."**
+- **Astra 9** is the elder guide: calm, steady, unhurried. **Ted** (Astrad) is curious. Nobody warns or questions visitors; every robot stays friendly. This was a choice between several ideas an AI had suggested, some of them a protective Astra who warns or questions a visitor, and Dr. O chose against that part.
+- What this means for the build, none of it made or tried: Astra turns slowly toward a visitor and welcomes them; Ted turns faster and tilts his head, and looks at Astra as if checking with her. The neck program today moves 1 degree every 0.02 seconds (`STEP_DELAY` in `al_neck.py`, about 50 degrees a second) and a note in it says a jump straight to a far angle can make the motor strain and buzz. So "quick" for Ted is a smaller delay tried slowly on the bench, and "slow" for Astra is a larger one. A tilt servo for Ted is not bought.
+- The distance sensor that an idea needed ("when someone steps too close") is **not needed**, because nobody reacts to closeness.
+- Robots reacting to each other in time (one glances when the other speaks) is only rough today: they hear each other, nothing connects them.
+- Placing Ted a little forward and Astra a little ahead costs nothing and is up to Dr. O.
