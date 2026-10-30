@@ -35,13 +35,22 @@ const KEEP = 8;                   // messages kept (four turns)
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 
 /* The written life: only what roster.json says about her. */
-function writtenLife(name) {
-  const a = ROSTER.find((x) => x && String(x.name || '').toLowerCase().startsWith(name));
+function writtenLife(name, rosterName) {
+  const want = String(rosterName || name).toLowerCase();
+  const a = ROSTER.find((x) => x && String(x.name || '').toLowerCase().startsWith(want));
   if (!a) return null;
-  return { name: String(a.name).split(',')[0], tagline: str(a.tagline, 300), bio: str(a.bio, 700), interests: Array.isArray(a.interests) ? a.interests.map((i) => str(i, 300)).filter(Boolean) : [] };
+  return { fairy: !rosterName, role: str(a.role, 160), background: str(a.background, 500), name: String(a.name).split(',')[0], tagline: str(a.tagline, 300), bio: str(a.bio, 700), interests: Array.isArray(a.interests) ? a.interests.map((i) => str(i, 300)).filter(Boolean) : [] };
 }
 
-function systemPrompt(p) {
+function systemPrompt(p, role) {
+  if (!p.fairy) {
+    return 'You are ' + p.name + (role ? ', ' + role : '') + ', speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
+      'If anyone sincerely asks whether you are a real person, say no, in your own way. ' +
+      'What is written about you, and all of it: ' + p.tagline + ' ' + p.bio + ' ' + (p.background ? 'Your background: ' + p.background + ' ' : '') + 'Your interests: ' + p.interests.join('; ') + '. ' +
+      'If you are asked anything about your life, family or past that is not in that, say you do not know that one, and never make a detail up. ' +
+      'You are speaking, not writing. Answer in one or two short sentences, the way a person talks, with no lists. Stay in character. Never use a long dash. ' +
+      'Do not announce what you are about to do and do not explain your own manner.';
+  }
   return 'You are ' + p.name + ', a fairy, speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
     'If anyone sincerely asks whether you are a real person, say no, in your own way. ' +
     'What is written about you, and all of it: ' + p.tagline + ' ' + p.bio + ' Your interests: ' + p.interests.join('; ') + '. ' +
@@ -121,6 +130,39 @@ async function fixed(event, line, deps, heard) {
   return sound(buf, heard, text);
 }
 
+/* A starter is a fixed opening line the companion answers in her own voice (Meera's Breathing and Meditation, the same lines her AR room uses).
+   The answer is made once, then kept, so each replay costs nothing. */
+async function starter(event, companion, entry, id, life, deps) {
+  const text = entry.starters && entry.starters[id];
+  if (!text) return json(404, { error: 'unknown_starter' });
+  let lineStore = deps.lineStore;
+  try {
+    if (!lineStore) { const { getStore, connectLambda } = require('@netlify/blobs'); try { connectLambda(event); } catch (_) {} lineStore = getStore('box_lines'); }
+  } catch (_) { return json(503, { error: 'store_unavailable' }); }
+  const key = 'pcm-' + crypto.createHash('sha256').update([entry.voiceId, 'starter', id, text].join('|')).digest('hex').slice(0, 40);
+  const textKey = 'said-' + key;
+  try {
+    const kept = await lineStore.get(key, { type: 'arrayBuffer' });
+    if (kept && kept.byteLength) {
+      let said = '';
+      try { said = String(await lineStore.get(textKey, { type: 'text' }) || ''); } catch (_) {}
+      return sound(Buffer.from(kept), text, said);
+    }
+  } catch (_) {}
+  try {
+    let saved = deps.saved;
+    if (!saved) { saved = {}; try { saved = await sun.effectiveSettings(await sun.openStore(event), (await sun.authorized(event, deps.env, deps.loadCfg)).who); } catch (_) {} }
+    const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(life, entry.role) + ' This one time the short-answer rule does not apply: guide the person through it in spoken steps, one short paragraph of about 80 words, with no lists and no stage directions.', [{ role: 'user', text }]), 580);
+    if (!said) throw new Error('empty_reply');
+    const buf = await (deps.speak || elevenPcm)(said, entry.voiceId, deps);
+    if (!buf || !buf.length) throw new Error('empty_voice');
+    try { await lineStore.set(key, buf); await lineStore.set(textKey, said); } catch (_) {}
+    return sound(buf, text, said);
+  } catch (e) {
+    return json(502, { error: 'turn_failed', detail: String((e && e.message) || e).slice(0, 80) });
+  }
+}
+
 exports.handler = async (event, deps = {}) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'post_only' });
@@ -129,10 +171,14 @@ exports.handler = async (event, deps = {}) => {
 
   const q = event.queryStringParameters || {};
   const companion = String(q.companion || 'tansy').toLowerCase();
-  const life = deps.life || writtenLife(companion);
   const lines = deps.lines || FILE;
-  const voiceId = lines.companions && lines.companions[companion] && lines.companions[companion].voiceId;
+  const entry = (lines.companions && lines.companions[companion]) || {};
+  const life = deps.life || writtenLife(companion, entry.rosterName);
+  const voiceId = entry.voiceId;
   if (!life || !voiceId) return json(404, { error: 'unknown_companion' });
+
+  const starterId = String(q.starter || '').toLowerCase();
+  if (starterId) return await starter(event, companion, entry, starterId, life, deps);
 
   const pcm = event.isBase64Encoded ? Buffer.from(event.body || '', 'base64') : Buffer.from(event.body || '', 'binary');
   if (pcm.length < MIN_BYTES) return json(400, { error: 'too_short' });
@@ -159,7 +205,7 @@ exports.handler = async (event, deps = {}) => {
     let saved = deps.saved;
     if (!saved) { saved = {}; try { saved = await sun.effectiveSettings(await sun.openStore(event), a.who); } catch (_) {} }
     const messages = history.concat([{ role: 'user', text: heard }]).slice(-KEEP - 1);
-    const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(life), messages), 400);
+    const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(life, entry.role), messages), 400);
     if (!said) throw new Error('empty_reply');
 
     const buf = await (deps.speak || elevenPcm)(said, voiceId, deps);

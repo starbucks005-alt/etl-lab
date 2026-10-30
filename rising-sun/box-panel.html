@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Box panel</title>
+<!-- 2026-10-30. Dr. O: pick the companion for the box, and push its three buttons from an app, like the robot panel.
+     It talks to one function, box-control, which the box also asks every few seconds. The access key is the home access code the box uses; it stays in this browser only.
+     NOT TRIED against the live site or the board yet. -->
+<style>
+  :root{--bg:#f6f1e8;--panel:#ffffff;--line:#e0d8c8;--ink:#2a1d12;--text:#4d3f33;--mute:#6f6254;--accent:#b8531c;--on-accent:#ffffff;--field:#ffffff;--bad:#b3261e;--ok:#2d6a3e}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#17110d;--panel:#211914;--line:#3a2d23;--ink:#f6ece0;--text:#d6c8b8;--mute:#a99a89;--accent:#f08a4b;--on-accent:#1b1008;--field:#2a2018;--bad:#ff8a80;--ok:#8fd19e}}
+  :root[data-theme="dark"]{--bg:#17110d;--panel:#211914;--line:#3a2d23;--ink:#f6ece0;--text:#d6c8b8;--mute:#a99a89;--accent:#f08a4b;--on-accent:#1b1008;--field:#2a2018;--bad:#ff8a80;--ok:#8fd19e}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  main{max-width:560px;margin:0 auto;padding:24px 16px 48px}
+  h1{margin:0 0 4px;color:var(--ink);font-size:1.5rem}
+  p.lead{margin:0 0 20px;color:var(--mute)}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+  h2{margin:0 0 10px;color:var(--ink);font-size:1.05rem}
+  label{display:block;margin-bottom:6px;font-weight:600;color:var(--ink)}
+  input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit}
+  button{width:100%;padding:16px;margin-top:10px;border:0;border-radius:10px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;cursor:pointer;min-height:52px}
+  button.quiet{background:transparent;color:var(--accent);border:1px solid var(--accent);min-height:44px}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .note{margin:8px 0 0;font-size:.9rem;color:var(--mute)}
+  #msg{min-height:1.4em;margin-top:8px;font-weight:600}
+  #msg.bad{color:var(--bad)} #msg.ok{color:var(--ok)}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>Box panel</h1>
+  <p class="lead">Pick who is in the box, then push her buttons from here.</p>
+
+  <section id="keyCard">
+    <h2>Access code</h2>
+    <label for="key">The home access code for this box</label>
+    <input id="key" type="password" autocomplete="off">
+    <button id="keyGo" type="button">Connect</button>
+    <p class="note">It stays in this browser only.</p>
+  </section>
+
+  <section id="boxCard" class="hidden">
+    <h2>Which box</h2>
+    <label for="boxSel">Box</label>
+    <select id="boxSel"></select>
+    <label for="boxNew" style="margin-top:12px">Add another box (a short name, like kitchen or desk)</label>
+    <input id="boxNew" type="text" maxlength="20" autocomplete="off">
+    <button id="boxAdd" type="button" class="quiet">Add this box</button>
+    <p class="note">Each box has its own name and its own companion. The box has its name in its code (BOX_NAME in secrets.h).</p>
+  </section>
+
+  <section id="pick" class="hidden">
+    <h2>Who is in the box</h2>
+    <label for="who">Companion</label>
+    <select id="who"></select>
+    <p class="note" id="whoNote"></p>
+  </section>
+
+  <section id="buttons" class="hidden">
+    <h2>Her buttons</h2>
+    <button id="bSound" type="button"></button>
+    <button id="bSecond" type="button"></button>
+    <button id="bChat" type="button"></button>
+    <p class="note">The box takes a few seconds to notice a button pushed here. It asks the website every few seconds.</p>
+  </section>
+
+  <div id="msg" role="status" aria-live="polite"></div>
+</main>
+<script>
+(function () {
+  var API = '/.netlify/functions/box-control';
+  var $ = function (id) { return document.getElementById(id); };
+  var key = '', data = null, box = 'main';
+  try { key = localStorage.getItem('box_key') || ''; box = localStorage.getItem('box_name') || 'main'; } catch (e) {}
+  function cleanName(v) { v = String(v || '').toLowerCase().trim(); return /^[a-z0-9-]{1,20}$/.test(v) ? v : ''; }
+
+  function say(t, kind) { var m = $('msg'); m.textContent = t || ''; m.className = kind || ''; }
+  function call(method, body) {
+    if (body) body.box = box;
+    return fetch(API + (method === 'GET' ? '?id=' + encodeURIComponent(box) : ''), { method: method, headers: { 'x-sun-key': key, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
+  }
+  function current() { return data.companions.filter(function (c) { return c.id === data.companion; })[0]; }
+
+  function draw() {
+    var bs = $('boxSel'); bs.innerHTML = '';
+    (data.boxes && data.boxes.length ? data.boxes : [box]).forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; if (n === box) o.selected = true; bs.appendChild(o); });
+    $('boxCard').classList.remove('hidden');
+    var sel = $('who');
+    sel.innerHTML = '';
+    data.companions.forEach(function (c) {
+      var o = document.createElement('option'); o.value = c.id; o.textContent = c.display; if (c.id === data.companion) o.selected = true; sel.appendChild(o);
+    });
+    var c = current();
+    $('whoNote').textContent = c.needsHuman ? 'Marked "needs a human" in the Good Company list.' : '';
+    var sound = $('bSound'), second = $('bSecond'), chat = $('bChat');
+    sound.textContent = c.id === 'tansy' ? 'Gardenscape' : 'Soundscape';
+    sound.disabled = !c.soundscape;
+    chat.textContent = 'Chat with ' + c.display;
+    if (c.second) { second.textContent = c.second.label + (c.second.ready ? '' : ' (not recorded yet)'); second.disabled = !c.second.ready; second.classList.remove('hidden'); }
+    else { second.classList.add('hidden'); }
+    $('pick').classList.remove('hidden'); $('buttons').classList.remove('hidden');
+  }
+
+  function load() {
+    say('Connecting...');
+    return call('GET').then(function (r) {
+      if (r.status === 401) { say('That access code is not the one the website has.', 'bad'); return; }
+      if (r.status === 503) { say('No home access code is set on the website yet.', 'bad'); return; }
+      if (r.status !== 200) { say('The website did not answer properly.', 'bad'); return; }
+      data = r.body; say(''); draw(); $('keyCard').classList.add('hidden');
+    }).catch(function () { say('Could not reach the website.', 'bad'); });
+  }
+
+  function press(button, label) {
+    call('POST', { action: 'press', button: button }).then(function (r) {
+      if (r.status === 200) say(label + ' sent. The box will start in a few seconds.', 'ok');
+      else if (r.body && r.body.error === 'not_recorded_yet') say('That one is not recorded yet.', 'bad');
+      else say('The button did not go through.', 'bad');
+    }).catch(function () { say('Could not reach the website.', 'bad'); });
+  }
+
+  $('keyGo').addEventListener('click', function () {
+    key = $('key').value.trim();
+    try { localStorage.setItem('box_key', key); } catch (e) {}
+    load();
+  });
+  function switchBox(n) { box = n; try { localStorage.setItem('box_name', n); } catch (e) {} load(); }
+  $('boxSel').addEventListener('change', function () { switchBox($('boxSel').value); });
+  $('boxAdd').addEventListener('click', function () {
+    var n = cleanName($('boxNew').value);
+    if (!n) { say('Use a short name with letters, numbers or a dash.', 'bad'); return; }
+    $('boxNew').value = ''; switchBox(n);
+  });
+  $('who').addEventListener('change', function () {
+    var id = $('who').value;
+    call('POST', { action: 'set_companion', companion: id }).then(function (r) {
+      if (r.status === 200) { data.companion = id; draw(); say('The box will switch to ' + current().display + ' in a few seconds.', 'ok'); }
+      else say('Could not change the companion.', 'bad');
+    }).catch(function () { say('Could not reach the website.', 'bad'); });
+  });
+  $('bSound').addEventListener('click', function () { press('soundscape', $('bSound').textContent); });
+  $('bSecond').addEventListener('click', function () { press('second', current().second.label); });
+  $('bChat').addEventListener('click', function () { press('chat', 'Chat'); });
+
+  if (key) load();
+})();
+</script>
+</body>
+</html>

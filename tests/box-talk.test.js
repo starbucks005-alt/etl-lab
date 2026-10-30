@@ -78,5 +78,22 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.strictEqual(seen.opt.headers['xi-api-key'], 'k');
   assert.strictEqual(t, 'Hello there.');
   await assert.rejects(() => _test.listen(Buffer.alloc(32000), { env: {} }), /no_eleven_key/);
+
+  // Meera: her own written life, and her Breathing starter spoken once, then kept
+  const mlife = _test.writtenLife('meera', 'Meera Kapoor');
+  assert.ok(mlife && !mlife.fairy && /litigator/.test(mlife.bio), 'her life comes from roster.json and she is not written as a fairy');
+  const mlines = { companions: { meera: { voiceId: 'oQeBs2hQbwq5LlUV8TtR', rosterName: 'Meera Kapoor', role: 'a yoga and meditation teacher', starters: { breathing: 'Can you guide me through a short breathing exercise?' }, lines: { didnt_hear: 'x', too_many: 'y' } } } };
+  const mb = () => Object.assign(base(), { lines: mlines, lineStore: mem(), ask: async (sys, msgs) => { mb.sys = sys; mb.msgs = msgs; return 'Sit comfortably. Breathe in for four.'; } });
+  const md = mb();
+  const mev = (s) => ({ httpMethod: 'POST', headers: { 'x-sun-key': KEY }, queryStringParameters: { companion: 'meera', starter: s }, body: '' });
+  spoken.length = 0;
+  assert.strictEqual((await handler(mev('nothing'), md)).statusCode, 404);
+  const m1 = await handler(mev('breathing'), md);
+  assert.strictEqual(m1.statusCode, 200);
+  assert.strictEqual(decodeURIComponent(m1.headers['X-Said']), 'Sit comfortably. Breathe in for four.');
+  assert.ok(/yoga and meditation teacher/.test(mb.sys) && !/fairy/.test(mb.sys), 'Meera is not told she is a fairy');
+  assert.strictEqual(spoken.length, 1);
+  await handler(mev('breathing'), md);
+  assert.strictEqual(spoken.length, 1, 'the second time it is kept, not made again');
   console.log('ok: the box can hold a short conversation with Tansy, with a daily limit');
 })().catch((e) => { console.error(e); process.exit(1); });

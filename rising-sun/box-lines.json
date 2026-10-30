@@ -1,5 +1,5 @@
 {
-  "_note": "Words the Portable Companion box says out loud, 2026-10-30. The greeting was written by Claude as test wording, and Dr. O heard it from the box on 2026-10-30 and said \"it is a great line\", so it stays. The goodnight, didnt_hear and too_many lines are still test wording. Dr. O writes and decides the rest of the lines. Nothing here says anything about the companion's life. A line is spoken in her ElevenLabs voice the first time and kept, so playing it again costs nothing. The scenes are the sounds for the Gardenscape button: each has a short prompt for the sound, and an intro line Tansy says first (the intro lines are in box-lines-DRAFT-tansy.json until Dr. O keeps them; with no intro line the sound plays without one). Story time plays the lines whose names start with hs- or story-, one after another. Dr. O kept all 7 story lines (hs-...) on 2026-10-30. They were drafted by Claude inside Dr. O's Human Summer canon and are hers now to edit.",
+  "_note": "Words the Portable Companion box says out loud, 2026-10-30. The greeting was written by Claude as test wording, and Dr. O heard it from the box on 2026-10-30 and said \"it is a great line\", so it stays. The goodnight, didnt_hear and too_many lines are still test wording. Dr. O writes and decides the rest of the lines. Nothing here says anything about the companion's life. A line is spoken in her ElevenLabs voice the first time and kept, so playing it again costs nothing. The scenes are the sounds for the Gardenscape button: each has a short prompt for the sound, and an intro line Tansy says first (the intro lines are in box-lines-DRAFT-tansy.json until Dr. O keeps them; with no intro line the sound plays without one). Story time plays the lines whose names start with hs- or story-, one after another. Dr. O kept all 7 story lines (hs-...) on 2026-10-30. They were drafted by Claude inside Dr. O's Human Summer canon and are hers now to edit. 2026-10-30, Dr. O: any Good Company companion can be chosen for the box from the panel (box-panel.html). Meera and Marcus lines marked didnt_hear and too_many are test wording, like the others. Voice ids for Meera and Marcus are the ones in good-company/gc-friend.js. Meera Breathing and Meditation are the starter lines her AR room already uses (good-company/ar.html), spoken once in her voice and kept. Marcus News and the Grimms are not built yet (News needs a way to play the briefing, the Grimms need chosen tales). Reggie and A.L.I.C.E. are in because the story library has stories for them (good-company/stories.json), but none is recorded yet, so their Story time says so on the panel until story lines are added here. A.L.I.C.E. is marked needsHuman in the Good Company list. Explorer Kit has stories but no voice id was found in good-company/gc-friend.js, so Kit is not in yet.",
   "companions": {
     "tansy": {
       "voiceId": "thfYL0Elyru2qqTtNQsE",
@@ -31,6 +31,126 @@
         },
         "night-woods": {
           "intro": "nature-night-woods",
+          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music"
+        }
+      },
+      "display": "Tansy",
+      "second": {
+        "label": "Story time",
+        "kind": "story"
+      }
+    },
+    "meera": {
+      "display": "Meera",
+      "rosterName": "Meera Kapoor",
+      "voiceId": "oQeBs2hQbwq5LlUV8TtR",
+      "role": "a yoga and meditation teacher",
+      "second": {
+        "label": "Breathing",
+        "kind": "starter",
+        "id": "breathing"
+      },
+      "starters": {
+        "breathing": "Can you guide me through a short breathing exercise?",
+        "meditation": "Can you guide me through a short meditation?"
+      },
+      "lines": {
+        "didnt_hear": "I did not catch that. Say it again?",
+        "too_many": "That is enough for today. Come back tomorrow."
+      },
+      "scenes": {
+        "jungle": {
+          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music"
+        },
+        "waterfall": {
+          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music"
+        },
+        "rain": {
+          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music"
+        },
+        "night-woods": {
+          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music"
+        }
+      }
+    },
+    "marcus": {
+      "display": "Marcus",
+      "rosterName": "Marcus Reyes",
+      "voiceId": "pqHfZKP75CvOlQylNhV4",
+      "role": "a senior correspondent on the US Desk at ETL Newswire",
+      "second": null,
+      "lines": {
+        "didnt_hear": "Say that again. I missed it.",
+        "too_many": "That is enough for today. Come back tomorrow."
+      },
+      "scenes": {
+        "jungle": {
+          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music"
+        },
+        "waterfall": {
+          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music"
+        },
+        "rain": {
+          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music"
+        },
+        "night-woods": {
+          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music"
+        }
+      }
+    },
+    "reggie": {
+      "display": "Reggie",
+      "rosterName": "Reginald",
+      "voiceId": "uq0HIbNZKn11Hs5ifEdd",
+      "role": "a dog",
+      "second": {
+        "label": "Story time",
+        "kind": "story"
+      },
+      "lines": {
+        "didnt_hear": "Say that again, would you?",
+        "too_many": "That is enough for today. Come back tomorrow."
+      },
+      "scenes": {
+        "jungle": {
+          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music"
+        },
+        "waterfall": {
+          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music"
+        },
+        "rain": {
+          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music"
+        },
+        "night-woods": {
+          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music"
+        }
+      }
+    },
+    "alice": {
+      "display": "A.L.I.C.E.",
+      "rosterName": "A.L.I.C.E.",
+      "voiceId": "gZL79pBTvaNfNPOCXh6n",
+      "role": "an AI companion",
+      "needsHuman": true,
+      "second": {
+        "label": "Story time",
+        "kind": "story"
+      },
+      "lines": {
+        "didnt_hear": "I did not catch that. Say it again?",
+        "too_many": "That is enough for today. Come back tomorrow."
+      },
+      "scenes": {
+        "jungle": {
+          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music"
+        },
+        "waterfall": {
+          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music"
+        },
+        "rain": {
+          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music"
+        },
+        "night-woods": {
           "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music"
         }
       }
