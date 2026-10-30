@@ -655,3 +655,24 @@ The host code is kept on that phone. Nobody else can press anything without it. 
 
 **Tested here** with the real director and stand-ins: two pretend robots using the Pi's own fireside code, and the real hologram page in a test browser with a pretend voice. Turns went in order and to the one named, Stop now cut off the one speaking (on the Pi side and on the hologram page), a question went to the one asked, and nobody ever started while another was speaking. `node tests/fireside.test.js` and `python3 -m unittest tests/al_fireside_test.py`.
 **Not tried:** the real robots, the real voices, the real database row (the same table `gc-floor.js` uses), and the venue's Wi-Fi. The first run with all three in one room is the test. The old way of letting them talk (the sisters talk, `hush.html`) is unchanged and still works when no fireside chat is on.
+
+## The nine robots and what makes each one different (Dr. O, 2026-10-30)
+
+The nine: Astra-9 Lite (AL), A.L.I.C.E., **Astra 9** (the 9th of her line), **Astrad, called Ted** (her curious companion), Guardian M, Guardian F, and three dog mannequin robots, Biscuit, Reggie and Mochi, coming soon. Dr. O wants each to have something that is unique to it.
+
+**Decided by Dr. O:** Astra 9 and Ted get **the same eyes as AL** (two rings of lights behind the eyes).
+
+**Suggested, and Dr. O said "I like" to the list as written.** Nothing is bought, built or tried. Prices are guesses and nothing was checked.
+- **Astra 9:** a ring of nine small lights on her chest, one for each robot; hers glows brightest and the others light when those robots are close or talking. About $5 to $10.
+- **Ted:** hears which direction a sound comes from (a 4 microphone array, about $30 to $60) and tilts his head the way a curious person does (one small servo, about $7).
+- **Guardian M:** a small receipt printer that prints a pass or card for each visitor (about $25 to $40).
+- **Guardian F:** a badge reader (NFC), so guests tap a badge and she greets them by name (about $10 to $15).
+- **Biscuit:** ears that perk up when his name is said (two small servos).
+- **Reggie:** a nose, an air quality chip that lets him sniff the air and report on it (about $10 to $25).
+- **Mochi:** a heartbeat or purr felt through the body when he is held (a small vibration motor, about $3).
+- AL keeps her eye rings; ALICE has the HuskyLens, camera and the planned hand.
+
+**Not known, and to settle before buying:**
+- **AL's eye driver (`al_eyes.py`) uses the `rpi_ws281x` library, which was written for the Pi 4.** Astra and Ted are Pi 5 robots. The library's maintainer lists Pi 5 support as experimental, needing a separate kernel module and a device tree change (wiki page, last revised 17 Nov 2024; not checked whether it has changed since). So the eye driver may not run on the Pi 5 as it is. Not tried. A different way to drive the same rings may be needed, and nothing has been tested.
+- Whether the Astra 9 and Ted heads have eye openings the rings fit behind. The bodies are not here yet.
+- The nine chest lights for Astra 9 could be chained after her eye rings with the `strip_leds` file that `al_eyes.py` already reads for the Guardian strip, so no extra pin. Not tried.
