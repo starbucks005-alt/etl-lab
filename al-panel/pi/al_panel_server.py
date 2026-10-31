@@ -4414,6 +4414,25 @@ def restore_volume():
         pass
 
 
+CHECKIN_URL = "https://emerging-tech-lab.com/.netlify/functions/robot-checkin"
+CHECKIN_KEY_FILE = os.path.join(HERE, "checkin_key.txt")
+
+
+def checkin_loop():
+    """Once a minute, tell the website this robot is on, so the public robots page can show Connected.
+    Sends only the robot's id, with the home access code from checkin_key.txt. With no robot.txt or no
+    checkin_key.txt it sends nothing. The code is read every time, so adding the file needs no restart."""
+    while True:
+        try:
+            if ROBOT_ID and os.path.exists(CHECKIN_KEY_FILE):
+                key = open(CHECKIN_KEY_FILE, encoding="utf-8").read().strip()
+                if key:
+                    requests.post(CHECKIN_URL, json={"id": ROBOT_ID}, headers={"x-sun-key": key}, timeout=8)
+        except Exception:
+            pass
+        time.sleep(60)
+
+
 if __name__ == "__main__":
     restore_volume()
     restore_persona()
@@ -4421,6 +4440,7 @@ if __name__ == "__main__":
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()
     threading.Thread(target=watch_motion, daemon=True).start()
+    threading.Thread(target=checkin_loop, daemon=True).start()      # tells the website this robot is on
     if cues and hasattr(cues, "idle_start"):
         cues.idle_start(PLAY_DEVICE)       # breathing while idle, only if idle_breath.txt says on
     threading.Thread(target=watch_names, daemon=True).start()

@@ -1617,6 +1617,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       'use strict';
       var ROB = [], SELF = null, cur = null, up = {}, base = {}, WALK = new WeakMap();
       var PORT = 8000;
+      // on the public site (a secure page) a robot cannot be reached, so it only shows whether the robot has told the website it is on
+      var PUBLIC = (location.protocol === 'https:'), polls = 0;
       var bar, btn, menu, demo, addrBtn;
       function el(t, c, txt){ var e = document.createElement(t); if(c){ e.className = c; } if(txt != null){ e.textContent = txt; } return e; }
       function find(id){ for(var i=0;i<ROB.length;i++){ if(ROB[i].id === id){ return ROB[i]; } } return null; }
@@ -1632,6 +1634,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         return out;
       }
       function shownAddress(r){
+        if(PUBLIC){ return ''; }
         if(r.id === SELF){ return location.host; }
         if(up[r.id] && base[r.id]){ return base[r.id].replace(/^http:\/\//, ''); }
         var c = candidates(r);
@@ -1656,14 +1659,23 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         }
         return next();
       }
-      function probeAll(){ return Promise.all(ROB.map(probe)).then(paint); }
+      function probeAll(){
+        if(PUBLIC){
+          return fetch('/.netlify/functions/robot-checkin', {cache: 'no-store'}).then(function(x){ return x.ok ? x.json() : {}; }).catch(function(){ return {}; }).then(function(j){
+            var on = (j && j.online) || {};
+            ROB.forEach(function(r){ up[r.id] = !!on[r.id]; base[r.id] = null; });
+            paint();
+          });
+        }
+        return Promise.all(ROB.map(probe)).then(paint);
+      }
 
       function paint(){
         var r = find(cur); if(!r){ return; }
         btn.innerHTML = '';
         var d = el('span', 'rb-dot' + (up[r.id] ? ' up' : '')); btn.appendChild(d);
         var w = el('span'); w.appendChild(el('span', '', r.name)); w.appendChild(document.createElement('br'));
-        w.appendChild(el('span', 'rb-sub', shownAddress(r) + ' · ' + (up[r.id] ? 'Connected' : 'Demo mode')));
+        w.appendChild(el('span', 'rb-sub', (shownAddress(r) ? shownAddress(r) + ' · ' : '') + (up[r.id] ? (PUBLIC ? 'On now' : 'Connected') : 'Demo mode')));
         btn.appendChild(w); btn.appendChild(el('span', 'rb-sub', '▾'));
         menu.innerHTML = '';
         ROB.forEach(function(x){
@@ -1671,15 +1683,17 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           o.setAttribute('aria-selected', x.id === cur ? 'true' : 'false');
           o.appendChild(el('span', 'rb-dot' + (up[x.id] ? ' up' : '')));
           var n = el('span', 'rb-name'); n.appendChild(el('span', '', x.name)); n.appendChild(document.createElement('br'));
-          n.appendChild(el('span', 'rb-sub', shownAddress(x))); o.appendChild(n);
-          o.appendChild(el('span', 'rb-chip' + (up[x.id] ? ' up' : ''), up[x.id] ? 'Connected' : 'Demo mode'));
+          if(shownAddress(x)){ n.appendChild(el('span', 'rb-sub', shownAddress(x))); } o.appendChild(n);
+          o.appendChild(el('span', 'rb-chip' + (up[x.id] ? ' up' : ''), up[x.id] ? (PUBLIC ? 'On now' : 'Connected') : 'Demo mode'));
           o.addEventListener('click', function(){ choose(x.id); });
           menu.appendChild(o);
         });
-        addrBtn.style.display = (r.id === SELF) ? 'none' : '';
+        addrBtn.style.display = (PUBLIC || r.id === SELF) ? 'none' : '';
         var wasDemo = demo.classList.contains('show');
         var isDemo = (r.id !== SELF);
-        demo.textContent = 'Demo mode. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
+        demo.textContent = (PUBLIC && up[r.id])
+          ? r.name + ' is on right now. This page cannot control her, and nothing here is saved. This is how ' + r.name + '’s panel looks.'
+          : 'Demo mode. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
         demo.classList.toggle('show', isDemo);
         var g = document.querySelector('.grid');
         if(g){ g.classList.toggle('rb-look', isDemo); if(isDemo){ g.setAttribute('inert', ''); } else { g.removeAttribute('inert'); } }
@@ -1771,7 +1785,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           lsSet('panel-robot-addr-' + r.id, v || null); probeAll();
         });
         applyLook(find(cur)); paint(); probeAll();
-        setInterval(function(){ if(!document.hidden){ probeAll(); } }, 8000);
+        setInterval(function(){ if(document.hidden){ return; } if(PUBLIC){ if(++polls > 10){ return; } } probeAll(); }, PUBLIC ? 60000 : 8000);   // the public page asks the website once a minute, at most ten times a visit
       }
 
       // the roster and who this Pi is; if the roster is not there (the public site) nothing happens
