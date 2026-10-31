@@ -77,7 +77,7 @@
   <section id="batt" class="hidden">
     <h2>Battery</h2>
     <p id="battLine" style="margin:0"></p>
-    <p class="note">An estimate from the battery voltage. It cannot tell whether the box is charging: the charge light on the board does that.</p>
+    <p class="note">Both the percentage and the charging line are estimates from the battery voltage, a guess from whether it is rising or falling. The charge light on the board is the sure sign.</p>
   </section>
 
   <div id="msg" role="status" aria-live="polite"></div>
@@ -124,7 +124,8 @@
     if (!bt) $('battLine').textContent = 'No battery reading from this box yet.';
     else {
       var ago = bt.secondsAgo < 90 ? 'just now' : (bt.secondsAgo < 5400 ? Math.round(bt.secondsAgo / 60) + ' minutes ago' : 'over an hour ago, so the box may be off');
-      $('battLine').textContent = 'About ' + bt.percent + '% (' + bt.volts.toFixed(2) + ' V), heard ' + ago + '.';
+      var how = { charging: ' It looks like it is charging.', discharging: ' It looks like it is running on the battery.', full: ' It looks full.', steady: ' The reading is steady.', unknown: ' Working out whether it is charging; this takes about two minutes.' }[bt.state] || '';
+      $('battLine').textContent = 'About ' + bt.percent + '% (' + bt.volts.toFixed(2) + ' V), heard ' + ago + '.' + how;
     }
   }
 

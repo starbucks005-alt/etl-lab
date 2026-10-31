@@ -23,6 +23,19 @@ const BUTTONS = ['chat', 'second', 'soundscape'];
 const EXPIRES_MS = 60000;
 /* An estimate from the voltage of a single lithium cell: 3.3 V is nearly empty and 4.2 V is full. The real curve is not a straight line, so the panel says "about". */
 function batteryPercent(mv) { return Math.max(0, Math.min(100, Math.round((mv - 3300) / 9))); }
+/* Charging cannot be read directly. A lithium cell's voltage climbs while it charges and falls on battery alone, so compare the newest reading with one at least two minutes older.
+   This is a guess from a trend, and the panel says so. Needs about two minutes of readings before it says anything. */
+function batteryState(b, now) {
+  const h = (b && b.hist) || [];
+  if (!h.length) return 'unknown';
+  const latest = h[h.length - 1];
+  const older = h.filter((x) => latest.at - x.at >= 120000);
+  if (!older.length) return latest.mv >= 4150 ? 'full' : 'unknown';
+  const d = latest.mv - older[older.length - 1].mv;
+  if (d >= 15) return 'charging';
+  if (d <= -15) return 'discharging';
+  return latest.mv >= 4150 ? 'full' : 'steady';
+}
 const boxName = (v) => { const n = String(v || 'main').toLowerCase().trim(); return /^[a-z0-9-]{1,20}$/.test(n) ? n : 'main'; };
 
 /* What one companion's buttons are. The second button is a story only when story lines are written for her. */
@@ -81,7 +94,12 @@ exports.handler = async (event, deps = {}) => {
   }
   if (event.httpMethod === 'GET' && q.box) {
     const mv = parseInt(q.batt, 10);
-    if (mv >= 2500 && mv <= 4500) st.battery = { mv, at: now };
+    if (mv >= 2500 && mv <= 4500) {
+      const hist = (st.battery && st.battery.hist) || [];
+      if (!hist.length || now - hist[hist.length - 1].at >= 60000) hist.push({ mv, at: now });   // one reading a minute, the last eight
+      while (hist.length > 8) hist.shift();
+      st.battery = { mv, at: now, hist };
+    }
     const c = describe(st.companion, all[st.companion]);
     const command = st.command ? st.command.button : '';
     if (st.command) st.command = null;
@@ -91,7 +109,7 @@ exports.handler = async (event, deps = {}) => {
   }
 
   if (event.httpMethod === 'GET') {
-    const battery = st.battery ? { volts: Math.round(st.battery.mv / 10) / 100, percent: batteryPercent(st.battery.mv), secondsAgo: Math.round((now - st.battery.at) / 1000) } : null;
+    const battery = st.battery ? { volts: Math.round(st.battery.mv / 10) / 100, percent: batteryPercent(st.battery.mv), secondsAgo: Math.round((now - st.battery.at) / 1000), state: batteryState(st.battery, now) } : null;
     return json(200, { box: id, boxes, battery, listen: st.listen, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
   }
 
@@ -121,4 +139,4 @@ exports.handler = async (event, deps = {}) => {
   return json(400, { error: 'unknown_action' });
 };
 
-exports._test = { describe, batteryPercent };
+exports._test = { describe, batteryPercent, batteryState };

@@ -65,6 +65,19 @@ const real = require('../rising-sun/box-lines.json');
   assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'desk' }), d)).body).listen, false);
   await handler(ev('POST', KEY, {}, { action: 'set_listen', listen: true, box: 'desk' }), d);
 
+  // charging is a guess from the trend: rising means charging, falling means on battery, and it says nothing until it has two minutes of readings
+  const bt = (mv) => handler(ev('GET', KEY, { box: '1', id: 'trend', batt: String(mv) }), d);
+  const stateNow = async () => JSON.parse((await handler(ev('GET', KEY, { id: 'trend' }), d)).body).battery.state;
+  t = 5000000; await bt(3700);
+  assert.strictEqual(await stateNow(), 'unknown');
+  t += 70000; await bt(3710); t += 70000; await bt(3725);
+  assert.strictEqual(await stateNow(), 'charging');
+  t += 70000; await bt(3700); t += 70000; await bt(3680); t += 70000; await bt(3660);
+  assert.strictEqual(await stateNow(), 'discharging');
+  t += 400000; await bt(4180); t += 70000; await bt(4180); t += 70000; await bt(4182);
+  assert.strictEqual(await stateNow(), 'full');
+  assert.ok(_test.batteryPercent(4200) === 100 && _test.batteryPercent(3300) === 0);
+
   // choosing a companion; an unknown one is refused
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'nobody' }), d)).statusCode, 404);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera' }), d)).statusCode, 200);
