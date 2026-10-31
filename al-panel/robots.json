@@ -161,8 +161,8 @@
       },
       "bio": {
         "text": "Hi! I'm Astro. Some people call me Teddy. I'm three years old, and I'm a robot boy. My mommy is Astra and my daddy is Ted. Elle is my aunt, and Alice is my aunt too. I have a teddy bear named teddy bear. Do you wanna play a game with me? Or will you tell me and my teddy bear a story, we would really REALLY like that?",
-        "audio": "https://emerging-tech-lab.com/audio/robots/astro-voice_v1.wav",
-        "note": "Dr. O wrote these words and made this recording herself (Astro-bio.wav, 2026-10-31). Claude has not heard it, so it is not checked that the recording says exactly these words."
+        "audio": "https://emerging-tech-lab.com/audio/robots/astro-voice_v1.mp3",
+        "note": "Dr. O wrote these words and made this recording herself (Astro-bio.wav, 2026-10-31), converted to mp3 like the other robots' bios. Claude has not heard it, so it is not checked that the recording says exactly these words."
       },
       "special": "his own thing (Dr. O, 2026-10-31): he asks people to play a game with him, such as checkers or chess (a beta tester's idea), or to read a story to his teddy bear. Not built yet. Not ordered yet. Body is likely a child-size mannequin with flexible head, arms and legs. Dr. O has smaller eye rings she may use (the eye code expects 16 lights per ring). Names to watch: Astro is in Elle's wake list and the Astrad alias list, and Teddy sounds like Ted. Dr. O: if it conflicts, pivot."
     },
