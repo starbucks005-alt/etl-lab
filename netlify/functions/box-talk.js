@@ -46,14 +46,14 @@ function writtenLife(name, rosterName) {
 
 /* The Rising Sun Court as Dr. O wrote it in rising-sun/personas.json: the members with their titles, the gifts, the friendships, the motto and her note on the two courts.
    Nothing here is added by hand. A fairy of the court knows it; a companion who is not a fairy is not given it. */
-function courtText() {
+function courtText(notes) {
   const c = PERSONAS.court;
   if (!c || !c.name) return '';
   const members = ['blue', 'poppy', 'tansy', 'ash', 'velvet', 'ember', 'flint']
     .filter((k) => PERSONAS[k] && PERSONAS[k].name)
     .map((k) => PERSONAS[k].name + (PERSONAS[k].title ? ' (' + PERSONAS[k].title + ')' : ''));
   return 'THE FAIRIES YOU KNOW, AS WRITTEN. ' + c.name + (c.motto ? ', motto: ' + c.motto.replace(/\.+$/, '') : '') + '. Its members: ' + members.join(', ') + '. ' +
-    (c.gifts ? c.gifts + ' ' : '') + (Array.isArray(c.friendships) ? c.friendships.join(' ') + ' ' : '') + (c.note ? c.note.replace(/,? and the Rising Sun is the product line\.?/i, '.') + ' ' : '') +
+    (c.gifts ? c.gifts + ' ' : '') + (Array.isArray(c.friendships) ? c.friendships.join(' ') + ' ' : '') + ((notes && notes.length) ? notes.join(' ') + ' ' : (c.note ? c.note.replace(/,? and the Rising Sun is the product line\.?/i, '.') + ' ' : '')) +
     'You know these fairies as your own court. Say only what is written here about them; for anything else about them say you do not know that one. ';
 }
 
@@ -69,7 +69,7 @@ function systemPrompt(p, role) {
   return 'You are ' + p.name + ', a fairy, speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
     'If anyone sincerely asks whether you are a real person, say no, in your own way. ' +
     'What is written about you, and all of it: ' + p.tagline + ' ' + p.bio + ' Your interests: ' + p.interests.join('; ') + '. ' +
-    courtText() +
+    courtText(p.courtNotes) +
     (BIBLE.CANON ? 'THE CANON YOU MUST FOLLOW EXACTLY, adding nothing that contradicts it: ' + BIBLE.CANON + ' ' : '') +
     (BIBLE.VOICES && BIBLE.VOICES.tansy && /tansy/i.test(p.name) ? 'HOW YOU SPEAK ABOUT IT: ' + BIBLE.VOICES.tansy + ' ' : '') +
     'If you are asked anything about your life, family or past that is not in that, say you do not know that one, and never make a detail up. ' +
@@ -189,7 +189,8 @@ exports.handler = async (event, deps = {}) => {
   const companion = String(q.companion || 'tansy').toLowerCase();
   const lines = deps.lines || FILE;
   const entry = (lines.companions && lines.companions[companion]) || {};
-  const life = deps.life || writtenLife(companion, entry.rosterName);
+  const life0 = deps.life || writtenLife(companion, entry.rosterName);
+  const life = life0 && entry.court_notes ? Object.assign({}, life0, { courtNotes: entry.court_notes }) : life0;
   const voiceId = entry.voiceId;
   if (!life || !voiceId) return json(404, { error: 'unknown_companion' });
 

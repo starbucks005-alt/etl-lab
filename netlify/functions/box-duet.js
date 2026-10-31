@@ -83,7 +83,8 @@ exports.handler = async (event, deps = {}) => {
     try {
       const me = await companionOf(id), other = await companionOf(id === run.a ? run.b : run.a);
       const entry = all[me] || {};
-      const life = deps.life ? deps.life[me] : talk._test.writtenLife(me, entry.rosterName);
+      const life0 = deps.life ? deps.life[me] : talk._test.writtenLife(me, entry.rosterName);
+      const life = life0 && entry.court_notes ? Object.assign({}, life0, { courtNotes: entry.court_notes }) : life0;
       if (!life || !entry.voiceId) throw new Error('unknown_companion');
       const otherName = (all[other] && all[other].display) || other;
       let saved = deps.saved;

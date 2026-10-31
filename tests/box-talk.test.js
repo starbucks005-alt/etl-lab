@@ -80,9 +80,11 @@ const gc = require('../netlify/functions/_gc-config.js');
   await assert.rejects(() => _test.listen(Buffer.alloc(32000), { env: {} }), /no_eleven_key/);
 
   // she knows the Rising Sun Court as written, and only that
-  const tansyPrompt = _test.systemPrompt(life);
+  const tansyPrompt = _test.systemPrompt(Object.assign({}, life, { courtNotes: ['The Radiant Court is the high court. The Rising Sun Court is the lower court, with just the seven.', 'You think Ash is a she.'] }));
   assert.ok(/Ember \(Keeper of First Light\)/.test(tansyPrompt) && /No one greets the morning alone/.test(tansyPrompt), 'Tansy is given the court from personas.json');
-  assert.ok(/Flint teases Tansy/.test(tansyPrompt) && /smaller court/.test(tansyPrompt));
+  assert.ok(/Flint teases Tansy/.test(tansyPrompt) && /Radiant Court is the high court/.test(tansyPrompt) && /lower court, with just the seven/.test(tansyPrompt) && /Ash is a she/.test(tansyPrompt));
+  assert.ok(!/smaller court/.test(tansyPrompt), 'her own words replace the older note');
+  assert.ok(/smaller court/.test(_test.systemPrompt(life)), 'with no notes the written note from personas.json is used');
   assert.ok(/say you do not know that one/.test(tansyPrompt));
   assert.ok(!/product line/.test(tansyPrompt) && !/\.\./.test(tansyPrompt.slice(tansyPrompt.indexOf('THE FAIRIES YOU KNOW'), tansyPrompt.indexOf('THE CANON'))), 'a business note is not given to her, and no stray full stops');
   assert.ok(!/Rising Sun Court/.test(_test.systemPrompt({ fairy: false, name: 'Meera', tagline: 't', bio: 'b', interests: [], background: '' }, 'a yoga teacher')), 'a companion who is not a fairy is not given the court');
