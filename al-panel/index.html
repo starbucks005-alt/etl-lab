@@ -104,6 +104,10 @@
   .box2{background:#a9c9ea;border-color:#6f97c0;color:#14283b}
   .box3{background:#f3dc8c;border-color:#c4a746;color:#3a300e}
   .kidbtn.opened{opacity:.55;cursor:default}
+  .biotext{font-family:var(--display);font-size:26px;line-height:1.4;color:var(--ink);margin:0 0 6px}
+  .biobtn{font-family:var(--body);font-size:22px;font-weight:700;min-height:56px;padding:12px 26px;margin-top:12px;border-radius:16px;border:3px solid var(--line2);background:var(--field);color:var(--ink);cursor:pointer}
+  .biobtn:focus-visible{outline:4px solid var(--status);outline-offset:3px}
+  .biobtn:disabled{opacity:.6;cursor:default}
   .kidpic{display:inline-flex;font-size:56px;line-height:1}
   .kidpic svg{width:72px;height:72px}
   .kiddot{display:block;width:84px;height:84px;border-radius:50%}
@@ -201,7 +205,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     <svg style="color:var(--ink)" width="38" height="38" viewBox="0 0 64 64" role="img" aria-label="ETL mark"><rect x="6" y="42" width="36" height="11" fill="currentColor"/><rect x="14" y="26" width="36" height="11" fill="currentColor"/><rect x="22" y="10" width="36" height="11" fill="#28527a"/></svg>
     <span class="mark">ETL</span>
     <span class="word">Emerging Technologies<br>Laboratory</span>
-    <span class="palwrap"><button class="themebtn" id="palBtn" type="button">&#127912; Palette</button></span> <button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button>
+    <span class="palwrap"><button class="themebtn" id="palBtn" type="button">&#127912; Palette</button></span>
     <span class="status" id="status"><span class="dot"></span><span id="statusText">Not connected</span></span>
   </header>
 
@@ -755,7 +759,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   // was opened, so an answer to a question asked by voice was saved but never shown. It now asks every 2.5 seconds and redraws the conversation when it has changed.
   var logN = -1;
   function pollLog(){
-    if(!live){ return; }
+    if(!live || window.RBLOOK){ return; }
     fetch('/api/log').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
       if(!j || j.n === logN){ return; }
       var first = logN === -1; logN = j.n;
@@ -767,11 +771,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   function rbn(){ return window.ROBNAME || {full:'Astra-9 Lite', short:'Elle'}; }
   function paintNames(){
     var n = rbn();
-    $('statusText').textContent = live ? 'Connected to ' + n.full : 'Not connected';
-    $('talkHint').textContent = live ? 'Type a message. ' + n.full + ' answers out loud and here.' : 'Not connected. Type a message and the replies are examples.';
+    var on = live && !window.RBLOOK;   // look-only (another robot's page on this robot) is not connected to the robot it shows
+    $('statusText').textContent = on ? 'Connected to ' + n.full : 'Not connected';
+    $('talkHint').textContent = on ? 'Type a message. ' + n.full + ' answers out loud and here.' : 'Not connected. Type a message and the replies are examples.';
     $('say').placeholder = 'Say something to ' + n.short;
   }
   window.rbPaint = function(){ paintNames(); };
+  window.rbLogReset = function(){ logN = -1; };   // when the host robot is shown again, read its conversation afresh
   function setLive(on, info){
     live = on;
     $('demoNote').style.display = on ? 'none' : '';
@@ -783,7 +789,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
     paintNames();
-    if(on && info && info.log && info.log.length){
+    if(on && info && info.log && info.log.length && !window.RBLOOK){
       $('log').innerHTML = '';
       info.log.forEach(function(m){ addMsg(m.who, m.text); });
     }
@@ -1637,12 +1643,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       .catch(function(e){ addMsg('al', '(I could not say my address: ' + e.message + ')'); });
   });
   (function(){
-    var root = document.documentElement, btn = $('themeBtn');
-    function isDark(){ var t = root.getAttribute('data-theme'); return t ? t === 'dark' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
-    function label(){ btn.textContent = isDark() ? 'Light mode' : 'Dark mode'; }
-    var saved = load('theme', null); if(saved){ root.setAttribute('data-theme', saved); }
-    label();
-    btn.addEventListener('click', function(){ var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); store('theme', n); label(); });
+    // the Light/Dark button was removed from every robot's page, 2026-10-31, Dr. O. Drop any choice it saved so the page follows the device again.
+    try{ localStorage.removeItem('al_panel_theme'); document.documentElement.removeAttribute('data-theme'); }catch(e){}
   })();
   $('psearch').addEventListener('input', renderPersonas);
   $('backToAl').addEventListener('click', function(){ if(state.persona){ setPersona(null); } });
@@ -1847,13 +1849,37 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         styleTag('robotTheme').textContent = th;
         rename(r);
         window.ROBNAME = {full: r.name, short: r.short || r.name};
+        window.RBLOOK = (r.id !== SELF);   // look-only: another robot's page, so the host robot's own conversation must not show under it
+        if(window.RBLOOK){ var lg = document.getElementById('log'); if(lg){ lg.innerHTML = ''; } } else if(window.rbLogReset){ window.rbLogReset(); }
         if(window.rbPaint){ window.rbPaint(); }
         showPicture(r);
         var pc = document.getElementById('playCard'); if(pc){ pc.style.display = (r.id === 'astro') ? '' : 'none'; }
       }
       // a robot's own picture under the heading (A.L.I.C.E.'s stand-in until her real photo is done); hides itself if the file is missing
+      // the bio beside a robot's picture: its words, and a button that plays the recording of those words in the robot's voice. If the recording is not there the button says so.
+      function bioBox(r){
+        var box = el('div'); box.id = 'robotBio'; box.style.cssText = 'flex:1 1 280px;min-width:260px';
+        box.appendChild(el('p', 'biotext', r.bio.text));
+        if(r.bio.audio){
+          var b = el('button', 'biobtn', 'Listen to me'); b.type = 'button'; var au = null, playing = false;
+          function idle(){ playing = false; b.textContent = 'Listen to me'; }
+          b.addEventListener('click', function(){
+            if(playing && au){ au.pause(); au.currentTime = 0; idle(); return; }
+            if(!au){
+              au = new Audio(r.bio.audio);
+              au.addEventListener('ended', idle);
+              au.addEventListener('error', function(){ au = null; playing = false; b.textContent = 'Audio not recorded yet'; b.disabled = true; });
+            }
+            playing = true; b.textContent = 'Stop';
+            var p = au.play(); if(p && p.catch){ p.catch(function(){ if(au){ idle(); } }); }
+          });
+          box.appendChild(b);
+        }
+        return box;
+      }
       function showPicture(r){
-        var old = document.getElementById('robotPic'); if(old){ old.parentNode.removeChild(old); }
+        var oldHead = document.getElementById('robotHead'); if(oldHead){ oldHead.parentNode.removeChild(oldHead); }
+        var old = document.getElementById('robotPic'); if(old && old.parentNode){ old.parentNode.removeChild(old); }
         if(!r.picture || !r.picture.src){ return; }
         var h = document.querySelector('h1'); if(!h){ return; }
         var f = el('figure'); f.id = 'robotPic'; f.style.margin = '12px 0';
@@ -1862,7 +1888,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         im.onerror = function(){ f.style.display = 'none'; };
         f.appendChild(im);
         if(r.picture.caption){ var c = el('figcaption', '', r.picture.caption); c.style.cssText = 'font-size:13px;color:var(--mute);margin-top:8px'; f.appendChild(c); }
-        h.parentNode.insertBefore(f, h.nextSibling);
+        var host = f;
+        if(r.bio && r.bio.text){
+          var row = el('div'); row.id = 'robotHead'; row.style.cssText = 'display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;margin:12px 0';
+          f.style.margin = '0'; f.style.flex = '0 1 ' + (r.picture.max_width || '760px'); f.style.maxWidth = '100%';
+          row.appendChild(f); row.appendChild(bioBox(r)); host = row;
+        }
+        h.parentNode.insertBefore(host, h.nextSibling);
       }
 
       function choose(id){
