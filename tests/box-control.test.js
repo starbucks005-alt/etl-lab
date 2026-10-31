@@ -33,7 +33,7 @@ const real = require('../rising-sun/box-lines.json');
   // the small screen on the cover is told which picture to show
   assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'screen' }), d)).body.includes('face=/rising-sun/box-faces/tansy_v1.jpg'));
   await handler(ev('POST', KEY, {}, { action: 'press', button: 'chat', box: 'screen' }), d);
-  assert.ok((await handler(ev('GET', KEY, { screen: '1', id: 'screen' }), d)).body.includes('companion=tansy\nface=/rising-sun/box-faces/tansy_v1.jpg'));
+  assert.ok((await handler(ev('GET', KEY, { screen: '1', id: 'screen' }), d)).body.includes('companion=tansy\nface=/rising-sun/box-faces/tansy_v1.jpg\nclip=\n'));
   assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'screen' }), d)).body.includes('command=chat'), 'the screen looking did not take the pushed button');
 
   // two boxes in one home are told apart and each keeps her own companion
@@ -124,6 +124,8 @@ const real = require('../rising-sun/box-lines.json');
     assert.ok(c.wake.name && c.wake.phoneme && c.wake.phoneme.length <= 40, id + ' wake has a name and a short phoneme');
     for (const ch of c.wake.phoneme.replace(/ /g, '')) assert.ok(ALPHABET.has(ch), id + ' phoneme letter ' + ch + ' is in the chip alphabet');
   }
+  // a clip, when a companion has one, is a real file in the repo
+  for (const [id, c] of Object.entries(real.companions)) if (c.clip) assert.ok(require('fs').existsSync(require('path').join(__dirname, '..', c.clip)), id + ' clip file exists');
   const text = JSON.stringify(real);
   assert.ok(!/[–—]/.test(text), 'no long dashes in the file');
   console.log('ok: the box panel can pick a companion and push the three buttons');

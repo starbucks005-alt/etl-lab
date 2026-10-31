@@ -7,7 +7,7 @@
 
    The three buttons are chat, second (story, breathing, or nothing for a companion that has none) and soundscape. The same ones as the lid.
    Every call needs the header x-sun-key, the same home access code as the other box functions. With no code set it answers 503.
-   GET ?screen=1  (the screen on the cover) -> plain text: companion=... and face=... It never takes a pushed button.
+   GET ?screen=1  (the screen on the cover) -> plain text: companion=..., face=... and clip=... (a short silent video in box-clips, or empty). It never takes a pushed button.
    The box also sends its battery voltage (?batt=millivolts) each time it asks; the panel shows it.
    Each box has a name (for example kitchen or desk), sent as ?id= from the box and the panel, so two boxes in one home can be told apart and each have her own companion. No name means 'main'.
    NOT TRIED on the live site or the board. The test runs with a stand-in store. */
@@ -97,7 +97,7 @@ exports.handler = async (event, deps = {}) => {
 
   if (event.httpMethod === 'GET' && q.screen) {      // the small screen on the cover only looks: it takes no pushed button and reports no battery
     const c = describe(st.companion, all[st.companion]);
-    return text('companion=' + st.companion + '\nface=' + (c.face || '') + '\n');
+    return text('companion=' + st.companion + '\nface=' + (c.face || '') + '\nclip=' + ((all[st.companion] || {}).clip || '') + '\n');
   }
   if (event.httpMethod === 'GET' && q.box) {
     const mv = parseInt(q.batt, 10);
