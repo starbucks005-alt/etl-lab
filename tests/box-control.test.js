@@ -32,6 +32,9 @@ const real = require('../rising-sun/box-lines.json');
 
   // the small screen on the cover is told which picture to show
   assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'screen' }), d)).body.includes('face=/rising-sun/box-faces/tansy_v1.jpg'));
+  await handler(ev('POST', KEY, {}, { action: 'press', button: 'chat', box: 'screen' }), d);
+  assert.ok((await handler(ev('GET', KEY, { screen: '1', id: 'screen' }), d)).body.includes('companion=tansy\nface=/rising-sun/box-faces/tansy_v1.jpg'));
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'screen' }), d)).body.includes('command=chat'), 'the screen looking did not take the pushed button');
 
   // two boxes in one home are told apart and each keeps her own companion
   const withId = (m, q, b) => ev(m, KEY, q, b);
