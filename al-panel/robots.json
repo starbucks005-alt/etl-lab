@@ -133,6 +133,12 @@
         "engine": null,
         "name": null
       },
+      "look": "champagne finish, teal-green eyes, a black collar, a round camera ring at the neckline, a gray ETL T-shirt, khaki shorts, a teddy bear in his hand (from Dr. O's concept picture)",
+      "picture": {
+        "src": "images/astro-concept_v2.jpg",
+        "alt": "Concept picture of Astro, a little champagne robot boy with teal-green eyes, a black collar, a gray ETL T-shirt and khaki shorts, holding a teddy bear.",
+        "caption": "Concept Art - Astro"
+      },
       "special": "not ordered yet. Body is likely a child-size mannequin with flexible head, arms and legs. Dr. O has smaller eye rings she may use (the eye code expects 16 lights per ring). Names to watch: Astro is in Elle's wake list and the Astrad alias list, and Teddy sounds like Ted. Dr. O: if it conflicts, pivot."
     },
     {
