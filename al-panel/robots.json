@@ -155,6 +155,7 @@
       "look": "champagne finish, teal-green eyes, a black collar, a round camera ring at the neckline, a gray ETL T-shirt, khaki shorts, a teddy bear in his hand (from Dr. O's concept picture)",
       "picture": {
         "src": "images/astro-concept_v2.jpg",
+        "max_width": "280px",
         "alt": "Concept picture of Astro, a little champagne robot boy with teal-green eyes, a black collar, a gray ETL T-shirt and khaki shorts, holding a teddy bear.",
         "caption": "Concept Art - Astro"
       },

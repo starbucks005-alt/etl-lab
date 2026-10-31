@@ -1858,7 +1858,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         var h = document.querySelector('h1'); if(!h){ return; }
         var f = el('figure'); f.id = 'robotPic'; f.style.margin = '12px 0';
         var im = document.createElement('img'); im.src = r.picture.src; im.alt = r.picture.alt || r.name;
-        im.style.cssText = 'width:100%;max-width:760px;height:auto;display:block;border-radius:12px;border:1px solid var(--line)';
+        im.style.cssText = 'width:100%;max-width:' + (r.picture.max_width || '760px') + ';height:auto;display:block;border-radius:12px;border:1px solid var(--line)';
         im.onerror = function(){ f.style.display = 'none'; };
         f.appendChild(im);
         if(r.picture.caption){ var c = el('figcaption', '', r.picture.caption); c.style.cssText = 'font-size:13px;color:var(--mute);margin-top:8px'; f.appendChild(c); }
