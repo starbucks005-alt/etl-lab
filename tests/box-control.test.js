@@ -8,7 +8,7 @@ const real = require('../rising-sun/box-lines.json');
   const cfg = async () => ({ sun_key_hash: gc.hash(KEY) });
   const mem = () => { const m = new Map(); return { get: async (k) => (m.has(k) ? m.get(k) : null), setJSON: async (k, v) => { m.set(k, JSON.parse(JSON.stringify(v))); } }; };
   const lines = { companions: {
-    tansy: { display: 'Tansy', voiceId: 'x', second: { label: 'Story time', kind: 'story' }, lines: { 'hs-a': 'a' }, scenes: { rain: { sound: 'rain' } } },
+    tansy: { display: 'Tansy', face: '/rising-sun/box-faces/tansy_v1.jpg', voiceId: 'x', second: { label: 'Story time', kind: 'story' }, lines: { 'hs-a': 'a' }, scenes: { rain: { sound: 'rain' } } },
     meera: { display: 'Meera', voiceId: 'y', second: { label: 'Breathing', kind: 'starter', id: 'breathing' }, starters: { breathing: 'breathe' }, lines: {}, scenes: { rain: { sound: 'rain' } } },
     reggie: { display: 'Reggie', voiceId: 'z', second: { label: 'Story time', kind: 'story' }, lines: {}, scenes: { rain: { sound: 'rain' } } },
     marcus: { display: 'Marcus', voiceId: 'w', second: null, lines: {}, scenes: { rain: { sound: 'rain' } } },
@@ -29,6 +29,9 @@ const real = require('../rising-sun/box-lines.json');
   assert.strictEqual(by.reggie.second.ready, false);      // none recorded yet, so the panel says so
   assert.strictEqual(by.meera.second.ready, true);        // her starter line
   assert.strictEqual(by.marcus.second, null);             // no second button
+
+  // the small screen on the cover is told which picture to show
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'screen' }), d)).body.includes('face=/rising-sun/box-faces/tansy_v1.jpg'));
 
   // two boxes in one home are told apart and each keeps her own companion
   const withId = (m, q, b) => ev(m, KEY, q, b);
@@ -76,6 +79,7 @@ const real = require('../rising-sun/box-lines.json');
     assert.ok(/^[A-Za-z0-9]{15,30}$/.test(c.voiceId), id + ' has a voice');
     assert.ok(c.lines && c.lines.didnt_hear && c.lines.too_many, id + ' has didnt_hear and too_many');
     assert.ok(_test.describe(id, c).chat);
+    if (c.face) assert.ok(require('fs').existsSync(require('path').join(__dirname, '..', c.face)), id + ' face file exists');
   }
   const text = JSON.stringify(real);
   assert.ok(!/[–—]/.test(text), 'no long dashes in the file');

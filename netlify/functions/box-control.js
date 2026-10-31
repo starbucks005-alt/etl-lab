@@ -34,7 +34,7 @@ function describe(id, c) {
     secondOut = { label: second.label, kind: second.kind, id: second.id || '', ready };
   }
   return {
-    id, display: c.display || id, needsHuman: !!c.needsHuman,
+    id, display: c.display || id, needsHuman: !!c.needsHuman, face: c.face || '',
     chat: true,
     soundscape: !!(c.scenes && Object.keys(c.scenes).length),
     second: secondOut,
@@ -81,7 +81,7 @@ exports.handler = async (event, deps = {}) => {
     if (st.command) st.command = null;
     try { await store.setJSON(key, st); } catch (_) {}
     const second = c.second ? (c.second.kind === 'story' ? 'story' : 'starter:' + c.second.id) : 'none';
-    return text('companion=' + st.companion + '\nsecond=' + second + '\ncommand=' + command + '\n');
+    return text('companion=' + st.companion + '\nsecond=' + second + '\ncommand=' + command + '\nface=' + (c.face || '') + '\n');
   }
 
   if (event.httpMethod === 'GET') {
