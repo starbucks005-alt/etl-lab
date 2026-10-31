@@ -1,5 +1,5 @@
 {
-  "_about": "The robots the panel's dropdown lists (2026-10-30). Read by the page, served by each Pi as /robots.json. A null is not known yet, never a guess. 'hide' is the list of card ids that robot does not use; the card ids are the ids in index.html. Only 'id', 'name', 'short', 'hostname', 'last_seen_address', 'port', 'hide', 'hide_selectors', 'theme_light', 'theme_dark', 'kind', 'status' are read by the page; the rest is notes for Dr. O. last_seen_address is only where the robot was last found, since a hotspot gives out a new one each time.",
+  "_about": "The robots the panel's dropdown lists (2026-10-30). Read by the page, served by each Pi as /robots.json. A null is not known yet, never a guess. 'hide' is the list of card ids that robot does not use; the card ids are the ids in index.html. Only 'id', 'name', 'short', 'hostname', 'last_seen_address', 'port', 'hide', 'hide_selectors', 'theme_light', 'theme_dark', 'picture', 'kind', 'status' are read by the page; the rest is notes for Dr. O. last_seen_address is only where the robot was last found, since a hotspot gives out a new one each time.",
   "port": 8000,
   "robots": [
     {
@@ -65,7 +65,12 @@
         "skillsCard",
         "personaCard"
       ],
-      "cards_hidden_note": "taken from make_alice_page.py. That script may hide more in places not read for this draft."
+      "cards_hidden_note": "taken from make_alice_page.py. That script may hide more in places not read for this draft.",
+      "picture": {
+        "src": "images/alice-placeholder_v1.jpg",
+        "alt": "Concept art of A.L.I.C.E., seated with her arms around her knees.",
+        "caption": "Concept Art - A.L.I.C.E."
+      }
     },
     {
       "id": "astra",

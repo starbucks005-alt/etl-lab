@@ -1717,6 +1717,20 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         }
         styleTag('robotTheme').textContent = th;
         rename(r);
+        showPicture(r);
+      }
+      // a robot's own picture under the heading (A.L.I.C.E.'s stand-in until her real photo is done); hides itself if the file is missing
+      function showPicture(r){
+        var old = document.getElementById('robotPic'); if(old){ old.parentNode.removeChild(old); }
+        if(!r.picture || !r.picture.src){ return; }
+        var h = document.querySelector('h1'); if(!h){ return; }
+        var f = el('figure'); f.id = 'robotPic'; f.style.margin = '12px 0';
+        var im = document.createElement('img'); im.src = r.picture.src; im.alt = r.picture.alt || r.name;
+        im.style.cssText = 'width:100%;max-width:760px;height:auto;display:block;border-radius:12px;border:1px solid var(--line)';
+        im.onerror = function(){ f.style.display = 'none'; };
+        f.appendChild(im);
+        if(r.picture.caption){ var c = el('figcaption', '', r.picture.caption); c.style.cssText = 'font-size:13px;color:var(--mute);margin-top:8px'; f.appendChild(c); }
+        h.parentNode.insertBefore(f, h.nextSibling);
       }
 
       function choose(id){
