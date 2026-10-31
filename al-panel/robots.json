@@ -124,7 +124,24 @@
       "last_seen_address": null,
       "kind": "child (little boy)",
       "status": "planned",
-      "hide": [],
+      "hide": [
+        "modeCard",
+        "eyesCard",
+        "voiceCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard",
+        "peopleCard",
+        "calCard",
+        "houseCard",
+        "petCard",
+        "recordsCard",
+        "guardianCard",
+        "photoCard",
+        "voicesCard",
+        "welcomeCard"
+      ],
+      "hide_selectors": ".hero,.demo,.tab,.sub",
       "character": {
         "good_company_id": null,
         "note": "Astra and Ted's little boy. Elle is his aunt (Astra's little sister) and ALICE is his honorary aunt. Dr. O, 2026-10-31: a boy because there are already so many females. Nothing else about him is decided yet."
