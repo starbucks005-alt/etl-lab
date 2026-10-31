@@ -354,7 +354,7 @@ size_t record() {
 }
 
 // Records after the wake word, and stops when you stop talking: it waits for speech to start (up to 4 seconds), then ends after about 1 second of quiet, or at 8 seconds.
-size_t recordSpeech() {
+size_t recordSpeech(uint32_t waitMs = 6000) {
   size_t have = 0;
   int16_t scratch[256];
   ringColor(255, 90, 0);
@@ -378,7 +378,7 @@ size_t recordSpeech() {
     if (e > peak) peak = e;
     if (e > threshold) { spoke = true; quietSince = 0; }
     else if (spoke) { if (!quietSince) quietSince = millis(); else if (millis() - quietSince > 1000) break; }
-    else if (millis() - started > 6000) { Serial.printf("Nothing was said. Loudest moment was %ld, it needed to pass %ld.\n", peak, threshold); return 0; }
+    else if (millis() - started > waitMs) { Serial.printf("Nothing was said. Loudest moment was %ld, it needed to pass %ld.\n", peak, threshold); return 0; }
   }
   return have;
 }
@@ -527,13 +527,29 @@ String askWebsite() {
   return command;
 }
 
-void chatTurn(bool byButton) {
-  Serial.println(byButton ? "Listening (button)..." : "Listening (wake word)...");
-  size_t n = byButton ? record() : recordSpeech();
+// One turn: listen, send, play her answer. Returns true when she answered, so a conversation can carry on.
+bool chatTurn(bool byButton, uint32_t waitMs = 6000) {
+  Serial.println(byButton ? "Listening (button)..." : "Listening...");
+  size_t n = byButton ? record() : recordSpeech(waitMs);
   Serial.printf("Recorded %u bytes\n", (unsigned)n);
-  if (n < MIN_RECORD_BYTES) { Serial.println(byButton ? "Too short, hold the key while you speak." : "Too short."); ringColor(255, 0, 0); delay(600); }
-  else if (!talk(n)) { ringColor(255, 0, 0); delay(1500); }
+  bool ok = false;
+  if (n < MIN_RECORD_BYTES) { Serial.println(byButton ? "Too short, hold the key while you speak." : "Too short."); if (n > 0 || byButton) { ringColor(255, 0, 0); delay(600); } }
+  else if (!(ok = talk(n))) { ringColor(255, 0, 0); delay(1500); }
   ringColor(0, 0, 255);
+  return ok;
+}
+
+// After the wake word, the box keeps listening for the next sentence, so "Hi ESP" is said once. Eight quiet seconds, or ten turns, and it goes back to waiting for the wake word.
+#define FOLLOW_UPS 10
+#define FOLLOW_UP_WAIT_MS 8000
+void conversation() {
+  bool again = chatTurn(false);
+  for (int i = 0; i < FOLLOW_UPS && again; i++) {
+    delay(400);                                 // her voice has finished leaving the speaker
+    again = chatTurn(false, FOLLOW_UP_WAIT_MS);
+  }
+  if (again) Serial.println("That was a long one. Say the wake word to carry on.");
+  else Serial.println("Quiet, so back to waiting for the wake word.");
 }
 
 void loop() {
@@ -543,7 +559,7 @@ void loop() {
     srPause();                       // the speech engine stops reading the microphones while the box records them itself
     ringColor(255, 90, 0);
     beep(880, 120);
-    chatTurn(false);
+    conversation();
     wokeUp = false;
     srResume();
     delay(300);
@@ -582,7 +598,7 @@ void loop() {
     if (cmd.length()) {
       Serial.printf("Pushed from the panel: %s\n", cmd.c_str());
       srPause();
-      if (cmd == "chat") chatTurn(false);
+      if (cmd == "chat") conversation();
       else if (cmd == "second") secondButton();
       else if (cmd == "soundscape") { gardenscape(); ringColor(0, 0, 255); }
       wokeUp = false;
