@@ -219,4 +219,5 @@ exports.handler = async (event, deps = {}) => {
   }
 };
 
+exports.defaultAsk = defaultAsk;
 exports._test = { wav, systemPrompt, writtenLife, listen };

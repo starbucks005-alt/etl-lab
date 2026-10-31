@@ -61,6 +61,12 @@ async function openStore(event) {
   return getStore('box_control');
 }
 
+async function openDuet(event) {
+  const { getStore, connectLambda } = require('@netlify/blobs');
+  try { if (event) connectLambda(event); } catch (_) {}
+  return getStore('box_duet');
+}
+
 exports.handler = async (event, deps = {}) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'GET' && event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
@@ -102,10 +108,16 @@ exports.handler = async (event, deps = {}) => {
     }
     const c = describe(st.companion, all[st.companion]);
     const command = st.command ? st.command.button : '';
+    let duet = '';                       // chat mode: a number when it is this box's turn, 'wait' while the other box has it
+    try {
+      const ds = deps.duetStore || await openDuet(event);
+      const run = await ds.get('run', { type: 'json' });
+      if (run && run.active) duet = ((run.next % 2 === 0 ? run.a : run.b) === id) ? String(run.next) : 'wait';
+    } catch (_) {}
     if (st.command) st.command = null;
     try { await store.setJSON(key, st); } catch (_) {}
     const second = c.second ? (c.second.kind === 'story' ? 'story' : 'starter:' + c.second.id) : 'none';
-    return text('companion=' + st.companion + '\nsecond=' + second + '\ncommand=' + command + '\nface=' + (c.face || '') + '\nlisten=' + (st.listen ? 'on' : 'off') + '\n');
+    return text('companion=' + st.companion + '\nsecond=' + second + '\ncommand=' + command + '\nface=' + (c.face || '') + '\nlisten=' + (st.listen ? 'on' : 'off') + '\nduet=' + duet + '\n');
   }
 
   if (event.httpMethod === 'GET') {

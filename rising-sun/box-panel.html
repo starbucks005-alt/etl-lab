@@ -68,6 +68,22 @@
     <p class="note">The box takes a few seconds to notice a button pushed here. It asks the website every few seconds.</p>
   </section>
 
+  <section id="duetCard" class="hidden">
+    <h2>Chat mode</h2>
+    <p class="note" style="margin-top:0">Two boxes talk to each other, one at a time. Each box says its own companion's lines. Pick two boxes that have different companions.</p>
+    <label for="duetA">First box (speaks first)</label>
+    <select id="duetA"></select>
+    <label for="duetB" style="margin-top:12px">Second box</label>
+    <select id="duetB"></select>
+    <label for="duetTopic" style="margin-top:12px">Topic (optional)</label>
+    <input id="duetTopic" type="text" maxlength="200" autocomplete="off">
+    <label for="duetTurns" style="margin-top:12px">Lines in all</label>
+    <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select>
+    <button id="duetGo" type="button">Start chat mode</button>
+    <button id="duetStop" type="button" class="quiet">Stop</button>
+    <p class="note" id="duetState"></p>
+  </section>
+
   <section id="listenCard" class="hidden">
     <h2>Listening</h2>
     <button id="bListen" type="button" class="quiet"></button>
@@ -118,6 +134,12 @@
     $('pick').classList.remove('hidden'); $('buttons').classList.remove('hidden');
     $('batt').classList.remove('hidden');
     $('listenCard').classList.remove('hidden');
+    $('duetCard').classList.remove('hidden');
+    ['duetA', 'duetB'].forEach(function (id, i) {
+      var sel = $(id), keep = sel.value; sel.innerHTML = '';
+      (data.boxes || []).forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
+      if (keep) sel.value = keep; else if (data.boxes && data.boxes[i]) sel.value = data.boxes[i];
+    });
     $('bListen').textContent = data.listen === false ? 'Not listening: turn listening on' : 'Listening for the wake word: turn it off';
     $('listenNote').textContent = data.listen === false ? 'The box ignores the wake word. Its lid buttons and the buttons on this page still work. The ring glows amber.' : 'The box answers when someone says the wake word.';
     var bt = data.battery;
@@ -172,6 +194,30 @@
       if (r.status === 200) { data.listen = want; draw(); say(want ? 'The box will listen again in a few seconds.' : 'The box will stop listening in a few seconds.', 'ok'); }
       else say('Could not change that.', 'bad');
     }).catch(function () { say('Could not reach the website.', 'bad'); });
+  });
+  function duetCall(method, body) {
+    return fetch('/.netlify/functions/box-duet', { method: method, headers: { 'x-sun-key': key, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
+  }
+  function duetShow() {
+    duetCall('GET').then(function (r) {
+      var run = r.body && r.body.run, el = $('duetState');
+      if (!run) { el.textContent = ''; return; }
+      var last = run.lines.length ? run.lines[run.lines.length - 1] : null;
+      el.textContent = (run.active ? 'Running: ' + run.lines.length + ' of ' + run.max + ' lines.' : 'Not running' + (run.ended ? ' (' + run.ended.replace('_', ' ') + ').' : '.')) + (last ? ' Last line, from ' + last.by + ': ' + last.text : '');
+    }).catch(function () {});
+  }
+  setInterval(function () { if (!$('duetCard').classList.contains('hidden')) duetShow(); }, 4000);
+  $('duetGo').addEventListener('click', function () {
+    var a = $('duetA').value, b = $('duetB').value;
+    if (!a || !b || a === b) { say('Pick two different boxes.', 'bad'); return; }
+    duetCall('POST', { action: 'start', a: a, b: b, topic: $('duetTopic').value, turns: parseInt($('duetTurns').value, 10) }).then(function (r) {
+      if (r.status === 200) { say('Chat mode started. ' + a + ' speaks first, in a few seconds.', 'ok'); duetShow(); }
+      else say('Chat mode did not start.', 'bad');
+    }).catch(function () { say('Could not reach the website.', 'bad'); });
+  });
+  $('duetStop').addEventListener('click', function () {
+    duetCall('POST', { action: 'stop' }).then(function () { say('Chat mode stopped.', 'ok'); duetShow(); }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
   $('bSound').addEventListener('click', function () { press('soundscape', $('bSound').textContent); });
   $('bSecond').addEventListener('click', function () { press('second', current().second.label); });

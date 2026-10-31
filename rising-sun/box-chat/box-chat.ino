@@ -66,6 +66,7 @@ static const sr_cmd_t sr_commands[] = {
 };
 volatile bool wokeUp = false;
 #define WAKE_WORD 1                      // 1 = listen for "Hi ESP", 0 = buttons only (a test: if her voice plays with 0, the wake word engine is the cause)
+String duetState = "";                  // chat mode: a turn number when it is this box's turn, "wait", or empty
 uint32_t lastAsk = 0;                    // when the box last asked the website
 bool srOn = false;                        // true while the wake word engine is running
 bool srCan = false;                       // true when the model is on the board and WAKE_WORD is 1
@@ -426,7 +427,7 @@ void srPause() {
   i2s.setTimeout(1000);
 }
 void srResume() {
-  if (!srCan || !listenWanted || srOn) return;
+  if (!srCan || !listenWanted || srOn || duetState.length()) return;
   if (ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD)) { ESP_SR.onEvent(onSrEvent); srOn = true; }
   else { srCan = false; Serial.println("Wake word engine did not restart. The buttons still work."); }
 }
@@ -471,6 +472,33 @@ int batteryMillivolts() {
   return (mv > 2500 && mv < 4500) ? (int)mv : 0;
 }
 
+// Chat mode: this box's companion speaks her line, then says done so the other box gets its turn.
+void playDuetTurn(const String &turn) {
+  if (!joinWifi()) return;
+  WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-duet?id=") + BOX_NAME + "&turn=" + turn)) return;
+  http.addHeader("x-sun-key", BOX_KEY);
+  const char *keep[] = {"X-Said"}; http.collectHeaders(keep, 1);
+  http.setTimeout(40000);
+  int code = http.GET();
+  Serial.printf("Chat mode turn %s: website answered %d\n", turn.c_str(), code);
+  if (code == 200) {
+    playResponse(http);
+    http.end();
+    WiFiClientSecure c2; c2.setInsecure();
+    HTTPClient done; done.useHTTP10(true);
+    if (done.begin(c2, "https://emerging-tech-lab.com/.netlify/functions/box-duet")) {
+      done.addHeader("x-sun-key", BOX_KEY);
+      done.addHeader("Content-Type", "application/json");
+      done.POST(String("{\"action\":\"done\",\"id\":\"") + BOX_NAME + "\",\"turn\":" + turn + "}");
+      done.end();
+    }
+  } else { http.end(); if (code != 204) { ringColor(255, 0, 0); delay(1000); } }
+  ringColor(0, 0, 255);
+}
+
 String askWebsite() {
   if (WiFi.status() != WL_CONNECTED) return "";
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
@@ -493,6 +521,7 @@ String askWebsite() {
       if (c.length() && c != companion) { companion = c; Serial.printf("Companion is now %s\n", companion.c_str()); ringColor(0, 255, 0); delay(400); }
     } else if (line.startsWith("second=")) secondKind = line.substring(7);
     else if (line.startsWith("command=")) command = line.substring(8);
+    else if (line.startsWith("duet=")) duetState = line.substring(5);
     else if (line.startsWith("listen=")) { bool on = line.substring(7) != "off"; if (on != listenWanted) { listenWanted = on; Serial.println(on ? "Listening for the wake word" : "Not listening for the wake word"); } }
   }
   return command;
@@ -538,11 +567,18 @@ void loop() {
     wokeUp = false;
     srResume();
     delay(400);
-  } else if (millis() - lastAsk > 4000) {
+  } else if (millis() - lastAsk > (duetState.length() ? 1500UL : 4000UL)) {
     lastAsk = millis();
     String cmd = askWebsite();
     if (!listenWanted && srOn) srPause();          // the panel turned listening off
-    if (listenWanted && !srOn) srResume();         // and back on
+    if (listenWanted && !srOn && !duetState.length()) srResume();   // and back on, but not during chat mode
+    if (duetState.length() && srOn) srPause();     // the other box's voice must not wake this one
+    if (duetState.length() && duetState != "wait") {
+      Serial.printf("Chat mode: my turn, %s\n", duetState.c_str());
+      playDuetTurn(duetState);
+      lastAsk = millis() - 1200;                   // ask again soon, the other box is next
+      return;
+    }
     if (cmd.length()) {
       Serial.printf("Pushed from the panel: %s\n", cmd.c_str());
       srPause();

@@ -46,3 +46,9 @@ Dr. O heard Tansy answer out loud from the box. Before that the board restarted 
 ## Charging and programming port (2026-10-31)
 
 Dr. O has a panel-mount USB-C extension cable (QINJOOELC, USB C 3.0, male to female, threaded, with a rubber cap). From its listing: cut a **21.5 mm hole**, panel thickness **8 mm or less**, it comes with its own nut, it carries data (5 Gbps, backwards compatible with USB 2.0) and charges at 5V 2A. The plug end goes into the audio board's USB-C port inside the box, so the battery can be charged, and sketches uploaded, from outside. If an upload fails through it, try plugging straight into the board once, to tell a cable problem from a board problem. Not tried yet. The box wall thickness and the lead length against the distance to the board's port are not measured.
+
+## Chat mode: two boxes talking to each other (2026-10-31)
+
+Dr. O bought two black boxes so she can show people how the companions talk to each other. On the panel (`rising-sun/box-panel.html`), the Chat mode card picks two boxes (each has its own name and its own companion), an optional topic and how many lines, then starts. The website runs the conversation and alternates turns; each box plays only its own companion's lines in her own voice, then says done so the other box gets its turn. Each line is written from the companion's written life and the line before it. While it runs, each box stops listening for the wake word so the other box's voice cannot wake it. At most 20 lines in a run and 80 lines a day. A line that cannot be made ends the run.
+
+Checked: the website side with stand-ins (`node tests/box-duet.test.js`) and the sketch compiles. NOT tried with two boxes, the live site or real voices. The pause between lines is not measured: each line is written and voiced when its turn comes, so expect a few seconds.
