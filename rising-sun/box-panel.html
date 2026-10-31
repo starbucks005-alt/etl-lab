@@ -68,6 +68,12 @@
     <p class="note">The box takes a few seconds to notice a button pushed here. It asks the website every few seconds.</p>
   </section>
 
+  <section id="listenCard" class="hidden">
+    <h2>Listening</h2>
+    <button id="bListen" type="button" class="quiet"></button>
+    <p class="note" id="listenNote"></p>
+  </section>
+
   <section id="batt" class="hidden">
     <h2>Battery</h2>
     <p id="battLine" style="margin:0"></p>
@@ -111,6 +117,9 @@
     else { second.classList.add('hidden'); }
     $('pick').classList.remove('hidden'); $('buttons').classList.remove('hidden');
     $('batt').classList.remove('hidden');
+    $('listenCard').classList.remove('hidden');
+    $('bListen').textContent = data.listen === false ? 'Not listening: turn listening on' : 'Listening for the wake word: turn it off';
+    $('listenNote').textContent = data.listen === false ? 'The box ignores the wake word. Its lid buttons and the buttons on this page still work. The ring glows amber.' : 'The box answers when someone says the wake word.';
     var bt = data.battery;
     if (!bt) $('battLine').textContent = 'No battery reading from this box yet.';
     else {
@@ -154,6 +163,13 @@
     call('POST', { action: 'set_companion', companion: id }).then(function (r) {
       if (r.status === 200) { data.companion = id; draw(); say('The box will switch to ' + current().display + ' in a few seconds.', 'ok'); }
       else say('Could not change the companion.', 'bad');
+    }).catch(function () { say('Could not reach the website.', 'bad'); });
+  });
+  $('bListen').addEventListener('click', function () {
+    var want = data.listen === false;
+    call('POST', { action: 'set_listen', listen: want }).then(function (r) {
+      if (r.status === 200) { data.listen = want; draw(); say(want ? 'The box will listen again in a few seconds.' : 'The box will stop listening in a few seconds.', 'ok'); }
+      else say('Could not change that.', 'bad');
     }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
   $('bSound').addEventListener('click', function () { press('soundscape', $('bSound').textContent); });

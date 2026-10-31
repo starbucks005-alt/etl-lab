@@ -54,6 +54,17 @@ const real = require('../rising-sun/box-lines.json');
   assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'desk' }), d)).body).battery.volts, 3.9);
   assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'kitchen' }), d)).body).battery, null);
 
+  // listening for the wake word can be switched off from the panel, per box, and stays off when the companion changes
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'desk' }), d)).body.includes('listen=on'));
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_listen', listen: 'no', box: 'desk' }), d)).statusCode, 400);
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_listen', listen: false, box: 'desk' }), d)).statusCode, 200);
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'desk' }), d)).body.includes('listen=off'));
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'kitchen' }), d)).body.includes('listen=on'));
+  await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'tansy', box: 'desk' }), d);
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'desk' }), d)).body.includes('listen=off'));
+  assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'desk' }), d)).body).listen, false);
+  await handler(ev('POST', KEY, {}, { action: 'set_listen', listen: true, box: 'desk' }), d);
+
   // choosing a companion; an unknown one is refused
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'nobody' }), d)).statusCode, 404);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera' }), d)).statusCode, 200);

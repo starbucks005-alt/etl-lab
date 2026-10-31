@@ -67,7 +67,9 @@ static const sr_cmd_t sr_commands[] = {
 volatile bool wokeUp = false;
 #define WAKE_WORD 1                      // 1 = listen for "Hi ESP", 0 = buttons only (a test: if her voice plays with 0, the wake word engine is the cause)
 uint32_t lastAsk = 0;                    // when the box last asked the website
-bool srOn = false;                        // true only when the wake word engine started
+bool srOn = false;                        // true while the wake word engine is running
+bool srCan = false;                       // true when the model is on the board and WAKE_WORD is 1
+bool listenWanted = true;                 // the panel's Listening switch
 void onSrEvent(sr_event_t event, int command_id, int phrase_id) {
   if (event == SR_EVENT_WAKEWORD) wokeUp = true;     // handled in loop(), not here
 }
@@ -407,7 +409,7 @@ void setup() {
     w = ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD);
     if (w) ESP_SR.onEvent(onSrEvent);
   }
-  srOn = w;
+  srOn = w; srCan = w;
   Serial.printf("Version: WAKE_WORD %d, stop and restart around each turn, markers around her voice\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
@@ -419,13 +421,14 @@ void setup() {
 void srPause() {
   if (!srOn) return;
   ESP_SR.end();                           // stopped completely, not just paused, so it cannot share the sound connection
+  srOn = false;
   wokeUp = false;
   i2s.setTimeout(1000);
 }
 void srResume() {
-  if (!srOn) return;
-  if (ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD)) ESP_SR.onEvent(onSrEvent);
-  else { srOn = false; Serial.println("Wake word engine did not restart. The buttons still work."); }
+  if (!srCan || !listenWanted || srOn) return;
+  if (ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD)) { ESP_SR.onEvent(onSrEvent); srOn = true; }
+  else { srCan = false; Serial.println("Wake word engine did not restart. The buttons still work."); }
 }
 
 // A fixed opening line she answers in her own voice, made once on the website and kept (Meera's Breathing).
@@ -490,6 +493,7 @@ String askWebsite() {
       if (c.length() && c != companion) { companion = c; Serial.printf("Companion is now %s\n", companion.c_str()); ringColor(0, 255, 0); delay(400); }
     } else if (line.startsWith("second=")) secondKind = line.substring(7);
     else if (line.startsWith("command=")) command = line.substring(8);
+    else if (line.startsWith("listen=")) { bool on = line.substring(7) != "off"; if (on != listenWanted) { listenWanted = on; Serial.println(on ? "Listening for the wake word" : "Not listening for the wake word"); } }
   }
   return command;
 }
@@ -537,6 +541,8 @@ void loop() {
   } else if (millis() - lastAsk > 4000) {
     lastAsk = millis();
     String cmd = askWebsite();
+    if (!listenWanted && srOn) srPause();          // the panel turned listening off
+    if (listenWanted && !srOn) srResume();         // and back on
     if (cmd.length()) {
       Serial.printf("Pushed from the panel: %s\n", cmd.c_str());
       srPause();
@@ -549,6 +555,7 @@ void loop() {
     }
   }
   float level = (sinf(millis() / 1000.0f * 2.0f) + 1.0f) / 2.0f;
-  ringColor((uint8_t)(10 + 90 * level), 0, (uint8_t)(40 + 160 * level));
+  if (listenWanted || !srCan) ringColor((uint8_t)(10 + 90 * level), 0, (uint8_t)(40 + 160 * level));
+  else ringColor((uint8_t)(60 + 120 * level), (uint8_t)(20 + 50 * level), 0);   // amber: not listening
   delay(40);
 }
