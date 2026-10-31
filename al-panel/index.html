@@ -187,7 +187,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     <span class="mark">ETL</span>
     <span class="word">Emerging Technologies<br>Laboratory</span>
     <span class="palwrap"><button class="themebtn" id="palBtn" type="button">&#127912; Palette</button></span> <button class="themebtn" id="themeBtn" type="button" aria-label="Switch between light and dark">Dark mode</button>
-    <span class="status" id="status"><span class="dot"></span><span id="statusText">Demo mode, no Astra-9 Lite connected</span></span>
+    <span class="status" id="status"><span class="dot"></span><span id="statusText">Not connected</span></span>
   </header>
 
   <span class="tab">Astra-9 Lite, companion panel</span>
@@ -310,7 +310,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     <section class="card wide" id="talkCard">
       <h2>6. Talk to Astra-9 Lite</h2>
       <div class="twocol"><div>
-      <p class="hint" id="talkHint">Type a message. In demo mode the replies are examples.</p>
+      <p class="hint" id="talkHint">Not connected. Type a message and the replies are examples.</p>
       <div class="log" id="log" aria-live="polite"></div>
       <div class="row">
         <input type="text" id="say" placeholder="Say something to Astra-9 Lite" style="flex:1;min-width:180px">
@@ -656,6 +656,15 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       $('log').innerHTML = ''; j.log.forEach(function(m){ addMsg(m.who, m.text); });
     }).catch(function(){});
   }
+  // the robot this page is showing: its full name and its short name (Elle, Alice, Ted); robots.json fills it in when a robot is picked
+  function rbn(){ return window.ROBNAME || {full:'Astra-9 Lite', short:'Elle'}; }
+  function paintNames(){
+    var n = rbn();
+    $('statusText').textContent = live ? 'Connected to ' + n.full : 'Not connected';
+    $('talkHint').textContent = live ? 'Type a message. ' + n.full + ' answers out loud and here.' : 'Not connected. Type a message and the replies are examples.';
+    $('say').placeholder = 'Say something to ' + n.short;
+  }
+  window.rbPaint = function(){ paintNames(); };
   function setLive(on, info){
     live = on;
     $('demoNote').style.display = on ? 'none' : '';
@@ -666,8 +675,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     if(on){ fetch('/api/volume').then(function(r){return r.json();}).then(function(j){ if(j && j.volume!=null){ $('vol').value = j.volume; $('volText').textContent = j.volume + '%'; } }).catch(function(){}); }
     $('starters').style.display = on ? '' : 'none';   // her microphones are on the real Astra-9 Lite   // switching her off only makes sense on the real Astra-9 Lite   // the sample-data note is for the website, not for the real Astra-9 Lite
     $('status').className = 'status' + (on ? ' live' : '');
-    $('statusText').textContent = on ? 'Connected to Astra-9 Lite' : 'Demo mode, no Astra-9 Lite connected';
-    $('talkHint').textContent = on ? 'Type a message. Astra-9 Lite answers out loud and here.' : 'Type a message. In demo mode the replies are examples.';
+    paintNames();
     if(on && info && info.log && info.log.length){
       $('log').innerHTML = '';
       info.log.forEach(function(m){ addMsg(m.who, m.text); });
@@ -1392,7 +1400,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     if(live){ api('/api/welcome', w).catch(function(e){ addMsg('al', '(I could not save that choice: ' + e.message + ')'); }); }
   }
   function welcomeNow(){
-    if(!live){ addMsg('al', 'In demo mode I only say hello here. On Astra-9 Lite this also turns my head and brightens my eyes, as you chose.'); reply(SAMPLE[state.accent]); return; }
+    if(!live){ addMsg('al', 'Not connected, so I only say hello here. On ' + rbn().short + ' this also turns my head and brightens my eyes, as you chose.'); reply(SAMPLE[state.accent]); return; }
     api('/api/welcome/now').then(function(j){
       if(!j.did || !j.did.length){ addMsg('al', 'All three are switched off, so I did nothing.'); }
     }).catch(function(e){ addMsg('al', '(I could not welcome just now: ' + e.message + ')'); });
@@ -1517,7 +1525,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     b.addEventListener('click', function(){ $('say').value = b.getAttribute('data-q'); send(); });
   });
   $('sayAddress').addEventListener('click', function(){
-    if(!live){ addMsg('al', 'In demo mode I have no address of my own. Open this panel from Astra-9 Lite to use this button.'); return; }
+    if(!live){ addMsg('al', 'Not connected, so I have no address of my own. Open this panel from ' + rbn().short + ' to use this button.'); return; }
     api('/api/address').then(function(j){ addMsg('al', 'My address is ' + j.url + '. I am saying it out loud now.'); })
       .catch(function(e){ addMsg('al', '(I could not say my address: ' + e.message + ')'); });
   });
@@ -1675,7 +1683,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         btn.innerHTML = '';
         var d = el('span', 'rb-dot' + (up[r.id] ? ' up' : '')); btn.appendChild(d);
         var w = el('span'); w.appendChild(el('span', '', r.name)); w.appendChild(document.createElement('br'));
-        w.appendChild(el('span', 'rb-sub', (shownAddress(r) ? shownAddress(r) + ' · ' : '') + (up[r.id] ? (PUBLIC ? 'On now' : 'Connected') : 'Demo mode')));
+        w.appendChild(el('span', 'rb-sub', (shownAddress(r) ? shownAddress(r) + ' · ' : '') + (up[r.id] ? (PUBLIC ? 'On now' : 'Connected') : 'Not connected')));
         btn.appendChild(w); btn.appendChild(el('span', 'rb-sub', '▾'));
         menu.innerHTML = '';
         ROB.forEach(function(x){
@@ -1684,7 +1692,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           o.appendChild(el('span', 'rb-dot' + (up[x.id] ? ' up' : '')));
           var n = el('span', 'rb-name'); n.appendChild(el('span', '', x.name)); n.appendChild(document.createElement('br'));
           if(shownAddress(x)){ n.appendChild(el('span', 'rb-sub', shownAddress(x))); } o.appendChild(n);
-          o.appendChild(el('span', 'rb-chip' + (up[x.id] ? ' up' : ''), up[x.id] ? (PUBLIC ? 'On now' : 'Connected') : 'Demo mode'));
+          o.appendChild(el('span', 'rb-chip' + (up[x.id] ? ' up' : ''), up[x.id] ? (PUBLIC ? 'On now' : 'Connected') : 'Not connected'));
           o.addEventListener('click', function(){ choose(x.id); });
           menu.appendChild(o);
         });
@@ -1693,7 +1701,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         var isDemo = (r.id !== SELF);
         demo.textContent = (PUBLIC && up[r.id])
           ? r.name + ' is on right now. This page cannot control her, and nothing here is saved. This is how ' + r.name + '’s panel looks.'
-          : 'Demo mode. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
+          : 'Not connected. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
         demo.classList.toggle('show', isDemo);
         var g = document.querySelector('.grid');
         if(g){ g.classList.toggle('rb-look', isDemo); if(isDemo){ g.setAttribute('inert', ''); } else { g.removeAttribute('inert'); } }
@@ -1731,6 +1739,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         }
         styleTag('robotTheme').textContent = th;
         rename(r);
+        window.ROBNAME = {full: r.name, short: r.short || r.name};
+        if(window.rbPaint){ window.rbPaint(); }
         showPicture(r);
       }
       // a robot's own picture under the heading (A.L.I.C.E.'s stand-in until her real photo is done); hides itself if the file is missing

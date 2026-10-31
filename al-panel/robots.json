@@ -117,6 +117,25 @@
       "special": "neck servos on a lazy Susan bearing, head moves when he talks, eyes pulse, a collar. Camera, no HuskyLens."
     },
     {
+      "id": "astro",
+      "name": "Astro",
+      "short": "Teddy",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "child (little boy)",
+      "status": "planned",
+      "hide": [],
+      "character": {
+        "good_company_id": null,
+        "note": "Astra and Ted's little boy. Elle is his aunt (Astra's little sister) and ALICE is his honorary aunt. Dr. O, 2026-10-31: a boy because there are already so many females. Nothing else about him is decided yet."
+      },
+      "voice": {
+        "engine": null,
+        "name": null
+      },
+      "special": "not ordered yet. Body is likely a child-size mannequin with flexible head, arms and legs. Dr. O has smaller eye rings she may use (the eye code expects 16 lights per ring). Names to watch: Astro is in Elle's wake list and the Astrad alias list, and Teddy sounds like Ted. Dr. O: if it conflicts, pivot."
+    },
+    {
       "id": "guardian-f",
       "name": "Guardian F",
       "short": "Guardian F",
