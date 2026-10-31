@@ -1750,6 +1750,12 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         menu = el('div'); menu.id = 'robotMenu'; menu.setAttribute('role', 'listbox');
         addrBtn = el('button', '', 'Set address'); addrBtn.id = 'robotAddr'; addrBtn.type = 'button';
         bar.appendChild(btn); bar.appendChild(addrBtn); bar.appendChild(menu);
+        (roster.links || []).forEach(function(l){
+          if(!l || !/^https:\/\//.test(l.url || '')){ return; }
+          var a = el('a', 'rb-link', l.label || l.url); a.href = l.url; a.target = '_blank'; a.rel = 'noopener';
+          a.style.cssText = 'min-height:44px;display:inline-flex;align-items:center;padding:8px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--field);color:var(--ink);text-decoration:none';
+          bar.appendChild(a);
+        });
         var hdr = document.querySelector('header'); hdr.parentNode.insertBefore(bar, hdr.nextSibling);
         demo = el('div'); demo.id = 'robotDemo'; demo.setAttribute('role', 'status'); bar.parentNode.insertBefore(demo, bar.nextSibling);
         btn.addEventListener('click', function(e){ e.stopPropagation(); var o = menu.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); if(o){ probeAll(); } });
