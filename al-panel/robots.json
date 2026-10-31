@@ -147,8 +147,10 @@
         "note": "Astra and Ted's little boy. Elle is his aunt (Astra's little sister) and ALICE is his honorary aunt. Dr. O, 2026-10-31: a boy because there are already so many females. Nothing else about him is decided yet."
       },
       "voice": {
-        "engine": "ElevenLabs (Dr. O, 2026-10-31)",
-        "name": "voice id mrQhZWGbb2k9qWJb5qeA, given by Dr. O. Not heard or checked by Claude."
+        "engine": "Azure (Dr. O, 2026-10-31), for his live speech",
+        "name": "en-US-Tyler:DragonHDFlashLatestNeural, given by Dr. O. Not heard, and not checked against the Azure region by Claude.",
+        "alternative": "ElevenLabs voice id mrQhZWGbb2k9qWJb5qeA, also given by Dr. O. Not heard or checked by Claude.",
+        "note": "Dr. O's plan: Azure for live speech, paid from Azure credits she expects to keep renewing. His fixed lines (greetings, game cheers, invitations) are to be recorded once and replayed as files, so they cost nothing if credits ever lapse."
       },
       "look": "champagne finish, teal-green eyes, a black collar, a round camera ring at the neckline, a gray ETL T-shirt, khaki shorts, a teddy bear in his hand (from Dr. O's concept picture)",
       "picture": {
