@@ -66,13 +66,20 @@ static const sr_cmd_t sr_commands[] = {
 };
 volatile bool wokeUp = false;
 #define WAKE_WORD 1                      // 1 = listen for "Hi ESP", 0 = buttons only (a test: if her voice plays with 0, the wake word engine is the cause)
+String wakeBy = "hiesp";                 // what wakes the box, from the panel: "hiesp" or "name" (the companion's own name)
+String wakeName = "", wakePhoneme = "";   // her name and how the chip hears it, from the website
+String engineKey = "";                    // what the running engine was started with, so a change restarts it
+bool nameMode = false;                    // true while the engine listens for the name instead of Hi ESP
+static sr_cmd_t nameCmds[3];
 String duetState = "";                  // chat mode: a turn number when it is this box's turn, "wait", or empty
 uint32_t lastAsk = 0;                    // when the box last asked the website
 bool srOn = false;                        // true while the wake word engine is running
 bool srCan = false;                       // true when the model is on the board and WAKE_WORD is 1
 bool listenWanted = true;                 // the panel's Listening switch
+bool srRearm = false;                     // name mode: the chip's listening window ended, so start it again
 void onSrEvent(sr_event_t event, int command_id, int phrase_id) {
-  if (event == SR_EVENT_WAKEWORD) wokeUp = true;     // handled in loop(), not here
+  if (event == SR_EVENT_WAKEWORD || event == SR_EVENT_COMMAND) wokeUp = true;   // handled in loop(), not here
+  if (event == SR_EVENT_TIMEOUT) srRearm = true;
 }
 
 #ifndef BOX_NAME
@@ -407,7 +414,7 @@ void setup() {
   const esp_partition_t *model = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "model");
   bool w = false;
   if (model && WAKE_WORD) {
-    w = ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD);
+    w = engineStart();
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
@@ -419,6 +426,23 @@ void setup() {
 
 // The library's pause stops the engine only after its current read, and the engine sets the sound timeout to "forever".
 // The box crashed while playing her voice with it paused, so it is stopped and started again around each turn. The cause is not confirmed.
+// Starts the listening engine. In name mode it listens, on the chip, for her name ("Tansy", "Hey Tansy", "Hello Tansy") and nothing is sent anywhere until it hears it.
+// The sound spellings are hand-written and untried: if she does not answer to her name, switch the box back to Hi ESP on the panel.
+bool engineStart() {
+  bool useName = (wakeBy == "name" && wakePhoneme.length() > 0 && wakeName.length() > 0);
+  engineKey = wakeBy + "|" + wakeName + "|" + wakePhoneme;
+  if (useName) {
+    nameCmds[0].command_id = 1; strncpy(nameCmds[0].str, wakeName.c_str(), SR_CMD_STR_LEN_MAX - 1);                                   strncpy(nameCmds[0].phoneme, wakePhoneme.c_str(), SR_CMD_PHONEME_LEN_MAX - 1);
+    nameCmds[1].command_id = 2; strncpy(nameCmds[1].str, (String("Hey ") + wakeName).c_str(), SR_CMD_STR_LEN_MAX - 1);                strncpy(nameCmds[1].phoneme, (String("hd ") + wakePhoneme).c_str(), SR_CMD_PHONEME_LEN_MAX - 1);
+    nameCmds[2].command_id = 3; strncpy(nameCmds[2].str, (String("Hello ") + wakeName).c_str(), SR_CMD_STR_LEN_MAX - 1);              strncpy(nameCmds[2].phoneme, (String("hcLb ") + wakePhoneme).c_str(), SR_CMD_PHONEME_LEN_MAX - 1);
+    bool ok = ESP_SR.begin(i2s, nameCmds, 3, SR_CHANNELS_STEREO, SR_MODE_COMMAND);
+    nameMode = ok;
+    return ok;
+  }
+  nameMode = false;
+  return ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD);
+}
+
 void srPause() {
   if (!srOn) return;
   ESP_SR.end();                           // stopped completely, not just paused, so it cannot share the sound connection
@@ -428,7 +452,7 @@ void srPause() {
 }
 void srResume() {
   if (!srCan || !listenWanted || srOn || duetState.length()) return;
-  if (ESP_SR.begin(i2s, sr_commands, sizeof(sr_commands) / sizeof(sr_cmd_t), SR_CHANNELS_STEREO, SR_MODE_WAKEWORD)) { ESP_SR.onEvent(onSrEvent); srOn = true; }
+  if (engineStart()) { ESP_SR.onEvent(onSrEvent); srOn = true; }
   else { srCan = false; Serial.println("Wake word engine did not restart. The buttons still work."); }
 }
 
@@ -522,6 +546,9 @@ String askWebsite() {
     } else if (line.startsWith("second=")) secondKind = line.substring(7);
     else if (line.startsWith("command=")) command = line.substring(8);
     else if (line.startsWith("duet=")) duetState = line.substring(5);
+    else if (line.startsWith("wakeby=")) wakeBy = line.substring(7);
+    else if (line.startsWith("wakename=")) wakeName = line.substring(9);
+    else if (line.startsWith("wakephoneme=")) wakePhoneme = line.substring(12);
     else if (line.startsWith("listen=")) { bool on = line.substring(7) != "off"; if (on != listenWanted) { listenWanted = on; Serial.println(on ? "Listening for the wake word" : "Not listening for the wake word"); } }
   }
   return command;
@@ -553,6 +580,7 @@ void conversation() {
 }
 
 void loop() {
+  if (srRearm && srOn && nameMode) { srRearm = false; ESP_SR.setMode(SR_MODE_COMMAND); }
   uint8_t keys = keysPressed();
   if (wokeUp && !keys) {
     wokeUp = false;
@@ -586,6 +614,7 @@ void loop() {
   } else if (millis() - lastAsk > (duetState.length() ? 1500UL : 4000UL)) {
     lastAsk = millis();
     String cmd = askWebsite();
+    if (srOn && engineKey != (wakeBy + "|" + wakeName + "|" + wakePhoneme)) { srPause(); srResume(); }   // the panel changed how the box is woken, or who is in it
     if (!listenWanted && srOn) srPause();          // the panel turned listening off
     if (listenWanted && !srOn && !duetState.length()) srResume();   // and back on, but not during chat mode
     if (duetState.length() && srOn) srPause();     // the other box's voice must not wake this one

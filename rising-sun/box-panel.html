@@ -88,6 +88,8 @@
     <h2>Listening</h2>
     <button id="bListen" type="button" class="quiet"></button>
     <p class="note" id="listenNote"></p>
+    <button id="bWakeBy" type="button" class="quiet"></button>
+    <p class="note" id="wakeNote"></p>
   </section>
 
   <section id="batt" class="hidden">
@@ -135,6 +137,10 @@
     $('batt').classList.remove('hidden');
     $('listenCard').classList.remove('hidden');
     $('duetCard').classList.remove('hidden');
+    var cc = current();
+    $('bWakeBy').textContent = data.wakeBy === 'name' ? 'Woken by her name: switch to Hi ESP' : 'Woken by Hi ESP: switch to ' + cc.display + "'s name";
+    $('bWakeBy').disabled = !(cc && cc.wake) && data.wakeBy !== 'name';
+    $('wakeNote').textContent = data.wakeBy === 'name' ? 'Say her name, or Hey / Hello and her name. The board listens for it itself, so nothing is sent anywhere until it hears it. Not tried yet: if she does not answer, switch back to Hi ESP.' : 'Say Hi ESP to start. Switching to her name is a trial: the board has to be taught how her name sounds.';
     ['duetA', 'duetB'].forEach(function (id, i) {
       var sel = $(id), keep = sel.value; sel.innerHTML = '';
       (data.boxes || []).forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
@@ -186,6 +192,13 @@
     call('POST', { action: 'set_companion', companion: id }).then(function (r) {
       if (r.status === 200) { data.companion = id; draw(); say('The box will switch to ' + current().display + ' in a few seconds.', 'ok'); }
       else say('Could not change the companion.', 'bad');
+    }).catch(function () { say('Could not reach the website.', 'bad'); });
+  });
+  $('bWakeBy').addEventListener('click', function () {
+    var by = data.wakeBy === 'name' ? 'hiesp' : 'name';
+    call('POST', { action: 'set_wake_by', by: by }).then(function (r) {
+      if (r.status === 200) { data.wakeBy = by; draw(); say('The box will change how it is woken in a few seconds.', 'ok'); }
+      else say('Could not change that.', 'bad');
     }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
   $('bListen').addEventListener('click', function () {

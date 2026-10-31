@@ -56,3 +56,9 @@ Checked: the website side with stand-ins (`node tests/box-duet.test.js`) and the
 ## Talking without saying the wake word every time (2026-10-31)
 
 Dr. O: "I have to say Hi ESP before I say each sentence, this is not efficient." Now the wake word starts a conversation. After each answer the box listens for the next sentence for eight seconds. After eight quiet seconds, or ten turns, it goes back to waiting for the wake word. The panel's Chat button does the same. The hold-to-talk lid button is still one sentence per press. Compiles; NOT tried on the board. The eight seconds and the ten turns are guesses to adjust once she has tried it (`FOLLOW_UP_WAIT_MS` and `FOLLOW_UPS`).
+
+## Waking the box by the companion's name (2026-10-31)
+
+Dr. O: "give the companion box the voice recognition for the companions the robots have", then "the first one, name of whoever is in the box". The robots wake when they hear their own name (it is picked out of what speech to text writes, with its common misspellings). The box does it differently so no sound leaves the box until the name is heard: the chip's command mode listens for the name itself ("Tansy", "Hey Tansy", "Hello Tansy"), with no wake word. In `box-lines.json` each companion has a `wake` entry: her name and `phoneme`, how the chip hears it. The panel's Listening card switches a box between Hi ESP (the default) and the companion's name. The chip's own library code was read to confirm command mode runs without a wake word.
+
+NOT tried. The sound spellings were written by hand from standard pronunciations and the examples in the library's header, not made with Espressif's tool, so the chip may not recognise a name until its spelling is adjusted. If she does not answer to her name, switch the box back to Hi ESP on the panel. Other things to watch: whether the chip hears the name from across a room, and whether ordinary talk sets it off by mistake.

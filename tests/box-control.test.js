@@ -8,7 +8,7 @@ const real = require('../rising-sun/box-lines.json');
   const cfg = async () => ({ sun_key_hash: gc.hash(KEY) });
   const mem = () => { const m = new Map(); return { get: async (k) => (m.has(k) ? m.get(k) : null), setJSON: async (k, v) => { m.set(k, JSON.parse(JSON.stringify(v))); } }; };
   const lines = { companions: {
-    tansy: { display: 'Tansy', face: '/rising-sun/box-faces/tansy_v1.jpg', voiceId: 'x', second: { label: 'Story time', kind: 'story' }, lines: { 'hs-a': 'a' }, scenes: { rain: { sound: 'rain' } } },
+    tansy: { display: 'Tansy', wake: { name: 'Tansy', phoneme: 'TaNZm' }, face: '/rising-sun/box-faces/tansy_v1.jpg', voiceId: 'x', second: { label: 'Story time', kind: 'story' }, lines: { 'hs-a': 'a' }, scenes: { rain: { sound: 'rain' } } },
     meera: { display: 'Meera', voiceId: 'y', second: { label: 'Breathing', kind: 'starter', id: 'breathing' }, starters: { breathing: 'breathe' }, lines: {}, scenes: { rain: { sound: 'rain' } } },
     reggie: { display: 'Reggie', voiceId: 'z', second: { label: 'Story time', kind: 'story' }, lines: {}, scenes: { rain: { sound: 'rain' } } },
     marcus: { display: 'Marcus', voiceId: 'w', second: null, lines: {}, scenes: { rain: { sound: 'rain' } } },
@@ -78,6 +78,15 @@ const real = require('../rising-sun/box-lines.json');
   assert.strictEqual(await stateNow(), 'full');
   assert.ok(_test.batteryPercent(4200) === 100 && _test.batteryPercent(3300) === 0);
 
+  // what wakes the box: Hi ESP until the panel says the companion's name, and the name comes with the sound spelling for the chip
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'wake' }), d)).body.includes('wakeby=hiesp\n'));
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_wake_by', by: 'shout', box: 'wake' }), d)).statusCode, 400);
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_wake_by', by: 'name', box: 'wake' }), d)).statusCode, 200);
+  const wk = (await handler(ev('GET', KEY, { box: '1', id: 'wake' }), d)).body;
+  assert.ok(wk.includes('wakeby=name\n') && wk.includes('wakename=Tansy\n') && wk.includes('wakephoneme=TaNZm\n'));
+  await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera', box: 'wake' }), d);
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'wake' }), d)).body.includes('wakeby=name\n'), 'changing the companion keeps how the box is woken');
+
   // choosing a companion; an unknown one is refused
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'nobody' }), d)).statusCode, 404);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera' }), d)).statusCode, 200);
@@ -107,6 +116,13 @@ const real = require('../rising-sun/box-lines.json');
     assert.ok(c.lines && c.lines.didnt_hear && c.lines.too_many, id + ' has didnt_hear and too_many');
     assert.ok(_test.describe(id, c).chat);
     if (c.face) assert.ok(require('fs').existsSync(require('path').join(__dirname, '..', c.face)), id + ' face file exists');
+  }
+  // every sound spelling uses only letters the chip's sound alphabet has (from Espressif's own table)
+  const ALPHABET = new Set('aNbVcLFdSBReDfgGhKWiTMZjkPlmnYopqrstuvw'.split(''));
+  for (const [id, c] of Object.entries(real.companions)) {
+    if (!c.wake) continue;
+    assert.ok(c.wake.name && c.wake.phoneme && c.wake.phoneme.length <= 40, id + ' wake has a name and a short phoneme');
+    for (const ch of c.wake.phoneme.replace(/ /g, '')) assert.ok(ALPHABET.has(ch), id + ' phoneme letter ' + ch + ' is in the chip alphabet');
   }
   const text = JSON.stringify(real);
   assert.ok(!/[–—]/.test(text), 'no long dashes in the file');
