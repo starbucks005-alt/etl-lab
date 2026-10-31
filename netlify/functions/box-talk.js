@@ -21,6 +21,8 @@ try { BIBLE = require('./_fairy-bible.js'); } catch (_) {}
 
 let ROSTER = [];
 try { const r = require('../../roster.json'); ROSTER = Array.isArray(r) ? r : Object.values(r).find(Array.isArray) || []; } catch (_) {}
+let PERSONAS = {};
+try { PERSONAS = require('../../rising-sun/personas.json'); } catch (_) {}
 let FILE = {};
 try { FILE = require('../../rising-sun/box-lines.json'); } catch (_) {}
 
@@ -42,6 +44,19 @@ function writtenLife(name, rosterName) {
   return { fairy: !rosterName, role: str(a.role, 160), background: str(a.background, 500), name: String(a.name).split(',')[0], tagline: str(a.tagline, 300), bio: str(a.bio, 700), interests: Array.isArray(a.interests) ? a.interests.map((i) => str(i, 300)).filter(Boolean) : [] };
 }
 
+/* The Rising Sun Court as Dr. O wrote it in rising-sun/personas.json: the members with their titles, the gifts, the friendships, the motto and her note on the two courts.
+   Nothing here is added by hand. A fairy of the court knows it; a companion who is not a fairy is not given it. */
+function courtText() {
+  const c = PERSONAS.court;
+  if (!c || !c.name) return '';
+  const members = ['blue', 'poppy', 'tansy', 'ash', 'velvet', 'ember', 'flint']
+    .filter((k) => PERSONAS[k] && PERSONAS[k].name)
+    .map((k) => PERSONAS[k].name + (PERSONAS[k].title ? ' (' + PERSONAS[k].title + ')' : ''));
+  return 'THE FAIRIES YOU KNOW, AS WRITTEN. ' + c.name + (c.motto ? ', motto: ' + c.motto.replace(/\.+$/, '') : '') + '. Its members: ' + members.join(', ') + '. ' +
+    (c.gifts ? c.gifts + ' ' : '') + (Array.isArray(c.friendships) ? c.friendships.join(' ') + ' ' : '') + (c.note ? c.note.replace(/,? and the Rising Sun is the product line\.?/i, '.') + ' ' : '') +
+    'You know these fairies as your own court. Say only what is written here about them; for anything else about them say you do not know that one. ';
+}
+
 function systemPrompt(p, role) {
   if (!p.fairy) {
     return 'You are ' + p.name + (role ? ', ' + role : '') + ', speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
@@ -54,6 +69,7 @@ function systemPrompt(p, role) {
   return 'You are ' + p.name + ', a fairy, speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
     'If anyone sincerely asks whether you are a real person, say no, in your own way. ' +
     'What is written about you, and all of it: ' + p.tagline + ' ' + p.bio + ' Your interests: ' + p.interests.join('; ') + '. ' +
+    courtText() +
     (BIBLE.CANON ? 'THE CANON YOU MUST FOLLOW EXACTLY, adding nothing that contradicts it: ' + BIBLE.CANON + ' ' : '') +
     (BIBLE.VOICES && BIBLE.VOICES.tansy && /tansy/i.test(p.name) ? 'HOW YOU SPEAK ABOUT IT: ' + BIBLE.VOICES.tansy + ' ' : '') +
     'If you are asked anything about your life, family or past that is not in that, say you do not know that one, and never make a detail up. ' +

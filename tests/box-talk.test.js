@@ -79,6 +79,15 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.strictEqual(t, 'Hello there.');
   await assert.rejects(() => _test.listen(Buffer.alloc(32000), { env: {} }), /no_eleven_key/);
 
+  // she knows the Rising Sun Court as written, and only that
+  const tansyPrompt = _test.systemPrompt(life);
+  assert.ok(/Ember \(Keeper of First Light\)/.test(tansyPrompt) && /No one greets the morning alone/.test(tansyPrompt), 'Tansy is given the court from personas.json');
+  assert.ok(/Flint teases Tansy/.test(tansyPrompt) && /smaller court/.test(tansyPrompt));
+  assert.ok(/say you do not know that one/.test(tansyPrompt));
+  assert.ok(!/product line/.test(tansyPrompt) && !/\.\./.test(tansyPrompt.slice(tansyPrompt.indexOf('THE FAIRIES YOU KNOW'), tansyPrompt.indexOf('THE CANON'))), 'a business note is not given to her, and no stray full stops');
+  assert.ok(!/Rising Sun Court/.test(_test.systemPrompt({ fairy: false, name: 'Meera', tagline: 't', bio: 'b', interests: [], background: '' }, 'a yoga teacher')), 'a companion who is not a fairy is not given the court');
+  assert.ok(!/[\u2013\u2014]/.test(tansyPrompt), 'no long dashes in what she is told');
+
   // Meera: her own written life, and her Breathing starter spoken once, then kept
   const mlife = _test.writtenLife('meera', 'Meera Kapoor');
   assert.ok(mlife && !mlife.fairy && /litigator/.test(mlife.bio), 'her life comes from roster.json and she is not written as a fairy');
