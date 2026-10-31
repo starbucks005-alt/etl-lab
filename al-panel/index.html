@@ -94,6 +94,21 @@
   .bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
   .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
 
+  /* Astro's playroom: big buttons and big pictures for a three-year-old and a grown-up (Dr. O, 2026-10-31) */
+  .kidtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:14px 0}
+  .kidbtn{font-family:var(--body);font-size:30px;font-weight:700;min-height:130px;border-radius:20px;border:3px solid var(--line2);background:var(--field);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-decoration:none;padding:12px;text-align:center}
+  .kidbtn:focus-visible{outline:4px solid var(--status);outline-offset:3px}
+  .kidbtn svg{width:72px;height:72px}
+  .kidsay{font-family:var(--display);font-size:34px;line-height:1.2;color:var(--ink);margin:10px 0 4px;min-height:42px}
+  .box1{background:#f2b8a8;border-color:#c97a65;color:#3b1d14}
+  .box2{background:#a9c9ea;border-color:#6f97c0;color:#14283b}
+  .box3{background:#f3dc8c;border-color:#c4a746;color:#3a300e}
+  .kidbtn.opened{opacity:.55;cursor:default}
+  .kidpic{display:inline-flex;font-size:56px;line-height:1}
+  .kidpic svg{width:72px;height:72px}
+  .kiddot{display:block;width:84px;height:84px;border-radius:50%}
+  .kidrow{grid-column:1/-1;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:4px 0}
+  .kidlbl{font-size:40px}
   /* hero picture */
   .demo{font-size:13px;color:var(--mute);margin:-4px 0 16px;max-width:760px}
   .hero{margin:6px 0 22px;max-width:760px}
@@ -305,6 +320,98 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       </div>
       <p class="hint" id="mainHint" style="margin:6px 0 0;display:none">Installing a personality is for now. Her main personality is the one she comes back to after she is switched off and on, or after Reset.</p>
     </section>
+
+    <!-- PLAYROOM, added 2026-10-31, Dr. O: Astro is a three-year-old, so his panel has big buttons and big pictures. Shown for Astro only (see applyLook). Every game runs in this page, so it works when no robot is connected and costs nothing. -->
+    <section class="card wide" id="playCard" style="display:none">
+      <h2>Playroom</h2>
+      <p class="kidsay" id="kidSay" role="status" aria-live="polite">What shall we play?</p>
+      <div class="kidtiles" id="kidMenu">
+        <button type="button" class="kidbtn" data-game="bear"><span class="kidpic"><svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="#b9763a"/><circle cx="56" cy="16" r="10" fill="#b9763a"/><circle cx="36" cy="38" r="26" fill="#c98a4b"/><circle cx="36" cy="46" r="11" fill="#e8c697"/><circle cx="26" cy="32" r="3.5" fill="#2b1b10"/><circle cx="46" cy="32" r="3.5" fill="#2b1b10"/><ellipse cx="36" cy="42" rx="4.5" ry="3.2" fill="#2b1b10"/></svg></span>Where is my bear?</button>
+        <button type="button" class="kidbtn" data-game="match"><span class="kidpic">&#127183;</span>Match them</button>
+        <button type="button" class="kidbtn" data-game="colors"><span class="kidpic">&#127752;</span>Colors</button>
+        <button type="button" class="kidbtn" data-game="count"><span class="kidpic">&#128290;</span>Count</button>
+        <button type="button" class="kidbtn" data-game="animals"><span class="kidpic">&#128003;</span>Animal sounds</button>
+        <button type="button" class="kidbtn" data-game="peek"><span class="kidpic">&#128584;</span>Peekaboo</button>
+        <a class="kidbtn" href="https://emerging-tech-lab.com/good-company/stories.html" target="_blank" rel="noopener"><span class="kidpic">&#128214;</span>Stories</a>
+      </div>
+      <div class="kidtiles" id="kidStage" style="display:none"></div>
+      <div class="kidtiles" id="kidNav" style="display:none">
+        <button type="button" class="kidbtn" id="kidAgain">Again</button>
+        <button type="button" class="kidbtn" id="kidBack">More games</button>
+      </div>
+    </section>
+    <script>
+    (function(){
+      var BEAR = '<svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="#b9763a"/><circle cx="56" cy="16" r="10" fill="#b9763a"/><circle cx="36" cy="38" r="26" fill="#c98a4b"/><circle cx="36" cy="46" r="11" fill="#e8c697"/><circle cx="26" cy="32" r="3.5" fill="#2b1b10"/><circle cx="46" cy="32" r="3.5" fill="#2b1b10"/><ellipse cx="36" cy="42" rx="4.5" ry="3.2" fill="#2b1b10"/></svg>';
+      var say = document.getElementById('kidSay'), menu = document.getElementById('kidMenu'), stage = document.getElementById('kidStage'), nav = document.getElementById('kidNav');
+      var cur = null, locked = false, timer = null;
+      function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+      function shuffle(a){ a = a.slice(); for(var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+      function btn(html, cls, fn){ var b = document.createElement('button'); b.type = 'button'; b.className = 'kidbtn' + (cls ? ' ' + cls : ''); b.innerHTML = html; b.addEventListener('click', function(){ if(!locked && !b.classList.contains('opened')){ fn(b); } }); stage.appendChild(b); return b; }
+      function clearStage(){ if(timer){ clearTimeout(timer); timer = null; } stage.innerHTML = ''; locked = false; }
+      function wrong(b){ b.classList.add('opened'); }
+
+      var G = {};
+      G.bear = function(){
+        say.textContent = 'Where is my bear? Tap a box!';
+        var hide = Math.floor(Math.random() * 3), cls = ['box1', 'box2', 'box3'];
+        for(var i = 0; i < 3; i++){ (function(n){ btn('<span class="kidlbl">' + (n + 1) + '</span>', cls[n], function(b){
+          if(n === hide){ b.innerHTML = BEAR; say.textContent = 'You found my bear! Yay!'; locked = true; }
+          else { wrong(b); b.innerHTML = '<span class="kidlbl">Empty</span>'; say.textContent = 'Not here. Try again!'; } }); })(i); }
+      };
+      G.colors = function(){
+        var C = [['red', '#e04b4b'], ['blue', '#3b78d8'], ['yellow', '#f2c230'], ['green', '#3fa85a'], ['orange', '#f08a24'], ['purple', '#8a5cc8']];
+        var set = shuffle(C).slice(0, 3), want = pick(set);
+        say.textContent = 'Can you find something ' + want[0] + '?';
+        set.forEach(function(c){ btn('<span class="kiddot" style="background:' + c[1] + '"></span>', '', function(b){
+          if(c === want){ say.textContent = 'Yes! That is ' + c[0] + '! Yay!'; locked = true; }
+          else { wrong(b); say.textContent = 'That is ' + c[0] + '. Try again!'; } }); });
+      };
+      G.count = function(){
+        var n = 1 + Math.floor(Math.random() * 5), opts = [n];
+        while(opts.length < 3){ var x = 1 + Math.floor(Math.random() * 5); if(opts.indexOf(x) < 0){ opts.push(x); } }
+        say.textContent = 'How many bears?';
+        var row = ''; for(var k = 0; k < n; k++){ row += '<span class="kidpic">' + BEAR + '</span>'; }
+        var show = document.createElement('div'); show.className = 'kidrow'; show.innerHTML = row; stage.appendChild(show);
+        shuffle(opts).forEach(function(o){ btn(String(o), '', function(b){
+          if(o === n){ say.textContent = 'Yes! ' + n + (n === 1 ? ' bear' : ' bears') + '! Yay!'; locked = true; }
+          else { wrong(b); say.textContent = 'Let us count again. Try again!'; } }); });
+      };
+      G.animals = function(){
+        var A = [['&#128004;', 'cow', 'Moo'], ['&#128021;', 'dog', 'Woof'], ['&#128008;', 'cat', 'Meow'], ['&#128017;', 'sheep', 'Baa'], ['&#129414;', 'duck', 'Quack'], ['&#128055;', 'pig', 'Oink']];
+        var set = shuffle(A).slice(0, 3), want = pick(set);
+        say.textContent = 'What does the ' + want[1] + ' say?';
+        var show = document.createElement('div'); show.className = 'kidrow'; show.innerHTML = '<span class="kidpic" style="font-size:96px">' + want[0] + '</span>'; stage.appendChild(show);
+        set.forEach(function(a){ btn(a[2], '', function(b){
+          if(a === want){ say.textContent = a[2] + '! Yes! The ' + a[1] + ' says ' + a[2].toLowerCase() + '!'; locked = true; }
+          else { wrong(b); say.textContent = 'Hmm, that is the ' + a[1] + ' sound. Try again!'; } }); });
+      };
+      G.match = function(){
+        var F = ['&#128059;', '&#128663;', '&#127822;', '&#11088;', '&#128031;', '&#127880;'];
+        var faces = shuffle(F).slice(0, 3); var deck = shuffle(faces.concat(faces));
+        say.textContent = 'Find two that match!';
+        var first = null, matched = 0;
+        deck.forEach(function(f){ btn('<span class="kidlbl">?</span>', '', function(b){
+          if(b === first){ return; }
+          b.innerHTML = '<span class="kidpic" style="font-size:80px">' + f + '</span>'; b.classList.add('opened'); b.setAttribute('data-f', f);
+          if(!first){ first = b; return; }
+          if(first.getAttribute('data-f') === f){ matched++; first = null; say.textContent = matched === 3 ? 'You matched them all! Yay!' : 'A match! Find two more!'; if(matched === 3){ locked = true; } }
+          else { var a = first, c = b; first = null; locked = true; say.textContent = 'Not a match. Try again!';
+            timer = setTimeout(function(){ a.innerHTML = '<span class="kidlbl">?</span>'; a.classList.remove('opened'); c.innerHTML = '<span class="kidlbl">?</span>'; c.classList.remove('opened'); locked = false; }, 1300); }
+        }); });
+      };
+      G.peek = function(){
+        say.textContent = 'Where is Astro? Tap to look!';
+        btn('<span class="kidpic" style="font-size:110px">&#128584;</span>', '', function(b){ b.innerHTML = '<span class="kidpic" style="font-size:110px">&#128516;</span>'; say.textContent = 'Peekaboo! I see you!'; locked = true; });
+      };
+
+      function start(name){ cur = name; clearStage(); menu.style.display = 'none'; stage.style.display = ''; nav.style.display = ''; G[name](); }
+      var tiles = menu.querySelectorAll('[data-game]');
+      for(var i = 0; i < tiles.length; i++){ tiles[i].addEventListener('click', function(){ start(this.getAttribute('data-game')); }); }
+      document.getElementById('kidAgain').addEventListener('click', function(){ if(cur){ start(cur); } });
+      document.getElementById('kidBack').addEventListener('click', function(){ clearStage(); cur = null; stage.style.display = 'none'; nav.style.display = 'none'; menu.style.display = ''; say.textContent = 'What shall we play?'; });
+    })();
+    </script>
 
     <!-- 6. TALK -->
     <section class="card wide" id="talkCard">
@@ -1742,6 +1849,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         window.ROBNAME = {full: r.name, short: r.short || r.name};
         if(window.rbPaint){ window.rbPaint(); }
         showPicture(r);
+        var pc = document.getElementById('playCard'); if(pc){ pc.style.display = (r.id === 'astro') ? '' : 'none'; }
       }
       // a robot's own picture under the heading (A.L.I.C.E.'s stand-in until her real photo is done); hides itself if the file is missing
       function showPicture(r){
