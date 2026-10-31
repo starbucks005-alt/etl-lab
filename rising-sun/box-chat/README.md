@@ -42,3 +42,7 @@ Checked: the website functions and the panel page against stand-ins, and the ske
 ## Verified on the board (2026-10-30)
 
 Dr. O heard Tansy answer out loud from the box. Before that the board restarted at the moment her reply should start. A decoded backtrace put the stop inside the ring light library's lock, in the green ring command at the start of her reply. The ring is now written directly in `ringColor`. Why that lock timed out is not known. Not yet tried on the board: the wake word with the fix, Story time, Gardenscape, Meera's Breathing, and the panel buttons.
+
+## Charging and programming port (2026-10-31)
+
+Dr. O has a panel-mount USB-C extension cable (QINJOOELC, USB C 3.0, male to female, threaded, with a rubber cap). From its listing: cut a **21.5 mm hole**, panel thickness **8 mm or less**, it comes with its own nut, it carries data (5 Gbps, backwards compatible with USB 2.0) and charges at 5V 2A. The plug end goes into the audio board's USB-C port inside the box, so the battery can be charged, and sketches uploaded, from outside. If an upload fails through it, try plugging straight into the board once, to tell a cable problem from a board problem. Not tried yet. The box wall thickness and the lead length against the distance to the board's port are not measured.
