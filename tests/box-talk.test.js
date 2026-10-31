@@ -80,9 +80,10 @@ const gc = require('../netlify/functions/_gc-config.js');
   await assert.rejects(() => _test.listen(Buffer.alloc(32000), { env: {} }), /no_eleven_key/);
 
   // she knows the Rising Sun Court as written, and only that
-  const tansyPrompt = _test.systemPrompt(Object.assign({}, life, { courtNotes: ['The Radiant Court is the high court. The Rising Sun Court is the lower court, with just the seven.', 'You think Ash is a she.'] }));
+  const tansyPrompt = _test.systemPrompt(Object.assign({}, life, { courtNotes: ['The Radiant Court is the high court. The Rising Sun Court is the lower court, with just the seven.', 'You think Ash is a she. Flint is a he. Ember and Velvet are both she.'] }));
   assert.ok(/Ember \(Keeper of First Light\)/.test(tansyPrompt) && /No one greets the morning alone/.test(tansyPrompt), 'Tansy is given the court from personas.json');
-  assert.ok(/Flint teases Tansy/.test(tansyPrompt) && /Radiant Court is the high court/.test(tansyPrompt) && /lower court, with just the seven/.test(tansyPrompt) && /Ash is a she/.test(tansyPrompt));
+  assert.ok(/Flint teases Tansy/.test(tansyPrompt) && /Radiant Court is the high court/.test(tansyPrompt) && /lower court, with just the seven/.test(tansyPrompt) && /Ash is a she/.test(tansyPrompt) && /Flint is a he/.test(tansyPrompt) && /Ember and Velvet are both she/.test(tansyPrompt));
+  assert.ok(!/Ash is a (he|male)/i.test(tansyPrompt), 'she is not told what she is wrong about');
   assert.ok(!/smaller court/.test(tansyPrompt), 'her own words replace the older note');
   assert.ok(/smaller court/.test(_test.systemPrompt(life)), 'with no notes the written note from personas.json is used');
   assert.ok(/say you do not know that one/.test(tansyPrompt));
