@@ -401,11 +401,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       box.appendChild(su);
       if (s.blurb) { var bl = document.createElement('p'); bl.className = 'blurb'; bl.textContent = s.blurb; box.appendChild(bl); }
       s.episodes.forEach(function (e) {
-        var b = document.createElement('button'); b.type = 'button'; b.className = 'ep' + (e.n === s.on ? ' on' : '');
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'ep' + (e.n === s.on && (s.setUp || s.on !== s.episodes[0].n) ? ' on' : '');
         var n = document.createElement('span'); n.className = 'n'; n.textContent = e.n;
         var tt = document.createElement('span'); tt.className = 't'; tt.textContent = e.title;
         var sm = document.createElement('small'); sm.textContent = (e.minutes ? e.minutes + ' min, ' : '') + (e.ready ? 'recorded' : 'recording soon'); tt.appendChild(sm);
-        var ch = document.createElement('span'); ch.className = 'chip'; ch.textContent = e.n === s.on ? 'You are here' : (e.n < s.on ? 'Heard' : 'Next');
+        var ch = document.createElement('span'); ch.className = 'chip'; var untouched = !s.setUp && s.on === s.episodes[0].n;       // a series nobody has started: the first episode is only where it would begin, not where you are
+        ch.textContent = untouched ? (e.n === s.on ? 'Start here' : '') : (e.n === s.on ? 'You are here' : (e.n < s.on ? 'Heard' : 'Next'));
+        if (!ch.textContent) ch.classList.add('hidden');
         b.appendChild(n); b.appendChild(tt); b.appendChild(ch);
         if (RECORDABLE[s.id]) {
           var rid = s.id + '/' + e.id, have = recorded[rid], run = recording[rid];
