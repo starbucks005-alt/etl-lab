@@ -320,6 +320,19 @@ size_t fetchGarden(const String &scene) {
   }
   http.end();
   Serial.printf("Got %u bytes (about %.1f seconds)\n", (unsigned)have, have / 32000.0f);
+  // A loop must start and end on sound. Any near-silence at either end is cut off, so there is no gap where it starts over.
+  size_t samples = have / 2;
+  int16_t *pcm = (int16_t *)gardenBuf;
+  const int QUIET = 300;                            // about one percent of the loudest possible sound
+  size_t first = 0, last = samples;
+  while (first < samples && abs(pcm[first]) < QUIET) first++;
+  while (last > first && abs(pcm[last - 1]) < QUIET) last--;
+  if (last > first && (first > 0 || last < samples)) {
+    Serial.printf("Trimmed %.2f seconds of silence from the start and %.2f seconds from the end\n", first / 16000.0f, (samples - last) / 16000.0f);
+    if (first > 0) memmove(gardenBuf, gardenBuf + first * 2, (last - first) * 2);
+    have = (last - first) * 2;
+  }
+  Serial.printf("The loop is %.1f seconds long\n", have / 32000.0f);
   return have;
 }
 
@@ -469,7 +482,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01b (wake retries, panel Stop and Volume, stop check in the background), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01c (wake retries, panel Stop and Volume, background stop check, soundscape silence trimmed), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
