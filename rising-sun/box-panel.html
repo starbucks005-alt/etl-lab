@@ -145,6 +145,11 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   .chip.act{cursor:pointer;color:var(--ink);border-color:var(--accent)}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
   .two>div{min-width:0}
+  .boxbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:12px 20px}
+  .boxbar h2{margin:0;font-size:20px}
+  .boxbar select{width:auto;min-width:160px;flex:none}
+  .boxbar details{flex:1;min-width:220px}
+  .boxbar summary{cursor:pointer;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -165,6 +170,17 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   </section>
 
   <div class="grid hidden" id="main">
+    <section class="card wide boxbar" id="boxCard">
+      <h2>Which box</h2>
+      <select id="boxSel" aria-label="Box"></select>
+      <details>
+        <summary>Add another box</summary>
+        <label for="boxNew">A short name, like kitchen or desk</label>
+        <div class="row"><input id="boxNew" type="text" maxlength="20" autocomplete="off"><button id="boxAdd" type="button">Add this box</button></div>
+        <p class="note">Each box has its own name and its own companion. The box has its name in its code (BOX_NAME in secrets.h).</p>
+      </details>
+    </section>
+
     <section class="card" id="nowCard">
       <div class="nowbox">
         <div class="portrait"><img id="face" alt="" src=""></div>
@@ -199,6 +215,26 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <p class="note" id="duetState"></p>
     </section>
 
+    <section class="card" id="listenCard">
+      <h2>Listening</h2>
+      <div class="row"><button id="bListen" type="button"></button></div>
+      <p class="note" id="listenNote"></p>
+      <div class="row"><button id="bWakeBy" type="button"></button></div>
+      <p class="note" id="wakeNote"></p>
+    </section>
+    <section class="card" id="volCard">
+      <h2>Volume</h2>
+      <p class="bigline" id="volLine"></p>
+      <div class="row"><button id="bVolDown" type="button">Quieter</button><button id="bVolUp" type="button">Louder</button></div>
+      <p class="note">Each press changes it by 5. If her voice crackles like static, try a lower number.</p>
+    </section>
+    <section class="card" id="batt">
+      <h2>Battery</h2>
+      <p class="bigline" id="battBig"></p>
+      <p class="note" id="battLine"></p>
+      <p class="note">Both the percentage and the charging line are estimates from the battery voltage. The charge light on the board is the sure sign.</p>
+    </section>
+
     <section class="card wide" id="tilesCard">
       <h2>Music and Soundscape</h2>
       <p class="hint">Tap one to play it. A picture of the vibe appears here.</p>
@@ -219,36 +255,9 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     </section>
 
 
-    <section class="card" id="listenCard">
-      <h2>Listening</h2>
-      <div class="row"><button id="bListen" type="button"></button></div>
-      <p class="note" id="listenNote"></p>
-      <div class="row"><button id="bWakeBy" type="button"></button></div>
-      <p class="note" id="wakeNote"></p>
-    </section>
 
-    <section class="card" id="volCard">
-      <h2>Volume</h2>
-      <p class="bigline" id="volLine"></p>
-      <div class="row"><button id="bVolDown" type="button">Quieter</button><button id="bVolUp" type="button">Louder</button></div>
-      <p class="note">Each press changes it by 5. If her voice crackles like static, try a lower number.</p>
-    </section>
 
-    <section class="card" id="batt">
-      <h2>Battery</h2>
-      <p class="bigline" id="battBig"></p>
-      <p class="note" id="battLine"></p>
-      <p class="note">Both the percentage and the charging line are estimates from the battery voltage. The charge light on the board is the sure sign.</p>
-    </section>
 
-    <section class="card" id="boxCard">
-      <h2>Which box</h2>
-      <label for="boxSel">Box</label><select id="boxSel"></select>
-      <label for="boxNew">Add another box (a short name, like kitchen or desk)</label>
-      <input id="boxNew" type="text" maxlength="20" autocomplete="off">
-      <div class="row"><button id="boxAdd" type="button">Add this box</button></div>
-      <p class="note">Each box has its own name and its own companion. The box has its name in its code (BOX_NAME in secrets.h).</p>
-    </section>
   </div>
 
   <div id="msg" role="status" aria-live="polite" class="hidden"></div>
