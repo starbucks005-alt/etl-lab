@@ -97,6 +97,8 @@ const gc = require('../netlify/functions/_gc-config.js');
   const rp = _test.systemPrompt(rl, real.role);
   assert.ok(/^You are Reggie, a dog/.test(rp), 'he is called Reggie, not the roster full name');
   assert.ok(/Dramatic, Warm, Earnest, Talks a lot/.test(rp) && /breaking news/.test(rp) && /Oh! OH\. You're here\. Hi\. HI\./.test(rp), 'his own written manner is in his prompt');
+  assert.ok(/Biscuit and Mochi are his actual best friends/.test(rp) && /Duke, a few houses down/.test(rp) && /STORYTELLER/.test(rp), 'he knows his friends and his rival as written');
+  assert.ok(!/English bulldog/.test(rp), 'the breed the two files disagree on is left out');
   assert.ok(!/fairy/.test(rp) && !/[\u2013\u2014]/.test(rp));
   assert.ok(/^You are Reginald/.test(_test.systemPrompt(_test.writtenLife('reggie', real.rosterName), real.role)), 'without the persona the roster name is used, as before');
 
