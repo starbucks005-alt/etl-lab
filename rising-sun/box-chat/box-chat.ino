@@ -20,6 +20,7 @@
 
    TEST ONLY: it does not check the website's certificate (setInsecure), so on a network someone else controls, the access code and what you say could be read. That has to be fixed before a box is sold. */
 #include <Arduino.h>
+#include <atomic>
 #include <Wire.h>
 #include <math.h>
 #include <WiFi.h>
@@ -425,6 +426,38 @@ size_t fetchSoundFile(const String &path) {
 
 #define MUSIC_MAX_MS 420000UL                 // a track plays once, for at most seven minutes
 // A long track (about six minutes): streamed from the website through a large buffer, so a slow moment on the network does not cut it. Plays once.
+// 2026-11-01 (build i): the sound is played by its OWN task, fed from the buffer. Before, one loop did the downloading, the playing and the panel check, so every
+// panel check (a new secure connection, which can take several seconds) stopped the sound for as long as it took: that is the pause Dr. O hears about every fifteen
+// seconds. Now the loop can wait on the network while the sound task keeps playing what is already in the buffer. NOT TRIED on the board. The box counts any
+// moment the sound task had to wait more than a quarter of a second and prints it ("Music stall"), so a pause shows up as a line on the Serial Monitor and not only to the ear.
+struct MusicPlay {
+  uint8_t *ring; size_t ringSize;
+  std::atomic<size_t> rd, wr;               // running totals; the bytes waiting are wr - rd
+  volatile bool ended, stop, done;
+  volatile uint32_t played, stalls, longest;
+};
+static MusicPlay mp;
+
+void musicAudioTask(void *) {
+  int16_t out[1024];
+  uint32_t lastStart = 0;
+  while (!mp.stop) {
+    size_t r = mp.rd.load(std::memory_order_relaxed), w = mp.wr.load(std::memory_order_acquire);
+    size_t avail = w - r;
+    if (avail == 0) { if (mp.ended) break; vTaskDelay(pdMS_TO_TICKS(3)); continue; }
+    size_t take = avail < 512 ? avail : 512;
+    for (size_t i = 0; i < take; i++) { int16_t v = ulawDecode(mp.ring[(r + i) % mp.ringSize]); out[2 * i] = v; out[2 * i + 1] = v; }
+    mp.rd.store(r + take, std::memory_order_release);
+    uint32_t t = millis();
+    if (lastStart && t - lastStart > 250) { mp.stalls = mp.stalls + 1; if (t - lastStart > mp.longest) mp.longest = t - lastStart; if (mp.stalls <= 5) Serial.printf("Music stall: the sound waited %u ms at %.0f seconds in\n", (unsigned)(t - lastStart), mp.played / 16000.0f); }
+    lastStart = t;
+    i2s.write((uint8_t *)out, take * 2 * sizeof(int16_t));
+    mp.played = mp.played + take;
+  }
+  mp.done = true;
+  vTaskDelete(NULL);
+}
+
 void streamMusic(const String &path) {
   if (!joinWifi() || !gardenBuf) return;
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
@@ -436,40 +469,44 @@ void streamMusic(const String &path) {
   Serial.printf("Music '%s': website answered %d\n", path.c_str(), code);
   if (code != 200) { http.end(); ringColor(255, 0, 0); delay(1500); return; }
   WiFiClient *s = http.getStreamPtr();
-  uint8_t *ring = gardenBuf;
-  const size_t RING = GARDEN_MAX_BYTES;
-  size_t rd = 0, wr = 0, count = 0;
-  bool started = false, ended = false;
+  mp.ring = gardenBuf; mp.ringSize = GARDEN_MAX_BYTES;
+  mp.rd = 0; mp.wr = 0; mp.ended = false; mp.stop = false; mp.done = false; mp.played = 0; mp.stalls = 0; mp.longest = 0;
+  bool started = false;
   const size_t PRE = 160000;                  // ten seconds of sound in the buffer before it starts
-  uint32_t t0 = millis(), lastData = millis(), lastCheck = millis(), played = 0;
+  uint32_t t0 = millis(), lastData = millis(), lastCheck = millis();
   ringColor(0, 120, 40);
   while (millis() - t0 < MUSIC_MAX_MS) {
     if (keysPressed()) { Serial.println("Music stopped"); while (keysPressed()) delay(20); break; }
-    if (!ended) {
+    size_t w = mp.wr.load(std::memory_order_relaxed), r = mp.rd.load(std::memory_order_acquire);
+    size_t count = w - r;
+    if (!mp.ended) {
       int avail = s->available();
-      if (avail > 0 && count < RING) {
-        size_t n = min((size_t)avail, min(RING - count, (size_t)2048));
-        n = min(n, RING - wr);                                    // up to the end of the ring, the next pass takes the rest
-        int got = s->readBytes(ring + wr, n);
-        if (got > 0) { wr = (wr + got) % RING; count += got; lastData = millis(); }
-      } else if (avail <= 0 && !http.connected()) ended = true;
-      else if (avail <= 0 && millis() - lastData > 15000) ended = true;
+      if (avail > 0 && count < mp.ringSize) {
+        size_t n = min((size_t)avail, min(mp.ringSize - count, (size_t)2048));
+        n = min(n, mp.ringSize - (w % mp.ringSize));              // up to the end of the ring, the next pass takes the rest
+        int got = s->readBytes(mp.ring + (w % mp.ringSize), n);
+        if (got > 0) { mp.wr.store(w + got, std::memory_order_release); count += got; lastData = millis(); }
+      } else if (avail <= 0 && !http.connected()) mp.ended = true;
+      else if (avail <= 0 && millis() - lastData > 15000) mp.ended = true;
     }
-    if (!started) { if (count >= PRE || ended) { started = true; Serial.println("Music: playing"); } else { delay(2); continue; } }
-    if (count == 0) { if (ended) break; delay(5); continue; }       // ran dry: wait for more
-    size_t take = min(count, (size_t)512);
-    int16_t out[1024];
-    for (size_t i = 0; i < take; i++) { int16_t v = ulawDecode(ring[rd]); rd = (rd + 1) % RING; out[2 * i] = v; out[2 * i + 1] = v; }
-    count -= take; played += take;
-    i2s.write((uint8_t *)out, take * 2 * sizeof(int16_t));
-    if (millis() - lastCheck > 15000 && count > 80000) {            // ask the panel only while there are five seconds buffered, so the pause cannot be heard
+    if (!started) {
+      if (count >= PRE || mp.ended) { started = true; Serial.println("Music: playing"); xTaskCreatePinnedToCore(musicAudioTask, "music-audio", 6144, NULL, 3, NULL, 1); }
+      else { delay(2); continue; }
+    }
+    if (mp.done) break;                                           // the sound task has played everything and finished
+    if (millis() - lastCheck > 15000 && count > 48000) {          // ask the panel while three seconds are buffered; the sound task keeps playing while this waits on the network
       lastCheck = millis();
+      uint32_t c0 = millis();
       String c = peekCommand();
+      Serial.printf("Panel check took %u ms\n", (unsigned)(millis() - c0));
       if (c.length()) { if (c != "stop" && c != "soundscape") pendingCmd = c; Serial.println("Music stopped from the panel"); break; }
     }
+    delay(2);
   }
+  mp.stop = true;
+  for (int i = 0; i < 100 && started && !mp.done; i++) delay(20);   // let the sound task finish its last write
   http.end();
-  Serial.printf("Music played %.0f seconds\n", played / 16000.0f);
+  Serial.printf("Music played %.0f seconds, %u stalls over a quarter of a second, longest %u ms\n", mp.played / 16000.0f, (unsigned)mp.stalls, (unsigned)mp.longest);
 }
 
 void gardenscape(const String &want = "") {
@@ -607,7 +644,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01h (Music and Soundscape, and the panel shows what is playing), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01i (the music plays on its own task, so a panel check cannot pause it), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();

@@ -120,3 +120,12 @@ Dr. O: make the episodes in Reggie, Biscuit and Mochi's voices. The site's envir
 - On the panel, in the story library, each of the six Reggie, Biscuit and Mochi episodes has a button: Record (tap twice, because a recording spends a little ElevenLabs credit; the tool guides about $0.36 for all six, a guide and not a quote), then "Recording 3 of 19", then Listen.
 - Only the three dogs are done this way so far. Tansy's Human Summer (fragments) and Kit's stories (an Azure voice) are not. Episode 7, Reggie's tennis ball, has no written story in `pack-episodes.json`, so it has nothing to record.
 - NOT TRIED against the real ElevenLabs service or the live site. The pieces are joined end to end with no added pause, and the sound is 64 kbps mp3 so a five minute story fits in what a function may send back. Nobody has heard these voices read a story. The box still cannot play an episode: that needs a player in the box program.
+
+## The music pause, build 2026-11-01i (2026-11-01)
+
+Dr. O: "the music is still doing the 6 second gap", and the song is 6 minutes. In build h one loop did the downloading, the playing and the panel check. The panel check, every 15 seconds, opens a new secure connection to the website, and while it waits nothing is played, however much sound is buffered. A check that takes about six seconds would be a six second silence. That fits what Dr. O hears, but it is a reading of the code, not something measured on the board.
+
+- Build i plays the music from its own task, fed from the buffer, so the loop can wait on the network without stopping the sound. The buffer holds up to about 110 seconds.
+- The box now prints what happened, so it can be read and not only heard: `Panel check took N ms`, `Music stall: the sound waited N ms at S seconds in` (up to five, for any wait over a quarter of a second), and at the end `Music played N seconds, N stalls over a quarter of a second, longest N ms`.
+- If stalls still show, the cause is not only the panel check. An earlier try with a background panel check on the sound loops also made gaps, so the network work itself may be starving something. Those printed lines would say.
+- Compiles (1,422,450 bytes). NOT TRIED on the board. The sound loops (campfire and the others) still play as before; only the music tracks changed.
