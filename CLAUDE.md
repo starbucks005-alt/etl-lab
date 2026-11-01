@@ -146,3 +146,12 @@ What that means for anything written, in any repository:
 5. **Agents and generated text too.** If an agent, a persona or any generated text gives somebody else the credit for her work, that is a defect in the product: tell her and fix it.
    She has the conversation; you may not.
 6. In anything written for other people (a brief, a book, a scope sheet, an email) say who did what: the ideas and the decisions are hers.
+
+## 9. SHE IS HEARING IMPAIRED
+
+Dr. O, 2026-11-01: *"please remember I am hearing impaired"*, after a session of being asked to listen for static, gaps and crackle, and being told to turn the volume down when she had turned it up to hear.
+
+- Never ask her to judge anything by ear when there is another way to find out. Use what she can see: the Serial Monitor lines, a number, a light, a picture, something on the panel. If a sound problem has to be checked, find a way that does not depend on her hearing, or say that it cannot be checked from here.
+- A loud volume is not a mistake to correct. She may need it that way. If loud means distortion, the fix is in the product (a cleaner louder signal), not a lecture about the volume.
+- Anything the product says out loud should also be somewhere she can read it (the panel, the screen). When something new speaks, ask whether it can show the words too.
+- This holds for every repository she owns.
