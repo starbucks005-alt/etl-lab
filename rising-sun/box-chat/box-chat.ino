@@ -336,6 +336,21 @@ size_t fetchGarden(const String &scene) {
     have = (last - first) * 2;
   }
   Serial.printf("The loop is %.1f seconds long\n", have / 32000.0f);
+  // How loud the sound is, every half second, as a digit 0 to 9 (0 = silent). A run of zeros in the middle is a gap that is IN the sound itself.
+  {
+    String line = "";
+    size_t half = 8000;                               // half a second at 16000 samples a second
+    int run = 0, longest = 0; size_t longestAt = 0, runStart = 0;
+    for (size_t b = 0; b + half <= have / 2; b += half) {
+      long sum = 0; for (size_t i = 0; i < half; i += 4) sum += abs(((int16_t *)gardenBuf)[b + i]);
+      long avg = sum / (half / 4);
+      int d = avg < 150 ? 0 : (avg > 9000 ? 9 : 1 + (int)(avg * 8 / 9000));
+      line += (char)('0' + d); line += ' ';
+      if (d == 0) { if (run == 0) runStart = b; run++; if (run > longest) { longest = run; longestAt = runStart; } } else run = 0;
+    }
+    Serial.printf("Loudness every half second: %s\n", line.c_str());
+    Serial.printf("Longest silent stretch in the sound: %.1f seconds, starting at %.1f seconds\n", longest * 0.5f, longestAt / 16000.0f);
+  }
   return have;
 }
 
@@ -493,7 +508,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01e (no network while a soundscape plays: the panel is asked once per pass), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01f (no network while a soundscape plays, and the sound is measured for gaps), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
