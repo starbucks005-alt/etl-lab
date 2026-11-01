@@ -95,6 +95,16 @@ const real = require('../rising-sun/box-lines.json');
   await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'marcus', box: 'loud' }), d);
   assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'loud' }), d)).body.includes('volume=45\n'));
 
+  // Music and Soundscape: the panel can name a scene, and the box is told which
+  await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'tansy', box: 'tunes' }), d);
+  const sc = JSON.parse((await handler(ev('GET', KEY, { id: 'tunes' }), d)).body).companions.find((c) => c.id === 'tansy').scenes;
+  assert.ok(Array.isArray(sc) && sc.length >= 1 && sc[0].id && sc[0].label);
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'press', button: 'soundscape', scene: 'no-such-scene', box: 'tunes' }), d)).statusCode, 404);
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'press', button: 'soundscape', scene: sc[0].id, box: 'tunes' }), d)).statusCode, 200);
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'tunes' }), d)).body.includes('command=soundscape:' + sc[0].id));
+  await handler(ev('POST', KEY, {}, { action: 'press', button: 'soundscape', box: 'tunes' }), d);
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'tunes' }), d)).body.includes('command=soundscape\n'));
+
   // choosing a companion; an unknown one is refused
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'nobody' }), d)).statusCode, 404);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera' }), d)).statusCode, 200);
@@ -133,6 +143,12 @@ const real = require('../rising-sun/box-lines.json');
     if (!c.wake) continue;
     assert.ok(c.wake.name && c.wake.phoneme && c.wake.phoneme.length <= 40, id + ' wake has a name and a short phoneme');
     for (const ch of c.wake.phoneme.replace(/ /g, '')) assert.ok(ALPHABET.has(ch), id + ' phoneme letter ' + ch + ' is in the chip alphabet');
+  }
+  // every scene that is a file is a real, non-empty file in the repo, and has a kind and a label for the panel
+  for (const [id, c] of Object.entries(real.companions)) for (const [n, sc] of Object.entries(c.scenes || {})) {
+    assert.ok(sc.label && (sc.kind === 'music' || sc.kind === 'sound'), id + '/' + n + ' has a label and a kind');
+    if (sc.file) { const f = require('path').join(__dirname, '..', sc.file); assert.ok(require('fs').existsSync(f) && require('fs').statSync(f).size > 100000, id + '/' + n + ' file exists'); if (sc.kind === 'sound') assert.ok(require('fs').statSync(f).size < 900000, n + ' fits the sound buffer'); }
+    else assert.ok(sc.sound, id + '/' + n + ' has a description to generate from');
   }
   // a clip, when a companion has one, is a real file in the repo
   for (const [id, c] of Object.entries(real.companions)) if (c.clip) assert.ok(require('fs').existsSync(require('path').join(__dirname, '..', c.clip)), id + ' clip file exists');

@@ -65,7 +65,10 @@
     <button id="bSound" type="button"></button>
     <button id="bSecond" type="button"></button>
     <button id="bChat" type="button"></button>
-    <button id="bStop" type="button" class="quiet">Stop the soundscape</button>
+    <button id="bStop" type="button" class="quiet">Stop the music or soundscape</button>
+    <label for="sceneSel" style="margin-top:14px">Or pick one</label>
+    <select id="sceneSel"></select>
+    <button id="bScene" type="button" class="quiet">Play this one</button>
     <p class="note">The box takes a few seconds to notice a button pushed here. It asks the website every few seconds.</p>
   </section>
 
@@ -137,9 +140,12 @@
     var c = current();
     $('whoNote').textContent = c.needsHuman ? 'Marked "needs a human" in the Good Company list.' : '';
     var sound = $('bSound'), second = $('bSecond'), chat = $('bChat');
-    sound.textContent = c.id === 'tansy' ? 'Gardenscape' : 'Soundscape';
+    sound.textContent = 'Music and Soundscape';
     sound.disabled = !c.soundscape;
     chat.textContent = 'Chat with ' + c.display;
+    var ss = $('sceneSel'); ss.innerHTML = '';
+    (c.scenes || []).forEach(function (sc) { var o = document.createElement('option'); o.value = sc.id; o.textContent = sc.label + (sc.kind === 'music' ? '' : ' (sound)'); ss.appendChild(o); });
+    $('bScene').disabled = !(c.scenes && c.scenes.length);
     if (c.second) { second.textContent = c.second.label + (c.second.ready ? '' : ' (not recorded yet)'); second.disabled = !c.second.ready; second.classList.remove('hidden'); }
     else { second.classList.add('hidden'); }
     $('pick').classList.remove('hidden'); $('buttons').classList.remove('hidden');
@@ -179,11 +185,12 @@
   }
 
   var pressing = false;
-  function lock(on) { ['bSound', 'bSecond', 'bChat', 'bStop'].forEach(function (id) { var b = $(id); if (b) b.disabled = on || (id === 'bSound' && !current().soundscape) || (id === 'bSecond' && current().second && !current().second.ready); }); }
-  function press(button, label) {
+  function lock(on) { ['bSound', 'bSecond', 'bChat', 'bStop', 'bScene'].forEach(function (id) { var b = $(id); if (b) b.disabled = on || (id === 'bSound' && !current().soundscape) || (id === 'bSecond' && current().second && !current().second.ready); }); }
+  function press(button, label, scene) {
     if (pressing) return;
     pressing = true; lock(true);
-    call('POST', { action: 'press', button: button }).then(function (r) {
+    var pb = { action: 'press', button: button }; if (scene) pb.scene = scene;
+    call('POST', pb).then(function (r) {
       if (r.status !== 200) {
         pressing = false; lock(false);
         say(r.body && r.body.error === 'not_recorded_yet' ? 'That one is not recorded yet.' : 'The button did not go through.', 'bad');
@@ -270,6 +277,7 @@
   });
   $('bSound').addEventListener('click', function () { press('soundscape', $('bSound').textContent); });
   $('bSecond').addEventListener('click', function () { press('second', current().second.label); });
+  $('bScene').addEventListener('click', function () { var o = $('sceneSel').selectedOptions[0]; press('soundscape', o ? o.textContent : 'That one', $('sceneSel').value); });
   $('bStop').addEventListener('click', function () { press('stop', 'Stop'); });
   $('bChat').addEventListener('click', function () { press('chat', 'Chat'); });
 

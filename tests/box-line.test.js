@@ -55,5 +55,14 @@ const gc = require('../netlify/functions/_gc-config.js');
   const f = require('../rising-sun/box-lines.json');
   assert.ok(f.companions.tansy.voiceId && f.companions.tansy.lines.greeting);
   assert.ok(!JSON.stringify(f).includes(String.fromCharCode(8212)));
+  // a scene that is a track: the box is told its file and kind, and a scene can be asked for by name without moving the turn
+  const fl = { companions: { tansy: { voiceId: 'thfYL0Elyru2qqTtNQsE', lines: {}, scenes: { jungle: { sound: 'A jungle', kind: 'sound' }, library: { file: '/rising-sun/box-sounds/library_v1.ulaw', kind: 'music', label: 'Library (music)' } } } } };
+  const fd = { env: {}, loadCfg: cfg, lines: fl, store: mem(), speak: async (tx) => Buffer.from(tx) };
+  const named = await handler({ httpMethod: 'GET', headers: { 'x-sun-key': KEY }, queryStringParameters: { line: 'garden', scene: 'library' } }, fd);
+  assert.strictEqual(named.statusCode, 204);
+  assert.strictEqual(named.headers['X-Scene'], 'library'); assert.strictEqual(named.headers['X-Scene-File'], '/rising-sun/box-sounds/library_v1.ulaw'); assert.strictEqual(named.headers['X-Scene-Kind'], 'music');
+  const next1 = await handler({ httpMethod: 'GET', headers: { 'x-sun-key': KEY }, queryStringParameters: { line: 'garden' } }, fd);
+  assert.strictEqual(next1.headers['X-Scene'], 'jungle', 'asking for one by name did not use up the turn');
+  assert.strictEqual(next1.headers['X-Scene-Kind'], 'sound'); assert.ok(!next1.headers['X-Scene-File']);
   console.log('ok: the box asks for a fixed line, it is made once and kept');
 })().catch((e) => { console.error(e); process.exit(1); });

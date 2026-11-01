@@ -51,6 +51,7 @@ function describe(id, c) {
     id, display: c.display || id, needsHuman: !!c.needsHuman, face: c.face || '', wake: !!(c.wake && c.wake.phoneme),
     chat: true,
     soundscape: !!(c.scenes && Object.keys(c.scenes).length),
+    scenes: Object.keys(c.scenes || {}).sort().map((n) => ({ id: n, kind: (c.scenes[n] || {}).kind || 'sound', label: (c.scenes[n] || {}).label || n })),
     second: secondOut,
   };
 }
@@ -109,7 +110,7 @@ exports.handler = async (event, deps = {}) => {
       st.battery = { mv, at: now, hist };
     }
     const c = describe(st.companion, all[st.companion]);
-    const command = st.command ? st.command.button : '';
+    const command = st.command ? (st.command.button + (st.command.scene ? ':' + st.command.scene : '')) : '';
     let duet = '';                       // chat mode: a number when it is this box's turn, 'wait' while the other box has it
     try {
       const ds = deps.duetStore || await openDuet(event);
@@ -159,7 +160,9 @@ exports.handler = async (event, deps = {}) => {
     const c = describe(st.companion, all[st.companion]);
     if (b === 'second' && !(c.second && c.second.ready)) return json(409, { error: c.second ? 'not_recorded_yet' : 'no_second_button' });
     if (b === 'soundscape' && !c.soundscape) return json(409, { error: 'no_soundscape' });
-    st.command = { button: b, at: now };
+    let scene = '';
+    if (b === 'soundscape' && body.scene) { scene = String(body.scene).toLowerCase(); if (!(all[st.companion].scenes || {})[scene]) return json(404, { error: 'unknown_scene' }); }
+    st.command = { button: b, scene, at: now };
     try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
     return json(200, { ok: true, queued: b });
   }

@@ -231,18 +231,20 @@ void explain(int code) {
 }
 
 // Asks for a line and plays it. For the garden, the website names the scene in the X-Scene header (and may have no introduction to say, answering 204).
-bool playLine(const char *line, String *scene = NULL) {
+bool playLine(const char *line, String *scene = NULL, String *file = NULL, String *kind = NULL, const String &want = "") {
   if (!joinWifi()) return false;
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY, see the note at the top
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, webBase("box-line") + "&line=" + line)) return false;
+  if (!http.begin(client, webBase("box-line") + "&line=" + line + (want.length() ? "&scene=" + want : String("")))) return false;
   http.addHeader("x-sun-key", BOX_KEY);
-  const char *keep[] = {"X-Said", "X-Scene"}; http.collectHeaders(keep, 2);
+  const char *keep[] = {"X-Said", "X-Scene", "X-Scene-File", "X-Scene-Kind"}; http.collectHeaders(keep, 4);
   http.setTimeout(20000);
   int code = http.GET();
   Serial.printf("Website answered: %d\n", code);
   if (scene) *scene = http.header("X-Scene");
+  if (file) *file = http.header("X-Scene-File");
+  if (kind) *kind = http.header("X-Scene-Kind");
   if (code == 204) { http.end(); return true; }
   if (code != 200) { explain(code); Serial.println(http.getString()); http.end(); return false; }
   playResponse(http);
@@ -365,7 +367,7 @@ void playGardenInner(size_t bytes) {
       if (keysPressed()) { Serial.println("Garden stopped"); while (keysPressed()) delay(20); return; }
       if (gardenCmdSet) {                          // the background watcher heard the panel: stop, as the lid button does
         gardenCmdSet = false;
-        if (strcmp((const char *)gardenCmd, "stop") != 0 && strcmp((const char *)gardenCmd, "soundscape") != 0) pendingCmd = String((const char *)gardenCmd);
+        if (strncmp((const char *)gardenCmd, "soundscape:", 11) == 0 || (strcmp((const char *)gardenCmd, "stop") != 0 && strcmp((const char *)gardenCmd, "soundscape") != 0)) pendingCmd = String((const char *)gardenCmd);
         Serial.println("Garden stopped from the panel");
         return;
       }
@@ -376,7 +378,7 @@ void playGardenInner(size_t bytes) {
     if (!GARDEN_WATCH_BACKGROUND) {                // the end of a pass is where the loop starts over anyway, so ask here, once
       String c = peekCommand();
       if (c.length()) {
-        if (c != "stop" && c != "soundscape") pendingCmd = c;
+        if (c != "stop" && c != "soundscape") pendingCmd = c;      // another scene named on the panel switches to it
         Serial.println("Garden stopped from the panel");
         return;
       }
@@ -384,10 +386,103 @@ void playGardenInner(size_t bytes) {
   }
 }
 
-void gardenscape() {
-  String scene;
-  if (!playLine("garden", &scene)) { ringColor(255, 0, 0); delay(1500); return; }
+// Sound files from the website are kept as 8 bit mu-law (rising-sun/tools/make-sound.py). This turns one byte back into a 16 bit sample.
+int16_t ulawDecode(uint8_t u) {
+  u = ~u;
+  int t = (((u & 0x0F) << 3) + 0x84) << ((u & 0x70) >> 4);
+  return (u & 0x80) ? (0x84 - t) : (t - 0x84);
+}
+
+// A short sound (about 30 seconds) from a file: loaded whole into memory as 16 bit sound, then repeated by playGarden. Returns the bytes of sound, 0 if it failed.
+size_t fetchSoundFile(const String &path) {
+  if (!joinWifi() || !gardenBuf) return 0;
+  WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, String("https://emerging-tech-lab.com") + path)) return 0;
+  http.setTimeout(30000);
+  int code = http.GET();
+  Serial.printf("Sound file '%s': website answered %d\n", path.c_str(), code);
+  if (code != 200) { http.end(); return 0; }
+  WiFiClient *s = http.getStreamPtr();
+  int16_t *pcm = (int16_t *)gardenBuf;
+  size_t samples = 0, maxSamples = GARDEN_MAX_BYTES / 2;
+  uint8_t buf[1024];
+  uint32_t lastData = millis();
+  while (http.connected() || s->available()) {
+    int avail = s->available();
+    if (!avail) { if (millis() - lastData > 8000) break; delay(2); continue; }
+    lastData = millis();
+    int n = s->readBytes(buf, min(avail, (int)sizeof(buf)));
+    for (int i = 0; i < n && samples < maxSamples; i++) pcm[samples++] = ulawDecode(buf[i]);
+    if (samples >= maxSamples) break;
+  }
+  http.end();
+  Serial.printf("Got %u samples (about %.1f seconds)\n", (unsigned)samples, samples / 16000.0f);
+  return samples * 2;
+}
+
+#define MUSIC_MAX_MS 420000UL                 // a track plays once, for at most seven minutes
+// A long track (about six minutes): streamed from the website through a large buffer, so a slow moment on the network does not cut it. Plays once.
+void streamMusic(const String &path) {
+  if (!joinWifi() || !gardenBuf) return;
+  WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, String("https://emerging-tech-lab.com") + path)) { ringColor(255, 0, 0); delay(1500); return; }
+  http.setTimeout(15000);
+  int code = http.GET();
+  Serial.printf("Music '%s': website answered %d\n", path.c_str(), code);
+  if (code != 200) { http.end(); ringColor(255, 0, 0); delay(1500); return; }
+  WiFiClient *s = http.getStreamPtr();
+  uint8_t *ring = gardenBuf;
+  const size_t RING = GARDEN_MAX_BYTES;
+  size_t rd = 0, wr = 0, count = 0;
+  bool started = false, ended = false;
+  const size_t PRE = 160000;                  // ten seconds of sound in the buffer before it starts
+  uint32_t t0 = millis(), lastData = millis(), lastCheck = millis(), played = 0;
+  ringColor(0, 120, 40);
+  while (millis() - t0 < MUSIC_MAX_MS) {
+    if (keysPressed()) { Serial.println("Music stopped"); while (keysPressed()) delay(20); break; }
+    if (!ended) {
+      int avail = s->available();
+      if (avail > 0 && count < RING) {
+        size_t n = min((size_t)avail, min(RING - count, (size_t)2048));
+        n = min(n, RING - wr);                                    // up to the end of the ring, the next pass takes the rest
+        int got = s->readBytes(ring + wr, n);
+        if (got > 0) { wr = (wr + got) % RING; count += got; lastData = millis(); }
+      } else if (avail <= 0 && !http.connected()) ended = true;
+      else if (avail <= 0 && millis() - lastData > 15000) ended = true;
+    }
+    if (!started) { if (count >= PRE || ended) { started = true; Serial.println("Music: playing"); } else { delay(2); continue; } }
+    if (count == 0) { if (ended) break; delay(5); continue; }       // ran dry: wait for more
+    size_t take = min(count, (size_t)512);
+    int16_t out[1024];
+    for (size_t i = 0; i < take; i++) { int16_t v = ulawDecode(ring[rd]); rd = (rd + 1) % RING; out[2 * i] = v; out[2 * i + 1] = v; }
+    count -= take; played += take;
+    i2s.write((uint8_t *)out, take * 2 * sizeof(int16_t));
+    if (millis() - lastCheck > 15000 && count > 80000) {            // ask the panel only while there are five seconds buffered, so the pause cannot be heard
+      lastCheck = millis();
+      String c = peekCommand();
+      if (c.length()) { if (c != "stop" && c != "soundscape") pendingCmd = c; Serial.println("Music stopped from the panel"); break; }
+    }
+  }
+  http.end();
+  Serial.printf("Music played %.0f seconds\n", played / 16000.0f);
+}
+
+void gardenscape(const String &want = "") {
+  String scene, file, kind;
+  if (!playLine("garden", &scene, &file, &kind, want)) { ringColor(255, 0, 0); delay(1500); return; }
   if (!scene.length()) { Serial.println("The website named no scene"); return; }
+  Serial.printf("Scene: %s (%s)\n", scene.c_str(), kind.length() ? kind.c_str() : "sound");
+  if (file.length()) {
+    if (kind == "music") { streamMusic(file); return; }
+    size_t m = fetchSoundFile(file);
+    if (m < 32000) { ringColor(255, 0, 0); delay(1500); return; }
+    playGarden(m);
+    return;
+  }
   size_t n = fetchGarden(scene);
   if (n < 32000) { ringColor(255, 0, 0); delay(1500); return; }
   playGarden(n);
@@ -508,7 +603,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01f (no network while a soundscape plays, and the sound is measured for gaps), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01g (Music and Soundscape: files, music streaming), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
@@ -732,7 +827,7 @@ void loop() {
       srPause();
       if (cmd == "chat") conversation();
       else if (cmd == "second") secondButton();
-      else if (cmd == "soundscape") { gardenscape(); ringColor(0, 0, 255); }
+      else if (cmd.startsWith("soundscape")) { gardenscape(cmd.length() > 11 ? cmd.substring(11) : String("")); ringColor(0, 0, 255); }
       wokeUp = false;
       srResume();
       delay(400);

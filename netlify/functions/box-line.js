@@ -80,15 +80,22 @@ exports.handler = async (event, deps = {}) => {
     if (!names.length) return json(404, { error: line === 'story' ? 'no_stories_yet' : 'no_scenes_yet' });
     let n = 0;
     try { n = Number(await store.get('turn-' + line, { type: 'json' })) || 0; } catch (_) {}
-    const pick = names[n % names.length];
-    try { await store.setJSON('turn-' + line, (n + 1) % 1000); } catch (_) {}
+    const asked = line === 'garden' ? String(body.scene || q.scene || '').toLowerCase() : '';
+    const chosen = asked && c.scenes && c.scenes[asked] ? asked : '';       // the panel can ask for one scene by name; otherwise it is the next in turn
+    const pick = chosen || names[n % names.length];
+    if (!chosen) { try { await store.setJSON('turn-' + line, (n + 1) % 1000); } catch (_) {} }
     if (line === 'story') key = pick;
     else { scene = pick; key = (c.scenes[pick] || {}).intro || ''; }
   }
   const text = c.lines && c.lines[key];
   if (!text) {
     // a scene with no introduction written yet: nothing to say, the sound plays anyway
-    if (scene) return { statusCode: 204, headers: Object.assign({ 'X-Scene': scene }, CORS), body: '' };
+    if (scene) {
+      const sc = c.scenes[scene] || {};
+      const h = { 'X-Scene': scene, 'X-Scene-Kind': sc.kind || 'sound' };
+      if (sc.file) h['X-Scene-File'] = sc.file;                              // a track the box streams from the website, not a sound made on demand
+      return { statusCode: 204, headers: Object.assign(h, CORS), body: '' };
+    }
     return json(404, { error: 'unknown_line' });
   }
 

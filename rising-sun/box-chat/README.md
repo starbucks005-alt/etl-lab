@@ -70,3 +70,11 @@ Dr. O reported that the conversation continued after the wake word: she did not 
 ## Verified on the board (2026-11-01)
 
 Dr. O said "Hi ALICE" with the box set to wake by the companion's name, and it woke. The sound spelling for Alice (`aLcS`) was written by hand and is the first one tried on the real chip; "Hi Alice" worked although only "Alice", "Hey Alice" and "Hello Alice" were taught. Not yet tried: the spellings for Tansy, Meera, Marcus and Reggie, how far away it hears the name, and whether ordinary talk sets it off by mistake.
+
+## Music and Soundscape (2026-11-01)
+
+Dr. O: music and sound are one list, called "Music and Soundscape". The panel has one button for the next scene in turn, and a list to pick one. Scenes are in `rising-sun/box-lines.json` for every companion.
+- **Generated** scenes (jungle, waterfall, rain, night woods) have a description and are made once on the website.
+- **kind "sound" files** (campfire, creek, gentle rain, medieval Irish tavern, mountain flute, nature, party with happy people, sunny beach waves, Tibetan singing bowl, winter holiday): Dr. O made these in ElevenLabs on her paid plan, 30 seconds each. They are 8 bit mu-law at 16 kHz in `rising-sun/box-sounds`, made into seamless loops at an even loudness by `rising-sun/tools/make-sound.py --loop`. The box loads one whole, and repeats it.
+- **kind "music" files** (library, rooftop, fire escape): from the party music in `good-company/audio` (Dr. O owns it), 6 minutes, about 5.5 MB each. The box streams one through a large buffer and plays it once.
+The decoding of the 8 bit format on the box was checked against a reference tool: the samples are identical. NOT tried on the board: the streaming, the loading, and how any of it sounds on the speaker (16 kHz mono through a small speaker will sound small).
