@@ -44,9 +44,10 @@ function plan(ep) {
 const SAGA_VOICES = { alice: 'gZL79pBTvaNfNPOCXh6n', tansy: 'thfYL0Elyru2qqTtNQsE', poppy: 'VJFN2gyaDzoKekQ8ZuKB', blue: 'WUyjxM8OTY6l8LhTmdkq' };
 /* The tellers in the two sagas that have no voice yet. Put an ElevenLabs voice id in place of null and that teller is read, with no other change. Left as null they are
    left out of the recording and reported, never guessed. A.L.I.C.E.'s saga has a narrator, researchers and a colleague; the fairies' Human Summer has a narrator and the mother of Tansy and Poppy. */
+const NARRATOR = null;     // one narrator voice for both sagas (Dr. O asked, 2026-11-01, whether it can be the same). Give either saga its own by putting a different id in its own line below.
 const FRAGMENT_VOICES = {
-  alice: { narrator: null, researcher: null, colleague: null },
-  tansy: { narrator: null, mother: null },
+  alice: { narrator: NARRATOR, researcher: null, colleague: null },
+  tansy: { narrator: NARRATOR, mother: null },
 };
 const KIT_VOICE = 'J64VNrjLE6uKFBKlxfSJ';        // Dr. O's pick for Kit's recorded stories, 2026-11-01 (ElevenLabs: the Azure voice sounded too robotic recorded). Her room still speaks with the Azure voice in gc-friend.js.
 
