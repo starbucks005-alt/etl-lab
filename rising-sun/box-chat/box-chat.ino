@@ -252,6 +252,7 @@ bool playLine(const char *line, String *scene = NULL) {
 
 // Downloads one nature loop into gardenBuf. Returns how many bytes it got.
 // While a soundscape plays, a background task asks the website for a pushed button every five seconds, so the sound itself never waits for the network.
+#define GARDEN_WATCH_BACKGROUND 0     // 1 = ask the website every five seconds while the sound plays (it made gaps); 0 = ask once at the end of each pass, and the lid buttons stop it at once
 volatile bool gardenOn = false;
 volatile bool gardenCmdSet = false;
 volatile char gardenCmd[16] = "";
@@ -289,7 +290,7 @@ void gardenWatcher(void *) {
 void playGarden(size_t bytes) {
   gardenCmdSet = false;
   gardenOn = true;
-  if (gardenWatcherHandle == NULL) xTaskCreatePinnedToCore(gardenWatcher, "garden-watch", 12288, NULL, 1, &gardenWatcherHandle, 0);
+  if (GARDEN_WATCH_BACKGROUND && gardenWatcherHandle == NULL) xTaskCreatePinnedToCore(gardenWatcher, "garden-watch", 12288, NULL, 1, &gardenWatcherHandle, 0);
   playGardenInner(bytes);
   gardenOn = false;
 }
@@ -356,6 +357,14 @@ void playGardenInner(size_t bytes) {
       int o = 0;
       for (; o < 512 && pos + 1 < bytes; o += 2, pos += 2) { int16_t s16 = (int16_t)(gardenBuf[pos] | (gardenBuf[pos + 1] << 8)); out[o] = s16; out[o + 1] = s16; }
       i2s.write((uint8_t *)out, o * sizeof(int16_t));
+    }
+    if (!GARDEN_WATCH_BACKGROUND) {                // the end of a pass is where the loop starts over anyway, so ask here, once
+      String c = peekCommand();
+      if (c.length()) {
+        if (c != "stop" && c != "soundscape") pendingCmd = c;
+        Serial.println("Garden stopped from the panel");
+        return;
+      }
     }
   }
 }
@@ -484,7 +493,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01d (wake retries, panel Stop and Volume, background stop check, soundscape silence trimmed, bigger soundscape buffer), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01e (no network while a soundscape plays: the panel is asked once per pass), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
