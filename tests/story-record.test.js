@@ -36,6 +36,7 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
 
   const st = JSON.parse((await aud.handler(ev('GET', null, { status: '1', watch: 'reggie-biscuit-mochi/squirrel' }), { env: {}, loadCfg: cfg, store })).body);
   assert.strictEqual(st.recorded['reggie-biscuit-mochi/trash'], 2);
+  assert.ok(Array.isArray(st.written['reggie-biscuit-mochi']), 'it says which episodes have a written story');
   assert.deepStrictEqual(st.running['reggie-biscuit-mochi/squirrel'], { done: 2, total: 13 });
   const got = await aud.handler(ev('GET', null, { series: 'reggie-biscuit-mochi', episode: 'trash' }), { env: {}, loadCfg: cfg, store });
   assert.strictEqual(got.headers['Content-Type'], 'audio/mpeg');

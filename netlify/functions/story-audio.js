@@ -1,8 +1,11 @@
 /* story-audio: the recorded episodes kept by story-record-background, 2026-11-01.
-   GET ?status=1&watch=series/episode,series/episode   -> JSON {recorded:{'reggie-biscuit-mochi/trash':1,...}, running:{'series/episode':{done,total}}}
+   GET ?status=1&watch=series/episode,series/episode   -> JSON {recorded:{'reggie-biscuit-mochi/trash':1,...}, running:{'series/episode':{done,total}}, written:{series:[episodes that have a written story]}}
    GET ?series=...&episode=...           -> the mp3 (audio/mpeg), the newest version
    Needs the header x-sun-key, the same home access code as the rest of the box. NOT TRIED on the live site. */
 const sun = require('./_sun.js');
+
+let PACK = { episodes: [] };
+try { PACK = require('../../pack-episodes.json'); } catch (_) {}
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type, x-sun-key', 'Access-Control-Allow-Methods': 'GET, OPTIONS' };
 const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, CORS), body: JSON.stringify(o) });
@@ -30,7 +33,7 @@ exports.handler = async (event, deps = {}) => {
       if (st && st.state === 'recording') running[id] = { done: st.done, total: st.total };
       else if (st && st.state === 'failed') running[id] = { failed: st.error || 'failed' };
     }
-    return json(200, { recorded: idx.ids, running });
+    return json(200, { recorded: idx.ids, running, written: { 'reggie-biscuit-mochi': ((deps.pack || PACK).episodes || []).map((e) => e.id) } });
   }
   const series = String(q.series || ''), episode = String(q.episode || '');
   const v = idx.ids[series + '/' + episode];
