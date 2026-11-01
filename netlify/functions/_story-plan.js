@@ -41,7 +41,7 @@ function plan(ep) {
 
 /* The saga voices already in Good Company (gc-friend.js). The other tellers (the narrator, the researchers, the colleagues, the mother) have none yet. */
 const SAGA_VOICES = { alice: 'gZL79pBTvaNfNPOCXh6n', tansy: 'thfYL0Elyru2qqTtNQsE', poppy: 'VJFN2gyaDzoKekQ8ZuKB', blue: 'WUyjxM8OTY6l8LhTmdkq' };
-const KIT_VOICE = 'azure:en-GB-Ada:DragonHDLatestNeural';        // Dr. O's pick for Kit, 2026-10-23
+const KIT_VOICE = 'J64VNrjLE6uKFBKlxfSJ';        // Dr. O's pick for Kit's recorded stories, 2026-11-01 (ElevenLabs: the Azure voice sounded too robotic recorded). Her room still speaks with the Azure voice in gc-friend.js.
 
 /* Fragments (A.L.I.C.E.'s laboratory saga, the fairies' Human Summer): each one is read in the voice of whoever tells it. A teller with no voice is SKIPPED and reported, never guessed. */
 function planFragments(data, extraVoices) {
@@ -61,10 +61,9 @@ function planFragments(data, extraVoices) {
 
 /* Kit's field notes (explorer-episodes.json): one spoken story each. The visitor is her boss, an in-joke of Dr. O's, so the {name} slot becomes "boss".
    Tilly's own words inside a story are read in Tilly's voice (Dr. O's pick, 2026-11-01). An episode lists them as tilly_lines, each one exactly as it is quoted in the text;
-   everything else stays Kit's. Kit is Azure at 24 kHz, so Tilly (ElevenLabs) is asked for 24 kHz too: the pieces are joined end to end, and mp3 of two different
-   sample rates joined like that can play at the wrong pitch. A line that is listed but cannot be found in the text is reported as skipped, never guessed. */
+   everything else stays Kit's. Both are ElevenLabs, so the pieces share one format when they are joined end to end. A line that is listed but cannot be found in the text
+   is reported as skipped, never guessed. */
 const TILLY_VOICE = 'ZF6FPAbjXT4488VcRRnw';
-const TILLY_FORMAT = 'mp3_24000_48';
 function kitParts(ep) {
   let rest = String(ep.text || '').replace(/\{name\}/g, 'boss').replace(/\s{2,}/g, ' ').trim();
   if (!rest) return { parts: [], skipped: [] };
@@ -76,7 +75,7 @@ function kitParts(ep) {
     left.forEach((l) => { const i = rest.indexOf('"' + l + '"'); if (i >= 0 && (at < 0 || i < at)) { at = i; pick = l; } });
     if (pick === null) { left.forEach((l) => skipped.push({ id: ep.id, who: 'tilly line not found: ' + l.slice(0, 30) })); break; }
     kit(rest.slice(0, at));
-    parts.push({ who: 'tilly', voice: TILLY_VOICE, format: TILLY_FORMAT, text: pick });
+    parts.push({ who: 'tilly', voice: TILLY_VOICE, text: pick });
     rest = rest.slice(at + pick.length + 2);
     left = left.filter((l) => l !== pick);
   }
@@ -84,4 +83,4 @@ function kitParts(ep) {
   return { parts, skipped };
 }
 
-module.exports = { VOICES, SAGA_VOICES, KIT_VOICE, TILLY_VOICE, TILLY_FORMAT, fixNameSlot, speakable, plan, planFragments, kitParts };
+module.exports = { VOICES, SAGA_VOICES, KIT_VOICE, TILLY_VOICE, fixNameSlot, speakable, plan, planFragments, kitParts };

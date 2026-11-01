@@ -7,7 +7,7 @@
    It voices each beat in its own character's voice (Reggie, Biscuit, Mochi), joins the pieces, and stores ep-<series>-<episode>_v<n>.mp3.
    One story costs roughly a few cents of ElevenLabs characters. It will not record a story that is already recorded unless asked again ({again:true}, which
    keeps the old one and makes the next _v). It will not start a second recording of the same story while one is running.
-   The three dogs' stories (pack-episodes.json), Nora's and Cressida's (rising-sun/box-stories.json), A.L.I.C.E.'s saga and the fairies' Human Summer (fragments, only the tellers who have a voice) and Kit's three field notes (Azure for Kit, ElevenLabs for Tilly's quoted lines) are all done here.
+   The three dogs' stories (pack-episodes.json), Nora's and Cressida's (rising-sun/box-stories.json), A.L.I.C.E.'s saga and the fairies' Human Summer (fragments, only the tellers who have a voice) and Kit's three field notes (Kit and Tilly's quoted lines, both ElevenLabs) are all done here.
    NOT TRIED against the real ElevenLabs service: it needs Dr. O to press it, because every recording spends ElevenLabs credit. 64 kbps mp3, so a five minute story stays
    under the 6 MB a function may send back. The pieces are joined end to end with no added pause. */
 const sun = require('./_sun.js');
@@ -27,7 +27,7 @@ const MODEL = 'eleven_turbo_v2_5';
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true };
 /* What there is to record, per series: the episodes (id, and a function that returns the voiced parts and the parts skipped for want of a voice).
    The three dogs and Nora and Cressida are written as beats; A.L.I.C.E.'s saga and the fairies' Human Summer are collections of short fragments told by several voices
-   (a teller with no voice yet is left out and reported, never guessed); Kit's are three short field notes in an Azure voice, with Tilly's quoted lines in hers. */
+   (a teller with no voice yet is left out and reported, never guessed); Kit's are three short field notes, with Tilly's quoted lines in her voice. */
 function sources(deps) {
   const out = {};
   const pack = (deps.pack || PACK).episodes || [];
@@ -45,8 +45,8 @@ function writtenMap(deps = {}) {
   return m;
 }
 
-async function speak(key, voiceId, text, fetchFn = fetch, format = 'mp3_44100_64') {
-  const r = await fetchFn('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voiceId) + '?output_format=' + encodeURIComponent(format), {
+async function speak(key, voiceId, text, fetchFn = fetch) {
+  const r = await fetchFn('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voiceId) + '?output_format=mp3_44100_64', {
     method: 'POST',
     headers: { 'xi-api-key': key, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
     body: JSON.stringify({ text: String(text).slice(0, 2500), model_id: MODEL, voice_settings: VOICE_SETTINGS }),
@@ -56,14 +56,14 @@ async function speak(key, voiceId, text, fetchFn = fetch, format = 'mp3_44100_64
 }
 
 /* One part, in whichever service its voice belongs to: an id that starts with azure: is spoken by Azure (Kit), anything else by ElevenLabs. */
-async function speakAny(key, voiceId, text, fetchFn, event, deps, format) {
+async function speakAny(key, voiceId, text, fetchFn, event, deps) {
   if (String(voiceId).indexOf('azure:') === 0) {
     const name = azureVoiceName(voiceId);
     if (!name) throw new Error('bad_azure_voice');
     const env = (deps && deps.azureEnv) || await require('./_gc-config.js').azureEnv(event);
     return azureSpeak(text, name, { env, fetchFn: fetchFn || fetch });
   }
-  return speak(key, voiceId, text, fetchFn, format || undefined);
+  return speak(key, voiceId, text, fetchFn);
 }
 
 async function openStore(event) {
@@ -115,7 +115,7 @@ exports.handler = async (event, deps = {}) => {
   const budget = deps.budgetMs !== undefined ? deps.budgetMs : 8000, t0 = Date.now();
   try {
     while (done < parts.length) {
-      const buf = await (deps.speak || ((k, v, t, f, fmt) => speakAny(k, v, t, f, event, deps, fmt)))(key, parts[done].voice || plan.VOICES[parts[done].who], parts[done].text, deps.fetchFn, parts[done].format);
+      const buf = await (deps.speak || ((k, v, t, f) => speakAny(k, v, t, f, event, deps)))(key, parts[done].voice || plan.VOICES[parts[done].who], parts[done].text, deps.fetchFn);
       await store.set(pk(done), buf);
       done++;
       await store.setJSON(sk, { state: 'recording', done, total: parts.length, version, at: deps.now ? deps.now() : Date.now() });
