@@ -5,251 +5,381 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Box panel</title>
-<!-- 2026-10-30. Dr. O: pick the companion for the box, and push its three buttons from an app, like the robot panel.
-     It talks to one function, box-control, which the box also asks every few seconds. The access key is the home access code the box uses; it stays in this browser only.
-     NOT TRIED against the live site or the board yet. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400&display=swap">
+<script>try{var t=localStorage.getItem('box_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<!-- Box panel, 2026-10-30, redone 2026-11-01. Dr. O: pick the companion for the box and push its buttons from an app, "like our robot panel".
+     This page now uses the robot panel's own look (al-panel/index.html): its colours, fonts, cards and big soft tiles. It shows the picture of who is in the box,
+     and when a music track or soundscape is picked, a picture of that vibe (a photograph of the room for the party music, a drawn animation for the nature sounds).
+     It talks to box-control and box-duet. The access code is the one the box uses and stays in this browser only. NOT TRIED against the live site or the board. -->
 <style>
-  :root{--bg:#f6f1e8;--panel:#ffffff;--line:#e0d8c8;--ink:#2a1d12;--text:#4d3f33;--mute:#6f6254;--accent:#b8531c;--on-accent:#ffffff;--field:#ffffff;--bad:#b3261e;--ok:#2d6a3e}
-  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#17110d;--panel:#211914;--line:#3a2d23;--ink:#f6ece0;--text:#d6c8b8;--mute:#a99a89;--accent:#f08a4b;--on-accent:#1b1008;--field:#2a2018;--bad:#ff8a80;--ok:#8fd19e}}
-  :root[data-theme="dark"]{--bg:#17110d;--panel:#211914;--line:#3a2d23;--ink:#f6ece0;--text:#d6c8b8;--mute:#a99a89;--accent:#f08a4b;--on-accent:#1b1008;--field:#2a2018;--bad:#ff8a80;--ok:#8fd19e}
+  :root{
+    --bg:#f4f3ee;--panel:#ffffff;--line:#d8d6cc;--line2:#c2beb0;
+    --ink:#16202b;--text:#3f4d54;--mute:#6b7683;
+    --accent:#35806f;--accent-bg:#e2efec;
+    --status:#28527a;--status-bg:#e4ebf1;--bad:#b3261e;
+    --night:#10161d;--field:#ffffff;--on-status:#ffffff;--on-accent:#ffffff;--muted-dot:#7c8694;
+    --mono:'IBM Plex Mono',monospace;--body:'Public Sans',sans-serif;--display:Spectral,serif;
+  }
+  :root[data-theme="dark"]{
+    --bg:#10161d;--panel:#18212b;--line:#2a3541;--line2:#3a4756;
+    --ink:#eef2f5;--text:#c4ccd3;--mute:#8d99a5;
+    --accent:#5fc4ab;--accent-bg:#17352f;--status:#7fb3e6;--status-bg:#1c2b3a;--bad:#ff8a80;
+    --night:#0a0f14;--field:#1f2a36;--on-status:#0e1620;--on-accent:#0e1620;--muted-dot:#8d99a5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10161d;--panel:#18212b;--line:#2a3541;--line2:#3a4756;
+      --ink:#eef2f5;--text:#c4ccd3;--mute:#8d99a5;
+      --accent:#5fc4ab;--accent-bg:#17352f;--status:#7fb3e6;--status-bg:#1c2b3a;--bad:#ff8a80;
+      --night:#0a0f14;--field:#1f2a36;--on-status:#0e1620;--on-accent:#0e1620;--muted-dot:#8d99a5;
+    }
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  main{max-width:560px;margin:0 auto;padding:24px 16px 48px}
-  h1{margin:0 0 4px;color:var(--ink);font-size:1.5rem}
-  p.lead{margin:0 0 20px;color:var(--mute)}
-  section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
-  h2{margin:0 0 10px;color:var(--ink);font-size:1.05rem}
-  label{display:block;margin-bottom:6px;font-weight:600;color:var(--ink)}
-  input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit}
-  button{width:100%;padding:16px;margin-top:10px;border:0;border-radius:10px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;cursor:pointer;min-height:52px}
-  button.quiet{background:transparent;color:var(--accent);border:1px solid var(--accent);min-height:44px}
-  button:disabled{opacity:.45;cursor:not-allowed}
-  .note{margin:8px 0 0;font-size:.9rem;color:var(--mute)}
-  #msg{min-height:1.4em;margin-top:8px;font-weight:600}
-  #msg.bad{color:var(--bad)} #msg.ok{color:var(--ok)}
-  .hidden{display:none}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 110px}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+  header .mark{font-family:var(--display);font-weight:500;font-size:30px;color:var(--ink);letter-spacing:2px}
+  header .word{font-size:14px;line-height:1.3;color:var(--mute);border-left:1px solid var(--line2);padding-left:12px}
+  h1{font-family:var(--display);font-weight:300;font-size:clamp(30px,5vw,44px);line-height:1.12;margin:0 0 6px;color:var(--ink)}
+  h1 em{font-style:italic;color:var(--status)}
+  .sub{margin:0 0 16px;font-size:16px;max-width:60ch}
+  .status{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);color:var(--ink)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--muted-dot)}
+  .status.live .dot{background:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .card.wide{grid-column:1/-1}
+  h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0 0 4px;color:var(--ink)}
+  h3{font-family:var(--display);font-weight:400;font-size:17px;margin:18px 0 8px;color:var(--ink)}
+  .hint{margin:0 0 14px;font-size:14px;color:var(--mute)}
+  button,select,input[type=text],input[type=password]{font-family:var(--body);font-size:15px}
+  button{cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--ink);padding:10px 16px;border-radius:8px;min-height:44px}
+  button:hover{border-color:var(--status)}
+  button.primary{background:var(--status);color:var(--on-status);border-color:var(--status)}
+  button.green{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  button:disabled{opacity:.5;cursor:default}
+  input[type=text],input[type=password],select{width:100%;padding:10px 12px;border:1px solid var(--line2);border-radius:8px;background:var(--field);color:var(--ink);min-height:44px}
+  label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .row button{flex:1;min-width:130px}
+  .themebtn{margin-left:auto;font-size:13px;padding:6px 12px;min-height:34px}
+
+  /* who is in the box */
+  .nowbox{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .portrait{flex:none;width:130px;aspect-ratio:172/320;border-radius:12px;overflow:hidden;background:var(--night);border:1px solid var(--line)}
+  .portrait img{width:100%;height:100%;object-fit:cover;display:block}
+  .nowtext{flex:1;min-width:180px}
+  .nowtext .big{font-family:var(--display);font-size:28px;color:var(--ink);line-height:1.15;margin:0}
+  .playing{margin:6px 0 0;font-size:15px;color:var(--ink);min-height:1.5em}
+  .playing b{color:var(--accent)}
+
+  /* music and soundscape */
+  .vibe{position:relative;border-radius:12px;overflow:hidden;background:var(--night);aspect-ratio:16/9;max-height:340px;width:100%;margin:6px 0 14px;border:1px solid var(--line)}
+  .vibe canvas,.vibe img,.vibe video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .vibe .cap{position:absolute;left:0;right:0;bottom:0;padding:26px 16px 12px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-family:var(--display);font-size:22px}
+  .vibe .cap small{display:block;font-family:var(--body);font-size:13px;opacity:.85}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .tile{font-family:var(--body);font-size:16px;font-weight:700;min-height:82px;border-radius:16px;border:3px solid transparent;color:#16202b;padding:12px;text-align:center;line-height:1.25}
+  .tile.music{background:#a9c9ea}
+  .tile.sound{background:#f3dc8c}
+  .tile.picked{border-color:var(--ink)}
+  .tile.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+  .tile small{display:block;font-weight:400;font-size:12px;margin-top:2px;opacity:.75}
+  .tile:focus-visible,button:focus-visible{outline:3px solid var(--status);outline-offset:2px}
+
+  .bigline{font-family:var(--display);font-size:30px;color:var(--ink);margin:2px 0 4px}
+  .note{margin:8px 0 0;font-size:13px;color:var(--mute)}
+  .hidden{display:none !important}
+  #msg{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);max-width:min(92vw,560px);background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:12px 18px;font-weight:600;color:var(--ink);box-shadow:0 6px 24px rgba(0,0,0,.18);z-index:5}
+  #msg.bad{border-color:var(--bad);color:var(--bad)} #msg.ok{border-color:var(--accent)}
+  @media (prefers-reduced-motion: reduce){ .vibe canvas{display:none} }
 </style>
 </head>
 <body>
-<main>
-  <h1>Box panel</h1>
-  <p class="lead">Pick who is in the box, then push her buttons from here.</p>
+<div class="wrap">
+  <header>
+    <span class="mark">ETL</span><span class="word">Companion box<br>panel</span>
+    <button class="themebtn" id="themeBtn" type="button">Dark</button>
+  </header>
+  <h1 id="h1">Box panel</h1>
+  <p class="sub" id="sub">Pick who is in the box, then push her buttons from here.</p>
+  <div class="status" id="status"><span class="dot"></span><span id="statusText">Not connected</span></div>
 
-  <section id="keyCard">
+  <section class="card" id="keyCard" style="margin-top:22px;max-width:460px">
     <h2>Access code</h2>
-    <label for="key">The home access code for this box</label>
-    <input id="key" type="password" autocomplete="off">
-    <button id="keyGo" type="button">Connect</button>
-    <p class="note">It stays in this browser only.</p>
+    <p class="hint">The home access code for this box. It stays in this browser only.</p>
+    <input id="key" type="password" autocomplete="off" aria-label="Access code">
+    <div class="row"><button id="keyGo" class="primary" type="button">Connect</button></div>
   </section>
 
-  <section id="boxCard" class="hidden">
-    <h2>Which box</h2>
-    <label for="boxSel">Box</label>
-    <select id="boxSel"></select>
-    <label for="boxNew" style="margin-top:12px">Add another box (a short name, like kitchen or desk)</label>
-    <input id="boxNew" type="text" maxlength="20" autocomplete="off">
-    <button id="boxAdd" type="button" class="quiet">Add this box</button>
-    <p class="note">Each box has its own name and its own companion. The box has its name in its code (BOX_NAME in secrets.h).</p>
-  </section>
+  <div class="grid hidden" id="main">
+    <section class="card" id="nowCard">
+      <div class="nowbox">
+        <div class="portrait"><img id="face" alt="" src=""></div>
+        <div class="nowtext">
+          <p class="big" id="nowName"></p>
+          <p class="hint" id="nowBox" style="margin:2px 0 0"></p>
+          <p class="playing" id="nowPlaying"></p>
+        </div>
+      </div>
+      <label for="who">Who is in the box</label>
+      <select id="who"></select>
+      <p class="note" id="whoNote"></p>
+    </section>
 
-  <section id="pick" class="hidden">
-    <h2>Who is in the box</h2>
-    <label for="who">Companion</label>
-    <select id="who"></select>
-    <p class="note" id="whoNote"></p>
-  </section>
+    <section class="card" id="buttons">
+      <h2>Talk</h2>
+      <p class="hint">The box takes a few seconds to notice a button pushed here.</p>
+      <div class="row"><button id="bChat" class="green" type="button"></button></div>
+      <div class="row"><button id="bSecond" class="primary" type="button"></button></div>
+    </section>
 
-  <section id="buttons" class="hidden">
-    <h2>Her buttons</h2>
-    <button id="bSound" type="button"></button>
-    <button id="bSecond" type="button"></button>
-    <button id="bChat" type="button"></button>
-    <button id="bStop" type="button" class="quiet">Stop the music or soundscape</button>
-    <label for="sceneSel" style="margin-top:14px">Or pick one</label>
-    <select id="sceneSel"></select>
-    <button id="bScene" type="button" class="quiet">Play this one</button>
-    <p class="note">The box takes a few seconds to notice a button pushed here. It asks the website every few seconds.</p>
-  </section>
+    <section class="card wide" id="tilesCard">
+      <h2>Music and Soundscape</h2>
+      <p class="hint">Tap one to play it. A picture of the vibe appears here.</p>
+      <div class="vibe hidden" id="vibe">
+        <canvas id="vibeCanvas"></canvas>
+        <img id="vibeImg" alt="" class="hidden">
+        <video id="vibeVid" muted loop playsinline class="hidden"></video>
+        <div class="cap" id="vibeCap"></div>
+      </div>
+      <div class="row" style="margin-top:0">
+        <button id="bSound" class="primary" type="button">Next one</button>
+        <button id="bStop" type="button">Stop</button>
+      </div>
+      <h3>Music</h3>
+      <div class="tiles" id="tilesMusic"></div>
+      <h3>Sounds</h3>
+      <div class="tiles" id="tilesSound"></div>
+    </section>
 
-  <section id="duetCard" class="hidden">
-    <h2>Chat mode</h2>
-    <p class="note" style="margin-top:0">Two boxes talk to each other, one at a time. Each box says its own companion's lines. Pick two boxes that have different companions.</p>
-    <label for="duetA">First box (speaks first)</label>
-    <select id="duetA"></select>
-    <label for="duetB" style="margin-top:12px">Second box</label>
-    <select id="duetB"></select>
-    <label for="duetTopic" style="margin-top:12px">Topic (optional)</label>
-    <input id="duetTopic" type="text" maxlength="200" autocomplete="off">
-    <label for="duetTurns" style="margin-top:12px">Lines in all</label>
-    <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select>
-    <button id="duetGo" type="button">Start chat mode</button>
-    <button id="duetStop" type="button" class="quiet">Stop</button>
-    <p class="note" id="duetState"></p>
-  </section>
+    <section class="card" id="duetCard">
+      <h2>Chat mode</h2>
+      <p class="hint">Two boxes talk to each other, one at a time. Each says its own companion's lines. Pick two boxes with different companions.</p>
+      <label for="duetA">First box (speaks first)</label><select id="duetA"></select>
+      <label for="duetB">Second box</label><select id="duetB"></select>
+      <label for="duetTopic">Topic (optional)</label><input id="duetTopic" type="text" maxlength="200" autocomplete="off">
+      <label for="duetTurns">Lines in all</label>
+      <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select>
+      <div class="row"><button id="duetGo" class="green" type="button">Start chat mode</button><button id="duetStop" type="button">Stop</button></div>
+      <p class="note" id="duetState"></p>
+    </section>
 
-  <section id="listenCard" class="hidden">
-    <h2>Listening</h2>
-    <button id="bListen" type="button" class="quiet"></button>
-    <p class="note" id="listenNote"></p>
-    <button id="bWakeBy" type="button" class="quiet"></button>
-    <p class="note" id="wakeNote"></p>
-  </section>
+    <section class="card" id="listenCard">
+      <h2>Listening</h2>
+      <div class="row"><button id="bListen" type="button"></button></div>
+      <p class="note" id="listenNote"></p>
+      <div class="row"><button id="bWakeBy" type="button"></button></div>
+      <p class="note" id="wakeNote"></p>
+    </section>
 
-  <section id="volCard" class="hidden">
-    <h2>Volume</h2>
-    <p id="volLine" style="margin:0"></p>
-    <button id="bVolDown" type="button" class="quiet">Quieter</button>
-    <button id="bVolUp" type="button" class="quiet">Louder</button>
-    <p class="note">Each press changes it by 5. If her voice crackles like static, try a lower number. The box takes a few seconds to change.</p>
-  </section>
+    <section class="card" id="volCard">
+      <h2>Volume</h2>
+      <p class="bigline" id="volLine"></p>
+      <div class="row"><button id="bVolDown" type="button">Quieter</button><button id="bVolUp" type="button">Louder</button></div>
+      <p class="note">Each press changes it by 5. If her voice crackles like static, try a lower number.</p>
+    </section>
 
-  <section id="batt" class="hidden">
-    <h2>Battery</h2>
-    <p id="battLine" style="margin:0"></p>
-    <p class="note">Both the percentage and the charging line are estimates from the battery voltage, a guess from whether it is rising or falling. The charge light on the board is the sure sign.</p>
-  </section>
+    <section class="card" id="batt">
+      <h2>Battery</h2>
+      <p class="bigline" id="battBig"></p>
+      <p class="note" id="battLine"></p>
+      <p class="note">Both the percentage and the charging line are estimates from the battery voltage. The charge light on the board is the sure sign.</p>
+    </section>
 
-  <div id="msg" role="status" aria-live="polite"></div>
-</main>
+    <section class="card" id="boxCard">
+      <h2>Which box</h2>
+      <label for="boxSel">Box</label><select id="boxSel"></select>
+      <label for="boxNew">Add another box (a short name, like kitchen or desk)</label>
+      <input id="boxNew" type="text" maxlength="20" autocomplete="off">
+      <div class="row"><button id="boxAdd" type="button">Add this box</button></div>
+      <p class="note">Each box has its own name and its own companion. The box has its name in its code (BOX_NAME in secrets.h).</p>
+    </section>
+  </div>
+
+  <div id="msg" role="status" aria-live="polite" class="hidden"></div>
+</div>
 <script>
 (function () {
   var API = '/.netlify/functions/box-control';
   var $ = function (id) { return document.getElementById(id); };
-  var key = '', data = null, box = 'main';
+  var key = '', data = null, box = 'main', picked = '';
   try { key = localStorage.getItem('box_key') || ''; box = localStorage.getItem('box_name') || 'main'; } catch (e) {}
   function cleanName(v) { v = String(v || '').toLowerCase().trim(); return /^[a-z0-9-]{1,20}$/.test(v) ? v : ''; }
 
-  function say(t, kind) { var m = $('msg'); m.textContent = t || ''; m.className = kind || ''; }
+  var msgTimer = null;
+  function say(t, kind, keep) {
+    var m = $('msg'); clearTimeout(msgTimer);
+    if (!t) { m.classList.add('hidden'); return; }
+    m.textContent = t; m.className = kind || ''; m.classList.remove('hidden');
+    if (!keep) msgTimer = setTimeout(function () { m.classList.add('hidden'); }, 7000);
+  }
   function call(method, body) {
     if (body) body.box = box;
     return fetch(API + (method === 'GET' ? '?id=' + encodeURIComponent(box) : ''), { method: method, headers: { 'x-sun-key': key, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
   }
   function current() { return data.companions.filter(function (c) { return c.id === data.companion; })[0]; }
+  function sceneOf(id) { var c = current(); return (c && c.scenes || []).filter(function (s) { return s.id === id; })[0]; }
+  function option(sel, v, t, on) { var o = document.createElement('option'); o.value = v; o.textContent = t; if (on) o.selected = true; sel.appendChild(o); }
 
-  function draw() {
-    var bs = $('boxSel'); bs.innerHTML = '';
-    (data.boxes && data.boxes.length ? data.boxes : [box]).forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; if (n === box) o.selected = true; bs.appendChild(o); });
-    $('boxCard').classList.remove('hidden');
-    var sel = $('who');
-    sel.innerHTML = '';
-    data.companions.forEach(function (c) {
-      var o = document.createElement('option'); o.value = c.id; o.textContent = c.display; if (c.id === data.companion) o.selected = true; sel.appendChild(o);
-    });
-    var c = current();
-    $('whoNote').textContent = c.needsHuman ? 'Marked "needs a human" in the Good Company list.' : '';
-    var sound = $('bSound'), second = $('bSecond'), chat = $('bChat');
-    sound.textContent = 'Music and Soundscape';
-    sound.disabled = !c.soundscape;
-    chat.textContent = 'Chat with ' + c.display;
-    var ss = $('sceneSel'); ss.innerHTML = '';
-    (c.scenes || []).forEach(function (sc) { var o = document.createElement('option'); o.value = sc.id; o.textContent = sc.label + (sc.kind === 'music' ? '' : ' (sound)'); ss.appendChild(o); });
-    $('bScene').disabled = !(c.scenes && c.scenes.length);
-    if (c.second) { second.textContent = c.second.label + (c.second.ready ? '' : ' (not recorded yet)'); second.disabled = !c.second.ready; second.classList.remove('hidden'); }
-    else { second.classList.add('hidden'); }
-    $('pick').classList.remove('hidden'); $('buttons').classList.remove('hidden');
-    $('batt').classList.remove('hidden');
-    $('volCard').classList.remove('hidden');
-    $('volLine').textContent = 'Volume: ' + (data.volume == null ? 70 : data.volume) + ' of 100';
-    $('listenCard').classList.remove('hidden');
-    $('duetCard').classList.remove('hidden');
-    var cc = current();
-    $('bWakeBy').textContent = data.wakeBy === 'name' ? 'Woken by her name: switch to Hi ESP' : 'Woken by Hi ESP: switch to ' + cc.display + "'s name";
-    $('bWakeBy').disabled = !(cc && cc.wake) && data.wakeBy !== 'name';
-    $('wakeNote').textContent = data.wakeBy === 'name' ? 'Say her name, or Hey / Hello and her name. The board listens for it itself, so nothing is sent anywhere until it hears it. Not tried yet: if she does not answer, switch back to Hi ESP.' : 'Say Hi ESP to start. Switching to her name is a trial: the board has to be taught how her name sounds.';
-    ['duetA', 'duetB'].forEach(function (id, i) {
-      var sel = $(id), keep = sel.value; sel.innerHTML = '';
-      (data.boxes || []).forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
-      if (keep) sel.value = keep; else if (data.boxes && data.boxes[i]) sel.value = data.boxes[i];
-    });
-    $('bListen').textContent = data.listen === false ? 'Not listening: turn listening on' : 'Listening for the wake word: turn it off';
-    $('listenNote').textContent = data.listen === false ? 'The box ignores the wake word. Its lid buttons and the buttons on this page still work. The ring glows amber.' : 'The box answers when someone says the wake word.';
-    var bt = data.battery;
-    if (!bt) $('battLine').textContent = 'No battery reading from this box yet.';
-    else {
-      var ago = bt.secondsAgo < 90 ? 'just now' : (bt.secondsAgo < 5400 ? Math.round(bt.secondsAgo / 60) + ' minutes ago' : 'over an hour ago, so the box may be off');
-      var how = { charging: ' It looks like it is charging.', discharging: ' It looks like it is running on the battery.', full: ' It looks full.', steady: ' The reading is steady.', unknown: ' Working out whether it is charging; this takes about two minutes.' }[bt.state] || '';
-      $('battLine').textContent = 'About ' + bt.percent + '% (' + bt.volts.toFixed(2) + ' V), heard ' + ago + '.' + how;
+  // ---------- the picture of a vibe ----------
+  var anim = null;
+  function stopVibe() { if (anim) { cancelAnimationFrame(anim); anim = null; } var v = $('vibeVid'); try { v.pause(); } catch (e) {} v.removeAttribute('src'); v.load(); }
+  function hex(h, a) { var n = parseInt(h.slice(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; }
+  function drawVibe(vb) {
+    var cv = $('vibeCanvas'), ctx = cv.getContext('2d'), dpr = window.devicePixelRatio || 1;
+    var W = cv.clientWidth, H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var type = vb.type, ps = [], i, N = { rain: 90, snow: 90, embers: 60, fireflies: 38, stars: 80, confetti: 70, ripples: 0, waves: 0 }[type] || 40;
+    function R(a, b) { return a + Math.random() * (b - a); }
+    for (i = 0; i < N; i++) ps.push({ x: R(0, W), y: R(0, H), s: R(0.5, 1.5), r: R(1, 3.2), p: R(0, 6.28), c: 'hsl(' + Math.floor(R(0, 360)) + ',85%,62%)' });
+    var rings = [], t = 0;
+    function frame() {
+      t++;
+      var g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, vb.top); g.addColorStop(1, vb.bottom); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      var pc = vb.particle;
+      if (type === 'embers') { var gl = ctx.createRadialGradient(W / 2, H, 10, W / 2, H, H * 0.9); gl.addColorStop(0, hex(pc, 0.5)); gl.addColorStop(1, hex(pc, 0)); ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H); }
+      ps.forEach(function (p) {
+        if (type === 'rain') { p.y += 7 * p.s + 3; p.x -= 1; if (p.y > H) { p.y = -20; p.x = R(0, W); } ctx.strokeStyle = hex(pc, 0.55); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 2, p.y + 12 + 8 * p.s); ctx.stroke(); }
+        else if (type === 'snow') { p.y += 0.5 + p.s * 0.9; p.x += Math.sin(t / 40 + p.p) * 0.5; if (p.y > H) { p.y = -5; p.x = R(0, W); } ctx.fillStyle = hex(pc, 0.85); ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
+        else if (type === 'embers') { p.y -= 0.6 + p.s; p.x += Math.sin(t / 20 + p.p) * 0.6; if (p.y < -5) { p.y = H + 5; p.x = R(W * 0.25, W * 0.75); } ctx.fillStyle = hex(pc, 0.4 + 0.5 * Math.abs(Math.sin(t / 15 + p.p))); ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.8, 0, 6.28); ctx.fill(); }
+        else if (type === 'fireflies') { p.x += Math.sin(t / 60 + p.p) * 0.6; p.y += Math.cos(t / 70 + p.p) * 0.5; var a = 0.25 + 0.75 * Math.abs(Math.sin(t / 30 + p.p)); var gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 10); gr.addColorStop(0, hex(pc, a)); gr.addColorStop(1, hex(pc, 0)); ctx.fillStyle = gr; ctx.fillRect(p.x - 10, p.y - 10, 20, 20); }
+        else if (type === 'stars') { var tw = 0.3 + 0.7 * Math.abs(Math.sin(t / 40 + p.p)); ctx.fillStyle = hex(pc, tw); ctx.beginPath(); ctx.arc(p.x, p.y * 0.8, p.r * 0.6, 0, 6.28); ctx.fill(); }
+        else if (type === 'confetti') { p.y += 1 + p.s * 1.5; p.x += Math.sin(t / 30 + p.p); if (p.y > H) { p.y = -8; p.x = R(0, W); } ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(t / 20 + p.p); ctx.fillStyle = p.r > 2.2 ? p.c : pc; ctx.fillRect(-3, -2, 7, 4); ctx.restore(); }
+      });
+      if (type === 'ripples') { if (t % 45 === 1) rings.push({ x: R(W * 0.15, W * 0.85), y: R(H * 0.2, H * 0.85), r: 2 }); rings = rings.filter(function (r) { return r.r < H * 0.7; }); rings.forEach(function (r) { r.r += 0.8; ctx.strokeStyle = hex(pc, Math.max(0, 0.7 - r.r / (H * 0.7))); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(r.x, r.y, r.r * 1.6, r.r * 0.6, 0, 0, 6.28); ctx.stroke(); }); }
+      if (type === 'waves') { for (var L = 0; L < 4; L++) { ctx.beginPath(); ctx.moveTo(0, H); for (var x = 0; x <= W; x += 8) ctx.lineTo(x, H * (0.5 + L * 0.13) + Math.sin(x / (60 + L * 20) + t / (40 - L * 5) + L) * (10 + L * 4)); ctx.lineTo(W, H); ctx.closePath(); ctx.fillStyle = hex(pc, 0.12 + L * 0.1); ctx.fill(); } }
+      anim = requestAnimationFrame(frame);
     }
+    frame();
+  }
+  function showVibe(sc, playing) {
+    var st = $('vibe'); if (!sc) { st.classList.add('hidden'); stopVibe(); return; }
+    st.classList.remove('hidden');
+    $('vibeCap').innerHTML = '';
+    var cap = document.createElement('span'); cap.textContent = sc.label; var sm = document.createElement('small'); sm.textContent = playing ? 'Playing now' : 'Sent to the box'; $('vibeCap').appendChild(cap); $('vibeCap').appendChild(sm);
+    var img = $('vibeImg'), vid = $('vibeVid'), cv = $('vibeCanvas');
+    if (st.getAttribute('data-id') === sc.id) return;               // already showing this one: leave the picture running
+    st.setAttribute('data-id', sc.id); stopVibe();
+    img.classList.add('hidden'); vid.classList.add('hidden'); cv.classList.add('hidden');
+    if (sc.image) {
+      img.src = sc.image; img.classList.remove('hidden');
+      if (sc.video) { vid.onloadeddata = function () { vid.classList.remove('hidden'); try { vid.play(); } catch (e) {} }; vid.src = sc.video; }
+    } else if (sc.vibe) { cv.classList.remove('hidden'); drawVibe(sc.vibe); }
   }
 
-  function load() {
-    say('Connecting...');
+  // ---------- drawing the page ----------
+  function draw() {
+    var c = current(), nowSc = null, ago;
+    // status
+    var seen = data.seenAgo, st = $('status'), stt = $('statusText');
+    if (seen == null) { st.classList.remove('live'); stt.textContent = 'Waiting to hear from the box'; }
+    else if (seen < 90) { st.classList.add('live'); stt.textContent = 'Box online, checked in ' + seen + ' seconds ago'; }
+    else { st.classList.remove('live'); stt.textContent = 'Box not heard for ' + (seen < 5400 ? Math.round(seen / 60) + ' minutes' : 'over an hour') + ' (it may be off)'; }
+    // who
+    $('h1').innerHTML = ''; var em = document.createElement('em'); em.textContent = c.display; $('h1').appendChild(em); $('h1').appendChild(document.createTextNode(' is in the box'));
+    $('sub').textContent = 'Pick who is in the box, then push the buttons from here.';
+    $('nowName').textContent = c.display; $('nowBox').textContent = 'Box: ' + box;
+    var face = $('face'); face.parentNode.classList.toggle('hidden', !c.face); if (c.face && face.getAttribute('src') !== c.face) face.src = c.face; face.alt = 'Picture of ' + c.display;
+    var sel = $('who'); sel.innerHTML = ''; data.companions.forEach(function (x) { option(sel, x.id, x.display, x.id === data.companion); });
+    $('whoNote').textContent = c.needsHuman ? 'Marked "needs a human" in the Good Company list.' : '';
+    // what is playing
+    var np = $('nowPlaying'); np.innerHTML = '';
+    if (data.now && data.now.secondsAgo < 100) { np.appendChild(document.createTextNode('Playing: ')); var b = document.createElement('b'); b.textContent = data.now.label; np.appendChild(b); nowSc = sceneOf(data.now.scene); picked = data.now.scene; }
+    else np.textContent = 'Nothing playing right now.';
+    // talk
+    $('bChat').textContent = 'Chat with ' + c.display;
+    var second = $('bSecond');
+    if (c.second) { second.textContent = c.second.label + (c.second.ready ? '' : ' (not recorded yet)'); second.disabled = !c.second.ready; second.classList.remove('hidden'); } else { second.classList.add('hidden'); }
+    // tiles
+    ['tilesMusic', 'tilesSound'].forEach(function (id) { $(id).innerHTML = ''; });
+    (c.scenes || []).forEach(function (sc) {
+      var t = document.createElement('button'); t.type = 'button'; t.className = 'tile ' + (sc.kind === 'music' ? 'music' : 'sound'); t.setAttribute('data-id', sc.id); t.textContent = sc.label;
+      if (data.now && data.now.scene === sc.id && data.now.secondsAgo < 100) t.classList.add('on');
+      if (picked === sc.id) { t.classList.add('picked'); t.setAttribute('aria-pressed', 'true'); }
+      $(sc.kind === 'music' ? 'tilesMusic' : 'tilesSound').appendChild(t);
+    });
+    $('bSound').disabled = !c.soundscape;
+    var shown = nowSc || (picked ? sceneOf(picked) : null);
+    showVibe(shown, !!nowSc);
+    // listening, wake
+    $('bListen').textContent = data.listen === false ? 'Not listening: turn listening on' : 'Listening for the wake word: turn it off';
+    $('listenNote').textContent = data.listen === false ? 'The box ignores the wake word. Its lid buttons and the buttons on this page still work. The ring glows amber.' : 'The box answers when someone says the wake word.';
+    $('bWakeBy').textContent = data.wakeBy === 'name' ? 'Woken by her name: switch to Hi ESP' : 'Woken by Hi ESP: switch to ' + c.display + "'s name";
+    $('bWakeBy').disabled = !c.wake && data.wakeBy !== 'name';
+    $('wakeNote').textContent = data.wakeBy === 'name' ? 'Say her name, or Hey / Hello and her name. If she does not answer, switch back to Hi ESP.' : 'Say Hi ESP to start. Switching to her name is a trial.';
+    $('volLine').textContent = (data.volume == null ? 70 : data.volume) + ' of 100';
+    ['duetA', 'duetB'].forEach(function (id, i) { var s = $(id), keep = s.value; s.innerHTML = ''; (data.boxes || []).forEach(function (n) { option(s, n, n); }); if (keep) s.value = keep; else if (data.boxes && data.boxes[i]) s.value = data.boxes[i]; });
+    var bs = $('boxSel'); bs.innerHTML = ''; (data.boxes && data.boxes.length ? data.boxes : [box]).forEach(function (n) { option(bs, n, n, n === box); });
+    var bt = data.battery;
+    if (!bt) { $('battBig').textContent = 'No reading yet'; $('battLine').textContent = ''; }
+    else {
+      var how = { charging: 'It looks like it is charging.', discharging: 'It looks like it is running on the battery.', full: 'It looks full.', steady: 'The reading is steady.', unknown: 'Working out whether it is charging; this takes about two minutes.' }[bt.state] || '';
+      $('battBig').textContent = 'About ' + bt.percent + '% (' + bt.volts.toFixed(2) + ' V)'; $('battLine').textContent = how;
+    }
+    $('keyCard').classList.add('hidden'); $('main').classList.remove('hidden');
+  }
+
+  function load(quiet) {
+    if (!quiet) say('Connecting...', '', true);
     return call('GET').then(function (r) {
       if (r.status === 401) { say('That access code is not the one the website has.', 'bad'); return; }
       if (r.status === 503) { say('No home access code is set on the website yet.', 'bad'); return; }
       if (r.status !== 200) { say('The website did not answer properly.', 'bad'); return; }
-      data = r.body; say(''); draw(); $('keyCard').classList.add('hidden');
-    }).catch(function () { say('Could not reach the website.', 'bad'); });
+      data = r.body; if (!quiet) say(''); draw();
+    }).catch(function () { if (!quiet) say('Could not reach the website.', 'bad'); });
   }
 
   var pressing = false;
-  function lock(on) { ['bSound', 'bSecond', 'bChat', 'bStop', 'bScene'].forEach(function (id) { var b = $(id); if (b) b.disabled = on || (id === 'bSound' && !current().soundscape) || (id === 'bSecond' && current().second && !current().second.ready); }); }
+  function lock(on) {
+    var all = ['bSound', 'bSecond', 'bChat', 'bStop'].map($).concat([].slice.call(document.querySelectorAll('.tile')));
+    all.forEach(function (b) { if (b) b.disabled = on || (b.id === 'bSecond' && current().second && !current().second.ready); });
+    if (!on && current()) $('bSound').disabled = !current().soundscape;
+  }
   function press(button, label, scene) {
     if (pressing) return;
     pressing = true; lock(true);
     var pb = { action: 'press', button: button }; if (scene) pb.scene = scene;
     call('POST', pb).then(function (r) {
-      if (r.status !== 200) {
-        pressing = false; lock(false);
-        say(r.body && r.body.error === 'not_recorded_yet' ? 'That one is not recorded yet.' : 'The button did not go through.', 'bad');
-        return;
-      }
-      say(label + ' sent. Waiting for the box to pick it up...', 'ok');
+      if (r.status !== 200) { pressing = false; lock(false); say(r.body && r.body.error === 'not_recorded_yet' ? 'That one is not recorded yet.' : 'The button did not go through.', 'bad'); return; }
+      say(label + ' sent. Waiting for the box to pick it up...', 'ok', true);
       var tries = 0;
       var t = setInterval(function () {
         tries++;
         call('GET').then(function (g) {
-          var b = g.body || {}, ago = b.battery ? b.battery.secondsAgo : null;
-          if (!b.waiting) { clearInterval(t); pressing = false; lock(false); say('The box has it. ' + label + ' is starting.', 'ok'); }
+          var b = g.body || {}, ago = b.seenAgo;
+          if (!b.waiting) { clearInterval(t); pressing = false; lock(false); say('The box has it. ' + label + ' is starting.', 'ok'); data = b; draw(); }
           else if (tries >= 12) { clearInterval(t); pressing = false; lock(false); say('The box has not picked it up' + (ago != null ? ' (it last checked in ' + (ago < 90 ? ago + ' seconds' : Math.round(ago / 60) + ' minutes') + ' ago)' : '') + '. It may be off or busy.', 'bad'); }
         }).catch(function () {});
       }, 2000);
     }).catch(function () { pressing = false; lock(false); say('Could not reach the website.', 'bad'); });
   }
 
-  $('keyGo').addEventListener('click', function () {
-    key = $('key').value.trim();
-    try { localStorage.setItem('box_key', key); } catch (e) {}
-    load();
-  });
-  function switchBox(n) { box = n; try { localStorage.setItem('box_name', n); } catch (e) {} load(); }
+  $('keyGo').addEventListener('click', function () { key = $('key').value.trim(); try { localStorage.setItem('box_key', key); } catch (e) {} load(); });
+  $('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('keyGo').click(); });
+  function switchBox(n) { box = n; picked = ''; $('vibe').removeAttribute('data-id'); try { localStorage.setItem('box_name', n); } catch (e) {} load(); }
   $('boxSel').addEventListener('change', function () { switchBox($('boxSel').value); });
-  $('boxAdd').addEventListener('click', function () {
-    var n = cleanName($('boxNew').value);
-    if (!n) { say('Use a short name with letters, numbers or a dash.', 'bad'); return; }
-    $('boxNew').value = ''; switchBox(n);
-  });
+  $('boxAdd').addEventListener('click', function () { var n = cleanName($('boxNew').value); if (!n) { say('Use a short name with letters, numbers or a dash.', 'bad'); return; } $('boxNew').value = ''; switchBox(n); });
   $('who').addEventListener('change', function () {
     var id = $('who').value;
     call('POST', { action: 'set_companion', companion: id }).then(function (r) {
-      if (r.status === 200) { data.companion = id; draw(); say('The box will switch to ' + current().display + ' in a few seconds.', 'ok'); }
+      if (r.status === 200) { data.companion = id; picked = ''; $('vibe').removeAttribute('data-id'); draw(); say('The box will switch to ' + current().display + ' in a few seconds.', 'ok'); }
       else say('Could not change the companion.', 'bad');
     }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
   $('bWakeBy').addEventListener('click', function () {
     var by = data.wakeBy === 'name' ? 'hiesp' : 'name';
-    call('POST', { action: 'set_wake_by', by: by }).then(function (r) {
-      if (r.status === 200) { data.wakeBy = by; draw(); say('The box will change how it is woken in a few seconds.', 'ok'); }
-      else say('Could not change that.', 'bad');
-    }).catch(function () { say('Could not reach the website.', 'bad'); });
+    call('POST', { action: 'set_wake_by', by: by }).then(function (r) { if (r.status === 200) { data.wakeBy = by; draw(); say('The box will change how it is woken in a few seconds.', 'ok'); } else say('Could not change that.', 'bad'); }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
   function setVol(delta) {
     var v = Math.max(0, Math.min(100, (data.volume == null ? 70 : data.volume) + delta));
-    call('POST', { action: 'set_volume', volume: v }).then(function (r) {
-      if (r.status === 200) { data.volume = v; $('volLine').textContent = 'Volume: ' + v + ' of 100'; say('The box will change in a few seconds.', 'ok'); }
-      else say('Could not change the volume.', 'bad');
-    }).catch(function () { say('Could not reach the website.', 'bad'); });
+    call('POST', { action: 'set_volume', volume: v }).then(function (r) { if (r.status === 200) { data.volume = v; $('volLine').textContent = v + ' of 100'; say('The box will change in a few seconds.', 'ok'); } else say('Could not change the volume.', 'bad'); }).catch(function () { say('Could not reach the website.', 'bad'); });
   }
   $('bVolDown').addEventListener('click', function () { setVol(-5); });
   $('bVolUp').addEventListener('click', function () { setVol(5); });
   $('bListen').addEventListener('click', function () {
     var want = data.listen === false;
-    call('POST', { action: 'set_listen', listen: want }).then(function (r) {
-      if (r.status === 200) { data.listen = want; draw(); say(want ? 'The box will listen again in a few seconds.' : 'The box will stop listening in a few seconds.', 'ok'); }
-      else say('Could not change that.', 'bad');
-    }).catch(function () { say('Could not reach the website.', 'bad'); });
+    call('POST', { action: 'set_listen', listen: want }).then(function (r) { if (r.status === 200) { data.listen = want; draw(); say(want ? 'The box will listen again in a few seconds.' : 'The box will stop listening in a few seconds.', 'ok'); } else say('Could not change that.', 'bad'); }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
   function duetCall(method, body) {
     return fetch('/.netlify/functions/box-duet', { method: method, headers: { 'x-sun-key': key, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
@@ -257,29 +387,41 @@
   }
   function duetShow() {
     duetCall('GET').then(function (r) {
-      var run = r.body && r.body.run, el = $('duetState');
-      if (!run) { el.textContent = ''; return; }
+      var run = r.body && r.body.run, el = $('duetState'); if (!run) { el.textContent = ''; return; }
       var last = run.lines.length ? run.lines[run.lines.length - 1] : null;
       el.textContent = (run.active ? 'Running: ' + run.lines.length + ' of ' + run.max + ' lines.' : 'Not running' + (run.ended ? ' (' + run.ended.replace('_', ' ') + ').' : '.')) + (last ? ' Last line, from ' + last.by + ': ' + last.text : '');
     }).catch(function () {});
   }
-  setInterval(function () { if (!$('duetCard').classList.contains('hidden')) duetShow(); }, 4000);
+  setInterval(function () { if (data) duetShow(); }, 4000);
   $('duetGo').addEventListener('click', function () {
     var a = $('duetA').value, b = $('duetB').value;
     if (!a || !b || a === b) { say('Pick two different boxes.', 'bad'); return; }
-    duetCall('POST', { action: 'start', a: a, b: b, topic: $('duetTopic').value, turns: parseInt($('duetTurns').value, 10) }).then(function (r) {
-      if (r.status === 200) { say('Chat mode started. ' + a + ' speaks first, in a few seconds.', 'ok'); duetShow(); }
-      else say('Chat mode did not start.', 'bad');
-    }).catch(function () { say('Could not reach the website.', 'bad'); });
+    duetCall('POST', { action: 'start', a: a, b: b, topic: $('duetTopic').value, turns: parseInt($('duetTurns').value, 10) }).then(function (r) { if (r.status === 200) { say('Chat mode started. ' + a + ' speaks first, in a few seconds.', 'ok'); duetShow(); } else say('Chat mode did not start.', 'bad'); }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
-  $('duetStop').addEventListener('click', function () {
-    duetCall('POST', { action: 'stop' }).then(function () { say('Chat mode stopped.', 'ok'); duetShow(); }).catch(function () { say('Could not reach the website.', 'bad'); });
-  });
-  $('bSound').addEventListener('click', function () { press('soundscape', $('bSound').textContent); });
+  $('duetStop').addEventListener('click', function () { duetCall('POST', { action: 'stop' }).then(function () { say('Chat mode stopped.', 'ok'); duetShow(); }).catch(function () { say('Could not reach the website.', 'bad'); }); });
+
+  $('bSound').addEventListener('click', function () { press('soundscape', 'Next one'); });
   $('bSecond').addEventListener('click', function () { press('second', current().second.label); });
-  $('bScene').addEventListener('click', function () { var o = $('sceneSel').selectedOptions[0]; press('soundscape', o ? o.textContent : 'That one', $('sceneSel').value); });
-  $('bStop').addEventListener('click', function () { press('stop', 'Stop'); });
+  $('bStop').addEventListener('click', function () { picked = ''; $('vibe').removeAttribute('data-id'); showVibe(null); press('stop', 'Stop'); });
   $('bChat').addEventListener('click', function () { press('chat', 'Chat'); });
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('.tile'); if (!t || !data) return;
+    var sc = sceneOf(t.getAttribute('data-id')); if (!sc) return;
+    picked = sc.id; document.querySelectorAll('.tile').forEach(function (x) { x.classList.toggle('picked', x === t); });
+    showVibe(sc, false);                                           // the picture comes up at once
+    press('soundscape', sc.label, sc.id);
+  });
+
+  var dark = false;
+  function setTheme(t) { document.documentElement.setAttribute('data-theme', t); try { localStorage.setItem('box_theme', t); } catch (e) {} $('themeBtn').textContent = t === 'dark' ? 'Light' : 'Dark'; }
+  (function () { var cur = document.documentElement.getAttribute('data-theme'); if (!cur) cur = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; $('themeBtn').textContent = cur === 'dark' ? 'Light' : 'Dark'; })();
+  $('themeBtn').addEventListener('click', function () { setTheme(document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches) ? 'light' : 'dark'); });
+
+  setInterval(function () {                                         // keep what is shown fresh: who is in the box, what is playing, battery
+    if (!data || pressing) return;
+    var f = document.activeElement; if (f && (f.tagName === 'SELECT' || f.tagName === 'INPUT')) return;
+    load(true);
+  }, 6000);
 
   if (key) load();
 })();

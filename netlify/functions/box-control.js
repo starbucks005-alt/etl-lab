@@ -8,6 +8,7 @@
    The three buttons are chat, second (story, breathing, or nothing for a companion that has none) and soundscape. The same ones as the lid.
    Every call needs the header x-sun-key, the same home access code as the other box functions. With no code set it answers 503.
    GET ?screen=1  (the screen on the cover) -> plain text: companion=..., face=... and clip=... (a short silent video in box-clips, or empty). It never takes a pushed button.
+   The box also says what it is playing (?now=<scene>, empty when nothing), so the panel can show it.
    The box also sends its battery voltage (?batt=millivolts) each time it asks; the panel shows it.
    Each box has a name (for example kitchen or desk), sent as ?id= from the box and the panel, so two boxes in one home can be told apart and each have her own companion. No name means 'main'.
    NOT TRIED on the live site or the board. The test runs with a stand-in store. */
@@ -51,7 +52,7 @@ function describe(id, c) {
     id, display: c.display || id, needsHuman: !!c.needsHuman, face: c.face || '', wake: !!(c.wake && c.wake.phoneme),
     chat: true,
     soundscape: !!(c.scenes && Object.keys(c.scenes).length),
-    scenes: Object.keys(c.scenes || {}).sort().map((n) => ({ id: n, kind: (c.scenes[n] || {}).kind || 'sound', label: (c.scenes[n] || {}).label || n })),
+    scenes: Object.keys(c.scenes || {}).sort().map((n) => { const sc = c.scenes[n] || {}; return { id: n, kind: sc.kind || 'sound', label: sc.label || n, image: sc.image || '', video: sc.video || '', vibe: sc.vibe || null }; }),
     second: secondOut,
   };
 }
@@ -102,6 +103,8 @@ exports.handler = async (event, deps = {}) => {
     return text('companion=' + st.companion + '\nface=' + (c.face || '') + '\nclip=' + ((all[st.companion] || {}).clip || '') + '\n');
   }
   if (event.httpMethod === 'GET' && q.box) {
+    st.seen = now;                                  // the box is awake: it just asked
+    if (q.now !== undefined) { const nw = String(q.now).toLowerCase(); if (/^[a-z0-9-]{0,40}$/.test(nw)) st.now = nw ? { scene: nw, at: now } : null; }   // what the box is playing, empty when nothing
     const mv = parseInt(q.batt, 10);
     if (mv >= 2500 && mv <= 4500) {
       const hist = (st.battery && st.battery.hist) || [];
@@ -125,7 +128,9 @@ exports.handler = async (event, deps = {}) => {
 
   if (event.httpMethod === 'GET') {
     const battery = st.battery ? { volts: Math.round(st.battery.mv / 10) / 100, percent: batteryPercent(st.battery.mv), secondsAgo: Math.round((now - st.battery.at) / 1000), state: batteryState(st.battery, now) } : null;
-    return json(200, { box: id, boxes, battery, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
+    const nowScene = st.now && (all[st.companion].scenes || {})[st.now.scene];
+    const playing = st.now ? { scene: st.now.scene, label: (nowScene && nowScene.label) || st.now.scene, kind: (nowScene && nowScene.kind) || 'sound', secondsAgo: Math.round((now - st.now.at) / 1000) } : null;
+    return json(200, { box: id, boxes, battery, now: playing, seenAgo: st.seen ? Math.round((now - st.seen) / 1000) : null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
   }
 
   if (body.action === 'set_companion') {

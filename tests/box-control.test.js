@@ -105,6 +105,22 @@ const real = require('../rising-sun/box-lines.json');
   await handler(ev('POST', KEY, {}, { action: 'press', button: 'soundscape', box: 'tunes' }), d);
   assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'tunes' }), d)).body.includes('command=soundscape\n'));
 
+  // the panel can show what the box says it is playing, and clears it when the box says nothing
+  await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'tansy', box: 'now' }), d);
+  const firstScene = JSON.parse((await handler(ev('GET', KEY, { id: 'now' }), d)).body).companions.find((c) => c.id === 'tansy').scenes[0].id;
+  await handler(ev('GET', KEY, { box: '1', id: 'now', now: firstScene }), d);
+  const playing = JSON.parse((await handler(ev('GET', KEY, { id: 'now' }), d)).body).now;
+  assert.ok(playing && playing.scene === firstScene && playing.label && playing.secondsAgo === 0);
+  await handler(ev('GET', KEY, { box: '1', id: 'now', now: '' }), d);
+  assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'now' }), d)).body).now, null);
+  await handler(ev('GET', KEY, { box: '1', id: 'now', now: 'bad name!!' }), d);              // nonsense is ignored
+  assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'now' }), d)).body).now, null);
+
+  // the panel knows when the box last checked in
+  assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'brand-new-box' }), d)).body).seenAgo, null);
+  await handler(ev('GET', KEY, { box: '1', id: 'brand-new-box' }), d);
+  assert.strictEqual(JSON.parse((await handler(ev('GET', KEY, { id: 'brand-new-box' }), d)).body).seenAgo, 0);
+
   // choosing a companion; an unknown one is refused
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'nobody' }), d)).statusCode, 404);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera' }), d)).statusCode, 200);
@@ -147,6 +163,8 @@ const real = require('../rising-sun/box-lines.json');
   // every scene that is a file is a real, non-empty file in the repo, and has a kind and a label for the panel
   for (const [id, c] of Object.entries(real.companions)) for (const [n, sc] of Object.entries(c.scenes || {})) {
     assert.ok(sc.label && (sc.kind === 'music' || sc.kind === 'sound'), id + '/' + n + ' has a label and a kind');
+    assert.ok(sc.image || (sc.vibe && sc.vibe.type && sc.vibe.top && sc.vibe.bottom && sc.vibe.particle), id + '/' + n + ' has a picture or an animation');
+    for (const k of ['image', 'video']) if (sc[k]) assert.ok(require('fs').existsSync(require('path').join(__dirname, '..', sc[k])), id + '/' + n + ' ' + k + ' exists');
     if (sc.file) { const f = require('path').join(__dirname, '..', sc.file); assert.ok(require('fs').existsSync(f) && require('fs').statSync(f).size > 100000, id + '/' + n + ' file exists'); if (sc.kind === 'sound') assert.ok(require('fs').statSync(f).size < 900000, n + ' fits the sound buffer'); }
     else assert.ok(sc.sound, id + '/' + n + ' has a description to generate from');
   }

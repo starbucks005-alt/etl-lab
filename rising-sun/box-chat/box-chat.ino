@@ -72,6 +72,7 @@ String engineKey = "";                    // what the running engine was started
 bool nameMode = false;                    // true while the engine listens for the name instead of Hi ESP
 static sr_cmd_t nameCmds[3];
 int volumeNow = SPEAKER_VOLUME;           // the speaker volume, from the panel
+String nowPlaying = "";                 // the scene being played, told to the panel; empty when nothing
 String pendingCmd = "";                 // a command the panel pushed while a soundscape was playing, to do next
 String duetState = "";                  // chat mode: a turn number when it is this box's turn, "wait", or empty
 uint32_t lastAsk = 0;                    // when the box last asked the website
@@ -265,7 +266,7 @@ String peekCommand() {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME)) return "";
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&now=" + nowPlaying)) return "";
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(8000);
   String command = "";
@@ -476,16 +477,19 @@ void gardenscape(const String &want = "") {
   if (!playLine("garden", &scene, &file, &kind, want)) { ringColor(255, 0, 0); delay(1500); return; }
   if (!scene.length()) { Serial.println("The website named no scene"); return; }
   Serial.printf("Scene: %s (%s)\n", scene.c_str(), kind.length() ? kind.c_str() : "sound");
+  nowPlaying = scene;                                  // the panel shows it, from the next time the box asks
   if (file.length()) {
-    if (kind == "music") { streamMusic(file); return; }
-    size_t m = fetchSoundFile(file);
-    if (m < 32000) { ringColor(255, 0, 0); delay(1500); return; }
-    playGarden(m);
+    if (kind == "music") streamMusic(file);
+    else {
+      size_t m = fetchSoundFile(file);
+      if (m < 32000) { ringColor(255, 0, 0); delay(1500); } else playGarden(m);
+    }
+    nowPlaying = "";
     return;
   }
   size_t n = fetchGarden(scene);
-  if (n < 32000) { ringColor(255, 0, 0); delay(1500); return; }
-  playGarden(n);
+  if (n < 32000) { ringColor(255, 0, 0); delay(1500); } else playGarden(n);
+  nowPlaying = "";
 }
 
 // Sends what was recorded, then plays her answer.
@@ -603,7 +607,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01g (Music and Soundscape: files, music streaming), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01h (Music and Soundscape, and the panel shows what is playing), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
@@ -723,7 +727,7 @@ String askWebsite() {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&batt=" + batteryMillivolts())) return "";
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&batt=" + batteryMillivolts() + "&now=" + nowPlaying)) return "";
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(8000);
   int code = http.GET();
