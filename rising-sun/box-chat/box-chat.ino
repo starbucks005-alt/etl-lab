@@ -71,6 +71,7 @@ String wakeName = "", wakePhoneme = "";   // her name and how the chip hears it,
 String engineKey = "";                    // what the running engine was started with, so a change restarts it
 bool nameMode = false;                    // true while the engine listens for the name instead of Hi ESP
 static sr_cmd_t nameCmds[3];
+String pendingCmd = "";                 // a command the panel pushed while a soundscape was playing, to do next
 String duetState = "";                  // chat mode: a turn number when it is this box's turn, "wait", or empty
 uint32_t lastAsk = 0;                    // when the box last asked the website
 bool srOn = false;                        // true while the wake word engine is running
@@ -283,10 +284,15 @@ void playGarden(size_t bytes) {
   ringColor(0, 120, 40);
   while (keysPressed()) delay(20);                 // let the button go before listening for the next press
   int16_t out[512];
-  uint32_t start = millis();
+  uint32_t start = millis(), lastCheck = millis();
   while (millis() - start < GARDEN_MAX_MS) {
     for (size_t pos = 0; pos + 1 < bytes; ) {
       if (keysPressed()) { Serial.println("Garden stopped"); while (keysPressed()) delay(20); return; }
+      if (millis() - lastCheck > 5000) {            // every five seconds, ask the panel whether it should stop (a brief gap in the sound)
+        lastCheck = millis();
+        String c = askWebsite();
+        if (c.length()) { if (c != "stop") pendingCmd = c; Serial.println("Garden stopped from the panel"); return; }
+      }
       int o = 0;
       for (; o < 512 && pos + 1 < bytes; o += 2, pos += 2) { int16_t s16 = (int16_t)(gardenBuf[pos] | (gardenBuf[pos + 1] << 8)); out[o] = s16; out[o + 1] = s16; }
       i2s.write((uint8_t *)out, o * sizeof(int16_t));
@@ -613,7 +619,8 @@ void loop() {
     delay(400);
   } else if (millis() - lastAsk > (duetState.length() ? 1500UL : 4000UL)) {
     lastAsk = millis();
-    String cmd = askWebsite();
+    String cmd = pendingCmd.length() ? pendingCmd : askWebsite();
+    pendingCmd = "";
     if (srOn && engineKey != (wakeBy + "|" + wakeName + "|" + wakePhoneme)) { srPause(); srResume(); }   // the panel changed how the box is woken, or who is in it
     if (!listenWanted && srOn) srPause();          // the panel turned listening off
     if (listenWanted && !srOn && !duetState.length()) srResume();   // and back on, but not during chat mode
@@ -624,6 +631,7 @@ void loop() {
       lastAsk = millis() - 1200;                   // ask again soon, the other box is next
       return;
     }
+    if (cmd == "stop") cmd = "";                     // nothing is playing, so there is nothing to stop
     if (cmd.length()) {
       Serial.printf("Pushed from the panel: %s\n", cmd.c_str());
       srPause();

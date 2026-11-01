@@ -19,7 +19,7 @@ try { FILE = require('../../rising-sun/box-lines.json'); } catch (_) {}
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type, x-sun-key', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' };
 const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, CORS), body: JSON.stringify(o) });
 const text = (s) => ({ statusCode: 200, headers: Object.assign({ 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }, CORS), body: s });
-const BUTTONS = ['chat', 'second', 'soundscape'];
+const BUTTONS = ['chat', 'second', 'soundscape', 'stop'];     // stop ends a soundscape that is playing; it is always allowed
 const EXPIRES_MS = 60000;
 /* An estimate from the voltage of a single lithium cell: 3.3 V is nearly empty and 4.2 V is full. The real curve is not a straight line, so the panel says "about". */
 function batteryPercent(mv) { return Math.max(0, Math.min(100, Math.round((mv - 3300) / 9))); }

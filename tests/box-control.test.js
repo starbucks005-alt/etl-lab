@@ -109,6 +109,8 @@ const real = require('../rising-sun/box-lines.json');
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'press', button: 'second' }), d)).statusCode, 409);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'press', button: 'soundscape' }), d)).statusCode, 200);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'press', button: 'kick' }), d)).statusCode, 400);
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'press', button: 'stop' }), d)).statusCode, 200);
+  assert.ok((await handler(ev('GET', KEY, { box: '1' }), d)).body.includes('command=stop'));
 
   // the real file: every companion has a voice id and the two lines a quiet turn needs
   for (const [id, c] of Object.entries(real.companions)) {

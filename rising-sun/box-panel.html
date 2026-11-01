@@ -65,6 +65,7 @@
     <button id="bSound" type="button"></button>
     <button id="bSecond" type="button"></button>
     <button id="bChat" type="button"></button>
+    <button id="bStop" type="button" class="quiet">Stop the soundscape</button>
     <p class="note">The box takes a few seconds to notice a button pushed here. It asks the website every few seconds.</p>
   </section>
 
@@ -234,6 +235,7 @@
   });
   $('bSound').addEventListener('click', function () { press('soundscape', $('bSound').textContent); });
   $('bSecond').addEventListener('click', function () { press('second', current().second.label); });
+  $('bStop').addEventListener('click', function () { press('stop', 'Stop'); });
   $('bChat').addEventListener('click', function () { press('chat', 'Chat'); });
 
   if (key) load();
