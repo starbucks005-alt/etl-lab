@@ -227,3 +227,5 @@ Dr. O: on the last Reggie story, pressing Record acted like it was recording, th
 - Every refusal and every failure is now written down (`last-error`) and the panel's story library says it in words, for about fifteen minutes ("The last recording did not go through (market): the ElevenLabs account is out of credit.").
 - A recording that has made no progress for four minutes is taken to have died, so it no longer blocks that story for fifteen. (A stuck "recording" for one story never blocked the others.)
 - `tests/story-record.test.js` covers both. NOT tried against the real ElevenLabs service.
+
+The city noises from Julian's party music are called Cityscape on the panel (Dr. O, 2026-11-01: "this should be cityscape or something like that"). The scene's id and files are still fire-escape.
