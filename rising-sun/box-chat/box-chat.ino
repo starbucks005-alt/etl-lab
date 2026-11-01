@@ -57,7 +57,7 @@
 #define SPEAKER_VOLUME 70    // 0 to 100, as in box-voice
 #define MAX_RECORD_BYTES 256000   // 8 seconds of 16 bit mono at 16000 a second
 #define MIN_RECORD_BYTES 16000    // half a second, the website refuses less
-#define GARDEN_MAX_BYTES 700000   // one nature loop, about 20 seconds
+#define GARDEN_MAX_BYTES 1800000  // one nature loop, up to about 56 seconds (it was 700000, and the sound filled it exactly, so it was being cut off)
 #define GARDEN_MAX_MS    180000   // the garden plays for at most three minutes
 
 // One command is needed to start the speech engine; it is not used (taken from Waveshare's sample). Only the wake word matters here.
@@ -308,6 +308,7 @@ size_t fetchGarden(const String &scene) {
   WiFiClient *stream = http.getStreamPtr();
   size_t have = 0;
   int total = http.getSize();
+  Serial.printf("The website says the sound is %d bytes\n", total);
   uint32_t lastData = millis();
   while (http.connected() && (total > 0 || total == -1) && have < GARDEN_MAX_BYTES) {
     size_t avail = stream->available();
@@ -319,7 +320,8 @@ size_t fetchGarden(const String &scene) {
     if (total > 0) total -= n;
   }
   http.end();
-  Serial.printf("Got %u bytes (about %.1f seconds)\n", (unsigned)have, have / 32000.0f);
+  Serial.printf("Got %u bytes (about %.1f seconds)%s\n", (unsigned)have, have / 32000.0f, have >= GARDEN_MAX_BYTES ? ", THE BUFFER IS FULL, so the sound was cut off" : "");
+  if (have >= 12) Serial.printf("First bytes: %02x %02x %02x %02x %02x %02x %02x %02x (RIFF = a WAV file, ID3 or ff fb = MP3, anything else is probably raw sound)\n", gardenBuf[0], gardenBuf[1], gardenBuf[2], gardenBuf[3], gardenBuf[4], gardenBuf[5], gardenBuf[6], gardenBuf[7]);
   // A loop must start and end on sound. Any near-silence at either end is cut off, so there is no gap where it starts over.
   size_t samples = have / 2;
   int16_t *pcm = (int16_t *)gardenBuf;
@@ -482,7 +484,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01c (wake retries, panel Stop and Volume, background stop check, soundscape silence trimmed), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01d (wake retries, panel Stop and Volume, background stop check, soundscape silence trimmed, bigger soundscape buffer), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
