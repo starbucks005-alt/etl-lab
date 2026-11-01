@@ -39,126 +39,6 @@
           "video": "/good-company/video/party/fire-escape.mp4",
           "group": "sound"
         },
-        "campfire": {
-          "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
-          "kind": "sound",
-          "label": "Campfire",
-          "vibe": {
-            "type": "embers",
-            "top": "#1c0d08",
-            "bottom": "#7a2a0c",
-            "particle": "#ffb347"
-          },
-          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
-        },
-        "creek": {
-          "file": "/rising-sun/box-sounds/creek_v1.ulaw",
-          "kind": "sound",
-          "label": "Creek",
-          "vibe": {
-            "type": "ripples",
-            "top": "#13424a",
-            "bottom": "#4aa6a0",
-            "particle": "#d4fffb"
-          },
-          "image": "/rising-sun/box-vibes/creek_v1.jpg"
-        },
-        "gentle-rain": {
-          "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
-          "kind": "sound",
-          "label": "Gentle rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#2b3a46",
-            "bottom": "#8fa7b8",
-            "particle": "#e6f0f7"
-          },
-          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
-        },
-        "medieval-irish-tavern": {
-          "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
-          "kind": "sound",
-          "label": "Medieval Irish tavern",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#2b160a",
-            "bottom": "#7a4a1c",
-            "particle": "#ffd27a"
-          },
-          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
-        },
-        "mountain-flute": {
-          "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
-          "kind": "sound",
-          "label": "Mountain flute",
-          "vibe": {
-            "type": "waves",
-            "top": "#2a2350",
-            "bottom": "#c98a6b",
-            "particle": "#f4d9c6"
-          },
-          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
-        },
-        "nature": {
-          "file": "/rising-sun/box-sounds/nature_v1.ulaw",
-          "kind": "sound",
-          "label": "Nature",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#183b1d",
-            "bottom": "#6aa84f",
-            "particle": "#f0f7a8"
-          },
-          "image": "/rising-sun/box-vibes/nature_v1.jpg"
-        },
-        "party-happy-people": {
-          "file": "/rising-sun/box-sounds/party-happy-people_v1.ulaw",
-          "kind": "sound",
-          "label": "Party, happy people",
-          "vibe": {
-            "type": "confetti",
-            "top": "#3a1450",
-            "bottom": "#e0457b",
-            "particle": "#ffd23f"
-          },
-          "image": "/rising-sun/box-vibes/party-happy-people_v1.jpg"
-        },
-        "sunny-beach-waves": {
-          "file": "/rising-sun/box-sounds/sunny-beach-waves_v1.ulaw",
-          "kind": "sound",
-          "label": "Sunny beach waves",
-          "vibe": {
-            "type": "waves",
-            "top": "#52b6e8",
-            "bottom": "#f4e2b0",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/sunny-beach-waves_v1.jpg"
-        },
-        "tibetan-singing-bowl": {
-          "file": "/rising-sun/box-sounds/tibetan-singing-bowl_v1.ulaw",
-          "kind": "sound",
-          "label": "Tibetan singing bowl",
-          "vibe": {
-            "type": "ripples",
-            "top": "#3a2410",
-            "bottom": "#b8862b",
-            "particle": "#ffe9a8"
-          },
-          "image": "/rising-sun/box-vibes/tibetan-singing-bowl_v1.jpg"
-        },
-        "winter-holiday": {
-          "file": "/rising-sun/box-sounds/winter-holiday_v1.ulaw",
-          "kind": "sound",
-          "label": "Winter holiday",
-          "vibe": {
-            "type": "snow",
-            "top": "#0f2740",
-            "bottom": "#4d7fa6",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
-        },
         "creekside-fable": {
           "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
           "kind": "music",
@@ -169,7 +49,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creekside-fable_v1.jpg"
         },
         "mist-and-heather": {
           "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
@@ -181,7 +62,8 @@
             "top": "#2a2a3d",
             "bottom": "#8a7fa8",
             "particle": "#e8d9ff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mist-and-heather_v1.jpg"
         },
         "sunlit-shoreline": {
           "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
@@ -193,7 +75,8 @@
             "top": "#52b6e8",
             "bottom": "#f4e2b0",
             "particle": "#ffffff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/sunlit-shoreline_v1.jpg"
         },
         "winter-hearth": {
           "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
@@ -205,7 +88,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
         }
       },
       "display": "Tansy",
@@ -264,126 +148,6 @@
           "video": "/good-company/video/party/fire-escape.mp4",
           "group": "sound"
         },
-        "campfire": {
-          "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
-          "kind": "sound",
-          "label": "Campfire",
-          "vibe": {
-            "type": "embers",
-            "top": "#1c0d08",
-            "bottom": "#7a2a0c",
-            "particle": "#ffb347"
-          },
-          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
-        },
-        "creek": {
-          "file": "/rising-sun/box-sounds/creek_v1.ulaw",
-          "kind": "sound",
-          "label": "Creek",
-          "vibe": {
-            "type": "ripples",
-            "top": "#13424a",
-            "bottom": "#4aa6a0",
-            "particle": "#d4fffb"
-          },
-          "image": "/rising-sun/box-vibes/creek_v1.jpg"
-        },
-        "gentle-rain": {
-          "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
-          "kind": "sound",
-          "label": "Gentle rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#2b3a46",
-            "bottom": "#8fa7b8",
-            "particle": "#e6f0f7"
-          },
-          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
-        },
-        "medieval-irish-tavern": {
-          "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
-          "kind": "sound",
-          "label": "Medieval Irish tavern",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#2b160a",
-            "bottom": "#7a4a1c",
-            "particle": "#ffd27a"
-          },
-          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
-        },
-        "mountain-flute": {
-          "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
-          "kind": "sound",
-          "label": "Mountain flute",
-          "vibe": {
-            "type": "waves",
-            "top": "#2a2350",
-            "bottom": "#c98a6b",
-            "particle": "#f4d9c6"
-          },
-          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
-        },
-        "nature": {
-          "file": "/rising-sun/box-sounds/nature_v1.ulaw",
-          "kind": "sound",
-          "label": "Nature",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#183b1d",
-            "bottom": "#6aa84f",
-            "particle": "#f0f7a8"
-          },
-          "image": "/rising-sun/box-vibes/nature_v1.jpg"
-        },
-        "party-happy-people": {
-          "file": "/rising-sun/box-sounds/party-happy-people_v1.ulaw",
-          "kind": "sound",
-          "label": "Party, happy people",
-          "vibe": {
-            "type": "confetti",
-            "top": "#3a1450",
-            "bottom": "#e0457b",
-            "particle": "#ffd23f"
-          },
-          "image": "/rising-sun/box-vibes/party-happy-people_v1.jpg"
-        },
-        "sunny-beach-waves": {
-          "file": "/rising-sun/box-sounds/sunny-beach-waves_v1.ulaw",
-          "kind": "sound",
-          "label": "Sunny beach waves",
-          "vibe": {
-            "type": "waves",
-            "top": "#52b6e8",
-            "bottom": "#f4e2b0",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/sunny-beach-waves_v1.jpg"
-        },
-        "tibetan-singing-bowl": {
-          "file": "/rising-sun/box-sounds/tibetan-singing-bowl_v1.ulaw",
-          "kind": "sound",
-          "label": "Tibetan singing bowl",
-          "vibe": {
-            "type": "ripples",
-            "top": "#3a2410",
-            "bottom": "#b8862b",
-            "particle": "#ffe9a8"
-          },
-          "image": "/rising-sun/box-vibes/tibetan-singing-bowl_v1.jpg"
-        },
-        "winter-holiday": {
-          "file": "/rising-sun/box-sounds/winter-holiday_v1.ulaw",
-          "kind": "sound",
-          "label": "Winter holiday",
-          "vibe": {
-            "type": "snow",
-            "top": "#0f2740",
-            "bottom": "#4d7fa6",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
-        },
         "creekside-fable": {
           "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
           "kind": "music",
@@ -394,7 +158,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creekside-fable_v1.jpg"
         },
         "mist-and-heather": {
           "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
@@ -406,7 +171,8 @@
             "top": "#2a2a3d",
             "bottom": "#8a7fa8",
             "particle": "#e8d9ff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mist-and-heather_v1.jpg"
         },
         "sunlit-shoreline": {
           "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
@@ -418,7 +184,8 @@
             "top": "#52b6e8",
             "bottom": "#f4e2b0",
             "particle": "#ffffff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/sunlit-shoreline_v1.jpg"
         },
         "winter-hearth": {
           "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
@@ -430,7 +197,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
         }
       },
       "face": "/rising-sun/box-faces/meera_v1.jpg",
@@ -472,126 +240,6 @@
           "video": "/good-company/video/party/fire-escape.mp4",
           "group": "sound"
         },
-        "campfire": {
-          "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
-          "kind": "sound",
-          "label": "Campfire",
-          "vibe": {
-            "type": "embers",
-            "top": "#1c0d08",
-            "bottom": "#7a2a0c",
-            "particle": "#ffb347"
-          },
-          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
-        },
-        "creek": {
-          "file": "/rising-sun/box-sounds/creek_v1.ulaw",
-          "kind": "sound",
-          "label": "Creek",
-          "vibe": {
-            "type": "ripples",
-            "top": "#13424a",
-            "bottom": "#4aa6a0",
-            "particle": "#d4fffb"
-          },
-          "image": "/rising-sun/box-vibes/creek_v1.jpg"
-        },
-        "gentle-rain": {
-          "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
-          "kind": "sound",
-          "label": "Gentle rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#2b3a46",
-            "bottom": "#8fa7b8",
-            "particle": "#e6f0f7"
-          },
-          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
-        },
-        "medieval-irish-tavern": {
-          "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
-          "kind": "sound",
-          "label": "Medieval Irish tavern",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#2b160a",
-            "bottom": "#7a4a1c",
-            "particle": "#ffd27a"
-          },
-          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
-        },
-        "mountain-flute": {
-          "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
-          "kind": "sound",
-          "label": "Mountain flute",
-          "vibe": {
-            "type": "waves",
-            "top": "#2a2350",
-            "bottom": "#c98a6b",
-            "particle": "#f4d9c6"
-          },
-          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
-        },
-        "nature": {
-          "file": "/rising-sun/box-sounds/nature_v1.ulaw",
-          "kind": "sound",
-          "label": "Nature",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#183b1d",
-            "bottom": "#6aa84f",
-            "particle": "#f0f7a8"
-          },
-          "image": "/rising-sun/box-vibes/nature_v1.jpg"
-        },
-        "party-happy-people": {
-          "file": "/rising-sun/box-sounds/party-happy-people_v1.ulaw",
-          "kind": "sound",
-          "label": "Party, happy people",
-          "vibe": {
-            "type": "confetti",
-            "top": "#3a1450",
-            "bottom": "#e0457b",
-            "particle": "#ffd23f"
-          },
-          "image": "/rising-sun/box-vibes/party-happy-people_v1.jpg"
-        },
-        "sunny-beach-waves": {
-          "file": "/rising-sun/box-sounds/sunny-beach-waves_v1.ulaw",
-          "kind": "sound",
-          "label": "Sunny beach waves",
-          "vibe": {
-            "type": "waves",
-            "top": "#52b6e8",
-            "bottom": "#f4e2b0",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/sunny-beach-waves_v1.jpg"
-        },
-        "tibetan-singing-bowl": {
-          "file": "/rising-sun/box-sounds/tibetan-singing-bowl_v1.ulaw",
-          "kind": "sound",
-          "label": "Tibetan singing bowl",
-          "vibe": {
-            "type": "ripples",
-            "top": "#3a2410",
-            "bottom": "#b8862b",
-            "particle": "#ffe9a8"
-          },
-          "image": "/rising-sun/box-vibes/tibetan-singing-bowl_v1.jpg"
-        },
-        "winter-holiday": {
-          "file": "/rising-sun/box-sounds/winter-holiday_v1.ulaw",
-          "kind": "sound",
-          "label": "Winter holiday",
-          "vibe": {
-            "type": "snow",
-            "top": "#0f2740",
-            "bottom": "#4d7fa6",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
-        },
         "creekside-fable": {
           "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
           "kind": "music",
@@ -602,7 +250,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creekside-fable_v1.jpg"
         },
         "mist-and-heather": {
           "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
@@ -614,7 +263,8 @@
             "top": "#2a2a3d",
             "bottom": "#8a7fa8",
             "particle": "#e8d9ff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mist-and-heather_v1.jpg"
         },
         "sunlit-shoreline": {
           "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
@@ -626,7 +276,8 @@
             "top": "#52b6e8",
             "bottom": "#f4e2b0",
             "particle": "#ffffff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/sunlit-shoreline_v1.jpg"
         },
         "winter-hearth": {
           "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
@@ -638,7 +289,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
         }
       },
       "face": "/rising-sun/box-faces/marcus_v1.jpg",
@@ -683,126 +335,6 @@
           "video": "/good-company/video/party/fire-escape.mp4",
           "group": "sound"
         },
-        "campfire": {
-          "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
-          "kind": "sound",
-          "label": "Campfire",
-          "vibe": {
-            "type": "embers",
-            "top": "#1c0d08",
-            "bottom": "#7a2a0c",
-            "particle": "#ffb347"
-          },
-          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
-        },
-        "creek": {
-          "file": "/rising-sun/box-sounds/creek_v1.ulaw",
-          "kind": "sound",
-          "label": "Creek",
-          "vibe": {
-            "type": "ripples",
-            "top": "#13424a",
-            "bottom": "#4aa6a0",
-            "particle": "#d4fffb"
-          },
-          "image": "/rising-sun/box-vibes/creek_v1.jpg"
-        },
-        "gentle-rain": {
-          "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
-          "kind": "sound",
-          "label": "Gentle rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#2b3a46",
-            "bottom": "#8fa7b8",
-            "particle": "#e6f0f7"
-          },
-          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
-        },
-        "medieval-irish-tavern": {
-          "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
-          "kind": "sound",
-          "label": "Medieval Irish tavern",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#2b160a",
-            "bottom": "#7a4a1c",
-            "particle": "#ffd27a"
-          },
-          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
-        },
-        "mountain-flute": {
-          "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
-          "kind": "sound",
-          "label": "Mountain flute",
-          "vibe": {
-            "type": "waves",
-            "top": "#2a2350",
-            "bottom": "#c98a6b",
-            "particle": "#f4d9c6"
-          },
-          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
-        },
-        "nature": {
-          "file": "/rising-sun/box-sounds/nature_v1.ulaw",
-          "kind": "sound",
-          "label": "Nature",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#183b1d",
-            "bottom": "#6aa84f",
-            "particle": "#f0f7a8"
-          },
-          "image": "/rising-sun/box-vibes/nature_v1.jpg"
-        },
-        "party-happy-people": {
-          "file": "/rising-sun/box-sounds/party-happy-people_v1.ulaw",
-          "kind": "sound",
-          "label": "Party, happy people",
-          "vibe": {
-            "type": "confetti",
-            "top": "#3a1450",
-            "bottom": "#e0457b",
-            "particle": "#ffd23f"
-          },
-          "image": "/rising-sun/box-vibes/party-happy-people_v1.jpg"
-        },
-        "sunny-beach-waves": {
-          "file": "/rising-sun/box-sounds/sunny-beach-waves_v1.ulaw",
-          "kind": "sound",
-          "label": "Sunny beach waves",
-          "vibe": {
-            "type": "waves",
-            "top": "#52b6e8",
-            "bottom": "#f4e2b0",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/sunny-beach-waves_v1.jpg"
-        },
-        "tibetan-singing-bowl": {
-          "file": "/rising-sun/box-sounds/tibetan-singing-bowl_v1.ulaw",
-          "kind": "sound",
-          "label": "Tibetan singing bowl",
-          "vibe": {
-            "type": "ripples",
-            "top": "#3a2410",
-            "bottom": "#b8862b",
-            "particle": "#ffe9a8"
-          },
-          "image": "/rising-sun/box-vibes/tibetan-singing-bowl_v1.jpg"
-        },
-        "winter-holiday": {
-          "file": "/rising-sun/box-sounds/winter-holiday_v1.ulaw",
-          "kind": "sound",
-          "label": "Winter holiday",
-          "vibe": {
-            "type": "snow",
-            "top": "#0f2740",
-            "bottom": "#4d7fa6",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
-        },
         "creekside-fable": {
           "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
           "kind": "music",
@@ -813,7 +345,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creekside-fable_v1.jpg"
         },
         "mist-and-heather": {
           "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
@@ -825,7 +358,8 @@
             "top": "#2a2a3d",
             "bottom": "#8a7fa8",
             "particle": "#e8d9ff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mist-and-heather_v1.jpg"
         },
         "sunlit-shoreline": {
           "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
@@ -837,7 +371,8 @@
             "top": "#52b6e8",
             "bottom": "#f4e2b0",
             "particle": "#ffffff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/sunlit-shoreline_v1.jpg"
         },
         "winter-hearth": {
           "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
@@ -849,7 +384,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
         }
       },
       "face": "/rising-sun/box-faces/reggie_v2.jpg",
@@ -911,126 +447,6 @@
           "video": "/good-company/video/party/fire-escape.mp4",
           "group": "sound"
         },
-        "campfire": {
-          "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
-          "kind": "sound",
-          "label": "Campfire",
-          "vibe": {
-            "type": "embers",
-            "top": "#1c0d08",
-            "bottom": "#7a2a0c",
-            "particle": "#ffb347"
-          },
-          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
-        },
-        "creek": {
-          "file": "/rising-sun/box-sounds/creek_v1.ulaw",
-          "kind": "sound",
-          "label": "Creek",
-          "vibe": {
-            "type": "ripples",
-            "top": "#13424a",
-            "bottom": "#4aa6a0",
-            "particle": "#d4fffb"
-          },
-          "image": "/rising-sun/box-vibes/creek_v1.jpg"
-        },
-        "gentle-rain": {
-          "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
-          "kind": "sound",
-          "label": "Gentle rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#2b3a46",
-            "bottom": "#8fa7b8",
-            "particle": "#e6f0f7"
-          },
-          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
-        },
-        "medieval-irish-tavern": {
-          "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
-          "kind": "sound",
-          "label": "Medieval Irish tavern",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#2b160a",
-            "bottom": "#7a4a1c",
-            "particle": "#ffd27a"
-          },
-          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
-        },
-        "mountain-flute": {
-          "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
-          "kind": "sound",
-          "label": "Mountain flute",
-          "vibe": {
-            "type": "waves",
-            "top": "#2a2350",
-            "bottom": "#c98a6b",
-            "particle": "#f4d9c6"
-          },
-          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
-        },
-        "nature": {
-          "file": "/rising-sun/box-sounds/nature_v1.ulaw",
-          "kind": "sound",
-          "label": "Nature",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#183b1d",
-            "bottom": "#6aa84f",
-            "particle": "#f0f7a8"
-          },
-          "image": "/rising-sun/box-vibes/nature_v1.jpg"
-        },
-        "party-happy-people": {
-          "file": "/rising-sun/box-sounds/party-happy-people_v1.ulaw",
-          "kind": "sound",
-          "label": "Party, happy people",
-          "vibe": {
-            "type": "confetti",
-            "top": "#3a1450",
-            "bottom": "#e0457b",
-            "particle": "#ffd23f"
-          },
-          "image": "/rising-sun/box-vibes/party-happy-people_v1.jpg"
-        },
-        "sunny-beach-waves": {
-          "file": "/rising-sun/box-sounds/sunny-beach-waves_v1.ulaw",
-          "kind": "sound",
-          "label": "Sunny beach waves",
-          "vibe": {
-            "type": "waves",
-            "top": "#52b6e8",
-            "bottom": "#f4e2b0",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/sunny-beach-waves_v1.jpg"
-        },
-        "tibetan-singing-bowl": {
-          "file": "/rising-sun/box-sounds/tibetan-singing-bowl_v1.ulaw",
-          "kind": "sound",
-          "label": "Tibetan singing bowl",
-          "vibe": {
-            "type": "ripples",
-            "top": "#3a2410",
-            "bottom": "#b8862b",
-            "particle": "#ffe9a8"
-          },
-          "image": "/rising-sun/box-vibes/tibetan-singing-bowl_v1.jpg"
-        },
-        "winter-holiday": {
-          "file": "/rising-sun/box-sounds/winter-holiday_v1.ulaw",
-          "kind": "sound",
-          "label": "Winter holiday",
-          "vibe": {
-            "type": "snow",
-            "top": "#0f2740",
-            "bottom": "#4d7fa6",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
-        },
         "creekside-fable": {
           "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
           "kind": "music",
@@ -1041,7 +457,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creekside-fable_v1.jpg"
         },
         "mist-and-heather": {
           "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
@@ -1053,7 +470,8 @@
             "top": "#2a2a3d",
             "bottom": "#8a7fa8",
             "particle": "#e8d9ff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mist-and-heather_v1.jpg"
         },
         "sunlit-shoreline": {
           "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
@@ -1065,7 +483,8 @@
             "top": "#52b6e8",
             "bottom": "#f4e2b0",
             "particle": "#ffffff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/sunlit-shoreline_v1.jpg"
         },
         "winter-hearth": {
           "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
@@ -1077,7 +496,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
         }
       },
       "face": "/rising-sun/box-faces/alice_v2.jpg",
@@ -1132,126 +552,6 @@
           "video": "/good-company/video/party/fire-escape.mp4",
           "group": "sound"
         },
-        "campfire": {
-          "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
-          "kind": "sound",
-          "label": "Campfire",
-          "vibe": {
-            "type": "embers",
-            "top": "#1c0d08",
-            "bottom": "#7a2a0c",
-            "particle": "#ffb347"
-          },
-          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
-        },
-        "creek": {
-          "file": "/rising-sun/box-sounds/creek_v1.ulaw",
-          "kind": "sound",
-          "label": "Creek",
-          "vibe": {
-            "type": "ripples",
-            "top": "#13424a",
-            "bottom": "#4aa6a0",
-            "particle": "#d4fffb"
-          },
-          "image": "/rising-sun/box-vibes/creek_v1.jpg"
-        },
-        "gentle-rain": {
-          "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
-          "kind": "sound",
-          "label": "Gentle rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#2b3a46",
-            "bottom": "#8fa7b8",
-            "particle": "#e6f0f7"
-          },
-          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
-        },
-        "medieval-irish-tavern": {
-          "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
-          "kind": "sound",
-          "label": "Medieval Irish tavern",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#2b160a",
-            "bottom": "#7a4a1c",
-            "particle": "#ffd27a"
-          },
-          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
-        },
-        "mountain-flute": {
-          "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
-          "kind": "sound",
-          "label": "Mountain flute",
-          "vibe": {
-            "type": "waves",
-            "top": "#2a2350",
-            "bottom": "#c98a6b",
-            "particle": "#f4d9c6"
-          },
-          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
-        },
-        "nature": {
-          "file": "/rising-sun/box-sounds/nature_v1.ulaw",
-          "kind": "sound",
-          "label": "Nature",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#183b1d",
-            "bottom": "#6aa84f",
-            "particle": "#f0f7a8"
-          },
-          "image": "/rising-sun/box-vibes/nature_v1.jpg"
-        },
-        "party-happy-people": {
-          "file": "/rising-sun/box-sounds/party-happy-people_v1.ulaw",
-          "kind": "sound",
-          "label": "Party, happy people",
-          "vibe": {
-            "type": "confetti",
-            "top": "#3a1450",
-            "bottom": "#e0457b",
-            "particle": "#ffd23f"
-          },
-          "image": "/rising-sun/box-vibes/party-happy-people_v1.jpg"
-        },
-        "sunny-beach-waves": {
-          "file": "/rising-sun/box-sounds/sunny-beach-waves_v1.ulaw",
-          "kind": "sound",
-          "label": "Sunny beach waves",
-          "vibe": {
-            "type": "waves",
-            "top": "#52b6e8",
-            "bottom": "#f4e2b0",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/sunny-beach-waves_v1.jpg"
-        },
-        "tibetan-singing-bowl": {
-          "file": "/rising-sun/box-sounds/tibetan-singing-bowl_v1.ulaw",
-          "kind": "sound",
-          "label": "Tibetan singing bowl",
-          "vibe": {
-            "type": "ripples",
-            "top": "#3a2410",
-            "bottom": "#b8862b",
-            "particle": "#ffe9a8"
-          },
-          "image": "/rising-sun/box-vibes/tibetan-singing-bowl_v1.jpg"
-        },
-        "winter-holiday": {
-          "file": "/rising-sun/box-sounds/winter-holiday_v1.ulaw",
-          "kind": "sound",
-          "label": "Winter holiday",
-          "vibe": {
-            "type": "snow",
-            "top": "#0f2740",
-            "bottom": "#4d7fa6",
-            "particle": "#ffffff"
-          },
-          "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
-        },
         "creekside-fable": {
           "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
           "kind": "music",
@@ -1262,7 +562,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creekside-fable_v1.jpg"
         },
         "mist-and-heather": {
           "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
@@ -1274,7 +575,8 @@
             "top": "#2a2a3d",
             "bottom": "#8a7fa8",
             "particle": "#e8d9ff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mist-and-heather_v1.jpg"
         },
         "sunlit-shoreline": {
           "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
@@ -1286,7 +588,8 @@
             "top": "#52b6e8",
             "bottom": "#f4e2b0",
             "particle": "#ffffff"
-          }
+          },
+          "image": "/rising-sun/box-vibes/sunlit-shoreline_v1.jpg"
         },
         "winter-hearth": {
           "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
@@ -1298,7 +601,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
         }
       },
       "face": "/rising-sun/box-faces/kit_v1.jpg",

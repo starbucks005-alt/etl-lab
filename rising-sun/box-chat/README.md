@@ -184,3 +184,11 @@ Build n plays each sound loop from its own task that goes round and round and ne
 ## Four six minute tracks (2026-11-01)
 
 Dr. O made four six minute tracks and sent them (`Creekside_Fable_6_min`, `Mist_and_Heather_6_min`, `Sunlit_Shoreline_6_min`, `Winter_Hearth_6_min`), as a fallback in case the end-of-loop gap on the 30 second sounds did not go away: a six minute track plays once, so there is no loop end to hear. They are converted the same way as the music (`tools/make-sound.py`, 16 kHz, 8 bit, 5.76 MB each, levelled) as `creekside-fable_v1.ulaw`, `mist-and-heather_v1.ulaw`, `sunlit-shoreline_v1.ulaw` and `winter-hearth_v1.ulaw` in `rising-sun/box-sounds/`, and added to every companion as scenes (`kind` music so the box streams them once, `group` sound so the panel lists them under Sounds). They have no photograph yet, so they show a drawn animation: ripples, fireflies, waves and embers. Dr. O can send pictures. NOT heard or tried on the board.
+
+## Only five sounds and two songs (2026-11-01)
+
+Dr. O sent a picture for each of the four six minute tracks and said: use these in place of the others, delete all other sounds, just use these four and the city one from Julian's. The pictures are in `rising-sun/box-vibes/` as `creekside-fable_v1`, `mist-and-heather_v1`, `sunlit-shoreline_v1` and `winter-hearth_v1` (the creek, the lake with wildflowers, the beach and the winter market, in the order of her four tracks).
+- Sounds on the panel now: Creekside Fable, Mist and Heather, Sunlit Shoreline, Winter Hearth, and Fire escape (the city noises from Julian's party music).
+- Removed from every companion, and their files deleted from `box-sounds` and `box-vibes` (they are still in the git history): campfire, creek, gentle rain, medieval Irish tavern, mountain flute, nature, party with happy people, sunny beach waves, Tibetan singing bowl and winter holiday.
+- Kept as Music: Library and Rooftop. "All other sounds" was read as the Sounds list. If Dr. O meant the two songs too, they go the same way.
+- All seven are six minute files the box plays once, so the end-of-loop gap of the short sounds no longer applies. Build n's sound loop task is still in the program and only matters if a short repeating sound is added again.
