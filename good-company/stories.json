@@ -131,6 +131,70 @@
      "file": null
     }
    ]
+  },
+  {
+   "id": "nora-adventures",
+   "title": "Nora: Where I Went",
+   "companion": "Nora",
+   "blurb": "Nora jumps through time only when something moves her. These are the places she landed, told straight after she gets back.",
+   "episodes": [
+    {
+     "n": 1,
+     "id": "giza-bakers",
+     "title": "The Bakers of Giza",
+     "minutes": 4,
+     "narrator": "Nora",
+     "file": null
+    },
+    {
+     "n": 2,
+     "id": "pepys-parmesan",
+     "title": "The Parmesan Pit",
+     "minutes": 3,
+     "narrator": "Nora",
+     "file": null
+    },
+    {
+     "n": 3,
+     "id": "serum-run",
+     "title": "The Serum Run",
+     "minutes": 4,
+     "narrator": "Nora",
+     "file": null
+    }
+   ]
+  },
+  {
+   "id": "cressida-observations",
+   "title": "Cressida: Observations from the Drawing Room",
+   "companion": "Cressida",
+   "blurb": "Lady Cressida Thornfield has watched her house fill with strangers for over a century. She has notes.",
+   "episodes": [
+    {
+     "n": 1,
+     "id": "weekend-guests",
+     "title": "Twelve Guests, No Order",
+     "minutes": 3,
+     "narrator": "Cressida",
+     "file": null
+    },
+    {
+     "n": 2,
+     "id": "ghost-hunters",
+     "title": "The Gentlemen with the Machines",
+     "minutes": 3,
+     "narrator": "Cressida",
+     "file": null
+    },
+    {
+     "n": 3,
+     "id": "the-wedding",
+     "title": "The Wedding Weekend",
+     "minutes": 3,
+     "narrator": "Cressida",
+     "file": null
+    }
+   ]
   }
  ],
  "shelves": [

@@ -6,6 +6,8 @@ const sun = require('./_sun.js');
 
 let PACK = { episodes: [] };
 try { PACK = require('../../pack-episodes.json'); } catch (_) {}
+let STORIES = { series: [] };
+try { STORIES = require('../../rising-sun/box-stories.json'); } catch (_) {}
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type, x-sun-key', 'Access-Control-Allow-Methods': 'GET, OPTIONS' };
 const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, CORS), body: JSON.stringify(o) });
@@ -33,7 +35,7 @@ exports.handler = async (event, deps = {}) => {
       if (st && st.state === 'recording') running[id] = { done: st.done, total: st.total };
       else if (st && st.state === 'failed') running[id] = { failed: st.error || 'failed' };
     }
-    return json(200, { recorded: idx.ids, running, written: { 'reggie-biscuit-mochi': ((deps.pack || PACK).episodes || []).map((e) => e.id) } });
+    return json(200, { recorded: idx.ids, running, written: Object.assign({ 'reggie-biscuit-mochi': ((deps.pack || PACK).episodes || []).map((e) => e.id) }, ...((deps.stories || STORIES).series || []).map((x) => ({ [x.id]: (x.episodes || []).map((e) => e.id) }))) });
   }
   const series = String(q.series || ''), episode = String(q.episode || '');
   const v = idx.ids[series + '/' + episode];

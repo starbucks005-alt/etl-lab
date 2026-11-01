@@ -346,7 +346,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     el.classList.remove('hidden');
   }
   // recording and hearing the episodes the site can make (Reggie, Biscuit and Mochi so far). It uses the site's own ElevenLabs key, and each recording spends a little credit, so Record asks twice.
-  var RECORDABLE = { 'reggie-biscuit-mochi': true };
+  var RECORDABLE = { 'reggie-biscuit-mochi': true, 'nora-adventures': true, 'cressida-observations': true };
   var recorded = {}, recording = {}, written = {}, armed = '', playingId = '', audioEl = null, pollTimer = null;
   function fn(name, opts) { opts = opts || {}; opts.headers = Object.assign({ 'x-sun-key': key }, opts.headers || {}); return fetch('/.netlify/functions/' + name, opts); }
   function watchIds() { var out = []; libOf(current()).forEach(function (s) { if (RECORDABLE[s.id]) s.episodes.forEach(function (e) { out.push(s.id + '/' + e.id); }); }); return out; }
