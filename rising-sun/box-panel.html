@@ -353,11 +353,15 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   function refreshStatus() {
     var ids = watchIds(); if (!ids.length) return Promise.resolve();
     return fn('story-audio?status=1&watch=' + encodeURIComponent(ids.join(','))).then(function (r) { return r.json(); }).then(function (j) {
-      recorded = j.recorded || {}; recording = j.running || {}; written = j.written || {};
+      recorded = j.recorded || {}; recording = j.running || {}; written = j.written || {}; lastErr = j.lastError || null;
       if ($('libBack')) openLib(true);
       var busy = Object.keys(recording).some(function (k) { return !recording[k].failed; });
       clearTimeout(pollTimer); if (busy && $('libBack')) pollTimer = setTimeout(refreshStatus, 5000);
     }).catch(function () {});
+  }
+  function errWords(e) {
+    var m = { eleven_401: 'ElevenLabs refused the site\'s key', eleven_402: 'the ElevenLabs account is out of credit', eleven_403: 'ElevenLabs would not allow it', eleven_404: 'a voice was not found in the ElevenLabs account', eleven_422: 'ElevenLabs could not use the text or the voice', eleven_429: 'ElevenLabs says too many at once, or a limit was reached', no_eleven_key: 'the site has no ElevenLabs key', already_recorded: 'that one is already recorded', already_recording: 'that one is already being recorded', unknown_episode: 'that episode has no written story', series_not_recordable_here: 'that series cannot be recorded here' };
+    return m[e] || ('something went wrong (' + e + ')');
   }
   function episodeAction(s, e, rid) {
     if (recording[rid] && !recording[rid].failed) return;
@@ -421,6 +425,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         box.appendChild(b);
       });
     });
+    if (lastErr && lastErr.secondsAgo < 900) { var ep = document.createElement('p'); ep.className = 'note'; ep.textContent = 'The last recording did not go through (' + lastErr.episode + '): ' + errWords(lastErr.error) + '.'; box.appendChild(ep); }
     var row = document.createElement('div'); row.className = 'row';
     if (c.second && c.second.ready) { var go = document.createElement('button'); go.type = 'button'; go.className = 'primary'; go.textContent = 'Tell the box: ' + c.second.label; go.addEventListener('click', function () { closeLib(); press('second', c.second.label); }); row.appendChild(go); }
     var cl = document.createElement('button'); cl.type = 'button'; cl.textContent = 'Close'; cl.addEventListener('click', closeLib); row.appendChild(cl);

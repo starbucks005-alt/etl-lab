@@ -43,6 +43,11 @@ async function openStore(event) {
   return getStore('box_stories');
 }
 
+/* A background function always answers 202 at once, so a refusal or a failure inside is invisible to the panel. Each one is written here so story-audio can say what happened. */
+async function noteError(store, error, series, episode, deps) {
+  try { await store.setJSON('last-error', { error: String(error).slice(0, 60), series: String(series || ''), episode: String(episode || ''), at: deps.now ? deps.now() : Date.now() }); } catch (_) {}
+}
+
 exports.handler = async (event, deps = {}) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'post_only' };
   const a = await sun.authorized(event, deps.env, deps.loadCfg);
@@ -50,23 +55,23 @@ exports.handler = async (event, deps = {}) => {
   let body = {};
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return { statusCode: 400, body: 'bad_json' }; }
   const series = String(body.series || ''), episode = String(body.episode || '');
+  const store = deps.store || await openStore(event);
   const list = episodesOf(series, deps);
-  if (!list) return { statusCode: 404, body: 'series_not_recordable_here' };
+  if (!list) { await noteError(store, 'series_not_recordable_here', series, episode, deps); return { statusCode: 404, body: 'series_not_recordable_here' }; }
   const ep = list.find((e) => e.id === episode);
-  if (!ep) return { statusCode: 404, body: 'unknown_episode' };
+  if (!ep) { await noteError(store, 'unknown_episode', series, episode, deps); return { statusCode: 404, body: 'unknown_episode' }; }
   const env = deps.env || process.env;
   const key = String(env.ELEVENLABS_API_KEY || '').trim();
-  if (!key) return { statusCode: 503, body: 'no_eleven_key' };
+  if (!key) { await noteError(store, 'no_eleven_key', series, episode, deps); return { statusCode: 503, body: 'no_eleven_key' }; }
 
-  const store = deps.store || await openStore(event);
   const now = deps.now ? deps.now() : Date.now();
   const sk = 'status-' + series + '-' + episode;
   let st = null; try { st = await store.get(sk, { type: 'json' }); } catch (_) {}
-  if (st && st.state === 'recording' && now - st.at < 15 * 60 * 1000) return { statusCode: 409, body: 'already_recording' };
+  if (st && st.state === 'recording' && now - st.at < 4 * 60 * 1000) { await noteError(store, 'already_recording', series, episode, deps); return { statusCode: 409, body: 'already_recording' }; }   // a recording that has made no progress for four minutes is taken to have died
   let idx = { ids: {} }; try { idx = (await store.get('index', { type: 'json' })) || idx; } catch (_) {}
   const id = series + '/' + episode;
   const have = idx.ids[id] || 0;
-  if (have && !body.again) return { statusCode: 409, body: 'already_recorded' };
+  if (have && !body.again) { await noteError(store, 'already_recorded', series, episode, deps); return { statusCode: 409, body: 'already_recorded' }; }
   const version = have + 1;
 
   const parts = plan.plan(ep);
@@ -85,6 +90,7 @@ exports.handler = async (event, deps = {}) => {
     return { statusCode: 202, body: '' };
   } catch (e) {
     await store.setJSON(sk, { state: 'failed', error: String((e && e.message) || e).slice(0, 80), at: deps.now ? deps.now() : Date.now() });
+    await noteError(store, (e && e.message) || e, series, episode, deps);
     return { statusCode: 202, body: '' };
   }
 };

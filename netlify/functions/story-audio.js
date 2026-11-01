@@ -35,7 +35,8 @@ exports.handler = async (event, deps = {}) => {
       if (st && st.state === 'recording') running[id] = { done: st.done, total: st.total };
       else if (st && st.state === 'failed') running[id] = { failed: st.error || 'failed' };
     }
-    return json(200, { recorded: idx.ids, running, written: Object.assign({ 'reggie-biscuit-mochi': ((deps.pack || PACK).episodes || []).map((e) => e.id) }, ...((deps.stories || STORIES).series || []).map((x) => ({ [x.id]: (x.episodes || []).map((e) => e.id) }))) });
+    let lastError = null; try { const le = await store.get('last-error', { type: 'json' }); if (le && le.error) lastError = { error: le.error, series: le.series, episode: le.episode, secondsAgo: Math.round(((deps.now ? deps.now() : Date.now()) - le.at) / 1000) }; } catch (_) {}
+    return json(200, { recorded: idx.ids, running, lastError, written: Object.assign({ 'reggie-biscuit-mochi': ((deps.pack || PACK).episodes || []).map((e) => e.id) }, ...((deps.stories || STORIES).series || []).map((x) => ({ [x.id]: (x.episodes || []).map((e) => e.id) }))) });
   }
   const series = String(q.series || ''), episode = String(q.episode || '');
   const v = idx.ids[series + '/' + episode];

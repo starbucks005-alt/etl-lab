@@ -58,5 +58,18 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
   for (const id of ['nora-adventures', 'cressida-observations']) assert.ok(lib.series.find((x) => x.id === id).episodes.length === 3, id + ' is in the story library');
   const stw = JSON.parse((await aud.handler(ev('GET', null, { status: '1' }), { env: {}, loadCfg: cfg, store })).body);
   assert.ok(stw.written['nora-adventures'].indexOf('giza-bakers') >= 0, 'the panel is told which episodes are written');
+  // a refusal or a failure inside the background job is written down, so the panel can say what happened
+  const st2 = mem();
+  const baseB = (x) => Object.assign({ env: { ELEVENLABS_API_KEY: 'k' }, loadCfg: cfg, store: st2, pack, now: () => 5000 }, x || {});
+  await rec.handler(ev('POST', { series: 'reggie-biscuit-mochi', episode: 'trash' }), baseB({ speak: async () => { throw new Error('eleven_429'); } }));
+  let le = JSON.parse((await aud.handler(ev('GET', null, { status: '1' }), { env: {}, loadCfg: cfg, store: st2, now: () => 6000 })).body).lastError;
+  assert.ok(le && le.error === 'eleven_429' && le.episode === 'trash', 'a failure at ElevenLabs is reported with its reason');
+  await rec.handler(ev('POST', { series: 'reggie-biscuit-mochi', episode: 'nope' }), baseB());
+  le = JSON.parse((await aud.handler(ev('GET', null, { status: '1' }), { env: {}, loadCfg: cfg, store: st2, now: () => 6000 })).body).lastError;
+  assert.strictEqual(le.error, 'unknown_episode', 'a refusal inside the background job is reported too');
+  // a recording that made no progress for four minutes is taken to have died, so it can be started again
+  st2._m.set('status-reggie-biscuit-mochi-trash', JSON.stringify({ state: 'recording', done: 2, total: 19, at: 1000 }));
+  const again2 = await rec.handler(ev('POST', { series: 'reggie-biscuit-mochi', episode: 'trash' }), baseB({ now: () => 1000 + 5 * 60 * 1000, speak: async () => Buffer.from([1]) }));
+  assert.strictEqual(again2.statusCode, 202, 'a stuck recording does not block the story for fifteen minutes');
   console.log('story recording: on the site with its own key, once per story, heard back');
 })().catch((e) => { console.error(e); process.exit(1); });
