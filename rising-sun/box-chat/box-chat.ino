@@ -379,33 +379,57 @@ size_t fetchGarden(const String &scene) {
 }
 
 // Plays the nature loop again and again until a button is pressed (after it was let go first) or three minutes pass.
+// The loop is played by its own task, round and round, and never waits for the network. The panel check used to sit at the end of every pass (a new secure connection,
+// several seconds with nothing playing): that was the gap Dr. O heard at the end of each 30 second loop. Now the loop carries on while the check waits.
+struct LoopPlay { size_t bytes; volatile bool stop, done; };
+static LoopPlay lp;
+void soundLoopTask(void *) {
+  int16_t out[512];
+  size_t pos = 0;
+  while (!lp.stop) {
+    int o = 0;
+    for (; o < 512; o += 2) {
+      if (pos + 1 >= lp.bytes) pos = 0;
+      int16_t s16 = (int16_t)(gardenBuf[pos] | (gardenBuf[pos + 1] << 8)); pos += 2;
+      out[o] = s16; out[o + 1] = s16;
+    }
+    i2s.write((uint8_t *)out, o * sizeof(int16_t));
+  }
+  lp.done = true;
+  vTaskDelete(NULL);
+}
 void playGardenInner(size_t bytes) {
   ringColor(0, 120, 40);
   while (keysPressed()) delay(20);                 // let the button go before listening for the next press
-  int16_t out[512];
-  uint32_t start = millis();
+  if (bytes < 4) return;
+  lp.bytes = bytes & ~(size_t)1; lp.stop = false; lp.done = false;
+  BaseType_t made = xTaskCreatePinnedToCore(soundLoopTask, "sound-loop", 8192, NULL, 3, NULL, 1);
+  Serial.printf("Sound loop task: %s\n", made == pdPASS ? "started" : "COULD NOT START");
+  if (made != pdPASS) return;
+  uint32_t start = millis(), lastCheck = millis();
   while (millis() - start < GARDEN_MAX_MS) {
-    for (size_t pos = 0; pos + 1 < bytes; ) {
-      if (keysPressed()) { Serial.println("Garden stopped"); while (keysPressed()) delay(20); return; }
-      if (gardenCmdSet) {                          // the background watcher heard the panel: stop, as the lid button does
-        gardenCmdSet = false;
-        if (strncmp((const char *)gardenCmd, "soundscape:", 11) == 0 || (strcmp((const char *)gardenCmd, "stop") != 0 && strcmp((const char *)gardenCmd, "soundscape") != 0)) pendingCmd = String((const char *)gardenCmd);
-        Serial.println("Garden stopped from the panel");
-        return;
-      }
-      int o = 0;
-      for (; o < 512 && pos + 1 < bytes; o += 2, pos += 2) { int16_t s16 = (int16_t)(gardenBuf[pos] | (gardenBuf[pos + 1] << 8)); out[o] = s16; out[o + 1] = s16; }
-      i2s.write((uint8_t *)out, o * sizeof(int16_t));
+    if (keysPressed()) { Serial.println("Garden stopped"); while (keysPressed()) delay(20); break; }
+    if (gardenCmdSet) {                            // the background watcher heard the panel: stop, as the lid button does
+      gardenCmdSet = false;
+      if (strncmp((const char *)gardenCmd, "soundscape:", 11) == 0 || (strcmp((const char *)gardenCmd, "stop") != 0 && strcmp((const char *)gardenCmd, "soundscape") != 0)) pendingCmd = String((const char *)gardenCmd);
+      Serial.println("Garden stopped from the panel");
+      break;
     }
-    if (!GARDEN_WATCH_BACKGROUND) {                // the end of a pass is where the loop starts over anyway, so ask here, once
+    if (millis() - lastCheck > 10000) {            // ask the panel every ten seconds; the loop keeps playing while this waits on the network
+      lastCheck = millis();
+      uint32_t c0 = millis();
       String c = peekCommand();
+      Serial.printf("Panel check took %u ms\n", (unsigned)(millis() - c0));
       if (c.length()) {
         if (c != "stop" && c != "soundscape") pendingCmd = c;      // another scene named on the panel switches to it
         Serial.println("Garden stopped from the panel");
-        return;
+        break;
       }
     }
+    delay(20);
   }
+  lp.stop = true;
+  for (int i = 0; i < 100 && !lp.done; i++) delay(20);
 }
 
 // Sound files from the website are kept as 8 bit mu-law (rising-sun/tools/make-sound.py). This turns one byte back into a 16 bit sample.
@@ -466,7 +490,7 @@ void noteMusicEnd(const char *why) {
 }
 
 void musicAudioTask(void *) {
-  int16_t out[1024];                           // on the task's own 12 KB stack. A static array here is 2 KB of the memory the wake word engine needs at start-up (build k)
+  static int16_t out[1024];                    // as in build k, the one that played with no gaps on the board
   uint32_t lastStart = 0;
   while (!mp.stop) {
     size_t r = mp.rd.load(std::memory_order_relaxed), w = mp.wr.load(std::memory_order_acquire);
@@ -500,7 +524,8 @@ void streamMusic(const String &path) {
   size_t freeP = ESP.getFreePsram();
   Serial.printf("Music: %d bytes to download, %u bytes of PSRAM free, %u bytes free inside the chip (largest piece %u)\n", len, (unsigned)freeP, (unsigned)ESP.getFreeHeap(), (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
   // Preferred: take the whole track into memory first, then close the connection, so a panel check later has the connection memory to itself. Two secure connections at once may be what stopped the music.
-  uint8_t *whole = (len > 100000 && (size_t)len + 300000 < freeP) ? (uint8_t *)ps_malloc(len) : NULL;
+  const bool DOWNLOAD_FIRST = false;     // written, not tried on the board, so off: the music streams as in build k
+  uint8_t *whole = (DOWNLOAD_FIRST && len > 100000 && (size_t)len + 300000 < freeP) ? (uint8_t *)ps_malloc(len) : NULL;
   if (whole) {
     size_t got = 0; uint32_t lastN = 0, lastD = millis(); bool keyHit = false;
     ringColor(0, 120, 40);
@@ -718,7 +743,7 @@ void setup() {
   Serial.printf("This start was caused by: %s\n", bootReason().c_str());
   Serial.printf("Free memory: %u bytes inside the chip, %u bytes extra (PSRAM)\n", (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getFreePsram());
   Serial.printf("This board is %s, box name \"%s\"\n", deviceId().c_str(), BOX_NAME);
-  Serial.printf("Version: build 2026-11-01m (music downloaded first and played from memory; the box reports its running time, why it last started, and how a track ended), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01n (the sound loops play on their own task, so the panel check cannot make a gap at the end of a pass; the box reports its running time, why it last started, and how a track ended), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();

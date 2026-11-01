@@ -171,3 +171,12 @@ Dr. O, on build k: Library played again with no gap, and Rooftop played with no 
 ## Fire escape is a sound, not music (2026-11-01)
 
 Dr. O: Fire escape is just city noises, so it is listed under Sounds and its name is "Fire escape" (no "(music)"). It is still the long file the box plays through once (six minutes), because it is too big to be loaded whole and repeated the way the short sounds are. A scene may carry `group` in `box-lines.json` to say which list the panel puts it in; without one it follows `kind`. Dr. O reports no gaps on it either (build k).
+
+## The gap is at the end of each loop, build 2026-11-01n (2026-11-01)
+
+Dr. O: the gap is the end of the loop. The music is six minutes and she did not listen to all of it, so she never reached a gap there; the sounds are 30 seconds each, so she hears the gap every time one ends. That is what the code does. At the end of every pass of a sound the box stopped playing, asked the website whether a button was pushed on the panel (a new secure connection, a few seconds), and only then started the loop again. Those seconds are the gap. Earlier fixes moved or thinned out the checks but never took them off the player.
+
+Build n plays each sound loop from its own task that goes round and round and never waits for the network, and the panel check happens every ten seconds on the side. The music already worked this way from build i, and its check was every 15 seconds, so a gap there would have been later than Dr. O listened for.
+- Serial lines: `Sound loop task: started`, `Panel check took N ms`.
+- Build n is build k's music (it played with no gaps for Dr. O) plus the sound loop task plus the reporting from build m (the running time, why it last started, how a track ended, shown on the panel). The method of downloading the whole track first is written but switched off.
+- Compiles (1,426,514 bytes). NOT TRIED on the board.
