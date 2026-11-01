@@ -95,7 +95,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
         },
         "creek": {
           "file": "/rising-sun/box-sounds/creek_v1.ulaw",
@@ -106,7 +107,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creek_v1.jpg"
         },
         "gentle-rain": {
           "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
@@ -117,7 +119,8 @@
             "top": "#2b3a46",
             "bottom": "#8fa7b8",
             "particle": "#e6f0f7"
-          }
+          },
+          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
         },
         "medieval-irish-tavern": {
           "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
@@ -128,7 +131,8 @@
             "top": "#2b160a",
             "bottom": "#7a4a1c",
             "particle": "#ffd27a"
-          }
+          },
+          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
         },
         "mountain-flute": {
           "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
@@ -139,7 +143,8 @@
             "top": "#2a2350",
             "bottom": "#c98a6b",
             "particle": "#f4d9c6"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
         },
         "nature": {
           "file": "/rising-sun/box-sounds/nature_v1.ulaw",
@@ -305,7 +310,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
         },
         "creek": {
           "file": "/rising-sun/box-sounds/creek_v1.ulaw",
@@ -316,7 +322,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creek_v1.jpg"
         },
         "gentle-rain": {
           "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
@@ -327,7 +334,8 @@
             "top": "#2b3a46",
             "bottom": "#8fa7b8",
             "particle": "#e6f0f7"
-          }
+          },
+          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
         },
         "medieval-irish-tavern": {
           "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
@@ -338,7 +346,8 @@
             "top": "#2b160a",
             "bottom": "#7a4a1c",
             "particle": "#ffd27a"
-          }
+          },
+          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
         },
         "mountain-flute": {
           "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
@@ -349,7 +358,8 @@
             "top": "#2a2350",
             "bottom": "#c98a6b",
             "particle": "#f4d9c6"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
         },
         "nature": {
           "file": "/rising-sun/box-sounds/nature_v1.ulaw",
@@ -498,7 +508,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
         },
         "creek": {
           "file": "/rising-sun/box-sounds/creek_v1.ulaw",
@@ -509,7 +520,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creek_v1.jpg"
         },
         "gentle-rain": {
           "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
@@ -520,7 +532,8 @@
             "top": "#2b3a46",
             "bottom": "#8fa7b8",
             "particle": "#e6f0f7"
-          }
+          },
+          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
         },
         "medieval-irish-tavern": {
           "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
@@ -531,7 +544,8 @@
             "top": "#2b160a",
             "bottom": "#7a4a1c",
             "particle": "#ffd27a"
-          }
+          },
+          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
         },
         "mountain-flute": {
           "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
@@ -542,7 +556,8 @@
             "top": "#2a2350",
             "bottom": "#c98a6b",
             "particle": "#f4d9c6"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
         },
         "nature": {
           "file": "/rising-sun/box-sounds/nature_v1.ulaw",
@@ -694,7 +709,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
         },
         "creek": {
           "file": "/rising-sun/box-sounds/creek_v1.ulaw",
@@ -705,7 +721,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creek_v1.jpg"
         },
         "gentle-rain": {
           "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
@@ -716,7 +733,8 @@
             "top": "#2b3a46",
             "bottom": "#8fa7b8",
             "particle": "#e6f0f7"
-          }
+          },
+          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
         },
         "medieval-irish-tavern": {
           "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
@@ -727,7 +745,8 @@
             "top": "#2b160a",
             "bottom": "#7a4a1c",
             "particle": "#ffd27a"
-          }
+          },
+          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
         },
         "mountain-flute": {
           "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
@@ -738,7 +757,8 @@
             "top": "#2a2350",
             "bottom": "#c98a6b",
             "particle": "#f4d9c6"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
         },
         "nature": {
           "file": "/rising-sun/box-sounds/nature_v1.ulaw",
@@ -907,7 +927,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
         },
         "creek": {
           "file": "/rising-sun/box-sounds/creek_v1.ulaw",
@@ -918,7 +939,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creek_v1.jpg"
         },
         "gentle-rain": {
           "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
@@ -929,7 +951,8 @@
             "top": "#2b3a46",
             "bottom": "#8fa7b8",
             "particle": "#e6f0f7"
-          }
+          },
+          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
         },
         "medieval-irish-tavern": {
           "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
@@ -940,7 +963,8 @@
             "top": "#2b160a",
             "bottom": "#7a4a1c",
             "particle": "#ffd27a"
-          }
+          },
+          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
         },
         "mountain-flute": {
           "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
@@ -951,7 +975,8 @@
             "top": "#2a2350",
             "bottom": "#c98a6b",
             "particle": "#f4d9c6"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
         },
         "nature": {
           "file": "/rising-sun/box-sounds/nature_v1.ulaw",
@@ -1113,7 +1138,8 @@
             "top": "#1c0d08",
             "bottom": "#7a2a0c",
             "particle": "#ffb347"
-          }
+          },
+          "image": "/rising-sun/box-vibes/campfire_v1.jpg"
         },
         "creek": {
           "file": "/rising-sun/box-sounds/creek_v1.ulaw",
@@ -1124,7 +1150,8 @@
             "top": "#13424a",
             "bottom": "#4aa6a0",
             "particle": "#d4fffb"
-          }
+          },
+          "image": "/rising-sun/box-vibes/creek_v1.jpg"
         },
         "gentle-rain": {
           "file": "/rising-sun/box-sounds/gentle-rain_v1.ulaw",
@@ -1135,7 +1162,8 @@
             "top": "#2b3a46",
             "bottom": "#8fa7b8",
             "particle": "#e6f0f7"
-          }
+          },
+          "image": "/rising-sun/box-vibes/gentle-rain_v1.jpg"
         },
         "medieval-irish-tavern": {
           "file": "/rising-sun/box-sounds/medieval-irish-tavern_v1.ulaw",
@@ -1146,7 +1174,8 @@
             "top": "#2b160a",
             "bottom": "#7a4a1c",
             "particle": "#ffd27a"
-          }
+          },
+          "image": "/rising-sun/box-vibes/medieval-irish-tavern_v1.jpg"
         },
         "mountain-flute": {
           "file": "/rising-sun/box-sounds/mountain-flute_v1.ulaw",
@@ -1157,7 +1186,8 @@
             "top": "#2a2350",
             "bottom": "#c98a6b",
             "particle": "#f4d9c6"
-          }
+          },
+          "image": "/rising-sun/box-vibes/mountain-flute_v1.jpg"
         },
         "nature": {
           "file": "/rising-sun/box-sounds/nature_v1.ulaw",
