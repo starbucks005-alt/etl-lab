@@ -251,6 +251,49 @@ bool playLine(const char *line, String *scene = NULL) {
 }
 
 // Downloads one nature loop into gardenBuf. Returns how many bytes it got.
+// While a soundscape plays, a background task asks the website for a pushed button every five seconds, so the sound itself never waits for the network.
+volatile bool gardenOn = false;
+volatile bool gardenCmdSet = false;
+volatile char gardenCmd[16] = "";
+static TaskHandle_t gardenWatcherHandle = NULL;
+
+String peekCommand() {
+  if (WiFi.status() != WL_CONNECTED) return "";
+  WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME)) return "";
+  http.addHeader("x-sun-key", BOX_KEY);
+  http.setTimeout(8000);
+  String command = "";
+  if (http.GET() == 200) {
+    String body = http.getString();
+    int p = body.indexOf("command=");
+    if (p >= 0) { int nl = body.indexOf('\n', p); command = body.substring(p + 8, nl < 0 ? body.length() : nl); command.trim(); }
+  }
+  http.end();
+  return command;
+}
+
+void gardenWatcher(void *) {
+  while (gardenOn) {
+    for (int i = 0; i < 50 && gardenOn; i++) vTaskDelay(pdMS_TO_TICKS(100));
+    if (!gardenOn) break;
+    String c = peekCommand();
+    if (c.length() && gardenOn) { c.toCharArray((char *)gardenCmd, sizeof(gardenCmd)); gardenCmdSet = true; }
+  }
+  gardenWatcherHandle = NULL;
+  vTaskDelete(NULL);
+}
+
+void playGarden(size_t bytes) {
+  gardenCmdSet = false;
+  gardenOn = true;
+  if (gardenWatcherHandle == NULL) xTaskCreatePinnedToCore(gardenWatcher, "garden-watch", 12288, NULL, 1, &gardenWatcherHandle, 0);
+  playGardenInner(bytes);
+  gardenOn = false;
+}
+
 size_t fetchGarden(const String &scene) {
   if (!joinWifi() || !gardenBuf) return 0;
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
@@ -281,18 +324,19 @@ size_t fetchGarden(const String &scene) {
 }
 
 // Plays the nature loop again and again until a button is pressed (after it was let go first) or three minutes pass.
-void playGarden(size_t bytes) {
+void playGardenInner(size_t bytes) {
   ringColor(0, 120, 40);
   while (keysPressed()) delay(20);                 // let the button go before listening for the next press
   int16_t out[512];
-  uint32_t start = millis(), lastCheck = millis();
+  uint32_t start = millis();
   while (millis() - start < GARDEN_MAX_MS) {
     for (size_t pos = 0; pos + 1 < bytes; ) {
       if (keysPressed()) { Serial.println("Garden stopped"); while (keysPressed()) delay(20); return; }
-      if (millis() - lastCheck > 5000) {            // every five seconds, ask the panel whether it should stop (a brief gap in the sound)
-        lastCheck = millis();
-        String c = askWebsite();
-        if (c.length()) { if (c != "stop" && c != "soundscape") pendingCmd = c; Serial.println("Garden stopped from the panel"); return; }   // pressing Soundscape again stops it, as the lid button does
+      if (gardenCmdSet) {                          // the background watcher heard the panel: stop, as the lid button does
+        gardenCmdSet = false;
+        if (strcmp((const char *)gardenCmd, "stop") != 0 && strcmp((const char *)gardenCmd, "soundscape") != 0) pendingCmd = String((const char *)gardenCmd);
+        Serial.println("Garden stopped from the panel");
+        return;
       }
       int o = 0;
       for (; o < 512 && pos + 1 < bytes; o += 2, pos += 2) { int16_t s16 = (int16_t)(gardenBuf[pos] | (gardenBuf[pos + 1] << 8)); out[o] = s16; out[o + 1] = s16; }
@@ -425,7 +469,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01 (wake retries, panel Stop and Volume), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01b (wake retries, panel Stop and Volume, stop check in the background), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
