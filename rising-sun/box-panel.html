@@ -131,6 +131,17 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
 .skin-opt.on{color:var(--accent);border-color:var(--accent)}
 .swatch{display:flex;gap:3px;flex:none}
 .swatch i{width:12px;height:12px;border-radius:3px;display:block}
+  .lib-back{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;display:flex;align-items:flex-end;justify-content:center;padding:0}
+  .lib{background:var(--panel);color:var(--text);border:1px solid var(--line2);border-radius:16px 16px 0 0;width:100%;max-width:560px;max-height:88vh;overflow:auto;padding:20px}
+  @media (min-width:700px){.lib-back{align-items:center;padding:24px}.lib{border-radius:16px}}
+  .lib h2{margin:0 0 4px}.lib .blurb{margin:0 0 12px;color:var(--mute)}
+  .lib h3{font-family:var(--display);font-size:20px;color:var(--ink);margin:16px 0 2px}
+  .ep{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:8px;padding:10px 12px;border-radius:10px;min-height:56px}
+  .ep .n{font-family:var(--mono);font-weight:700;min-width:2.2em;color:var(--accent)}
+  .ep .t{flex:1;color:var(--ink)}.ep .t small{display:block;color:var(--mute)}
+  .ep .chip{font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--mute);white-space:nowrap}
+  .ep.on{border-color:var(--accent);background:var(--accent-bg)}.ep.on .chip{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .epline{margin:8px 0 0;color:var(--mute);font-size:14px}
 </style>
 </head>
 <body>
@@ -170,6 +181,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <p class="hint">The box takes a few seconds to notice a button pushed here.</p>
       <div class="row"><button id="bChat" class="green" type="button"></button></div>
       <div class="row"><button id="bSecond" class="primary" type="button"></button></div>
+      <p class="epline hidden" id="epLine"></p>
     </section>
 
     <section class="card" id="duetCard">
@@ -307,6 +319,55 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     } else if (sc.vibe) { cv.classList.remove('hidden'); drawVibe(sc.vibe); }
   }
 
+
+  // ---------- the story library: serials in numbered episodes, with the one the listener is up to ----------
+  function libOf(c) { return (c && c.library) || []; }
+  function shown(c) { var L = libOf(c); return L.filter(function (x) { return x.setUp; })[0] || L.filter(function (x) { return x.mine; })[0] || null; }
+  function epLine() {
+    var c = current(), s = shown(c), el = $('epLine');
+    if (!s) { el.classList.add('hidden'); return; }
+    var on = s.episodes.filter(function (e) { return e.n === s.on; })[0];
+    el.textContent = s.title + ': on episode ' + s.on + ' of ' + s.episodes.length + (on ? ', ' + on.title : '') + '.';
+    el.classList.remove('hidden');
+  }
+  function closeLib() { var b = $('libBack'); if (b) b.remove(); document.removeEventListener('keydown', libKey); }
+  function libKey(e) { if (e.key === 'Escape') closeLib(); }
+  function openLib() {
+    closeLib();
+    var c = current(), L = libOf(c);
+    var back = document.createElement('div'); back.className = 'lib-back'; back.id = 'libBack';
+    var box = document.createElement('div'); box.className = 'lib'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Story library');
+    var h = document.createElement('h2'); h.textContent = 'Story library'; box.appendChild(h);
+    var intro = document.createElement('p'); intro.className = 'blurb'; intro.textContent = 'Pick a story to set up in this box. Tap an episode to mark where you are.'; box.appendChild(intro);
+    L.slice().sort(function (a, b) { return (b.setUp - a.setUp) || (b.mine - a.mine); }).forEach(function (s) {
+      var t = document.createElement('h3'); t.textContent = s.title; box.appendChild(t);
+      var su = document.createElement('button'); su.type = 'button'; su.textContent = s.setUp ? 'Set up in this box' : 'Set this up in this box'; su.className = s.setUp ? 'primary' : ''; su.disabled = !!s.setUp;
+      su.addEventListener('click', function () { call('POST', { action: 'set_story', series: s.id }).then(function (r) { if (r.status === 200) { L.forEach(function (x) { x.setUp = x.id === s.id; }); epLine(); openLib(); say(s.title + ' is set up in this box.', 'ok'); } else say('Could not set it up.', 'bad'); }).catch(function () { say('Could not reach the website.', 'bad'); }); });
+      box.appendChild(su);
+      if (s.blurb) { var bl = document.createElement('p'); bl.className = 'blurb'; bl.textContent = s.blurb; box.appendChild(bl); }
+      s.episodes.forEach(function (e) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'ep' + (e.n === s.on ? ' on' : '');
+        var n = document.createElement('span'); n.className = 'n'; n.textContent = e.n;
+        var tt = document.createElement('span'); tt.className = 't'; tt.textContent = e.title;
+        var sm = document.createElement('small'); sm.textContent = (e.minutes ? e.minutes + ' min, ' : '') + (e.ready ? 'recorded' : 'recording soon'); tt.appendChild(sm);
+        var ch = document.createElement('span'); ch.className = 'chip'; ch.textContent = e.n === s.on ? 'You are here' : (e.n < s.on ? 'Heard' : 'Next');
+        b.appendChild(n); b.appendChild(tt); b.appendChild(ch);
+        b.addEventListener('click', function () {
+          call('POST', { action: 'set_episode', series: s.id, episode: e.n }).then(function (r) {
+            if (r.status === 200) { s.on = e.n; epLine(); openLib(); say('Marked episode ' + e.n + ' of ' + s.title + '.', 'ok'); } else say('Could not save the episode.', 'bad');
+          }).catch(function () { say('Could not reach the website.', 'bad'); });
+        });
+        box.appendChild(b);
+      });
+    });
+    var row = document.createElement('div'); row.className = 'row';
+    if (c.second && c.second.ready) { var go = document.createElement('button'); go.type = 'button'; go.className = 'primary'; go.textContent = 'Tell the box: ' + c.second.label; go.addEventListener('click', function () { closeLib(); press('second', c.second.label); }); row.appendChild(go); }
+    var cl = document.createElement('button'); cl.type = 'button'; cl.textContent = 'Close'; cl.addEventListener('click', closeLib); row.appendChild(cl);
+    box.appendChild(row);
+    back.appendChild(box); back.addEventListener('click', function (e) { if (e.target === back) closeLib(); });
+    document.body.appendChild(back); document.addEventListener('keydown', libKey);
+  }
+
   // ---------- drawing the page ----------
   function draw() {
     var c = current(), nowSc = null, ago;
@@ -329,7 +390,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     // talk
     $('bChat').textContent = 'Chat with ' + c.display;
     var second = $('bSecond');
-    if (c.second) { second.textContent = c.second.label + (c.second.ready ? '' : ' (not recorded yet)'); second.disabled = !c.second.ready; second.classList.remove('hidden'); } else { second.classList.add('hidden'); }
+    if (c.second) {
+      var hasLib = libOf(c).length > 0;
+      second.textContent = hasLib ? c.second.label + ' library' : c.second.label + (c.second.ready ? '' : ' (not recorded yet)');
+      second.disabled = hasLib ? false : !c.second.ready; second.classList.remove('hidden');
+    } else if (libOf(c).length) { second.textContent = 'Story library'; second.disabled = false; second.classList.remove('hidden'); }
+    else { second.classList.add('hidden'); }
+    epLine();
     // tiles
     ['tilesMusic', 'tilesSound'].forEach(function (id) { $(id).innerHTML = ''; });
     (c.scenes || []).forEach(function (sc) {
@@ -372,7 +439,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   var pressing = false;
   function lock(on) {
     var all = ['bSound', 'bSecond', 'bChat', 'bStop'].map($).concat([].slice.call(document.querySelectorAll('.tile')));
-    all.forEach(function (b) { if (b) b.disabled = on || (b.id === 'bSecond' && current().second && !current().second.ready); });
+    all.forEach(function (b) { if (b) b.disabled = on || (b.id === 'bSecond' && current().second && !current().second.ready && !libOf(current()).length); });
     if (!on && current()) $('bSound').disabled = !current().soundscape;
   }
   function press(button, label, scene) {
@@ -440,7 +507,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   $('duetStop').addEventListener('click', function () { duetCall('POST', { action: 'stop' }).then(function () { say('Chat mode stopped.', 'ok'); duetShow(); }).catch(function () { say('Could not reach the website.', 'bad'); }); });
 
   $('bSound').addEventListener('click', function () { press('soundscape', 'Next one'); });
-  $('bSecond').addEventListener('click', function () { press('second', current().second.label); });
+  $('bSecond').addEventListener('click', function () { if (libOf(current()).length) openLib(); else press('second', current().second.label); });
   $('bStop').addEventListener('click', function () { picked = ''; $('vibe').removeAttribute('data-id'); showVibe(null); press('stop', 'Stop'); });
   $('bChat').addEventListener('click', function () { press('chat', 'Chat'); });
   document.addEventListener('click', function (e) {

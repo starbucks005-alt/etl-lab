@@ -16,6 +16,8 @@ const sun = require('./_sun.js');
 
 let FILE = {};
 try { FILE = require('../../rising-sun/box-lines.json'); } catch (_) {}
+let LIBRARY = { series: [] };       // the Good Company story library: serials told in numbered episodes (good-company/stories.json)
+try { LIBRARY = require('../../good-company/stories.json'); } catch (_) {}
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type, x-sun-key', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' };
 const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, CORS), body: JSON.stringify(o) });
@@ -40,7 +42,7 @@ function batteryState(b, now) {
 const boxName = (v) => { const n = String(v || 'main').toLowerCase().trim(); return /^[a-z0-9-]{1,20}$/.test(n) ? n : 'main'; };
 
 /* What one companion's buttons are. The second button is a story only when story lines are written for her. */
-function describe(id, c) {
+function describe(id, c, stories, library, chosen) {
   const second = c.second || null;
   let secondOut = null;
   if (second) {
@@ -54,7 +56,21 @@ function describe(id, c) {
     soundscape: !!(c.scenes && Object.keys(c.scenes).length),
     scenes: Object.keys(c.scenes || {}).sort().map((n) => { const sc = c.scenes[n] || {}; return { id: n, kind: sc.kind || 'sound', label: sc.label || n, image: sc.image || '', video: sc.video || '', vibe: sc.vibe || null }; }),
     second: secondOut,
+    library: libraryOf(id, library || LIBRARY, stories || {}, chosen),
   };
+}
+
+/* The whole Good Company story library, for the panel: every serial (Tansy, Kit, Reggie and the rest), each in numbered episodes. "on" is the episode the listener is up to
+   (the one they marked, or episode 1). "mine" is a serial told by the companion in this box. "setUp" is the one chosen to play in this box. An episode with no recording yet
+   says so; nothing is invented, it is all read from good-company/stories.json. */
+function libraryOf(id, library, marks, chosen) {
+  return ((library && library.series) || []).map((s) => {
+    const eps = (s.episodes || []).map((e) => ({ n: e.n, id: e.id, title: e.title, minutes: e.minutes || 0, ready: !!e.file }));
+    const mark = Number((marks || {})[s.id]);
+    const on = eps.some((e) => e.n === mark) ? mark : (eps[0] ? eps[0].n : 0);
+    const mine = s.id === id || String(s.id).indexOf(id + '-') === 0;
+    return { id: s.id, title: s.title, companion: s.companion || '', blurb: s.blurb || '', mine, setUp: chosen ? s.id === chosen : false, on, episodes: eps };
+  });
 }
 
 async function openStore(event) {
@@ -130,13 +146,13 @@ exports.handler = async (event, deps = {}) => {
     const battery = st.battery ? { volts: Math.round(st.battery.mv / 10) / 100, percent: batteryPercent(st.battery.mv), secondsAgo: Math.round((now - st.battery.at) / 1000), state: batteryState(st.battery, now) } : null;
     const nowScene = st.now && (all[st.companion].scenes || {})[st.now.scene];
     const playing = st.now ? { scene: st.now.scene, label: (nowScene && nowScene.label) || st.now.scene, kind: (nowScene && nowScene.kind) || 'sound', secondsAgo: Math.round((now - st.now.at) / 1000) } : null;
-    return json(200, { box: id, boxes, battery, now: playing, seenAgo: st.seen ? Math.round((now - st.seen) / 1000) : null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
+    return json(200, { box: id, boxes, battery, now: playing, seenAgo: st.seen ? Math.round((now - st.seen) / 1000) : null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id], id === st.companion ? st.stories : {}, deps.library, id === st.companion ? st.story : '')), waiting: st.command ? st.command.button : '' });
   }
 
   if (body.action === 'set_companion') {
     const id = String(body.companion || '').toLowerCase();
     if (!all[id]) return json(404, { error: 'unknown_companion' });
-    st = { companion: id, command: null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume };
+    st = { companion: id, command: null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, stories: st.stories, story: st.story };
     try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
     return json(200, { ok: true, companion: id });
   }
@@ -159,6 +175,22 @@ exports.handler = async (event, deps = {}) => {
     try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
     return json(200, { ok: true, listen: st.listen });
   }
+  if (body.action === 'set_episode') {      // mark which episode of a serial the listener is up to
+    const ser = libraryOf(st.companion, deps.library || LIBRARY, {}, '').filter((x) => x.id === String(body.series || ''))[0];
+    const n = parseInt(body.episode, 10);
+    if (!ser) return json(404, { error: 'unknown_series' });
+    if (!ser.episodes.some((e) => e.n === n)) return json(404, { error: 'unknown_episode' });
+    st.stories = Object.assign({}, st.stories, { [ser.id]: n });
+    try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
+    return json(200, { ok: true, series: ser.id, episode: n });
+  }
+  if (body.action === 'set_story') {        // set a serial up to play in this box
+    const ser = libraryOf(st.companion, deps.library || LIBRARY, {}, '').filter((x) => x.id === String(body.series || ''))[0];
+    if (!ser) return json(404, { error: 'unknown_series' });
+    st.story = ser.id;
+    try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
+    return json(200, { ok: true, story: ser.id });
+  }
   if (body.action === 'press') {
     const b = String(body.button || '').toLowerCase();
     if (BUTTONS.indexOf(b) < 0) return json(400, { error: 'unknown_button' });
@@ -174,4 +206,4 @@ exports.handler = async (event, deps = {}) => {
   return json(400, { error: 'unknown_action' });
 };
 
-exports._test = { describe, batteryPercent, batteryState };
+exports._test = { describe, libraryOf, batteryPercent, batteryState };
