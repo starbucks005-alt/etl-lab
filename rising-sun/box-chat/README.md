@@ -229,3 +229,10 @@ Dr. O: on the last Reggie story, pressing Record acted like it was recording, th
 - `tests/story-record.test.js` covers both. NOT tried against the real ElevenLabs service.
 
 The city noises from Julian's party music are called Cityscape on the panel (Dr. O, 2026-11-01: "this should be cityscape or something like that"). The scene's id and files are still fire-escape.
+
+## Recordings that stop part way, and carry themselves on (2026-11-01)
+
+Dr. O's ElevenLabs balance (629,093 of 865,577 credits left) rules out running out of credit. Every recording was starting and stopping part way. The cause is NOT KNOWN. One possibility, not confirmed: the site cuts a background job off after a short time limit, which would look exactly like this. Rather than guess, the recorder was changed to work either way:
+- It records a few seconds' worth, keeps each finished part, and then starts a fresh copy of itself for the rest (`selfCall`), until the story is whole. If the site does not cut it off, it simply runs on. Each part is voiced once.
+- A recording with no progress for four minutes shows on the panel as "Stopped at N of M, try again", which also says how far it got. That number is the clue: if it keeps stopping near the same part, it is something about that part (a voice, the text), and if it stops at about the same time, it is a time limit.
+- `tests/story-record.test.js` covers the carrying on (a stop after every part), the stalled report, and that parts are joined in order. NOT tried against the real ElevenLabs service or the live site.

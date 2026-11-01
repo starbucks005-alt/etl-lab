@@ -34,7 +34,7 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
   store._m.set('status-reggie-biscuit-mochi-squirrel', JSON.stringify({ state: 'recording', done: 2, total: 13, at: 1000 }));
   assert.strictEqual((await post({ series: 'reggie-biscuit-mochi', episode: 'squirrel' }, { pack: { episodes: [{ id: 'squirrel', beats: [{ who: 'reggie', text: 'x' }] }] } })).statusCode, 409, 'one already running is not started twice');
 
-  const st = JSON.parse((await aud.handler(ev('GET', null, { status: '1', watch: 'reggie-biscuit-mochi/squirrel' }), { env: {}, loadCfg: cfg, store })).body);
+  const st = JSON.parse((await aud.handler(ev('GET', null, { status: '1', watch: 'reggie-biscuit-mochi/squirrel' }), { env: {}, loadCfg: cfg, store, now: () => 2000 })).body);
   assert.strictEqual(st.recorded['reggie-biscuit-mochi/trash'], 2);
   assert.ok(Array.isArray(st.written['reggie-biscuit-mochi']), 'it says which episodes have a written story');
   assert.deepStrictEqual(st.running['reggie-biscuit-mochi/squirrel'], { done: 2, total: 13 });
@@ -71,5 +71,19 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
   st2._m.set('status-reggie-biscuit-mochi-trash', JSON.stringify({ state: 'recording', done: 2, total: 19, at: 1000 }));
   const again2 = await rec.handler(ev('POST', { series: 'reggie-biscuit-mochi', episode: 'trash' }), baseB({ now: () => 1000 + 5 * 60 * 1000, speak: async () => Buffer.from([1]) }));
   assert.strictEqual(again2.statusCode, 202, 'a stuck recording does not block the story for fifteen minutes');
+  // a recording that stopped moving is reported as stopped, with how far it got
+  const stl = JSON.parse((await aud.handler(ev('GET', null, { status: '1', watch: 'reggie-biscuit-mochi/squirrel' }), { env: {}, loadCfg: cfg, store, now: () => 1000 + 5 * 60 * 1000 })).body);
+  assert.deepStrictEqual(stl.running['reggie-biscuit-mochi/squirrel'], { failed: 'stalled', done: 2, total: 13 }, 'a stalled recording says it stopped and where');
+  // if the site stops the job part way, it carries itself on in fresh calls until the story is whole (here a stop after every single part)
+  const st3 = mem(); let calls = 0; const spk3 = [];
+  const run3 = (extra) => rec.handler(ev('POST', extra), { env: { ELEVENLABS_API_KEY: 'k' }, loadCfg: cfg, store: st3, pack, now: () => 9000, budgetMs: 0,
+    speak: async (k, v, t) => { spk3.push(t); return Buffer.from([spk3.length]); },
+    selfCall: async (event, payload) => { calls++; await run3(Object.assign({ resume: true }, payload)); } });
+  await run3({ series: 'reggie-biscuit-mochi', episode: 'trash' });
+  assert.strictEqual(spk3.length, 3, 'every part was voiced exactly once, none twice');
+  assert.strictEqual(calls, 2, 'it carried itself on twice for three parts');
+  const done3 = JSON.parse(st3._m.get('status-reggie-biscuit-mochi-trash'));
+  assert.strictEqual(done3.state, 'done');
+  assert.deepStrictEqual([...Buffer.from(st3._m.get('ep-reggie-biscuit-mochi-trash_v1'))], [1, 2, 3], 'the parts are joined in order');
   console.log('story recording: on the site with its own key, once per story, heard back');
 })().catch((e) => { console.error(e); process.exit(1); });

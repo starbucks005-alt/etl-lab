@@ -411,7 +411,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           var rid = s.id + '/' + e.id, have = recorded[rid], run = recording[rid];
           var act = document.createElement('span'); act.className = 'chip act'; act.setAttribute('role', 'button'); act.tabIndex = 0;
           var unwritten = written[s.id] && written[s.id].indexOf(e.id) < 0;
-          act.textContent = unwritten ? 'Not written yet' : run ? (run.failed ? 'Failed, try again' : 'Recording ' + run.done + ' of ' + run.total) : (have ? (playingId === rid ? 'Stop' : 'Listen') : (armed === rid ? 'Tap again to record' : 'Record'));
+          act.textContent = unwritten ? 'Not written yet' : run ? (run.failed ? (run.failed === 'stalled' ? 'Stopped at ' + run.done + ' of ' + run.total + ', try again' : 'Failed, try again') : 'Recording ' + run.done + ' of ' + run.total) : (have ? (playingId === rid ? 'Stop' : 'Listen') : (armed === rid ? 'Tap again to record' : 'Record'));
           if (have) sm.textContent = (e.minutes ? e.minutes + ' min, ' : '') + 'recorded';
           if (unwritten) { act.classList.remove('act'); act.removeAttribute('role'); act.removeAttribute('tabindex'); }
           else act.addEventListener('click', function (ev) { ev.stopPropagation(); episodeAction(s, e, rid); });

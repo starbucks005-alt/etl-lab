@@ -67,26 +67,41 @@ exports.handler = async (event, deps = {}) => {
   const now = deps.now ? deps.now() : Date.now();
   const sk = 'status-' + series + '-' + episode;
   let st = null; try { st = await store.get(sk, { type: 'json' }); } catch (_) {}
-  if (st && st.state === 'recording' && now - st.at < 4 * 60 * 1000) { await noteError(store, 'already_recording', series, episode, deps); return { statusCode: 409, body: 'already_recording' }; }   // a recording that has made no progress for four minutes is taken to have died
+  const resume = !!body.resume && st && st.state === 'recording' && st.version === body.version;     // the job carrying itself on after a stop, see below
+  if (!resume && st && st.state === 'recording' && now - st.at < 4 * 60 * 1000) { await noteError(store, 'already_recording', series, episode, deps); return { statusCode: 409, body: 'already_recording' }; }   // a recording that has made no progress for four minutes is taken to have died
   let idx = { ids: {} }; try { idx = (await store.get('index', { type: 'json' })) || idx; } catch (_) {}
   const id = series + '/' + episode;
   const have = idx.ids[id] || 0;
-  if (have && !body.again) { await noteError(store, 'already_recorded', series, episode, deps); return { statusCode: 409, body: 'already_recorded' }; }
-  const version = have + 1;
+  if (!resume && have && !body.again) { await noteError(store, 'already_recorded', series, episode, deps); return { statusCode: 409, body: 'already_recorded' }; }
+  const version = resume ? st.version : have + 1;
 
   const parts = plan.plan(ep);
-  await store.setJSON(sk, { state: 'recording', done: 0, total: parts.length, at: now });
+  let done = resume ? st.done : 0;
+  const pk = (i) => 'part-' + series + '-' + episode + '-v' + version + '-' + i;
+  if (!resume) await store.setJSON(sk, { state: 'recording', done: 0, total: parts.length, version, at: now });
+  /* The recording is done a few seconds' worth at a time. If the site stops a background job after a short time limit (which would look exactly like a recording that
+     starts and stops part way), the job starts a fresh copy of itself for the rest, so it is carried through either way. Each finished part is kept, so nothing is redone. */
+  const budget = deps.budgetMs !== undefined ? deps.budgetMs : 8000, t0 = Date.now();
   try {
-    const bufs = [];
-    for (let i = 0; i < parts.length; i++) {
-      bufs.push(await (deps.speak || speak)(key, plan.VOICES[parts[i].who], parts[i].text, deps.fetchFn));
-      await store.setJSON(sk, { state: 'recording', done: i + 1, total: parts.length, at: deps.now ? deps.now() : Date.now() });
+    while (done < parts.length) {
+      const buf = await (deps.speak || speak)(key, plan.VOICES[parts[done].who], parts[done].text, deps.fetchFn);
+      await store.set(pk(done), buf);
+      done++;
+      await store.setJSON(sk, { state: 'recording', done, total: parts.length, version, at: deps.now ? deps.now() : Date.now() });
+      if (done < parts.length && Date.now() - t0 >= budget) {
+        await (deps.selfCall || selfCall)(event, { series, episode, version });
+        return { statusCode: 202, body: '' };
+      }
     }
+    const bufs = [];
+    for (let i = 0; i < parts.length; i++) bufs.push(Buffer.from(await store.get(pk(i), { type: 'arrayBuffer' })));
     const mp3 = Buffer.concat(bufs);
     await store.set('ep-' + series + '-' + episode + '_v' + version, mp3);
-    idx.ids[id] = version;
-    await store.setJSON('index', idx);
+    let idx2 = { ids: {} }; try { idx2 = (await store.get('index', { type: 'json' })) || idx2; } catch (_) {}
+    idx2.ids[id] = version;
+    await store.setJSON('index', idx2);
     await store.setJSON(sk, { state: 'done', done: parts.length, total: parts.length, version, bytes: mp3.length, at: deps.now ? deps.now() : Date.now() });
+    for (let i = 0; i < parts.length; i++) { try { if (store.delete) await store.delete(pk(i)); } catch (_) {} }
     return { statusCode: 202, body: '' };
   } catch (e) {
     await store.setJSON(sk, { state: 'failed', error: String((e && e.message) || e).slice(0, 80), at: deps.now ? deps.now() : Date.now() });
@@ -94,4 +109,11 @@ exports.handler = async (event, deps = {}) => {
     return { statusCode: 202, body: '' };
   }
 };
+
+/* Starts a fresh copy of this job to carry on from the stored parts. It answers 202 at once, like every background job, so waiting for it costs nothing. */
+async function selfCall(event, payload, fetchFn = fetch) {
+  const h = event.headers || {};
+  const base = process.env.URL || (h.host ? 'https://' + h.host : 'https://emerging-tech-lab.com');
+  await fetchFn(base + '/.netlify/functions/story-record-background', { method: 'POST', headers: { 'x-sun-key': h['x-sun-key'] || '', 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ resume: true }, payload)) });
+}
 exports.speak = speak;

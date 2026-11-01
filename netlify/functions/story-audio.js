@@ -32,7 +32,8 @@ exports.handler = async (event, deps = {}) => {
     const running = {};
     for (const id of String(q.watch || '').split(',').filter((x) => /^[a-z0-9-]{1,60}\/[a-z0-9-]{1,60}$/.test(x)).slice(0, 20)) {
       let st = null; try { st = await store.get('status-' + id.replace('/', '-'), { type: 'json' }); } catch (_) {}
-      if (st && st.state === 'recording') running[id] = { done: st.done, total: st.total };
+      if (st && st.state === 'recording' && (deps.now ? deps.now() : Date.now()) - st.at > 4 * 60 * 1000) running[id] = { failed: 'stalled', done: st.done, total: st.total };   // no progress for four minutes: it stopped part way
+      else if (st && st.state === 'recording') running[id] = { done: st.done, total: st.total };
       else if (st && st.state === 'failed') running[id] = { failed: st.error || 'failed' };
     }
     let lastError = null; try { const le = await store.get('last-error', { type: 'json' }); if (le && le.error) lastError = { error: le.error, series: le.series, episode: le.episode, secondsAgo: Math.round(((deps.now ? deps.now() : Date.now()) - le.at) / 1000) }; } catch (_) {}
