@@ -33,7 +33,7 @@ function sources(deps) {
   const pack = (deps.pack || PACK).episodes || [];
   out['reggie-biscuit-mochi'] = pack.map((e) => ({ id: e.id, parts: () => ({ parts: plan.plan(e), skipped: [] }) }));
   ((deps.stories || STORIES).series || []).forEach((x) => { out[x.id] = (x.episodes || []).map((e) => ({ id: e.id, parts: () => ({ parts: plan.plan(e), skipped: [] }) })); });
-  out.alice = [{ id: 'alice-saga', parts: () => plan.planFragments(deps.alice || ALICE) }];
+  out.alice = [{ id: 'alice-saga', parts: () => plan.planFragments(deps.alice || ALICE) }].concat(out.alice || []);       // the saga first, then her two later episodes (written as beats, in box-stories.json)
   out.tansy = [{ id: 'tansy-human-summer', parts: () => plan.planFragments(deps.fairy || FAIRY) }];
   out.kit = ((deps.explorer || EXPLORER).episodes || []).map((e) => ({ id: 'kit-' + e.id, parts: () => plan.kitParts(e) }));
   return out;

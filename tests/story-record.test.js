@@ -118,5 +118,17 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
   assert.strictEqual(pl.kitParts({ id: 'y', text: 'Hi {name}, no quotes.' }).parts.length, 1, 'a story with no listed lines is all Kit, as before');
   const wm = require('../netlify/functions/story-record-background.js').writtenMap({});
   assert.deepStrictEqual([wm.alice, wm.tansy, wm.kit], [['alice-saga'], ['tansy-human-summer'], ['kit-mongolia', 'kit-jordan', 'kit-ohio']], 'the panel is told what is written for the others');
+  // A.L.I.C.E.'s two later episodes (The Youngest of Us, Fought For) are written as beats and read in her voice, after the saga of fragments
+  const st6 = mem(); const used6 = [];
+  for (const id of ['alice-youngest', 'alice-fought-for']) {
+    used6.length = 0;
+    const r6 = await rec.handler(ev('POST', { series: 'alice', episode: id }), { env: { ELEVENLABS_API_KEY: 'k' }, loadCfg: cfg, store: st6, now: () => 9000, budgetMs: 100000, speak: async (k, v, t) => { used6.push([v, t]); return Buffer.from([1]); } });
+    assert.strictEqual(r6.statusCode, 202, id + ' records');
+    assert.ok(used6.length >= 7 && used6.every((u) => u[0] === 'gZL79pBTvaNfNPOCXh6n'), id + ' is read in A.L.I.C.E.\'s voice');
+    assert.ok(!used6.some((u) => /[\u2013\u2014]/.test(u[1])), id + ' has no long dash');
+  }
+  assert.deepStrictEqual(require('../netlify/functions/story-record-background.js').writtenMap({}).alice, ['alice-saga', 'alice-youngest', 'alice-fought-for'], 'the saga first, then her two episodes');
+  const libA = require('../good-company/stories.json').series.find((x) => x.id === 'alice');
+  assert.ok(libA.episodes.length === 3 && libA.episodes[2].id === 'alice-fought-for', 'both are in the story library');
   console.log('story recording: on the site with its own key, once per story, heard back');
 })().catch((e) => { console.error(e); process.exit(1); });
