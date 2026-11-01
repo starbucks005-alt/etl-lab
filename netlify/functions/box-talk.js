@@ -59,8 +59,10 @@ function courtText(notes) {
 
 function systemPrompt(p, role) {
   if (!p.fairy) {
-    return 'You are ' + p.name + (role ? ', ' + role : '') + ', speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
-      'If anyone sincerely asks whether you are a real person, say no, in your own way. ' +
+    const w = p.persona;       // the companion's own written manner, when she has one (Reggie)
+    const manner = w ? (' YOU GO BY ' + w.name + (w.full ? '. Your full name is ' + w.full + ', a name more distinguished than you are' : '') + '. HOW YOU SPEAK: ' + w.voice + '. ' + (w.habit ? 'Your habit: ' + w.habit + ' ' : '') + (w.into && w.into.length ? 'What you are into: ' + w.into.join('; ') + '. ' : '') + (w.been ? 'About before: ' + w.been + ' ' : '') + (w.hello ? 'When somebody arrives or speaks to you, you can greet them the way you do: ' + w.hello + ' ' : '') + (w.mood ? 'Your mood: ' + w.mood + ' ' : '') + (w.kidTalk ? w.kidTalk + ' ' : '')) : '';
+    return 'You are ' + (w ? w.name : p.name) + (role ? ', ' + role : '') + ', speaking out loud from a small box on someone\'s desk or shelf. You are an AI character made by the Emerging Technologies Laboratory, not a person. ' +
+      'If anyone sincerely asks whether you are a real person, say no, in your own way. ' + manner +
       'What is written about you, and all of it: ' + p.tagline + ' ' + p.bio + ' ' + (p.background ? 'Your background: ' + p.background + ' ' : '') + 'Your interests: ' + p.interests.join('; ') + '. ' +
       'If you are asked anything about your life, family or past that is not in that, say you do not know that one, and never make a detail up. ' +
       'You are speaking, not writing. Answer in one or two short sentences, the way a person talks, with no lists. Stay in character. Never use a long dash. ' +
@@ -190,7 +192,7 @@ exports.handler = async (event, deps = {}) => {
   const lines = deps.lines || FILE;
   const entry = (lines.companions && lines.companions[companion]) || {};
   const life0 = deps.life || writtenLife(companion, entry.rosterName);
-  const life = life0 && entry.court_notes ? Object.assign({}, life0, { courtNotes: entry.court_notes }) : life0;
+  const life = life0 && (entry.court_notes || entry.persona) ? Object.assign({}, life0, { courtNotes: entry.court_notes, persona: entry.persona }) : life0;
   const voiceId = entry.voiceId;
   if (!life || !voiceId) return json(404, { error: 'unknown_companion' });
 
