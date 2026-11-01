@@ -236,3 +236,7 @@ Dr. O's ElevenLabs balance (629,093 of 865,577 credits left) rules out running o
 - It records a few seconds' worth, keeps each finished part, and then starts a fresh copy of itself for the rest (`selfCall`), until the story is whole. If the site does not cut it off, it simply runs on. Each part is voiced once.
 - A recording with no progress for four minutes shows on the panel as "Stopped at N of M, try again", which also says how far it got. That number is the clue: if it keeps stopping near the same part, it is something about that part (a voice, the text), and if it stops at about the same time, it is a time limit.
 - `tests/story-record.test.js` covers the carrying on (a stop after every part), the stalled report, and that parts are joined in order. NOT tried against the real ElevenLabs service or the live site.
+
+## The story library would not open, fixed (2026-11-01)
+
+Dr. O: "cannot click/open the library". A change of mine used a variable (`lastErr`) that was never declared, so opening the library threw an error before it drew anything. It was dead from that change until this fix. `tests/box-panel-script.test.js` now checks that the panel script parses and that the names the library keeps are declared. The panel's own behaviour is checked by hand in a browser, not by the tests.
