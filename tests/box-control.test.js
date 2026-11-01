@@ -87,6 +87,14 @@ const real = require('../rising-sun/box-lines.json');
   await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera', box: 'wake' }), d);
   assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'wake' }), d)).body.includes('wakeby=name\n'), 'changing the companion keeps how the box is woken');
 
+  // the volume: 70 until the panel says otherwise, kept when the companion changes, and nonsense is refused
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'loud' }), d)).body.includes('volume=70\n'));
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_volume', volume: 250, box: 'loud' }), d)).statusCode, 400);
+  assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_volume', volume: 45, box: 'loud' }), d)).statusCode, 200);
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'loud' }), d)).body.includes('volume=45\n'));
+  await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'marcus', box: 'loud' }), d);
+  assert.ok((await handler(ev('GET', KEY, { box: '1', id: 'loud' }), d)).body.includes('volume=45\n'));
+
   // choosing a companion; an unknown one is refused
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'nobody' }), d)).statusCode, 404);
   assert.strictEqual((await handler(ev('POST', KEY, {}, { action: 'set_companion', companion: 'meera' }), d)).statusCode, 200);

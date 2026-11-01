@@ -93,6 +93,14 @@
     <p class="note" id="wakeNote"></p>
   </section>
 
+  <section id="volCard" class="hidden">
+    <h2>Volume</h2>
+    <p id="volLine" style="margin:0"></p>
+    <button id="bVolDown" type="button" class="quiet">Quieter</button>
+    <button id="bVolUp" type="button" class="quiet">Louder</button>
+    <p class="note">Each press changes it by 5. If her voice crackles like static, try a lower number. The box takes a few seconds to change.</p>
+  </section>
+
   <section id="batt" class="hidden">
     <h2>Battery</h2>
     <p id="battLine" style="margin:0"></p>
@@ -136,6 +144,8 @@
     else { second.classList.add('hidden'); }
     $('pick').classList.remove('hidden'); $('buttons').classList.remove('hidden');
     $('batt').classList.remove('hidden');
+    $('volCard').classList.remove('hidden');
+    $('volLine').textContent = 'Volume: ' + (data.volume == null ? 70 : data.volume) + ' of 100';
     $('listenCard').classList.remove('hidden');
     $('duetCard').classList.remove('hidden');
     var cc = current();
@@ -202,6 +212,15 @@
       else say('Could not change that.', 'bad');
     }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
+  function setVol(delta) {
+    var v = Math.max(0, Math.min(100, (data.volume == null ? 70 : data.volume) + delta));
+    call('POST', { action: 'set_volume', volume: v }).then(function (r) {
+      if (r.status === 200) { data.volume = v; $('volLine').textContent = 'Volume: ' + v + ' of 100'; say('The box will change in a few seconds.', 'ok'); }
+      else say('Could not change the volume.', 'bad');
+    }).catch(function () { say('Could not reach the website.', 'bad'); });
+  }
+  $('bVolDown').addEventListener('click', function () { setVol(-5); });
+  $('bVolUp').addEventListener('click', function () { setVol(5); });
   $('bListen').addEventListener('click', function () {
     var want = data.listen === false;
     call('POST', { action: 'set_listen', listen: want }).then(function (r) {

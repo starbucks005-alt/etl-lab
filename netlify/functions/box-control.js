@@ -92,6 +92,7 @@ exports.handler = async (event, deps = {}) => {
   try { st = (await store.get(key, { type: 'json' })) || {}; } catch (_) {}
   if (!all[st.companion]) st.companion = 'tansy';
   if (st.wakeBy !== 'name') st.wakeBy = 'hiesp';                 // what wakes the box: the wake word Hi ESP, or the companion's own name
+  if (!(st.volume >= 0 && st.volume <= 100)) st.volume = 70;         // the speaker volume, 0 to 100
   if (typeof st.listen !== 'boolean') st.listen = true;        // does the box listen for its wake word
   if (st.command && now - st.command.at > EXPIRES_MS) st.command = null;
 
@@ -118,18 +119,18 @@ exports.handler = async (event, deps = {}) => {
     if (st.command) st.command = null;
     try { await store.setJSON(key, st); } catch (_) {}
     const second = c.second ? (c.second.kind === 'story' ? 'story' : 'starter:' + c.second.id) : 'none';
-    return text('companion=' + st.companion + '\nsecond=' + second + '\ncommand=' + command + '\nface=' + (c.face || '') + '\nlisten=' + (st.listen ? 'on' : 'off') + '\nwakeby=' + st.wakeBy + '\nwakename=' + ((all[st.companion].wake || {}).name || '') + '\nwakephoneme=' + ((all[st.companion].wake || {}).phoneme || '') + '\nduet=' + duet + '\n');
+    return text('companion=' + st.companion + '\nsecond=' + second + '\ncommand=' + command + '\nface=' + (c.face || '') + '\nvolume=' + st.volume + '\nlisten=' + (st.listen ? 'on' : 'off') + '\nwakeby=' + st.wakeBy + '\nwakename=' + ((all[st.companion].wake || {}).name || '') + '\nwakephoneme=' + ((all[st.companion].wake || {}).phoneme || '') + '\nduet=' + duet + '\n');
   }
 
   if (event.httpMethod === 'GET') {
     const battery = st.battery ? { volts: Math.round(st.battery.mv / 10) / 100, percent: batteryPercent(st.battery.mv), secondsAgo: Math.round((now - st.battery.at) / 1000), state: batteryState(st.battery, now) } : null;
-    return json(200, { box: id, boxes, battery, listen: st.listen, wakeBy: st.wakeBy, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
+    return json(200, { box: id, boxes, battery, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id])), waiting: st.command ? st.command.button : '' });
   }
 
   if (body.action === 'set_companion') {
     const id = String(body.companion || '').toLowerCase();
     if (!all[id]) return json(404, { error: 'unknown_companion' });
-    st = { companion: id, command: null, listen: st.listen, wakeBy: st.wakeBy };
+    st = { companion: id, command: null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume };
     try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
     return json(200, { ok: true, companion: id });
   }
@@ -138,6 +139,13 @@ exports.handler = async (event, deps = {}) => {
     st.wakeBy = body.by;
     try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
     return json(200, { ok: true, wakeBy: st.wakeBy });
+  }
+  if (body.action === 'set_volume') {
+    const v = parseInt(body.volume, 10);
+    if (!(v >= 0 && v <= 100)) return json(400, { error: 'volume_must_be_0_to_100' });
+    st.volume = v;
+    try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
+    return json(200, { ok: true, volume: st.volume });
   }
   if (body.action === 'set_listen') {
     if (typeof body.listen !== 'boolean') return json(400, { error: 'listen_must_be_true_or_false' });

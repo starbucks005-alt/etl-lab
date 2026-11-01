@@ -71,6 +71,7 @@ String wakeName = "", wakePhoneme = "";   // her name and how the chip hears it,
 String engineKey = "";                    // what the running engine was started with, so a change restarts it
 bool nameMode = false;                    // true while the engine listens for the name instead of Hi ESP
 static sr_cmd_t nameCmds[3];
+int volumeNow = SPEAKER_VOLUME;           // the speaker volume, from the panel
 String pendingCmd = "";                 // a command the panel pushed while a soundscape was playing, to do next
 String duetState = "";                  // chat mode: a turn number when it is this box's turn, "wait", or empty
 uint32_t lastAsk = 0;                    // when the box last asked the website
@@ -562,6 +563,7 @@ String askWebsite() {
     } else if (line.startsWith("second=")) secondKind = line.substring(7);
     else if (line.startsWith("command=")) command = line.substring(8);
     else if (line.startsWith("duet=")) duetState = line.substring(5);
+    else if (line.startsWith("volume=")) { int v = line.substring(7).toInt(); if (v >= 0 && v <= 100 && v != volumeNow) { volumeNow = v; es8311_voice_volume_set(codec, v, NULL); Serial.printf("Volume is now %d\n", v); } }
     else if (line.startsWith("wakeby=")) wakeBy = line.substring(7);
     else if (line.startsWith("wakename=")) wakeName = line.substring(9);
     else if (line.startsWith("wakephoneme=")) wakePhoneme = line.substring(12);
