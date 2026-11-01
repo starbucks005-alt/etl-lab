@@ -134,6 +134,18 @@
       <div class="row"><button id="bSecond" class="primary" type="button"></button></div>
     </section>
 
+    <section class="card" id="duetCard">
+      <h2>Chat mode</h2>
+      <p class="hint">Two boxes talk to each other, one at a time. Each says its own companion's lines. Pick two boxes with different companions.</p>
+      <label for="duetA">First box (speaks first)</label><select id="duetA"></select>
+      <label for="duetB">Second box</label><select id="duetB"></select>
+      <label for="duetTopic">Topic (optional)</label><input id="duetTopic" type="text" maxlength="200" autocomplete="off">
+      <label for="duetTurns">Lines in all</label>
+      <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select>
+      <div class="row"><button id="duetGo" class="green" type="button">Start chat mode</button><button id="duetStop" type="button">Stop</button></div>
+      <p class="note" id="duetState"></p>
+    </section>
+
     <section class="card wide" id="tilesCard">
       <h2>Music and Soundscape</h2>
       <p class="hint">Tap one to play it. A picture of the vibe appears here.</p>
@@ -153,17 +165,6 @@
       <div class="tiles" id="tilesSound"></div>
     </section>
 
-    <section class="card" id="duetCard">
-      <h2>Chat mode</h2>
-      <p class="hint">Two boxes talk to each other, one at a time. Each says its own companion's lines. Pick two boxes with different companions.</p>
-      <label for="duetA">First box (speaks first)</label><select id="duetA"></select>
-      <label for="duetB">Second box</label><select id="duetB"></select>
-      <label for="duetTopic">Topic (optional)</label><input id="duetTopic" type="text" maxlength="200" autocomplete="off">
-      <label for="duetTurns">Lines in all</label>
-      <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select>
-      <div class="row"><button id="duetGo" class="green" type="button">Start chat mode</button><button id="duetStop" type="button">Stop</button></div>
-      <p class="note" id="duetState"></p>
-    </section>
 
     <section class="card" id="listenCard">
       <h2>Listening</h2>
