@@ -263,6 +263,23 @@ volatile char gardenCmd[16] = "";
 static TaskHandle_t gardenWatcherHandle = NULL;
 
 // This board's own short id (from its chip), sent with every check-in, so the panel can tell if two boards are using the same box name.
+// Why the board last started, in letters the website accepts. A box that restarts in the middle of a sound (a power dip, a crash, a watchdog) shows here and in the running time.
+String bootReason() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON: return "power_on";
+    case ESP_RST_SW: return "software";
+    case ESP_RST_PANIC: return "crash";
+    case ESP_RST_INT_WDT: return "watchdog_int";
+    case ESP_RST_TASK_WDT: return "watchdog_task";
+    case ESP_RST_WDT: return "watchdog";
+    case ESP_RST_BROWNOUT: return "brownout";
+    case ESP_RST_DEEPSLEEP: return "deep_sleep";
+    case ESP_RST_EXT: return "reset_button";
+    default: return "other";
+  }
+}
+String linkInfo() { return String("&up=") + (millis() / 1000) + "&boot=" + bootReason(); }
+
 String deviceId() { char b[9]; snprintf(b, sizeof(b), "%06x", (unsigned)(ESP.getEfuseMac() & 0xFFFFFF)); return String(b); }
 
 String peekCommand() {
@@ -270,7 +287,7 @@ String peekCommand() {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&dev=" + deviceId() + "&now=" + nowPlaying)) return "";
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&dev=" + deviceId() + linkInfo() + "&now=" + nowPlaying)) return "";
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(8000);
   String command = "";
@@ -440,6 +457,13 @@ struct MusicPlay {
   volatile uint32_t played, stalls, longest;
 };
 static MusicPlay mp;
+String musicEnd = "";                      // how the last track ended, sent to the website so the panel can show it (letters, digits and _ only)
+void noteMusicEnd(const char *why) {
+  char b[100];
+  snprintf(b, sizeof(b), "played_%u_stalls_%u_why_%s_heap_%u_big_%u", (unsigned)(mp.played / 16000), (unsigned)mp.stalls, why, (unsigned)ESP.getFreeHeap(), (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
+  musicEnd = b;
+  Serial.printf("Music ended: %s\n", b);
+}
 
 void musicAudioTask(void *) {
   int16_t out[1024];                           // on the task's own 12 KB stack. A static array here is 2 KB of the memory the wake word engine needs at start-up (build k)
@@ -472,14 +496,56 @@ void streamMusic(const String &path) {
   Serial.printf("Music '%s': website answered %d\n", path.c_str(), code);
   if (code != 200) { http.end(); ringColor(255, 0, 0); delay(1500); return; }
   WiFiClient *s = http.getStreamPtr();
+  int len = http.getSize();
+  size_t freeP = ESP.getFreePsram();
+  Serial.printf("Music: %d bytes to download, %u bytes of PSRAM free, %u bytes free inside the chip (largest piece %u)\n", len, (unsigned)freeP, (unsigned)ESP.getFreeHeap(), (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
+  // Preferred: take the whole track into memory first, then close the connection, so a panel check later has the connection memory to itself. Two secure connections at once may be what stopped the music.
+  uint8_t *whole = (len > 100000 && (size_t)len + 300000 < freeP) ? (uint8_t *)ps_malloc(len) : NULL;
+  if (whole) {
+    size_t got = 0; uint32_t lastN = 0, lastD = millis(); bool keyHit = false;
+    ringColor(0, 120, 40);
+    while (got < (size_t)len && millis() - lastD < 15000) {
+      if (keysPressed()) { keyHit = true; while (keysPressed()) delay(20); break; }
+      int avail = s->available();
+      if (avail > 0) { size_t n = min((size_t)avail, min((size_t)4096, (size_t)len - got)); int r = s->readBytes(whole + got, n); if (r > 0) { got += r; lastD = millis(); } }
+      else delay(2);
+      if (millis() - lastN > 2000) { lastN = millis(); Serial.printf("Music: downloading, %u of %d bytes\n", (unsigned)got, len); }
+    }
+    http.end(); client.stop();
+    Serial.printf("Music: downloaded %u of %d bytes, connection closed, %u bytes free inside the chip\n", (unsigned)got, len, (unsigned)ESP.getFreeHeap());
+    if (keyHit || got < 32000) { free(whole); mp.played = 0; mp.stalls = 0; noteMusicEnd(keyHit ? "key_before_start" : "download_failed"); return; }
+    mp.ring = whole; mp.ringSize = got; mp.wr.store(got); mp.rd = 0; mp.ended = true; mp.stop = false; mp.done = false; mp.played = 0; mp.stalls = 0; mp.longest = 0;
+    BaseType_t made = xTaskCreatePinnedToCore(musicAudioTask, "music-audio", 12288, NULL, 3, NULL, 1);
+    Serial.printf("Music: playing from memory, sound task %s\n", made == pdPASS ? "started" : "COULD NOT START");
+    const char *why = "finished";
+    uint32_t t1 = millis(), lc = millis();
+    if (made != pdPASS) { why = "no_sound_task"; mp.stop = true; }
+    while (made == pdPASS && !mp.done) {
+      if (millis() - t1 > MUSIC_MAX_MS) { why = "time_limit"; break; }
+      if (keysPressed()) { why = "key"; while (keysPressed()) delay(20); break; }
+      if (millis() - lc > 15000) {
+        lc = millis(); uint32_t c0 = millis();
+        String c = peekCommand();
+        Serial.printf("Panel check took %u ms\n", (unsigned)(millis() - c0));
+        if (c.length()) { if (c != "stop" && c != "soundscape") pendingCmd = c; why = "panel"; break; }
+      }
+      delay(20);
+    }
+    mp.stop = true;
+    for (int i = 0; i < 100 && made == pdPASS && !mp.done; i++) delay(20);
+    noteMusicEnd(why);
+    free(whole);
+    return;
+  }
   mp.ring = gardenBuf; mp.ringSize = GARDEN_MAX_BYTES;
   mp.rd = 0; mp.wr = 0; mp.ended = false; mp.stop = false; mp.done = false; mp.played = 0; mp.stalls = 0; mp.longest = 0;
   bool started = false;
+  const char *why = "finished";
   const size_t PRE = 160000;                  // ten seconds of sound in the buffer before it starts
   uint32_t t0 = millis(), lastData = millis(), lastCheck = millis(), lastNote = 0;
   ringColor(0, 120, 40);
   while (millis() - t0 < MUSIC_MAX_MS) {
-    if (keysPressed()) { Serial.println("Music stopped"); while (keysPressed()) delay(20); break; }
+    if (keysPressed()) { Serial.println("Music stopped"); while (keysPressed()) delay(20); why = "key"; break; }
     size_t w = mp.wr.load(std::memory_order_relaxed), r = mp.rd.load(std::memory_order_acquire);
     size_t count = w - r;
     if (!mp.ended) {
@@ -502,13 +568,15 @@ void streamMusic(const String &path) {
       uint32_t c0 = millis();
       String c = peekCommand();
       Serial.printf("Panel check took %u ms\n", (unsigned)(millis() - c0));
-      if (c.length()) { if (c != "stop" && c != "soundscape") pendingCmd = c; Serial.println("Music stopped from the panel"); break; }
+      if (c.length()) { if (c != "stop" && c != "soundscape") pendingCmd = c; Serial.println("Music stopped from the panel"); why = "panel"; break; }
     }
     delay(2);
   }
   mp.stop = true;
   for (int i = 0; i < 100 && started && !mp.done; i++) delay(20);   // let the sound task finish its last write
   http.end();
+  if (why[0] == 'f' && millis() - t0 >= MUSIC_MAX_MS) why = "time_limit";
+  noteMusicEnd(why);
   Serial.printf("Music played %.0f seconds, %u stalls over a quarter of a second, longest %u ms\n", mp.played / 16000.0f, (unsigned)mp.stalls, (unsigned)mp.longest);
 }
 
@@ -647,9 +715,10 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
+  Serial.printf("This start was caused by: %s\n", bootReason().c_str());
   Serial.printf("Free memory: %u bytes inside the chip, %u bytes extra (PSRAM)\n", (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getFreePsram());
   Serial.printf("This board is %s, box name \"%s\"\n", deviceId().c_str(), BOX_NAME);
-  Serial.printf("Version: build 2026-11-01l (the music plays on its own task; start-up memory as in build i; free memory is printed), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01m (music downloaded first and played from memory; the box reports its running time, why it last started, and how a track ended), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
@@ -769,7 +838,7 @@ String askWebsite() {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&batt=" + batteryMillivolts() + "&dev=" + deviceId() + "&now=" + nowPlaying)) return "";
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&batt=" + batteryMillivolts() + "&dev=" + deviceId() + linkInfo() + (musicEnd.length() ? "&end=" + musicEnd : String("")) + "&now=" + nowPlaying)) return "";
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(8000);
   int code = http.GET();

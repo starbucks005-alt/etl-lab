@@ -121,6 +121,8 @@ exports.handler = async (event, deps = {}) => {
   if (event.httpMethod === 'GET' && q.box) {
     st.seen = now;                                  // the box is awake: it just asked
     const dev = /^[0-9a-f]{3,8}$/.test(String(q.dev || '')) ? String(q.dev) : 'old';   // which board asked: its own short id, or 'old' for a program that does not say
+    if (/^[0-9]{1,8}$/.test(String(q.up || '')) && /^[a-z0-9_]{1,20}$/.test(String(q.boot || ''))) st.link = { up: parseInt(q.up, 10), boot: String(q.boot), at: now };   // how long the box has been running and why it last started
+    if (/^[a-z0-9_]{1,100}$/.test(String(q.end || ''))) { if (!st.musicEnd || st.musicEnd.what !== String(q.end)) st.musicEnd = { what: String(q.end), at: now }; }     // how the last track ended
     const devs = {}; Object.keys(st.devs || {}).forEach((k) => { if (now - st.devs[k] < 90000) devs[k] = st.devs[k]; });
     devs[dev] = now; st.devs = devs;
     if (q.now !== undefined) { const nw = String(q.now).toLowerCase(); if (/^[a-z0-9-]{0,40}$/.test(nw)) st.now = nw ? { scene: nw, at: now } : null; }   // what the box is playing, empty when nothing
@@ -149,7 +151,7 @@ exports.handler = async (event, deps = {}) => {
     const battery = st.battery ? { volts: Math.round(st.battery.mv / 10) / 100, percent: batteryPercent(st.battery.mv), secondsAgo: Math.round((now - st.battery.at) / 1000), state: batteryState(st.battery, now) } : null;
     const nowScene = st.now && (all[st.companion].scenes || {})[st.now.scene];
     const playing = st.now ? { scene: st.now.scene, label: (nowScene && nowScene.label) || st.now.scene, kind: (nowScene && nowScene.kind) || 'sound', secondsAgo: Math.round((now - st.now.at) / 1000) } : null;
-    return json(200, { box: id, boxes, battery, now: playing, seenAgo: st.seen ? Math.round((now - st.seen) / 1000) : null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id], id === st.companion ? st.stories : {}, deps.library, id === st.companion ? st.story : '')), waiting: st.command ? st.command.button : '', boards: Object.keys(st.devs || {}).filter((k) => now - st.devs[k] < 90000) });
+    return json(200, { box: id, boxes, battery, now: playing, seenAgo: st.seen ? Math.round((now - st.seen) / 1000) : null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, companion: st.companion, companions: Object.keys(all).map((id) => describe(id, all[id], id === st.companion ? st.stories : {}, deps.library, id === st.companion ? st.story : '')), waiting: st.command ? st.command.button : '', link: st.link ? { up: st.link.up, boot: st.link.boot, secondsAgo: Math.round((now - st.link.at) / 1000) } : null, musicEnd: st.musicEnd ? { what: st.musicEnd.what, secondsAgo: Math.round((now - st.musicEnd.at) / 1000) } : null, boards: Object.keys(st.devs || {}).filter((k) => now - st.devs[k] < 90000) });
   }
 
   if (body.action === 'set_companion') {

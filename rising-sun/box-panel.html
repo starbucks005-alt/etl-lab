@@ -163,6 +163,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   <p class="sub" id="sub">Pick who is in the box, then push the buttons from here.</p>
   <div class="status" id="status"><span class="dot"></span><span id="statusText">Not connected</span></div>
   <p class="note hidden" id="boardsNote" style="margin-top:10px"></p>
+  <p class="note hidden" id="linkNote" style="margin-top:6px"></p>
 
   <section class="card" id="keyCard" style="margin-top:22px;max-width:460px">
     <h2>Access code</h2>
@@ -432,6 +433,18 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   // ---------- drawing the page ----------
   function draw() {
     var c = current(), nowSc = null, ago;
+    (function () {                                        // how long the box has been running, why it last started, and how the last track ended
+      var ln = $('linkNote'), L = data.link, E = data.musicEnd, out = [];
+      var why = { power_on: 'it was switched on', reset_button: 'the reset button was pressed', software: 'it restarted itself', crash: 'it crashed', brownout: 'its power dipped (brownout)', watchdog: 'a watchdog restarted it', watchdog_task: 'a watchdog restarted it', watchdog_int: 'a watchdog restarted it', deep_sleep: 'it woke from sleep', other: 'for another reason' };
+      if (L) { var m = Math.floor(L.up / 60), sec = L.up % 60; out.push('The box has been running ' + (m ? m + ' min ' : '') + sec + ' s since it last started, because ' + (why[L.boot] || L.boot) + '.'); }
+      if (E) {
+        var t = {}; E.what.replace(/_/g, ' ').replace(/(played|stalls|heap|big) (\d+)/g, function (x, k, v) { t[k] = v; });
+        var w = (E.what.match(/why_([a-z]+(?:_[a-z]+)*?)(?:_heap|$)/) || [])[1] || '';
+        var wm = { finished: 'the track finished', key: 'a button on the box was pressed', panel: 'the panel sent something', time_limit: 'the time limit was reached', download_failed: 'the download failed', key_before_start: 'a button was pressed before it started', no_sound_task: 'the sound player could not start' };
+        out.push('Last music: played ' + (t.played || '?') + ' s, ' + (t.stalls || '0') + ' stalls, ended because ' + (wm[w] || w || 'unknown') + '.');
+      }
+      if (out.length) { ln.textContent = out.join(' '); ln.classList.remove('hidden'); } else ln.classList.add('hidden');
+    })();
     var bn = $('boardsNote'), bd = data.boards || [];
     if (bd.length > 1) { bn.textContent = bd.length + ' boards are checking in under the name ' + box + ' (' + bd.join(', ') + '). Each press goes to only one of them. Give each board its own BOX_NAME in its secrets.h.'; bn.classList.remove('hidden'); } else bn.classList.add('hidden');
     // status

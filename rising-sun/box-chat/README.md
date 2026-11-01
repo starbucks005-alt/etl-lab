@@ -153,3 +153,13 @@ Build k changes only what could be a mistake in build i and what would show it:
 Dr. O: music started on build k, "gaps still there", then "music stopped at the gap". Checked from the files, with no listening: the three tracks are 360 seconds each, and none has a silent stretch of more than 1.1 seconds in the middle (library has 1.1 s at 4.9 s; rooftop opens with 2.4 s of quiet and fire escape with 0.5 s). Each ends in quiet: library from 353.9 s (6.1 s of it), rooftop from 356.9 s (3.1 s), fire escape from 356.4 s (3.6 s). So a six second silence in the middle is not in the files. A silence at the very end is, and the track then finishes by itself. Which one Dr. O heard is not known: the last Serial line (`Music played N seconds, N stalls ...`) would say, because a track that plays to the end reports about 354 to 360 seconds, and one that was cut short reports fewer.
 
 Build l is build k with the sound task's work area back on its own stack (a static array raised the memory the wake word engine needs at start-up and may have delayed the start-up), and a `Free memory` line at start-up. Compiles. NOT TRIED on the board.
+
+## Build 2026-11-01m, written but held back (2026-11-01)
+
+Dr. O reported the six second gap on every sound and every song, then "music stopped at the gap", then "tried a different song, nothing", then, after she put it back to Library, "it played again" and "no gap". Build k was the one on the board. What changed between the gaps and "no gap" is not known.
+
+Build m is written and compiles (1,427,402 bytes) but is NOT TRIED on the board and Dr. O is not being asked to upload it unless the gap comes back. It adds:
+- The box sends how long it has been running (`up`) and why it last started (`boot`: power on, reset button, crash, brownout, watchdog). The panel shows it in words under the status line. A box that restarts in the middle of a sound would show a short running time there. That is the idea behind it: a six second gap for every sound is about the length of a restart, and this would show it without listening.
+- The box sends how the last track ended and how many stalls it had, and the panel shows it ("Last music: played 354 s, 0 stalls, ended because the track finished").
+- The music is downloaded whole into the extra memory first and the connection is closed, then played from memory, so a panel check later does not need a second secure connection open at the same time. This is a change of method and the part least tried.
+The website and panel parts are live and harmless without it: they show nothing until a box sends the new information.
