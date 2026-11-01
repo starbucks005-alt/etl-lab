@@ -59,10 +59,29 @@ function planFragments(data, extraVoices) {
   return { parts, skipped };
 }
 
-/* Kit's field notes (explorer-episodes.json): one spoken story each. The visitor is her boss, an in-joke of Dr. O's, so the {name} slot becomes "boss". */
+/* Kit's field notes (explorer-episodes.json): one spoken story each. The visitor is her boss, an in-joke of Dr. O's, so the {name} slot becomes "boss".
+   Tilly's own words inside a story are read in Tilly's voice (Dr. O's pick, 2026-11-01). An episode lists them as tilly_lines, each one exactly as it is quoted in the text;
+   everything else stays Kit's. Kit is Azure at 24 kHz, so Tilly (ElevenLabs) is asked for 24 kHz too: the pieces are joined end to end, and mp3 of two different
+   sample rates joined like that can play at the wrong pitch. A line that is listed but cannot be found in the text is reported as skipped, never guessed. */
+const TILLY_VOICE = 'ZF6FPAbjXT4488VcRRnw';
+const TILLY_FORMAT = 'mp3_24000_48';
 function kitParts(ep) {
-  const text = String(ep.text || '').replace(/\{name\}/g, 'boss').replace(/\s{2,}/g, ' ').trim();
-  return { parts: text ? [{ who: 'kit', voice: KIT_VOICE, text }] : [], skipped: [] };
+  let rest = String(ep.text || '').replace(/\{name\}/g, 'boss').replace(/\s{2,}/g, ' ').trim();
+  if (!rest) return { parts: [], skipped: [] };
+  const parts = [], skipped = [];
+  const kit = (t) => { t = String(t).trim(); if (/[A-Za-z0-9]/.test(t)) parts.push({ who: 'kit', voice: KIT_VOICE, text: t }); };
+  let left = (ep.tilly_lines || []).map((l) => String(l).trim()).filter(Boolean);
+  while (left.length) {
+    let at = -1, pick = null;
+    left.forEach((l) => { const i = rest.indexOf('"' + l + '"'); if (i >= 0 && (at < 0 || i < at)) { at = i; pick = l; } });
+    if (pick === null) { left.forEach((l) => skipped.push({ id: ep.id, who: 'tilly line not found: ' + l.slice(0, 30) })); break; }
+    kit(rest.slice(0, at));
+    parts.push({ who: 'tilly', voice: TILLY_VOICE, format: TILLY_FORMAT, text: pick });
+    rest = rest.slice(at + pick.length + 2);
+    left = left.filter((l) => l !== pick);
+  }
+  kit(rest);
+  return { parts, skipped };
 }
 
-module.exports = { VOICES, SAGA_VOICES, KIT_VOICE, fixNameSlot, speakable, plan, planFragments, kitParts };
+module.exports = { VOICES, SAGA_VOICES, KIT_VOICE, TILLY_VOICE, TILLY_FORMAT, fixNameSlot, speakable, plan, planFragments, kitParts };
