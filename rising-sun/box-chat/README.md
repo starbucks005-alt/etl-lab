@@ -261,3 +261,10 @@ Dr. O approved both. The idea and its heart are hers, told to Claude line by lin
 - Live in `rising-sun/box-stories.json`, in the library as episodes 2 and 3 of A.L.I.C.E.'s series (`The Youngest of Us`, about 5 minutes; `Fought For`, about 8), with Record buttons. Not recorded yet.
 - Mine, not hers (said in the draft and to her): the box of letters, the girl's age and what the two say, Cat staying, Sundays, the papers that began with a question ALICE asked over lunch.
 - One of her old fragments pulls the other way and is untouched: `a-t-assumed` ("everyone assumed someone else would take care of it").
+
+## Voices still needed (2026-11-01)
+
+Dr. O asked whether voices are needed for a few characters. Yes, for two stories made of fragments:
+- A.L.I.C.E.'s Laboratory Saga: 33 fragments, 22 read in ALICE's voice. Missing: the narrator (5), the researchers (4) and the colleague (2), 11 fragments.
+- The fairies' Human Summer: 24 fragments, 13 read in Tansy's, Poppy's and Blue's voices. Missing: the narrator (8, a rumor-like court voice) and the mother of Tansy and Poppy (3).
+Fragments with no voice are left out and the library says so. To add one: put its ElevenLabs voice id in `FRAGMENT_VOICES` in `netlify/functions/_story-plan.js` (replace the `null`). Nobody else needs a voice: A.L.I.C.E.'s two later episodes, Nora's, Cressida's and the dogs' are each read by their own speakers, and Kit's use her Azure voice and Tilly's.

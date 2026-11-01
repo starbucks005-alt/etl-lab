@@ -42,6 +42,12 @@ function plan(ep) {
 
 /* The saga voices already in Good Company (gc-friend.js). The other tellers (the narrator, the researchers, the colleagues, the mother) have none yet. */
 const SAGA_VOICES = { alice: 'gZL79pBTvaNfNPOCXh6n', tansy: 'thfYL0Elyru2qqTtNQsE', poppy: 'VJFN2gyaDzoKekQ8ZuKB', blue: 'WUyjxM8OTY6l8LhTmdkq' };
+/* The tellers in the two sagas that have no voice yet. Put an ElevenLabs voice id in place of null and that teller is read, with no other change. Left as null they are
+   left out of the recording and reported, never guessed. A.L.I.C.E.'s saga has a narrator, researchers and a colleague; the fairies' Human Summer has a narrator and the mother of Tansy and Poppy. */
+const FRAGMENT_VOICES = {
+  alice: { narrator: null, researcher: null, colleague: null },
+  tansy: { narrator: null, mother: null },
+};
 const KIT_VOICE = 'J64VNrjLE6uKFBKlxfSJ';        // Dr. O's pick for Kit's recorded stories, 2026-11-01 (ElevenLabs: the Azure voice sounded too robotic recorded). Her room still speaks with the Azure voice in gc-friend.js.
 
 /* Fragments (A.L.I.C.E.'s laboratory saga, the fairies' Human Summer): each one is read in the voice of whoever tells it. A teller with no voice is SKIPPED and reported, never guessed. */
@@ -84,4 +90,4 @@ function kitParts(ep) {
   return { parts, skipped };
 }
 
-module.exports = { VOICES, SAGA_VOICES, KIT_VOICE, TILLY_VOICE, fixNameSlot, speakable, plan, planFragments, kitParts };
+module.exports = { VOICES, SAGA_VOICES, FRAGMENT_VOICES, KIT_VOICE, TILLY_VOICE, fixNameSlot, speakable, plan, planFragments, kitParts };
