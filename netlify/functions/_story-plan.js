@@ -6,7 +6,8 @@ const VOICES = {
   biscuit: 'MgqVq3OCTPeVHCEDr4HU',
   mochi: 'I8ERYU9lOxALy2vtIvHd',
   nora: 'pb6kCegKK9i4oRBqeUjR',        // from good-company/gc-friend.js
-  cressida: 'RTBzdwjfw0SPTkN2srfl'
+  cressida: 'RTBzdwjfw0SPTkN2srfl',
+  alice: 'gZL79pBTvaNfNPOCXh6n'          // her later episodes are written as beats, like Nora's and Cressida's
 };
 /* A recording cannot say the listener's name. Biscuit's own pet name for
    people is "sweet pea", so that is what the slot becomes. Where the same line

@@ -119,7 +119,7 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
   assert.strictEqual(lost.skipped.length, 1, 'a listed line that is not in the text is reported, not guessed');
   assert.strictEqual(pl.kitParts({ id: 'y', text: 'Hi {name}, no quotes.' }).parts.length, 1, 'a story with no listed lines is all Kit, as before');
   const wm = require('../netlify/functions/story-record-background.js').writtenMap({});
-  assert.deepStrictEqual([wm.alice, wm.tansy, wm.kit], [['alice-saga'], ['tansy-human-summer'], ['kit-mongolia', 'kit-jordan', 'kit-ohio']], 'the panel is told what is written for the others');
+  assert.deepStrictEqual([wm.alice, wm.tansy, wm.kit], [['alice-saga', 'alice-youngest', 'alice-fought-for'], ['tansy-human-summer'], ['kit-mongolia', 'kit-jordan', 'kit-ohio']], 'the panel is told what is written for the others');
   // A.L.I.C.E.'s two later episodes (The Youngest of Us, Fought For) are written as beats and read in her voice, after the saga of fragments
   const st6 = mem(); const used6 = [];
   for (const id of ['alice-youngest', 'alice-fought-for']) {
