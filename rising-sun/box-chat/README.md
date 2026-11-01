@@ -147,3 +147,9 @@ Build k changes only what could be a mistake in build i and what would show it:
 - The box prints `Music: filling the buffer, N of 160000 bytes` every two seconds while it waits to start, then `Music sound task: started` (or `COULD NOT START`), then `Music: playing`.
 - The next lines to read: `Music stall`, `Panel check took`, and the last line with the stall count. Whether any of that is the real fault is not known.
 - Compiles (1,424,130 bytes). NOT TRIED on the board.
+
+## What the music files hold, and build 2026-11-01l (2026-11-01)
+
+Dr. O: music started on build k, "gaps still there", then "music stopped at the gap". Checked from the files, with no listening: the three tracks are 360 seconds each, and none has a silent stretch of more than 1.1 seconds in the middle (library has 1.1 s at 4.9 s; rooftop opens with 2.4 s of quiet and fire escape with 0.5 s). Each ends in quiet: library from 353.9 s (6.1 s of it), rooftop from 356.9 s (3.1 s), fire escape from 356.4 s (3.6 s). So a six second silence in the middle is not in the files. A silence at the very end is, and the track then finishes by itself. Which one Dr. O heard is not known: the last Serial line (`Music played N seconds, N stalls ...`) would say, because a track that plays to the end reports about 354 to 360 seconds, and one that was cut short reports fewer.
+
+Build l is build k with the sound task's work area back on its own stack (a static array raised the memory the wake word engine needs at start-up and may have delayed the start-up), and a `Free memory` line at start-up. Compiles. NOT TRIED on the board.

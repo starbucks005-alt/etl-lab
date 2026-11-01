@@ -442,7 +442,7 @@ struct MusicPlay {
 static MusicPlay mp;
 
 void musicAudioTask(void *) {
-  static int16_t out[1024];                    // not on the task's stack: 2 KB of a small stack is a risk, and there is only ever one of these tasks
+  int16_t out[1024];                           // on the task's own 12 KB stack. A static array here is 2 KB of the memory the wake word engine needs at start-up (build k)
   uint32_t lastStart = 0;
   while (!mp.stop) {
     size_t r = mp.rd.load(std::memory_order_relaxed), w = mp.wr.load(std::memory_order_acquire);
@@ -647,8 +647,9 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
+  Serial.printf("Free memory: %u bytes inside the chip, %u bytes extra (PSRAM)\n", (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getFreePsram());
   Serial.printf("This board is %s, box name \"%s\"\n", deviceId().c_str(), BOX_NAME);
-  Serial.printf("Version: build 2026-11-01k (the music plays on its own task, with a bigger stack and progress lines; the board says its own id), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01l (the music plays on its own task; start-up memory as in build i; free memory is printed), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
