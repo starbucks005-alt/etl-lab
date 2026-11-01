@@ -434,9 +434,12 @@ void setup() {
 // The box crashed while playing her voice with it paused, so it is stopped and started again around each turn. The cause is not confirmed.
 // Starts the listening engine. In name mode it listens, on the chip, for her name ("Tansy", "Hey Tansy", "Hello Tansy") and nothing is sent anywhere until it hears it.
 // The sound spellings are hand-written and untried: if she does not answer to her name, switch the box back to Hi ESP on the panel.
+// What the running engine depends on. In Hi ESP mode the companion's name does not matter, so a name arriving from the website must not restart it.
+String engineWant() { return wakeBy == "name" ? (wakeBy + "|" + wakeName + "|" + wakePhoneme) : String("hiesp"); }
+
 bool engineStart() {
   bool useName = (wakeBy == "name" && wakePhoneme.length() > 0 && wakeName.length() > 0);
-  engineKey = wakeBy + "|" + wakeName + "|" + wakePhoneme;
+  engineKey = engineWant();
   if (useName) {
     nameCmds[0].command_id = 1; strncpy(nameCmds[0].str, wakeName.c_str(), SR_CMD_STR_LEN_MAX - 1);                                   strncpy(nameCmds[0].phoneme, wakePhoneme.c_str(), SR_CMD_PHONEME_LEN_MAX - 1);
     nameCmds[1].command_id = 2; strncpy(nameCmds[1].str, (String("Hey ") + wakeName).c_str(), SR_CMD_STR_LEN_MAX - 1);                strncpy(nameCmds[1].phoneme, (String("hd ") + wakePhoneme).c_str(), SR_CMD_PHONEME_LEN_MAX - 1);
@@ -456,10 +459,17 @@ void srPause() {
   wokeUp = false;
   i2s.setTimeout(1000);
 }
+uint8_t srFails = 0;                      // how many times in a row the engine failed to start
+uint32_t srRetryAt = 0;                   // when to try again after failures
 void srResume() {
   if (!srCan || !listenWanted || srOn || duetState.length()) return;
-  if (engineStart()) { ESP_SR.onEvent(onSrEvent); srOn = true; }
-  else { srCan = false; Serial.println("Wake word engine did not restart. The buttons still work."); }
+  if (millis() < srRetryAt) return;
+  if (engineStart()) { ESP_SR.onEvent(onSrEvent); srOn = true; srFails = 0; Serial.println("Wake word engine: running"); }
+  else {
+    srFails++;
+    srRetryAt = millis() + (srFails < 3 ? 3000UL : 30000UL);     // three quick tries, then one every half minute: it never gives up until the board is reset
+    Serial.printf("Wake word engine did not start (try %u). The buttons still work. Trying again soon.\n", srFails);
+  }
 }
 
 // A fixed opening line she answers in her own voice, made once on the website and kept (Meera's Breathing).
@@ -621,7 +631,7 @@ void loop() {
     lastAsk = millis();
     String cmd = pendingCmd.length() ? pendingCmd : askWebsite();
     pendingCmd = "";
-    if (srOn && engineKey != (wakeBy + "|" + wakeName + "|" + wakePhoneme)) { srPause(); srResume(); }   // the panel changed how the box is woken, or who is in it
+    if (srOn && engineKey != engineWant()) { srPause(); srResume(); }   // the panel changed how the box is woken, or who is in it
     if (!listenWanted && srOn) srPause();          // the panel turned listening off
     if (listenWanted && !srOn && !duetState.length()) srResume();   // and back on, but not during chat mode
     if (duetState.length() && srOn) srPause();     // the other box's voice must not wake this one
