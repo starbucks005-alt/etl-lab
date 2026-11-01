@@ -196,3 +196,13 @@ Dr. O sent a picture for each of the four six minute tracks and said: use these 
 ## The rest of Julian's party tracks (2026-11-01)
 
 Dr. O: "add julians other soundtracks". Six more of the party tracks in `good-company/audio` are on the box as Music: Digital alcove, Dressing suite, Kitchen, Music room, Salon and Study (Library, Rooftop and Fire escape were already there). Each is six minutes, converted with `tools/make-sound.py` (`<name>_v1.ulaw`, 5.76 MB, levelled), with the picture taken from that room's video (`box-vibes/<name>_v1.jpg`, a frame at three seconds) and the video itself from `good-company/video/party/`. The tracks are Dr. O's own music. `music-room-nora.mp4` has no matching track, so it is not used. NOT heard or tried on the board.
+
+## All the companions, and the fairies, are in the box (2026-11-01)
+
+Dr. O: "add other companions to the box. include all the fairies." The box now has 28: the first six (Tansy, Meera, Marcus, Reggie, ALICE, Kit) and 22 more.
+- Fairies: Blue, Poppy, Ash, Velvet, Ember and Flint, with Tansy. Their written life comes from the roster and `rising-sun/personas.json` (voices from there), and they use the lids pictures already cut (`blue_v1`, `poppy_v1`, `ash_v2`, `velvet_v1`, `ember_v1`, `flint_v1`).
+- Others, from Dr. O's own files in `good-company/gc-friend.js`, copied word for word (`rising-sun/tools/gc-extract.js` then `rising-sun/tools/add-companions.py`; safe to run again): Arch, Sophia, Nina, Kioko, Julian, Winston, Viv, Aaron, Theo, Cressida, Dario, Nora, Zoe, Rin, Sarah and Olivia. Their pictures are cut from their portraits to 172 by 320, with the person placed by eye and checked on a contact sheet.
+- NOT added, because they are more than one speaker: Marion and the Littles, the Grimms, Eli and Nell, the Nursery, Tobias and Briar, Astra-9 and Astrad.
+- The two fixed lines ("I did not catch that. Say it again?" and "That is enough for today. Come back tomorrow.") are the same short wording for all of them, written here, not by Dr. O. No name wake (the sound spellings are not worked out), so Hi ESP wakes them.
+- A bug found on the way: the agents roster also has a Kit, a Nora and a Julian, and the box looked there first and treated them as fairies. A companion's own written life is now used first (`netlify/functions/box-talk.js`), so Kit was one of those wrongly spoken as a fairy until this. `tests/box-companions.test.js` checks every companion.
+- NOT heard on the board. Each companion's voice id was taken from her file and has not been tried in the box.

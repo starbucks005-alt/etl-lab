@@ -200,7 +200,7 @@ exports.handler = async (event, deps = {}) => {
   const companion = String(q.companion || 'tansy').toLowerCase();
   const lines = deps.lines || FILE;
   const entry = (lines.companions && lines.companions[companion]) || {};
-  const life0 = deps.life || writtenLife(companion, entry.rosterName) || writtenHere(entry);
+  const life0 = deps.life || writtenHere(entry) || writtenLife(companion, entry.rosterName);   // her own written life first: the roster also has a Kit and a Nora, and its entries read as fairies when no roster name is given
   const life = life0 && (entry.court_notes || entry.persona) ? Object.assign({}, life0, { courtNotes: entry.court_notes, persona: entry.persona }) : life0;
   const voiceId = entry.voiceId;
   if (!life || !voiceId) return json(404, { error: 'unknown_companion' });
