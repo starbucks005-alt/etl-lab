@@ -105,3 +105,7 @@ Dr. O sent pictures for the scenes. The first five reached this session through 
 ## Jungle, Waterfall, Rain and Night woods removed (2026-11-01)
 
 Dr. O: "delete Jungle, Waterfall, Rain and Night woods". The four generated scenes are gone from every companion in `box-lines.json`, so each now has 13: ten sounds and three music tracks. The notes above that name them (the Gardenscape line and the Generated scenes bullet) describe how it was before. The unused Tansy intro lines for them sit only in `box-lines-DRAFT-tansy.json`, which is not live. The code that can make a scene from a description is still there; nothing uses it now.
+
+## Fixed lines were always Tansy's (2026-11-01)
+
+Dr. O heard Tansy from a box that had A.L.I.C.E. in it ("Tansy is STILL on too"). Found in `netlify/functions/box-talk.js`: the two fixed lines ("say that again" when nothing is heard, "enough for today" at the daily limit) were read from Tansy's entry for every companion, so any quiet turn, and a follow-up turn with nobody speaking is one, came out in Tansy's voice. They now use the companion in the box (`tests/box-talk.test.js`). This is one cause found in the code. Whether it is the only one on the board is not known: if Tansy is still heard after this is on the site, the Serial Monitor lines from that moment are what would settle it.

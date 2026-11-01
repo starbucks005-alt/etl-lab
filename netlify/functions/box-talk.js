@@ -140,9 +140,11 @@ function sound(buf, heard, said) {
 }
 
 /* A fixed line from box-lines.json, made once and kept (the same store and key as box-line.js, so the two share it). */
-async function fixed(event, line, deps, heard) {
+/* The two fixed lines ("say that again", "enough for today") are spoken by whoever is in the box. They used to be Tansy's for everybody, so ALICE or Reggie
+   would go quiet and Tansy's voice would come out of the box. */
+async function fixed(event, line, deps, heard, companion) {
   const lines = deps.lines || FILE;
-  const c = lines.companions && lines.companions.tansy;
+  const c = lines.companions && ((companion && lines.companions[companion]) || lines.companions.tansy);
   const text = c && c.lines && c.lines[line];
   if (!text) return json(404, { error: 'unknown_line' });
   const id = crypto.createHash('sha256').update([c.voiceId, 'eleven_turbo_v2_5', text].join('|')).digest('hex').slice(0, 40);
@@ -221,10 +223,10 @@ exports.handler = async (event, deps = {}) => {
   let used = 0;
   try { used = Number(await store.get('day-' + day, { type: 'json' })) || 0; } catch (_) {}
   try {
-    if (used >= (deps.dailyTurns || DAILY_TURNS)) return await fixed(event, 'too_many', d, '');
+    if (used >= (deps.dailyTurns || DAILY_TURNS)) return await fixed(event, 'too_many', d, '', companion);
 
     const heard = await (deps.listen || listen)(pcm, deps);
-    if (!heard || heard.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return await fixed(event, 'didnt_hear', d, '');
+    if (!heard || heard.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return await fixed(event, 'didnt_hear', d, '', companion);
 
     let history = [];
     try { const h = await store.get('chat-' + companion, { type: 'json' }); if (Array.isArray(h)) history = h; } catch (_) {}

@@ -49,6 +49,13 @@ const gc = require('../netlify/functions/_gc-config.js');
   const quiet = await handler(ev(KEY, 20000), Object.assign(base(), { listen: async () => '  ' }));
   assert.strictEqual(quiet.statusCode, 200);
   assert.strictEqual(decodeURIComponent(quiet.headers['X-Said']), 'Speak up.');
+  // the fixed line is spoken by whoever is in the box, not always Tansy: Reggie hears nothing, Reggie says his own line in his own voice
+  const two = { companions: { tansy: lines.companions.tansy, reggie: { voiceId: 'uq0HIbNZKn11Hs5ifEdd', rosterName: 'Reginald', role: 'a dog', lines: { didnt_hear: 'Say that again, would you?', too_many: 'That is enough for today.' } } } };
+  const voices = [];
+  const rq = await handler(Object.assign(ev(KEY, 20000), { queryStringParameters: { companion: 'reggie' } }), Object.assign(base(), { lines: two, life: { fairy: false, name: 'Reggie', role: 'a dog', background: '', tagline: 't', bio: 'b', interests: [] }, listen: async () => '  ', speak: async (text, voice) => { voices.push(voice); return Buffer.from([1, 2]); } }));
+  assert.strictEqual(rq.statusCode, 200);
+  assert.strictEqual(decodeURIComponent(rq.headers['X-Said']), 'Say that again, would you?', 'Reggie says his own fixed line');
+  assert.strictEqual(voices[0], 'uq0HIbNZKn11Hs5ifEdd', 'in his own voice, not Tansy\'s');
   assert.strictEqual(store._m.get('day-2026-10-30'), 2);
 
   // the day is used up: the fixed line again, and nothing is listened to or asked
