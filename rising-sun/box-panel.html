@@ -159,7 +159,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     <span class="palwrap" style="margin-left:auto"><button class="themebtn" id="palBtn" type="button">&#127912; Palette</button></span>
   </header>
   <h1 id="h1">Box panel</h1>
-  <p class="sub" id="sub">Pick who is in the box, then push her buttons from here.</p>
+  <p class="sub" id="sub">Pick who is in the box, then push the buttons from here.</p>
   <div class="status" id="status"><span class="dot"></span><span id="statusText">Not connected</span></div>
 
   <section class="card" id="keyCard" style="margin-top:22px;max-width:460px">
@@ -226,7 +226,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <h2>Volume</h2>
       <p class="bigline" id="volLine"></p>
       <div class="row"><button id="bVolDown" type="button">Quieter</button><button id="bVolUp" type="button">Louder</button></div>
-      <p class="note">Each press changes it by 5. If her voice crackles like static, try a lower number.</p>
+      <p class="note">Each press changes it by 5. If the voice crackles like static, try a lower number.</p>
     </section>
     <section class="card" id="batt">
       <h2>Battery</h2>
@@ -470,9 +470,9 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     // listening, wake
     $('bListen').textContent = data.listen === false ? 'Not listening: turn listening on' : 'Listening for the wake word: turn it off';
     $('listenNote').textContent = data.listen === false ? 'The box ignores the wake word. Its lid buttons and the buttons on this page still work. The ring glows amber.' : 'The box answers when someone says the wake word.';
-    $('bWakeBy').textContent = data.wakeBy === 'name' ? 'Woken by her name: switch to Hi ESP' : 'Woken by Hi ESP: switch to ' + c.display + "'s name";
+    $('bWakeBy').textContent = data.wakeBy === 'name' ? 'Woken by ' + c.display + "'s name: switch to Hi ESP" : 'Woken by Hi ESP: switch to ' + c.display + "'s name";
     $('bWakeBy').disabled = !c.wake && data.wakeBy !== 'name';
-    $('wakeNote').textContent = data.wakeBy === 'name' ? 'Say her name, or Hey / Hello and her name. If she does not answer, switch back to Hi ESP.' : 'Say Hi ESP to start. Switching to her name is a trial.';
+    $('wakeNote').textContent = data.wakeBy === 'name' ? 'Say ' + c.display + "'s name, or Hey / Hello and the name. If there is no answer, switch back to Hi ESP." : "Say Hi ESP to start. Switching to the companion's name is a trial.";
     $('volLine').textContent = (data.volume == null ? 70 : data.volume) + ' of 100';
     ['duetA', 'duetB'].forEach(function (id, i) { var s = $(id), keep = s.value; s.innerHTML = ''; (data.boxes || []).forEach(function (n) { option(s, n, n); }); if (keep) s.value = keep; else if (data.boxes && data.boxes[i]) s.value = data.boxes[i]; });
     var bs = $('boxSel'); bs.innerHTML = ''; (data.boxes && data.boxes.length ? data.boxes : [box]).forEach(function (n) { option(bs, n, n, n === box); });
