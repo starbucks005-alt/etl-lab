@@ -6,7 +6,6 @@
 <meta name="robots" content="noindex">
 <title>Box panel</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400&display=swap">
-<script>try{var t=localStorage.getItem('box_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <!-- Box panel, 2026-10-30, redone 2026-11-01. Dr. O: pick the companion for the box and push its buttons from an app, "like our robot panel".
      This page now uses the robot panel's own look (al-panel/index.html): its colours, fonts, cards and big soft tiles. It shows the picture of who is in the box,
      and when a music track or soundscape is picked, a picture of that vibe (a photograph of the room for the party music, a drawn animation for the nature sounds).
@@ -132,14 +131,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
 .skin-opt.on{color:var(--accent);border-color:var(--accent)}
 .swatch{display:flex;gap:3px;flex:none}
 .swatch i{width:12px;height:12px;border-radius:3px;display:block}
-  html[data-skin] #themeBtn{display:none}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <span class="mark">ETL</span><span class="word">Companion box<br>panel</span>
-    <span class="palwrap" style="margin-left:auto"><button class="themebtn" id="palBtn" type="button">&#127912; Palette</button></span> <button class="themebtn" id="themeBtn" type="button">Dark</button>
+    <span class="palwrap" style="margin-left:auto"><button class="themebtn" id="palBtn" type="button">&#127912; Palette</button></span>
   </header>
   <h1 id="h1">Box panel</h1>
   <p class="sub" id="sub">Pick who is in the box, then push her buttons from here.</p>
@@ -454,9 +452,6 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   });
 
   var dark = false;
-  function setTheme(t) { document.documentElement.setAttribute('data-theme', t); try { localStorage.setItem('box_theme', t); } catch (e) {} $('themeBtn').textContent = t === 'dark' ? 'Light' : 'Dark'; }
-  (function () { var cur = document.documentElement.getAttribute('data-theme'); if (!cur) cur = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; $('themeBtn').textContent = cur === 'dark' ? 'Light' : 'Dark'; })();
-  $('themeBtn').addEventListener('click', function () { setTheme(document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches) ? 'light' : 'dark'); });
 
   setInterval(function () {                                         // keep what is shown fresh: who is in the box, what is playing, battery
     if (!data || pressing) return;

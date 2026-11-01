@@ -20,10 +20,8 @@ new = pm.add_palette(src, "Box panel", ["#35806f", "#28527a", "#f4f3ee"])
 if new == src:
     print("box-panel.html already has the Palette menu")
 else:
-    # the Palette button sits at the right of the header; the Dark/Light button follows it. A palette decides light or dark itself,
-    # so the Dark/Light button is hidden while one is chosen.
+    # the Palette button sits at the right of the header. There is no Dark/Light button: a palette decides light or dark itself.
     new = new.replace(".themebtn{margin-left:auto;", ".themebtn{", 1)
     new = new.replace('<span class="palwrap">', '<span class="palwrap" style="margin-left:auto">', 1)
-    new = new.replace("</style>", "  html[data-skin] #themeBtn{display:none}\n</style>", 1)
     open(PAGE, "w", encoding="utf-8").write(new)
     print("added the Palette menu to box-panel.html,", len(pm.SKINS), "palettes, weakest text pair %.2f:1" % min(pm.WORST.values()))
