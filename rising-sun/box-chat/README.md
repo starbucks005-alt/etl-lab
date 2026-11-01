@@ -192,3 +192,7 @@ Dr. O sent a picture for each of the four six minute tracks and said: use these 
 - Removed from every companion, and their files deleted from `box-sounds` and `box-vibes` (they are still in the git history): campfire, creek, gentle rain, medieval Irish tavern, mountain flute, nature, party with happy people, sunny beach waves, Tibetan singing bowl and winter holiday.
 - Kept as Music: Library and Rooftop. "All other sounds" was read as the Sounds list. If Dr. O meant the two songs too, they go the same way.
 - All seven are six minute files the box plays once, so the end-of-loop gap of the short sounds no longer applies. Build n's sound loop task is still in the program and only matters if a short repeating sound is added again.
+
+## The rest of Julian's party tracks (2026-11-01)
+
+Dr. O: "add julians other soundtracks". Six more of the party tracks in `good-company/audio` are on the box as Music: Digital alcove, Dressing suite, Kitchen, Music room, Salon and Study (Library, Rooftop and Fire escape were already there). Each is six minutes, converted with `tools/make-sound.py` (`<name>_v1.ulaw`, 5.76 MB, levelled), with the picture taken from that room's video (`box-vibes/<name>_v1.jpg`, a frame at three seconds) and the video itself from `good-company/video/party/`. The tracks are Dr. O's own music. `music-room-nora.mp4` has no matching track, so it is not used. NOT heard or tried on the board.

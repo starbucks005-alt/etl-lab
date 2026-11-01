@@ -90,6 +90,48 @@
             "particle": "#ffb347"
           },
           "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
+        },
+        "digital-alcove": {
+          "file": "/rising-sun/box-sounds/digital-alcove_v1.ulaw",
+          "kind": "music",
+          "label": "Digital alcove (music)",
+          "image": "/rising-sun/box-vibes/digital-alcove_v1.jpg",
+          "video": "/good-company/video/party/digital-alcove.mp4"
+        },
+        "dressing-suite": {
+          "file": "/rising-sun/box-sounds/dressing-suite_v1.ulaw",
+          "kind": "music",
+          "label": "Dressing suite (music)",
+          "image": "/rising-sun/box-vibes/dressing-suite_v1.jpg",
+          "video": "/good-company/video/party/dressing-suite.mp4"
+        },
+        "kitchen": {
+          "file": "/rising-sun/box-sounds/kitchen_v1.ulaw",
+          "kind": "music",
+          "label": "Kitchen (music)",
+          "image": "/rising-sun/box-vibes/kitchen_v1.jpg",
+          "video": "/good-company/video/party/kitchen.mp4"
+        },
+        "music-room": {
+          "file": "/rising-sun/box-sounds/music-room_v1.ulaw",
+          "kind": "music",
+          "label": "Music room (music)",
+          "image": "/rising-sun/box-vibes/music-room_v1.jpg",
+          "video": "/good-company/video/party/music-room.mp4"
+        },
+        "salon": {
+          "file": "/rising-sun/box-sounds/salon_v1.ulaw",
+          "kind": "music",
+          "label": "Salon (music)",
+          "image": "/rising-sun/box-vibes/salon_v1.jpg",
+          "video": "/good-company/video/party/salon.mp4"
+        },
+        "study": {
+          "file": "/rising-sun/box-sounds/study_v1.ulaw",
+          "kind": "music",
+          "label": "Study (music)",
+          "image": "/rising-sun/box-vibes/study_v1.jpg",
+          "video": "/good-company/video/party/study.mp4"
         }
       },
       "display": "Tansy",
@@ -199,6 +241,48 @@
             "particle": "#ffb347"
           },
           "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
+        },
+        "digital-alcove": {
+          "file": "/rising-sun/box-sounds/digital-alcove_v1.ulaw",
+          "kind": "music",
+          "label": "Digital alcove (music)",
+          "image": "/rising-sun/box-vibes/digital-alcove_v1.jpg",
+          "video": "/good-company/video/party/digital-alcove.mp4"
+        },
+        "dressing-suite": {
+          "file": "/rising-sun/box-sounds/dressing-suite_v1.ulaw",
+          "kind": "music",
+          "label": "Dressing suite (music)",
+          "image": "/rising-sun/box-vibes/dressing-suite_v1.jpg",
+          "video": "/good-company/video/party/dressing-suite.mp4"
+        },
+        "kitchen": {
+          "file": "/rising-sun/box-sounds/kitchen_v1.ulaw",
+          "kind": "music",
+          "label": "Kitchen (music)",
+          "image": "/rising-sun/box-vibes/kitchen_v1.jpg",
+          "video": "/good-company/video/party/kitchen.mp4"
+        },
+        "music-room": {
+          "file": "/rising-sun/box-sounds/music-room_v1.ulaw",
+          "kind": "music",
+          "label": "Music room (music)",
+          "image": "/rising-sun/box-vibes/music-room_v1.jpg",
+          "video": "/good-company/video/party/music-room.mp4"
+        },
+        "salon": {
+          "file": "/rising-sun/box-sounds/salon_v1.ulaw",
+          "kind": "music",
+          "label": "Salon (music)",
+          "image": "/rising-sun/box-vibes/salon_v1.jpg",
+          "video": "/good-company/video/party/salon.mp4"
+        },
+        "study": {
+          "file": "/rising-sun/box-sounds/study_v1.ulaw",
+          "kind": "music",
+          "label": "Study (music)",
+          "image": "/rising-sun/box-vibes/study_v1.jpg",
+          "video": "/good-company/video/party/study.mp4"
         }
       },
       "face": "/rising-sun/box-faces/meera_v1.jpg",
@@ -291,6 +375,48 @@
             "particle": "#ffb347"
           },
           "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
+        },
+        "digital-alcove": {
+          "file": "/rising-sun/box-sounds/digital-alcove_v1.ulaw",
+          "kind": "music",
+          "label": "Digital alcove (music)",
+          "image": "/rising-sun/box-vibes/digital-alcove_v1.jpg",
+          "video": "/good-company/video/party/digital-alcove.mp4"
+        },
+        "dressing-suite": {
+          "file": "/rising-sun/box-sounds/dressing-suite_v1.ulaw",
+          "kind": "music",
+          "label": "Dressing suite (music)",
+          "image": "/rising-sun/box-vibes/dressing-suite_v1.jpg",
+          "video": "/good-company/video/party/dressing-suite.mp4"
+        },
+        "kitchen": {
+          "file": "/rising-sun/box-sounds/kitchen_v1.ulaw",
+          "kind": "music",
+          "label": "Kitchen (music)",
+          "image": "/rising-sun/box-vibes/kitchen_v1.jpg",
+          "video": "/good-company/video/party/kitchen.mp4"
+        },
+        "music-room": {
+          "file": "/rising-sun/box-sounds/music-room_v1.ulaw",
+          "kind": "music",
+          "label": "Music room (music)",
+          "image": "/rising-sun/box-vibes/music-room_v1.jpg",
+          "video": "/good-company/video/party/music-room.mp4"
+        },
+        "salon": {
+          "file": "/rising-sun/box-sounds/salon_v1.ulaw",
+          "kind": "music",
+          "label": "Salon (music)",
+          "image": "/rising-sun/box-vibes/salon_v1.jpg",
+          "video": "/good-company/video/party/salon.mp4"
+        },
+        "study": {
+          "file": "/rising-sun/box-sounds/study_v1.ulaw",
+          "kind": "music",
+          "label": "Study (music)",
+          "image": "/rising-sun/box-vibes/study_v1.jpg",
+          "video": "/good-company/video/party/study.mp4"
         }
       },
       "face": "/rising-sun/box-faces/marcus_v1.jpg",
@@ -386,6 +512,48 @@
             "particle": "#ffb347"
           },
           "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
+        },
+        "digital-alcove": {
+          "file": "/rising-sun/box-sounds/digital-alcove_v1.ulaw",
+          "kind": "music",
+          "label": "Digital alcove (music)",
+          "image": "/rising-sun/box-vibes/digital-alcove_v1.jpg",
+          "video": "/good-company/video/party/digital-alcove.mp4"
+        },
+        "dressing-suite": {
+          "file": "/rising-sun/box-sounds/dressing-suite_v1.ulaw",
+          "kind": "music",
+          "label": "Dressing suite (music)",
+          "image": "/rising-sun/box-vibes/dressing-suite_v1.jpg",
+          "video": "/good-company/video/party/dressing-suite.mp4"
+        },
+        "kitchen": {
+          "file": "/rising-sun/box-sounds/kitchen_v1.ulaw",
+          "kind": "music",
+          "label": "Kitchen (music)",
+          "image": "/rising-sun/box-vibes/kitchen_v1.jpg",
+          "video": "/good-company/video/party/kitchen.mp4"
+        },
+        "music-room": {
+          "file": "/rising-sun/box-sounds/music-room_v1.ulaw",
+          "kind": "music",
+          "label": "Music room (music)",
+          "image": "/rising-sun/box-vibes/music-room_v1.jpg",
+          "video": "/good-company/video/party/music-room.mp4"
+        },
+        "salon": {
+          "file": "/rising-sun/box-sounds/salon_v1.ulaw",
+          "kind": "music",
+          "label": "Salon (music)",
+          "image": "/rising-sun/box-vibes/salon_v1.jpg",
+          "video": "/good-company/video/party/salon.mp4"
+        },
+        "study": {
+          "file": "/rising-sun/box-sounds/study_v1.ulaw",
+          "kind": "music",
+          "label": "Study (music)",
+          "image": "/rising-sun/box-vibes/study_v1.jpg",
+          "video": "/good-company/video/party/study.mp4"
         }
       },
       "face": "/rising-sun/box-faces/reggie_v2.jpg",
@@ -498,6 +666,48 @@
             "particle": "#ffb347"
           },
           "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
+        },
+        "digital-alcove": {
+          "file": "/rising-sun/box-sounds/digital-alcove_v1.ulaw",
+          "kind": "music",
+          "label": "Digital alcove (music)",
+          "image": "/rising-sun/box-vibes/digital-alcove_v1.jpg",
+          "video": "/good-company/video/party/digital-alcove.mp4"
+        },
+        "dressing-suite": {
+          "file": "/rising-sun/box-sounds/dressing-suite_v1.ulaw",
+          "kind": "music",
+          "label": "Dressing suite (music)",
+          "image": "/rising-sun/box-vibes/dressing-suite_v1.jpg",
+          "video": "/good-company/video/party/dressing-suite.mp4"
+        },
+        "kitchen": {
+          "file": "/rising-sun/box-sounds/kitchen_v1.ulaw",
+          "kind": "music",
+          "label": "Kitchen (music)",
+          "image": "/rising-sun/box-vibes/kitchen_v1.jpg",
+          "video": "/good-company/video/party/kitchen.mp4"
+        },
+        "music-room": {
+          "file": "/rising-sun/box-sounds/music-room_v1.ulaw",
+          "kind": "music",
+          "label": "Music room (music)",
+          "image": "/rising-sun/box-vibes/music-room_v1.jpg",
+          "video": "/good-company/video/party/music-room.mp4"
+        },
+        "salon": {
+          "file": "/rising-sun/box-sounds/salon_v1.ulaw",
+          "kind": "music",
+          "label": "Salon (music)",
+          "image": "/rising-sun/box-vibes/salon_v1.jpg",
+          "video": "/good-company/video/party/salon.mp4"
+        },
+        "study": {
+          "file": "/rising-sun/box-sounds/study_v1.ulaw",
+          "kind": "music",
+          "label": "Study (music)",
+          "image": "/rising-sun/box-vibes/study_v1.jpg",
+          "video": "/good-company/video/party/study.mp4"
         }
       },
       "face": "/rising-sun/box-faces/alice_v2.jpg",
@@ -603,6 +813,48 @@
             "particle": "#ffb347"
           },
           "image": "/rising-sun/box-vibes/winter-hearth_v1.jpg"
+        },
+        "digital-alcove": {
+          "file": "/rising-sun/box-sounds/digital-alcove_v1.ulaw",
+          "kind": "music",
+          "label": "Digital alcove (music)",
+          "image": "/rising-sun/box-vibes/digital-alcove_v1.jpg",
+          "video": "/good-company/video/party/digital-alcove.mp4"
+        },
+        "dressing-suite": {
+          "file": "/rising-sun/box-sounds/dressing-suite_v1.ulaw",
+          "kind": "music",
+          "label": "Dressing suite (music)",
+          "image": "/rising-sun/box-vibes/dressing-suite_v1.jpg",
+          "video": "/good-company/video/party/dressing-suite.mp4"
+        },
+        "kitchen": {
+          "file": "/rising-sun/box-sounds/kitchen_v1.ulaw",
+          "kind": "music",
+          "label": "Kitchen (music)",
+          "image": "/rising-sun/box-vibes/kitchen_v1.jpg",
+          "video": "/good-company/video/party/kitchen.mp4"
+        },
+        "music-room": {
+          "file": "/rising-sun/box-sounds/music-room_v1.ulaw",
+          "kind": "music",
+          "label": "Music room (music)",
+          "image": "/rising-sun/box-vibes/music-room_v1.jpg",
+          "video": "/good-company/video/party/music-room.mp4"
+        },
+        "salon": {
+          "file": "/rising-sun/box-sounds/salon_v1.ulaw",
+          "kind": "music",
+          "label": "Salon (music)",
+          "image": "/rising-sun/box-vibes/salon_v1.jpg",
+          "video": "/good-company/video/party/salon.mp4"
+        },
+        "study": {
+          "file": "/rising-sun/box-sounds/study_v1.ulaw",
+          "kind": "music",
+          "label": "Study (music)",
+          "image": "/rising-sun/box-vibes/study_v1.jpg",
+          "video": "/good-company/video/party/study.mp4"
         }
       },
       "face": "/rising-sun/box-faces/kit_v1.jpg",
