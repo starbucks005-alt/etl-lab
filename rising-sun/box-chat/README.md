@@ -66,3 +66,7 @@ NOT tried. The sound spellings were written by hand from standard pronunciations
 ## Verified on the board (2026-10-31)
 
 Dr. O reported that the conversation continued after the wake word: she did not have to say it again for the next sentence. Still not tried on the board: waking by the companion's name, Story time, Gardenscape, Meera's Breathing, chat mode with two boxes, the battery and charging line on the panel, and the make-box script.
+
+## Verified on the board (2026-11-01)
+
+Dr. O said "Hi ALICE" with the box set to wake by the companion's name, and it woke. The sound spelling for Alice (`aLcS`) was written by hand and is the first one tried on the real chip; "Hi Alice" worked although only "Alice", "Hey Alice" and "Hello Alice" were taught. Not yet tried: the spellings for Tansy, Meera, Marcus and Reggie, how far away it hears the name, and whether ordinary talk sets it off by mistake.
