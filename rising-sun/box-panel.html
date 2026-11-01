@@ -178,12 +178,28 @@
     }).catch(function () { say('Could not reach the website.', 'bad'); });
   }
 
+  var pressing = false;
+  function lock(on) { ['bSound', 'bSecond', 'bChat', 'bStop'].forEach(function (id) { var b = $(id); if (b) b.disabled = on || (id === 'bSound' && !current().soundscape) || (id === 'bSecond' && current().second && !current().second.ready); }); }
   function press(button, label) {
+    if (pressing) return;
+    pressing = true; lock(true);
     call('POST', { action: 'press', button: button }).then(function (r) {
-      if (r.status === 200) say(label + ' sent. The box will start in a few seconds.', 'ok');
-      else if (r.body && r.body.error === 'not_recorded_yet') say('That one is not recorded yet.', 'bad');
-      else say('The button did not go through.', 'bad');
-    }).catch(function () { say('Could not reach the website.', 'bad'); });
+      if (r.status !== 200) {
+        pressing = false; lock(false);
+        say(r.body && r.body.error === 'not_recorded_yet' ? 'That one is not recorded yet.' : 'The button did not go through.', 'bad');
+        return;
+      }
+      say(label + ' sent. Waiting for the box to pick it up...', 'ok');
+      var tries = 0;
+      var t = setInterval(function () {
+        tries++;
+        call('GET').then(function (g) {
+          var b = g.body || {}, ago = b.battery ? b.battery.secondsAgo : null;
+          if (!b.waiting) { clearInterval(t); pressing = false; lock(false); say('The box has it. ' + label + ' is starting.', 'ok'); }
+          else if (tries >= 12) { clearInterval(t); pressing = false; lock(false); say('The box has not picked it up' + (ago != null ? ' (it last checked in ' + (ago < 90 ? ago + ' seconds' : Math.round(ago / 60) + ' minutes') + ' ago)' : '') + '. It may be off or busy.', 'bad'); }
+        }).catch(function () {});
+      }, 2000);
+    }).catch(function () { pressing = false; lock(false); say('Could not reach the website.', 'bad'); });
   }
 
   $('keyGo').addEventListener('click', function () {

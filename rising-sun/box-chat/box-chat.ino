@@ -292,7 +292,7 @@ void playGarden(size_t bytes) {
       if (millis() - lastCheck > 5000) {            // every five seconds, ask the panel whether it should stop (a brief gap in the sound)
         lastCheck = millis();
         String c = askWebsite();
-        if (c.length()) { if (c != "stop") pendingCmd = c; Serial.println("Garden stopped from the panel"); return; }
+        if (c.length()) { if (c != "stop" && c != "soundscape") pendingCmd = c; Serial.println("Garden stopped from the panel"); return; }   // pressing Soundscape again stops it, as the lid button does
       }
       int o = 0;
       for (; o < 512 && pos + 1 < bytes; o += 2, pos += 2) { int16_t s16 = (int16_t)(gardenBuf[pos] | (gardenBuf[pos + 1] << 8)); out[o] = s16; out[o + 1] = s16; }
