@@ -142,6 +142,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   .ep .chip{font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--mute);white-space:nowrap}
   .ep.on{border-color:var(--accent);background:var(--accent-bg)}.ep.on .chip{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
   .epline{margin:8px 0 0;color:var(--mute);font-size:14px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+  .two>div{min-width:0}
 </style>
 </head>
 <body>
@@ -187,11 +189,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     <section class="card" id="duetCard">
       <h2>Chat mode</h2>
       <p class="hint">Two boxes talk to each other, one at a time. Each says its own companion's lines. Pick two boxes with different companions.</p>
-      <label for="duetA">First box (speaks first)</label><select id="duetA"></select>
-      <label for="duetB">Second box</label><select id="duetB"></select>
-      <label for="duetTopic">Topic (optional)</label><input id="duetTopic" type="text" maxlength="200" autocomplete="off">
-      <label for="duetTurns">Lines in all</label>
-      <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select>
+      <div class="two">
+        <div><label for="duetA">First box (speaks first)</label><select id="duetA"></select></div>
+        <div><label for="duetB">Second box</label><select id="duetB"></select></div>
+        <div><label for="duetTopic">Topic (optional)</label><input id="duetTopic" type="text" maxlength="200" autocomplete="off"></div>
+        <div><label for="duetTurns">Lines in all</label>
+          <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select></div>
+      </div>
       <div class="row"><button id="duetGo" class="green" type="button">Start chat mode</button><button id="duetStop" type="button">Stop</button></div>
       <p class="note" id="duetState"></p>
     </section>
