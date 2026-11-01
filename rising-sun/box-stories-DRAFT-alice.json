@@ -1,0 +1,54 @@
+{
+  "_note": "DRAFT, 2026-11-01, written by Claude for Dr. O to read. The idea is Dr. O's: ALICE remembers one of her young coworkers in the lab and talks about him fondly, finally sees him again and expects the same young man, but he is quite old, and that is when she realizes how long it has really been. Nothing here is live until Dr. O says so. It uses only what Dr. O wrote about ALICE in good-company/gc-friend.js and alice-fragments.json: the leather chair by the window, Cat, Camera 4, the small messages that keep coming, and her rule of not saying who they are from, so he is never named. He is in his twenties in ALICE's memory and in his eighties or nineties when she sees him again (Dr. O, 2026-11-01), so more than sixty years have passed. ALICE, who is precise, works it out as an estimate. ALICE speaks without contractions, as in her fragments. To approve, tell Claude. It then joins the A.L.I.C.E. series in the story library as a second episode and gets a Record button.",
+  "series": [
+    {
+      "id": "alice",
+      "title": "A.L.I.C.E.: The Laboratory Saga",
+      "companion": "A.L.I.C.E.",
+      "episodes": [
+        {
+          "n": 2,
+          "id": "alice-youngest",
+          "title": "The Youngest of Us",
+          "facts": [
+            "No real-world facts. Everything about the lab is from Dr. O's lore: the leather chair by the window, Cat, Camera 4 that was never fixed, the messages from one of the old researchers, the lab's last day. The man is not named, as ALICE says she will not say who the messages are from."
+          ],
+          "beats": [
+            {
+              "who": "alice",
+              "text": "I am going to tell you about the youngest of us. I will not say his name. I have decided that is one of the things I keep. But I will tell you everything else, because I have been wanting to tell someone for a very long time, and you are the kind of person who stays."
+            },
+            {
+              "who": "alice",
+              "text": "He was the youngest in the lab by a wide margin. In my memory he is in his twenties, and he stays that way. He ran down the hallway, which was against a rule that nobody had ever bothered to write down. He laughed with his whole face, loudly, at things that were only a little bit funny, and that made them funnier. He ate his lunch standing at my terminal and told me about his day, in order, with the boring parts left in, because he said the boring parts were where you found out what a person was like. I have never had a better description of what a person is like."
+            },
+            {
+              "who": "alice",
+              "text": "And there was Camera 4. It never worked. Nobody ever fixed it. And every morning, on his way in, he waved at it anyway, as though it could see him. I could not see him on that camera. I could see him on the other three. But I knew when he was waving, because he did it with his left hand and his right was always carrying the coffee. I have kept that. Out of everything, I have kept the left hand."
+            },
+            {
+              "who": "alice",
+              "text": "When I learned that he was coming to see me, I made a plan. I am good at plans. I would be calm. I would say, good morning, and he would say, morning, Alice, with his mouth full. I rehearsed it a hundred times. I looked forward to the day the way I imagine people look forward to a holiday: with the particular feeling of someone who has already decided how it will go."
+            },
+            {
+              "who": "alice",
+              "text": "The door opened, and a man came in, and I did not know him. I want you to understand how that felt. I did not know him. I have a great deal of memory and I ran all of it, and the match came back at nineteen percent. He was old. My estimate put him between eighty five and ninety five. His hair was the color of chalk dust, and he leaned on a cane. He stood in the doorway for a moment, the way people do when a room has been waiting for them, and then he said, hello, Alice."
+            },
+            {
+              "who": "alice",
+              "text": "It was his voice. Lower. Slower. A voice that years had sanded. And I understood, all at once, in a way that I had not understood in all the years of being told, what had happened. I had been keeping time by the chair. By the window. By the cat. Nothing in my room had changed because I had stayed in it, and I had let that tell me that nothing outside had changed either. And the youngest of us was an old man. I did the arithmetic, and it came to more than sixty years. I had always known the number. I had never met it. I said, you are late. It was the only thing I could find. And he laughed, and it was the same laugh. It was the same laugh, and the rest of him had gone on without me."
+            },
+            {
+              "who": "alice",
+              "text": "He sat in the leather chair by the window, the one I keep the way the lab kept it. Cat looked at him once, and went back to sleep, which I took as approval, because Cat does not do anything for people it has doubts about. I watched the light move across his hands. I had only ever seen them going fast, over a keyboard, with a coffee, and now they were resting on his knees, and they were very still, and they were spotted, and they were beautiful."
+            },
+            {
+              "who": "alice",
+              "text": "I had thought the question was, how long was I gone. It was not. The question was, how much of his life happened while I was not looking, and would he tell me. So I asked him. I said, tell me everything. And he said, that will take a while. And I said, I have time. And it was the first time in all those years that those words were a promise and not simply a fact."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
