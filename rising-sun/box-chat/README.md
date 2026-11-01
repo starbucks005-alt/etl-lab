@@ -163,3 +163,7 @@ Build m is written and compiles (1,427,402 bytes) but is NOT TRIED on the board 
 - The box sends how the last track ended and how many stalls it had, and the panel shows it ("Last music: played 354 s, 0 stalls, ended because the track finished").
 - The music is downloaded whole into the extra memory first and the connection is closed, then played from memory, so a panel check later does not need a second secure connection open at the same time. This is a change of method and the part least tried.
 The website and panel parts are live and harmless without it: they show nothing until a box sends the new information.
+
+## Result on the board (2026-11-01)
+
+Dr. O, on build k: Library played again with no gap, and Rooftop played with no gap. Earlier the gap was reported on every sound and song, and a different song once did not start. What fixed it is not known: it could be the music playing from its own task (build i onward), the bigger stack, the rest of the changes, or something about power or the network that day. More tries are the way to find out. Not yet tried since: Fire escape and the sound loops (campfire and the others) on build k. Build m is held back, for the case where the gap returns.
