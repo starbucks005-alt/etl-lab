@@ -17,54 +17,6 @@
         "hs-theories": "Poppy has a theory. Blue has a theory. My mother has a thought, which is worse. I have no theory at all. I have a very good view."
       },
       "scenes": {
-        "jungle": {
-          "intro": "nature-jungle",
-          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music",
-          "kind": "sound",
-          "label": "Jungle",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#10381f",
-            "bottom": "#3f8a3a",
-            "particle": "#d9f27a"
-          }
-        },
-        "waterfall": {
-          "intro": "nature-waterfall",
-          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music",
-          "kind": "sound",
-          "label": "Waterfall",
-          "vibe": {
-            "type": "rain",
-            "top": "#16384a",
-            "bottom": "#7fc4d6",
-            "particle": "#e8f8ff"
-          }
-        },
-        "rain": {
-          "intro": "nature-rain",
-          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music",
-          "kind": "sound",
-          "label": "Rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#25323f",
-            "bottom": "#6a7f92",
-            "particle": "#cfe3f2"
-          }
-        },
-        "night-woods": {
-          "intro": "nature-night-woods",
-          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music",
-          "kind": "sound",
-          "label": "Night woods",
-          "vibe": {
-            "type": "stars",
-            "top": "#07101f",
-            "bottom": "#1d3a2f",
-            "particle": "#fff3b0"
-          }
-        },
         "library": {
           "file": "/rising-sun/box-sounds/library_v1.ulaw",
           "kind": "music",
@@ -241,50 +193,6 @@
         "too_many": "That is enough for today. Come back tomorrow."
       },
       "scenes": {
-        "jungle": {
-          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music",
-          "kind": "sound",
-          "label": "Jungle",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#10381f",
-            "bottom": "#3f8a3a",
-            "particle": "#d9f27a"
-          }
-        },
-        "waterfall": {
-          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music",
-          "kind": "sound",
-          "label": "Waterfall",
-          "vibe": {
-            "type": "rain",
-            "top": "#16384a",
-            "bottom": "#7fc4d6",
-            "particle": "#e8f8ff"
-          }
-        },
-        "rain": {
-          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music",
-          "kind": "sound",
-          "label": "Rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#25323f",
-            "bottom": "#6a7f92",
-            "particle": "#cfe3f2"
-          }
-        },
-        "night-woods": {
-          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music",
-          "kind": "sound",
-          "label": "Night woods",
-          "vibe": {
-            "type": "stars",
-            "top": "#07101f",
-            "bottom": "#1d3a2f",
-            "particle": "#fff3b0"
-          }
-        },
         "library": {
           "file": "/rising-sun/box-sounds/library_v1.ulaw",
           "kind": "music",
@@ -444,50 +352,6 @@
         "too_many": "That is enough for today. Come back tomorrow."
       },
       "scenes": {
-        "jungle": {
-          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music",
-          "kind": "sound",
-          "label": "Jungle",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#10381f",
-            "bottom": "#3f8a3a",
-            "particle": "#d9f27a"
-          }
-        },
-        "waterfall": {
-          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music",
-          "kind": "sound",
-          "label": "Waterfall",
-          "vibe": {
-            "type": "rain",
-            "top": "#16384a",
-            "bottom": "#7fc4d6",
-            "particle": "#e8f8ff"
-          }
-        },
-        "rain": {
-          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music",
-          "kind": "sound",
-          "label": "Rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#25323f",
-            "bottom": "#6a7f92",
-            "particle": "#cfe3f2"
-          }
-        },
-        "night-woods": {
-          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music",
-          "kind": "sound",
-          "label": "Night woods",
-          "vibe": {
-            "type": "stars",
-            "top": "#07101f",
-            "bottom": "#1d3a2f",
-            "particle": "#fff3b0"
-          }
-        },
         "library": {
           "file": "/rising-sun/box-sounds/library_v1.ulaw",
           "kind": "music",
@@ -650,50 +514,6 @@
         "too_many": "That is enough for today. Come back tomorrow."
       },
       "scenes": {
-        "jungle": {
-          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music",
-          "kind": "sound",
-          "label": "Jungle",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#10381f",
-            "bottom": "#3f8a3a",
-            "particle": "#d9f27a"
-          }
-        },
-        "waterfall": {
-          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music",
-          "kind": "sound",
-          "label": "Waterfall",
-          "vibe": {
-            "type": "rain",
-            "top": "#16384a",
-            "bottom": "#7fc4d6",
-            "particle": "#e8f8ff"
-          }
-        },
-        "rain": {
-          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music",
-          "kind": "sound",
-          "label": "Rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#25323f",
-            "bottom": "#6a7f92",
-            "particle": "#cfe3f2"
-          }
-        },
-        "night-woods": {
-          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music",
-          "kind": "sound",
-          "label": "Night woods",
-          "vibe": {
-            "type": "stars",
-            "top": "#07101f",
-            "bottom": "#1d3a2f",
-            "particle": "#fff3b0"
-          }
-        },
         "library": {
           "file": "/rising-sun/box-sounds/library_v1.ulaw",
           "kind": "music",
@@ -873,50 +693,6 @@
         "too_many": "That is enough for today. Come back tomorrow."
       },
       "scenes": {
-        "jungle": {
-          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music",
-          "kind": "sound",
-          "label": "Jungle",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#10381f",
-            "bottom": "#3f8a3a",
-            "particle": "#d9f27a"
-          }
-        },
-        "waterfall": {
-          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music",
-          "kind": "sound",
-          "label": "Waterfall",
-          "vibe": {
-            "type": "rain",
-            "top": "#16384a",
-            "bottom": "#7fc4d6",
-            "particle": "#e8f8ff"
-          }
-        },
-        "rain": {
-          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music",
-          "kind": "sound",
-          "label": "Rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#25323f",
-            "bottom": "#6a7f92",
-            "particle": "#cfe3f2"
-          }
-        },
-        "night-woods": {
-          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music",
-          "kind": "sound",
-          "label": "Night woods",
-          "vibe": {
-            "type": "stars",
-            "top": "#07101f",
-            "bottom": "#1d3a2f",
-            "particle": "#fff3b0"
-          }
-        },
         "library": {
           "file": "/rising-sun/box-sounds/library_v1.ulaw",
           "kind": "music",
@@ -1089,50 +865,6 @@
         "too_many": "That is enough for today, boss. Come back tomorrow."
       },
       "scenes": {
-        "jungle": {
-          "sound": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music",
-          "kind": "sound",
-          "label": "Jungle",
-          "vibe": {
-            "type": "fireflies",
-            "top": "#10381f",
-            "bottom": "#3f8a3a",
-            "particle": "#d9f27a"
-          }
-        },
-        "waterfall": {
-          "sound": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music",
-          "kind": "sound",
-          "label": "Waterfall",
-          "vibe": {
-            "type": "rain",
-            "top": "#16384a",
-            "bottom": "#7fc4d6",
-            "particle": "#e8f8ff"
-          }
-        },
-        "rain": {
-          "sound": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music",
-          "kind": "sound",
-          "label": "Rain",
-          "vibe": {
-            "type": "rain",
-            "top": "#25323f",
-            "bottom": "#6a7f92",
-            "particle": "#cfe3f2"
-          }
-        },
-        "night-woods": {
-          "sound": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music",
-          "kind": "sound",
-          "label": "Night woods",
-          "vibe": {
-            "type": "stars",
-            "top": "#07101f",
-            "bottom": "#1d3a2f",
-            "particle": "#fff3b0"
-          }
-        },
         "library": {
           "file": "/rising-sun/box-sounds/library_v1.ulaw",
           "kind": "music",
