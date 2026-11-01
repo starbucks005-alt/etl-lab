@@ -19,6 +19,14 @@ Dr. O: "we are actually walking, his legs just do the back and forth movement." 
 4. A push button between pin 6 and ground. No resistor is needed, the board pulls the pin up itself.
 5. Test with the legs OFF the servos first (just the horns turning), then fit the legs.
 
+## Teddy's body, from the listing Dr. O pasted (2026-11-01)
+
+Movable joints kid, 3 years old, realistic head with makeup, glass base. Colour: skin. Shoulder 10.5 in, bust 21.5 in, waist 20 in, hip 23 in, height 37 in, foot 6.5 in, base 12 in by 16 in.
+
+- A hip of 23 in means the pelvis shell is roughly 7 in across, so two servos side by side inside it will be a tight fit. Measure the inside of the pelvis once he arrives, before choosing servos.
+- The listing gives no weight. Weigh one whole leg when he arrives: that is the number that decides the servo.
+- He stands on a glass base. For walking, he is held by his hands and the base is not used, so decide how he is lifted off it and where the glass base goes.
+
 ## What the mannequin video shows (Flexable Mannequin Assembly Video, sent by Dr. O 2026-11-01)
 
 Teddy's body is to be a smaller version of this mannequin. I looked at stills from the video, taken every 12 seconds, so I may have missed detail. What I saw:
@@ -31,6 +39,6 @@ One way to fit the servos, NOT tested and only an idea from those stills: put ea
 
 ## Not known yet
 
-- The size of the smaller mannequin, how much one leg weighs, and so which servo is strong enough. Weigh one leg once you have it.
+- How much one leg weighs, and so which servo is strong enough. The listing gives sizes only.
 - Which board goes in him, and where the button goes on his body.
 - Not built: a Walk button on a panel page, as the box panel has. The button on his body comes first.
