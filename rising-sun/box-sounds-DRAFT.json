@@ -1,0 +1,21 @@
+{
+  "_note": "DRAFT, 2026-11-01, written by Claude for Dr. O to read. Nothing here is live. These are new descriptions for the four nature soundscapes, because the waterfall came out as steady noise, like TV snow. Each one names separate sounds so there is more to hear than one wash of noise. When Dr. O keeps one (edit it freely), it is copied into rising-sun/box-lines.json under companions.tansy.scenes.<name>.sound (and the same scenes for the other companions). A changed description makes the website make that sound again, once, and keep it.",
+  "scenes": {
+    "waterfall": {
+      "now": "A waterfall in a forest, steady falling water, a stream below, a few birds far away, no voices, no music",
+      "draft": "A small woodland waterfall trickling over mossy rocks into a clear pool, soft splashing and dripping close by, a stream running away over pebbles, clear birdsong and a frog now and then, a light breeze in the leaves, calm and spacious, no voices, no music"
+    },
+    "jungle": {
+      "now": "A dense tropical jungle at dawn, birds calling, insects humming, leaves moving in a light breeze, soft distant rain, no voices, no music",
+      "draft": "A tropical jungle waking at dawn, many different birds calling and answering each other, tree frogs, cicadas humming, a monkey calling far away, big leaves dripping after rain, no voices, no music"
+    },
+    "rain": {
+      "now": "Gentle steady rain on leaves in a garden, soft drips, a little distant thunder, no voices, no music",
+      "draft": "Gentle rain falling on garden leaves, single drops dripping from a gutter into a puddle, a wind chime tinkling softly now and then, low distant thunder, cosy and calm, no voices, no music"
+    },
+    "night-woods": {
+      "now": "A quiet forest at night, crickets, an owl calling now and then, a light wind in the trees, no voices, no music",
+      "draft": "A quiet forest at night, crickets chirping in layers, an owl hooting now and then and another answering far away, a faint stream, a light wind moving the branches, a twig snapping once, no voices, no music"
+    }
+  }
+}
