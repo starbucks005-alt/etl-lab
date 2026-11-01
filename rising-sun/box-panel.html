@@ -346,21 +346,21 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     el.classList.remove('hidden');
   }
   // recording and hearing the episodes the site can make (Reggie, Biscuit and Mochi so far). It uses the site's own ElevenLabs key, and each recording spends a little credit, so Record asks twice.
-  var RECORDABLE = { 'reggie-biscuit-mochi': true, 'nora-adventures': true, 'cressida-observations': true };
-  var lastErr = null, recorded = {}, recording = {}, written = {}, armed = '', playingId = '', audioEl = null, pollTimer = null;
+  var RECORDABLE = { 'reggie-biscuit-mochi': true, 'nora-adventures': true, 'cressida-observations': true, 'alice': true, 'tansy': true, 'kit': true };
+  var skipped = {}, lastErr = null, recorded = {}, recording = {}, written = {}, armed = '', playingId = '', audioEl = null, pollTimer = null;
   function fn(name, opts) { opts = opts || {}; opts.headers = Object.assign({ 'x-sun-key': key }, opts.headers || {}); return fetch('/.netlify/functions/' + name, opts); }
   function watchIds() { var out = []; libOf(current()).forEach(function (s) { if (RECORDABLE[s.id]) s.episodes.forEach(function (e) { out.push(s.id + '/' + e.id); }); }); return out; }
   function refreshStatus() {
     var ids = watchIds(); if (!ids.length) return Promise.resolve();
     return fn('story-audio?status=1&watch=' + encodeURIComponent(ids.join(','))).then(function (r) { return r.json(); }).then(function (j) {
-      recorded = j.recorded || {}; recording = j.running || {}; written = j.written || {}; lastErr = j.lastError || null;
+      recorded = j.recorded || {}; recording = j.running || {}; written = j.written || {}; lastErr = j.lastError || null; skipped = j.skipped || {};
       if ($('libBack')) openLib(true);
       var busy = Object.keys(recording).some(function (k) { return !recording[k].failed; });
       clearTimeout(pollTimer); if (busy && $('libBack')) pollTimer = setTimeout(refreshStatus, 5000);
     }).catch(function () {});
   }
   function errWords(e) {
-    var m = { eleven_401: 'ElevenLabs refused the site\'s key', eleven_402: 'the ElevenLabs account is out of credit', eleven_403: 'ElevenLabs would not allow it', eleven_404: 'a voice was not found in the ElevenLabs account', eleven_422: 'ElevenLabs could not use the text or the voice', eleven_429: 'ElevenLabs says too many at once, or a limit was reached', no_eleven_key: 'the site has no ElevenLabs key', already_recorded: 'that one is already recorded', already_recording: 'that one is already being recorded', unknown_episode: 'that episode has no written story', series_not_recordable_here: 'that series cannot be recorded here' };
+    var m = { eleven_401: 'ElevenLabs refused the site\'s key', eleven_402: 'the ElevenLabs account is out of credit', eleven_403: 'ElevenLabs would not allow it', eleven_404: 'a voice was not found in the ElevenLabs account', eleven_422: 'ElevenLabs could not use the text or the voice', eleven_429: 'ElevenLabs says too many at once, or a limit was reached', no_eleven_key: 'the site has no ElevenLabs key', already_recorded: 'that one is already recorded', already_recording: 'that one is already being recorded', unknown_episode: 'that episode has no written story', no_voices: 'none of its parts has a voice yet', series_not_recordable_here: 'that series cannot be recorded here' };
     return m[e] || ('something went wrong (' + e + ')');
   }
   function episodeAction(s, e, rid) {
@@ -414,7 +414,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           var act = document.createElement('span'); act.className = 'chip act'; act.setAttribute('role', 'button'); act.tabIndex = 0;
           var unwritten = written[s.id] && written[s.id].indexOf(e.id) < 0;
           act.textContent = unwritten ? 'Not written yet' : run ? (run.failed ? (run.failed === 'stalled' ? 'Stopped at ' + run.done + ' of ' + run.total + ', try again' : 'Failed, try again') : 'Recording ' + run.done + ' of ' + run.total) : (have ? (playingId === rid ? 'Stop' : 'Listen') : (armed === rid ? 'Tap again to record' : 'Record'));
-          if (have) sm.textContent = (e.minutes ? e.minutes + ' min, ' : '') + 'recorded';
+          if (have) sm.textContent = (e.minutes ? e.minutes + ' min, ' : '') + 'recorded' + (skipped[rid] ? ', ' + skipped[rid].n + ' parts left out (no voice yet for ' + skipped[rid].who.join(', ') + ')' : '');
           if (unwritten) { act.classList.remove('act'); act.removeAttribute('role'); act.removeAttribute('tabindex'); }
           else act.addEventListener('click', function (ev) { ev.stopPropagation(); episodeAction(s, e, rid); });
           b.appendChild(act);

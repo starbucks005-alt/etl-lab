@@ -55,31 +55,9 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const { VOICES, fixNameSlot, speakable, plan } = require('../netlify/functions/_story-plan.js');
-/* The saga voices already in Good Company (gc-friend.js). The other tellers have none yet. */
-const SAGA_VOICES = {
-  alice: 'gZL79pBTvaNfNPOCXh6n',
-  tansy: 'thfYL0Elyru2qqTtNQsE',
-  poppy: 'VJFN2gyaDzoKekQ8ZuKB',
-  blue: 'WUyjxM8OTY6l8LhTmdkq'
-};
+const { SAGA_VOICES, planFragments } = require('../netlify/functions/_story-plan.js');
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true }; /* same as gc-voice.js */
 const PER_MILLION_CHARS = 16; /* the neural voice rate quoted in the one-pager, a rough guide only */
-
-/* Fragments: each one is read in the voice of whoever tells it. A teller with no voice is skipped, and reported. */
-function planFragments(data, extraVoices) {
-  const voices = Object.assign({}, SAGA_VOICES, extraVoices || {});
-  const list = (data.fragments || data).slice();
-  if (list.every((f) => typeof f.phase === 'number')) list.sort((a, b) => a.phase - b.phase); /* stable: file order inside a phase */
-  const parts = [], skipped = [];
-  list.forEach((f) => {
-    const who = String(f.perspective || '').toLowerCase();
-    const text = speakable(f.text);
-    if (!text) return;
-    if (!voices[who]) { skipped.push({ id: f.id, who }); return; }
-    parts.push({ who, voice: voices[who], text, id: f.id });
-  });
-  return { parts, skipped };
-}
 
 const words = (s) => String(s || '').split(/\s+/).filter(Boolean).length;
 

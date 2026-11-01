@@ -85,5 +85,27 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
   const done3 = JSON.parse(st3._m.get('status-reggie-biscuit-mochi-trash'));
   assert.strictEqual(done3.state, 'done');
   assert.deepStrictEqual([...Buffer.from(st3._m.get('ep-reggie-biscuit-mochi-trash_v1'))], [1, 2, 3], 'the parts are joined in order');
+  // A.L.I.C.E.'s saga and the fairies' Human Summer: only the tellers who have a voice are read, and what was left out is said
+  const st4 = mem(); const used4 = [];
+  const run4 = (series, episode, extra) => rec.handler(ev('POST', { series, episode }), Object.assign({ env: { ELEVENLABS_API_KEY: 'k' }, loadCfg: cfg, store: st4, now: () => 7000, budgetMs: 100000, speak: async (k, v, t) => { used4.push([v, t]); return Buffer.from([1]); } }, extra || {}));
+  await run4('alice', 'alice-saga');
+  assert.ok(used4.length >= 20 && used4.every((u) => u[0] === 'gZL79pBTvaNfNPOCXh6n'), 'A.L.I.C.E.\'s own fragments are read in her voice');
+  const sk = JSON.parse(st4._m.get('index')).skipped['alice/alice-saga'];
+  assert.ok(sk && sk.n === 11 && sk.who.indexOf('narrator') >= 0, 'the fragments of tellers with no voice are left out and reported (' + JSON.stringify(sk) + ')');
+  used4.length = 0;
+  await run4('tansy', 'tansy-human-summer');
+  const vs = new Set(used4.map((u) => u[0]));
+  assert.ok(vs.has('thfYL0Elyru2qqTtNQsE') && vs.has('VJFN2gyaDzoKekQ8ZuKB') && vs.has('WUyjxM8OTY6l8LhTmdkq') && vs.size === 3, 'Tansy, Poppy and Blue each in their own voice');
+  // Kit: an Azure voice, so no ElevenLabs key is needed, and the visitor is her boss
+  const azureCalls = [];
+  const st5 = mem();
+  const rk = await rec.handler(ev('POST', { series: 'kit', episode: 'kit-mongolia' }), { env: {}, loadCfg: cfg, store: st5, now: () => 8000, budgetMs: 100000, azureEnv: { AZURE_SPEECH_KEY: 'k', AZURE_SPEECH_REGION: 'eastus' },
+    fetchFn: async (u, o) => { azureCalls.push({ u, o }); return { ok: true, arrayBuffer: async () => new Uint8Array([7, 7]).buffer }; } });
+  assert.strictEqual(rk.statusCode, 202);
+  assert.ok(azureCalls.length === 1 && /microsoft/.test(azureCalls[0].u) && /Ada/.test(azureCalls[0].o.body), 'Kit is spoken by Azure in her voice');
+  assert.ok(/Oh good, boss, sit down/.test(azureCalls[0].o.body) && !/\{name\}/.test(azureCalls[0].o.body), 'the visitor is her boss');
+  assert.strictEqual(JSON.parse(st5._m.get('status-kit-kit-mongolia')).state, 'done');
+  const wm = require('../netlify/functions/story-record-background.js').writtenMap({});
+  assert.deepStrictEqual([wm.alice, wm.tansy, wm.kit], [['alice-saga'], ['tansy-human-summer'], ['kit-mongolia', 'kit-jordan', 'kit-ohio']], 'the panel is told what is written for the others');
   console.log('story recording: on the site with its own key, once per story, heard back');
 })().catch((e) => { console.error(e); process.exit(1); });

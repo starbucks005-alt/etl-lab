@@ -7,7 +7,7 @@
    It voices each beat in its own character's voice (Reggie, Biscuit, Mochi), joins the pieces, and stores ep-<series>-<episode>_v<n>.mp3.
    One story costs roughly a few cents of ElevenLabs characters. It will not record a story that is already recorded unless asked again ({again:true}, which
    keeps the old one and makes the next _v). It will not start a second recording of the same story while one is running.
-   The three dogs' stories (pack-episodes.json) and Nora's and Cressida's (rising-sun/box-stories.json) are done here. Tansy's fragments and Kit's stories are not.
+   The three dogs' stories (pack-episodes.json), Nora's and Cressida's (rising-sun/box-stories.json), A.L.I.C.E.'s saga and the fairies' Human Summer (fragments, only the tellers who have a voice) and Kit's three field notes (Azure) are all done here.
    NOT TRIED against the real ElevenLabs service: it needs Dr. O to press it, because every recording spends ElevenLabs credit. 64 kbps mp3, so a five minute story stays
    under the 6 MB a function may send back. The pieces are joined end to end with no added pause. */
 const sun = require('./_sun.js');
@@ -17,14 +17,32 @@ let PACK = { episodes: [] };
 try { PACK = require('../../pack-episodes.json'); } catch (_) {}
 let STORIES = { series: [] };      // rising-sun/box-stories.json: Nora's adventures and Cressida's observations, approved by Dr. O
 try { STORIES = require('../../rising-sun/box-stories.json'); } catch (_) {}
+let ALICE = { fragments: [] }, FAIRY = { fragments: [] }, EXPLORER = { episodes: [] };       // A.L.I.C.E.'s saga, the fairies' Human Summer, Kit's field notes
+try { ALICE = require('../../alice-fragments.json'); } catch (_) {}
+try { FAIRY = require('../../fairy-fragments.json'); } catch (_) {}
+try { EXPLORER = require('../../explorer-episodes.json'); } catch (_) {}
+const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
 
 const MODEL = 'eleven_turbo_v2_5';
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true };
-/* The written episodes of one series: the three dogs' stories come from pack-episodes.json, the others from rising-sun/box-stories.json. */
-function episodesOf(series, deps) {
-  if (series === 'reggie-biscuit-mochi') return (deps.pack || PACK).episodes || [];
-  const sr = ((deps.stories || STORIES).series || []).find((x) => x.id === series);
-  return sr ? sr.episodes || [] : null;
+/* What there is to record, per series: the episodes (id, and a function that returns the voiced parts and the parts skipped for want of a voice).
+   The three dogs and Nora and Cressida are written as beats; A.L.I.C.E.'s saga and the fairies' Human Summer are collections of short fragments told by several voices
+   (a teller with no voice yet is left out and reported, never guessed); Kit's are three short field notes in an Azure voice. */
+function sources(deps) {
+  const out = {};
+  const pack = (deps.pack || PACK).episodes || [];
+  out['reggie-biscuit-mochi'] = pack.map((e) => ({ id: e.id, parts: () => ({ parts: plan.plan(e), skipped: [] }) }));
+  ((deps.stories || STORIES).series || []).forEach((x) => { out[x.id] = (x.episodes || []).map((e) => ({ id: e.id, parts: () => ({ parts: plan.plan(e), skipped: [] }) })); });
+  out.alice = [{ id: 'alice-saga', parts: () => plan.planFragments(deps.alice || ALICE) }];
+  out.tansy = [{ id: 'tansy-human-summer', parts: () => plan.planFragments(deps.fairy || FAIRY) }];
+  out.kit = ((deps.explorer || EXPLORER).episodes || []).map((e) => ({ id: 'kit-' + e.id, parts: () => plan.kitParts(e) }));
+  return out;
+}
+/* The episodes that have something written, for the panel: { series: [ids] } */
+function writtenMap(deps = {}) {
+  const m = {}; const src = sources(deps);
+  Object.keys(src).forEach((k) => { m[k] = src[k].map((e) => e.id); });
+  return m;
 }
 
 async function speak(key, voiceId, text, fetchFn = fetch) {
@@ -35,6 +53,17 @@ async function speak(key, voiceId, text, fetchFn = fetch) {
   });
   if (!r.ok) throw new Error('eleven_' + r.status);
   return Buffer.from(await r.arrayBuffer());
+}
+
+/* One part, in whichever service its voice belongs to: an id that starts with azure: is spoken by Azure (Kit), anything else by ElevenLabs. */
+async function speakAny(key, voiceId, text, fetchFn, event, deps) {
+  if (String(voiceId).indexOf('azure:') === 0) {
+    const name = azureVoiceName(voiceId);
+    if (!name) throw new Error('bad_azure_voice');
+    const env = (deps && deps.azureEnv) || await require('./_gc-config.js').azureEnv(event);
+    return azureSpeak(text, name, { env, fetchFn: fetchFn || fetch });
+  }
+  return speak(key, voiceId, text, fetchFn);
 }
 
 async function openStore(event) {
@@ -56,13 +85,15 @@ exports.handler = async (event, deps = {}) => {
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return { statusCode: 400, body: 'bad_json' }; }
   const series = String(body.series || ''), episode = String(body.episode || '');
   const store = deps.store || await openStore(event);
-  const list = episodesOf(series, deps);
-  if (!list) { await noteError(store, 'series_not_recordable_here', series, episode, deps); return { statusCode: 404, body: 'series_not_recordable_here' }; }
-  const ep = list.find((e) => e.id === episode);
+  const src = sources(deps)[series];
+  if (!src) { await noteError(store, 'series_not_recordable_here', series, episode, deps); return { statusCode: 404, body: 'series_not_recordable_here' }; }
+  const ep = src.find((e) => e.id === episode);
   if (!ep) { await noteError(store, 'unknown_episode', series, episode, deps); return { statusCode: 404, body: 'unknown_episode' }; }
+  const planned = ep.parts();
+  if (!planned.parts.length) { await noteError(store, 'no_voices', series, episode, deps); return { statusCode: 409, body: 'no_voices' }; }
   const env = deps.env || process.env;
   const key = String(env.ELEVENLABS_API_KEY || '').trim();
-  if (!key) { await noteError(store, 'no_eleven_key', series, episode, deps); return { statusCode: 503, body: 'no_eleven_key' }; }
+  if (planned.parts.some((p) => String(p.voice || plan.VOICES[p.who]).indexOf('azure:') !== 0) && !key) { await noteError(store, 'no_eleven_key', series, episode, deps); return { statusCode: 503, body: 'no_eleven_key' }; }
 
   const now = deps.now ? deps.now() : Date.now();
   const sk = 'status-' + series + '-' + episode;
@@ -75,7 +106,7 @@ exports.handler = async (event, deps = {}) => {
   if (!resume && have && !body.again) { await noteError(store, 'already_recorded', series, episode, deps); return { statusCode: 409, body: 'already_recorded' }; }
   const version = resume ? st.version : have + 1;
 
-  const parts = plan.plan(ep);
+  const parts = planned.parts;
   let done = resume ? st.done : 0;
   const pk = (i) => 'part-' + series + '-' + episode + '-v' + version + '-' + i;
   if (!resume) await store.setJSON(sk, { state: 'recording', done: 0, total: parts.length, version, at: now });
@@ -84,7 +115,7 @@ exports.handler = async (event, deps = {}) => {
   const budget = deps.budgetMs !== undefined ? deps.budgetMs : 8000, t0 = Date.now();
   try {
     while (done < parts.length) {
-      const buf = await (deps.speak || speak)(key, plan.VOICES[parts[done].who], parts[done].text, deps.fetchFn);
+      const buf = await (deps.speak || ((k, v, t, f) => speakAny(k, v, t, f, event, deps)))(key, parts[done].voice || plan.VOICES[parts[done].who], parts[done].text, deps.fetchFn);
       await store.set(pk(done), buf);
       done++;
       await store.setJSON(sk, { state: 'recording', done, total: parts.length, version, at: deps.now ? deps.now() : Date.now() });
@@ -99,6 +130,7 @@ exports.handler = async (event, deps = {}) => {
     await store.set('ep-' + series + '-' + episode + '_v' + version, mp3);
     let idx2 = { ids: {} }; try { idx2 = (await store.get('index', { type: 'json' })) || idx2; } catch (_) {}
     idx2.ids[id] = version;
+    idx2.skipped = idx2.skipped || {}; if (planned.skipped.length) idx2.skipped[id] = { n: planned.skipped.length, who: Array.from(new Set(planned.skipped.map((x) => x.who))) }; else delete idx2.skipped[id];
     await store.setJSON('index', idx2);
     await store.setJSON(sk, { state: 'done', done: parts.length, total: parts.length, version, bytes: mp3.length, at: deps.now ? deps.now() : Date.now() });
     for (let i = 0; i < parts.length; i++) { try { if (store.delete) await store.delete(pk(i)); } catch (_) {} }
@@ -117,3 +149,4 @@ async function selfCall(event, payload, fetchFn = fetch) {
   await fetchFn(base + '/.netlify/functions/story-record-background', { method: 'POST', headers: { 'x-sun-key': h['x-sun-key'] || '', 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ resume: true }, payload)) });
 }
 exports.speak = speak;
+exports.writtenMap = writtenMap;

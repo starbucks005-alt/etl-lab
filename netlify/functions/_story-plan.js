@@ -39,4 +39,30 @@ function plan(ep) {
   return parts;
 }
 
-module.exports = { VOICES, fixNameSlot, speakable, plan };
+/* The saga voices already in Good Company (gc-friend.js). The other tellers (the narrator, the researchers, the colleagues, the mother) have none yet. */
+const SAGA_VOICES = { alice: 'gZL79pBTvaNfNPOCXh6n', tansy: 'thfYL0Elyru2qqTtNQsE', poppy: 'VJFN2gyaDzoKekQ8ZuKB', blue: 'WUyjxM8OTY6l8LhTmdkq' };
+const KIT_VOICE = 'azure:en-GB-Ada:DragonHDLatestNeural';        // Dr. O's pick for Kit, 2026-10-23
+
+/* Fragments (A.L.I.C.E.'s laboratory saga, the fairies' Human Summer): each one is read in the voice of whoever tells it. A teller with no voice is SKIPPED and reported, never guessed. */
+function planFragments(data, extraVoices) {
+  const voices = Object.assign({}, SAGA_VOICES, extraVoices || {});
+  const list = (data.fragments || data).slice();
+  if (list.every((f) => typeof f.phase === 'number')) list.sort((a, b) => a.phase - b.phase);       // stable: file order inside a phase
+  const parts = [], skipped = [];
+  list.forEach((f) => {
+    const who = String(f.perspective || '').toLowerCase();
+    const text = speakable(f.text);
+    if (!text) return;
+    if (!voices[who]) { skipped.push({ id: f.id, who }); return; }
+    parts.push({ who, voice: voices[who], text, id: f.id });
+  });
+  return { parts, skipped };
+}
+
+/* Kit's field notes (explorer-episodes.json): one spoken story each. The visitor is her boss, an in-joke of Dr. O's, so the {name} slot becomes "boss". */
+function kitParts(ep) {
+  const text = String(ep.text || '').replace(/\{name\}/g, 'boss').replace(/\s{2,}/g, ' ').trim();
+  return { parts: text ? [{ who: 'kit', voice: KIT_VOICE, text }] : [], skipped: [] };
+}
+
+module.exports = { VOICES, SAGA_VOICES, KIT_VOICE, fixNameSlot, speakable, plan, planFragments, kitParts };
