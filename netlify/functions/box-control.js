@@ -152,7 +152,7 @@ exports.handler = async (event, deps = {}) => {
   if (body.action === 'set_companion') {
     const id = String(body.companion || '').toLowerCase();
     if (!all[id]) return json(404, { error: 'unknown_companion' });
-    st = { companion: id, command: null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, stories: st.stories, story: st.story };
+    st = { companion: id, command: null, listen: st.listen, wakeBy: st.wakeBy, volume: st.volume, stories: st.stories };   // the story set up in the box is dropped when a different companion is picked, so each starts on her own serial
     try { await store.setJSON(key, st); } catch (_) { return json(503, { error: 'store_unavailable' }); }
     return json(200, { ok: true, companion: id });
   }
