@@ -192,9 +192,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <div class="two">
         <div><label for="duetA">First box (speaks first)</label><select id="duetA"></select></div>
         <div><label for="duetB">Second box</label><select id="duetB"></select></div>
-        <div><label for="duetTopic">Topic (optional)</label><input id="duetTopic" type="text" maxlength="200" autocomplete="off"></div>
-        <div><label for="duetTurns">Lines in all</label>
-          <select id="duetTurns"><option>4</option><option selected>8</option><option>12</option><option>20</option></select></div>
+        <div style="grid-column:1/-1"><label for="duetTopic">Topic (optional)</label><input id="duetTopic" type="text" maxlength="200" autocomplete="off"></div>
       </div>
       <div class="row"><button id="duetGo" class="green" type="button">Start chat mode</button><button id="duetStop" type="button">Stop</button></div>
       <p class="note" id="duetState"></p>
@@ -506,7 +504,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   $('duetGo').addEventListener('click', function () {
     var a = $('duetA').value, b = $('duetB').value;
     if (!a || !b || a === b) { say('Pick two different boxes.', 'bad'); return; }
-    duetCall('POST', { action: 'start', a: a, b: b, topic: $('duetTopic').value, turns: parseInt($('duetTurns').value, 10) }).then(function (r) { if (r.status === 200) { say('Chat mode started. ' + a + ' speaks first, in a few seconds.', 'ok'); duetShow(); } else say('Chat mode did not start.', 'bad'); }).catch(function () { say('Could not reach the website.', 'bad'); });
+    duetCall('POST', { action: 'start', a: a, b: b, topic: $('duetTopic').value }).then(function (r) { if (r.status === 200) { say('Chat mode started. ' + a + ' speaks first, in a few seconds.', 'ok'); duetShow(); } else say('Chat mode did not start.', 'bad'); }).catch(function () { say('Could not reach the website.', 'bad'); });
   });
   $('duetStop').addEventListener('click', function () { duetCall('POST', { action: 'stop' }).then(function () { say('Chat mode stopped.', 'ok'); duetShow(); }).catch(function () { say('Could not reach the website.', 'bad'); }); });
 
