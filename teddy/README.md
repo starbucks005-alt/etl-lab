@@ -27,18 +27,25 @@ Movable joints kid, 3 years old, realistic head with makeup, glass base. Colour:
 - The listing gives no weight. Weigh one whole leg when he arrives: that is the number that decides the servo.
 - He stands on a glass base. For walking, he is held by his hands and the base is not used, so decide how he is lifted off it and where the glass base goes.
 
-## What the mannequin video shows (Flexable Mannequin Assembly Video, sent by Dr. O 2026-11-01)
+## The larger mannequins Dr. O has (photos she sent 2026-11-01)
 
-Teddy's body is to be a smaller version of this mannequin. I looked at stills from the video, taken every 12 seconds, so I may have missed detail. What I saw:
+Teddy is a smaller version of these. What the photos show, and what Dr. O said:
 
-- The pelvis is a hollow shell. Each leg has a short stub at the top of the thigh that goes into the pelvis from the side, and a hex bolt at the back of the pelvis holds it. So each hip is a hinge on a sideways axis, which is the right axis for a forward and back swing.
-- The knees and ankles are separate joints. Only the hips need to move for this.
-- The whole figure stands on a metal base plate with a rod up into the pelvis. Walking him by his hands means the base plate and rod are not used, or are replaced, for Teddy. That is a choice to make before the legs are fitted.
+- Every joint is held by a hex socket bolt through a round hole in the side of the shell (hip, knee and ankle, all the same). Dr. O: "hex".
+- The hip: the top of the thigh is a hollow shell that fits up into a notch in the pelvis. The hole in the side of the thigh, with the hex bolt behind it, is the hip pivot. The pivot axis runs side to side, which is the right direction for a forward and back swing.
+- The thigh also has a horizontal seam partway down, and the knee and ankle are separate joints. Only the hips need to move for this.
+- The legs look like hollow plastic shells. Not confirmed: wall thickness and whether anything is inside.
+- A metal rod comes up from the base plate through the middle of the pelvis, between the legs. It would be in the way of anything fitted inside the pelvis. For walking by hand, the rod and plate are not used.
 
-One way to fit the servos, NOT tested and only an idea from those stills: put each hip servo inside the pelvis shell, and join the servo's arm to the top of the thigh with a short link rod, leaving the mannequin's own hip hinge as the pivot. That keeps the leg's weight on the hinge and not on the servo shaft. The other way is to turn the leg's own stub with the servo, which puts the leg's weight on the servo, so it needs a stronger one.
+One way to fit the servos, NOT tested and only an idea from the photos and the assembly video: a servo inside each thigh shell or the pelvis, its arm joined to the leg with a short link rod, and the hex-bolt hinge left as the pivot, so the leg's weight stays on the hinge and not on the servo shaft. The other way, turning the leg directly on its hip bolt, puts the weight on the servo and needs a stronger one.
+
+## What the mannequin assembly video shows
+
+Stills from the video (one every 12 seconds, so detail may be missed): the legs go into the hollow pelvis from the side and a hex bolt at the back holds each one. The same stub and bolt idea as in the photos above.
 
 ## Not known yet
 
-- How much one leg weighs, and so which servo is strong enough. The listing gives sizes only.
+- How much one leg weighs, which decides the servo. The listing gives sizes only.
+- The thickness of the shell walls and how much room there is inside the thigh and the pelvis. Open one up and measure.
 - Which board goes in him, and where the button goes on his body.
 - Not built: a Walk button on a panel page, as the box panel has. The button on his body comes first.
