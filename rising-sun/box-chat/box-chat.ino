@@ -425,7 +425,7 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: WAKE_WORD %d, stop and restart around each turn, markers around her voice\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01 (wake retries, panel Stop and Volume), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
