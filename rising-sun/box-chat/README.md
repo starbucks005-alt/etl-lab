@@ -78,3 +78,13 @@ Dr. O: music and sound are one list, called "Music and Soundscape". The panel ha
 - **kind "sound" files** (campfire, creek, gentle rain, medieval Irish tavern, mountain flute, nature, party with happy people, sunny beach waves, Tibetan singing bowl, winter holiday): Dr. O made these in ElevenLabs on her paid plan, 30 seconds each. They are 8 bit mu-law at 16 kHz in `rising-sun/box-sounds`, made into seamless loops at an even loudness by `rising-sun/tools/make-sound.py --loop`. The box loads one whole, and repeats it.
 - **kind "music" files** (library, rooftop, fire escape): from the party music in `good-company/audio` (Dr. O owns it), 6 minutes, about 5.5 MB each. The box streams one through a large buffer and plays it once.
 The decoding of the 8 bit format on the box was checked against a reference tool: the samples are identical. NOT tried on the board: the streaming, the loading, and how any of it sounds on the speaker (16 kHz mono through a small speaker will sound small).
+
+## Stories, the library and the episodes (2026-11-01)
+
+Dr. O: Tansy, Kit and Reggie all have stories, or have them coming, and a user can set them up to play in their companion box. She asked for the library to pop up, and for the user to see which episode they are on.
+
+- The panel's story button opens the story library. It lists every serial in `good-company/stories.json` (the Good Company library, told as numbered episodes), not only the companion in the box, because any of them can be set up in any box. "Set this up in this box" picks the serial for that box.
+- Each episode shows its number, title, minutes, and "recorded" or "recording soon". A tap on an episode marks where the listener is up to ("You are here"; earlier ones say "Heard", later ones "Next"). The line under the Talk buttons says the same: serial, episode number of how many, and its title.
+- Kept per box in `box-control` (`set_story`, `set_episode`); the panel gets it in each companion's `library`. Checked by `tests/box-story-library.test.js`.
+- NOT built: playing an episode from the box. No episode is recorded yet (every `file` in `stories.json` is empty), and the box program has no episode player. The marker moves only when she taps an episode. The button that plays today's story fragments (Tansy's `hs-` lines) is still inside the library as "Tell the box: Story time".
+- Kit (Explorer Kit: Postcards) has a serial in the library but is not yet a companion the box can be set to, so her serial can be set up but her voice is not in the box. NOT tried on the live site or the board.
