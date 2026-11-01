@@ -200,9 +200,17 @@ Dr. O: "add julians other soundtracks". Six more of the party tracks in `good-co
 ## All the companions, and the fairies, are in the box (2026-11-01)
 
 Dr. O: "add other companions to the box. include all the fairies." The box now has 28: the first six (Tansy, Meera, Marcus, Reggie, ALICE, Kit) and 22 more.
-- Fairies: Blue, Poppy, Ash, Velvet, Ember and Flint, with Tansy. Their written life comes from the roster and `rising-sun/personas.json` (voices from there), and they use the lids pictures already cut (`blue_v1`, `poppy_v1`, `ash_v2`, `velvet_v1`, `ember_v1`, `flint_v1`).
+- Fairies: Blue, Poppy, Ash, Velvet, Ember and Flint, with Tansy. Their written life comes from the roster and `rising-sun/personas.json` (voices from there), and they use the lid pictures already cut (`blue_v1`, `poppy_v1`, `ash_v2`, `velvet_v1`, `ember_v1`, `flint_v1`).
 - Others, from Dr. O's own files in `good-company/gc-friend.js`, copied word for word (`rising-sun/tools/gc-extract.js` then `rising-sun/tools/add-companions.py`; safe to run again): Arch, Sophia, Nina, Kioko, Julian, Winston, Viv, Aaron, Theo, Cressida, Dario, Nora, Zoe, Rin, Sarah and Olivia. Their pictures are cut from their portraits to 172 by 320, with the person placed by eye and checked on a contact sheet.
 - NOT added, because they are more than one speaker: Marion and the Littles, the Grimms, Eli and Nell, the Nursery, Tobias and Briar, Astra-9 and Astrad.
 - The two fixed lines ("I did not catch that. Say it again?" and "That is enough for today. Come back tomorrow.") are the same short wording for all of them, written here, not by Dr. O. No name wake (the sound spellings are not worked out), so Hi ESP wakes them.
 - A bug found on the way: the agents roster also has a Kit, a Nora and a Julian, and the box looked there first and treated them as fairies. A companion's own written life is now used first (`netlify/functions/box-talk.js`), so Kit was one of those wrongly spoken as a fairy until this. `tests/box-companions.test.js` checks every companion.
 - NOT heard on the board. Each companion's voice id was taken from her file and has not been tried in the box.
+
+## Episode drafts for Nora and Cressida (2026-11-01)
+
+Dr. O: episode stories "like timetravel Nora adventures, like a history channel adventure", and "Cressida ghost and the humans she observes (funny observations)". Six drafts are in `rising-sun/box-stories-DRAFT.json` for Dr. O to read, about five minutes spoken each, written by Claude in their voices from what Dr. O wrote about them. NOTHING IS LIVE: they are not in the library and cannot be recorded until Dr. O approves.
+- Nora: The Bakers of Giza (about 2500 BCE), The Parmesan Pit (the Great Fire of London, 1666, from Pepys's diary), The Serum Run (Nome, Alaska, 1925). Each ends with the floor tilting and her log entry.
+- Cressida: Twelve Guests, No Order (a weekend rental), The Gentlemen with the Machines (ghost hunters), The Wedding Weekend.
+- Each draft carries a `facts` list: the real history it leans on, for Dr. O to check. Claude did not look any of it up, it is from memory, so the dates, numbers and what Pepys wrote are for checking. The incidents with the modern visitors, and Nora's small moments, are invented fiction in the characters' voices.
+- To approve: Dr. O says which ones. They then move to a live story file, appear in the story library, and get Record buttons (the recorder already has Nora's and Cressida's voices in `netlify/functions/_story-plan.js`).

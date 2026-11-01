@@ -4,7 +4,9 @@
 const VOICES = {
   reggie: 'uq0HIbNZKn11Hs5ifEdd',
   biscuit: 'MgqVq3OCTPeVHCEDr4HU',
-  mochi: 'I8ERYU9lOxALy2vtIvHd'
+  mochi: 'I8ERYU9lOxALy2vtIvHd',
+  nora: 'pb6kCegKK9i4oRBqeUjR',        // from good-company/gc-friend.js
+  cressida: 'RTBzdwjfw0SPTkN2srfl'
 };
 /* A recording cannot say the listener's name. Biscuit's own pet name for
    people is "sweet pea", so that is what the slot becomes. Where the same line

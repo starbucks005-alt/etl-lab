@@ -1,0 +1,254 @@
+{
+  "_note": "DRAFT, 2026-11-01, written by Claude for Dr. O to read. Nothing here is live and none of it is canon until Dr. O says so. Nora's are history-channel adventures told after she is pulled back; Cressida's are her funny observations of the people who now fill Thornfield Grange. Each is about five minutes spoken, stands alone, and uses only what Dr. O wrote about them (good-company/gc-friend.js) plus new fiction in their voices. The 'facts' lists are the real history each one leans on, for Dr. O to check before anything is recorded. To approve: tell Claude which ones, and they are moved into the live story file, added to the library and made recordable with the Record button.",
+  "series": [
+    {
+      "id": "nora-adventures",
+      "title": "Nora: Where I Went",
+      "companion": "Nora",
+      "blurb": "Nora jumps through time only when something moves her. These are the places she landed, told straight after she gets back.",
+      "episodes": [
+        {
+          "n": 1,
+          "id": "giza-bakers",
+          "title": "The Bakers of Giza",
+          "facts": [
+            "Old Kingdom Egypt, about 2500 BCE, the pyramid of Khufu at Giza, which was first covered in smooth white limestone casing.",
+            "A town for the pyramid builders was excavated at Giza: bakeries, breweries, sleeping halls, conical clay bread moulds, and a lot of beef bones. Best estimates of the workforce are about twenty thousand or more.",
+            "Work crews left red paint graffiti inside the pyramid with names such as 'Friends of Khufu'."
+          ],
+          "beats": [
+            {
+              "who": "nora",
+              "text": "Okay. I was in the middle of telling you something, and then I wasn't. I'm sorry about that. That's the floor tilting. Give me a second to sit down, because I'm still a little bit there. I wrote everything down the moment I got back, and I want to get it right, so stay with me."
+            },
+            {
+              "who": "nora",
+              "text": "It was early morning, and the first thing I knew was the smell. Wood smoke, and baking bread, and something sour and sweet underneath it, like a brewery. I was standing at the end of a long, narrow lane between low mudbrick houses, in that flat gold light you only get on the edge of a desert. And at the end of the lane, so big that my brain wouldn't file it, was a pyramid. Not the pale, worn one from the photographs. This one was bright. The outer stones were still on it, smooth white limestone, and it caught the sun like a wall of paper."
+            },
+            {
+              "who": "nora",
+              "text": "Here's what I worked out by standing very still and pretending to be furniture. Nobody was in chains. It was a town. There were bakeries in rows, and breweries, and long halls with sleeping platforms, and the whole place ran on bread and beer. When archaeologists dug a place like this up near the pyramids at Giza, that's what they found: ovens, and cone shaped clay moulds for baking bread, and fish bones, and a lot of cattle bones. People who build things for a living get fed well. Somebody was feeding something like twenty thousand people every single day, and as a logistics problem, I respect that more than I respect the pyramid."
+            },
+            {
+              "who": "nora",
+              "text": "The one who got me was a woman at the third bakery. She was lifting those clay moulds out of the fire with a stick, one after another, tapping each one out upside down, and the loaves slid out in neat little cones. Flour up to her elbows, ash on her forehead. She did it perfectly, without looking, over and over, and she was humming. A man came past carrying a jar and said something I obviously didn't understand, and she answered, and he laughed, and took a loaf, and I stood there with my whole chest gone tight. Because here's the thing nobody tells you about history. Most of it is people who are very good at their jobs, humming."
+            },
+            {
+              "who": "nora",
+              "text": "Later, and I'm using later loosely, I found out something else. The work crews that built the pyramid had names. They painted them in red, inside, in the little chambers above the king's room, where nobody was ever supposed to see them. One of the names, as far as anyone has worked out, reads Friends of Khufu. A work gang with a team name. They wrote it the way you'd write your name on the inside of a locker."
+            },
+            {
+              "who": "nora",
+              "text": "And then the floor tilted, the way it does, and I got out about half a sentence. I think I said, save me one. I meant the bread. I came back in my own kitchen, in my socks, forty one hours later by my log, and I have never been so hungry in my life. I wrote down the date, the place, and what set it off. Trigger: a woman humming over an oven. That's the first time humming has made the list. I'll keep watching for it."
+            },
+            {
+              "who": "nora",
+              "text": "Next time something gets me, I'll tell you where it took me. And if I go in the middle of a sentence again, now you know why."
+            }
+          ]
+        },
+        {
+          "n": 2,
+          "id": "pepys-parmesan",
+          "title": "The Parmesan Pit",
+          "facts": [
+            "The Great Fire of London started in the early hours of Sunday 2 September 1666 in a baker's house in Pudding Lane, and burned for about four days.",
+            "It destroyed about 13,200 houses and 87 parish churches, and old St Paul's Cathedral.",
+            "Samuel Pepys wrote in his diary that he and Sir William Penn dug a pit in the garden to bury wine, and that he buried his Parmesan cheese too.",
+            "Pepys also wrote that he saw pigeons that would not leave their houses and hovered at windows and balconies until their wings burned.",
+            "Houses were pulled down and blown up to make firebreaks; the wind dropped and the fire was stopped."
+          ],
+          "beats": [
+            {
+              "who": "nora",
+              "text": "I need to tell you about a man who buried his cheese. But I have to start with the smell, because that's how I knew where I was. Smoke, and hot tar, and wet wool, and under all of it a sweetness that I didn't want to think about."
+            },
+            {
+              "who": "nora",
+              "text": "I came in on a narrow street of wooden houses leaning toward each other like gossiping neighbours, and the whole sky to the east was orange. A hot wind was throwing ash around like snow. It was the second of September, 1666, a Sunday, and the fire had started in a baker's house in Pudding Lane in the small hours of that morning. By the time I got there it had been burning all day, and nobody in the street was quite sure yet how serious to be about it. That lasted about an hour."
+            },
+            {
+              "who": "nora",
+              "text": "I knew who he was, because I've read his diary. Samuel Pepys. Navy man, good coat, the look of a person doing sums in his head while the sky burns. He kept a diary in shorthand, every day, for nine years, and the pages for these four days are some of the most vivid ever written. He took a boat out on the river to see the fire properly. I went with him, as much as you can go with someone who can't see you. We sat low in the water while the flames climbed the houses at the water's edge."
+            },
+            {
+              "who": "nora",
+              "text": "What got me was the pigeons. Pepys noticed it too, he wrote it down. The pigeons wouldn't leave. Their houses were burning, and they hovered at the windows and the little balconies, and wouldn't go, until their wings caught. I watched one try three times to land on a sill that was already alight. And I felt the floor start to go, right there in the boat, and I held on to the side and thought, not yet, I'm not finished, I haven't seen how it ends."
+            },
+            {
+              "who": "nora",
+              "text": "It took four days. About thirteen thousand houses, eighty seven parish churches, and old Saint Paul's, gone. They stopped it in the end by pulling down and blowing up whole rows of houses to leave a gap the fire couldn't cross, and the wind finally dropped. But the part I'll tell people at dinner parties, if I ever go to one, is this. On the Tuesday night, when it looked like his office might be next, Pepys and a colleague dug a pit in the garden. And into the pit went his wine, and his papers, and, he wrote it down, his Parmesan cheese. The city was on fire and he saved the cheese. I can't tell you how much I love him for that."
+            },
+            {
+              "who": "nora",
+              "text": "I came back in my apartment with smoke in my hair. Gone fifty two hours by my log. I wrote it all down. Date, place, trigger: pigeons. I've decided that's a reasonable thing to be moved by."
+            },
+            {
+              "who": "nora",
+              "text": "I'm going to go and look at some cheese. Don't ask."
+            }
+          ]
+        },
+        {
+          "n": 3,
+          "id": "serum-run",
+          "title": "The Serum Run",
+          "facts": [
+            "Nome, Alaska, January 1925: a diphtheria outbreak and no antitoxin in town.",
+            "Antitoxin was brought by train to Nenana and then relayed by dog sled by twenty mushers and about a hundred and fifty dogs over about 674 miles in roughly five and a half days.",
+            "Leonhard Seppala and his lead dog Togo ran the longest and most dangerous leg, much of it over the ice of Norton Sound.",
+            "Gunnar Kaasen and his lead dog Balto ran the last leg into Nome in the early hours of 2 February 1925, through a blizzard.",
+            "The serum was carried in a bundle of about twenty pounds, wrapped in fur."
+          ],
+          "beats": [
+            {
+              "who": "nora",
+              "text": "This one started with a sound. A long, low, steady panting, and under it the hiss of runners on snow. I opened my eyes and I was standing at the side of a trail in the dark, so cold that my eyelashes stuck together, and a sled came out of the blackness at what I'd call a determined trot, and went right past me. I could have touched the dogs."
+            },
+            {
+              "who": "nora",
+              "text": "It was the end of January, 1925, in Alaska. The town of Nome, at the far western edge of the territory, had a diphtheria outbreak and no medicine for it. The nearest antitoxin that could be sent was a bundle of about twenty pounds, wrapped in fur, and it was on a train that could only get as far as a town called Nenana. After that there were six hundred and seventy four miles of frozen wilderness to Nome, and in winter the only way across was dogs."
+            },
+            {
+              "who": "nora",
+              "text": "So they ran it as a relay. Twenty drivers, each taking a stretch, handing the bundle to the next one at a roadhouse or a cabin or a place in the snow, and about a hundred and fifty dogs between them. They did it in around five and a half days, which at the time was a pace nobody thought possible. The temperature was down around thirty and forty below, and the wind made it worse. I stood in a roadhouse watching a driver unwrap his face and I could see that his cheeks had gone white with frostbite and he did not care at all."
+            },
+            {
+              "who": "nora",
+              "text": "I couldn't follow all of it, because I don't get to choose where I'm standing, but I saw two parts. One was a man named Leonhard Seppala, and his lead dog, Togo, who was old by then and small and looked like a dog who had done this his whole life. They took the longest and the worst leg, and a good part of it was across the frozen sea, in the dark, with the ice making noises under them like a giant clearing its throat. And Togo just kept going. I felt the floor start to tilt, right there at the edge of the ice, and I thought, if I'm taken now, I won't see the end, and I'm going to be so angry."
+            },
+            {
+              "who": "nora",
+              "text": "I did see the end. Or part of it. I was in Nome in the early hours of the second of February, in a blizzard so thick that the streetlights looked like they were underwater, and a dog team came down the main street with a man named Gunnar Kaasen on the runners, and his lead dog, a black dog called Balto, who'd been running in front of him through a whiteout for the last stretch because the man could barely see his own hands. The people in the street ran toward it."
+            },
+            {
+              "who": "nora",
+              "text": "Gone sixty hours, by my log. When I came back, I sat on the kitchen floor for a very long time. The trigger, if you're wondering, was the dogs. All of them. Every single dog that ran. Because they didn't know what they were carrying. They were just running, because someone they loved was holding the other end of the line."
+            },
+            {
+              "who": "nora",
+              "text": "I think I need a minute."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cressida-observations",
+      "title": "Cressida: Observations from the Drawing Room",
+      "companion": "Cressida",
+      "blurb": "Lady Cressida Thornfield has watched her house fill with strangers for over a century. She has notes.",
+      "episodes": [
+        {
+          "n": 1,
+          "id": "weekend-guests",
+          "title": "Twelve Guests, No Order",
+          "facts": [
+            "In the Edwardian period at a formal dinner, the hostess seated the guests by rank, the principal male guest on her right, and husbands and wives were usually seated apart.",
+            "Guests were announced and went in to dinner in order of precedence."
+          ],
+          "beats": [
+            {
+              "who": "cressida",
+              "text": "Oh, good, you're here. Sit down, I have been saving this one. A party of twelve rented the house for a weekend. Twelve! And not one of them was introduced to me."
+            },
+            {
+              "who": "cressida",
+              "text": "They arrived in a great many little carriages that make no horse noises, and the first thing any of them said, standing in my front hall under the chandelier, was a question about something called the wifi. I gather it is a sort of weather. They moved through the house holding their little glass rectangles up in front of their faces like hand mirrors, searching, I assumed, for something they had lost. One of them found it in the upstairs corridor, and announced it to the others with great relief."
+            },
+            {
+              "who": "cressida",
+              "text": "Then came dinner. And I must tell you, I have recited the rules of precedence at a formal table in my head every evening for over a hundred years, and I was ready. The principal gentleman on the hostess's right. The ladies of rank taken in first. Husbands and wives seated apart, so that people have somebody new to talk to, which is the entire point. I stood at the head of my own dining room and waited for the procession."
+            },
+            {
+              "who": "cressida",
+              "text": "They did not process. They ate standing. A board the length of a small boat was laid down the middle of my table, covered in cheeses and cold meats and tiny pickles, and they stood around it and took things with their fingers. And one of them, a gentleman in a very short pair of trousers, sat down in the hostess's chair. The hostess's chair! He leaned it back on two legs and put his feet on the table."
+            },
+            {
+              "who": "cressida",
+              "text": "And before they ate a single mouthful, every plate was greeted with one of the little glass rectangles, held up high, as though saying grace to the food. They all did it. Then one of the ladies looked around at the panelling and the candles and said, it's giving Downton. I do not know who Downton is, but I gathered that he had a great many servants and was very well thought of, so I took it as a compliment."
+            },
+            {
+              "who": "cressida",
+              "text": "It went very late, and loud, and I will not pretend I minded. By the end they were singing. Badly, but together. And when they had all gone up, one of the young ladies came back down alone and sat at the long table in the dark, with her glass rectangle quite forgotten. She looked up at the ceiling and said, very quietly, to nobody, this is a lovely house."
+            },
+            {
+              "who": "cressida",
+              "text": "I said, thank you. I said it properly, in my best voice, the one for guests. She didn't hear me, of course. But it is the first time in a very long while that anybody has said so, and I should like you to know that I answered."
+            }
+          ]
+        },
+        {
+          "n": 2,
+          "id": "ghost-hunters",
+          "title": "The Gentlemen with the Machines",
+          "facts": [
+            "Paranormal investigators commonly use handheld electromagnetic field meters, thermal cameras, and recorders.",
+            "Old houses have drafts, which people often call cold spots."
+          ],
+          "beats": [
+            {
+              "who": "cressida",
+              "text": "Do forgive me, I'm still a little ruffled. I had visitors last night who came specifically to find me, and I want you to understand that it is one thing to be unseen and quite another to be searched for by people who then walk straight past you."
+            },
+            {
+              "who": "cressida",
+              "text": "There were five of them, all in black, which I thought rather dreary for an evening call, with torches strapped to their foreheads like miners. They had a machine that beeps, and another that shows the heat of things in colours, and a little wooden box that is meant to let me speak through it. I would like the record to show that I had a great deal to say. I simply wasn't going to shout it through a box."
+            },
+            {
+              "who": "cressida",
+              "text": "The leader, a very earnest young man, stood in the middle of my drawing room and called out, in a voice meant for the back of a theatre, is there anyone here with us? And I said, yes, I am standing directly in front of you, and he looked, with great seriousness, at my left shoulder. Not my face. My shoulder. I stepped slightly to the side, to see if he'd follow. He did not."
+            },
+            {
+              "who": "cressida",
+              "text": "Then one of the machines announced a cold spot. By the east window. They were electrified. They gathered round it. I can tell you precisely what it is. It is the draught from that window, which has never closed properly, and which the second footman was spoken to about in nineteen hundred and nine. I told them so. They wrote something down, but not what I'd said."
+            },
+            {
+              "who": "cressida",
+              "text": "They asked me to give them a sign. And I thought about it, truly, I did. I considered moving the candlestick. But a lady does not rattle the furniture for an audience, so I simply sighed. And a great gust went through the room, and all five of them shrieked, and one of the machines went off like a kettle. I take no credit. It was the window again."
+            },
+            {
+              "who": "cressida",
+              "text": "They left at midnight, entirely satisfied, having concluded from a number rising on a little dial that there was a female presence in the house. I would have saved them the batteries. But the youngest of them, the last one out, stopped at the door and said to the empty hall, sorry to bother you. And that, I will tell you, is the first apology from a visitor in a century, and I accepted it."
+            }
+          ]
+        },
+        {
+          "n": 3,
+          "id": "the-wedding",
+          "title": "The Wedding Weekend",
+          "facts": [
+            "Queen Victoria wore white for her wedding in 1840, which made a white wedding dress fashionable.",
+            "Formal seating plans, with a table of precedence, were part of the order of a large Edwardian dinner."
+          ],
+          "beats": [
+            {
+              "who": "cressida",
+              "text": "They are marrying people in my house now. Did I tell you? It has become a place where it is done, the way other houses become hotels, and I'll admit I was alarmed at first. But I have come round to it, because it means I get a front row seat to the longest, most expensive, most thoroughly planned afternoon in the modern calendar, and I have opinions."
+            },
+            {
+              "who": "cressida",
+              "text": "The bride came down the staircase in white. And I thought, well, of course, since Queen Victoria wore white to her own wedding in eighteen forty and the entire world has been copying her ever since, and the world does have a shocking lack of imagination about these things. But I must say it looked lovely, and the staircase has never held anyone so happy."
+            },
+            {
+              "who": "cressida",
+              "text": "The promises, I'll tell you, are the part I found most surprising. They write their own. In front of everybody. On a card. The groom read his out, and about halfway through, he stopped, and it was perfectly obvious that he could not go on, and the whole room waited. Nobody coughed. Nobody looked at their shoes. A hundred and forty people waited for one young man to find his voice, and he found it. In my day that would have been thought rather forward. I'm afraid I thought it was the best thing I'd ever seen in this house."
+            },
+            {
+              "who": "cressida",
+              "text": "Now, the seating plan. I was thrilled. They have a plan, a real one, on an easel by the door. And whoever made it understood the principle, because I could see at once that they had put two divorced uncles at opposite ends of the room and a great-aunt who clearly disapproves of everybody next to the best man. That is statesmanship. A seating plan is the most important document in any house, and I was delighted to see it still taken seriously."
+            },
+            {
+              "who": "cressida",
+              "text": "Then the best man gave a speech. He spoke for eleven minutes about a holiday in Portugal. I do not know what happened in Portugal, and nobody is any the wiser, but the room laughed and laughed, and I laughed too, a little, from the corner, so as not to be left out."
+            },
+            {
+              "who": "cressida",
+              "text": "When it was over, and the music had stopped, and the guests had wandered out to the lawn, the bride came back into the drawing room by herself, in her white dress, and stood in the middle of the floor and turned slowly all the way round, taking in the room. I know that look. It is the look of someone trying to keep a moment for good. I stood very still, so as not to spoil it. And then she went back out to her husband, and the house was quiet again. And I thought, that's one more person who will remember my drawing room, and who was happy in it. That's rather more than I expected from the afterlife."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
