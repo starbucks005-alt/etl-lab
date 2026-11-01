@@ -97,14 +97,25 @@ const mem = () => { const m = new Map(); return { _m: m, get: async (k, o) => { 
   const vs = new Set(used4.map((u) => u[0]));
   assert.ok(vs.has('thfYL0Elyru2qqTtNQsE') && vs.has('VJFN2gyaDzoKekQ8ZuKB') && vs.has('WUyjxM8OTY6l8LhTmdkq') && vs.size === 3, 'Tansy, Poppy and Blue each in their own voice');
   // Kit: an Azure voice, so no ElevenLabs key is needed, and the visitor is her boss
-  const azureCalls = [];
+  const azureCalls = [], elevenCalls = [];
   const st5 = mem();
-  const rk = await rec.handler(ev('POST', { series: 'kit', episode: 'kit-mongolia' }), { env: {}, loadCfg: cfg, store: st5, now: () => 8000, budgetMs: 100000, azureEnv: { AZURE_SPEECH_KEY: 'k', AZURE_SPEECH_REGION: 'eastus' },
-    fetchFn: async (u, o) => { azureCalls.push({ u, o }); return { ok: true, arrayBuffer: async () => new Uint8Array([7, 7]).buffer }; } });
+  const rk = await rec.handler(ev('POST', { series: 'kit', episode: 'kit-mongolia' }), { env: { ELEVENLABS_API_KEY: 'k' }, loadCfg: cfg, store: st5, now: () => 8000, budgetMs: 100000, azureEnv: { AZURE_SPEECH_KEY: 'k', AZURE_SPEECH_REGION: 'eastus' },
+    fetchFn: async (u, o) => { (/microsoft/.test(u) ? azureCalls : elevenCalls).push({ u, o }); return { ok: true, arrayBuffer: async () => new Uint8Array([7, 7]).buffer }; } });
   assert.strictEqual(rk.statusCode, 202);
-  assert.ok(azureCalls.length === 1 && /microsoft/.test(azureCalls[0].u) && /Ada/.test(azureCalls[0].o.body), 'Kit is spoken by Azure in her voice');
+  assert.ok(azureCalls.length === 3 && azureCalls.every((c) => /Ada/.test(c.o.body)), 'Kit is spoken by Azure in her voice, in three pieces around Tilly');
   assert.ok(/Oh good, boss, sit down/.test(azureCalls[0].o.body) && !/\{name\}/.test(azureCalls[0].o.body), 'the visitor is her boss');
+  assert.ok(/Sorry, boss, I have to go/.test(azureCalls[2].o.body), 'and the exit line says boss too');
+  assert.strictEqual(elevenCalls.length, 2, 'Tilly has two lines');
+  assert.ok(elevenCalls.every((c) => /ZF6FPAbjXT4488VcRRnw/.test(c.u) && /mp3_24000_48/.test(c.u)), 'Tilly is in her own voice, at the same sample rate as Kit');
+  assert.ok(/Did you find a dinosaur/.test(elevenCalls[0].o.body) && /Best one ever/.test(elevenCalls[1].o.body), 'her lines, in order');
+  assert.ok(azureCalls.every((c) => !/Did you find a dinosaur|Best one ever/.test(c.o.body)), 'Kit does not read Tilly\'s lines');
+  assert.ok(/I said, &quot;A thermos|I said, "A thermos/.test(azureCalls[1].o.body), 'Kit keeps her own quoted words');
   assert.strictEqual(JSON.parse(st5._m.get('status-kit-kit-mongolia')).state, 'done');
+  const pl = require('../netlify/functions/_story-plan.js');
+  const lost = pl.kitParts({ id: 'x', text: 'Hi {name}. She said, "Hello there." Bye {name}.', tilly_lines: ['Hello there.', 'Not in the text.'] });
+  assert.deepStrictEqual(lost.parts.map((p) => p.who), ['kit', 'tilly', 'kit'], 'only the lines that are really in the text are voiced');
+  assert.strictEqual(lost.skipped.length, 1, 'a listed line that is not in the text is reported, not guessed');
+  assert.strictEqual(pl.kitParts({ id: 'y', text: 'Hi {name}, no quotes.' }).parts.length, 1, 'a story with no listed lines is all Kit, as before');
   const wm = require('../netlify/functions/story-record-background.js').writtenMap({});
   assert.deepStrictEqual([wm.alice, wm.tansy, wm.kit], [['alice-saga'], ['tansy-human-summer'], ['kit-mongolia', 'kit-jordan', 'kit-ohio']], 'the panel is told what is written for the others');
   console.log('story recording: on the site with its own key, once per story, heard back');
