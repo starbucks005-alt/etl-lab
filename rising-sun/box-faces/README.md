@@ -8,3 +8,4 @@ One picture per companion, for the small screen on the cover of a box. A new pic
 - `ash_v2` (2026-10-31): Ash cut from `ash_sun_v2`, the picture Dr. O's persona file uses, after she sent it as a second Ash. `ash_v1` is the cut from `ash_sun_v1`. Dr. O, 2026-10-31: the `ash_v2` one "is better for the shape", so Ash on the screen is `ash_v2`.
 - `kit_v1` (2026-11-01): Kit, cut from `good-company/photos/kit_v1.jpg` (the library picture). She is linked to the box in `box-lines.json`.
 - `reggie_v2` (2026-11-01): the first cut lost half of Reggie's face (his right ear and eye). v2 fits his whole head across the width, with a soft blur of the same photo above and below. Reggie in `box-lines.json` now points at v2.
+- `alice_v2` (2026-11-01): ALICE's first cut sat to one side. v2 is centred on her face from `good-company/photos/alice.jpg`.
