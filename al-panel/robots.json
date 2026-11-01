@@ -176,11 +176,31 @@
       "kind": "full body",
       "status": "planned",
       "hide": [
+        "modeCard",
         "eyesCard",
+        "voiceCard",
         "nameCard",
         "skillsCard",
-        "personaCard"
+        "personaCard",
+        "peopleCard",
+        "calCard",
+        "houseCard",
+        "petCard",
+        "recordsCard",
+        "guardianCard",
+        "photoCard",
+        "voicesCard",
+        "welcomeCard"
       ],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#sistersRow,footer",
+      "page": {
+        "kind": "A Guardian",
+        "lines": [
+          "One large camera lens in the center of her face.",
+          "A red LED strip for a mouth that sweeps while she speaks."
+        ],
+        "status": "Not built yet."
+      },
       "character": {
         "good_company_id": null,
         "panel_mode": "guardian",
@@ -202,11 +222,31 @@
       "kind": "full body",
       "status": "planned",
       "hide": [
+        "modeCard",
         "eyesCard",
+        "voiceCard",
         "nameCard",
         "skillsCard",
-        "personaCard"
+        "personaCard",
+        "peopleCard",
+        "calCard",
+        "houseCard",
+        "petCard",
+        "recordsCard",
+        "guardianCard",
+        "photoCard",
+        "voicesCard",
+        "welcomeCard"
       ],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#sistersRow,footer",
+      "page": {
+        "kind": "A Guardian",
+        "lines": [
+          "One large camera lens in the center of his face.",
+          "A red LED strip for a mouth that sweeps while he speaks."
+        ],
+        "status": "Not built yet."
+      },
       "character": {
         "good_company_id": null,
         "panel_mode": "guardian",
@@ -229,6 +269,8 @@
       "status": "planned",
       "hide": [
         "modeCard",
+        "eyesCard",
+        "voiceCard",
         "nameCard",
         "skillsCard",
         "personaCard",
@@ -237,8 +279,20 @@
         "houseCard",
         "petCard",
         "recordsCard",
-        "guardianCard"
+        "guardianCard",
+        "photoCard",
+        "voicesCard",
+        "welcomeCard"
       ],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#sistersRow,footer",
+      "page": {
+        "kind": "A beagle",
+        "lines": [
+          "Super hyped, and very happy to see humans.",
+          "Tail wag and touch."
+        ],
+        "status": "Not built yet."
+      },
       "character": {
         "good_company_id": null,
         "note": "In Good Company, gc-reggie is a person. Dr. O's robot is a beagle, so a new character is needed. Kid friendly."
@@ -259,6 +313,8 @@
       "status": "planned",
       "hide": [
         "modeCard",
+        "eyesCard",
+        "voiceCard",
         "nameCard",
         "skillsCard",
         "personaCard",
@@ -267,8 +323,20 @@
         "houseCard",
         "petCard",
         "recordsCard",
-        "guardianCard"
+        "guardianCard",
+        "photoCard",
+        "voicesCard",
+        "welcomeCard"
       ],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#sistersRow,footer",
+      "page": {
+        "kind": "A yellow Labrador",
+        "lines": [
+          "The consummate storyteller. She can make a leaf become a saga.",
+          "Tail wag and touch."
+        ],
+        "status": "Not built yet."
+      },
       "character": {
         "good_company_id": null,
         "note": "In Good Company, gc-biscuit is a golden retriever. Dr. O's robot is a Labrador, so a new character is needed."
@@ -289,6 +357,8 @@
       "status": "planned",
       "hide": [
         "modeCard",
+        "eyesCard",
+        "voiceCard",
         "nameCard",
         "skillsCard",
         "personaCard",
@@ -297,8 +367,20 @@
         "houseCard",
         "petCard",
         "recordsCard",
-        "guardianCard"
+        "guardianCard",
+        "photoCard",
+        "voicesCard",
+        "welcomeCard"
       ],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#sistersRow,footer",
+      "page": {
+        "kind": "A French bulldog, the small one",
+        "lines": [
+          "A dog of few words.",
+          "Tail wag and touch."
+        ],
+        "status": "Not built yet."
+      },
       "character": {
         "good_company_id": null,
         "note": "In Good Company, gc-mochi is an English bulldog. Dr. O's robot is a French bulldog, so a new character is needed."

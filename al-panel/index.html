@@ -1853,6 +1853,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         if(window.RBLOOK){ var lg = document.getElementById('log'); if(lg){ lg.innerHTML = ''; } } else if(window.rbLogReset){ window.rbLogReset(); }
         if(window.rbPaint){ window.rbPaint(); }
         showPicture(r);
+        showAbout(r);
         var pc = document.getElementById('playCard'); if(pc){ pc.style.display = (r.id === 'astro') ? '' : 'none'; }
       }
       // a robot's own picture under the heading (A.L.I.C.E.'s stand-in until her real photo is done); hides itself if the file is missing
@@ -1895,6 +1896,18 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           row.appendChild(f); row.appendChild(bioBox(r)); host = row;
         }
         h.parentNode.insertBefore(host, h.nextSibling);
+      }
+
+      // a short card for a robot with no picture or bio yet (the Guardians, the dogs): what it is, what is written about it, and that it is not built yet
+      function showAbout(r){
+        var old = document.getElementById('robotAbout'); if(old && old.parentNode){ old.parentNode.removeChild(old); }
+        if(!r.page){ return; }
+        var h = document.querySelector('h1'); if(!h){ return; }
+        var c = el('section', 'card'); c.id = 'robotAbout'; c.style.cssText = 'margin:12px 0;padding:18px 20px';
+        var k = el('p', '', r.page.kind || ''); k.style.cssText = 'font-size:22px;margin:0 0 10px'; c.appendChild(k);
+        (r.page.lines || []).forEach(function(t){ var p = el('p', '', t); p.style.cssText = 'font-size:18px;margin:0 0 8px'; c.appendChild(p); });
+        if(r.page.status){ var st = el('p', '', r.page.status); st.style.cssText = 'font-size:16px;margin:12px 0 0;color:var(--mute)'; c.appendChild(st); }
+        h.parentNode.insertBefore(c, h.nextSibling);
       }
 
       function choose(id){
