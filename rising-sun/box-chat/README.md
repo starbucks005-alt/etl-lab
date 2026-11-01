@@ -137,3 +137,13 @@ Odd things were reported that one board does not explain: Tansy "still on" after
 - Build j sends the board's own short id with every check-in (`deviceId()`, from the chip) and prints `This board is XXXXXX, box name "main"` at start-up.
 - The website remembers which ids checked in under a name in the last 90 seconds. The panel shows a line under the status when more than one does: "N boards are checking in under the name main (...). Each press goes to only one of them." A board running an older program shows as `old`.
 - Compiles (1,423,918 bytes). NOT TRIED on the board.
+
+## The music did not start, build 2026-11-01k (2026-11-01)
+
+After build i, Dr. O pressed Library: the panel said "The box has it. Library (music) is starting", and two minutes later "Box not heard for 2 minutes (it may be off)". So the box took the press and then went silent, or restarted. The cause is not known. The Serial Monitor was not captured for it, so the lines that would settle it are missing. The battery read 3.83 V "running on the battery" at the time, which is a guess from voltage and may or may not matter.
+
+Build k changes only what could be a mistake in build i and what would show it:
+- The sound task's work area is not on its small stack any more (the stack is also 12 KB, up from 6 KB). A task that runs out of stack stops the whole box.
+- The box prints `Music: filling the buffer, N of 160000 bytes` every two seconds while it waits to start, then `Music sound task: started` (or `COULD NOT START`), then `Music: playing`.
+- The next lines to read: `Music stall`, `Panel check took`, and the last line with the stall count. Whether any of that is the real fault is not known.
+- Compiles (1,424,130 bytes). NOT TRIED on the board.

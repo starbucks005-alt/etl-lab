@@ -442,7 +442,7 @@ struct MusicPlay {
 static MusicPlay mp;
 
 void musicAudioTask(void *) {
-  int16_t out[1024];
+  static int16_t out[1024];                    // not on the task's stack: 2 KB of a small stack is a risk, and there is only ever one of these tasks
   uint32_t lastStart = 0;
   while (!mp.stop) {
     size_t r = mp.rd.load(std::memory_order_relaxed), w = mp.wr.load(std::memory_order_acquire);
@@ -476,7 +476,7 @@ void streamMusic(const String &path) {
   mp.rd = 0; mp.wr = 0; mp.ended = false; mp.stop = false; mp.done = false; mp.played = 0; mp.stalls = 0; mp.longest = 0;
   bool started = false;
   const size_t PRE = 160000;                  // ten seconds of sound in the buffer before it starts
-  uint32_t t0 = millis(), lastData = millis(), lastCheck = millis();
+  uint32_t t0 = millis(), lastData = millis(), lastCheck = millis(), lastNote = 0;
   ringColor(0, 120, 40);
   while (millis() - t0 < MUSIC_MAX_MS) {
     if (keysPressed()) { Serial.println("Music stopped"); while (keysPressed()) delay(20); break; }
@@ -493,8 +493,8 @@ void streamMusic(const String &path) {
       else if (avail <= 0 && millis() - lastData > 15000) mp.ended = true;
     }
     if (!started) {
-      if (count >= PRE || mp.ended) { started = true; Serial.println("Music: playing"); xTaskCreatePinnedToCore(musicAudioTask, "music-audio", 6144, NULL, 3, NULL, 1); }
-      else { delay(2); continue; }
+      if (count >= PRE || mp.ended) { started = true; Serial.println("Music: playing"); BaseType_t made = xTaskCreatePinnedToCore(musicAudioTask, "music-audio", 12288, NULL, 3, NULL, 1); Serial.printf("Music sound task: %s\n", made == pdPASS ? "started" : "COULD NOT START"); if (made != pdPASS) { mp.stop = true; break; } }
+      else { if (millis() - lastNote > 2000) { lastNote = millis(); Serial.printf("Music: filling the buffer, %u of %u bytes\n", (unsigned)count, (unsigned)PRE); } delay(2); continue; }
     }
     if (mp.done) break;                                           // the sound task has played everything and finished
     if (millis() - lastCheck > 15000 && count > 48000) {          // ask the panel while three seconds are buffered; the sound task keeps playing while this waits on the network
@@ -648,7 +648,7 @@ void setup() {
   }
   srOn = w; srCan = w;
   Serial.printf("This board is %s, box name \"%s\"\n", deviceId().c_str(), BOX_NAME);
-  Serial.printf("Version: build 2026-11-01j (the music plays on its own task; the board says its own id so the panel can spot two boards with one name), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01k (the music plays on its own task, with a bigger stack and progress lines; the board says its own id), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
