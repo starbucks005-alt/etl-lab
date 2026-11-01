@@ -102,6 +102,11 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.ok(!/fairy/.test(rp) && !/[\u2013\u2014]/.test(rp));
   assert.ok(/^You are Reginald/.test(_test.systemPrompt(_test.writtenLife('reggie', real.rosterName), real.role)), 'without the persona the roster name is used, as before');
 
+  // A.L.I.C.E. is called A.L.I.C.E., not her whole roster title with its long dash
+  const al = _test.writtenLife('alice', 'A.L.I.C.E.');
+  assert.strictEqual(al.name, 'A.L.I.C.E.');
+  assert.ok(!/[\u2013\u2014]/.test(_test.systemPrompt(al, 'an AI companion').slice(0, 200)));
+
   // Meera: her own written life, and her Breathing starter spoken once, then kept
   const mlife = _test.writtenLife('meera', 'Meera Kapoor');
   assert.ok(mlife && !mlife.fairy && /litigator/.test(mlife.bio), 'her life comes from roster.json and she is not written as a fairy');

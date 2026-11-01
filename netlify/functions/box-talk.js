@@ -41,7 +41,7 @@ function writtenLife(name, rosterName) {
   const want = String(rosterName || name).toLowerCase();
   const a = ROSTER.find((x) => x && String(x.name || '').toLowerCase().startsWith(want));
   if (!a) return null;
-  return { fairy: !rosterName, role: str(a.role, 160), background: str(a.background, 500), name: String(a.name).split(',')[0], tagline: str(a.tagline, 300), bio: str(a.bio, 700), interests: Array.isArray(a.interests) ? a.interests.map((i) => str(i, 300)).filter(Boolean) : [] };
+  return { fairy: !rosterName, role: str(a.role, 160), background: str(a.background, 500), name: String(a.name).split(/ [\u2013\u2014-] /)[0].split(',')[0], tagline: str(a.tagline, 300), bio: str(a.bio, 700), interests: Array.isArray(a.interests) ? a.interests.map((i) => str(i, 300)).filter(Boolean) : [] };
 }
 
 /* The Rising Sun Court as Dr. O wrote it in rising-sun/personas.json: the members with their titles, the gifts, the friendships, the motto and her note on the two courts.
