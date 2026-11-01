@@ -566,6 +566,8 @@ void streamMusic(const String &path) {
   mp.rd = 0; mp.wr = 0; mp.ended = false; mp.stop = false; mp.done = false; mp.played = 0; mp.stalls = 0; mp.longest = 0;
   bool started = false;
   const char *why = "finished";
+  bool netCut = false; int resumes = 0; uint32_t lastProgress = millis();
+  const String musicUrl = String("https://emerging-tech-lab.com") + path;
   const size_t PRE = 160000;                  // ten seconds of sound in the buffer before it starts
   uint32_t t0 = millis(), lastData = millis(), lastCheck = millis(), lastNote = 0;
   ringColor(0, 120, 40);
@@ -580,9 +582,26 @@ void streamMusic(const String &path) {
         n = min(n, mp.ringSize - (w % mp.ringSize));              // up to the end of the ring, the next pass takes the rest
         int got = s->readBytes(mp.ring + (w % mp.ringSize), n);
         if (got > 0) { mp.wr.store(w + got, std::memory_order_release); count += got; lastData = millis(); }
-      } else if (avail <= 0 && !http.connected()) mp.ended = true;
-      else if (avail <= 0 && millis() - lastData > 15000) mp.ended = true;
+      } else if (avail <= 0 && (!http.connected() || millis() - lastData > 15000)) {
+        // The connection ended. If the whole track has not arrived yet, ask for the rest (a Range request) instead of treating this as the end of the song.
+        // Without this, a connection cut part way through a six minute song stopped the music for good, which is what Dr. O heard.
+        if (len > 0 && w < (size_t)len && resumes < 8) {
+          resumes++;
+          Serial.printf("Music: the connection ended at %u of %d bytes, reconnecting (try %d)\n", (unsigned)w, len, resumes);
+          http.end(); client.stop();
+          http.useHTTP10(true);
+          if (http.begin(client, musicUrl)) {
+            http.setTimeout(15000);
+            http.addHeader("Range", String("bytes=") + (unsigned)w + "-");
+            int c2 = http.GET();
+            Serial.printf("Music: reconnect answered %d\n", c2);
+            if (c2 == 206) { s = http.getStreamPtr(); lastData = millis(); }
+            else { mp.ended = true; netCut = true; }
+          } else { mp.ended = true; netCut = true; }
+        } else { mp.ended = true; if (len > 0 && w < (size_t)len) netCut = true; }
+      }
     }
+    if (millis() - lastProgress > 30000) { lastProgress = millis(); Serial.printf("Music: %u of %d bytes downloaded, %u seconds played\n", (unsigned)w, len, (unsigned)(mp.played / 16000)); }
     if (!started) {
       if (count >= PRE || mp.ended) { started = true; Serial.println("Music: playing"); BaseType_t made = xTaskCreatePinnedToCore(musicAudioTask, "music-audio", 12288, NULL, 3, NULL, 1); Serial.printf("Music sound task: %s\n", made == pdPASS ? "started" : "COULD NOT START"); if (made != pdPASS) { mp.stop = true; break; } }
       else { if (millis() - lastNote > 2000) { lastNote = millis(); Serial.printf("Music: filling the buffer, %u of %u bytes\n", (unsigned)count, (unsigned)PRE); } delay(2); continue; }
@@ -601,6 +620,7 @@ void streamMusic(const String &path) {
   for (int i = 0; i < 100 && started && !mp.done; i++) delay(20);   // let the sound task finish its last write
   http.end();
   if (why[0] == 'f' && millis() - t0 >= MUSIC_MAX_MS) why = "time_limit";
+  if (why[0] == 'f' && netCut) why = "network_cut";
   noteMusicEnd(why);
   Serial.printf("Music played %.0f seconds, %u stalls over a quarter of a second, longest %u ms\n", mp.played / 16000.0f, (unsigned)mp.stalls, (unsigned)mp.longest);
 }
@@ -743,7 +763,7 @@ void setup() {
   Serial.printf("This start was caused by: %s\n", bootReason().c_str());
   Serial.printf("Free memory: %u bytes inside the chip, %u bytes extra (PSRAM)\n", (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getFreePsram());
   Serial.printf("This board is %s, box name \"%s\"\n", deviceId().c_str(), BOX_NAME);
-  Serial.printf("Version: build 2026-11-01n (the sound loops play on their own task, so the panel check cannot make a gap at the end of a pass; the box reports its running time, why it last started, and how a track ended), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("Version: build 2026-11-01o (a song whose connection is cut asks for the rest and carries on; the sound loops play on their own task; the box reports its running time, why it last started, and how a track ended), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();

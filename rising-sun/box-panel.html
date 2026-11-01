@@ -445,7 +445,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       if (E) {
         var t = {}; E.what.replace(/_/g, ' ').replace(/(played|stalls|heap|big) (\d+)/g, function (x, k, v) { t[k] = v; });
         var w = (E.what.match(/why_([a-z]+(?:_[a-z]+)*?)(?:_heap|$)/) || [])[1] || '';
-        var wm = { finished: 'the track finished', key: 'a button on the box was pressed', panel: 'the panel sent something', time_limit: 'the time limit was reached', download_failed: 'the download failed', key_before_start: 'a button was pressed before it started', no_sound_task: 'the sound player could not start' };
+        var wm = { finished: 'the track finished', key: 'a button on the box was pressed', panel: 'the panel sent something', time_limit: 'the time limit was reached', network_cut: 'the connection to the website was cut before the song was all there', download_failed: 'the download failed', key_before_start: 'a button was pressed before it started', no_sound_task: 'the sound player could not start' };
         out.push('Last music: played ' + (t.played || '?') + ' s, ' + (t.stalls || '0') + ' stalls, ended because ' + (wm[w] || w || 'unknown') + '.');
       }
       if (out.length) { ln.textContent = out.join(' '); ln.classList.remove('hidden'); } else ln.classList.add('hidden');

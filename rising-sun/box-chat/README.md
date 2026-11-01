@@ -240,3 +240,10 @@ Dr. O's ElevenLabs balance (629,093 of 865,577 credits left) rules out running o
 ## The story library would not open, fixed (2026-11-01)
 
 Dr. O: "cannot click/open the library". A change of mine used a variable (`lastErr`) that was never declared, so opening the library threw an error before it drew anything. It was dead from that change until this fix. `tests/box-panel-script.test.js` now checks that the panel script parses and that the names the library keeps are declared. The panel's own behaviour is checked by hand in a browser, not by the tests.
+
+## A song that stops before its end, build 2026-11-01o (2026-11-01)
+
+Dr. O: the Mist and Heather song did not play in full. Earlier she also reported "music stopped at the gap" and "no music after the gap". Common to all of them: the song just stops part way. The code streams a six minute song over one long connection, and when that connection ended the box took it as the end of the song and stopped. That the connection is being cut is a suspicion, not seen: the Serial lines or the panel readout from this build would show it.
+- Build o: when the connection ends before the whole file has arrived (it knows the size), the box asks the website for the rest from where it stopped (a Range request) and carries on, up to eight times. The site was checked: it answers a Range request for these files with 206 and `accept-ranges: bytes`.
+- Serial lines: `Music: the connection ended at N of M bytes, reconnecting (try K)`, `Music: reconnect answered 206`, and every 30 seconds `Music: N of M bytes downloaded, S seconds played`. The panel's "Last music" line says "the connection to the website was cut before the song was all there" if it could not recover.
+- Compiles (1,427,566 bytes). NOT TRIED on the board.
