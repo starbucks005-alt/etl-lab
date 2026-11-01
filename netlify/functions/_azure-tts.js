@@ -27,7 +27,7 @@ function ssml(text, voiceName) {
 }
 
 /* Returns a Buffer of mp3 audio. fetchFn and env are passed in so it can be tested without the network. */
-async function azureSpeak(text, voiceName, { fetchFn = fetch, env = process.env } = {}) {
+async function azureSpeak(text, voiceName, { fetchFn = fetch, env = process.env, format = 'audio-24khz-48kbitrate-mono-mp3' } = {}) {
   const key = String(env.AZURE_SPEECH_KEY || '').trim();
   const region = String(env.AZURE_SPEECH_REGION || 'eastus').trim();
   if (!key) throw new Error('no_azure_key');
@@ -37,7 +37,7 @@ async function azureSpeak(text, voiceName, { fetchFn = fetch, env = process.env 
     headers: {
       'Ocp-Apim-Subscription-Key': key,
       'Content-Type': 'application/ssml+xml',
-      'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
+      'X-Microsoft-OutputFormat': format,
       'User-Agent': 'etl-gc-voice',
     },
     body: ssml(text, voiceName),

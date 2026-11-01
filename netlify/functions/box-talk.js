@@ -37,6 +37,13 @@ const KEEP = 8;                   // messages kept (four turns)
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 
 /* The written life: only what roster.json says about her. */
+/* A companion who is not in the agents roster carries her own written life in box-lines.json ("written": tagline, bio, background, interests), copied from her Good Company file (Kit). */
+function writtenHere(entry) {
+  const w = entry && entry.written;
+  if (!w || !w.tagline) return null;
+  return { fairy: false, role: str(entry.role, 160), background: str(w.background, 500), name: entry.display, tagline: str(w.tagline, 300), bio: str(w.bio, 700), interests: Array.isArray(w.interests) ? w.interests.map((i) => str(i, 300)).filter(Boolean) : [] };
+}
+
 function writtenLife(name, rosterName) {
   const want = String(rosterName || name).toLowerCase();
   const a = ROSTER.find((x) => x && String(x.name || '').toLowerCase().startsWith(want));
@@ -191,7 +198,7 @@ exports.handler = async (event, deps = {}) => {
   const companion = String(q.companion || 'tansy').toLowerCase();
   const lines = deps.lines || FILE;
   const entry = (lines.companions && lines.companions[companion]) || {};
-  const life0 = deps.life || writtenLife(companion, entry.rosterName);
+  const life0 = deps.life || writtenLife(companion, entry.rosterName) || writtenHere(entry);
   const life = life0 && (entry.court_notes || entry.persona) ? Object.assign({}, life0, { courtNotes: entry.court_notes, persona: entry.persona }) : life0;
   const voiceId = entry.voiceId;
   if (!life || !voiceId) return json(404, { error: 'unknown_companion' });

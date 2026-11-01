@@ -88,3 +88,12 @@ Dr. O: Tansy, Kit and Reggie all have stories, or have them coming, and a user c
 - Kept per box in `box-control` (`set_story`, `set_episode`); the panel gets it in each companion's `library`. Checked by `tests/box-story-library.test.js`.
 - NOT built: playing an episode from the box. No episode is recorded yet (every `file` in `stories.json` is empty), and the box program has no episode player. The marker moves only when she taps an episode. The button that plays today's story fragments (Tansy's `hs-` lines) is still inside the library as "Tell the box: Story time".
 - Kit (Explorer Kit: Postcards) has a serial in the library but is not yet a companion the box can be set to, so her serial can be set up but her voice is not in the box. NOT tried on the live site or the board.
+
+## Kit is in the box (2026-11-01)
+
+Dr. O: "add Kit to the box". Kit (Lady Catherine Ashcroft) is now one of the companions the panel can put in a box, with her story serial, her lid picture (`box-faces/kit_v1.jpg`) and the sounds and music list the others have.
+
+- Her written life in `box-lines.json` is copied word for word from `GC_KIT` in `good-company/gc-friend.js` (Dr. O's lore: Tilly, Lord Henry, Lady Beatrice, the people at the Hall, the boss in-joke, the postcard ritual, the limits). Anything not written there gets "I don't know that one". Her two fixed lines ("say that again" and "enough for today") are new short wording in her manner, not lore: change them if they are wrong.
+- Her voice is the Azure voice Dr. O picked for her (Ada, British, HD). The box asks Azure for raw 16 kHz sound, the same shape the ElevenLabs voices give. The Azure key is read the way the website reads it. NOT tried against the real Azure service. If it fails she is silent: she has no ElevenLabs voice to fall back on.
+- Her wake name is "Kit", spelled for the chip as `KcT`, worked out by hand from the letters in the other names (Alice `aLcS`, Reggie `Rfqm`). NOT tried on the board. A name this short may be heard poorly; Hi ESP is the safe way to wake her until it is tried.
+- The box has no episodes to play for her yet, same as the others. Checked by `tests/box-kit.test.js`.

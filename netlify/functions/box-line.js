@@ -14,6 +14,7 @@
 const crypto = require('crypto');
 const sun = require('./_sun.js');
 const { isElevenId } = require('./_eleven.js');
+const { azureVoiceName, azureSpeak } = require('./_azure-tts.js');
 
 let FILE = {};
 try { FILE = require('../../rising-sun/box-lines.json'); } catch (_) {}
@@ -24,6 +25,13 @@ const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content
 
 /* The same call _eleven.js makes, asking for raw 16 kHz sound instead of mp3. */
 async function elevenPcm(text, voiceId, { fetchFn = fetch, env = process.env } = {}) {
+  /* A voice id like azure:en-GB-Ada:DragonHDLatestNeural (Kit) is spoken by Azure, asked for the same raw 16 kHz sound. The key is in the private record or the environment, as for the website. */
+  const azure = azureVoiceName(voiceId);
+  if (azure) {
+    let aenv = env;
+    if (!String(env.AZURE_SPEECH_KEY || '').trim()) { try { aenv = await require('./_gc-config.js').azureEnv(); } catch (_) {} }
+    return azureSpeak(String(text).slice(0, 600), azure, { fetchFn, env: aenv, format: 'raw-16khz-16bit-mono-pcm' });
+  }
   const key = String(env.ELEVENLABS_API_KEY || '').trim();
   if (!key) throw new Error('no_eleven_key');
   if (!isElevenId(voiceId)) throw new Error('bad_voice_id');

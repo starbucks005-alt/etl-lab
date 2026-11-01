@@ -148,7 +148,7 @@ const real = require('../rising-sun/box-lines.json');
 
   // the real file: every companion has a voice id and the two lines a quiet turn needs
   for (const [id, c] of Object.entries(real.companions)) {
-    assert.ok(/^[A-Za-z0-9]{15,30}$/.test(c.voiceId), id + ' has a voice');
+    assert.ok(/^[A-Za-z0-9]{15,30}$/.test(c.voiceId) || /^azure:[A-Za-z]{2}-[A-Za-z]{2}-/.test(c.voiceId), id + ' has a voice (ElevenLabs or Azure)');
     assert.ok(c.lines && c.lines.didnt_hear && c.lines.too_many, id + ' has didnt_hear and too_many');
     assert.ok(_test.describe(id, c).chat);
     if (c.face) assert.ok(require('fs').existsSync(require('path').join(__dirname, '..', c.face)), id + ' face file exists');
