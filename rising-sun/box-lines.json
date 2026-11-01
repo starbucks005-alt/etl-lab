@@ -34,9 +34,10 @@
         "fire-escape": {
           "file": "/rising-sun/box-sounds/fire-escape_v1.ulaw",
           "kind": "music",
-          "label": "Fire escape (music)",
+          "label": "Fire escape",
           "image": "/rising-sun/box-vibes/fire-escape_v1.jpg",
-          "video": "/good-company/video/party/fire-escape.mp4"
+          "video": "/good-company/video/party/fire-escape.mp4",
+          "group": "sound"
         },
         "campfire": {
           "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
@@ -210,9 +211,10 @@
         "fire-escape": {
           "file": "/rising-sun/box-sounds/fire-escape_v1.ulaw",
           "kind": "music",
-          "label": "Fire escape (music)",
+          "label": "Fire escape",
           "image": "/rising-sun/box-vibes/fire-escape_v1.jpg",
-          "video": "/good-company/video/party/fire-escape.mp4"
+          "video": "/good-company/video/party/fire-escape.mp4",
+          "group": "sound"
         },
         "campfire": {
           "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
@@ -369,9 +371,10 @@
         "fire-escape": {
           "file": "/rising-sun/box-sounds/fire-escape_v1.ulaw",
           "kind": "music",
-          "label": "Fire escape (music)",
+          "label": "Fire escape",
           "image": "/rising-sun/box-vibes/fire-escape_v1.jpg",
-          "video": "/good-company/video/party/fire-escape.mp4"
+          "video": "/good-company/video/party/fire-escape.mp4",
+          "group": "sound"
         },
         "campfire": {
           "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
@@ -531,9 +534,10 @@
         "fire-escape": {
           "file": "/rising-sun/box-sounds/fire-escape_v1.ulaw",
           "kind": "music",
-          "label": "Fire escape (music)",
+          "label": "Fire escape",
           "image": "/rising-sun/box-vibes/fire-escape_v1.jpg",
-          "video": "/good-company/video/party/fire-escape.mp4"
+          "video": "/good-company/video/party/fire-escape.mp4",
+          "group": "sound"
         },
         "campfire": {
           "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
@@ -710,9 +714,10 @@
         "fire-escape": {
           "file": "/rising-sun/box-sounds/fire-escape_v1.ulaw",
           "kind": "music",
-          "label": "Fire escape (music)",
+          "label": "Fire escape",
           "image": "/rising-sun/box-vibes/fire-escape_v1.jpg",
-          "video": "/good-company/video/party/fire-escape.mp4"
+          "video": "/good-company/video/party/fire-escape.mp4",
+          "group": "sound"
         },
         "campfire": {
           "file": "/rising-sun/box-sounds/campfire_v1.ulaw",
@@ -882,9 +887,10 @@
         "fire-escape": {
           "file": "/rising-sun/box-sounds/fire-escape_v1.ulaw",
           "kind": "music",
-          "label": "Fire escape (music)",
+          "label": "Fire escape",
           "image": "/rising-sun/box-vibes/fire-escape_v1.jpg",
-          "video": "/good-company/video/party/fire-escape.mp4"
+          "video": "/good-company/video/party/fire-escape.mp4",
+          "group": "sound"
         },
         "campfire": {
           "file": "/rising-sun/box-sounds/campfire_v1.ulaw",

@@ -167,3 +167,7 @@ The website and panel parts are live and harmless without it: they show nothing 
 ## Result on the board (2026-11-01)
 
 Dr. O, on build k: Library played again with no gap, and Rooftop played with no gap. Earlier the gap was reported on every sound and song, and a different song once did not start. What fixed it is not known: it could be the music playing from its own task (build i onward), the bigger stack, the rest of the changes, or something about power or the network that day. More tries are the way to find out. Not yet tried since: Fire escape and the sound loops (campfire and the others) on build k. Build m is held back, for the case where the gap returns.
+
+## Fire escape is a sound, not music (2026-11-01)
+
+Dr. O: Fire escape is just city noises, so it is listed under Sounds and its name is "Fire escape" (no "(music)"). It is still the long file the box plays through once (six minutes), because it is too big to be loaded whole and repeated the way the short sounds are. A scene may carry `group` in `box-lines.json` to say which list the panel puts it in; without one it follows `kind`. Dr. O reports no gaps on it either (build k).

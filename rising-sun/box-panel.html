@@ -476,10 +476,10 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     // tiles
     ['tilesMusic', 'tilesSound'].forEach(function (id) { $(id).innerHTML = ''; });
     (c.scenes || []).forEach(function (sc) {
-      var t = document.createElement('button'); t.type = 'button'; t.className = 'tile ' + (sc.kind === 'music' ? 'music' : 'sound'); t.setAttribute('data-id', sc.id); t.textContent = sc.label;
+      var t = document.createElement('button'); t.type = 'button'; t.className = 'tile ' + ((sc.group || sc.kind) === 'music' ? 'music' : 'sound'); t.setAttribute('data-id', sc.id); t.textContent = sc.label;
       if (data.now && data.now.scene === sc.id && data.now.secondsAgo < 100) t.classList.add('on');
       if (picked === sc.id) { t.classList.add('picked'); t.setAttribute('aria-pressed', 'true'); }
-      $(sc.kind === 'music' ? 'tilesMusic' : 'tilesSound').appendChild(t);
+      $((sc.group || sc.kind) === 'music' ? 'tilesMusic' : 'tilesSound').appendChild(t);
     });
     $('bSound').disabled = !c.soundscape;
     var shown = nowSc || (picked ? sceneOf(picked) : null);

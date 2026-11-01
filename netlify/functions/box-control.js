@@ -54,7 +54,7 @@ function describe(id, c, stories, library, chosen) {
     id, display: c.display || id, needsHuman: !!c.needsHuman, face: c.face || '', wake: !!(c.wake && c.wake.phoneme),
     chat: true,
     soundscape: !!(c.scenes && Object.keys(c.scenes).length),
-    scenes: Object.keys(c.scenes || {}).sort().map((n) => { const sc = c.scenes[n] || {}; return { id: n, kind: sc.kind || 'sound', label: sc.label || n, image: sc.image || '', video: sc.video || '', vibe: sc.vibe || null }; }),
+    scenes: Object.keys(c.scenes || {}).sort().map((n) => { const sc = c.scenes[n] || {}; return { id: n, kind: sc.kind || 'sound', group: sc.group || sc.kind || 'sound', label: sc.label || n, image: sc.image || '', video: sc.video || '', vibe: sc.vibe || null }; }),
     second: secondOut,
     library: libraryOf(id, library || LIBRARY, stories || {}, chosen),
   };
