@@ -47,6 +47,6 @@ Stills from the video (one every 12 seconds, so detail may be missed): the legs 
 
 - How much one leg weighs, which decides the servo. The listing gives sizes only.
 - The thickness of the shell walls and how much room there is inside the thigh and the pelvis. Open one up and measure.
-- The stand (Dr. O, 2026-11-01): you just lift the body off the clamp. Nothing has to be undone or unscrewed, and the pole stays on the glass base. So taking him off the stand for walking is easy. Not known: whether anything on the body (the two small knobs, a socket at the bottom of the pelvis) stays in him after he is lifted off, and how much room that leaves inside the pelvis. Look when he arrives.
+- The stand (Dr. O, 2026-11-01): the two mannequins she has here have the same set up as Teddy's, and she lifts them off the pole. Nothing has to be undone or unscrewed and nothing stays in the body. The pole stays on the glass base. So taking him off the stand for walking is easy.
 - Which board goes in him, and where the button goes on his body.
 - Not built: a Walk button on a panel page, as the box panel has. The button on his body comes first.
