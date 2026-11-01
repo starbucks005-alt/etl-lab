@@ -47,6 +47,6 @@ Stills from the video (one every 12 seconds, so detail may be missed): the legs 
 
 - How much one leg weighs, which decides the servo. The listing gives sizes only.
 - The thickness of the shell walls and how much room there is inside the thigh and the pelvis. Open one up and measure.
-- How the pole comes out of him, and whether his body still holds together without it. The listing picture shows a glass base and a pole.
+- How the pole comes out of him, and whether his body still holds together without it. The side picture of the listing (2026-11-01) shows the pole standing behind his lower back, held to the back of the pelvis by a clamp with two small knobs, not coming up through the middle of him. I cannot see inside, so I do not know if it also goes into the pelvis. If it only clamps on the back, taking him off the stand is a matter of undoing the clamp, and the middle of the body is not blocked by the pole.
 - Which board goes in him, and where the button goes on his body.
 - Not built: a Walk button on a panel page, as the box panel has. The button on his body comes first.
