@@ -34,7 +34,7 @@ Teddy is a smaller version of these. What the photos show, and what Dr. O said:
 - Every joint is held by a hex socket bolt through a round hole in the side of the shell (hip, knee and ankle, all the same). Dr. O: "hex".
 - The hip: the top of the thigh is a hollow shell that fits up into a notch in the pelvis. The hole in the side of the thigh, with the hex bolt behind it, is the hip pivot. The pivot axis runs side to side, which is the right direction for a forward and back swing.
 - The thigh also has a horizontal seam partway down, and the knee and ankle are separate joints. Only the hips need to move for this.
-- The legs look like hollow plastic shells. Not confirmed: wall thickness and whether anything is inside.
+- The legs are hollow (Dr. O confirmed, 2026-11-01). Not known: the wall thickness.
 - A metal rod comes up from the base plate through the middle of the pelvis, between the legs. It would be in the way of anything fitted inside the pelvis. For walking by hand, the rod and plate are not used.
 
 One way to fit the servos, NOT tested and only an idea from the photos and the assembly video: a servo inside each thigh shell or the pelvis, its arm joined to the leg with a short link rod, and the hex-bolt hinge left as the pivot, so the leg's weight stays on the hinge and not on the servo shaft. The other way, turning the leg directly on its hip bolt, puts the weight on the servo and needs a stronger one.
