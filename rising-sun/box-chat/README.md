@@ -129,3 +129,11 @@ Dr. O: "the music is still doing the 6 second gap", and the song is 6 minutes. I
 - The box now prints what happened, so it can be read and not only heard: `Panel check took N ms`, `Music stall: the sound waited N ms at S seconds in` (up to five, for any wait over a quarter of a second), and at the end `Music played N seconds, N stalls over a quarter of a second, longest N ms`.
 - If stalls still show, the cause is not only the panel check. An earlier try with a background panel check on the sound loops also made gaps, so the network work itself may be starving something. Those printed lines would say.
 - Compiles (1,422,450 bytes). NOT TRIED on the board. The sound loops (campfire and the others) still play as before; only the music tracks changed.
+
+## Two boards under one name, build 2026-11-01j (2026-11-01)
+
+Odd things were reported that one board does not explain: Tansy "still on" after Reggie was picked, ALICE answering after Reggie was picked, and a pushed button that never arrived. If two boards check in under the same box name (both `main`), each press is taken by whichever asks first, and neither knows about the other. This is a suspicion, not something found.
+
+- Build j sends the board's own short id with every check-in (`deviceId()`, from the chip) and prints `This board is XXXXXX, box name "main"` at start-up.
+- The website remembers which ids checked in under a name in the last 90 seconds. The panel shows a line under the status when more than one does: "N boards are checking in under the name main (...). Each press goes to only one of them." A board running an older program shows as `old`.
+- Compiles (1,423,918 bytes). NOT TRIED on the board.

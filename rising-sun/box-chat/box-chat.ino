@@ -262,12 +262,15 @@ volatile bool gardenCmdSet = false;
 volatile char gardenCmd[16] = "";
 static TaskHandle_t gardenWatcherHandle = NULL;
 
+// This board's own short id (from its chip), sent with every check-in, so the panel can tell if two boards are using the same box name.
+String deviceId() { char b[9]; snprintf(b, sizeof(b), "%06x", (unsigned)(ESP.getEfuseMac() & 0xFFFFFF)); return String(b); }
+
 String peekCommand() {
   if (WiFi.status() != WL_CONNECTED) return "";
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&now=" + nowPlaying)) return "";
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&dev=" + deviceId() + "&now=" + nowPlaying)) return "";
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(8000);
   String command = "";
@@ -644,7 +647,8 @@ void setup() {
     if (w) ESP_SR.onEvent(onSrEvent);
   }
   srOn = w; srCan = w;
-  Serial.printf("Version: build 2026-11-01i (the music plays on its own task, so a panel check cannot pause it), WAKE_WORD %d\n", WAKE_WORD);
+  Serial.printf("This board is %s, box name \"%s\"\n", deviceId().c_str(), BOX_NAME);
+  Serial.printf("Version: build 2026-11-01j (the music plays on its own task; the board says its own id so the panel can spot two boards with one name), WAKE_WORD %d\n", WAKE_WORD);
   Serial.printf("Wake word engine: %s\n", w ? "ok (say Hi ESP)" : (!WAKE_WORD ? "OFF (WAKE_WORD is 0)" : model ? "FAILED" : "NOT STARTED, no model on the board. Set Partition Scheme to ESP SR 16M and upload again. The three buttons still work."));
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
   joinWifi();
@@ -764,7 +768,7 @@ String askWebsite() {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&batt=" + batteryMillivolts() + "&now=" + nowPlaying)) return "";
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/box-control?box=1&id=") + BOX_NAME + "&batt=" + batteryMillivolts() + "&dev=" + deviceId() + "&now=" + nowPlaying)) return "";
   http.addHeader("x-sun-key", BOX_KEY);
   http.setTimeout(8000);
   int code = http.GET();

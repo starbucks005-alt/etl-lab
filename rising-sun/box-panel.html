@@ -162,6 +162,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   <h1 id="h1">Box panel</h1>
   <p class="sub" id="sub">Pick who is in the box, then push the buttons from here.</p>
   <div class="status" id="status"><span class="dot"></span><span id="statusText">Not connected</span></div>
+  <p class="note hidden" id="boardsNote" style="margin-top:10px"></p>
 
   <section class="card" id="keyCard" style="margin-top:22px;max-width:460px">
     <h2>Access code</h2>
@@ -431,6 +432,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   // ---------- drawing the page ----------
   function draw() {
     var c = current(), nowSc = null, ago;
+    var bn = $('boardsNote'), bd = data.boards || [];
+    if (bd.length > 1) { bn.textContent = bd.length + ' boards are checking in under the name ' + box + ' (' + bd.join(', ') + '). Each press goes to only one of them. Give each board its own BOX_NAME in its secrets.h.'; bn.classList.remove('hidden'); } else bn.classList.add('hidden');
     // status
     var seen = data.seenAgo, st = $('status'), stt = $('statusText');
     if (seen == null) { st.classList.remove('live'); stt.textContent = 'Waiting to hear from the box'; }
