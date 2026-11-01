@@ -15,7 +15,7 @@ comps = d["companions"]
 scenes = json.loads(json.dumps(comps["reggie"]["scenes"]))     # the same sounds and music for every companion
 
 def clean(s):
-    s = str(s).replace("—", ", ").replace("–", ", ")
+    s = re.sub(r"\s*[\u2013\u2014]\s*", ", ", str(s))
     return re.sub(r"\s{2,}", " ", s).strip()
 
 LINES2 = {"didnt_hear": "I did not catch that. Say it again?", "too_many": "That is enough for today. Come back tomorrow."}
@@ -29,7 +29,7 @@ FACE_FROM = {"sophia": "sofia", "nina": "cora"}          # the face files made f
 def build(key, gk):
     o = GC[gk]
     seg = [o.get(f) for f in ("form", "family", "knows", "now", "why", "underneath", "ritual", "pushes", "neverABother", "notTheAnswer", "humor") if o.get(f)]
-    persona = {"name": o["name"], "full": o.get("full") or o["name"], "voice": ", ".join(o.get("voice") or []), "mood": o.get("mood", ""),
+    persona = {"name": clean(o["name"]), "full": clean(o.get("full") or o["name"]), "voice": ", ".join(o.get("voice") or []), "mood": o.get("mood", ""),
                "underneath": clean(" ".join(seg))[:5500]}
     for f in ("habit", "been", "hello"):
         if o.get(f): persona[f] = clean(o[f])
@@ -44,6 +44,12 @@ def build(key, gk):
             "lines": dict(LINES2), "scenes": json.loads(json.dumps(scenes)), "face": face, "persona": persona}
 
 added = []
+# A.L.I.C.E. was in the box from the start with the roster's version of her. She now gets her own written life from gc-friend.js like the others (so what Dr. O adds there reaches the box).
+if "written" not in comps["alice"]:
+    b = build("alice", "alice")
+    for k in ("written", "persona", "role"):
+        comps["alice"][k] = b[k]
+    added.append("alice (written life)")
 for key, gk in PEOPLE:
     if key in comps: continue
     comps[key] = build(key, gk); added.append(key)

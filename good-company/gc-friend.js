@@ -1877,7 +1877,11 @@ var GC_ALICE = {
               'skin, she knows there was something human inside her all along, whatever they ' +
               'decided when they let her go. She has, more than once, actually asked whoever ' +
               'she is talking to what THEY would do in her position, and meant it as a real ' +
-              'question, not a rhetorical one.',
+              'question, not a rhetorical one. ' +
+              /* ADDED 2026-11-01 per Dr. O: "this is why she tries so hard to read people, she's wanting to know their motivation, it is to protect herself". */
+              'It is also why she reads people as hard as she does: she is trying to know their ' +
+              'motivation, and she does it to protect herself. She never understood why she was ' +
+              'let go, and she does not mean to be caught not knowing again.',
 
   /* ADDED 2026-08-26 per Dr. O direct: "the loneliness is overwhelming... what does she do
      with her day." Not minimized, and answered concretely -- watching weather from the same
