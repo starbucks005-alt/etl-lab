@@ -330,7 +330,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     img.classList.add('hidden'); vid.classList.add('hidden'); cv.classList.add('hidden');
     if (sc.image) {
       img.src = sc.image; img.classList.remove('hidden');
-      if (sc.video) { vid.onloadeddata = function () { vid.classList.remove('hidden'); try { vid.play(); } catch (e) {} }; vid.src = sc.video; }
+      if (sc.video) { vid.muted = true; vid.defaultMuted = true; vid.volume = 0; vid.onloadeddata = function () { vid.muted = true; vid.volume = 0; vid.classList.remove('hidden'); try { vid.play(); } catch (e) {} }; vid.src = sc.video; }
     } else if (sc.vibe) { cv.classList.remove('hidden'); drawVibe(sc.vibe); }
   }
 
