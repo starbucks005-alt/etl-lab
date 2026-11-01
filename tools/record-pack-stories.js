@@ -54,11 +54,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const VOICES = {
-  reggie: 'uq0HIbNZKn11Hs5ifEdd',
-  biscuit: 'MgqVq3OCTPeVHCEDr4HU',
-  mochi: 'I8ERYU9lOxALy2vtIvHd'
-};
+const { VOICES, fixNameSlot, speakable, plan } = require('../netlify/functions/_story-plan.js');
 /* The saga voices already in Good Company (gc-friend.js). The other tellers have none yet. */
 const SAGA_VOICES = {
   alice: 'gZL79pBTvaNfNPOCXh6n',
@@ -68,37 +64,6 @@ const SAGA_VOICES = {
 };
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true }; /* same as gc-voice.js */
 const PER_MILLION_CHARS = 16; /* the neural voice rate quoted in the one-pager, a rough guide only */
-
-/* A recording cannot say the listener's name. Biscuit's own pet name for
-   people is "sweet pea", so that is what the slot becomes. Where the same line
-   already says "sweet pea" the slot is dropped, so she never says it twice. */
-function fixNameSlot(text) {
-  return String(text || '').split('\n').map((line) => {
-    if (!line.includes('{name}')) return line;
-    if (/sweet pea/i.test(line)) {
-      return line.replace(/,?\s*\{name\}/g, '').replace(/\s{2,}/g, ' ').replace(/\s+([.,!?])/g, '$1');
-    }
-    return line
-      .replace(/^(\w+) \{name\}/, '$1, sweet pea')
-      .replace(/,\s*\{name\}/g, ', sweet pea')
-      .replace(/\s*\{name\}/g, ', sweet pea');
-  }).join('\n');
-}
-
-function speakable(text) {
-  return fixNameSlot(text).replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
-}
-
-function plan(ep) {
-  const parts = [];
-  (ep.beats || []).forEach((b, i) => {
-    const who = String(b.who || '').toLowerCase();
-    if (!VOICES[who]) throw new Error(ep.id + ' beat ' + i + ': unknown speaker ' + who);
-    parts.push({ who, text: speakable(b.text) });
-  });
-  if (ep.evening) parts.push({ who: 'biscuit', text: speakable(ep.evening), evening: true });
-  return parts;
-}
 
 /* Fragments: each one is read in the voice of whoever tells it. A teller with no voice is skipped, and reported. */
 function planFragments(data, extraVoices) {

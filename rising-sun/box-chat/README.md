@@ -109,3 +109,14 @@ Dr. O: "delete Jungle, Waterfall, Rain and Night woods". The four generated scen
 ## Fixed lines were always Tansy's (2026-11-01)
 
 Dr. O heard Tansy from a box that had A.L.I.C.E. in it ("Tansy is STILL on too"). Found in `netlify/functions/box-talk.js`: the two fixed lines ("say that again" when nothing is heard, "enough for today" at the daily limit) were read from Tansy's entry for every companion, so any quiet turn, and a follow-up turn with nobody speaking is one, came out in Tansy's voice. They now use the companion in the box (`tests/box-talk.test.js`). This is one cause found in the code. Whether it is the only one on the board is not known: if Tansy is still heard after this is on the site, the Serial Monitor lines from that moment are what would settle it.
+
+## Recording the episodes on the site (2026-11-01)
+
+Dr. O: make the episodes in Reggie, Biscuit and Mochi's voices. The site's environment variables are full, so no new key can be added, and the ElevenLabs key already on the site is used. Nothing has to be pasted anywhere: the key stays on the site. (Dr. O pointed to a key file on her own computer. This session cannot open files there and does not need to.)
+
+- `netlify/functions/story-record-background.js` voices one written story (from `pack-episodes.json`) beat by beat, Reggie, Biscuit and Mochi each in their own voice, joins the pieces, and keeps the mp3 in the site's store (Netlify Blobs, `box_stories`), not in the repository. It runs for up to 15 minutes in the background. It will not record a story that already exists unless asked again (then it keeps the old one and makes `_v2`), and will not start one that is already running.
+- `netlify/functions/story-audio.js` reports what is recorded and plays it back.
+- `netlify/functions/_story-plan.js` is how a story is split into voiced parts. `tools/record-pack-stories.js` now uses it too, so the two never read a story differently.
+- On the panel, in the story library, each of the six Reggie, Biscuit and Mochi episodes has a button: Record (tap twice, because a recording spends a little ElevenLabs credit; the tool guides about $0.36 for all six, a guide and not a quote), then "Recording 3 of 19", then Listen.
+- Only the three dogs are done this way so far. Tansy's Human Summer (fragments) and Kit's stories (an Azure voice) are not. Episode 7, Reggie's tennis ball, has no written story in `pack-episodes.json`, so it has nothing to record.
+- NOT TRIED against the real ElevenLabs service or the live site. The pieces are joined end to end with no added pause, and the sound is 64 kbps mp3 so a five minute story fits in what a function may send back. Nobody has heard these voices read a story. The box still cannot play an episode: that needs a player in the box program.
