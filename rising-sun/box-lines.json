@@ -158,6 +158,54 @@
             "particle": "#ffffff"
           },
           "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
+        },
+        "creekside-fable": {
+          "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Creekside Fable",
+          "vibe": {
+            "type": "ripples",
+            "top": "#13424a",
+            "bottom": "#4aa6a0",
+            "particle": "#d4fffb"
+          }
+        },
+        "mist-and-heather": {
+          "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Mist and Heather",
+          "vibe": {
+            "type": "fireflies",
+            "top": "#2a2a3d",
+            "bottom": "#8a7fa8",
+            "particle": "#e8d9ff"
+          }
+        },
+        "sunlit-shoreline": {
+          "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Sunlit Shoreline",
+          "vibe": {
+            "type": "waves",
+            "top": "#52b6e8",
+            "bottom": "#f4e2b0",
+            "particle": "#ffffff"
+          }
+        },
+        "winter-hearth": {
+          "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Winter Hearth",
+          "vibe": {
+            "type": "embers",
+            "top": "#1c0d08",
+            "bottom": "#7a2a0c",
+            "particle": "#ffb347"
+          }
         }
       },
       "display": "Tansy",
@@ -335,6 +383,54 @@
             "particle": "#ffffff"
           },
           "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
+        },
+        "creekside-fable": {
+          "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Creekside Fable",
+          "vibe": {
+            "type": "ripples",
+            "top": "#13424a",
+            "bottom": "#4aa6a0",
+            "particle": "#d4fffb"
+          }
+        },
+        "mist-and-heather": {
+          "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Mist and Heather",
+          "vibe": {
+            "type": "fireflies",
+            "top": "#2a2a3d",
+            "bottom": "#8a7fa8",
+            "particle": "#e8d9ff"
+          }
+        },
+        "sunlit-shoreline": {
+          "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Sunlit Shoreline",
+          "vibe": {
+            "type": "waves",
+            "top": "#52b6e8",
+            "bottom": "#f4e2b0",
+            "particle": "#ffffff"
+          }
+        },
+        "winter-hearth": {
+          "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Winter Hearth",
+          "vibe": {
+            "type": "embers",
+            "top": "#1c0d08",
+            "bottom": "#7a2a0c",
+            "particle": "#ffb347"
+          }
         }
       },
       "face": "/rising-sun/box-faces/meera_v1.jpg",
@@ -495,6 +591,54 @@
             "particle": "#ffffff"
           },
           "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
+        },
+        "creekside-fable": {
+          "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Creekside Fable",
+          "vibe": {
+            "type": "ripples",
+            "top": "#13424a",
+            "bottom": "#4aa6a0",
+            "particle": "#d4fffb"
+          }
+        },
+        "mist-and-heather": {
+          "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Mist and Heather",
+          "vibe": {
+            "type": "fireflies",
+            "top": "#2a2a3d",
+            "bottom": "#8a7fa8",
+            "particle": "#e8d9ff"
+          }
+        },
+        "sunlit-shoreline": {
+          "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Sunlit Shoreline",
+          "vibe": {
+            "type": "waves",
+            "top": "#52b6e8",
+            "bottom": "#f4e2b0",
+            "particle": "#ffffff"
+          }
+        },
+        "winter-hearth": {
+          "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Winter Hearth",
+          "vibe": {
+            "type": "embers",
+            "top": "#1c0d08",
+            "bottom": "#7a2a0c",
+            "particle": "#ffb347"
+          }
         }
       },
       "face": "/rising-sun/box-faces/marcus_v1.jpg",
@@ -658,6 +802,54 @@
             "particle": "#ffffff"
           },
           "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
+        },
+        "creekside-fable": {
+          "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Creekside Fable",
+          "vibe": {
+            "type": "ripples",
+            "top": "#13424a",
+            "bottom": "#4aa6a0",
+            "particle": "#d4fffb"
+          }
+        },
+        "mist-and-heather": {
+          "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Mist and Heather",
+          "vibe": {
+            "type": "fireflies",
+            "top": "#2a2a3d",
+            "bottom": "#8a7fa8",
+            "particle": "#e8d9ff"
+          }
+        },
+        "sunlit-shoreline": {
+          "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Sunlit Shoreline",
+          "vibe": {
+            "type": "waves",
+            "top": "#52b6e8",
+            "bottom": "#f4e2b0",
+            "particle": "#ffffff"
+          }
+        },
+        "winter-hearth": {
+          "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Winter Hearth",
+          "vibe": {
+            "type": "embers",
+            "top": "#1c0d08",
+            "bottom": "#7a2a0c",
+            "particle": "#ffb347"
+          }
         }
       },
       "face": "/rising-sun/box-faces/reggie_v2.jpg",
@@ -838,6 +1030,54 @@
             "particle": "#ffffff"
           },
           "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
+        },
+        "creekside-fable": {
+          "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Creekside Fable",
+          "vibe": {
+            "type": "ripples",
+            "top": "#13424a",
+            "bottom": "#4aa6a0",
+            "particle": "#d4fffb"
+          }
+        },
+        "mist-and-heather": {
+          "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Mist and Heather",
+          "vibe": {
+            "type": "fireflies",
+            "top": "#2a2a3d",
+            "bottom": "#8a7fa8",
+            "particle": "#e8d9ff"
+          }
+        },
+        "sunlit-shoreline": {
+          "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Sunlit Shoreline",
+          "vibe": {
+            "type": "waves",
+            "top": "#52b6e8",
+            "bottom": "#f4e2b0",
+            "particle": "#ffffff"
+          }
+        },
+        "winter-hearth": {
+          "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Winter Hearth",
+          "vibe": {
+            "type": "embers",
+            "top": "#1c0d08",
+            "bottom": "#7a2a0c",
+            "particle": "#ffb347"
+          }
         }
       },
       "face": "/rising-sun/box-faces/alice_v2.jpg",
@@ -1011,6 +1251,54 @@
             "particle": "#ffffff"
           },
           "image": "/rising-sun/box-vibes/winter-holiday_v1.jpg"
+        },
+        "creekside-fable": {
+          "file": "/rising-sun/box-sounds/creekside-fable_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Creekside Fable",
+          "vibe": {
+            "type": "ripples",
+            "top": "#13424a",
+            "bottom": "#4aa6a0",
+            "particle": "#d4fffb"
+          }
+        },
+        "mist-and-heather": {
+          "file": "/rising-sun/box-sounds/mist-and-heather_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Mist and Heather",
+          "vibe": {
+            "type": "fireflies",
+            "top": "#2a2a3d",
+            "bottom": "#8a7fa8",
+            "particle": "#e8d9ff"
+          }
+        },
+        "sunlit-shoreline": {
+          "file": "/rising-sun/box-sounds/sunlit-shoreline_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Sunlit Shoreline",
+          "vibe": {
+            "type": "waves",
+            "top": "#52b6e8",
+            "bottom": "#f4e2b0",
+            "particle": "#ffffff"
+          }
+        },
+        "winter-hearth": {
+          "file": "/rising-sun/box-sounds/winter-hearth_v1.ulaw",
+          "kind": "music",
+          "group": "sound",
+          "label": "Winter Hearth",
+          "vibe": {
+            "type": "embers",
+            "top": "#1c0d08",
+            "bottom": "#7a2a0c",
+            "particle": "#ffb347"
+          }
         }
       },
       "face": "/rising-sun/box-faces/kit_v1.jpg",

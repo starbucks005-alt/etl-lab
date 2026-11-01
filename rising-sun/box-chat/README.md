@@ -180,3 +180,7 @@ Build n plays each sound loop from its own task that goes round and round and ne
 - Serial lines: `Sound loop task: started`, `Panel check took N ms`.
 - Build n is build k's music (it played with no gaps for Dr. O) plus the sound loop task plus the reporting from build m (the running time, why it last started, how a track ended, shown on the panel). The method of downloading the whole track first is written but switched off.
 - Compiles (1,426,514 bytes). NOT TRIED on the board.
+
+## Four six minute tracks (2026-11-01)
+
+Dr. O made four six minute tracks and sent them (`Creekside_Fable_6_min`, `Mist_and_Heather_6_min`, `Sunlit_Shoreline_6_min`, `Winter_Hearth_6_min`), as a fallback in case the end-of-loop gap on the 30 second sounds did not go away: a six minute track plays once, so there is no loop end to hear. They are converted the same way as the music (`tools/make-sound.py`, 16 kHz, 8 bit, 5.76 MB each, levelled) as `creekside-fable_v1.ulaw`, `mist-and-heather_v1.ulaw`, `sunlit-shoreline_v1.ulaw` and `winter-hearth_v1.ulaw` in `rising-sun/box-sounds/`, and added to every companion as scenes (`kind` music so the box streams them once, `group` sound so the panel lists them under Sounds). They have no photograph yet, so they show a drawn animation: ripples, fireflies, waves and embers. Dr. O can send pictures. NOT heard or tried on the board.
