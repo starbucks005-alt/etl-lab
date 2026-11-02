@@ -12,3 +12,5 @@ Not built, and decisions for Dr. O:
 - The briefing: turning a request's guest-of-honor facts into something each robot is told for the event. The design is that Dr. O reads and edits the facts first, then approves it, and it ends by itself after the event. Where it is delivered first (the companion boxes, or the robots) is open.
 - What happens to the facts about a child after the event (kept or deleted), and whether the page promises it. That is Dr. O's to decide and to say; the page does not promise anything about it yet.
 - The price on the page, the contract, deposit, insurance and any permits. Not written.
+
+The short address `emerging-tech-lab.com/roboteers` shows the same page as `roboteers.html` (a rewrite in `netlify.toml`, so a code's `?s=where` tag is kept). Use it on the van wrap and the cards. The QR codes keep the full address, which also works.

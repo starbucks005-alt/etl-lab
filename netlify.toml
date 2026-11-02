@@ -262,6 +262,13 @@
 # Netlify cannot match "every .md file" in one rule, so each one is listed, plus the whole specs folder.
 # A NEW .md FILE IS PUBLIC UNTIL IT IS ADDED HERE: run  node tools/block-md.js  to regenerate this list.
 # BEGIN MD BLOCK
+# The short address printed on the van and the cards: emerging-tech-lab.com/roboteers (Dr. O, 2026-11-02). A rewrite, not a redirect, so the address in the browser stays short and the
+# code's ?s=where tag is kept.
+[[redirects]]
+  from = "/roboteers"
+  to = "/roboteers.html"
+  status = 200
+
 [[redirects]]
   from = "/specs/*"
   to = "/404.html"
