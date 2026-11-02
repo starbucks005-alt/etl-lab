@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roboteers</title>
+<meta name="description" content="Rent the robot family for a party or an event, or join the waiting list.">
+<style>
+  :root{--bg:#f7f4ee;--card:#fff;--ink:#1d2430;--mute:#5a6472;--line:#d9d3c6;--accent:#2f6f62;--on:#fff;--bad:#a3261d}
+  @media (prefers-color-scheme: dark){:root{--bg:#141a21;--card:#1c242d;--ink:#eef1f4;--mute:#a9b3bf;--line:#33404d;--accent:#6cc4af;--on:#0e1620;--bad:#ff8f86}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  main{max-width:640px;margin:0 auto;padding:24px 16px 56px}
+  h1{font-size:34px;line-height:1.15;margin:8px 0 6px}
+  p{margin:8px 0}.mute{color:var(--mute)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:18px}
+  .pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pick label{display:block;border:2px solid var(--line);border-radius:12px;padding:14px;text-align:center;cursor:pointer;font-weight:600}
+  .pick input{position:absolute;opacity:0}
+  .pick input:checked+span{color:var(--accent)}
+  .pick label:has(input:checked){border-color:var(--accent);background:rgba(47,111,98,.1)}
+  label.f{display:block;margin-top:14px;font-weight:600}
+  input[type=text],input[type=email],input[type=tel],input[type=number],textarea,select{width:100%;margin-top:6px;padding:12px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px}
+  textarea{min-height:92px}
+  .robots{display:grid;gap:8px;margin-top:8px}
+  .robots label{display:flex;gap:10px;align-items:center;font-weight:400;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+  .robots input{width:22px;height:22px}
+  button{margin-top:20px;width:100%;padding:16px;font:inherit;font-weight:700;color:var(--on);background:var(--accent);border:0;border-radius:12px;cursor:pointer}
+  button:disabled{opacity:.6}
+  .msg{margin-top:14px;padding:12px 14px;border-radius:10px}
+  .ok{background:rgba(47,111,98,.15)}.err{background:rgba(163,38,29,.12);color:var(--bad)}
+  .hide{display:none!important}
+  .trap{position:absolute;left:-9999px;height:0;overflow:hidden}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Roboteers</h1>
+  <p>Bring the robot family to your party or event. They talk to each other, and to your guests.</p>
+  <p class="mute" id="priceLine">Rentals start at $200 an hour.</p>
+
+  <form class="card" id="form" novalidate>
+    <p style="margin-top:0"><b>What would you like?</b></p>
+    <div class="pick" role="radiogroup" aria-label="What would you like">
+      <label><input type="radio" name="kind" value="rent" checked><span>Rent the robots</span></label>
+      <label><input type="radio" name="kind" value="waitlist"><span>Join the waiting list</span></label>
+    </div>
+
+    <label class="f" for="name">Your name</label>
+    <input id="name" name="name" type="text" autocomplete="name" maxlength="80" required>
+    <label class="f" for="email">Your email</label>
+    <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+    <label class="f" for="phone">Your phone, if you like (optional)</label>
+    <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="30">
+
+    <div id="rentFields">
+      <label class="f" for="event">What is the event?</label>
+      <select id="event" name="event"><option value="">Choose one</option><option>Birthday party</option><option>School or library</option><option>Senior living</option><option>Company event</option><option>Festival or fair</option><option>Something else</option></select>
+      <label class="f" for="date">When?</label>
+      <input id="date" name="date" type="text" maxlength="40" placeholder="A date, or &quot;not sure yet&quot;">
+      <label class="f" for="place">Where? (city or place)</label>
+      <input id="place" name="place" type="text" maxlength="120">
+      <label class="f" for="hours">How many hours?</label>
+      <input id="hours" name="hours" type="number" min="1" max="12" inputmode="numeric">
+      <label class="f" for="guests">About how many guests?</label>
+      <input id="guests" name="guests" type="number" min="1" max="2000" inputmode="numeric">
+
+      <p style="margin-top:22px"><b>Make it personal</b></p>
+      <p class="mute">The robots can greet the guest of honor by name and talk as if they have known them for years. Tell us a little about them. A parent or guardian should fill this in for a child.</p>
+      <label class="f" for="honoree">Who is the guest of honor? (first name)</label>
+      <input id="honoree" name="honoree" type="text" maxlength="80">
+      <label class="f" for="honoreeAge">Turning (age), if it is a birthday</label>
+      <input id="honoreeAge" name="honoreeAge" type="number" min="1" max="120" inputmode="numeric">
+      <label class="f" for="facts">Special facts about them</label>
+      <textarea id="facts" name="facts" maxlength="1500" placeholder="What they love, their pets, a nickname, a funny story, something they are proud of."></textarea>
+      <label class="f" for="others">Who else will be there? (names help)</label>
+      <textarea id="others" name="others" maxlength="400" style="min-height:64px" placeholder="Brother Max, Grandma Rose, best friend Ava."></textarea>
+      <p class="mute" style="font-size:15px">Please leave out health details, home addresses and anything private.</p>
+    </div>
+
+    <p class="f" style="margin-top:16px;font-weight:600">Who would you like to meet?</p>
+    <div class="robots" id="robots">
+      <label><input type="checkbox" value="any" checked> Whoever is free</label>
+      <label><input type="checkbox" value="astro"> Teddy (Astro), the little boy</label>
+      <label><input type="checkbox" value="alice"> ALICE</label>
+      <label><input type="checkbox" value="astra"> Astra</label>
+      <label><input type="checkbox" value="astrad"> Astrad</label>
+      <label><input type="checkbox" value="elle"> Elle</label>
+    </div>
+
+    <label class="f" for="notes">Anything we should know? (optional)</label>
+    <textarea id="notes" name="notes" maxlength="800"></textarea>
+
+    <div class="trap" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+    <button type="submit" id="go">Send</button>
+    <div class="msg hide" id="msg" role="status" aria-live="polite"></div>
+    <p class="mute" style="font-size:15px;margin-top:16px">We use what you send only to answer you. Dr. O writes back herself, by email. Nothing is charged, and no date is held until she confirms it.</p>
+  </form>
+</main>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var source = '';
+  try { var s = new URLSearchParams(location.search).get('s'); if (s && /^[a-z0-9-]{1,40}$/.test(s)) source = s; } catch (e) {}
+  function kind() { return document.querySelector('input[name=kind]:checked').value; }
+  function show() { $('rentFields').classList.toggle('hide', kind() !== 'rent'); }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=kind]'), function (r) { r.addEventListener('change', show); });
+  show();
+  function say(t, cls) { var m = $('msg'); m.textContent = t; m.className = 'msg ' + cls; }
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('name').value.trim(), email = $('email').value.trim();
+    if (!name) { say('Please tell us your name.', 'err'); $('name').focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { say('That does not look like an email address.', 'err'); $('email').focus(); return; }
+    var robots = Array.prototype.map.call(document.querySelectorAll('#robots input:checked'), function (c) { return c.value; });
+    var body = { kind: kind(), name: name, email: email, phone: $('phone').value, notes: $('notes').value, robots: robots, source: source, website: document.querySelector('input[name=website]').value };
+    if (kind() === 'rent') { body.honoree = $('honoree').value; body.honoreeAge = $('honoreeAge').value; body.facts = $('facts').value; body.others = $('others').value; body.event = $('event').value; body.date = $('date').value; body.place = $('place').value; body.hours = $('hours').value; body.guests = $('guests').value; }
+    var sentKind = kind();
+    $('go').disabled = true; say('Sending...', 'ok');
+    fetch('/.netlify/functions/roboteers-signup', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (r) {
+        if (r.s === 200) { $('form').reset(); show(); say(sentKind === 'rent' ? 'Thank you. Your request arrived, and Dr. O will write to you by email.' : 'Thank you. You are on the waiting list, and Dr. O will write to you by email.', 'ok'); }
+        else { say((r.j && r.j.error) || 'It did not go through. Please try again.', 'err'); }
+        $('go').disabled = false;
+      })
+      .catch(function () { say('We could not reach the website. Please try again in a moment.', 'err'); $('go').disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>

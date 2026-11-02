@@ -1,0 +1,33 @@
+// Roboteers sign-up: a rental request or a waiting-list place is kept, Dr. O is emailed at her work address, a bot's trap field keeps nothing, and only the owner can read the list.
+const assert = require('assert');
+const { handler } = require('../netlify/functions/roboteers-signup.js');
+(async () => {
+  const m = new Map();
+  const store = { setJSON: async (k, v) => { m.set(k, JSON.parse(JSON.stringify(v))); }, get: async (k) => (m.has(k) ? m.get(k) : null), list: async () => ({ blobs: [...m.keys()].map((key) => ({ key })) }) };
+  const sent = [];
+  const deps = { store, env: { RESEND_API_KEY: 'k' }, now: 1700000000000, fetchFn: async (u, o) => { sent.push(JSON.parse(o.body)); return { ok: true }; }, owner: (e) => (e.headers || {}).authorization === 'Bearer owner' };
+  const post = (b) => handler({ httpMethod: 'POST', body: JSON.stringify(b), headers: {} }, {}, deps);
+  assert.strictEqual((await post({ kind: 'rent', name: 'Sam', email: 'nope' })).statusCode, 400, 'a bad email is refused');
+  assert.strictEqual((await post({ kind: 'rent', name: '', email: 'a@b.co' })).statusCode, 400, 'a name is needed');
+  assert.strictEqual(m.size, 0);
+  const trap = await post({ kind: 'rent', name: 'Bot', email: 'a@b.co', website: 'http://spam' });
+  assert.strictEqual(trap.statusCode, 200); assert.strictEqual(m.size, 0, 'the trap keeps nothing'); assert.strictEqual(sent.length, 0, 'and emails nobody');
+  const r = await post({ kind: 'rent', name: ' Sam Lee ', email: 'Sam@Example.com', phone: '513-555-0100', event: 'birthday', date: 'Dec 14', place: 'Mason, OH', hours: '2', guests: '20', robots: ['Astro', 'alice', 'toaster'], notes: 'a 6 year old who loves dogs', source: 'van', extra: 'ignored', honoree: 'Mia', honoreeAge: '6', facts: 'Loves dogs and dinosaurs. Her hamster is named Biscuit.', others: 'Brother Max, Grandma Rose' });
+  assert.strictEqual(r.statusCode, 200);
+  const rec = [...m.values()][0];
+  assert.deepStrictEqual([rec.kind, rec.name, rec.email, rec.source, rec.robots], ['rent', 'Sam Lee', 'sam@example.com', 'van', ['astro', 'alice']], 'kept tidily, an unknown robot dropped');
+  assert.deepStrictEqual([rec.honoree, rec.honoreeAge, /dinosaurs/.test(rec.facts), rec.others], ['Mia', '6', true, 'Brother Max, Grandma Rose'], 'the guest of honor and the special facts are kept');
+  assert.ok(/Facts for the robots/.test(sent[0].html) && /dinosaurs/.test(sent[0].html), 'and Dr. O sees them in her email');
+  assert.strictEqual(sent.length, 2, 'two emails go out');
+  assert.deepStrictEqual(sent[0].to, ['drterryoroszi@emerging-tech-lab.com'], 'Dr. O is emailed at her work address');
+  assert.ok(/Roboteers rental request/.test(sent[0].subject) && /birthday/.test(sent[0].html), 'the email says what was asked');
+  assert.deepStrictEqual(sent[1].to, ['sam@example.com'], 'and the person is told it arrived');
+  assert.ok(!/personal|gmail/i.test(JSON.stringify(sent)), 'no other address appears');
+  await post({ kind: 'waitlist', name: 'Pat', email: 'pat@example.com', source: 'Bad Source!' });
+  const wl = [...m.values()].find((x) => x.name === 'Pat');
+  assert.strictEqual(wl.kind, 'waitlist'); assert.strictEqual(wl.source, '', 'a source with odd characters is dropped');
+  assert.strictEqual((await handler({ httpMethod: 'GET', headers: {} }, {}, deps)).statusCode, 401, 'the list is closed to everyone else');
+  const list = JSON.parse((await handler({ httpMethod: 'GET', headers: { authorization: 'Bearer owner' } }, {}, deps)).body);
+  assert.deepStrictEqual([list.count, list.rent, list.waitlist], [2, 1, 1]);
+  console.log('roboteers sign-up: kept, emailed, trap and list closed');
+})().catch((e) => { console.error(e); process.exit(1); });
