@@ -1735,7 +1735,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       var ROB = [], SELF = null, cur = null, up = {}, base = {}, WALK = new WeakMap();
       var PORT = 8000;
       // on the public site (a secure page) a robot cannot be reached, so it only shows whether the robot has told the website it is on
-      var PUBLIC = (location.protocol === 'https:'), polls = 0;
+      var SECURE = (location.protocol === 'https:'), PUBLIC = SECURE, polls = 0;   // SECURE: any https page (the website, or a robot's own Tailscale address). PUBLIC: the website, which is not a robot, set in start()
       var bar, btn, menu, demo, addrBtn;
       function el(t, c, txt){ var e = document.createElement(t); if(c){ e.className = c; } if(txt != null){ e.textContent = txt; } return e; }
       function find(id){ for(var i=0;i<ROB.length;i++){ if(ROB[i].id === id){ return ROB[i]; } } return null; }
@@ -1753,7 +1753,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       function shownAddress(r){
         if(PUBLIC){ return ''; }
         if(r.id === SELF){ return location.host; }
-        if(up[r.id] && base[r.id]){ return base[r.id].replace(/^http:\/\//, ''); }
+        if(up[r.id] && base[r.id]){ return base[r.id].replace(/^https?:\/\//, ''); }
         var c = candidates(r);
         return c.length ? c[0] + ':' + PORT : 'no address yet';
       }
@@ -1777,10 +1777,18 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         return next();
       }
       function probeAll(){
-        if(PUBLIC){
-          return fetch('/.netlify/functions/robot-checkin', {cache: 'no-store'}).then(function(x){ return x.ok ? x.json() : {}; }).catch(function(){ return {}; }).then(function(j){
+        if(SECURE){
+          // a secure page cannot look at a robot on the home network, so it asks the website who has checked in. A robot's own
+          // Tailscale page is secure too: it is always itself, and asks the website about the others.
+          var ci = (PUBLIC ? '' : 'https://emerging-tech-lab.com') + '/.netlify/functions/robot-checkin';
+          return fetch(ci, {cache: 'no-store'}).then(function(x){ return x.ok ? x.json() : {}; }).catch(function(){ return {}; }).then(function(j){
             var on = (j && j.online) || {};
-            ROB.forEach(function(r){ up[r.id] = !!on[r.id]; base[r.id] = null; });
+            ROB.forEach(function(r){
+              if(r.id === SELF){ up[r.id] = true; base[r.id] = location.origin; return; }
+              up[r.id] = !!on[r.id];
+              var t = lsGet('panel-robot-addr-' + r.id);   // the robot's Tailscale name, typed once on this device with Set address
+              base[r.id] = (up[r.id] && t) ? 'https://' + t : null;
+            });
             paint();
           });
         }
@@ -1805,11 +1813,11 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           o.addEventListener('click', function(){ choose(x.id); });
           menu.appendChild(o);
         });
-        addrBtn.style.display = (PUBLIC || r.id === SELF) ? 'none' : '';
+        addrBtn.style.display = (r.id === SELF) ? 'none' : '';
         var wasDemo = demo.classList.contains('show');
         var isDemo = (r.id !== SELF);
-        demo.textContent = (PUBLIC && up[r.id])
-          ? r.name + ' is on right now. This page cannot control her, and nothing here is saved. This is how ' + r.name + '’s panel looks.'
+        demo.textContent = (SECURE && up[r.id])
+          ? r.name + ' is on right now. This page cannot control her, and nothing here is saved. To open her real panel, press Set address and type her Tailscale name. This is how ' + r.name + '’s panel looks.'
           : 'Not connected. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
         demo.classList.toggle('show', isDemo);
         var g = document.querySelector('.grid');
@@ -1918,7 +1926,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       }
 
       function start(roster, who){
-        ROB = roster.robots || []; SELF = who; if(!ROB.length){ return; }
+        ROB = roster.robots || []; SELF = who; PUBLIC = SECURE && !who; if(!ROB.length){ return; }
         PORT = roster.port || 8000;
         cur = (SELF && find(SELF)) ? SELF : ((find(lsGet('panel-robot')) || ROB[0]).id);
         bar = el('div'); bar.id = 'robotBar'; bar.style.position = 'sticky';
@@ -1941,14 +1949,14 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
         addrBtn.addEventListener('click', function(){
           var r = find(cur); if(!r){ return; }
-          var v = window.prompt('Address or name for ' + r.name + ', for example 192.168.0.50 or ' + (r.hostname || 'name').toLowerCase() + '.local. Leave empty to forget it.', lsGet('panel-robot-addr-' + r.id) || '');
+          var v = window.prompt('Address or name for ' + r.name + ', for example 192.168.0.50, ' + (r.hostname || 'name').toLowerCase() + '.local, or her Tailscale name ending in .ts.net. Leave empty to forget it.', lsGet('panel-robot-addr-' + r.id) || '');
           if(v === null){ return; }
           v = v.trim().replace(/^https?:\/\//, '').replace(/[:\/].*$/, '');
           if(v && !/^[A-Za-z0-9.-]{1,100}$/.test(v)){ window.alert('That does not look like an address.'); return; }
           lsSet('panel-robot-addr-' + r.id, v || null); probeAll();
         });
         applyLook(find(cur)); paint(); probeAll();
-        setInterval(function(){ if(document.hidden){ return; } if(PUBLIC){ if(++polls > 10){ return; } } probeAll(); }, PUBLIC ? 60000 : 8000);   // the public page asks the website once a minute, at most ten times a visit
+        setInterval(function(){ if(document.hidden){ return; } if(SECURE){ if(++polls > 10){ return; } } probeAll(); }, SECURE ? 60000 : 8000);   // the public page asks the website once a minute, at most ten times a visit
       }
 
       // the roster and who this Pi is; if the roster is not there (the public site) nothing happens
