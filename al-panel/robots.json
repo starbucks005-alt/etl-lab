@@ -207,17 +207,26 @@
       "page": {
         "kind": "Astro's twin sister",
         "lines": [
-          "Her mom is Astra and her dad is Astrad."
+          "Her mommy is Astra and her daddy is Astrad.",
+          "She likes dolls and tea parties."
         ],
         "status": "Not built yet."
       },
+      "look": "champagne finish, green eyes, pink cheeks, a black collar with a small pink bow, a lavender dress with a white collar and ETL on the chest, bare feet, a baby doll held by the hand (from Dr. O's concept picture)",
+      "picture": {
+        "src": "images/astri-concept_v1.jpg",
+        "max_width": "280px",
+        "alt": "Concept picture of Astri, a little champagne robot girl with green eyes, pink cheeks, a black collar with a pink bow and a lavender dress with ETL on the chest, holding a baby doll by the hand.",
+        "caption": "Concept Art - Astri"
+      },
       "character": {
         "good_company_id": null,
-        "note": "Dr. O, 2026-11-02: Astri is Astro's twin sister. Mom Astra, dad Astrad. Nothing else about her is decided yet."
+        "note": "Dr. O, 2026-11-02: Astri is Astro's twin sister. Mommy Astra, daddy Astrad. She likes dolls and tea parties (Dr. O, 2026-11-02). Nothing else about her is decided yet."
       },
       "voice": {
-        "engine": null,
-        "name": null
+        "engine": "ElevenLabs (Dr. O, 2026-11-02)",
+        "name": "t32lqiRDyoLz0gaRQCGT, called Astri: a character voice Dr. O made in ElevenLabs Voice Design (it does not make child voices). Not heard by Claude.",
+        "note": "ElevenLabs costs money each time it speaks, so her fixed lines (greetings, invitations) are to be recorded once and replayed as files."
       }
     },
     {
