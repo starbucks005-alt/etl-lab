@@ -2439,7 +2439,7 @@ def shut_down():
     def go():
         time.sleep(6)                    # let the goodnight finish
         subprocess.run(SHUTDOWN_CMD)
-    speak_async("Shutting down now. Goodnight.", use_persona=False)
+    speak_async("Shutting down now. Goodnight.", use_persona=True)   # her own voice (ALICE's, not Astra's)
     threading.Thread(target=go, daemon=True).start()
     return jsonify(ok=True)
 

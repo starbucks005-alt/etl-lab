@@ -179,6 +179,48 @@
       }
     },
     {
+      "id": "astri",
+      "name": "Astri",
+      "short": "Astri",
+      "hostname": null,
+      "last_seen_address": null,
+      "kind": "child (little girl), Astro's twin",
+      "status": "planned",
+      "hide": [
+        "modeCard",
+        "eyesCard",
+        "voiceCard",
+        "nameCard",
+        "skillsCard",
+        "personaCard",
+        "peopleCard",
+        "calCard",
+        "houseCard",
+        "petCard",
+        "recordsCard",
+        "guardianCard",
+        "photoCard",
+        "voicesCard",
+        "welcomeCard"
+      ],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#sistersRow,footer",
+      "page": {
+        "kind": "Astro's twin sister",
+        "lines": [
+          "Her mom is Astra and her dad is Astrad."
+        ],
+        "status": "Not built yet."
+      },
+      "character": {
+        "good_company_id": null,
+        "note": "Dr. O, 2026-11-02: Astri is Astro's twin sister. Mom Astra, dad Astrad. Nothing else about her is decided yet."
+      },
+      "voice": {
+        "engine": null,
+        "name": null
+      }
+    },
+    {
       "id": "guardian-f",
       "name": "Guardian F",
       "short": "Guardian F",
