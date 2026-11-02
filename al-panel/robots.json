@@ -1,7 +1,12 @@
 {
   "_about": "The robots the panel's dropdown lists (2026-10-30). Read by the page, served by each Pi as /robots.json. A null is not known yet, never a guess. 'hide' is the list of card ids that robot does not use; the card ids are the ids in index.html. Only 'id', 'name', 'short', 'hostname', 'last_seen_address', 'port', 'links', 'hide', 'hide_selectors', 'theme_light', 'theme_dark', 'picture', 'kind', 'status' are read by the page; the rest is notes for Dr. O. last_seen_address is only where the robot was last found, since a hotspot gives out a new one each time.",
   "port": 8000,
-  "links": [{"label": "Fireside", "url": "https://emerging-tech-lab.com/good-company/fireside.html"}],
+  "links": [
+    {
+      "label": "Fireside",
+      "url": "https://emerging-tech-lab.com/good-company/fireside.html"
+    }
+  ],
   "robots": [
     {
       "id": "astra-lite",
@@ -144,7 +149,7 @@
       "hide_selectors": ".hero,.demo,.tab,.sub,#sistersRow",
       "character": {
         "good_company_id": null,
-        "note": "Astra and Ted's little boy. Elle is his aunt (Astra's little sister) and ALICE is his honorary aunt. Dr. O, 2026-10-31: a boy because there are already so many females. Nothing else about him is decided yet."
+        "note": "Astra and Ted's little boy. Elle is his aunt (Astra's little sister) and ALICE is his honorary aunt. Dr. O, 2026-10-31: a boy because there are already so many females. Nothing else about him is decided yet. Dr. O, 2026-11-02: the family is Mom Astra, Dad Astrad, twin brother Astro, twin sister Astri. Astro has a twin sister, Astri, who is not built or written yet."
       },
       "voice": {
         "engine": "ElevenLabs (Dr. O, 2026-11-01)",
@@ -165,7 +170,13 @@
         "audio": "https://emerging-tech-lab.com/audio/robots/astro-voice_v1.mp3",
         "note": "Dr. O wrote these words and made this recording herself (Astro-bio.wav, 2026-10-31), converted to mp3 like the other robots' bios. Claude has not heard it, so it is not checked that the recording says exactly these words."
       },
-      "special": "his own thing (Dr. O, 2026-10-31): he asks people to play a game with him, such as checkers or chess (a beta tester's idea), or to read a story to his teddy bear. Not built yet. Not ordered yet. Body is likely a child-size mannequin with flexible head, arms and legs. Dr. O has smaller eye rings she may use (the eye code expects 16 lights per ring). Names to watch: Astro is in Elle's wake list and the Astrad alias list, and Teddy sounds like Ted. Dr. O: if it conflicts, pivot."
+      "special": "his own thing (Dr. O, 2026-10-31): he asks people to play a game with him, such as checkers or chess (a beta tester's idea), or to read a story to his teddy bear. Not built yet. Not ordered yet. Body is likely a child-size mannequin with flexible head, arms and legs. Dr. O has smaller eye rings she may use (the eye code expects 16 lights per ring). Names to watch: Astro is in Elle's wake list and the Astrad alias list, and Teddy sounds like Ted. Dr. O: if it conflicts, pivot.",
+      "family": {
+        "mom": "Astra",
+        "dad": "Astrad",
+        "twin_brother": "Astro",
+        "twin_sister": "Astri"
+      }
     },
     {
       "id": "guardian-f",

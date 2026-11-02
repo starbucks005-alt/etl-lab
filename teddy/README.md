@@ -50,3 +50,11 @@ Stills from the video (one every 12 seconds, so detail may be missed): the legs 
 - The stand (Dr. O, 2026-11-01): the two mannequins she has here have the same set up as Teddy's, and she lifts them off the pole. Nothing has to be undone or unscrewed and nothing stays in the body. The pole stays on the glass base. So taking him off the stand for walking is easy.
 - Which board goes in him, and where the button goes on his body.
 - Not built: a Walk button on a panel page, as the box panel has. The button on his body comes first.
+
+## The family and the plan for the travelling robots (2026-11-02)
+
+Dr. O: the family is Mom Astra, Dad Astrad, twin brother Astro (Teddy), and twin sister Astri (`al-panel/robots.json`). She has ordered a power generator to run the robots without mains electricity, and will take the robot family to places to talk to each other and to any interested strangers.
+
+Planned, nothing built yet:
+- A tablet on Teddy's chest that pulls off and can be handed to a person, to play a game (checkers first) or read a story to Teddy and his teddy bear TB. It would be a web page on the site, so any tablet works, locked to that page when handed over, with everything Teddy says also shown as large text. A strong magnet and a safety cord to hold it, and a magnetic breakaway USB-C connector to charge it. Open: which tablet, whether TB has a voice, who writes the stories, which games.
+- The first piece would be the Teddy page with its two big buttons, tried on the real tablet before the mount is designed.
