@@ -63,7 +63,7 @@ if (fs.existsSync(outFile)) { console.error('\n' + outFile + ' already exists. U
 
 (async () => {
   try {
-    const mp3 = await azureSpeak(astro.bio.text, voice);
+    const mp3 = await speak(astro.bio.text, voice);
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(outFile, mp3);
     console.log('\nSaved ' + mp3.length + ' bytes. Open it and listen. If it is not right, run again with --voice and the next --version.');

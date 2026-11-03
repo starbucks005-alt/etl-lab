@@ -1,0 +1,48 @@
+{
+  "_note": "Every line the twins say on the tablet (al-panel/twins.html). DRAFTED BY CLAUDE for Dr. O to read and change before anything is recorded. Recording: node tools/record-twins-lines.js. Until a line is recorded the page shows it as text and plays nothing.",
+  "version": 1,
+  "twins": {
+    "astro": {
+      "name": "Astro",
+      "mark": "X",
+      "picture": "images/astro-concept_v2.jpg",
+      "voice": "kqf3165btzkiiwqxmo1q",
+      "lines": {
+        "start": "Let's play! I am X. Astri is O. I go first!",
+        "c0": "Up here, on the left!",
+        "c1": "Up here, at the top!",
+        "c2": "Up here, on the right!",
+        "c3": "Over here, on the left!",
+        "c4": "In the middle! Right in the middle!",
+        "c5": "Over here, on the right!",
+        "c6": "Down here, on the left!",
+        "c7": "Down here, at the bottom!",
+        "c8": "Down here, on the right!",
+        "win": "Three! I got three! Yay!",
+        "cheer": "Good one, Astri!",
+        "tie": "We both won!"
+      }
+    },
+    "astri": {
+      "name": "Astri",
+      "mark": "O",
+      "picture": "images/astri-concept_v1.jpg",
+      "voice": "t32lqiRDyoLz0gaRQCGT",
+      "lines": {
+        "start": "I am O! Astro goes first. Then me.",
+        "c0": "I pick the top corner, on the left.",
+        "c1": "I pick the top, in the middle.",
+        "c2": "I pick the top corner, on the right.",
+        "c3": "I pick this one, on the left.",
+        "c4": "I pick the very middle!",
+        "c5": "I pick this one, on the right.",
+        "c6": "I pick the bottom corner, on the left.",
+        "c7": "I pick the bottom, in the middle.",
+        "c8": "I pick the bottom corner, on the right.",
+        "win": "Three in a row! Hooray!",
+        "cheer": "Good one, Astro!",
+        "tie": "We both won! Hooray!"
+      }
+    }
+  }
+}

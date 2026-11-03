@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Twins Play | Emerging Technologies Laboratory</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<meta name="color-scheme" content="light dark">
+<style>
+  :root{
+    --bg:#f4f3ee;--panel:#ffffff;--line:#d8d6cc;--line2:#c2beb0;
+    --ink:#16202b;--text:#3f4d54;--mute:#6b7683;
+    --x:#28527a;--o:#a1465f;--accent:#35806f;--accent-bg:#e2efec;--on-accent:#ffffff;
+    --win:#f3e7b8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#10161d;--panel:#18212b;--line:#2a3541;--line2:#3a4756;
+      --ink:#eef2f5;--text:#c4ccd3;--mute:#8d99a5;
+      --x:#7fb3e6;--o:#e79ab0;--accent:#5fc4ab;--accent-bg:#17352f;--on-accent:#0e1620;
+      --win:#4a4120;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Public Sans',system-ui,sans-serif;line-height:1.4;
+       display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;user-select:none;-webkit-user-select:none}
+  h1{font-family:Spectral,Georgia,serif;font-weight:300;font-size:clamp(24px,4vw,40px);margin:0 0 10px;color:var(--ink);text-align:center}
+  .stage{display:grid;grid-template-columns:1fr minmax(260px,46vmin) 1fr;gap:clamp(10px,2.5vw,32px);align-items:center;width:100%;max-width:1200px}
+  .twin{background:var(--panel);border:3px solid var(--line);border-radius:18px;padding:12px;text-align:center;transition:border-color .2s,box-shadow .2s}
+  .twin.turn{box-shadow:0 0 0 6px var(--accent-bg);border-color:var(--accent)}
+  .twin img{width:100%;max-width:230px;aspect-ratio:3/4;object-fit:cover;border-radius:12px;display:block;margin:0 auto 8px;background:var(--line)}
+  .twin .nm{font-family:Spectral,Georgia,serif;font-size:clamp(22px,3vw,34px);color:var(--ink)}
+  .twin .mk{font-size:clamp(20px,3vw,30px);font-weight:700}
+  .twin.astro .mk{color:var(--x)} .twin.astri .mk{color:var(--o)}
+  .twin .sc{font-size:clamp(14px,1.8vw,18px);color:var(--mute)}
+  .bubble{min-height:3.6em;margin-top:8px;font-size:clamp(15px,2vw,22px);color:var(--ink);display:flex;flex-direction:column;justify-content:center}
+  .bubble small{color:var(--mute);font-size:12px}
+  .board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;aspect-ratio:1/1;width:100%}
+  .cell{background:var(--panel);border:3px solid var(--line2);border-radius:14px;font-size:clamp(46px,11vmin,110px);font-weight:700;
+        font-family:inherit;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;line-height:1;color:var(--ink)}
+  .cell:disabled{cursor:default}
+  .cell.x{color:var(--x)} .cell.o{color:var(--o)}
+  .cell.win{background:var(--win)}
+  .cell:focus-visible,.go:focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+  .bar{margin-top:14px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+  .go{font-family:inherit;font-size:clamp(18px,2.4vw,26px);font-weight:700;background:var(--accent);color:var(--on-accent);border:0;border-radius:14px;padding:14px 34px;cursor:pointer}
+  .hint{color:var(--mute);font-size:clamp(13px,1.6vw,17px);max-width:60ch;text-align:center}
+  @media (max-width:760px) and (orientation:portrait){
+    .stage{grid-template-columns:1fr 1fr;grid-template-areas:"b b" "a r"}
+    .board{grid-area:b;max-width:80vmin;margin:0 auto}
+    .twin.astro{grid-area:a} .twin.astri{grid-area:r}
+    .twin img{max-width:110px}
+  }
+</style>
+</head>
+<body>
+<h1>Astro and Astri play tic-tac-toe</h1>
+<div class="stage" id="stage"></div>
+<div class="bar">
+  <button class="go" id="go" type="button">Play</button>
+</div>
+<p class="hint" id="hint">Tap a square while it is a twin's turn to make that move for them.</p>
+
+<script>
+(function(){
+  var LINES_URL = 'twins-lines.json';
+  var AUDIO_BASE = '/audio/robots/twins/';
+  var AUDIO_VER = 'v1';
+  var WAIT_MS = 4500;   // how long a twin "thinks", and how long a stranger has to tap a square for them
+  var WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  var data = null, board, turn, over, locked, timer, audioNow = null, token = 0;
+  var score = {astro:0, astri:0, ties:0};
+  var $ = function(id){ return document.getElementById(id); };
+
+  function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+
+  function build(){
+    var st = $('stage'); st.textContent = '';
+    st.appendChild(twinCard('astro'));
+    var b = el('div', 'board'); b.id = 'board'; b.setAttribute('role', 'grid'); b.setAttribute('aria-label', 'Tic-tac-toe board');
+    for (var i = 0; i < 9; i++) { (function(i){
+      var c = el('button', 'cell'); c.type = 'button'; c.id = 'c' + i; c.setAttribute('aria-label', 'Square ' + (i + 1));
+      c.addEventListener('click', function(){ tap(i); });
+      b.appendChild(c);
+    })(i); }
+    st.appendChild(b);
+    st.appendChild(twinCard('astri'));
+    scoreText();
+  }
+  function twinCard(who){
+    var t = data.twins[who];
+    var d = el('div', 'twin ' + who); d.id = 'twin-' + who;
+    var img = el('img'); img.src = t.picture; img.alt = t.name; d.appendChild(img);
+    var n = el('div', 'nm', t.name); d.appendChild(n);
+    d.appendChild(el('div', 'mk', t.mark));
+    var s = el('div', 'sc'); s.id = 'sc-' + who; d.appendChild(s);
+    var bu = el('div', 'bubble'); bu.id = 'bub-' + who; bu.setAttribute('aria-live', 'polite'); d.appendChild(bu);
+    return d;
+  }
+  function scoreText(){
+    $('sc-astro').textContent = 'Wins: ' + score.astro;
+    $('sc-astri').textContent = 'Wins: ' + score.astri;
+  }
+  function other(w){ return w === 'astro' ? 'astri' : 'astro'; }
+  function mark(w){ return data.twins[w].mark; }
+
+  function say(who, key){
+    var text = data.twins[who].lines[key];
+    var bub = $('bub-' + who);
+    var my = token;
+    return new Promise(function(done){
+      bub.textContent = '';
+      bub.appendChild(el('span', null, text));
+      var finished = false;
+      function end(){ if (finished) return; finished = true; audioNow = null; done(); }
+      var fell = false;
+      function fallback(){
+        if (finished || fell) return;
+        fell = true;
+        bub.appendChild(el('small', null, 'voice not recorded yet'));
+        setTimeout(end, 1400 + text.length * 55);
+      }
+      var a;
+      try { a = new Audio(AUDIO_BASE + who + '-' + key + '_' + AUDIO_VER + '.mp3'); } catch (e) { fallback(); return; }
+      audioNow = a;
+      a.addEventListener('ended', end);
+      a.addEventListener('error', fallback);
+      var p; try { p = a.play(); } catch (e) { fallback(); return; }
+      if (p && p.catch) p.catch(fallback);
+    }).then(function(){ if (my !== token) throw new Error('stopped'); });
+  }
+  function clearBubbles(){ ['astro','astri'].forEach(function(w){ $('bub-' + w).textContent = ''; }); }
+
+  function winner(){
+    for (var i = 0; i < WINS.length; i++) {
+      var w = WINS[i];
+      if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[1]] === board[w[2]]) return {who: board[w[0]], line: w};
+    }
+    return null;
+  }
+  function empties(){ var r = []; for (var i = 0; i < 9; i++) if (!board[i]) r.push(i); return r; }
+  function findLine(who){
+    for (var i = 0; i < WINS.length; i++) {
+      var w = WINS[i], mine = 0, gap = -1;
+      for (var k = 0; k < 3; k++) { if (board[w[k]] === who) mine++; else if (!board[w[k]]) gap = w[k]; }
+      if (mine === 2 && gap > -1) return gap;
+    }
+    return -1;
+  }
+  function choose(who){
+    // A kind, three-year-old kind of player: takes a win it can see, blocks about half the time, otherwise picks any open square.
+    var e = empties(), g = findLine(who);
+    if (g > -1) return g;
+    var b = findLine(other(who));
+    if (b > -1 && Math.random() < 0.5) return b;
+    return e[Math.floor(Math.random() * e.length)];
+  }
+
+  function newGame(){
+    token++;
+    if (audioNow) { try { audioNow.pause(); } catch (e) {} audioNow = null; }
+    clearTimeout(timer);
+    board = []; over = false; locked = true; turn = 'astro';
+    for (var i = 0; i < 9; i++) { var c = $('c' + i); c.textContent = ''; c.className = 'cell'; c.disabled = false; }
+    clearBubbles(); scoreText(); mark_turn();
+    $('go').textContent = 'Start over';
+    var my = token;
+    say('astro', 'start').then(function(){ return say('astri', 'start'); }).then(function(){
+      locked = false; waitFor(turn);
+    }).catch(function(){});
+  }
+  function mark_turn(){
+    $('twin-astro').classList.toggle('turn', !over && turn === 'astro');
+    $('twin-astri').classList.toggle('turn', !over && turn === 'astri');
+  }
+  function waitFor(who){
+    if (over) return;
+    turn = who; mark_turn(); locked = false;
+    var my = token;
+    timer = setTimeout(function(){ if (my === token && !over && !locked) play(who, choose(who)); }, WAIT_MS);
+  }
+  function tap(i){
+    if (over || locked || board[i] || !data || !turn) return;
+    clearTimeout(timer);
+    play(turn, i);
+  }
+  function play(who, i){
+    clearTimeout(timer); locked = true;
+    board[i] = who;
+    var c = $('c' + i); c.textContent = mark(who); c.classList.add(who === 'astro' ? 'x' : 'o'); c.disabled = true;
+    say(who, 'c' + i).then(function(){
+      var w = winner();
+      if (w) { return finish(w); }
+      if (!empties().length) { return finish(null); }
+      waitFor(other(who));
+    }).catch(function(){});
+  }
+  function finish(w){
+    over = true; mark_turn();
+    var my = token;
+    if (w) {
+      w.line.forEach(function(k){ $('c' + k).classList.add('win'); });
+      score[w.who]++; scoreText();
+      return say(w.who, 'win').then(function(){ return say(other(w.who), 'cheer'); }).then(done).catch(function(){});
+    }
+    score.ties++;
+    return say('astro', 'tie').then(function(){ return say('astri', 'tie'); }).then(done).catch(function(){});
+  }
+  function done(){
+    for (var i = 0; i < 9; i++) $('c' + i).disabled = true;
+    $('go').textContent = 'Play again';
+  }
+
+  $('go').addEventListener('click', function(){ if (data) newGame(); });
+
+  fetch(LINES_URL, {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+    data = j; build();
+    $('hint').textContent = "Press Play. The twins take turns and say each move out loud. Tap a square on a twin's turn to make that move for them.";
+  }).catch(function(){
+    $('stage').textContent = 'The twins could not be reached.';
+  });
+})();
+</script>
+</body>
+</html>
