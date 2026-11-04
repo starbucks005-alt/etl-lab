@@ -325,6 +325,29 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <p class="hint" id="mainHint" style="margin:6px 0 0;display:none">Installing a personality is for now. Her main personality is the one she comes back to after she is switched off and on, or after Reset.</p>
     </section>
 
+    <!-- EMOTIONS. Same shape the Robot Builder saves in a robot profile: emotions { start, range, sensing }. Stored only; not wired to the mood engine yet. -->
+    <section class="card" id="emotionsCard">
+      <h2>Emotions</h2>
+      <p class="hint">Where her mood begins and how far it may drift from there.</p>
+      <label for="emoStart">Starting emotion</label>
+      <select id="emoStart">
+        <option value="calm">Calm</option>
+        <option value="cheerful">Cheerful</option>
+        <option value="curious">Curious</option>
+        <option value="playful">Playful</option>
+        <option value="shy">Shy</option>
+        <option value="serious">Serious</option>
+        <option value="gentle">Gentle and vulnerable</option>
+      </select>
+      <label for="emoRange">Emotion range</label>
+      <select id="emoRange">
+        <option value="narrow">Narrow: steady, stays near the start</option>
+        <option value="medium">Medium: shifts with the conversation</option>
+        <option value="wide">Wide: big swings, very expressive</option>
+      </select>
+      <label class="wopt" for="emoSense"><input type="checkbox" id="emoSense"> Read the visitor's mood (camera and voice tone)</label>
+    </section>
+
     <!-- PLAYROOM, added 2026-10-31, Dr. O: Astro is a three-year-old, so his panel has big buttons and big pictures. Shown for Astro only (see applyLook). Every game runs in this page, so it works when no robot is connected and costs nothing. -->
     <section class="card wide" id="playCard" style="display:none">
       <h2>Playroom</h2>
@@ -1665,6 +1688,24 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     api('/api/personality/main', {id:null}).then(function(){ state.main = null; setPersona(null); })
       .catch(function(e){ addMsg('al', '(I could not save that: ' + e.message + ')'); });
   });
+  // EMOTIONS card: stored as emotions { start, range, sensing }, defaults calm / medium / false.
+  var EMO = {start:['calm','cheerful','curious','playful','shy','serious','gentle'], range:['narrow','medium','wide']};
+  (function(){
+    var s = load('emotions', null) || {};
+    state.emotions = {
+      start: EMO.start.indexOf(s.start) > -1 ? s.start : 'calm',
+      range: EMO.range.indexOf(s.range) > -1 ? s.range : 'medium',
+      sensing: s.sensing === true
+    };
+    $('emoStart').value = state.emotions.start;
+    $('emoRange').value = state.emotions.range;
+    $('emoSense').checked = state.emotions.sensing;
+    function save(){
+      state.emotions = {start:$('emoStart').value, range:$('emoRange').value, sensing:$('emoSense').checked};
+      store('emotions', state.emotions);
+    }
+    ['emoStart', 'emoRange', 'emoSense'].forEach(function(id){ $(id).addEventListener('change', save); });
+  })();
   buildGroups(); loadPersonas();
   tryConnect();
   setInterval(pollSensor, 3000);
