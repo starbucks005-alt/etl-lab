@@ -13,6 +13,7 @@
       "name": "Astra-9 Lite",
       "short": "Elle",
       "hostname": "astra9lite",
+      "tailscale": "astra9lite.tailcaab0e.ts.net",
       "last_seen_address": "192.168.0.87",
       "kind": "head and bust",
       "status": "built and working",

@@ -1827,7 +1827,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
             ROB.forEach(function(r){
               if(r.id === SELF){ up[r.id] = true; base[r.id] = location.origin; return; }
               up[r.id] = !!on[r.id];
-              var t = lsGet('panel-robot-addr-' + r.id);   // the robot's Tailscale name, typed once on this device with Set address
+              var t = lsGet('panel-robot-addr-' + r.id) || r.tailscale;   // the robot's Tailscale name: roster first-time default, or one typed on this device with Set address
               base[r.id] = (up[r.id] && t) ? 'https://' + t : null;
             });
             paint();
@@ -1858,7 +1858,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         var wasDemo = demo.classList.contains('show');
         var isDemo = (r.id !== SELF);
         demo.textContent = (SECURE && up[r.id])
-          ? r.name + ' is on right now. This page cannot control her, and nothing here is saved. To open her real panel, press Set address and type her Tailscale name. This is how ' + r.name + '’s panel looks.'
+          ? r.name + ' is on right now. This page cannot control her, and nothing here is saved. ' + (base[r.id] ? 'To open her real panel, choose her from the list (this device needs Tailscale signed in).' : 'To open her real panel, press Set address and type her Tailscale name.') + ' This is how ' + r.name + '’s panel looks.'
           : 'Not connected. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
         demo.classList.toggle('show', isDemo);
         var g = document.querySelector('.grid');
