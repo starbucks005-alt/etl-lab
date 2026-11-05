@@ -4433,6 +4433,65 @@ def checkin_loop():
         time.sleep(60)
 
 
+PAGE_URL = "https://emerging-tech-lab.com/al-panel/"
+PAGE_FILES = ("index.html", "robots.json")
+NO_PAGE_UPDATE_FILE = os.path.join(HERE, "no_page_update.txt")
+
+
+def _page_file_ok(name, data):
+    """A downloaded page file is only used if it is whole: a real page that ends properly, or a roster that parses."""
+    try:
+        if name == "index.html":
+            return len(data) > 100000 and b"<title>" in data[:4000] and b"</html>" in data[-200:]
+        if name == "robots.json":
+            robots = json.loads(data.decode("utf-8")).get("robots")
+            return isinstance(robots, list) and len(robots) > 0
+    except Exception:
+        pass
+    return False
+
+
+def update_page_files(base=PAGE_URL, folder=HERE):
+    """Fetch the newest panel page and roster from the website and swap them in. A bad or partial download is thrown away,
+    and the old file is kept beside the new one as <name>.bak. Returns the names that were replaced."""
+    changed = []
+    for name in PAGE_FILES:
+        try:
+            r = requests.get(base + name, timeout=20)
+            if r.status_code != 200 or not _page_file_ok(name, r.content):
+                continue
+            path = os.path.join(folder, name)
+            old = open(path, "rb").read() if os.path.exists(path) else b""
+            if old.replace(b"\r\n", b"\n") == r.content.replace(b"\r\n", b"\n"):
+                continue
+            if old:
+                with open(path + ".bak", "wb") as f:
+                    f.write(old)
+            with open(path + ".new", "wb") as f:
+                f.write(r.content)
+            os.replace(path + ".new", path)
+            changed.append(name)
+        except Exception:
+            pass
+    return changed
+
+
+def page_update_loop():
+    """Once an hour (first look two minutes after start), keep this robot's panel page and roster the same as the website's, so
+    a change to the page reaches every robot without copying files by hand. Adding a file called no_page_update.txt next to this
+    program turns it off; it is checked every time, so that needs no restart. Never touches this program itself."""
+    time.sleep(120)
+    while True:
+        try:
+            if not os.path.exists(NO_PAGE_UPDATE_FILE):
+                got = update_page_files()
+                if got:
+                    print("page update: replaced " + ", ".join(got), flush=True)
+        except Exception:
+            pass
+        time.sleep(3600)
+
+
 if __name__ == "__main__":
     restore_volume()
     restore_persona()
@@ -4441,6 +4500,7 @@ if __name__ == "__main__":
     threading.Thread(target=say_address_when_ready, daemon=True).start()
     threading.Thread(target=watch_motion, daemon=True).start()
     threading.Thread(target=checkin_loop, daemon=True).start()      # tells the website this robot is on
+    threading.Thread(target=page_update_loop, daemon=True).start()  # keeps this robot's panel page the same as the website's
     if cues and hasattr(cues, "idle_start"):
         cues.idle_start(PLAY_DEVICE)       # breathing while idle, only if idle_breath.txt says on
     threading.Thread(target=watch_names, daemon=True).start()
