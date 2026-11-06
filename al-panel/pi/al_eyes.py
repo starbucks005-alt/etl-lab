@@ -13,8 +13,20 @@ from rpi_ws281x import Color, PixelStrip
 
 from al_eyes_math import eye_level, strip_frame
 
-EYE_LEDS = 32       # two rings of 16
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def _eye_leds():
+    """How many lights both eyes have in all. A file called eye_leds next to this one holds the number (Astro and Astri have two rings
+    of 12, so 24); no file, or a number that makes no sense, means 32, two rings of 16 (AL, Astra, Ted)."""
+    try:
+        n = int(open(os.path.join(HERE, "eye_leds")).read().strip())
+    except (OSError, ValueError):
+        return 32
+    return n if 2 <= n <= 144 else 32
+
+
+EYE_LEDS = _eye_leds()
 
 
 def _strip_leds():
