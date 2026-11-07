@@ -272,7 +272,8 @@
       },
       "voice": {
         "engine": "Azure (Dr. O)",
-        "name": null
+        "name": "en-US-Olivia:MAI-Voice-2-Flash (Dr. O, 2026-11-07). Not heard by Claude.",
+        "backup": "ElevenLabs, her old voice (Dr. O, 2026-11-07). If Azure says no, she still speaks. On the Pi, azure_speech.json holds tts_voice (the Azure name) and backup_voice (the ElevenLabs id)."
       },
       "look": "gloss black head and neck, silver/chrome body, black uniform with an ETL patch",
       "special": "one large camera lens in the center of the face, a red LED strip mouth that sweeps while she speaks"

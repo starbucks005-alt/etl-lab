@@ -1183,6 +1183,18 @@ def stt_language():
         return "en-US"
 
 
+def file_voice(name):
+    """An optional per-robot voice from azure_speech.json: "tts_voice" (an Azure voice name, such as
+    en-US-Olivia:MAI-Voice-2-Flash) or "backup_voice" (an ElevenLabs voice id). Added 2026-11-07, Dr. O, for Guardian F.
+    Missing or odd means None, and the built-in voices are used as before."""
+    try:
+        with open(AZURE_FILE) as f:
+            v = str(json.load(f).get(name) or "").strip()
+    except (OSError, ValueError, AttributeError):
+        return None
+    return v if re.fullmatch(r"[A-Za-z0-9:_.-]{3,80}", v) else None
+
+
 def azure_cfg(part):
     """(key, region) when Azure is set up and `part` ("tts" or "stt") is not switched off, else None.
     Dr. O, 2026-10-28: "her voice is elevenlabs, it will never be Azure." On A.L.I.C.E.'s Pi (the one with index_alice.html) this is always None,
@@ -1425,7 +1437,7 @@ def _speak_inner(text, use_persona=True):
             """Speak one piece of text. Returns False if she was told to stop."""
             if cfg:
                 try:
-                    az_voice = AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
+                    az_voice = file_voice("tts_voice") or AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
                     print("SPEAK via Azure", az_voice, flush=True)
                     azure_speak(part, cfg, az_voice)
                 except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
@@ -1435,7 +1447,7 @@ def _speak_inner(text, use_persona=True):
                     # robot/american fall back to the old AL voice; the other accents to their own ElevenLabs voice,
                     # which was already set above from VOICES.
                     if state["accent"] in ("robot", "american"):
-                        al.AL_VOICE_ID = ELEVEN_BACKUP_VOICE
+                        al.AL_VOICE_ID = file_voice("backup_voice") or ELEVEN_BACKUP_VOICE
                     al.speak(part)
             else:
                 al.speak(part)
