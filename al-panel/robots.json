@@ -99,7 +99,7 @@
       },
       "voice": {
         "engine": "Azure (Dr. O)",
-        "name": null
+        "name": "hu-HU-Lilla:MAI-Voice-2-Flash (Dr. O, 2026-11-07). A Hungarian voice; not yet tested speaking English. Not heard by Claude. Not yet tried on a Pi, where the server tags the text as hu-HU from the voice name, so that may need a change. On the Pi, azure_speech.json holds tts_voice with this name."
       },
       "look": "champagne gold, white lab coat and dress",
       "special": "neck servos on a lazy Susan bearing, head moves when she talks, eyes pulse, a collar. Camera, no HuskyLens."
@@ -162,8 +162,9 @@
         "note": "Astra and Ted's little boy. Elle is his aunt (Astra's little sister) and ALICE is his honorary aunt. Dr. O, 2026-10-31: a boy because there are already so many females. Nothing else about him is decided yet. Dr. O, 2026-11-02: the family is Mom Astra, Dad Astrad, twin brother Astro, twin sister Astri. Astro has a twin sister, Astri, who is not built or written yet."
       },
       "voice": {
-        "engine": "ElevenLabs (Dr. O, 2026-11-01)",
-        "name": "kqf3165btzkiiwqxmo1q, called Teddy: a voice Dr. O made in ElevenLabs Voice Design to sound like a little boy. Not heard by Claude.",
+        "engine": "Azure (Dr. O, 2026-11-07)",
+        "name": "zh-CN-Yunxia:DragonHDFlashLatestNeural (Dr. O, 2026-11-07): a youthful Chinese voice that she says speaks English in Foundry's voice picker. Not heard by Claude. Not yet tried on a Pi, where the server tags the text as zh-CN from the voice name, so that may need a change.",
+        "elevenlabs_teddy": "kqf3165btzkiiwqxmo1q, called Teddy: a voice Dr. O made in ElevenLabs Voice Design to sound like a little boy (2026-11-01). Kept as the earlier option. Not heard by Claude.",
         "alternative": "Azure en-US-Tyler:DragonHDFlashLatestNeural, given by Dr. O. She says it does not sound like a little boy. Not heard by Claude.",
         "earlier": "ElevenLabs voice id mrQhZWGbb2k9qWJb5qeA, given by Dr. O. She says it does not sound like a little boy. Not heard by Claude.",
         "note": "Dr. O, 2026-11-01: neither earlier voice sounds like a child, so Teddy is the one to use. ElevenLabs costs money each time it speaks, so his fixed lines (greetings, game cheers, invitations) are to be recorded once and replayed as files. Azure is paid from credits Dr. O expects to keep renewing, but it is not child-like."
@@ -235,9 +236,10 @@
         "note": "Dr. O, 2026-11-02: Astri is Astro's twin sister. Mommy Astra, daddy Astrad. She likes dolls and tea parties (Dr. O, 2026-11-02). Nothing else about her is decided yet."
       },
       "voice": {
-        "engine": "ElevenLabs (Dr. O, 2026-11-02)",
-        "name": "t32lqiRDyoLz0gaRQCGT, called Astri: a character voice Dr. O made in ElevenLabs Voice Design (it does not make child voices). Not heard by Claude.",
-        "note": "ElevenLabs costs money each time it speaks, so her fixed lines (greetings, invitations) are to be recorded once and replayed as files."
+        "engine": "Azure (Dr. O, 2026-11-07)",
+        "name": "en-US-AnaNeural (Dr. O, 2026-11-07): Ana, Female, English (United States), described as friendly, light, approachable. Not heard by Claude. On the Pi, azure_speech.json holds tts_voice with this name.",
+        "earlier": "ElevenLabs t32lqiRDyoLz0gaRQCGT, called Astri: a character voice Dr. O made in ElevenLabs Voice Design (it does not make child voices). Not heard by Claude. Kept as the earlier option.",
+        "note": "Azure is paid from Dr. O's credits, so her fixed lines (greetings, invitations, game lines) can be recorded once and replayed. Her game-line recorder (tools/record-twins-lines.js) still uses ElevenLabs and has not been changed."
       }
     },
     {

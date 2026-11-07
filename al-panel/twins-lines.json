@@ -6,7 +6,8 @@
       "name": "Astro",
       "mark": "X",
       "picture": "images/astro-concept_v2.jpg",
-      "voice": "kqf3165btzkiiwqxmo1q",
+      "voice": "azure:zh-CN-Yunxia:DragonHDFlashLatestNeural@en-US",
+      "earlier_voice": "kqf3165btzkiiwqxmo1q",
       "lines": {
         "start": "Let's play! I am X. Astri is O. I go first!",
         "c0": "Up here, on the left!",
@@ -27,7 +28,8 @@
       "name": "Astri",
       "mark": "O",
       "picture": "images/astri-concept_v1.jpg",
-      "voice": "t32lqiRDyoLz0gaRQCGT",
+      "voice": "azure:en-US-AnaNeural",
+      "earlier_voice": "t32lqiRDyoLz0gaRQCGT",
       "lines": {
         "start": "I am O! Astro goes first. Then me.",
         "c0": "I pick the top corner, on the left.",

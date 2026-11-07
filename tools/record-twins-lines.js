@@ -3,11 +3,17 @@
    per line, so the tablet page (al-panel/twins.html) can replay them for free.
 
    Written for Dr. O, 2026-11-02. Nothing here is run by the site. You run it on your own computer.
-   Voices: Astro is Teddy (kqf3165btzkiiwqxmo1q), Astri is t32lqiRDyoLz0gaRQCGT, both ElevenLabs character
-   voices you made. They come from the "voice" field in twins-lines.json.
+   Voices, changed 2026-11-07 (Dr. O: use the Azure credits): Astro is Azure zh-CN-Yunxia:DragonHDFlashLatestNeural,
+   Astri is Azure en-US-AnaNeural. They come from the "voice" field in twins-lines.json. A voice written
+   azure:... is spoken by Azure; anything else is an ElevenLabs voice id, as before. The earlier ElevenLabs ids are
+   kept in "earlier_voice" in that file and are not used by this tool unless you copy one back into "voice".
+   Astro's id ends in @en-US, which tells Azure the text is English (the voice itself is Chinese). That tag is an
+   addition, not tried yet: if his English sounds wrong, remove "@en-US" in twins-lines.json and record again with --version 2.
 
    Usage (PowerShell, in the repository folder)
-     $env:ELEVENLABS_API_KEY = "your key"      # typed by you, in your own window; never saved in a file
+     $env:AZURE_SPEECH_KEY = "your key"        # typed by you, in your own window; never saved in a file
+     $env:AZURE_SPEECH_REGION = "your region"  # for example eastus; eastus is used if this is not set
+     (only if a voice is ElevenLabs: $env:ELEVENLABS_API_KEY = "your key")
      node tools/record-twins-lines.js --dry    # lists every line and file, spends nothing
      node tools/record-twins-lines.js          # records only the lines that have no file yet
      node tools/record-twins-lines.js --only astri   # one twin only
@@ -49,6 +55,12 @@ todo.forEach((j) => console.log('  ' + path.basename(j.file) + '  [' + j.voice +
 if (dry || !todo.length) { console.log(dry ? '\nDry run: nothing was sent and nothing was saved.' : '\nNothing to record.'); process.exit(0); }
 
 async function speak(text, voice) {
+  if (String(voice).startsWith('azure:')) {
+    const { azureVoiceName, azureSpeak } = require('../netlify/functions/_azure-tts.js');
+    const name = azureVoiceName(voice);
+    if (!name) { throw new Error('not_an_azure_voice_id: ' + voice); }
+    return azureSpeak(text, name);
+  }
   const key = process.env.ELEVENLABS_API_KEY;
   if (!key) { throw new Error('no_elevenlabs_key'); }
   const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voice), {
@@ -70,7 +82,7 @@ async function speak(text, voice) {
       n++;
       console.log('saved ' + path.basename(j.file) + ' (' + mp3.length + ' bytes)');
     } catch (e) {
-      console.error('\nStopped at ' + path.basename(j.file) + ': ' + e.message + (e.message === 'no_elevenlabs_key' ? ' (set ELEVENLABS_API_KEY in this window first)' : ''));
+      console.error('\nStopped at ' + path.basename(j.file) + ': ' + e.message + (e.message === 'no_elevenlabs_key' ? ' (set ELEVENLABS_API_KEY in this window first)' : e.message === 'no_azure_key' ? ' (set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in this window first)' : ''));
       console.error(n + ' saved before the stop. Run it again to continue; saved lines are skipped.');
       process.exit(1);
     }
