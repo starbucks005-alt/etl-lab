@@ -368,6 +368,31 @@ def _read_robot_voice():
 
 
 ROBOT_VOICE = _read_robot_voice()
+
+
+# 2026-11-07, Dr. O: Astro's voice was too high. If robot_pitch.txt (a number, percent, 0 to 30) is beside this file, this robot's
+# ElevenLabs voice is played that much lower. It plays the same sound at a lower rate, so speech is also that much slower.
+# Read on every sentence, so changing the number needs no restart. No file, or 0, means nothing changes.
+def _read_pitch():
+    try:
+        v = float(open(os.path.join(HERE, "robot_pitch.txt"), encoding="utf-8").read().split()[0])
+        return max(0.0, min(30.0, v))
+    except (OSError, ValueError, IndexError):
+        return 0.0
+
+
+def _speak_text(part):
+    pitch = _read_pitch()
+    if not pitch:
+        return al.speak(part)
+    h = dict(al.ELEVEN_HEADERS)
+    h["content-type"] = "application/json"
+    r = requests.post("https://api.elevenlabs.io/v1/text-to-speech/" + al.AL_VOICE_ID + "?output_format=pcm_22050",
+                      headers=h, timeout=60, json={"text": part, "model_id": "eleven_multilingual_v2"})
+    r.raise_for_status()
+    rate = str(int(22050 * (1.0 - pitch / 100.0)))
+    subprocess.run(["aplay", "-q", "-D", "plughw:wm8960soundcard", "-t", "raw", "-f", "S16_LE", "-r", rate, "-c", "1"],
+                   input=r.content, check=False)
 SELF_PERSONA = "gc-a-l-i-c-e" if ROBOT_ID == "alice" else None
 
 
@@ -1448,9 +1473,9 @@ def _speak_inner(text, use_persona=True):
                     # which was already set above from VOICES.
                     if state["accent"] in ("robot", "american"):
                         al.AL_VOICE_ID = file_voice("backup_voice") or ELEVEN_BACKUP_VOICE
-                    al.speak(part)
+                    _speak_text(part)
             else:
-                al.speak(part)
+                _speak_text(part)
             return True
 
         # 2026-10-30, Dr. O: small sounds around her speech. A.L.I.C.E. breathes in before she speaks; Astra 9 and Ted click before, tick between
