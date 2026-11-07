@@ -307,6 +307,24 @@ def azure_ok(key: str, region: str) -> tuple[bool, str]:
         return False, f"could not reach Azure ({str(exc)[:60]})"
 
 
+AZURE_REGIONS = ["eastus", "eastus2", "westus", "westus2", "westus3", "centralus", "northcentralus", "southcentralus", "westcentralus",
+                 "canadacentral", "canadaeast", "brazilsouth", "northeurope", "westeurope", "uksouth", "ukwest", "francecentral",
+                 "germanywestcentral", "swedencentral", "norwayeast", "switzerlandnorth", "uaenorth", "southafricanorth",
+                 "centralindia", "southindia", "japaneast", "japanwest", "koreacentral", "southeastasia", "eastasia",
+                 "australiaeast", "australiasoutheast"]
+
+
+def find_region(key: str, tried: str = "") -> str:
+    """Ask each Azure region whether this key belongs to it. Only Microsoft's own endpoints are asked. Returns the region, or ''."""
+    for reg in AZURE_REGIONS:
+        if reg == tried:
+            continue
+        good, _ = azure_ok(key, reg)
+        if good:
+            return reg
+    return ""
+
+
 def collect(args: argparse.Namespace) -> dict:
     print("\nETL robot GO\n")
     key = args.robot or ""
@@ -352,6 +370,13 @@ def collect(args: argparse.Namespace) -> dict:
                 print("Azure accepted this key and region.")
                 break
             print("Azure did not accept it: " + why)
+            print("Looking for the region this key belongs to (this asks Microsoft's own servers only)...")
+            found = find_region(azure_key, azure_region)
+            if found:
+                azure_region = found
+                print("This key belongs to the region: " + found + ". Using it.")
+                break
+            print("No Azure region accepted this key, so it was probably mistyped or copied wrong.")
             if attempt == 2:
                 sys.exit("Stopped. Nothing was sent to the robot. Check the key and region in the Azure portal (Speech resource, Keys and Endpoint).")
             azure_key = getpass.getpass("Azure speech key again (hidden, Enter to skip): ").strip()
