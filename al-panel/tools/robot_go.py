@@ -388,7 +388,11 @@ def collect(args: argparse.Namespace) -> dict:
         for attempt in range(3):          # check the key and region with Azure BEFORE sending them to a robot
             if not azure_key:
                 break
-            azure_region = azure_where(ask("Azure region, or paste your Foundry project endpoint", azure_region))
+            if attempt == 0 and getattr(args, "azure_region", None):
+                azure_region = azure_where(args.azure_region)          # given on the command line: do not ask
+                print("Azure region/endpoint: " + azure_region)
+            else:
+                azure_region = azure_where(ask("Azure region, or paste your Foundry endpoint", azure_region))
             good, why = azure_ok(azure_key, azure_region)
             if good:
                 print("Azure accepted this key and region.")
@@ -532,6 +536,7 @@ def main() -> int:
     ap.add_argument("--al-py", dest="al_py", default=None)
     ap.add_argument("--clone-from", dest="clone_from", default=None,
                     help="address of a working robot's Pi (for example ALICE). Its panel files and al.py are copied, minus its own memory")
+    ap.add_argument("--azure-region", dest="azure_region", default=None, help="Azure region (eastus) or your Foundry endpoint address, so GO does not ask")
     ap.add_argument("--tailscale", action="store_true", help="also install Tailscale and share the panel over https")
     ap.add_argument("--voice-only", dest="voice_only", action="store_true", help="only set this robot's own Azure voice (key typed hidden) and update its panel server")
     ap.add_argument("--tailscale-only", dest="ts_only", action="store_true", help="only do the Tailscale step on a robot that is already set up")
