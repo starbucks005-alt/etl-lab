@@ -2007,5 +2007,41 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       }).catch(function(){});
     })();
     </script>
-    </body>
+    <script>
+/* 2026-11-07, Dr. O: one panel for every robot. The words in this page say she/her. A robot whose roster entry (robots.json) has
+   "pronouns": "he" gets he/him/his instead. Only runs on a robot's own page. No pronouns field means nothing changes. */
+(function () {
+  var OBJ = /\b(to|show|wake|ask|tell|teach|hear|see|touch|with|let|give|help|call|thank|meet|follow|hug) her(?=\s*(?:$|[.,;:!?)]|(?:a|an|the|that|this|what|when|how|if|to|about|some|your|and|or|which|who)\b))/gi;
+  function swap(s) {
+    return s.replace(/\bherself\b/g, "himself").replace(/\bHerself\b/g, "Himself")
+      .replace(OBJ, function (m, v) { return v + " him"; })
+      .replace(/\bShe\b/g, "He").replace(/\bshe\b/g, "he")
+      .replace(/\bHer\b/g, "His").replace(/\bher\b/g, "his");
+  }
+  function walk(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, list = [];
+    while ((n = w.nextNode())) {
+      var tag = n.parentNode && n.parentNode.nodeName;
+      if (tag === "SCRIPT" || tag === "STYLE" || tag === "TEXTAREA") continue;
+      list.push(n);
+    }
+    list.forEach(function (t) { var v = swap(t.nodeValue); if (v !== t.nodeValue) t.nodeValue = v; });
+  }
+  fetch("/api/robot", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
+    if (!me || !me.id) return;
+    return fetch("/robots.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      var list = (d && d.robots) || d || [], mine = null;
+      list.forEach(function (x) { if (x && x.id === me.id) mine = x; });
+      if (!mine || mine.pronouns !== "he") return;
+      walk(document.body);
+      var busy = false;
+      new MutationObserver(function () {
+        if (busy) return; busy = true;
+        setTimeout(function () { busy = false; walk(document.body); }, 150);
+      }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    });
+  }).catch(function () {});
+})();
+</script>
+</body>
 </html>
