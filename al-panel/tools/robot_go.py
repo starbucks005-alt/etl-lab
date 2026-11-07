@@ -63,7 +63,7 @@ def load_robots() -> dict:
                 out[r["id"]] = {
                     "rid": r["id"], "name": r.get("name", r["id"]), "hostname": r.get("hostname") or r["id"],
                     "eyes": s.get("eyes", "led-ring"), "mode": s.get("mode", "companion"), "page": None,
-                    "voice": s.get("voice", "tbd"), "voice_id": s.get("voice_id", ""),
+                    "voice": s.get("voice", "tbd"), "voice_id": s.get("voice_id", ""), "azure_voice": s.get("azure_voice", ""),
                     "camera": bool(s.get("camera")), "husky": bool(s.get("husky"))}
             return out
     sys.exit("No robots.json found next to the panel files.")
@@ -106,6 +106,18 @@ ts_step() {
 
 sudo -v || { echo "sudo failed"; exit 2; }
 if [ "${ONLY_TS:-no}" = "yes" ]; then ts_step; echo; echo "FAILS=$FAILS"; exit $FAILS; fi
+if [ "${ONLY_VOICE:-no}" = "yes" ]; then
+  echo "---- this robot's own Azure voice ----"
+  if [ -f al_panel_server.py ]; then
+    cp "$H/al_panel/al_panel_server.py" "$H/al_panel/al_panel_server.py.bak_$(date +%Y%m%d-%H%M)" 2>/dev/null
+    cp -f al_panel_server.py "$H/al_panel/al_panel_server.py" && did "panel server updated (backup kept)" || fail "panel server"
+  fi
+  if [ -f azure_speech.json ]; then
+    mv -f azure_speech.json "$H/al_panel/azure_speech.json" && chmod 600 "$H/al_panel/azure_speech.json" && did "Azure key and voice stored (owner only)" || fail "Azure key"
+  else warn "no Azure key was typed, so the voice is not set"; fi
+  sudo systemctl restart al-panel.service && did "panel restarted" || fail "panel restart"
+  echo; echo "FAILS=$FAILS"; exit $FAILS
+fi
 MODEL=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null)
 echo "Pi model: $MODEL"
 echo "Setting up: $ROBOT_NAME"
@@ -298,14 +310,15 @@ def collect(args: argparse.Namespace) -> dict:
     eyes = args.eyes or ask("Eyes (led-ring, led-ring-red, animatronic, none)", r["eyes"])
     hostname = args.hostname or ask("Hostname for this Pi", r["hostname"])
     ts_only = bool(args.ts_only)
+    voice_only = bool(getattr(args, "voice_only", False))
     want_ts = bool(args.tailscale or ts_only)
     clone_from = args.clone_from
-    if ts_only:
+    if ts_only or voice_only:
         clone_from = ""
     if clone_from is None:
         clone_from = ask("Copy another robot's setup from its Pi? Its address (Enter to use the repo files)", "")
     al_py = args.al_py
-    if al_py is None and (clone_from or ts_only):
+    if al_py is None and (clone_from or ts_only or voice_only):
         al_py = ""
     if al_py is None:
         al_py = ask("Path to al.py copied from Astra Lite (Enter to skip)", "")
@@ -315,10 +328,10 @@ def collect(args: argparse.Namespace) -> dict:
         if azure_key:
             azure_region = ask("Azure region", "eastus")
     checkin_key = ""
-    if not args.dry_run and not args.no_keys and not ts_only:
+    if not args.dry_run and not args.no_keys and not ts_only and not voice_only:
         checkin_key = getpass.getpass("Home access code for the website check-in (hidden, Enter to skip): ").strip()
     return {"key": key, "robot": r, "checkin_key": checkin_key, "host": host, "user": user, "cam": cam, "eyes": eyes,
-            "hostname": hostname, "want_ts": want_ts, "ts_only": ts_only, "clone_from": clone_from, "al_py": al_py, "azure_key": azure_key, "azure_region": azure_region}
+            "hostname": hostname, "want_ts": want_ts, "ts_only": ts_only, "voice_only": voice_only, "clone_from": clone_from, "al_py": al_py, "azure_key": azure_key, "azure_region": azure_region}
 
 
 def fetch_clone(a: dict, out: Path) -> None:
@@ -365,7 +378,7 @@ def build_bundle(a: dict, out: Path, dry: bool = False) -> list[str]:
     want_eyes = "al-eyes" if a["eyes"].startswith("led-ring") else ""
     conf = {
         "ROBOT_USER": a["user"], "ROBOT_NAME": a["robot"]["name"], "ROBOT_HOSTNAME": a["hostname"],
-        "ROBOT_ID": a["robot"].get("rid", a["key"]), "WANT_TS": "yes" if a["want_ts"] else "no", "ONLY_TS": "yes" if a["ts_only"] else "no", "VOICE_ID": a["robot"].get("voice_id", ""), "CAM_PORT": "none" if a["cam"] == "detect" else a["cam"], "HAS_CAMERA": "yes" if (a["robot"].get("camera") or a["cam"] in ("cam0", "cam1")) else "no",
+        "ROBOT_ID": a["robot"].get("rid", a["key"]), "WANT_TS": "yes" if a["want_ts"] else "no", "ONLY_TS": "yes" if a["ts_only"] else "no", "ONLY_VOICE": "yes" if a.get("voice_only") else "no", "VOICE_ID": a["robot"].get("voice_id", ""), "CAM_PORT": "none" if a["cam"] == "detect" else a["cam"], "HAS_CAMERA": "yes" if (a["robot"].get("camera") or a["cam"] in ("cam0", "cam1")) else "no",
         "HAS_HUSKY": "yes" if a["robot"].get("husky") else "no", "WANT_EYES": want_eyes, "VOICE": a["robot"]["voice"],
     }
     (out / "go.conf").write_text("".join(f"{k}={shlex.quote(v)}\n" for k, v in conf.items()), newline="\n")
@@ -380,10 +393,12 @@ def build_bundle(a: dict, out: Path, dry: bool = False) -> list[str]:
         (out / "al.py").write_bytes(src.read_bytes())
     if a["clone_from"] and not dry:
         fetch_clone(a, out)
+    if a.get("voice_only"):
+        (out / "al_panel_server.py").write_bytes((PI_DIR / "al_panel_server.py").read_bytes())
     if a.get("checkin_key"):
         (out / "checkin_key.txt").write_text(a["checkin_key"], newline="\n")
     if a["azure_key"]:
-        (out / "azure_speech.json").write_text(json.dumps({"key": a["azure_key"], "region": a["azure_region"]}), newline="\n")
+        (out / "azure_speech.json").write_text(json.dumps(dict({"key": a["azure_key"], "region": a["azure_region"]}, **({"tts_voice": a["robot"]["azure_voice"]} if a["robot"].get("azure_voice") else {}))), newline="\n")
     return [arc for _, arc in files]
 
 
@@ -410,7 +425,7 @@ def go(a: dict, dry: bool) -> int:
         target = f"{a['user']}@{a['host']}"
         remote = "/tmp/etl-go"
         files = ["files.tgz", "services", "go.conf", "robot.json", "setup.sh"] + \
-                [f for f in ("al.py", "azure_speech.json", "clone.tgz", "checkin_key.txt") if (out / f).exists()]
+                [f for f in ("al.py", "azure_speech.json", "clone.tgz", "checkin_key.txt", "al_panel_server.py") if (out / f).exists()]
         print("\nCopying to the Pi (it may ask for the Pi's password)...")
         r = subprocess.run(["ssh", *ssh_base(a), target, f"rm -rf {remote} && mkdir -p {remote}"], cwd=out)
         if r.returncode:
@@ -439,6 +454,7 @@ def main() -> int:
     ap.add_argument("--clone-from", dest="clone_from", default=None,
                     help="address of a working robot's Pi (for example ALICE). Its panel files and al.py are copied, minus its own memory")
     ap.add_argument("--tailscale", action="store_true", help="also install Tailscale and share the panel over https")
+    ap.add_argument("--voice-only", dest="voice_only", action="store_true", help="only set this robot's own Azure voice (key typed hidden) and update its panel server")
     ap.add_argument("--tailscale-only", dest="ts_only", action="store_true", help="only do the Tailscale step on a robot that is already set up")
     ap.add_argument("--no-keys", action="store_true", help="do not ask for the Azure key")
     ap.add_argument("--dry-run", action="store_true", help="show the plan, touch no Pi")

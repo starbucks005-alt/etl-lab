@@ -85,7 +85,7 @@
     {
       "id": "astra",
       "tailscale": "astra.tailcaab0e.ts.net",
-      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "elevenlabs"},
+      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "azure", "azure_voice": "hu-HU-Lilla:MAI-Voice-2-Flash"},
       "name": "Astra-9",
       "short": "Astra",
       "hostname": null,
@@ -106,7 +106,7 @@
     },
     {
       "id": "astrad",
-      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "elevenlabs"},
+      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "azure", "azure_voice": "en-US-ChristopherNeural"},
       "name": "Astrad",
       "short": "Ted",
       "hostname": null,
@@ -191,7 +191,7 @@
     },
     {
       "id": "astri",
-      "setup": {"eyes": "led-ring", "mode": "children-friend", "voice": "elevenlabs", "voice_id": "t32lqiRDyoLz0gaRQCGT"},
+      "setup": {"eyes": "led-ring", "mode": "children-friend", "voice": "azure", "voice_id": "t32lqiRDyoLz0gaRQCGT", "azure_voice": "en-US-AnaNeural"},
       "name": "Astri",
       "short": "Astri",
       "hostname": null,

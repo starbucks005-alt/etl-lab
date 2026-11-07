@@ -1260,7 +1260,7 @@ def azure_speak(text, cfg, voice=None):
     from xml.sax.saxutils import escape
     key, region = cfg
     voice = voice or AZURE_TTS_VOICE
-    lang = "-".join(voice.split("-")[:2])          # en-GB-SoniaNeural -> en-GB
+    lang = "en-US" if ":" in voice else "-".join(voice.split("-")[:2])   # en-GB-SoniaNeural -> en-GB. A multilingual voice (a colon in its name) speaks our English as en-US
     ssml = "<speak version='1.0' xml:lang='%s'><voice name='%s'>%s</voice></speak>" % (lang, voice, escape(text))
     r = requests.post(
         "https://%s.tts.speech.microsoft.com/cognitiveservices/v1" % region,
