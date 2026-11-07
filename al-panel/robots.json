@@ -107,6 +107,7 @@
     {
       "id": "astrad",
       "setup": {"eyes": "led-ring", "mode": "companion", "voice": "azure", "azure_voice": "en-US-ChristopherNeural"},
+      "tailscale": "astrad.tailcaab0e.ts.net",
       "name": "Astrad",
       "short": "Ted",
       "hostname": null,
