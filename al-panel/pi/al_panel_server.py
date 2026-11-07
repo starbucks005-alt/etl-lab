@@ -1261,7 +1261,9 @@ def azure_speak(text, cfg, voice=None):
     key, region = cfg
     voice = voice or AZURE_TTS_VOICE
     lang = "en-US" if ":" in voice else "-".join(voice.split("-")[:2])   # en-GB-SoniaNeural -> en-GB. A multilingual voice (a colon in its name) speaks our English as en-US
-    ssml = "<speak version='1.0' xml:lang='%s'><voice name='%s'>%s</voice></speak>" % (lang, voice, escape(text))
+    # a multilingual voice (a colon in its name) is told, around the words themselves, that they are English, so it does not read them in its own language
+    inner = ("<lang xml:lang='en-US'>%s</lang>" % escape(text)) if ":" in voice else escape(text)
+    ssml = "<speak version='1.0' xml:lang='%s'><voice name='%s'>%s</voice></speak>" % (lang, voice, inner)
     r = requests.post(
         (region.rstrip("/") + "/tts/cognitiveservices/v1") if region.startswith("https://") else "https://%s.tts.speech.microsoft.com/cognitiveservices/v1" % region,   # 2026-11-07: a Foundry resource has its own address
         headers={"Ocp-Apim-Subscription-Key": key, "Content-Type": "application/ssml+xml",
