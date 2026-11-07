@@ -84,6 +84,7 @@
     },
     {
       "id": "astra",
+      "tailscale": "astra.tailcaab0e.ts.net",
       "setup": {"eyes": "led-ring", "mode": "companion", "voice": "elevenlabs"},
       "name": "Astra-9",
       "short": "Astra",
