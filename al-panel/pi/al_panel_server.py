@@ -370,19 +370,20 @@ def _read_robot_voice():
 ROBOT_VOICE = _read_robot_voice()
 
 
-# 2026-11-07, Dr. O: Astro's voice was too high. If robot_pitch.txt (a number, percent, 0 to 30) is beside this file, this robot's
-# ElevenLabs voice is played that much lower. It plays the same sound at a lower rate, so speech is also that much slower.
-# Read on every sentence, so changing the number needs no restart. No file, or 0, means nothing changes.
+# 2026-11-07, Dr. O: Astro's voice was too high. If robot_pitch.txt is beside this file, this robot's ElevenLabs voice is lowered by that
+# percent (0 to 30). `6` plays the same sound at a lower rate, so the voice is also slower. `6 keep` lowers the pitch but keeps the speed
+# (uses ffmpeg; if ffmpeg fails it falls back to the plain way). Read on every sentence, so changing the file needs no restart.
+# No file, or 0, means nothing changes.
 def _read_pitch():
     try:
-        v = float(open(os.path.join(HERE, "robot_pitch.txt"), encoding="utf-8").read().split()[0])
-        return max(0.0, min(30.0, v))
+        parts = open(os.path.join(HERE, "robot_pitch.txt"), encoding="utf-8").read().split()
+        return max(0.0, min(30.0, float(parts[0]))), ("keep" in [x.lower() for x in parts[1:]])
     except (OSError, ValueError, IndexError):
-        return 0.0
+        return 0.0, False
 
 
 def _speak_text(part):
-    pitch = _read_pitch()
+    pitch, keep = _read_pitch()
     if not pitch:
         return al.speak(part)
     h = dict(al.ELEVEN_HEADERS)
@@ -390,9 +391,20 @@ def _speak_text(part):
     r = requests.post("https://api.elevenlabs.io/v1/text-to-speech/" + al.AL_VOICE_ID + "?output_format=pcm_22050",
                       headers=h, timeout=60, json={"text": part, "model_id": "eleven_multilingual_v2"})
     r.raise_for_status()
-    rate = str(int(22050 * (1.0 - pitch / 100.0)))
-    subprocess.run(["aplay", "-q", "-D", "plughw:wm8960soundcard", "-t", "raw", "-f", "S16_LE", "-r", rate, "-c", "1"],
-                   input=r.content, check=False)
+    f = 1.0 - pitch / 100.0
+    pcm, rate = r.content, int(22050 * f)
+    if keep:
+        try:
+            q = subprocess.run(["ffmpeg", "-v", "error", "-f", "s16le", "-ar", "22050", "-ac", "1", "-i", "pipe:0",
+                                "-af", "asetrate=%d,aresample=22050,atempo=%.5f" % (int(22050 * f), 1.0 / f),
+                                "-f", "s16le", "-ar", "22050", "-ac", "1", "pipe:1"],
+                               input=r.content, capture_output=True, timeout=30)
+            if q.returncode == 0 and q.stdout:
+                pcm, rate = q.stdout, 22050
+        except Exception:
+            pass
+    subprocess.run(["aplay", "-q", "-D", "plughw:wm8960soundcard", "-t", "raw", "-f", "S16_LE", "-r", str(rate), "-c", "1"],
+                   input=pcm, check=False)
 SELF_PERSONA = "gc-a-l-i-c-e" if ROBOT_ID == "alice" else None
 
 
