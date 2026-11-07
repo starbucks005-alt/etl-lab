@@ -10,6 +10,7 @@
   "robots": [
     {
       "id": "astra-lite",
+      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "azure"},
       "name": "Astra-9 Lite",
       "short": "Elle",
       "hostname": "astra9lite",
@@ -37,6 +38,7 @@
     },
     {
       "id": "alice",
+      "setup": {"eyes": "animatronic", "mode": "companion", "voice": "elevenlabs", "camera": true, "husky": true},
       "tailscale": "alice.tailcaab0e.ts.net",
       "name": "A.L.I.C.E.",
       "short": "Alice",
@@ -82,6 +84,7 @@
     },
     {
       "id": "astra",
+      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "elevenlabs"},
       "name": "Astra-9",
       "short": "Astra",
       "hostname": null,
@@ -102,6 +105,7 @@
     },
     {
       "id": "astrad",
+      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "elevenlabs"},
       "name": "Astrad",
       "short": "Ted",
       "hostname": null,
@@ -125,6 +129,7 @@
     },
     {
       "id": "astro",
+      "setup": {"eyes": "led-ring", "mode": "children-friend", "voice": "elevenlabs", "voice_id": "kqf3165btzkiiwqxmo1q"},
       "tailscale": "astro.tailcaab0e.ts.net",
       "pronouns": "he",
       "name": "Astro",
@@ -184,6 +189,7 @@
     },
     {
       "id": "astri",
+      "setup": {"eyes": "led-ring", "mode": "children-friend", "voice": "elevenlabs", "voice_id": "t32lqiRDyoLz0gaRQCGT"},
       "name": "Astri",
       "short": "Astri",
       "hostname": null,
@@ -235,6 +241,7 @@
     },
     {
       "id": "guardian-f",
+      "setup": {"eyes": "led-ring-red", "mode": "guardian", "voice": "tbd"},
       "name": "Guardian F",
       "short": "Guardian F",
       "hostname": null,

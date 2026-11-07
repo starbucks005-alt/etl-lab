@@ -33,19 +33,41 @@ PI_DIR = PANEL / "pi"
 EXCLUDE_PREFIXES = ("patch_al_prompt", "make_", "remove_private", "find_voices")
 DATA_FILES = ["moods.json", "personalities.json", "pronounce.json"]
 
+# When copying from another robot's Pi these are left behind: they are that robot's own
+# memory (people, registered voices, friends), settings and calibration, not its software.
+CLONE_SKIP = ["al_panel/people.json", "al_panel/voices.json", "al_panel/friends_*.json", "al_panel/persona.json",
+              "al_panel/welcome.json", "al_panel/mode.json", "al_panel/volume.json", "al_panel/quiet.json",
+              "al_panel/pause.json", "al_panel/alarms.json", "al_panel/notes_for_parent.json",
+              "al_panel/index_alice.html", "al_panel/__pycache__", "al_panel/*.log"]
+
 # What each robot is. A robot picks its own character from the files on its Pi:
 # the panel serves index_alice.html when that file is present (see SELF_PERSONA in
 # al_panel_server.py). Only ALICE has such a page so far. Others use index.html and
 # get their character from the panel.
-ROBOTS = {
-    "alice":      {"name": "ALICE",     "hostname": "ALICE",     "eyes": "animatronic",  "mode": "companion",       "page": None, "voice": "elevenlabs", "camera": True, "husky": True},
-    "astra9":     {"name": "Astra-9",   "hostname": "astra9",    "eyes": "led-ring",     "mode": "companion",       "page": None, "voice": "elevenlabs"},
-    "astrad":     {"name": "Astrad",    "hostname": "astrad",    "eyes": "led-ring",     "mode": "companion",       "page": None, "voice": "elevenlabs"},
-    "astra-lite": {"name": "Astra Lite", "hostname": "astra9lite", "eyes": "led-ring",    "mode": "companion",       "page": None, "voice": "azure"},
-    "astro":      {"name": "Astro",     "hostname": "astro",     "eyes": "led-ring",     "mode": "children-friend", "page": None, "voice": "elevenlabs"},
-    "astri":      {"name": "Astri",     "hostname": "astri",     "eyes": "led-ring",     "mode": "children-friend", "page": None, "voice": "elevenlabs"},
-    "guardian":   {"name": "Guardian",  "hostname": "guardian",  "eyes": "led-ring-red", "mode": "guardian",        "page": None, "voice": "tbd"},
-}
+ROSTERS = [PANEL / "robots.json", PANEL / "to_AL" / "robots.json"]
+
+
+def load_robots() -> dict:
+    """Every robot comes from the roster (robots.json). Adding a robot means adding one roster entry, not editing this file.
+    A robot's setup facts live in its entry under "setup": eyes, mode, voice, voice_id, camera, husky. Missing facts get safe defaults."""
+    for path in ROSTERS:
+        if path.exists():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            out = {}
+            for r in data.get("robots", data):
+                if not (isinstance(r, dict) and r.get("id")):
+                    continue
+                s = r.get("setup") or {}
+                out[r["id"]] = {
+                    "rid": r["id"], "name": r.get("name", r["id"]), "hostname": r.get("hostname") or r["id"],
+                    "eyes": s.get("eyes", "led-ring"), "mode": s.get("mode", "companion"), "page": None,
+                    "voice": s.get("voice", "tbd"), "voice_id": s.get("voice_id", ""),
+                    "camera": bool(s.get("camera")), "husky": bool(s.get("husky"))}
+            return out
+    sys.exit("No robots.json found next to the panel files.")
+
+
+ROBOTS = load_robots()
 
 SETUP_SH = r'''#!/usr/bin/env bash
 # Runs on the Pi, started by robot_go.py. Safe to run again: each step checks first.
@@ -63,7 +85,25 @@ did()  { say DONE "$1"; }
 fail() { say FAIL "$1"; FAILS=$((FAILS+1)); }
 warn() { say WARN "$1"; }
 
+ts_step() {
+  echo
+  echo "---- Tailscale (control this robot from anywhere) ----"
+  if ! command -v tailscale >/dev/null 2>&1; then
+    CODE=$(. /etc/os-release; echo "$VERSION_CODENAME")
+    curl -fsSL "https://pkgs.tailscale.com/stable/debian/$CODE.noarmor.gpg" | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null       && curl -fsSL "https://pkgs.tailscale.com/stable/debian/$CODE.tailscale-keyring.list" | sudo tee /etc/apt/sources.list.d/tailscale.list >/dev/null       && sudo apt-get update -qq && sudo apt-get install -y tailscale >/dev/null 2>&1       && did "Tailscale installed" || { fail "Tailscale install"; return; }
+  else skip "Tailscale installed"; fi
+  if sudo tailscale status >/dev/null 2>&1; then skip "Tailscale signed in"
+  else
+    echo "Tailscale needs you to sign in. Open the web address it prints below on your computer and approve this device."
+    sudo tailscale up --hostname="$ROBOT_ID" && did "Tailscale signed in" || { fail "Tailscale sign in"; return; }
+  fi
+  sudo tailscale serve --bg 8000 >/dev/null 2>&1 && did "panel shared over https (tailscale serve)" || warn "tailscale serve did not start (is HTTPS turned on for your tailnet?)"
+  TSNAME=$(sudo tailscale status --json 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin)['Self']['DNSName'].rstrip('.'))" 2>/dev/null)
+  if [ -n "$TSNAME" ]; then say INFO "Tailscale name: $TSNAME  <- put this in robots.json as tailscale for $ROBOT_ID"; else warn "could not read this robot's Tailscale name"; fi
+}
+
 sudo -v || { echo "sudo failed"; exit 2; }
+if [ "${ONLY_TS:-no}" = "yes" ]; then ts_step; echo; echo "FAILS=$FAILS"; exit $FAILS; fi
 MODEL=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null)
 echo "Pi model: $MODEL"
 echo "Setting up: $ROBOT_NAME"
@@ -133,7 +173,21 @@ if [ -n "$(ls -A "$H/al_panel" 2>/dev/null)" ]; then
   BK="$H/al_panel_backup_$(date +%Y%m%d-%H%M).tgz"
   tar -czf "$BK" -C "$H" al_panel 2>/dev/null && did "backup of the current panel saved to $BK" || fail "backup of the current panel"
 fi
-tar -xzf files.tgz -C "$H/al_panel" && did "panel files copied to $H/al_panel" || fail "copy panel files"
+if [ -f clone.tgz ]; then
+  tar -xzf clone.tgz -C "$H" && chmod 600 "$H/al.py" && did "panel and al.py copied from the working robot (its own memory left behind)" || fail "copy from the working robot"
+else
+  tar -xzf files.tgz -C "$H/al_panel" && did "panel files copied to $H/al_panel" || fail "copy panel files"
+fi
+
+# 6b. which robot this Pi is: the panel reads ~/al_panel/robot.txt (an id from robots.json). Never overwritten.
+if [ -f "$H/al_panel/robot.txt" ]; then skip "robot.txt ($(cat "$H/al_panel/robot.txt"))"
+else echo "$ROBOT_ID" > "$H/al_panel/robot.txt" && did "robot.txt written: this Pi is $ROBOT_ID" || fail "robot.txt"; fi
+
+# 6c. the robot's own ElevenLabs voice (so it does not speak in AL's voice). Never overwritten.
+if [ -n "$VOICE_ID" ]; then
+  if [ -f "$H/al_panel/robot_voice.txt" ]; then skip "robot_voice.txt"
+  else echo "$VOICE_ID" > "$H/al_panel/robot_voice.txt" && did "robot voice set (robot_voice.txt)" || fail "robot_voice.txt"; fi
+fi
 
 # 7. al.py (holds the keys and the main prompt). Never printed.
 if [ -f al.py ]; then
@@ -198,6 +252,8 @@ if [ -f "$H/al.py" ]; then
 fi
 echo "throttled: $(vcgencmd get_throttled 2>/dev/null)   temp: $(vcgencmd measure_temp 2>/dev/null)"
 echo
+if [ "${WANT_TS:-no}" = "yes" ]; then ts_step; fi
+echo
 echo "FAILS=$FAILS REBOOT_NEEDED=$REBOOT"
 exit $FAILS
 '''
@@ -229,7 +285,16 @@ def collect(args: argparse.Namespace) -> dict:
         sys.exit("camera port must be cam0, cam1, detect or none")
     eyes = args.eyes or ask("Eyes (led-ring, led-ring-red, animatronic, none)", r["eyes"])
     hostname = args.hostname or ask("Hostname for this Pi", r["hostname"])
+    ts_only = bool(args.ts_only)
+    want_ts = bool(args.tailscale or ts_only)
+    clone_from = args.clone_from
+    if ts_only:
+        clone_from = ""
+    if clone_from is None:
+        clone_from = ask("Copy another robot's setup from its Pi? Its address (Enter to use the repo files)", "")
     al_py = args.al_py
+    if al_py is None and (clone_from or ts_only):
+        al_py = ""
     if al_py is None:
         al_py = ask("Path to al.py copied from Astra Lite (Enter to skip)", "")
     azure_key, azure_region = "", "eastus"
@@ -238,10 +303,21 @@ def collect(args: argparse.Namespace) -> dict:
         if azure_key:
             azure_region = ask("Azure region", "eastus")
     return {"key": key, "robot": r, "host": host, "user": user, "cam": cam, "eyes": eyes,
-            "hostname": hostname, "al_py": al_py, "azure_key": azure_key, "azure_region": azure_region}
+            "hostname": hostname, "want_ts": want_ts, "ts_only": ts_only, "clone_from": clone_from, "al_py": al_py, "azure_key": azure_key, "azure_region": azure_region}
 
 
-def build_bundle(a: dict, out: Path) -> list[str]:
+def fetch_clone(a: dict, out: Path) -> None:
+    """Stream the working robot's panel folder and al.py to the laptop, leaving its own memory behind."""
+    src = f"{a['user']}@{a['clone_from']}"
+    excludes = " ".join(f"--exclude={shlex.quote(x)}" for x in CLONE_SKIP)
+    print(f"\nCopying {a['clone_from']}'s panel and al.py to this laptop (it may ask for that Pi's password)...")
+    with open(out / "clone.tgz", "wb") as handle:
+        r = subprocess.run(["ssh", *ssh_base(a), src, f"tar -czf - -C ~ {excludes} al_panel al.py"], stdout=handle)
+    if r.returncode or (out / "clone.tgz").stat().st_size < 10000:
+        sys.exit("Could not copy from the other robot. Nothing was changed on any Pi.")
+
+
+def build_bundle(a: dict, out: Path, dry: bool = False) -> list[str]:
     """Stage everything the Pi needs into `out`. Returns the list of panel files."""
     # The Oct 31 files in to_AL/ are the newest: ALICE's Pi serves a page that matches
     # to_AL/index.html (checked 2026-11-07). They replace the older copies in pi/ and al-panel/.
@@ -274,7 +350,7 @@ def build_bundle(a: dict, out: Path) -> list[str]:
     want_eyes = "al-eyes" if a["eyes"].startswith("led-ring") else ""
     conf = {
         "ROBOT_USER": a["user"], "ROBOT_NAME": a["robot"]["name"], "ROBOT_HOSTNAME": a["hostname"],
-        "CAM_PORT": "none" if a["cam"] == "detect" else a["cam"], "HAS_CAMERA": "yes" if (a["robot"].get("camera") or a["cam"] in ("cam0", "cam1")) else "no",
+        "ROBOT_ID": a["robot"].get("rid", a["key"]), "WANT_TS": "yes" if a["want_ts"] else "no", "ONLY_TS": "yes" if a["ts_only"] else "no", "VOICE_ID": a["robot"].get("voice_id", ""), "CAM_PORT": "none" if a["cam"] == "detect" else a["cam"], "HAS_CAMERA": "yes" if (a["robot"].get("camera") or a["cam"] in ("cam0", "cam1")) else "no",
         "HAS_HUSKY": "yes" if a["robot"].get("husky") else "no", "WANT_EYES": want_eyes, "VOICE": a["robot"]["voice"],
     }
     (out / "go.conf").write_text("".join(f"{k}={shlex.quote(v)}\n" for k, v in conf.items()), newline="\n")
@@ -287,6 +363,8 @@ def build_bundle(a: dict, out: Path) -> list[str]:
         if not src.is_file():
             sys.exit(f"al.py not found at {src}")
         (out / "al.py").write_bytes(src.read_bytes())
+    if a["clone_from"] and not dry:
+        fetch_clone(a, out)
     if a["azure_key"]:
         (out / "azure_speech.json").write_text(json.dumps({"key": a["azure_key"], "region": a["azure_region"]}), newline="\n")
     return [arc for _, arc in files]
@@ -299,9 +377,9 @@ def ssh_base(a: dict) -> list[str]:
 def go(a: dict, dry: bool) -> int:
     with tempfile.TemporaryDirectory(prefix="etl-go-") as tmp:
         out = Path(tmp)
-        names = build_bundle(a, out)
+        names = build_bundle(a, out, dry)
         print(f"\nRobot: {a['robot']['name']}   Pi: {a['user']}@{a['host']}   hostname: {a['hostname']}")
-        print(f"Eyes: {a['eyes']}   camera: {a['cam']}   al.py: {'yes' if a['al_py'] else 'NOT included'}   voice: {a['robot']['voice']}   Azure key: {'yes' if a['azure_key'] else 'not used' if a['robot']['voice'] != 'azure' else 'no'}")
+        print(f"Eyes: {a['eyes']}   camera: {a['cam']}   al.py: {'copied from ' + a['clone_from'] if a['clone_from'] else 'yes' if a['al_py'] else 'NOT included'}   voice: {a['robot']['voice']}   Azure key: {'yes' if a['azure_key'] else 'not used' if a['robot']['voice'] != 'azure' else 'no'}")
         print(f"Panel files to copy ({len(names)}): " + ", ".join(names))
         if dry:
             print("\nDRY RUN: nothing was sent. The setup script would do these steps, in order:")
@@ -315,7 +393,7 @@ def go(a: dict, dry: bool) -> int:
         target = f"{a['user']}@{a['host']}"
         remote = "/tmp/etl-go"
         files = ["files.tgz", "services", "go.conf", "robot.json", "setup.sh"] + \
-                [f for f in ("al.py", "azure_speech.json") if (out / f).exists()]
+                [f for f in ("al.py", "azure_speech.json", "clone.tgz") if (out / f).exists()]
         print("\nCopying to the Pi (it may ask for the Pi's password)...")
         r = subprocess.run(["ssh", *ssh_base(a), target, f"rm -rf {remote} && mkdir -p {remote}"], cwd=out)
         if r.returncode:
@@ -341,6 +419,10 @@ def main() -> int:
     ap.add_argument("--eyes")
     ap.add_argument("--hostname")
     ap.add_argument("--al-py", dest="al_py", default=None)
+    ap.add_argument("--clone-from", dest="clone_from", default=None,
+                    help="address of a working robot's Pi (for example ALICE). Its panel files and al.py are copied, minus its own memory")
+    ap.add_argument("--tailscale", action="store_true", help="also install Tailscale and share the panel over https")
+    ap.add_argument("--tailscale-only", dest="ts_only", action="store_true", help="only do the Tailscale step on a robot that is already set up")
     ap.add_argument("--no-keys", action="store_true", help="do not ask for the Azure key")
     ap.add_argument("--dry-run", action="store_true", help="show the plan, touch no Pi")
     args = ap.parse_args()
