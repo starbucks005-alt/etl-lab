@@ -18,6 +18,7 @@ import argparse
 import getpass
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -289,6 +290,23 @@ def ask(prompt: str, default: str = "") -> str:
     return answer or default
 
 
+def azure_ok(key: str, region: str) -> tuple[bool, str]:
+    """Ask Azure for a short-lived token with this key and region. 200 means they belong together; 401 means the key or the region is wrong."""
+    import urllib.error
+    import urllib.request
+    if not re.fullmatch(r"[a-z0-9-]{3,30}", region):
+        return False, "that does not look like a region name (for example eastus)"
+    req = urllib.request.Request(f"https://{region}.api.cognitive.microsoft.com/sts/v1.0/issueToken", data=b"",
+                                 headers={"Ocp-Apim-Subscription-Key": key})
+    try:
+        urllib.request.urlopen(req, timeout=15)
+        return True, ""
+    except urllib.error.HTTPError as exc:
+        return False, f"Azure answered {exc.code}. The key and the region do not match, or the key was mistyped."
+    except Exception as exc:
+        return False, f"could not reach Azure ({str(exc)[:60]})"
+
+
 def collect(args: argparse.Namespace) -> dict:
     print("\nETL robot GO\n")
     key = args.robot or ""
@@ -325,8 +343,18 @@ def collect(args: argparse.Namespace) -> dict:
     azure_key, azure_region = "", "eastus"
     if r["voice"] == "azure" and not args.dry_run and not args.no_keys:
         azure_key = getpass.getpass("Azure speech key (hidden, Enter to skip): ").strip()
-        if azure_key:
-            azure_region = ask("Azure region", "eastus")
+        for attempt in range(3):          # check the key and region with Azure BEFORE sending them to a robot
+            if not azure_key:
+                break
+            azure_region = ask("Azure region", azure_region).lower().replace(" ", "")
+            good, why = azure_ok(azure_key, azure_region)
+            if good:
+                print("Azure accepted this key and region.")
+                break
+            print("Azure did not accept it: " + why)
+            if attempt == 2:
+                sys.exit("Stopped. Nothing was sent to the robot. Check the key and region in the Azure portal (Speech resource, Keys and Endpoint).")
+            azure_key = getpass.getpass("Azure speech key again (hidden, Enter to skip): ").strip()
     checkin_key = ""
     if not args.dry_run and not args.no_keys and not ts_only and not voice_only:
         checkin_key = getpass.getpass("Home access code for the website check-in (hidden, Enter to skip): ").strip()
