@@ -129,8 +129,27 @@ if [ "${ONLY_EYES:-no}" = "yes" ]; then
     elif [ -f "$f" ]; then cp "$f" "$H/al_panel/$f" && did "$f copied" || fail "$f"
     else fail "$f is missing on this Pi and was not sent"; fi
   done
-  LIB=$(grep -E '^(from|import) (rpi_ws281x|neopixel|adafruit_blinka_raspberry_pi5_neopixel|adafruit_raspberry_pi5_neopixel_write)' "$H/al_panel/al_eyes.py" 2>/dev/null | head -1 | awk '{print $2}')
-  echo "the eye driver on this Pi imports: ${LIB:-unknown}"
+  MODEL5=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null)
+  case "$MODEL5" in
+    *"Pi 5"*)
+      # a Pi 5 cannot use rpi_ws281x. The newer eye driver picks the Pi 5 NeoPixel library by itself. Old driver is kept as a backup.
+      if grep -q '_is_pi5' "$H/al_panel/al_eyes.py" 2>/dev/null; then skip "eye driver already knows the Pi 5"
+      elif [ -f al_eyes.py ]; then
+        cp "$H/al_panel/al_eyes.py" "$H/al_panel/al_eyes.py.bak_$(date +%Y%m%d-%H%M)" 2>/dev/null
+        cp -f al_eyes.py "$H/al_panel/al_eyes.py" && did "eye driver replaced with the Pi 5 version (old one kept as a backup)" || fail "eye driver"
+      else fail "this is a Pi 5 and the Pi 5 eye driver was not sent"; fi
+      for pk in adafruit-circuitpython-neopixel Adafruit-Blinka-Raspberry-Pi5-Neopixel; do
+        sudo pip3 install "$pk" --break-system-packages >/dev/null 2>&1 && did "pip $pk" || fail "pip $pk"
+      done
+      sudo python3 -c "import board, neopixel" >/dev/null 2>&1 && pass "Pi 5 NeoPixel libraries load" || fail "Pi 5 NeoPixel libraries do not load"
+      ls -l /dev/pio0 2>&1 | sed 's/^/INFO  /'
+      LIB=""
+      ;;
+    *)
+      LIB=$(grep -E '^(from|import) (rpi_ws281x|neopixel|adafruit_blinka_raspberry_pi5_neopixel|adafruit_raspberry_pi5_neopixel_write)' "$H/al_panel/al_eyes.py" 2>/dev/null | head -1 | awk '{print $2}')
+      ;;
+  esac
+  echo "the eye driver on this Pi imports: ${LIB:-(chosen by the Pi model)}"
   if [ -n "$LIB" ]; then
     if python3 -c "import $LIB" >/dev/null 2>&1; then pass "library $LIB loads"
     else

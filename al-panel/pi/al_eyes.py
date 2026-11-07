@@ -9,8 +9,6 @@ import json
 import os
 import time
 
-from rpi_ws281x import Color, PixelStrip
-
 from al_eyes_math import eye_level, strip_frame
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -40,7 +38,39 @@ def _strip_leds():
 STRIP = _strip_leds()
 LED_COUNT = EYE_LEDS + STRIP
 LED_PIN = 12        # GPIO12, physical pin 32
-strip = PixelStrip(LED_COUNT, LED_PIN, 800000, 10, False, 255, 0)
+
+
+def _is_pi5():
+    """2026-11-07: rpi_ws281x cannot drive lights on a Pi 5 ("Hardware revision is not supported"). A Pi 5 uses the Adafruit Pi 5 NeoPixel
+    library instead, on the same pin. Every other Pi keeps rpi_ws281x exactly as before."""
+    try:
+        return b"Raspberry Pi 5" in open("/proc/device-tree/model", "rb").read()
+    except OSError:
+        return False
+
+
+if _is_pi5():
+    import board
+    import neopixel
+    _px = neopixel.NeoPixel(board.D12, LED_COUNT, brightness=1.0, auto_write=False, pixel_order=neopixel.GRB)
+
+    def Color(r, g, b):
+        return (r, g, b)
+
+    class _Pi5Strip:
+        def begin(self):
+            pass
+
+        def setPixelColor(self, i, c):
+            _px[i] = c
+
+        def show(self):
+            _px.show()
+
+    strip = _Pi5Strip()
+else:
+    from rpi_ws281x import Color, PixelStrip
+    strip = PixelStrip(LED_COUNT, LED_PIN, 800000, 10, False, 255, 0)
 strip.begin()
 
 DEFAULT = {"r": 31, "g": 183, "b": 201, "level": 0.12}
