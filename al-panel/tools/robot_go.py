@@ -202,6 +202,12 @@ elif [ -f "$H/al_panel/azure_speech.json" ]; then skip "Azure key"
 elif [ "$VOICE" = "azure" ]; then warn "no Azure key set. Voice falls back to ElevenLabs"
 else pass "voice is $VOICE only, no Azure key needed"; fi
 
+# 8b. the website check-in code (same for every robot), so this robot shows Connected on the website. Never printed.
+if [ -f checkin_key.txt ]; then
+  mv -f checkin_key.txt "$H/al_panel/checkin_key.txt" && chmod 600 "$H/al_panel/checkin_key.txt" && did "website check-in code stored (owner only)" || fail "check-in code"
+elif [ -f "$H/al_panel/checkin_key.txt" ]; then skip "website check-in code"
+else warn "no website check-in code: this robot will not show Connected on the website until checkin_key.txt is added"; fi
+
 # 9. shutdown button permission
 if [ -f /etc/sudoers.d/al-shutdown ]; then skip "shutdown permission"
 else
@@ -302,7 +308,10 @@ def collect(args: argparse.Namespace) -> dict:
         azure_key = getpass.getpass("Azure speech key (hidden, Enter to skip): ").strip()
         if azure_key:
             azure_region = ask("Azure region", "eastus")
-    return {"key": key, "robot": r, "host": host, "user": user, "cam": cam, "eyes": eyes,
+    checkin_key = ""
+    if not args.dry_run and not args.no_keys and not ts_only:
+        checkin_key = getpass.getpass("Home access code for the website check-in (hidden, Enter to skip): ").strip()
+    return {"key": key, "robot": r, "checkin_key": checkin_key, "host": host, "user": user, "cam": cam, "eyes": eyes,
             "hostname": hostname, "want_ts": want_ts, "ts_only": ts_only, "clone_from": clone_from, "al_py": al_py, "azure_key": azure_key, "azure_region": azure_region}
 
 
@@ -365,6 +374,8 @@ def build_bundle(a: dict, out: Path, dry: bool = False) -> list[str]:
         (out / "al.py").write_bytes(src.read_bytes())
     if a["clone_from"] and not dry:
         fetch_clone(a, out)
+    if a.get("checkin_key"):
+        (out / "checkin_key.txt").write_text(a["checkin_key"], newline="\n")
     if a["azure_key"]:
         (out / "azure_speech.json").write_text(json.dumps({"key": a["azure_key"], "region": a["azure_region"]}), newline="\n")
     return [arc for _, arc in files]
@@ -379,7 +390,7 @@ def go(a: dict, dry: bool) -> int:
         out = Path(tmp)
         names = build_bundle(a, out, dry)
         print(f"\nRobot: {a['robot']['name']}   Pi: {a['user']}@{a['host']}   hostname: {a['hostname']}")
-        print(f"Eyes: {a['eyes']}   camera: {a['cam']}   al.py: {'copied from ' + a['clone_from'] if a['clone_from'] else 'yes' if a['al_py'] else 'NOT included'}   voice: {a['robot']['voice']}   Azure key: {'yes' if a['azure_key'] else 'not used' if a['robot']['voice'] != 'azure' else 'no'}")
+        print(f"Eyes: {a['eyes']}   camera: {a['cam']}   al.py: {'copied from ' + a['clone_from'] if a['clone_from'] else 'yes' if a['al_py'] else 'NOT included'}   voice: {a['robot']['voice']}   Azure key: {'yes' if a['azure_key'] else 'not used' if a['robot']['voice'] != 'azure' else 'no'}   check-in code: {'typed' if a.get('checkin_key') else 'not typed'}")
         print(f"Panel files to copy ({len(names)}): " + ", ".join(names))
         if dry:
             print("\nDRY RUN: nothing was sent. The setup script would do these steps, in order:")
@@ -393,7 +404,7 @@ def go(a: dict, dry: bool) -> int:
         target = f"{a['user']}@{a['host']}"
         remote = "/tmp/etl-go"
         files = ["files.tgz", "services", "go.conf", "robot.json", "setup.sh"] + \
-                [f for f in ("al.py", "azure_speech.json", "clone.tgz") if (out / f).exists()]
+                [f for f in ("al.py", "azure_speech.json", "clone.tgz", "checkin_key.txt") if (out / f).exists()]
         print("\nCopying to the Pi (it may ask for the Pi's password)...")
         r = subprocess.run(["ssh", *ssh_base(a), target, f"rm -rf {remote} && mkdir -p {remote}"], cwd=out)
         if r.returncode:
