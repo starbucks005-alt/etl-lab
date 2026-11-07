@@ -296,15 +296,18 @@ def azure_ok(key: str, region: str) -> tuple[bool, str]:
     import urllib.request
     if not re.fullmatch(r"[a-z0-9-]{3,30}", region):
         return False, "that does not look like a region name (for example eastus)"
-    req = urllib.request.Request(f"https://{region}.api.cognitive.microsoft.com/sts/v1.0/issueToken", data=b"",
-                                 headers={"Ocp-Apim-Subscription-Key": key})
-    try:
-        urllib.request.urlopen(req, timeout=15)
-        return True, ""
-    except urllib.error.HTTPError as exc:
-        return False, f"Azure answered {exc.code}. The key and the region do not match, or the key was mistyped."
-    except Exception as exc:
-        return False, f"could not reach Azure ({str(exc)[:60]})"
+    last = "Azure did not answer"
+    for url, data in ((f"https://{region}.tts.speech.microsoft.com/cognitiveservices/voices/list", None),     # the host the robot speaks through
+                      (f"https://{region}.api.cognitive.microsoft.com/sts/v1.0/issueToken", b"")):
+        req = urllib.request.Request(url, data=data, headers={"Ocp-Apim-Subscription-Key": key})
+        try:
+            urllib.request.urlopen(req, timeout=15)
+            return True, ""
+        except urllib.error.HTTPError as exc:
+            last = f"Azure answered {exc.code}. This key does not work for the {region} speech service."
+        except Exception as exc:
+            last = f"could not reach Azure ({str(exc)[:60]})"
+    return False, last
 
 
 AZURE_REGIONS = ["eastus", "eastus2", "westus", "westus2", "westus3", "centralus", "northcentralus", "southcentralus", "westcentralus",
@@ -360,7 +363,9 @@ def collect(args: argparse.Namespace) -> dict:
         al_py = ask("Path to al.py copied from Astra Lite (Enter to skip)", "")
     azure_key, azure_region = "", "eastus"
     if r["voice"] == "azure" and not args.dry_run and not args.no_keys:
-        azure_key = getpass.getpass("Azure speech key (hidden, Enter to skip): ").strip()
+        azure_key = getpass.getpass("Azure speech key (hidden, Enter to skip): ").strip().strip("\"'").strip()
+        if azure_key:
+            print(f"Got a key of {len(azure_key)} characters.")
         for attempt in range(3):          # check the key and region with Azure BEFORE sending them to a robot
             if not azure_key:
                 break
@@ -379,7 +384,9 @@ def collect(args: argparse.Namespace) -> dict:
             print("No Azure region accepted this key, so it was probably mistyped or copied wrong.")
             if attempt == 2:
                 sys.exit("Stopped. Nothing was sent to the robot. Check the key and region in the Azure portal (Speech resource, Keys and Endpoint).")
-            azure_key = getpass.getpass("Azure speech key again (hidden, Enter to skip): ").strip()
+            azure_key = getpass.getpass("Azure speech key again (hidden, Enter to skip): ").strip().strip("\"'").strip()
+            if azure_key:
+                print(f"Got a key of {len(azure_key)} characters.")
     checkin_key = ""
     if not args.dry_run and not args.no_keys and not ts_only and not voice_only:
         checkin_key = getpass.getpass("Home access code for the website check-in (hidden, Enter to skip): ").strip()
