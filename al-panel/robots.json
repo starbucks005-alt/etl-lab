@@ -37,6 +37,7 @@
     },
     {
       "id": "alice",
+      "tailscale": "alice.tailcaab0e.ts.net",
       "name": "A.L.I.C.E.",
       "short": "Alice",
       "hostname": "ALICE",
@@ -124,6 +125,7 @@
     },
     {
       "id": "astro",
+      "tailscale": "astro.tailcaab0e.ts.net",
       "pronouns": "he",
       "name": "Astro",
       "short": "Teddy",
