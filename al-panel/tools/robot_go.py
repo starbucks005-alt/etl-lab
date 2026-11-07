@@ -290,10 +290,29 @@ def ask(prompt: str, default: str = "") -> str:
     return answer or default
 
 
+def azure_where(text: str) -> str:
+    """A region name (eastus), or a Foundry project address pasted from the portal, which becomes that resource's own speech address."""
+    text = text.strip()
+    if text.lower().startswith("http"):
+        import urllib.parse
+        host = (urllib.parse.urlparse(text).hostname or "").split(".")[0]
+        return f"https://{host}.cognitiveservices.azure.com" if host else ""
+    return text.lower().replace(" ", "")
+
+
 def azure_ok(key: str, region: str) -> tuple[bool, str]:
     """Ask Azure for a short-lived token with this key and region. 200 means they belong together; 401 means the key or the region is wrong."""
     import urllib.error
     import urllib.request
+    if region.startswith("https://"):
+        try:
+            urllib.request.urlopen(urllib.request.Request(region.rstrip("/") + "/tts/cognitiveservices/voices/list",
+                                                          headers={"Ocp-Apim-Subscription-Key": key}), timeout=15)
+            return True, ""
+        except urllib.error.HTTPError as exc:
+            return False, f"Azure answered {exc.code} at {region}."
+        except Exception as exc:
+            return False, f"could not reach {region} ({str(exc)[:60]})"
     if not re.fullmatch(r"[a-z0-9-]{3,30}", region):
         return False, "that does not look like a region name (for example eastus)"
     last = "Azure did not answer"
@@ -369,14 +388,14 @@ def collect(args: argparse.Namespace) -> dict:
         for attempt in range(3):          # check the key and region with Azure BEFORE sending them to a robot
             if not azure_key:
                 break
-            azure_region = ask("Azure region", azure_region).lower().replace(" ", "")
+            azure_region = azure_where(ask("Azure region, or paste your Foundry project endpoint", azure_region))
             good, why = azure_ok(azure_key, azure_region)
             if good:
                 print("Azure accepted this key and region.")
                 break
             print("Azure did not accept it: " + why)
             print("Looking for the region this key belongs to (this asks Microsoft's own servers only)...")
-            found = find_region(azure_key, azure_region)
+            found = "" if azure_region.startswith("https://") else find_region(azure_key, azure_region)
             if found:
                 azure_region = found
                 print("This key belongs to the region: " + found + ". Using it.")
@@ -458,7 +477,7 @@ def build_bundle(a: dict, out: Path, dry: bool = False) -> list[str]:
     if a.get("checkin_key"):
         (out / "checkin_key.txt").write_text(a["checkin_key"], newline="\n")
     if a["azure_key"]:
-        (out / "azure_speech.json").write_text(json.dumps(dict({"key": a["azure_key"], "region": a["azure_region"]}, **({"tts_voice": a["robot"]["azure_voice"]} if a["robot"].get("azure_voice") else {}))), newline="\n")
+        (out / "azure_speech.json").write_text(json.dumps(dict({"key": a["azure_key"], "region": a["azure_region"]}, **({"tts_voice": a["robot"]["azure_voice"]} if a["robot"].get("azure_voice") else {}), **({"stt": False} if str(a["azure_region"]).startswith("https://") else {}))), newline="\n")
     return [arc for _, arc in files]
 
 
