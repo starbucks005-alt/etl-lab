@@ -85,7 +85,7 @@
     {
       "id": "astra",
       "tailscale": "astra.tailcaab0e.ts.net",
-      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "azure", "azure_voice": "en-US-AmandaMultilingualNeural"},
+      "setup": {"eyes": "led-ring", "mode": "companion", "voice": "azure", "azure_voice": "hu-HU-Lilla:MAI-Voice-2-Flash"},
       "name": "Astra-9",
       "short": "Astra",
       "hostname": null,
