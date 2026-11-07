@@ -141,7 +141,6 @@
       "status": "planned",
       "hide": [
         "modeCard",
-        "eyesCard",
         "voiceCard",
         "nameCard",
         "skillsCard",
