@@ -38,7 +38,9 @@ DATA_FILES = ["moods.json", "personalities.json", "pronounce.json"]
 CLONE_SKIP = ["al_panel/people.json", "al_panel/voices.json", "al_panel/friends_*.json", "al_panel/persona.json",
               "al_panel/welcome.json", "al_panel/mode.json", "al_panel/volume.json", "al_panel/quiet.json",
               "al_panel/pause.json", "al_panel/alarms.json", "al_panel/notes_for_parent.json",
-              "al_panel/index_alice.html", "al_panel/__pycache__", "al_panel/*.log"]
+              "al_panel/index_alice.html", "al_panel/__pycache__", "al_panel/*.log",
+              # who the source robot IS (its id, voice, pitch and eye lights) is never copied: each robot gets its own
+              "al_panel/robot.txt", "al_panel/robot_voice.txt", "al_panel/robot_pitch.txt", "al_panel/eye_leds", "al_panel/strip_leds"]
 
 # What each robot is. A robot picks its own character from the files on its Pi:
 # the panel serves index_alice.html when that file is present (see SELF_PERSONA in
@@ -111,7 +113,11 @@ echo
 
 # 1. hostname
 if [ "$(hostname)" = "$ROBOT_HOSTNAME" ]; then skip "hostname $ROBOT_HOSTNAME"
-else sudo hostnamectl set-hostname "$ROBOT_HOSTNAME" && did "hostname set to $ROBOT_HOSTNAME (shows after reboot)" && REBOOT=1 || fail "hostname"; fi
+else
+  # the hosts file first, so sudo can still find this machine's name after the change
+  if grep -q '^127\.0\.1\.1' /etc/hosts; then sudo sed -i "s/^127\.0\.1\.1.*/127.0.1.1\t$ROBOT_HOSTNAME/" /etc/hosts; else printf '127.0.1.1\t%s\n' "$ROBOT_HOSTNAME" | sudo tee -a /etc/hosts >/dev/null; fi
+  sudo hostnamectl set-hostname "$ROBOT_HOSTNAME" && did "hostname set to $ROBOT_HOSTNAME (shows after reboot)" && REBOOT=1 || fail "hostname"
+fi
 
 # 2. I2C on, HAT sound overlay
 if grep -q '^dtparam=i2c_arm=on' $CFG; then skip "I2C on"
