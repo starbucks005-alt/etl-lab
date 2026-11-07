@@ -1851,7 +1851,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           o.appendChild(el('span', 'rb-dot' + (up[x.id] ? ' up' : '')));
           var n = el('span', 'rb-name'); n.appendChild(el('span', '', x.name)); n.appendChild(document.createElement('br'));
           if(shownAddress(x)){ n.appendChild(el('span', 'rb-sub', shownAddress(x))); } o.appendChild(n);
-          o.appendChild(el('span', 'rb-chip' + (up[x.id] ? ' up' : ''), up[x.id] ? (PUBLIC ? 'On now' : 'Connected') : 'Not connected'));
+          o.appendChild(el('span', 'rb-chip' + (up[x.id] ? ' up' : ''), up[x.id] ? 'Connected' : 'Disconnected'));
           o.addEventListener('click', function(){ choose(x.id); });
           menu.appendChild(o);
         });
