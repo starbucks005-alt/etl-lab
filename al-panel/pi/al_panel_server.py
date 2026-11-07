@@ -353,6 +353,21 @@ def _read_robot_id():
 
 
 ROBOT_ID = _read_robot_id()
+
+
+# 2026-11-07, Dr. O: a robot must not speak in AL's voice. If robot_voice.txt (one ElevenLabs voice id) is beside this file,
+# that robot speaks in it. No file means nothing changes. A character's own voice still wins over it.
+def _read_robot_voice():
+    try:
+        vid = open(os.path.join(HERE, "robot_voice.txt"), encoding="utf-8").read().strip()
+        if re.fullmatch(r"[A-Za-z0-9]{10,40}", vid):
+            return vid
+    except OSError:
+        pass
+    return None
+
+
+ROBOT_VOICE = _read_robot_voice()
 SELF_PERSONA = "gc-a-l-i-c-e" if ROBOT_ID == "alice" else None
 
 
@@ -1397,10 +1412,10 @@ def _speak_locked(text, use_persona=True):
 def _speak_inner(text, use_persona=True):
     try:
         persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
-        al.AL_VOICE_ID = (persona or {}).get("voice") or VOICES[state["accent"]]
+        al.AL_VOICE_ID = (persona or {}).get("voice") or ROBOT_VOICE or VOICES[state["accent"]]
         last_said["text"] = text
         spoken = for_the_voice(text)
-        cfg = azure_cfg("tts") if (not persona and state["accent"] in AZURE_ACCENTS) else None
+        cfg = azure_cfg("tts") if (not persona and not ROBOT_VOICE and state["accent"] in AZURE_ACCENTS) else None
         if not cfg:       # say why, so "her voice did not change" can be answered from the journal
             why = ("a character is on (%s)" % state["persona"]) if persona else \
                   ("accent is %s, and only %s use Azure" % (state["accent"], "/".join(AZURE_ACCENTS))) if state["accent"] not in AZURE_ACCENTS else \
@@ -4199,7 +4214,7 @@ def my_address():
 # 2026-10-29, Dr. O: A.L.I.C.E. said the address in Astra's voice and told people to try "astra nine lite dot local".
 # On the Pi that has index_alice.html the address is now spoken in her own voice, and it names this Pi's own hostname.
 def local_name():
-    if SELF_PERSONA is None:
+    if SELF_PERSONA is None and ROBOT_ID is None:   # 2026-11-07: a Pi with robot.txt says its own hostname, not Astra Lite's
         return "astra nine lite"
     import socket
     return socket.gethostname().split(".")[0].lower() or "astra nine lite"
