@@ -1858,8 +1858,9 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         addrBtn.style.display = (r.id === SELF) ? 'none' : '';
         var wasDemo = demo.classList.contains('show');
         var isDemo = (r.id !== SELF);
+        var he = (r.pronouns === 'he'), him = he ? 'him' : 'her', his = he ? 'his' : 'her';
         demo.textContent = (SECURE && up[r.id])
-          ? r.name + ' is on right now. This page cannot control her, and nothing here is saved. ' + (base[r.id] ? 'To open her real panel, choose her from the list (this device needs Tailscale signed in).' : 'To open her real panel, press Set address and type her Tailscale name.') + ' This is how ' + r.name + '’s panel looks.'
+          ? r.name + ' is on right now. This page cannot control ' + him + ', and nothing here is saved. ' + (base[r.id] ? 'To open ' + his + ' real panel, choose ' + him + ' from the list (this device needs Tailscale signed in).' : 'To open ' + his + ' real panel, press Set address and type ' + his + ' Tailscale name.') + ' This is how ' + r.name + '’s panel looks.'
           : 'Not connected. Nothing on this page reaches ' + r.name + ', and nothing is saved. This is how ' + r.name + '’s panel looks.';
         demo.classList.toggle('show', isDemo);
         var g = document.querySelector('.grid');
@@ -1868,6 +1869,12 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       }
 
       function styleTag(id){ var s = document.getElementById(id); if(!s){ s = document.createElement('style'); s.id = id; document.head.appendChild(s); } return s; }
+      function heWords(s){
+        var OBJ = /\b(to|show|wake|ask|tell|teach|hear|see|touch|with|let|give|help|call|thank|meet|follow|hug) her(?=\s*(?:$|[.,;:!?)]|(?:a|an|the|that|this|what|when|how|if|to|about|some|your|and|or|which|who)\b))/gi;
+        return s.replace(/\bherself\b/g, 'himself').replace(/\bHerself\b/g, 'Himself')
+          .replace(OBJ, function(m, v){ return v + ' him'; })
+          .replace(/\bShe\b/g, 'He').replace(/\bshe\b/g, 'he').replace(/\bHer\b/g, 'His').replace(/\bher\b/g, 'his');
+      }
       function rename(r){
         var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null), n, nodes = [];
         while((n = walker.nextNode())){
@@ -1878,7 +1885,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         nodes.forEach(function(t){
           if(!WALK.has(t)){ WALK.set(t, t.nodeValue); }
           var o = WALK.get(t);
-          t.nodeValue = (r.id === 'astra-lite') ? o : (function(v){ return /\.$/.test(r.name) ? v.split(r.name + '.').join(r.name) : v; })(o.replace(/Astra-9 Lite/g, r.name).replace(/\bElle\b/g, r.short || r.name));
+          t.nodeValue = (r.id === 'astra-lite') ? o : (function(v){ v = /\.$/.test(r.name) ? v.split(r.name + '.').join(r.name) : v; return (r.pronouns === 'he') ? heWords(v) : v; })(o.replace(/Astra-9 Lite/g, r.name).replace(/\bElle\b/g, r.short || r.name));
         });
         var h = document.querySelector('h1');
         if(h){
