@@ -1,0 +1,14 @@
+[Unit]
+Description=AL follows a face with the HuskyLens and the neck
+After=al-panel.service
+Conflicts=al-neck.service
+
+[Service]
+User=terryoroszi
+WorkingDirectory=/home/terryoroszi/al_panel
+ExecStart=/usr/bin/python3 /home/terryoroszi/al_panel/al_follow.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -65,6 +65,38 @@ Measure that socket's power pin with a meter before connecting the board's logic
    `python3 ~/al_panel/al_neck.py --save-glance 12` (0 to 40 degrees each way), then
    `sudo systemctl restart al-neck`. The number is kept in `~/al_neck_glance.txt`. Not tried on the real head.
 
+## HuskyLens and the head, aimed together (written 2026-11-08, NOT TRIED on ALICE)
+Dr. O's decision: her face follows where the HuskyLens is looking, so the two are in sync. The HuskyLens sits on a small
+pan servo (a spare MG90S) on the same servo board as the neck. `al_follow.py` reads where the biggest face is in the
+HuskyLens picture, turns the pan servo until that face is in the middle, then moves the neck to the same angle. Both
+use the one number, so they cannot disagree, and both move one degree at a time, never more than 60 degrees from the middle.
+It does the job of `al_neck.py` too (the panel's friendly glance still works while no face is in view), so only one of
+the two runs at a time. `al-follow.service` has `Conflicts=al-neck.service` for that.
+
+Try it in this order, one step at a time, with the first four not moving anything on the robot except the test:
+1. `i2cdetect -y 1` shows 32 (HuskyLens) and 40 (servo board). The HuskyLens menu, General Settings, Protocol Type must be I2C.
+2. `python3 ~/al_panel/al_follow.py --check` asks the HuskyLens to answer and sets face recognition.
+3. `python3 ~/al_panel/al_follow.py --look` prints what it sees for 20 seconds. Standing in front of her and stepping to
+   your left should print "her right". If it prints the other side: `--flip x`.
+4. `python3 ~/al_panel/al_follow.py --test` moves the pan servo and then the neck to her right, her left and back. Do the
+   first try with the head off the neck servo and the HuskyLens off the pan servo. If a servo went the wrong way for her
+   right: `--flip pan` or `--flip neck`.
+5. `sudo systemctl stop al-neck`, then `python3 ~/al_panel/al_follow.py`. Straight ahead for the pan servo: `--hold-pan 100`
+   to try a number, `--save-pan-middle 100` to keep it. The neck keeps its own number from `~/al_neck_middle.txt`.
+6. When it works by hand, on the Pi: `sudo curl -sSLo /etc/systemd/system/al-follow.service https://raw.githubusercontent.com/starbucks005-alt/etl-lab/main/al-panel/pi/al-follow.service && sudo systemctl daemon-reload && sudo systemctl disable --now al-neck.service && sudo systemctl enable --now al-follow.service`.
+
+- **Settings** are kept in `~/al_follow.json` (pan channel, pan straight ahead, and the three flips).
+- **Not known, to find out on the bench:** that the pan servo works on channel 9 (a guess, `--pan-channel N` changes it); that the
+  blue and green wires of the HuskyLens plug are SDA and SCL in that order (swapping them does no harm, the HuskyLens just does not
+  answer); that it can share the HAT's I2C socket with the servo board; the HuskyLens's logic voltage against the Pi's 3.3 V; and the
+  pace and gain (`GAIN`, `STEP`, `CYCLE` at the top of the file are guesses to tune). The protocol bytes are from memory of the HuskyLens
+  documentation, so if `--check` gets no answer with the HuskyLens showing at 32, the bytes are the first suspect.
+- **What the program writes for the panel to read later:** `/tmp/al_follow.json` with the face it sees and the pan and neck offsets,
+  twice a second. Nothing in the panel reads it yet.
+- **Not built:** learning or forgetting a face from the panel. The HuskyLens button still does that.
+- **Power:** the HuskyLens runs from 5 V. Her notes have the red and black ribbon wires taped off while the USB cable powers it. Use one
+  power source at a time, never both.
+
 ## Start the eyes and the neck by themselves (after both have worked by hand)
 `al-eyes.service` and `al-neck.service` start the two drivers when the Pi starts, the same
 way `al-panel.service` starts the panel. The eye driver runs as root because the lights need it.
