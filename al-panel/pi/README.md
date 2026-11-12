@@ -4,6 +4,8 @@ Status: written 2026-10-01. The server logic was tested with a stand-in for
 `al.py`. It has NOT been run on AL's hardware, and the Claude photo call and the
 eye lights are untested.
 
+**Head-turn, Ted and Astra adapters, magnet-tab panels, print settings, 3D printer files and per-robot differences:** see "Build book update" (2026-11-12) near the end. The printer files are in `al-panel/3D_printer_files`.
+
 ## What is here
 - `al_panel_server.py` serves the panel and its buttons (eyes, accent, skills, chat, photos).
 - `al_eyes.py` drives the two eye rings from GPIO12. It needs the rings wired.
@@ -747,3 +749,51 @@ Two kids, Astro and Astri, each with two WS2812 rings of 12 lights (Stemedu, 2 p
 - **Not tried:** the lights have not been tested on a Pi yet. Test with the rings unglued before anything is glued into the head (Dr. O's notes say the stack is glued from behind and cannot be reached afterwards).
 - **For the Pis:** on Astro's and Astri's Pi only, a file called `eye_leds` containing `24` next to `al_eyes.py` (for example `echo 24 > ~/al_panel/eye_leds`, then `sudo systemctl restart al-eyes.service`). `al_eyes.py` already reads that file. Astra and Astrad need no file.
 - **Before power, with the meter:** orange to green must not beep; about 470 ohms from the yellow wire to Ring 2's DI; and each splice should be checked for a short to the next one.
+
+## Build book update: head-turn, adapters, magnet panels, hardware (Dr. O, 2026-11-12)
+
+### Print settings (all parts)
+Snapmaker U1, Snapmaker PLA, textured PEI plate, supports OFF, 4 walls, 40% infill.
+
+### 3D printer files (folder: `al-panel/3D_printer_files/stl`)
+| File | What it is | Used on |
+|---|---|---|
+| spinner_v3.stl | Spinner: 7 mm plate + 8 mm D post through swivel | Head-turn, all robots |
+| head_disc_v4.stl | 73 mm head disc with 4 swivel holes (40 mm square, #6) | Head-turn |
+| deck.stl | Deck epoxied in torso neck (r 36.75, 7 mm) | Head-turn |
+| servo_plate.stl | Hanging MG996R plate on two #6 bolts + nuts (~25.5 mm gap, adjustable) | Head-turn |
+| ted_adapter.stl | Horn plate, hex pocket for 1/4 in bolt head | Ted |
+| astra_adapter.stl | Horn plate, hex pocket for 3/8 in bolt head | Astra |
+| magnet_tab.stl | Single magnet tab | Head and back panels |
+| magnet_tabs_x8.stl | 8 tabs (one test plate) | Test fit |
+| magnet_tabs_x40.stl | 40 tabs, 5 x 8 grid | 5 robots x 2 panels x 4 tabs |
+Generator scripts are in `al-panel/3D_printer_files/scripts` (Python, trimesh + manifold3d + shapely); edit parameters at the top and rerun.
+Note: confirm spinner_v3 is the version you printed; earlier versions omitted.
+
+### Head-turn stack
+MG996R (40 mm body, 54 mm with ears, shaft off center, 25T spline, separate 5-6 V supply). Servo installed from the back opening. Servo bottom to horn top 47 mm. Swivel: 10 mm center hole, 4 holes on 40 mm square, #6 screws (2 in and 3 in swivels on order). Servo plate hangs from deck on two #6 bolts with nuts; set gap about 25.5 mm and adjust.
+
+### Ted and Astra adapters
+Metal hex bolt head sits in the hex pocket (threads up), epoxied in. Post screws on with blue Loctite 242 (removable). Do not print threads. Use FULLY threaded bolts (partly threaded do not work).
+- Ted: 1/4 in post. Astra: 3/8 in post (3/8 x 1 fully threaded bought at Lowe's).
+- OPEN: thread size (6-24 guess was unconfirmed). Test bolts in the posts first; resize pockets if metric backups match.
+
+### Magnet-tab panels
+Flat tab bridges the 1/8 in Dremel kerf. One 10x3 mm N48 magnet glued in the tab, mating magnet glued to the panel; check polarity attracts. Four tabs per panel; head and back panel per robot = 8 tabs/robot, 40 tabs and 80 magnets for 5 robots. Order a second pack (10x3 mm, 60 pcs) for the 5-6 child mannequins to come.
+
+### Hardware shopping (Lowe's)
+Fully threaded 3/8 x 1 bolts, backup bolts, Loctite Blue 242, epoxy (already have). Add item codes from receipt.
+
+### Per-robot differences
+- 3-year-old child (Astro, Astri): 12-bit eye stack. Astri female: rosy cheeks, dressed as female.
+- 10-year-old child: not yet assembled.
+- Female Guardian: camera and LED strip, no eyes, no eye stack.
+- Astra, Ted: head-turn with adapters above, 16-bit eye stack.
+- Alice: Will Cogley EyeMech 3.2, six MG90S servos, PCA9685 over I2C from Pi, 5 V 3 A, 27 mm eyeballs (confirm). Cogley license is non-commercial; check before any commercial use.
+Swivel/head process differs by body; the front index lists which section applies.
+
+### 3-day schedule per robot
+Day 1-3 template; "I stack" (LED, acrylic diffusion panel, standoffs) in the eye stage; skipped for Alice and Guardians.
+
+### Open items
+Neck-piece removal steps for child mannequins (waiting on photos); post thread size; post length and horn-to-swivel gap; Alice dry fit; magnet tab test fit.
