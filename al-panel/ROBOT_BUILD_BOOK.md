@@ -106,6 +106,18 @@ Every chapter has the same parts: who the robot is, the host body, what makes it
 - **Open:** dry fit; the moving eye holder (first draft in `al-panel/eyes`, not printed); the hand.
 - **Bench log sections:** every section that starts "ALICE" from 2026-10-25 to 2026-10-30, plus ALICE's hand; ALICE's joints and worn metal look; ALICE and the HuskyLens; HuskyLens and the head, aimed together; ALICE's moving eyes; Which wire for what; Standoffs: M2.5, not M3.
 
+#### A.L.I.C.E. eye mechanism (Dr. O, 2026-11-12)
+
+What was done and seen, and what is still open. Nothing here is a guess about cause.
+
+- **Printed:** the eye mechanism parts, in black PLA on the Snapmaker U1: a flat base tray, eyelid and linkage arms, bracket frames, two black cups, and a black ball with a hole in the top. The parts were laid out and photographed. Which part is which has not been matched to the assembly document yet.
+- **Base:** the trimmed base is 80 mm wide, 95 mm front to back and about 16 mm tall (measured from the file). It was started on the printer on 2026-11-11.
+- **Space in her head:** 75 mm left to right and 72 mm front to back (measured by Dr. O). The 80 by 95 mm base is 5 mm too wide and 23 mm too deep for that space, so it does not fit as printed. Open: the smallest base that fits, and whether the servo mounts and pivot holders still fit in 72 mm.
+- **Black ball:** the hole in the top has to be opened up. Open it by hand with a drill bit about the size of the metal stem, turned slowly with no drill motor, and stop when the stem drops in with a hair of play. Do not punch it, because printed PLA cracks.
+- **27 mm glass eyes:** the glass eye does not go into the black cup. It rests on the rim, because the cup opening is narrower than the widest part of the eye. The cup's inside width has not been measured, so the cause of the mismatch is not known. The cup is sized for a smaller eyeball.
+- **What settles it:** print the fit test, `al-panel/eyes/alice_eye_holder_v1_fit_test_3cups.stl` (three cups, 27.4, 27.8 and 28.2 mm inside, with one, two and three notches on the rim). Press the real eye into each, back first. The cup it drops into with a hair of play is the size the holder is built around. Not printed yet. The first-draft holder in `al-panel/eyes` is also untried on a real eye.
+- **License:** the EyeMech files are by Will Cogley and are licensed non-commercial. The trimmed base is derived from them and is kept on the local computer only, never committed. Commercial use needs his permission first (enquiries@willcogley.com).
+
 ### Chapter 3. Astra-9
 
 - **Who:** Astra-9, the 9th of her line, the elder guide: calm, steady, unhurried. Champagne mist with copper accents, no hair or wig. White lab coat and dress.
