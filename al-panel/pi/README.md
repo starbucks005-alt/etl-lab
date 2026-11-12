@@ -4,6 +4,8 @@ Status: written 2026-10-01. The server logic was tested with a stand-in for
 `al.py`. It has NOT been run on AL's hardware, and the Claude photo call and the
 eye lights are untested.
 
+**The robot build book is `al-panel/ROBOT_BUILD_BOOK.md`:** the overview, the kinds of robots and one chapter per robot. This file is the bench log it points to.
+
 **Head-turn, Ted and Astra adapters, magnet-tab panels, print settings, 3D printer files and per-robot differences:** see "Build book update" (2026-11-12) near the end. The printer files are in `al-panel/3D_printer_files`.
 
 ## What is here
