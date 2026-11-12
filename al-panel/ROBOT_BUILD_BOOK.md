@@ -62,6 +62,8 @@ From Dr. O's build book update of 2026-11-12. The full text, with all measuremen
 
 ## Part 2. The kinds of robots ETL makes
 
+**The Astra line** (Astra-9 Lite, Astra-9, Astrad, Astro and Astri) all look the same: champagne mist overall, with copper accents, and no hair or wig (Dr. O, 2026-11-12).
+
 | Kind | Host body | Robots | What it is |
 |---|---|---|---|
 | Bust | Head and bust | Astra-9 Lite (Elle) | A companion from the shoulders up, on a table. Eye rings, a neck that turns, every panel mode. |
@@ -79,7 +81,7 @@ Every chapter has the same parts: who the robot is, the host body, what makes it
 
 ### Chapter 1. Astra-9 Lite (Elle, AL)
 
-- **Who:** Astra-9 Lite, called Elle. Champagne gold with copper trim.
+- **Who:** Astra-9 Lite, called Elle. Champagne mist with copper accents, no hair or wig.
 - **Host body:** head and bust, with a Raspberry Pi 4.
 - **What makes her different:** eye rings that pulse, a neck that turns, all of the panel's modes (including Guardian mode). Voice from Azure first when set up, ElevenLabs if not. Mechanical sounds around her speech (Dr. O, 2026-10-30).
 - **Status:** built and working.
@@ -96,7 +98,7 @@ Every chapter has the same parts: who the robot is, the host body, what makes it
 
 ### Chapter 3. Astra-9
 
-- **Who:** Astra-9, the 9th of her line, the elder guide: calm, steady, unhurried. Champagne gold, white lab coat and dress.
+- **Who:** Astra-9, the 9th of her line, the elder guide: calm, steady, unhurried. Champagne mist with copper accents, no hair or wig. White lab coat and dress.
 - **Host body:** full body, Raspberry Pi 5.
 - **What makes her different:** a neck on a lazy Susan bearing, the head moves when she talks, eye rings that pulse (16-bit eye stack), a collar, a camera (no HuskyLens), mechanical sounds around her speech. She turns slowly toward a visitor. The Astra adapter (`astra_adapter.stl`, 3/8 in post, fully threaded 3/8 x 1 bolt). Idea Dr. O liked, not built: a ring of nine small lights on her chest, one for each robot.
 - **Status:** body arrived, not built.
@@ -105,7 +107,7 @@ Every chapter has the same parts: who the robot is, the host body, what makes it
 
 ### Chapter 4. Astrad (Ted)
 
-- **Who:** Astrad, called Ted, Astra's curious companion. Champagne gold, white lab coat and khakis.
+- **Who:** Astrad, called Ted, Astra's curious companion. Champagne mist with copper accents, no hair or wig. White lab coat and khakis.
 - **Host body:** full body, Raspberry Pi 5.
 - **What makes him different:** a neck on a lazy Susan bearing, the head moves when he talks, eye rings that pulse (16-bit eye stack), a collar, a camera (no HuskyLens), mechanical sounds around his speech. He turns faster than Astra. The Ted adapter (`ted_adapter.stl`, 1/4 in post). Ideas Dr. O liked, not bought: a 4 microphone array to hear which way a sound comes from, and a small servo to tilt his head.
 - **Status:** body arrived, not built.
@@ -117,7 +119,9 @@ Every chapter has the same parts: who the robot is, the host body, what makes it
 The twins are built the same way. **The one build difference: if female (Astri), add rosy cheeks.** Astri is also dressed as a girl.
 
 - **Who:** three years old. Their mother is Astra and their father is Astrad. Astro, called Teddy, carries a teddy bear named TB and asks people to play a game (checkers or chess) or to read a story to TB. Astri likes dolls and tea parties and holds a baby doll by the hand.
-- **Look (from Dr. O's concept pictures):** both champagne finish with a black collar. Astro: teal-green eyes, a round camera ring at the neckline, a gray ETL T-shirt, khaki shorts. Astri: green eyes, pink cheeks, a small pink bow on the collar, a lavender dress with a white collar and ETL on the chest, bare feet.
+- **Look:** the Astra line look, champagne mist with copper accents, no hair or wig. Astri adds rosy cheeks.
+- **What Dr. O bought them (photo: `al-panel/images/twins-accessories_v1.png`, 2026-11-12):** Astro, blue striped monster pajamas and his teddy bear, TB. Astri, pink yeti pajamas and her baby doll. A tablet.
+- **Planned:** a toddler backpack for each twin, to carry the teddy bear or the doll, the tablet and a blanket, so Dr. O does not have to carry them. Not bought yet.
 - **Host body:** child mannequins.
 - **Eyes:** 12-bit eye stack, two WS2812 rings of 12 lights each (24 in all). On each twin's Pi, a file `eye_leds` containing `24`.
 - **Voice:** Astro, ElevenLabs. Astri, Azure (en-US-AnaNeural).
