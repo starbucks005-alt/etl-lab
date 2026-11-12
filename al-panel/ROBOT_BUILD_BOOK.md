@@ -68,7 +68,7 @@ From Dr. O's build book update of 2026-11-12. The full text, with all measuremen
 |---|---|---|---|
 | Bust | Head and bust | Astra-9 Lite (Elle) | A companion from the shoulders up, on a table. Eye rings, a neck that turns, every panel mode. |
 | Full body companion | Adult mannequin | A.L.I.C.E., Astra-9, Astrad (Ted) | A life size robot that greets visitors, talks and turns to look at them. |
-| Child | Child mannequin | Astro and Astri (the twins), the 10-year-old | A child robot in the children's friend mode, with smaller eye rings. |
+| Child | Child mannequin | Astro and Astri (the twins), five more 3-year-olds, the 10-year-old | A child robot in the children's friend mode, with smaller eye rings. |
 | Guardian | Adult mannequin | Guardian F, Guardian M | Gloss black head, silver body, black uniform. One large camera lens in the center of the face and a red LED strip mouth that sweeps while it speaks. |
 | Dog | Dog mannequin | Biscuit, Reggie, Mochi | A dog robot with a tail wag and touch. |
 | Holopod | _Dr. O to fill in_ | Lumvivo | The hologram box. It takes part in the fireside chat as whichever character it is showing. |
@@ -129,26 +129,34 @@ The twins are built the same way. **The one build difference: if female (Astri),
 - **Open:** neck-piece removal steps for child mannequins (waiting on photos).
 - **Bench log sections:** Astro and Astri: eye rings (2026-11-07); Build book update.
 
-### Chapter 6. The 10-year-old
+### Chapter 6. Five more 3-year-olds
+
+- **Who:** _Dr. O to fill in: names, and who each one is._
+- **Host body:** child mannequins, the same as the twins.
+- **Build:** the twins' chapter applies (12-bit eye stack, head-turn stack, magnet-tab panels); if female, add rosy cheeks.
+- **Status:** Dr. O has all five, still in the box, not built (2026-11-12). The magnet tab count of 40 covers 5 robots; Dr. O's note says to order a second pack of magnets (10x3 mm, 60 pcs) for the 5 to 6 child mannequins to come.
+- **Open:** neck-piece removal steps for child mannequins (waiting on photos).
+
+### Chapter 7. The 10-year-old
 
 - **Who:** _Dr. O to fill in: name and who this robot is._
 - **Host body:** child mannequin.
-- **Status:** not yet assembled.
+- **Status:** Dr. O has the body; not put together yet (2026-11-12).
 - **Open:** neck-piece removal steps for child mannequins (waiting on photos).
 
-### Chapter 7. Guardian F
+### Chapter 8. Guardian F
 
 - **Who:** a Guardian. Gloss black head and neck, silver/chrome body, black uniform with an ETL patch.
 - **What makes her different:** one large camera lens in the center of her face, a red LED strip mouth that sweeps while she speaks. No eyes and no eye stack. Idea Dr. O liked, not bought: a badge reader (NFC) so guests tap a badge and she greets them by name.
-- **Status:** planned.
+- **Status:** Dr. O has her, still in the box, not built (2026-11-12).
 
-### Chapter 8. Guardian M
+### Chapter 9. Guardian M
 
 - **Who:** a Guardian. Gloss black head and neck, silver/chrome body, black uniform with an ETL patch.
 - **What makes him different:** one large camera lens in the center of his face, a red LED strip mouth that sweeps while he speaks. Idea Dr. O liked, not bought: a small receipt printer that prints a pass or card for each visitor.
 - **Status:** planned.
 
-### Chapter 9. Biscuit
+### Chapter 10. Biscuit
 
 - **Who:** a yellow Labrador, female, the consummate storyteller. She can make a leaf become a saga.
 - **Host body:** Sunraymascota fiberglass dog mannequin.
@@ -156,7 +164,7 @@ The twins are built the same way. **The one build difference: if female (Astri),
 - **Status:** planned.
 - **Bench log sections:** The dogs: touch and tail (2026-10-24).
 
-### Chapter 10. Reggie
+### Chapter 11. Reggie
 
 - **Who:** a beagle, super hyped and very happy to see humans. "HI HI HI... BEST part of my day is seeing YOU!!!"
 - **Host body:** Sunraymascota fiberglass dog mannequin.
@@ -164,7 +172,7 @@ The twins are built the same way. **The one build difference: if female (Astri),
 - **Status:** planned.
 - **Bench log sections:** The dogs: touch and tail (2026-10-24).
 
-### Chapter 11. Mochi
+### Chapter 12. Mochi
 
 - **Who:** a French bulldog, male, the small one. A dog of few words: "hi."
 - **Host body:** Sunraymascota fiberglass dog mannequin.
@@ -172,7 +180,7 @@ The twins are built the same way. **The one build difference: if female (Astri),
 - **Status:** planned.
 - **Bench log sections:** The dogs: touch and tail (2026-10-24).
 
-### Chapter 12. Lumvivo (the Holopod)
+### Chapter 13. Lumvivo (the Holopod)
 
 - **Who:** the hologram box. In the fireside chat, it speaks as whichever character it is showing.
 - **Host body:** _Dr. O to fill in._
