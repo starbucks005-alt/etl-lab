@@ -58,11 +58,21 @@ From Dr. O's build book update of 2026-11-12. The full text, with all measuremen
 - **Magnet-tab panels:** four tabs per panel, a head panel and a back panel per robot, so 8 tabs and 16 magnets (10x3 mm N48) per robot. Check that each pair attracts before gluing.
 - **Three day schedule per robot:** Day 1 to 3. The "I stack" (LED, acrylic diffusion panel, standoffs) is part of the eye stage, and is skipped for A.L.I.C.E. and the Guardians.
 
+### 1.5 Clothes: an ETL uniform (draft, Dr. O, 2026-11-12)
+
+The bodies are mannequins, and Dr. O does all she can to make them not look like mannequins. Ordinary clothes turn them back into looking like mannequins. So the plan is something uniform-ish for all ETL bots:
+
+- Khaki pants
+- A black T-shirt
+- The ETL logo
+
+Draft only: which robots wear it, and how it fits the twins, the Guardians and the dogs, is not decided. The clothes already in the chapters (the twins' concept clothes and pajamas, the lab coats) are left as they are until Dr. O decides.
+
 ---
 
 ## Part 2. The kinds of robots ETL makes
 
-**The Astra line** (Astra-9 Lite, Astra-9, Astrad, Astro and Astri) all look the same: champagne mist overall, with copper accents, and no hair or wig (Dr. O, 2026-11-12).
+**The Astra line** (Astra-9 Lite, Astra-9, Astrad, Astro and Astri) all look the same: champagne mist overall, with copper accents, and no hair or wig (Dr. O, 2026-11-12). The Astra line wears a black choker: it hides the neck cut, and it is where the camera is mounted.
 
 | Kind | Host body | Robots | What it is |
 |---|---|---|---|
