@@ -126,6 +126,16 @@ What was done and seen, and what is still open. Nothing here is a guess about ca
 - **Printed Cogley parts:** they stay in a box and are not wasted. Moving eyes can be built later with eyes made for his mechanism (his own or printed hollow ones). Part C still has to be reprinted first.
 - **License:** the EyeMech files are by Will Cogley and are licensed non-commercial. The trimmed base is derived from them and is kept on the local computer only, never committed. Commercial use needs his permission first (enquiries@willcogley.com).
 
+#### A.L.I.C.E. sound level (Dr. O, 2026-11-13)
+
+ALICE was too quiet to be heard if she were in her body, with the amp's knob all the way up and the panel volume at 100.
+
+- **What was found:** her sound chip is card 2, `wm8960soundcard`. It has two volume controls. `Headphone` is the one the panel moves, and it was already at its maximum (127 of 127, +6 dB). `Playback` was at 214 of 255, which is -20.5 dB, and nothing in the panel ever changes it.
+- **What fixed it:** `amixer -c 2 sset Playback 235` (-10 dB). With the amp's knob all the way up, Dr. O said she was "loud and clear", and the amp's chip was not warm after she spoke. Higher steps (245, 255) were not tried. They would be louder but could crackle and run the amp hotter.
+- **Keeping it:** the command was live only. To store it, run `sudo alsactl store` on the Pi. It was given to Dr. O, and whether she ran it is not recorded here. It is not known yet whether 235 survives a reboot.
+- **Not changed:** no file on the Pi or in this repository was changed, and the panel's own volume code still moves only `Headphone`.
+- **Before this:** the audio cable between the HAT's headphone jack and the amp had come out of the amp when it was replaced, and she was silent until it was plugged back in.
+
 ### Chapter 3. Astra-9
 
 - **Who:** Astra-9, the 9th of her line, the elder guide: calm, steady, unhurried. Champagne mist with copper accents, no hair or wig. White lab coat and dress.
