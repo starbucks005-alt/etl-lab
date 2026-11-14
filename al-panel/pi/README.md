@@ -799,3 +799,14 @@ Day 1-3 template; "I stack" (LED, acrylic diffusion panel, standoffs) in the eye
 
 ### Open items
 Neck-piece removal steps for child mannequins (waiting on photos); post thread size; post length and horn-to-swivel gap; Alice dry fit; magnet tab test fit.
+
+## Breathing while idle, for every robot (Dr. O, 2026-11-14)
+
+Dr. O, 2026-11-14: Astra-9 Lite (Elle) has had the idle breathing since 30 October ("like a recording that runs", in time with her eyes), and she wants **Astra, Astrad, Astri, Astro and A.L.I.C.E.** to have the same. The code is not specific to one robot: it is the same `al_cues.py` and the same server on every Pi, and the breathing is switched on by files next to the server.
+
+- **Per Pi, copy the current `al_panel_server.py`, `al_cues.py`, `al_eyes_math.py` and `al_eyes.py` into `~/al_panel`, put the word `on` in a file called `idle_breath.txt` there, and restart the panel** (`sudo systemctl restart al-panel.service`, and `al-eyes.service` on a robot that has eyes).
+- **Level:** `idle_level.txt` next to the server, a number from 0.002 to 0.60. The default is 0.18. Elle's own file, if she has one, is the number Dr. O chose by listening (0.07 was too quiet and 0.35 too loud for her on 30 October). The kids may want it lower. That is Dr. O's choice per robot, and not decided here.
+- **Matching the eyes:** the breath starts when the eyes are dimmest, so it rises as they brighten. The kids' 24 light eyes use the same 4.5 second swell, so they should match. **A.L.I.C.E. has no eye rings**, so on her it is only the breath, by the clock, with nothing to match.
+- **A.L.I.C.E. keeps her breath before she speaks** (the `breath` set, her default). The idle breathing is separate and does not replace it.
+- **Astra and Astrad keep their mechanical sounds** (`cue_set.txt` = `mechanical`) unless Dr. O says otherwise. They are separate from the idle breathing.
+- **Not tried:** on any robot but Elle. Whether it sounds right on each speaker, and whether the timing matches the eyes on a robot other than Elle, is not known until it is heard. Because Dr. O is hearing impaired, check by watching the panel or the log, not by asking her to listen for gaps.
