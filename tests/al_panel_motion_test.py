@@ -135,5 +135,45 @@ class PlaybackLevel(unittest.TestCase):
         self.assertIsNone(s.apply_playback_level(wait=0.05, step=0.01))
 
 
+class VoiceSaidOnce(unittest.TestCase):
+    """2026-11-15: she says she thinks it is Dr. O by voice once, not at every sentence."""
+
+    def setUp(self):
+        self.old = s.is_self
+        s.is_self = lambda p: True
+        s.voice_said.update(name=None, at=0.0)
+
+    def tearDown(self):
+        s.is_self = self.old
+        s.speaker.update(name=None, score=0.0, at=0.0)
+
+    def heard(self, name, t):
+        s.speaker.update(name=name, score=0.9, at=t)
+        return s.speaker_note(now=t)
+
+    def test_once_then_quiet(self):
+        self.assertIn("you may say you think it is them", self.heard("Dr O", 1000))
+        later = self.heard("Dr O", 1030)
+        self.assertIn("do not mention their voice", later)
+        self.assertNotIn("you may say", later)
+        self.assertIn("do not mention", self.heard("Dr O", 1500), "still inside ten minutes")
+
+    def test_occasionally_in_a_long_talk(self):
+        said = [t for t in range(1000, 1000 + 1900, 30) if "you may say" in self.heard("Dr O", t)]
+        self.assertEqual(len(said), 4, "about once every ten minutes in a half hour of talk, got %s" % said)
+
+    def test_again_after_ten_quiet_minutes(self):
+        self.heard("Dr O", 1000)
+        self.assertIn("you may say", self.heard("Dr O", 1000 + 601))
+
+    def test_another_voice_gets_its_own_once(self):
+        self.heard("Dr O", 1000)
+        self.assertIn("you may say", self.heard("Sam", 1010))
+
+    def test_no_match_no_note(self):
+        s.speaker.update(name=None, score=0.0, at=0.0)
+        self.assertEqual(s.speaker_note(now=1000), "")
+
+
 if __name__ == "__main__":
     unittest.main()

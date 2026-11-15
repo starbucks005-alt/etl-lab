@@ -1732,12 +1732,26 @@ def header_value(name):
     return eval(m.group(1).strip(), al.__dict__)
 
 
-def speaker_note():
+# 2026-11-15, Dr. O: "'I think that's you, Dr. O, going by your voice' she is saying every time I speak." The match note went with every
+# sentence and always said she may say so. Dr. O: "saying it occasionally so people know she has voice detection is great, every time is
+# overkill." Now she may say it at most once every ten minutes for the same voice, even in a talk that keeps going; in between, the note
+# says she already said it. A different voice gets its own once.
+VOICE_SAID_FOR = 600.0
+voice_said = {"name": None, "at": 0.0}
+
+
+def speaker_note(now=None):
     """2026-10-23, Dr. O: registered voices. Only for a voice the owner registered with the person's agreement, and only when the match was clear."""
-    if speaker["name"] and time.time() - speaker["at"] < 90 and is_self(state["persona"]):
-        return (" (Voice match: that sounded like %s, a voice the owner registered with their agreement. It is a likely match and not a certainty, so you may say you think it is them. "
-                "If they say they are someone else, believe them.)" % speaker["name"])
-    return ""
+    now = now or time.time()
+    if not (speaker["name"] and now - speaker["at"] < 90 and is_self(state["persona"])):
+        return ""
+    name = speaker["name"]
+    if voice_said["name"] == name and now - voice_said["at"] < VOICE_SAID_FOR:
+        return (" (This is still %s, by voice. You have already said you think it is them, so do not mention their voice or say it again; "
+                "just answer what they said. If they say they are someone else, believe them.)" % name)
+    voice_said.update(name=name, at=now)
+    return (" (Voice match: that sounded like %s, a voice the owner registered with their agreement. It is a likely match and not a certainty, so you may say you think it is them, "
+            "once. If they say they are someone else, believe them.)" % name)
 
 
 def time_note():
