@@ -441,6 +441,13 @@ MOTION_PIN = 13          # GPIO13, the second signal pin of the HAT's GPIO12 soc
 MOTION_WARM_UP = 60      # seconds the sensor needs after power-up before it can be trusted
 welcome_state = {"last": 0.0, "n": 0, "greet_i": -1}
 welcome_lock = threading.Lock()
+# 2026-11-15, Dr. O: "The motion detection and welcome need to be OFF by default. When working on the bench Teddy's motion detection/welcome
+# was driving me crazy and I had no way to shut it off." So the sensor starts OFF every time the server starts, and the choice is never saved:
+# a robot on the bench stays still until somebody switches it on (panel card 8, or the every-robot switch, which reaches the others through the
+# website at their next check-in, within about a minute). While it is off, nobody walking up sets anything off. Welcome now and the arcade button
+# work either way. all_rev is the last every-robot switch this robot has seen; the one that was already set when it started is only remembered,
+# never obeyed, so a robot always starts off.
+motion_on = {"on": False, "all_rev": None}
 
 
 def load_welcome():
@@ -1688,7 +1695,9 @@ def watch_motion():
         pulse["timer"] = None
         if not line.is_active:       # it dropped again, so the falling edge has already handled it
             return
-        state["seen"] = time.time()
+        state["seen"] = time.time()          # kept while the sensor is off too, so the panel can still show the wiring works
+        if not motion_on["on"]:
+            return
         threading.Thread(target=welcome, daemon=True).start()
 
     def rising():
@@ -1767,7 +1776,7 @@ def robot_id():
 def status():
     return jsonify(ok=True, name="AL", accent=state["accent"], skills=state["skills"],
                    color=state["color"], brightness=state["brightness"], persona=state["persona"], main=state["main"],
-                   personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"], mode=state["mode"], log_n=len(state["log"]),
+                   personas=len(PERSONAS), welcome=state["welcome"], motion=state["motion"], motion_on=motion_on["on"], mode=state["mode"], log_n=len(state["log"]),
                    log=state["log"][-40:])
 
 
@@ -2417,7 +2426,69 @@ def say_address():
 def welcome_get():
     import time
     ago = round(time.time() - state["seen"]) if state["seen"] else None
-    return jsonify(welcome=state["welcome"], motion=state["motion"], seen_ago=ago)
+    return jsonify(welcome=state["welcome"], motion=state["motion"], motion_on=motion_on["on"], seen_ago=ago)
+
+
+def set_motion(on, why):
+    on = bool(on)
+    if on != motion_on["on"]:
+        print("MOTION SENSOR switched %s (%s)" % ("on" if on else "off", why), flush=True)
+    motion_on["on"] = on
+
+
+@app.get("/api/motion")
+def motion_get():
+    return jsonify(on=motion_on["on"], sensor=state["motion"])
+
+
+@app.post("/api/motion")
+def motion_post():
+    """This robot only. Body {on: true or false}. Not saved: the sensor is off again after every restart."""
+    d = request.get_json(silent=True) or {}
+    if not isinstance(d.get("on"), bool):
+        return jsonify(error="Say on or off"), 400
+    set_motion(d["on"], "panel")
+    return jsonify(ok=True, on=motion_on["on"])
+
+
+@app.post("/api/motion/all")
+def motion_all():
+    """Every robot. This one switches now; it tells the website, and each of the others follows at its next check-in (about a minute).
+    It goes out with this robot's own check-in code, so the page never needs one."""
+    d = request.get_json(silent=True) or {}
+    if not isinstance(d.get("on"), bool):
+        return jsonify(error="Say on or off"), 400
+    set_motion(d["on"], "every robot, from this panel")
+    key = ""
+    try:
+        key = open(CHECKIN_KEY_FILE, encoding="utf-8").read().strip()
+    except OSError:
+        pass
+    if not (ROBOT_ID and key):
+        return jsonify(ok=True, on=motion_on["on"], sent=False,
+                       error="This robot switched, but it has no check-in code (checkin_key.txt) or no robot.txt, so it could not tell the others."), 200
+    try:
+        r = requests.post(CHECKIN_URL, json={"id": ROBOT_ID, "set_motion": d["on"]}, headers={"x-sun-key": key}, timeout=8)
+        if r.status_code != 200:
+            return jsonify(ok=True, on=motion_on["on"], sent=False, error="The website answered %s, so the others were not told." % r.status_code), 200
+        _motion_from_site(r.json(), own=True)
+    except Exception as e:
+        return jsonify(ok=True, on=motion_on["on"], sent=False, error="The website could not be reached (%s), so the others were not told." % str(e)[:80]), 200
+    return jsonify(ok=True, on=motion_on["on"], sent=True)
+
+
+def _motion_from_site(j, own=False):
+    """The every-robot switch, as the website reports it in a check-in answer: {"all": {"motion": {"on": bool, "rev": n}}}."""
+    m = ((j or {}).get("all") or {}).get("motion") if isinstance(j, dict) else None
+    if not isinstance(m, dict) or "rev" not in m:
+        return
+    rev = m.get("rev")
+    if motion_on["all_rev"] is None or own:
+        motion_on["all_rev"] = rev          # what was set before this robot started is remembered, not obeyed; its own switch is already done
+        return
+    if rev != motion_on["all_rev"]:
+        motion_on["all_rev"] = rev
+        set_motion(m.get("on"), "every robot, from the website")
 
 
 @app.post("/api/welcome")
@@ -4493,7 +4564,9 @@ def checkin_loop():
             if ROBOT_ID and os.path.exists(CHECKIN_KEY_FILE):
                 key = open(CHECKIN_KEY_FILE, encoding="utf-8").read().strip()
                 if key:
-                    requests.post(CHECKIN_URL, json={"id": ROBOT_ID}, headers={"x-sun-key": key}, timeout=8)
+                    r = requests.post(CHECKIN_URL, json={"id": ROBOT_ID}, headers={"x-sun-key": key}, timeout=8)
+                    if r.status_code == 200:
+                        _motion_from_site(r.json())     # 2026-11-15: the every-robot motion switch rides on the check-in answer
         except Exception:
             pass
         time.sleep(60)

@@ -47,6 +47,24 @@ const { handler } = require('../netlify/functions/robot-checkin.js');
   ok((await post(u, 'r5', 1000)).statusCode === 200, 'a robot already on the list can still check in');
   ok((await handler({ httpMethod: 'OPTIONS' }, {})).statusCode === 204, 'OPTIONS answers');
 
+  // 2026-11-15: the every-robot motion switch. Never set: off, count 0. Set by the owner's code: the count goes up and every check-in answer carries it.
+  const v = mem();
+  const body = async (r) => JSON.parse((await r).body);
+  const first = await body(post(v, 'astro', 0));
+  ok(first.all && first.all.motion && first.all.motion.on === false && first.all.motion.rev === 0, 'never set: motion off, count 0');
+  const sendSet = (id, on, key) => handler({ httpMethod: 'POST', headers: { 'x-sun-key': key || 'k1' }, body: JSON.stringify({ id, set_motion: on }) }, { store: v, env, now: () => 5 });
+  const s1 = await body(sendSet('alice', true));
+  ok(s1.all.motion.on === true && s1.all.motion.rev === 1, 'switched on for every robot: count 1');
+  const seen = await body(post(v, 'astro', 10));
+  ok(seen.all.motion.on === true && seen.all.motion.rev === 1, 'another robot sees it at its next check-in');
+  const s2 = await body(sendSet('astro', false));
+  ok(s2.all.motion.on === false && s2.all.motion.rev === 2, 'switched off again: count 2');
+  ok(Object.keys((await get(v, 10)).online).sort().join() === 'alice,astro', 'the switch is not counted as a robot');
+  const tester = await handler({ httpMethod: 'POST', headers: { 'x-sun-key': 'tk' }, body: JSON.stringify({ id: 'astro', set_motion: true }) },
+    { store: v, env: {}, now: () => 20, loadCfg: async () => ({ sun_testers: [{ id: 'x', hash: require('../netlify/functions/_gc-config.js').hash('tk') }] }) });
+  ok(tester.statusCode === 403, 'a tester code cannot switch every robot');
+  ok((await body(post(v, 'astro', 30))).all.motion.rev === 2, 'the refused switch changed nothing');
+
   if (bad) { console.log(bad + ' check(s) failed'); process.exit(1); }
   console.log('robot-checkin: all checks passed');
 })();

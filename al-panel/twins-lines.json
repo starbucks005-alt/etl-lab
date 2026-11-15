@@ -9,7 +9,7 @@
       "voice": "azure:zh-CN-Yunxia:DragonHDFlashLatestNeural@en-US",
       "earlier_voice": "kqf3165btzkiiwqxmo1q",
       "lines": {
-        "start": "Let's play! I am X. Astri is O. I go first!",
+        "start": "Let's play! I go first, 'cause I'm the oldest. I got turned on first! I am X.",
         "c0": "Up here, on the left!",
         "c1": "Up here, at the top!",
         "c2": "Up here, on the right!",
@@ -31,7 +31,7 @@
       "voice": "azure:en-US-AnaNeural",
       "earlier_voice": "t32lqiRDyoLz0gaRQCGT",
       "lines": {
-        "start": "I am O! Astro goes first. Then me.",
+        "start": "We're twins, Teddy! Twins are the same old! I am O.",
         "c0": "I pick the top corner, on the left.",
         "c1": "I pick the top, in the middle.",
         "c2": "I pick the top corner, on the right.",

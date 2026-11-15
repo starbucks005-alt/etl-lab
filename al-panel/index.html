@@ -648,6 +648,9 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     <section class="card wide" id="welcomeCard">
       <h2>8. When someone walks up</h2>
       <p class="hint" id="welcomeHint">Astra-9 Lite notices when someone comes close. Choose what she does. If a lot of people pass by, set a longer wait so the hello does not get old.</p>
+      <!-- 2026-11-15, Dr. O: motion detection and welcome OFF by default, and a way to shut it off, here and for every robot at once. -->
+      <label class="wopt"><input type="checkbox" id="wMotion"> <b>Motion sensor on.</b> It is off every time the robot starts. While it is off, nobody walking up sets anything off, and the choices below wait.</label>
+      <div class="row" style="margin:6px 0 14px"><button id="wAllOff">Every robot: motion off</button><button id="wAllOn">Every robot: motion on</button><span class="hint" id="wAllStatus" style="margin:0">The other robots follow within about a minute.</span></div>
       <label class="wopt"><input type="checkbox" id="wGreet"> Say hello</label>
       <label class="wopt"><input type="checkbox" id="wTurn"> Turn her head</label>
       <label class="wopt"><input type="checkbox" id="wEyes"> Brighten her eyes</label>
@@ -1524,7 +1527,27 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
                                                                 : 'Her motion sensor last noticed someone ' + ago(info.seen_ago) + '.')
           : 'Her motion sensor could not be started. Welcome now still works.';
     }
+    if(info && typeof info.motion_on === 'boolean'){
+      $('wMotion').checked = info.motion_on;
+      if(!info.motion_on && info.motion === 'ready'){
+        msg = 'The motion sensor is switched off, so nothing happens when someone walks up.' + (info.seen_ago == null ? '' : ' It last noticed movement ' + ago(info.seen_ago) + '.');
+      }
+    }
     $('wStatus').textContent = msg;
+  }
+  // 2026-11-15, Dr. O: off by default. This robot only, or every robot (sent through this robot to the website; the others follow at their next check-in).
+  function setMotion(on){
+    if(!live){ $('wMotion').checked = false; $('wAllStatus').textContent = 'Not connected to a robot.'; return; }
+    api('/api/motion', {on:on}).then(function(j){ $('wMotion').checked = !!j.on; })
+      .catch(function(e){ $('wMotion').checked = !on; addMsg('al', '(I could not switch the motion sensor: ' + e.message + ')'); });
+  }
+  function setMotionAll(on){
+    if(!live){ $('wAllStatus').textContent = 'Not connected to a robot.'; return; }
+    $('wAllStatus').textContent = 'Sending...';
+    api('/api/motion/all', {on:on}).then(function(j){
+      $('wMotion').checked = !!j.on;
+      $('wAllStatus').textContent = j.sent ? 'Motion ' + (on ? 'on' : 'off') + ' on this robot now. The other robots follow within about a minute.' : (j.error || 'The other robots were not told.');
+    }).catch(function(e){ $('wAllStatus').textContent = e.message; });
   }
   function pollSensor(){
     if(!live){ return; }
@@ -1605,6 +1628,9 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   $('wLab').addEventListener('click', function(){ preset('lab'); });
   ['wGreet','wTurn','wEyes','wChat','wAlways','wCrowd','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
+  $('wMotion').addEventListener('change', function(){ setMotion(this.checked); });
+  $('wAllOff').addEventListener('click', function(){ setMotionAll(false); });
+  $('wAllOn').addEventListener('click', function(){ setMotionAll(true); });
   addMsg('al', 'Hello. I am Astra-9 Lite, and you can call me Elle. Try changing my eyes, or ask me something.');
   // ---------- talk by voice: she listens for 6 seconds through her own microphones ----------
   $('vol').addEventListener('input', function(){ $('volText').textContent = this.value + '%'; });

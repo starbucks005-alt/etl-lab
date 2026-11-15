@@ -6,7 +6,10 @@
    Nothing else is stored or sent: no address, no name, no settings. A robot that stops checking in drops off after three minutes.
    2026-11-07: each robot now has its own record (ck/<id>). Before, one shared record held every robot, so two robots checking in at the same
    moment could erase each other and the dots flickered. Now a robot can only ever write its own note.
-   With no access code set the POST answers 503, like the other home functions. */
+   With no access code set the POST answers 503, like the other home functions.
+   2026-11-15, Dr. O: motion detection and welcome must be off by default, with a way to switch them for every robot. A check-in answer now carries
+   the every-robot motion switch, {all:{motion:{on, rev}}}, and a robot's POST with set_motion: true or false changes it (the owner's code only; a
+   tester's code is refused). Each robot obeys a rev it has not seen, at its next check-in. Only that one on/off and its count are kept. */
 const sun = require('./_sun.js');
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type, x-sun-key', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' };
@@ -14,6 +17,15 @@ const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content
 const FRESH_MS = 180000;
 const MAX_ROBOTS = 30;
 const PREFIX = 'ck/';
+const ALL_MOTION = 'all/motion';      // not under ck/, so it is never counted as a robot
+
+async function readMotion(store) {
+  try {
+    const m = await store.get(ALL_MOTION, { type: 'json' });
+    if (m && typeof m === 'object') return { on: !!m.on, rev: Number(m.rev) || 0 };
+  } catch (_) { /* unreadable: the same as never set */ }
+  return { on: false, rev: 0 };
+}
 
 async function openStore(event) {
   const { getStore, connectLambda } = require('@netlify/blobs');
@@ -57,5 +69,11 @@ exports.handler = async (event, deps = {}) => {
     if (keys.indexOf(PREFIX + id) === -1 && keys.length >= MAX_ROBOTS) return json(400, { error: 'too_many' });
     await store.setJSON(PREFIX + id, now);
   } catch (_) { return json(503, { error: 'store_unavailable' }); }
-  return json(200, { ok: true });
+  let motion = await readMotion(store);
+  if (typeof body.set_motion === 'boolean') {
+    if (a.who !== 'owner') return json(403, { error: 'owner_only' });
+    motion = { on: body.set_motion, rev: motion.rev + 1 };
+    try { await store.setJSON(ALL_MOTION, { on: motion.on, rev: motion.rev, at: now, by: id }); } catch (_) { return json(503, { error: 'store_unavailable' }); }
+  }
+  return json(200, { ok: true, all: { motion } });
 };
