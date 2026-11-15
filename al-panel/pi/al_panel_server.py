@@ -476,6 +476,10 @@ def save_welcome():
 
 
 state["welcome"] = load_welcome()
+# 2026-11-15, Dr. O: "make always listening on a default." Every robot starts listening for its name, whatever was saved before; the panel
+# (card 8) can still switch it off until the next start. Each sentence heard is sent to the paid speech service to look for the name, so
+# in a crowd it costs more; the fireside chat and quiet mode pause it, as before. The motion sensor stays off at every start (motion_on).
+state["welcome"]["always"] = True
 
 
 # ---- robot A.L.I.C.E.'s own memory, added 2026-10-07, Dr. O ----
