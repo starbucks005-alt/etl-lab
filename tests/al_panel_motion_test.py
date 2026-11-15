@@ -80,5 +80,60 @@ class Motion(unittest.TestCase):
         self.assertTrue(s.motion_on["on"])
 
 
+class PlaybackLevel(unittest.TestCase):
+    """2026-11-15: the panel sets the chip's Playback level from playback_level at every start."""
+
+    def setUp(self):
+        self.calls = []
+        self.d = tempfile.mkdtemp()
+        self.old = (s.PLAYBACK_LEVEL_FILE, s.subprocess.run)
+        s.PLAYBACK_LEVEL_FILE = os.path.join(self.d, "playback_level")
+        self.fail_first = 0
+
+        class R:
+            def __init__(self, code):
+                self.returncode, self.stderr, self.stdout = code, "no card", ""
+
+        def run(cmd, **kw):
+            self.calls.append(cmd)
+            if self.fail_first > 0:
+                self.fail_first -= 1
+                return R(1)
+            return R(0)
+        s.subprocess.run = run
+
+    def tearDown(self):
+        s.PLAYBACK_LEVEL_FILE, s.subprocess.run = self.old
+
+    def write(self, text):
+        open(s.PLAYBACK_LEVEL_FILE, "w").write(text)
+
+    def test_no_file_changes_nothing(self):
+        self.assertIsNone(s.apply_playback_level(wait=0))
+        self.assertEqual(self.calls, [])
+
+    def test_sets_the_level(self):
+        self.write("245\n")
+        self.assertEqual(s.apply_playback_level(wait=0), 245)
+        self.assertEqual(self.calls[0][-2:], ["Playback", "245"])
+
+    def test_waits_for_the_sound_board(self):
+        self.write("245")
+        self.fail_first = 2
+        self.assertEqual(s.apply_playback_level(wait=5, step=0.01), 245)
+        self.assertEqual(len(self.calls), 3)
+
+    def test_bad_numbers_are_left_alone(self):
+        for bad in ("300", "-1", "loud"):
+            self.write(bad)
+            self.assertIsNone(s.apply_playback_level(wait=0))
+        self.assertEqual(self.calls, [])
+
+    def test_gives_up_if_the_board_never_comes(self):
+        self.write("245")
+        self.fail_first = 1000
+        self.assertIsNone(s.apply_playback_level(wait=0.05, step=0.01))
+
+
 if __name__ == "__main__":
     unittest.main()

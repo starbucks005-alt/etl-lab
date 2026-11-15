@@ -4398,6 +4398,38 @@ def set_volume(pct):
     return pct
 
 
+# 2026-11-15, Dr. O: ALICE came back from a reboot quiet again. Her sound chip's Playback level had been raised to 245 and saved with
+# alsactl store, and after the reboot it read 214 (-20.5 dB) once more; the same happened after 11-13. Why it does not hold is NOT
+# known (the boot restore runs; one guess, not proven, is that it runs before the sound board is ready). So the panel sets it itself:
+# a file playback_level next to this one holds a number from 0 to 255 (245 is -5 dB; much higher can crackle). At every start the
+# panel waits up to a minute for the sound board, then sets that level. No file, or a bad number, changes nothing.
+PLAYBACK_LEVEL_FILE = os.path.join(HERE, "playback_level")
+
+
+def apply_playback_level(wait=60.0, step=2.0):
+    try:
+        level = int(open(PLAYBACK_LEVEL_FILE).read().strip())
+    except (OSError, ValueError):
+        return None
+    if not 0 <= level <= 255:
+        print("PLAYBACK LEVEL %s in playback_level is not 0 to 255, left alone" % level, flush=True)
+        return None
+    t0 = time.time()
+    while True:
+        try:
+            r = subprocess.run(["amixer", "-q", "-c", VOLUME_CARD, "sset", "Playback", str(level)], capture_output=True, text=True, timeout=5)
+            if r.returncode == 0:
+                print("PLAYBACK LEVEL set to %d from playback_level" % level, flush=True)
+                return level
+            why = (r.stderr or r.stdout or "").strip()[:80]
+        except Exception as e:
+            why = str(e)[:80]
+        if time.time() - t0 >= wait:
+            print("PLAYBACK LEVEL could not be set (%s)" % why, flush=True)
+            return None
+        time.sleep(step)
+
+
 # ---- registered voices, added 2026-10-23, Dr. O: "I want them to know my voice. Registered regular voices, their owners." ----
 # Off until switched on. A voice is registered only if the clip starts with the person agreeing out loud. Only a fingerprint is kept, never the recording.
 VOICE_SECONDS = 12
@@ -4638,6 +4670,7 @@ if __name__ == "__main__":
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()
     threading.Thread(target=watch_motion, daemon=True).start()
+    threading.Thread(target=apply_playback_level, daemon=True).start()   # her saved sound level, from playback_level (2026-11-15)
     threading.Thread(target=checkin_loop, daemon=True).start()      # tells the website this robot is on
     threading.Thread(target=page_update_loop, daemon=True).start()  # keeps this robot's panel page the same as the website's
     if cues and hasattr(cues, "idle_start"):
