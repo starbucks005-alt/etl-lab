@@ -132,14 +132,16 @@ def ensure(name):
 
 
 def which_set(self_robot=False):
-    """The set this robot uses. A file cue_set.txt wins; with none, A.L.I.C.E. breathes and every other robot has no sounds."""
+    """The set this robot uses. 2026-11-16, Dr. O: every robot breathes, and the mechanical clicks and ticks are retired ("the mechanical ended up sounding bad,
+    like something was broken"). So with no file every robot uses breath, and a cue_set.txt that still says mechanical is read as breath. A file saying none
+    turns the sounds off."""
     try:
         w = open(os.path.join(HERE, "cue_set.txt")).read().strip().lower()
-        if w in SETS:
-            return w
+        if w == "none":
+            return "none"
     except OSError:
         pass
-    return "breath" if self_robot else "none"
+    return "breath"
 
 
 def play(cue_set, moment, device, stop_event=None):
@@ -227,10 +229,11 @@ def idle_path():
 
 
 def idle_enabled():
+    """On for every robot (Dr. O, 2026-11-16: all of them breathe). A file idle_breath.txt holding the word off switches it off."""
     try:
-        return open(os.path.join(HERE, "idle_breath.txt")).read().strip().lower() == "on"
+        return open(os.path.join(HERE, "idle_breath.txt")).read().strip().lower() != "off"
     except OSError:
-        return False
+        return True
 
 
 def _idle_stop():

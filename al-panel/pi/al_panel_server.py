@@ -807,7 +807,7 @@ def sisters_block():
 MODE_FILE = os.path.join(HERE, "mode.json")
 # The characters allowed in children's friend mode: the little ones, and Reggie and his friends. Any other personality is refused while it is on.
 KIDS_OK = {"gc-sam", "gc-edith", "gc-henry", "gc-daisy", "gc-eli", "gc-nell", "gc-jem", "gc-wren", "gc-bramble", "gc-clover", "gc-ozzie", "gc-pearl",
-           "gc-tobias", "gc-briar", "gc-reggie", "gc-biscuit", "gc-mochi"}
+           "gc-tobias", "gc-briar", "gc-reggie", "gc-biscuit", "gc-mochi", "astro", "astri"}
 # 2026-10-15, Dr. O: "the personalities that show in child mode and skills that are filtered in child mode will show all under 13". Only what is chosen here for
 # everyone under 13 is offered while children's friend mode is on, and anything else is refused. A new skill or character is NOT in these lists until it is added by hand.
 KIDS_SKILLS = {"clock", "spanish", "story", "study", "trivia", "mindful", "tour"}
