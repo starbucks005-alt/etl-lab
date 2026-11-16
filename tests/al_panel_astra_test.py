@@ -43,6 +43,12 @@ class Astra(unittest.TestCase):
         self.assertIn("jewelry", P["gc-a-l-i-c-e"]["prompt"])
         self.assertIn("combat boots", P["gc-a-l-i-c-e"]["prompt"])
 
+    def test_welcome_waits_15_minutes(self):
+        # 2026-11-16, Dr. O: Elle's motion sensor welcomed every 15 seconds at an event. Every start is 15 minutes, saved or not.
+        self.assertEqual(s.state["welcome"]["wait"], 900)
+        self.assertEqual(s.WELCOME_DEFAULT["wait"], 900)
+        self.assertEqual(s.clean_welcome({"wait": 15})["wait"], 15)        # the panel can still shorten it until the next start
+
     def test_speaks_in_her_own_voice(self):
         used = []
         old = (s.state["persona"], s.state["accent"], s.azure_cfg, s.azure_speak, s._speak_text, s.ROBOT_VOICE, s.file_voice, s.SELF_PERSONA)

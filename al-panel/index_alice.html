@@ -574,7 +574,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   var pGender = 'All';
   var pAudio = null;
   var live = false;            // true when this page is served by A.L.I.C.E. and her API answers
-  var state = {mode:null, color:'#1fb7c9', bright:40, accent:'american', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:60}};
+  var state = {mode:null, color:'#1fb7c9', bright:40, accent:'american', skills:[], persona:null, main:null, welcome:{greet:true, turn:true, eyes:true, chat:true, always:false, wait:900}};
 
   var SKILLS = [
     {id:'clock',    name:'Timer and Alarm', price:0, desc:'Say "Alice, set a timer for ten minutes" or "set an alarm for 3 pm." She chimes and speaks when it is time. Say stop to end it.',
@@ -1471,7 +1471,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     $('wGreet').checked = true; $('wTurn').checked = true; $('wEyes').checked = true;
     $('wChat').checked = !e;          // at a crowded event she does not keep listening on her own
     $('wAlways').checked = !e;        // in the lab she listens for her name all the time
-    $('wWait').value = e ? '300' : '60';
+    $('wWait').value = '900';         // 2026-11-16, Dr. O: the default welcome is 15 minutes
     saveWelcome();
     $('wPreset').textContent = e ? 'Event settings are on.' : 'Lab settings are on.';
   }

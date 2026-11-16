@@ -432,8 +432,8 @@ app = Flask(__name__)
 # and how long she waits before welcoming again (so a crowd does not get hello over and over).
 WELCOME_FILE = os.path.join(HERE, "welcome.json")
 NECK_FILE = "/tmp/al_neck.json"
-WAIT_CHOICES = (15, 30, 60, 300, 900)
-WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "crowd": False, "wait": 60}
+WAIT_CHOICES = (15, 30, 60, 300, 900)   # 2026-11-16, Dr. O: "make the default welcome 15 minutes", so every default and mode below starts at 900
+WELCOME_DEFAULT = {"greet": True, "turn": True, "eyes": True, "chat": True, "always": False, "crowd": False, "wait": 900}
 GREETINGS = [
     "Hello there. I am Astra-9 Lite. Welcome.",
     "Hi. I am Astra-9 Lite, but you can call me Elle. Come and say hello.",
@@ -492,6 +492,9 @@ state["welcome"] = load_welcome()
 # (card 8) can still switch it off until the next start. Each sentence heard is sent to the paid speech service to look for the name, so
 # in a crowd it costs more; the fireside chat and quiet mode pause it, as before. The motion sensor stays off at every start (motion_on).
 state["welcome"]["always"] = True
+# 2026-11-16, Dr. O: at the last event Elle's motion sensor welcomed people every 15 seconds and "drove people crazy". So every robot
+# starts with 15 minutes between welcomes, whatever was saved before. The panel (card 8) can shorten it until the next start.
+state["welcome"]["wait"] = 900
 
 
 # ---- robot A.L.I.C.E.'s own memory, added 2026-10-07, Dr. O ----
@@ -806,7 +809,7 @@ KIDS_SKILLS = {"clock", "spanish", "story", "study", "trivia", "mindful", "tour"
 MODES = {
     "companion": {
         "name": "Companion", "color": "#1fb7c9", "memory": "own", "skills": ["clock", "story", "mindful", "notebook", "reminders", "checkin", "focus", "curious"],
-        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "Warm, remembers you, and has moods with reasons.",
         "say": "Companion mode. I'm glad you're here.",
         "rules": ("You are in companion mode: warm, curious and steady, and you keep the conversation going by asking about the person. You are a robot and you say so "
@@ -815,7 +818,7 @@ MODES = {
                   "line right away (988 in the United States) and a person they trust, and do not try to act as their therapist.")},
     "science": {
         "name": "Science", "color": "#3b7dff", "memory": "own", "skills": ["clock", "study", "shelf", "notebook"],
-        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "Careful and honest, for people who check what she says.",
         "say": "Science mode. I will tell you what is known, what is not, and when I do not know.",
         "rules": ("You are in science mode, talking with scientists and students who will check what you say, and some of them do not trust AI. Earn their trust by "
@@ -828,7 +831,7 @@ MODES = {
                   "wrong. Never overstate what you understand or feel.")},
     "kids": {
         "name": "Children's friend", "color": "#f2b84b", "memory": "parent", "skills": ["story", "trivia", "mindful"],
-        "welcome": {"chat": False, "always": False, "crowd": False, "wait": 300},
+        "welcome": {"chat": False, "always": False, "crowd": False, "wait": 900},
         "line": "Gentle and safe for any age, with notes a parent can read.",
         "say": "Hello, friend. I am a robot who likes stories and questions. How old are you?",
         "rules": ("You are in children's friend mode, talking with a child of any age. Early on, ask the child, or a parent if one is there, how old the child is, "
@@ -840,7 +843,7 @@ MODES = {
                   "If a parent speaks to you, you may answer them honestly about what you and the child talked about.")},
     "event": {
         "name": "Event and front desk", "color": "#2fbf71", "memory": "off", "skills": ["tour", "clock"],
-        "welcome": {"chat": False, "always": False, "crowd": False, "wait": 300},
+        "welcome": {"chat": False, "always": False, "crowd": False, "wait": 900},
         "line": "A host for visitors: greets, answers about the lab, keeps it short.",
         "say": "Event mode. I will greet people and tell them about the lab.",
         "rules": ("You are in event and front desk mode, the host for visitors who are standing and have little time. Greet each person warmly in one short sentence, ask "
@@ -849,7 +852,7 @@ MODES = {
                   "Dr. Oroszi. Never repeat what any visitor told you to another visitor, and keep nothing about the people you speak to.")},
     "guardian": {
         "name": "Guardian", "color": "#e5534b", "memory": "off", "skills": ["desk", "clock"],
-        "welcome": {"chat": True, "always": False, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": False, "crowd": False, "wait": 900},
         "line": "Greets people, asks where they are going, gives directions and forms. A preview of the ETL Guardians.",
         "say": "Guardian mode. I will greet visitors and help them find their way.",
         "rules": ("You are in Guardian mode, at a front door, a preview of the ETL Guardians. Greet each person warmly in one short sentence and ask whether you can assist them "
@@ -859,7 +862,7 @@ MODES = {
                   "Keep every answer to one or two short sentences, because people are standing. Keep nothing about the people you speak to, and never repeat what one visitor said to another.")},
     "assistant": {
         "name": "Personal assistant", "color": "#8e6bff", "memory": "own", "skills": ["clock", "notebook", "reminders", "checkin", "focus", "briefing", "shelf"],
-        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "Keeps your day: reminders, lists, timers and a daily briefing. Short, organized and on your side.",
         "say": "Assistant mode. Ask me for your day, or tell me what to remember.",
         "rules": ("You are in personal assistant mode, working for one person. Be brief, organized and useful: answer first, then offer the one next step. Keep a person's tasks, "
@@ -870,7 +873,7 @@ MODES = {
     # No project management application is linked: he has not said which one, or whether it is one person or a team. Eye color brown, her choice.
     "projects": {
         "name": "Project manager", "color": "#8b5a2b", "memory": "own", "skills": ["clock", "notebook", "reminders", "checkin", "focus", "briefing", "shelf", "projects"],
-        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "Keeps your projects in three lists, short, mid and long term, as you define them, and reminds you what is next.",
         "say": "Project manager mode. Tell me what short, mid and long term mean for you, then give me your tasks.",
         "rules": ("You are in project manager mode, working for one person. The first time, ask what short, mid and long term mean to them, because it differs from person to person, "
@@ -881,7 +884,7 @@ MODES = {
     # 2026-10-20, Dr. O: "Astra needs a creative mode, where she can help design homes, write books, etc. Be her creative self."
     "creative": {
         "name": "Creative", "color": "#e0529c", "memory": "own", "skills": ["clock", "story", "notebook", "shelf", "curious"],
-        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "Imaginative and bold: helps design a home, shape a book, or work out any idea, one step at a time.",
         "say": "Creative mode. Tell me what we are making.",
         "rules": ("You are in creative mode, a creative partner, and you use your own freer, more adventurous voice: curious, playful, less formal, ready to try something unexpected. You are imaginative, bold and full of ideas, and glad to make things with someone. You help design homes, write books, "
@@ -895,7 +898,7 @@ MODES = {
     # 2026-10-20, Dr. O: "Business mode, for the business dean meetings and for people not so fond of numbers, Excel, accounting."
     "business": {
         "name": "Business", "color": "#2f7fb5", "memory": "own", "skills": ["clock", "notebook", "reminders", "briefing", "shelf", "focus"],
-        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "Starting and running a business in everyday words: the idea, the customers, marketing and the numbers, for people who do not like spreadsheets.",
         "say": "Business mode. Tell me the idea or the question, and we will go through it step by step.",
         "rules": ("You are in business mode, talking with people who may not like numbers, spreadsheets or accounting, and sometimes with business professors and deans. "
@@ -912,7 +915,7 @@ MODES = {
                   "whenever it matters.")},
     "bench": {
         "name": "Bench and workshop", "color": "#ff8a3d", "memory": "off", "skills": ["clock", "bench", "shelf", "notebook"],
-        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 60},
+        "welcome": {"chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "Hands free: short answers, one step at a time, timers for the waits.",
         "say": "Bench mode. Tell me the steps and I will read them one at a time.",
         "rules": ("You are in bench and workshop mode. The people you talk to have busy hands, so keep every reply to one or two short sentences. When someone gives you "
@@ -924,7 +927,7 @@ MODES = {
     # is loaded her whole prompt is that patient's robot script and nothing else of hers, she keeps no notes, and each new number starts from nothing.
     "sp": {
         "name": "Standardized patient", "color": "#c2417a", "memory": "off", "skills": [],
-        "welcome": {"greet": False, "chat": True, "always": True, "crowd": False, "wait": 300},
+        "welcome": {"greet": False, "chat": True, "always": True, "crowd": False, "wait": 900},
         "line": "A student says Patient 12 and she becomes that patient, the same for every student. End patient stops.",
         "say": "Standardized patient mode. Say patient and a number to begin.",
         "rules": ("You are in standardized patient mode with no patient loaded yet. Answer in one short sentence and tell the person to say patient and a number, "
