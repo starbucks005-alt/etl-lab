@@ -219,7 +219,7 @@ Dr. O: "I want them to know my voice. Registered regular voices, their owners." 
 
 **What is kept:** a name and a voice fingerprint (a list of numbers) per person, in `voices.json` beside the server, which is kept out of git. Never the recording: the clip is deleted as soon as the fingerprint is made. Nothing is sent anywhere. "Forget" in the panel removes a person.
 
-**Consent:** a voice is registered only if the clip begins with the person saying "I agree that this robot may remember my voice." The words are checked with the listening service she already uses, so a recording of someone who never agreed is turned away. Voice prints are legally sensitive in some states (Illinois and Texas, for example). Ask a lawyer before using this where she meets the public in those states.
+**Consent:** a voice is registered only if the clip begins with the person saying "I agree that the ETL robots may remember my voice." (2026-11-16, Dr. O: record once, copy voices.json to the other robots; a person whose agreement said only "this robot" is marked all_robots false and is not copied) The words are checked with the listening service she already uses, so a recording of someone who never agreed is turned away. Voice prints are legally sensitive in some states (Illinois and Texas, for example). Ask a lawyer before using this where she meets the public in those states.
 
 **It only chooses a greeting.** It is not a lock. Anyone with a recording of a voice could fool it. The panel's access code and anything important stay separate.
 
@@ -614,7 +614,7 @@ ALICE's Pi now runs the panel and answers as A.L.I.C.E. Dr. O decided to use the
 
 ## Voice recognition on both robots (Dr. O, 2026-10-28)
 
-Registered voices (the card "Voices she knows") are a feature of **both Astra-9 Lite and A.L.I.C.E.** Same code, same setup, same consent rule (the person says "I agree that this robot may remember my voice.").
+Registered voices (the card "Voices she knows") are a feature of **both Astra-9 Lite and A.L.I.C.E.** Same code, same setup, same consent rule (the person says "I agree that the ETL robots may remember my voice." (2026-11-16, Dr. O: record once, copy voices.json to the other robots; a person whose agreement said only "this robot" is marked all_robots false and is not copied)).
 - **The catch found today:** on ALICE, her own character (A.L.I.C.E., installed from the personalities) was treated like any other character, and a character is never given the voice match note or the people list. A registered voice would have been recognised and then not passed to her. Fixed: `al_panel_server.py` now has `SELF_PERSONA` (the character that is this robot, set only on a Pi that has `index_alice.html`) and `is_self()`. On ALICE, A.L.I.C.E. receives the voice match note and the people list. On Astra-9 Lite nothing changes. Every other character is still kept apart. Tested with a stand-in `al.py` on both layouts.
 - **Install on each Pi (once):** `pip3 install resemblyzer --break-system-packages`, `sudo apt install -y ffmpeg`, then `cd ~/al_panel && python3 -c "import al_voices; print(al_voices.ready())"` should print `(True, '')`. Started on ALICE 2026-10-28; the install was still running when this was written. Not tried with a real voice on either robot yet.
 - **Not decided:** whether ALICE should assume that an unrecognised speaker is Dr. O, as Astra-9 Lite's base prompt does. ALICE's character text does not say that, and nothing here changed it.

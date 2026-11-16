@@ -4551,7 +4551,7 @@ def _enroll_from(path, name):
     if not vc.consent_ok(words):
         return jsonify(error='I did not hear the agreement. The person must say "%s" and then keep talking. I heard: "%s"' % (vc.CONSENT_LINE, words[:120])), 400
     try:
-        n = vc.enroll(name, path)
+        n = vc.enroll(name, path, all_robots=vc.covers_all_robots(words))
     except ValueError as e:
         return jsonify(error=str(e)), 400
     except Exception as e:

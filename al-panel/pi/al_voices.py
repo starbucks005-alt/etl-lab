@@ -31,7 +31,9 @@ MATCH_MIN = 0.78            # how alike a voice must be to a registered one (1.0
 MARGIN = 0.06               # and how far ahead of the next registered voice, so two similar voices are not mixed up
 ENROLL_SECONDS = 2.0        # the least speech that makes a fingerprint when registering
 HEAR_SECONDS = 1.2          # the least speech worth comparing when she is listening
-CONSENT_LINE = "I agree that this robot may remember my voice."
+# 2026-11-16, Dr. O: record once, and the voice goes to every ETL robot. So the agreement names all of them, and a person whose
+# agreement named only "this robot" (the older line) is marked so, and is not to be copied to another robot.
+CONSENT_LINE = "I agree that the ETL robots may remember my voice."
 
 EMBEDDER = None             # tests put a stand-in here. None means the real model, loaded the first time it is needed.
 _encoder = None
@@ -94,6 +96,12 @@ def consent_ok(words):
     return "agree" in t and "remember" in t and "voice" in t
 
 
+def covers_all_robots(words):
+    """True if the agreement heard was for the ETL robots (plural), not only this one."""
+    t = re.sub(r"[^a-z ]", " ", str(words or "").lower())
+    return consent_ok(words) and re.search(r"\brobots\b", t) is not None
+
+
 def ready():
     """(True, "") when a fingerprint can be made, else (False, why)."""
     if EMBEDDER is not None:
@@ -133,8 +141,9 @@ def embed(path, min_seconds):
     return _norm([float(x) for x in _model().embed_utterance(wav)])
 
 
-def enroll(name, path):
-    """Register a voice, or add a clip to one already registered. Returns how many clips that person now has."""
+def enroll(name, path, all_robots=False):
+    """Register a voice, or add a clip to one already registered. Returns how many clips that person now has.
+    all_robots: the person agreed for every ETL robot. Kept only while every clip's agreement said so."""
     name = clean_name(name)
     if not name:
         raise ValueError("That is not a name I can keep.")
@@ -146,9 +155,10 @@ def enroll(name, path):
                 n = int(p.get("clips", 1))
                 p["vec"] = _norm([(a * n + b) / (n + 1) for a, b in zip(p["vec"], vec)])
                 p["clips"] = n + 1
+                p["all_robots"] = bool(p.get("all_robots")) and bool(all_robots)
                 _save(d)
                 return n + 1
-        d["people"].append({"name": name, "vec": vec, "clips": 1, "created": time.strftime("%Y-%m-%d")})
+        d["people"].append({"name": name, "vec": vec, "clips": 1, "created": time.strftime("%Y-%m-%d"), "all_robots": bool(all_robots)})
         _save(d)
         return 1
 

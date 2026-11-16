@@ -64,6 +64,19 @@ class Voices(unittest.TestCase):
         self.assertTrue(vc.consent_ok("i agree this robot can remember my voice"))
         self.assertFalse(vc.consent_ok("Hello Elle, how are you today"))
         self.assertFalse(vc.consent_ok(""))
+        # 2026-11-16: one agreement for every ETL robot, so a voice can be copied to the others
+        self.assertTrue(vc.covers_all_robots(vc.CONSENT_LINE))
+        self.assertTrue(vc.covers_all_robots("I agree that the ETL robots may remember my voice and so on"))
+        self.assertFalse(vc.covers_all_robots("I agree that this robot may remember my voice."))
+        self.assertFalse(vc.covers_all_robots("robots are fun"))
+
+    def test_all_robots_flag(self):
+        vc.enroll("Terry", "terry1", all_robots=True)
+        self.assertTrue(vc._load()["people"][0]["all_robots"])
+        vc.enroll("Terry", "terry1", all_robots=True)
+        self.assertTrue(vc._load()["people"][0]["all_robots"])
+        vc.enroll("Terry", "terry1", all_robots=False)      # one clip agreed only for this robot: no longer copied
+        self.assertFalse(vc._load()["people"][0]["all_robots"])
 
     def test_on_off(self):
         self.assertFalse(vc.is_on())

@@ -11,6 +11,7 @@ HOME = tempfile.mkdtemp()
 with open(os.path.join(HOME, "al.py"), "w") as f:
     f.write('AL_SYSTEM_PROMPT = "You are Elle."\nANTHROPIC_WORKSPACE_ID = "x"\ndef get_al_reply(ask): return "ok"\ndef __getattr__(name): return None\n')
 os.environ["HOME"] = HOME
+os.environ["USERPROFILE"] = HOME     # so it also runs on Windows
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "al-panel", "pi"))
 import al_panel_server as s  # noqa: E402
 import al_voices as vc  # noqa: E402
