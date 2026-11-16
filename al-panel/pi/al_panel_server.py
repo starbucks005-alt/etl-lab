@@ -1086,8 +1086,15 @@ def quiet_until():
 fireside = {"on": False}
 
 
+# 2026-11-16, Dr. O: "the twins will speak from their own bodies, not the tablet". While the twins' tablet game is going, each line keeps her
+# from answering what she hears for a short while, so "Good one, Astro!" from Astri does not set Astro talking in the middle of a game.
+GAME_HOLD = 25.0
+game = {"until": 0.0}
+
+
 def is_quiet(now=None):
-    return fireside["on"] or (now or time.time()) < quiet_until()
+    now = now or time.time()
+    return fireside["on"] or now < quiet_until() or now < game["until"]
 
 
 def set_quiet(minutes):
@@ -1291,6 +1298,14 @@ def azure_cfg(part):
 
 def azure_speak(text, cfg, voice=None):
     """Say it through Azure, out of the HAT's speaker, and come back when it has finished."""
+    tmp = os.path.join(HERE, "_azure_say.wav")
+    with open(tmp, "wb") as f:
+        f.write(azure_wav(text, cfg, voice))
+    subprocess.run(["aplay", "-q", "-D", PLAY_DEVICE, tmp], check=True, timeout=180)
+
+
+def azure_wav(text, cfg, voice=None):
+    """The words as a 16 kHz wav from Azure (bytes). Split out of azure_speak 2026-11-16 so a twin's game line can be kept and replayed."""
     from xml.sax.saxutils import escape
     key, region = cfg
     voice = voice or AZURE_TTS_VOICE
@@ -1305,10 +1320,7 @@ def azure_speak(text, cfg, voice=None):
         data=ssml.encode("utf-8"), timeout=30)
     if not r.ok:
         raise RuntimeError("Azure voice answered %s: %s" % (r.status_code, r.text[:120]))
-    tmp = os.path.join(HERE, "_azure_say.wav")
-    with open(tmp, "wb") as f:
-        f.write(r.content)
-    subprocess.run(["aplay", "-q", "-D", PLAY_DEVICE, tmp], check=True, timeout=180)
+    return r.content
 
 
 def azure_transcribe(path, cfg, language=None):
@@ -1920,7 +1932,7 @@ def preview(pid):
     return send_from_directory(PREVIEW_DIR, pid + ".mp3", mimetype="audio/mpeg")
 
 
-_LOCAL_ORIGIN = re.compile(r"http://(localhost|127\.0\.0\.1|[a-z0-9-]+\.local|10(\.\d{1,3}){3}|192\.168(\.\d{1,3}){2}|172\.(1[6-9]|2\d|3[01])(\.\d{1,3}){2})(:\d{2,5})?")
+_LOCAL_ORIGIN = re.compile(r"http://(localhost|127\.0\.0\.1|[a-z0-9-]+\.local|[a-z0-9-]+\.[a-z0-9-]+\.ts\.net|100(\.\d{1,3}){3}|10(\.\d{1,3}){3}|192\.168(\.\d{1,3}){2}|172\.(1[6-9]|2\d|3[01])(\.\d{1,3}){2})(:\d{2,5})?")
 
 
 @app.after_request
@@ -2545,6 +2557,130 @@ def welcome_set():
     save_welcome()
     apply_prompt()
     return jsonify(ok=True, welcome=state["welcome"])
+
+
+# ---- the twins' tablet game, added 2026-11-16, Dr. O: "the twins will speak from their own bodies, not the tablet" ----
+# The tablet page (twins.html) only shows the board. For each move it asks this twin to say its line, from twins-lines.json, out of its own
+# speaker in its own voice. The first time a line is said it is made by the speech service and kept in line_cache; after that it is replayed
+# from the robot for nothing. Only lines written in twins-lines.json for this robot can be said this way, never any other text.
+GAME_DIR = HERE if os.path.exists(os.path.join(HERE, "twins.html")) else os.path.dirname(HERE)   # on a Pi they sit beside the server; in the repository one folder up
+TWIN_LINES_FILE = os.path.join(GAME_DIR, "twins-lines.json")
+LINE_CACHE = os.path.join(HERE, "line_cache")
+
+
+def _game_lines():
+    try:
+        d = json.load(open(TWIN_LINES_FILE, encoding="utf-8"))
+        return d.get("twins", {}).get(ROBOT_ID or "", {}).get("lines", {}) or {}
+    except (OSError, ValueError, AttributeError):
+        return {}
+
+
+def _line_voice():
+    """The voice this robot is speaking in right now, chosen the same way _speak_inner chooses it."""
+    persona = PERSONAS.get(state["persona"]) if state["persona"] else None
+    if persona and state["persona"] == SELF_PERSONA and not persona.get("voice"):
+        persona = None
+    cfg = azure_cfg("tts") if (not persona and not ROBOT_VOICE and state["accent"] in AZURE_ACCENTS) else None
+    if cfg:
+        return "azure", cfg, file_voice("tts_voice") or AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
+    return "eleven", (persona or {}).get("voice") or ROBOT_VOICE or VOICES[state["accent"]], _read_pitch()
+
+
+def _eleven_wav(text, voice_id, pitch_keep):
+    """The words as a wav from ElevenLabs, lowered by robot_pitch.txt the same way _speak_text lowers them."""
+    pitch, keep = pitch_keep
+    h = dict(al.ELEVEN_HEADERS)
+    h["content-type"] = "application/json"
+    r = requests.post("https://api.elevenlabs.io/v1/text-to-speech/" + voice_id + "?output_format=pcm_22050",
+                      headers=h, timeout=60, json={"text": text, "model_id": "eleven_multilingual_v2"})
+    r.raise_for_status()
+    pcm, rate = r.content, 22050
+    if pitch:
+        f = 1.0 - pitch / 100.0
+        rate = int(22050 * f)
+        if keep:
+            try:
+                q = subprocess.run(["ffmpeg", "-v", "error", "-f", "s16le", "-ar", "22050", "-ac", "1", "-i", "pipe:0",
+                                    "-af", "asetrate=%d,aresample=22050,atempo=%.5f" % (int(22050 * f), 1.0 / f),
+                                    "-f", "s16le", "-ar", "22050", "-ac", "1", "pipe:1"],
+                                   input=r.content, capture_output=True, timeout=30)
+                if q.returncode == 0 and q.stdout:
+                    pcm, rate = q.stdout, 22050
+            except Exception:
+                pass
+    import io
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(pcm)
+    return buf.getvalue()
+
+
+def line_wav(text):
+    """A wav file of this robot saying text in its current voice: kept from before if there is one (free), else made once and kept."""
+    import hashlib
+    kind, a, b = _line_voice()
+    spoken = for_the_voice(text)
+    tag = "%s|%s|%s" % (kind, b if kind == "azure" else "%s|%r" % (a, b), spoken)
+    path = os.path.join(LINE_CACHE, hashlib.sha1(tag.encode("utf-8")).hexdigest()[:24] + ".wav")
+    if os.path.exists(path):
+        return path, True
+    data = azure_wav(spoken, a, b) if kind == "azure" else _eleven_wav(spoken, a, b)
+    os.makedirs(LINE_CACHE, exist_ok=True)
+    tmp = "%s.%d.tmp" % (path, threading.get_ident())
+    with open(tmp, "wb") as f:
+        f.write(data)
+    os.replace(tmp, path)
+    return path, False
+
+
+@app.post("/api/game/line")
+def game_line():
+    """Say one of this twin's game lines ({"line": "c4"}) and answer when it has been said, so the tablet can wait its turn."""
+    key = str((request.get_json(silent=True) or {}).get("line", ""))
+    lines = _game_lines()
+    if key not in lines:
+        return jsonify(error="This robot has no game line called that."), 404
+    if fireside["on"]:
+        return jsonify(error="A fireside chat is on."), 409
+    text = lines[key]
+    game["until"] = time.time() + GAME_HOLD
+    with speak_lock:
+        speaking["on"] = True
+        try:
+            write_eyes()
+        except Exception:
+            pass
+        try:
+            path, kept = line_wav(text)
+            last_said["text"] = text
+            subprocess.run(["aplay", "-q", "-D", PLAY_DEVICE, path], check=True, timeout=60)
+            last_said["t"] = time.time()
+        except Exception as e:
+            print("GAME LINE ERROR:", e, flush=True)
+            return jsonify(error=str(e)[:160], text=text), 502
+        finally:
+            speaking["on"] = False
+            try:
+                write_eyes()
+            except Exception:
+                pass
+    game["until"] = time.time() + GAME_HOLD
+    print("GAME LINE %s (%s)" % (key, "kept, free" if kept else "made and kept"), flush=True)
+    return jsonify(ok=True, text=text, kept=kept)
+
+
+@app.get("/twins.html")
+def twins_page():
+    return send_from_directory(GAME_DIR, "twins.html")
+
+
+@app.get("/twins-lines.json")
+def twins_lines_file():
+    return send_from_directory(GAME_DIR, "twins-lines.json")
 
 
 @app.post("/api/welcome/now")

@@ -35,6 +35,8 @@
   .twin .mk{font-size:clamp(20px,3vw,30px);font-weight:700}
   .twin.astro .mk{color:var(--x)} .twin.astri .mk{color:var(--o)}
   .twin .sc{font-size:clamp(14px,1.8vw,18px);color:var(--mute)}
+  .st{font-size:13px;margin-top:2px} .st.ok{color:var(--accent)} .st.no{color:var(--o)}
+  .robots{font-family:inherit;font-size:15px;background:transparent;color:var(--mute);border:1px solid var(--line2);border-radius:10px;padding:8px 14px;cursor:pointer}
   .bubble{min-height:3.6em;margin-top:8px;font-size:clamp(15px,2vw,22px);color:var(--ink);display:flex;flex-direction:column;justify-content:center}
   .bubble small{color:var(--mute);font-size:12px}
   .board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;aspect-ratio:1/1;width:100%}
@@ -60,6 +62,7 @@
 <div class="stage" id="stage"></div>
 <div class="bar">
   <button class="go" id="go" type="button">Play</button>
+  <button class="robots" id="robots" type="button">Robots</button>
 </div>
 <p class="hint" id="hint">Tap a square while it is a twin's turn to make that move for them.</p>
 
@@ -96,6 +99,7 @@
     var n = el('div', 'nm', t.name); d.appendChild(n);
     d.appendChild(el('div', 'mk', t.mark));
     var s = el('div', 'sc'); s.id = 'sc-' + who; d.appendChild(s);
+    var st = el('div', 'st no', 'looking...'); st.id = 'st-' + who; d.appendChild(st);
     var bu = el('div', 'bubble'); bu.id = 'bub-' + who; bu.setAttribute('aria-live', 'polite'); d.appendChild(bu);
     return d;
   }
@@ -106,30 +110,78 @@
   function other(w){ return w === 'astro' ? 'astri' : 'astro'; }
   function mark(w){ return data.twins[w].mark; }
 
+  // 2026-11-16, Dr. O: "the twins will speak from their own bodies, not the tablet". Each line is said by that twin's robot, out of its
+  // own speaker, by asking its panel (POST /api/game/line). The tablet makes no sound. If a twin cannot be reached, the bubble says so
+  // in words ("Astro is not connected") and the game carries on, so it never hangs in front of people.
+  var ROBOT = {astro: '', astri: ''};       // http://address:8000 of each twin, found at start and kept on this tablet
+  function setStatus(who, ok){
+    var s = $('st-' + who); if (!s) return;
+    s.textContent = ok ? 'connected' : 'not connected';
+    s.className = 'st ' + (ok ? 'ok' : 'no');
+  }
   function say(who, key){
     var text = data.twins[who].lines[key];
     var bub = $('bub-' + who);
     var my = token;
-    return new Promise(function(done){
-      bub.textContent = '';
-      bub.appendChild(el('span', null, text));
-      var finished = false;
-      function end(){ if (finished) return; finished = true; audioNow = null; done(); }
-      var fell = false;
-      function fallback(){
-        if (finished || fell) return;
-        fell = true;
-        bub.appendChild(el('small', null, 'voice not recorded yet'));
-        setTimeout(end, 1400 + text.length * 55);
+    bub.textContent = '';
+    bub.appendChild(el('span', null, text));
+    function words(why){
+      bub.appendChild(el('small', null, why));
+      return new Promise(function(done){ setTimeout(done, 1400 + text.length * 55); });
+    }
+    var p;
+    if (!ROBOT[who]) {
+      p = words(data.twins[who].name + ' is not connected');
+    } else {
+      var ctl = new AbortController(); var kill = setTimeout(function(){ ctl.abort(); }, 20000);
+      p = fetch(ROBOT[who] + '/api/game/line', {method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({line: key}), signal: ctl.signal})
+        .then(function(r){ clearTimeout(kill); if (!r.ok) throw new Error('said no'); setStatus(who, true); })
+        .catch(function(){ clearTimeout(kill); setStatus(who, false); return words(data.twins[who].name + ' did not answer'); });
+    }
+    return p.then(function(){ if (my !== token) throw new Error('stopped'); });
+  }
+
+  // Find each twin. This page is served by one of them, so that one is this address. The other is looked for at the address saved on
+  // this tablet, then at its usual names. The Robots button lets the address be typed in by hand.
+  function ask(base){
+    var ctl = new AbortController(); var kill = setTimeout(function(){ ctl.abort(); }, 3000);
+    return fetch(base + '/api/robot', {signal: ctl.signal, cache: 'no-store'}).then(function(r){ clearTimeout(kill); return r.json(); })
+      .then(function(j){ return j && j.id; }).catch(function(){ clearTimeout(kill); return null; });
+  }
+  function saved(who){ try { return localStorage.getItem('twin-' + who) || ''; } catch (e) { return ''; } }
+  function keep(who, base){ try { localStorage.setItem('twin-' + who, base); } catch (e) {} }
+  function findTwins(){
+    var here = location.protocol === 'http:' ? location.origin : '';
+    var tries = {};
+    ['astro', 'astri'].forEach(function(w){
+      var t = [];
+      if (saved(w)) t.push(saved(w));
+      if (here) t.push(here);
+      var host = location.hostname, m = host.match(/^[a-z0-9-]+(\.[a-z0-9-]+\.ts\.net)$/);
+      if (m) t.push('http://' + w + m[1] + ':8000');
+      t.push('http://' + w + '.local:8000');
+      tries[w] = t;
+    });
+    return Promise.all(['astro', 'astri'].map(function(w){
+      var list = tries[w].slice();
+      function next(){
+        if (!list.length) { ROBOT[w] = ''; setStatus(w, false); return null; }
+        var base = list.shift();
+        return ask(base).then(function(id){
+          if (id === w) { ROBOT[w] = base; keep(w, base); setStatus(w, true); return base; }
+          return next();
+        });
       }
-      var a;
-      try { a = new Audio(AUDIO_BASE + who + '-' + key + '_' + AUDIO_VER + '.mp3'); } catch (e) { fallback(); return; }
-      audioNow = a;
-      a.addEventListener('ended', end);
-      a.addEventListener('error', fallback);
-      var p; try { p = a.play(); } catch (e) { fallback(); return; }
-      if (p && p.catch) p.catch(fallback);
-    }).then(function(){ if (my !== token) throw new Error('stopped'); });
+      return next();
+    }));
+  }
+  function setAddresses(){
+    ['astro', 'astri'].forEach(function(w){
+      var v = prompt(data.twins[w].name + "'s address, such as http://192.168.8.20:8000", ROBOT[w] || saved(w) || 'http://');
+      if (v != null) { v = v.trim().replace(/\/+$/, ''); keep(w, v); }
+    });
+    findTwins();
   }
   function clearBubbles(){ ['astro','astri'].forEach(function(w){ $('bub-' + w).textContent = ''; }); }
 
@@ -214,12 +266,13 @@
   }
 
   $('go').addEventListener('click', function(){ if (data) newGame(); });
+  $('robots').addEventListener('click', function(){ if (data) setAddresses(); });
 
   fetch(LINES_URL, {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(j){
-    data = j; build();
+    data = j; build(); findTwins();
     $('hint').textContent = "Press Play. The twins take turns and say each move out loud. Tap a square on a twin's turn to make that move for them.";
   }).catch(function(){
-    $('stage').textContent = 'The twins could not be reached.';
+    $('stage').textContent = 'The game could not load its lines.';
   });
 })();
 </script>
