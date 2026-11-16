@@ -1138,14 +1138,22 @@ def maybe_quiet(text):
 speaking = {"on": False, "quiet": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" when she is with others. While she speaks her eyes pulse, and the eye program does the pulsing
 
 
+eyes_write_lock = threading.Lock()
+
+
 def write_eyes(boost=False):
+    # 2026-11-15: Astro's always listening stopped at the same second the log showed FileNotFoundError on al_eyes.json.tmp.
+    # Two threads shared one temporary name, so one could move the file away before the other's move. Each write now has
+    # its own temporary name and they take turns. Whether that error is what stopped his listening is not proven (the full
+    # traceback was not seen); the listening loop is also guarded now (watch_names).
     c = state["color"].lstrip("#")
     level = MAX_LEVEL if boost else MAX_LEVEL * (state["brightness"] / 100.0)
     data = {"r": int(c[0:2], 16), "g": int(c[2:4], 16), "b": int(c[4:6], 16), "level": round(level, 3), "speaking": bool(speaking["on"]) and not speaking["quiet"], "mode": state.get("mode") or ""}
-    tmp = EYES_FILE + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(data, f)
-    os.replace(tmp, EYES_FILE)
+    tmp = "%s.%d.tmp" % (EYES_FILE, threading.get_ident())
+    with eyes_write_lock:
+        with open(tmp, "w") as f:
+            json.dump(data, f)
+        os.replace(tmp, EYES_FILE)
 
 
 last_said = {"text": "", "t": 0.0}
@@ -3929,68 +3937,79 @@ def converse(window=None):
 
 def watch_names():
     """With "always listening" on, answer only when she hears her own name, then carry on the conversation."""
+    # 2026-11-15: Astro's listening stopped for good after one error and only a restart brought it back. Anything that goes
+    # wrong in one pass is now written to the log and listening carries on.
     while True:
-        if not state["welcome"].get("always") or is_quiet():
-            time.sleep(1)
-            continue
-        if mic_wants["n"] > 0 or not listen_lock.acquire(blocking=False):
-            time.sleep(0.2)
-            continue
-        text = ""
         try:
-            settle()
-            # one long wait instead of a new four second listen each time, so there is no gap for a name to fall into
-            idle_watch["on"] = True
-            path = hear_one(wait_seconds=60, abort=lambda: mic_wants["n"] > 0 or not state["welcome"].get("always"),
-                            on_start=lambda: write_eyes(boost=True))
-            idle_watch["on"] = False
-            if path:
-                t0 = time.time()
-                text = transcribe(path)
-                print("TIMING heard in %.1f s: %s" % (time.time() - t0, text[:60]), flush=True)
-            if not path:
-                write_eyes()
+            _watch_names_once()
         except Exception as e:
-            print("LISTEN ERROR:", e, flush=True)
+            print("LISTEN LOOP ERROR, still listening: %r" % (e,), flush=True)
+            time.sleep(2)
+
+
+def _watch_names_once():
+    """One pass of watch_names: wait for speech, then answer it or let it go."""
+    if not state["welcome"].get("always") or is_quiet():
+        time.sleep(1)
+        return
+    if mic_wants["n"] > 0 or not listen_lock.acquire(blocking=False):
+        time.sleep(0.2)
+        return
+    text = ""
+    try:
+        settle()
+        # one long wait instead of a new four second listen each time, so there is no gap for a name to fall into
+        idle_watch["on"] = True
+        path = hear_one(wait_seconds=60, abort=lambda: mic_wants["n"] > 0 or not state["welcome"].get("always"),
+                        on_start=lambda: write_eyes(boost=True))
+        idle_watch["on"] = False
+        if path:
+            t0 = time.time()
+            text = transcribe(path)
+            print("TIMING heard in %.1f s: %s" % (time.time() - t0, text[:60]), flush=True)
+        if not path:
             write_eyes()
-            time.sleep(5)
-        finally:
-            idle_watch["on"] = False
-            listen_lock.release()
-        if not text:
-            write_eyes()
-        if text and heard_herself(text, last_clip["start"]):
-            print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
-            write_eyes()
-            continue
-        # 2026-10-17, Dr. O: "do not make her listen for her name to talk". Unless crowd mode is on (a room full of people), she answers whatever she hears, as long as it is
-        # a real few words and not said to someone else by name. Crowd mode, a talk with the others and the quiet switch still work as before. `touch ~/al_panel/name_needed` brings the name back.
-        nameless_ok = (not state["welcome"].get("crowd")) and not meeting_on() and not os.path.exists(os.path.join(HERE, "name_needed")) and len(text.split()) >= 2 and not meant_for_someone_else(text) if text else False
-        if text and is_quiet():
-            write_eyes()
-            continue                                      # quiet was set while this was being heard
-        if text and (wake_name_re().search(text) or nameless_ok):
+    except Exception as e:
+        print("LISTEN ERROR:", e, flush=True)
+        write_eyes()
+        time.sleep(5)
+    finally:
+        idle_watch["on"] = False
+        listen_lock.release()
+    if not text:
+        write_eyes()
+    if text and heard_herself(text, last_clip["start"]):
+        print("LISTEN ignored her own voice: %s" % text[:60], flush=True)
+        write_eyes()
+        return
+    # 2026-10-17, Dr. O: "do not make her listen for her name to talk". Unless crowd mode is on (a room full of people), she answers whatever she hears, as long as it is
+    # a real few words and not said to someone else by name. Crowd mode, a talk with the others and the quiet switch still work as before. `touch ~/al_panel/name_needed` brings the name back.
+    nameless_ok = (not state["welcome"].get("crowd")) and not meeting_on() and not os.path.exists(os.path.join(HERE, "name_needed")) and len(text.split()) >= 2 and not meant_for_someone_else(text) if text else False
+    if text and is_quiet():
+        write_eyes()
+        return                                      # quiet was set while this was being heard
+    if text and (wake_name_re().search(text) or nameless_ok):
+        try:
+            if maybe_quiet(text):
+                write_eyes()
+                return
+            heard_unaddressed["on"] = not wake_name_re().search(text)       # answered without her name: nothing from this one is kept
+            hist_before = len(state["history"])
             try:
-                if maybe_quiet(text):
-                    write_eyes()
-                    continue
-                heard_unaddressed["on"] = not wake_name_re().search(text)       # answered without her name: nothing from this one is kept
-                hist_before = len(state["history"])
-                try:
-                    answer_and_say(text)
-                finally:
-                    if heard_unaddressed["on"]:
-                        state["history"] = state["history"][:hist_before]      # and she does not carry it into the next few answers either
-                    heard_unaddressed["on"] = False
-                converse(window=8 if state["welcome"].get("crowd") else None)   # crowd mode: a short wait for a follow up with her name, not 30 s open
-            except Exception as e:
-                print("ANSWER ERROR:", e, flush=True)
-            write_eyes()
-        elif text:
-            write_eyes()
-            # 2026-10-07: "Alice, can you hear me?" was heard four times and not answered, and the log did not say why
-            who = PERSONAS[state["persona"]]["name"].split(",")[0] if state["persona"] else "Astra-9 Lite"
-            print("WAKE heard words but not her name. She is %s now. Heard: %s" % (who, text[:60]), flush=True)
+                answer_and_say(text)
+            finally:
+                if heard_unaddressed["on"]:
+                    state["history"] = state["history"][:hist_before]      # and she does not carry it into the next few answers either
+                heard_unaddressed["on"] = False
+            converse(window=8 if state["welcome"].get("crowd") else None)   # crowd mode: a short wait for a follow up with her name, not 30 s open
+        except Exception as e:
+            print("ANSWER ERROR:", e, flush=True)
+        write_eyes()
+    elif text:
+        write_eyes()
+        # 2026-10-07: "Alice, can you hear me?" was heard four times and not answered, and the log did not say why
+        who = PERSONAS[state["persona"]]["name"].split(",")[0] if state["persona"] else "Astra-9 Lite"
+        print("WAKE heard words but not her name. She is %s now. Heard: %s" % (who, text[:60]), flush=True)
 
 
 LISTEN_SECONDS = 6                     # how long she listens after Talk is pressed
