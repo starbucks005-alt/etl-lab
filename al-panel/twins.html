@@ -71,6 +71,7 @@
   var LINES_URL = 'twins-lines.json';
   var AUDIO_BASE = '/audio/robots/twins/';
   var AUDIO_VER = 'v1';
+  var NEXT_MS = 10000;  // after the cheer, how long before the next round starts by itself
   var WAIT_MS = 4500;   // how long a twin "thinks", and how long a stranger has to tap a square for them
   var WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
   var data = null, board, turn, over, locked, timer, audioNow = null, token = 0;
@@ -263,6 +264,9 @@
   function done(){
     for (var i = 0; i < 9; i++) $('c' + i).disabled = true;
     $('go').textContent = 'Play again';
+    // Dr. O, 2026-11-16: the next round starts by itself, so nobody has to keep tapping for an hour.
+    var my = token;
+    timer = setTimeout(function(){ if (my === token && over) newGame(); }, NEXT_MS);
   }
 
   $('go').addEventListener('click', function(){ if (data) newGame(); });
