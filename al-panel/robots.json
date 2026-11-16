@@ -32,7 +32,7 @@
         "engine": "Azure first when set up, ElevenLabs if not",
         "name": "set by her accent setting (default en-US-LunaNeural)"
       },
-      "look": "champagne gold with copper trim",
+      "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons)",
       "special": "eye rings that pulse, a neck that turns, modes (including Guardian mode)",
       "cards": "all"
     },
@@ -65,7 +65,7 @@
         "engine": "ElevenLabs only",
         "name": "her own voice (Dr. O: 'her voice is elevenlabs, it will never be Azure')"
       },
-      "look": "aged bronze legs, gunmetal arms, matte black suit, metal-looking joints",
+      "look": "blue-silver body and arms, aged bronze hips and legs, copper joints, jointed copper hands (wooden jewelry-display hands Dr. O made work), copper feet. Wright State fireside chat: black bodysuit and shorts, the bodysuit sleeves as leg warmers, black puffer vest, combat boots",
       "special": "a camera in her cheek plate, a HuskyLens (faces, objects, colors, tags, tracking), she holds a pose, a motion sensor hello, hears and knows registered voices (not confirmed working)",
       "cards_hidden": [
         "modeCard",
@@ -88,20 +88,23 @@
       "setup": {"eyes": "led-ring", "mode": "companion", "voice": "azure", "azure_voice": "hu-HU-Lilla:MAI-Voice-2-Flash"},
       "name": "Astra-9",
       "short": "Astra",
-      "hostname": null,
-      "last_seen_address": null,
+      "hostname": "astra",
+      "last_seen_address": "192.168.0.207",
       "kind": "full body",
       "status": "body arrived, not built",
-      "hide": [],
+      "hide": ["modeCard", "voiceCard", "nameCard", "personaCard", "guardianCard", "petCard", "calCard", "houseCard"],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#starters,#sistersRow",
+      "theme_light": "--bg:#ece5d8;--panel:#f8f4ec;--line:#ddd2bf;--line2:#c6b79d;--ink:#1a140c;--text:#3e3426;--mute:#6b5d48;--accent:#9a4a22;--accent-bg:#f1dccb;--status:#6b3a1c;--status-bg:#eadfcb;--note:#6b3a1c;--note-bg:#eadfcb;--muted-dot:#8c7c62;--night:#14100b;--field:#ffffff;--on-status:#ffffff;--on-accent:#ffffff;",
+      "theme_dark": "--bg:#14110c;--panel:#1e1a13;--line:#3a3226;--line2:#524633;--ink:#f3ebdc;--text:#d6c9b2;--mute:#a08f73;--accent:#d98b5a;--accent-bg:#3d2414;--status:#e3b98f;--status-bg:#2e2216;--note:#e3b98f;--note-bg:#2e2216;--muted-dot:#a08f73;--night:#0b0906;--field:#29231a;--on-status:#1a1008;--on-accent:#1a1008;",
       "character": {
         "good_company_id": null,
-        "note": "Elle's server says Astra-9 already exists in Good Company. The id was not in the panel's persona list, so it is not known here."
+        "note": "Her own entry is astra in pi/personalities.json (Dr. O, 2026-11-16): Astra-9, ninth of her line, the Agent maker, proud and serious, Astrad's protector, soft spot for the twins. Her robot.txt id is astra, so the entry is her and she speaks in her own voice."
       },
       "voice": {
         "engine": "Azure (Dr. O)",
         "name": "hu-HU-Lilla:MAI-Voice-2-Flash (Dr. O, 2026-11-07). A Hungarian voice; not yet tested speaking English. Not heard by Claude. Not yet tried on a Pi, where the server tags the text as hu-HU from the voice name, so that may need a change. On the Pi, azure_speech.json holds tts_voice with this name."
       },
-      "look": "champagne gold, white lab coat and dress",
+      "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons). Wright State fireside chat: black dress, black shoes",
       "special": "neck servos on a lazy Susan bearing, head moves when she talks, eyes pulse, a collar. Camera, no HuskyLens."
     },
     {
@@ -130,8 +133,8 @@
         "engine": "Azure (Dr. O)",
         "name": "en-US-ChristopherNeural (Dr. O, 2026-10-30). Confirmed in good-company/gc-friend.js (the American option, set 2026-10-16, 'the plain one, not Multilingual'). The older note in _azure-tts.js that says Multilingual is a header comment only."
       },
-      "look": "champagne gold, white lab coat and khakis",
-      "special": "neck servos on a lazy Susan bearing, head moves when he talks, eyes pulse, a collar. Camera, no HuskyLens. His own thing (Dr. O, 2026-11-15): sports and travel, with real scores from ESPN's public scoreboard (pi/al_sports.py) and a Sports and travel card on his panel. Panel colors champagne gold with copper, from his look. No picture yet: the Good Company portrait shows his companion look, not his robot body."
+      "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons), leather fingerless gloves. Wright State fireside chat: black polo, tan pants, black shoes",
+      "special": "neck servos on a lazy Susan bearing, head moves when he talks, eyes pulse, a collar. Camera, no HuskyLens. His own thing (Dr. O, 2026-11-15): sports and travel, with real scores from ESPN's public scoreboard (pi/al_sports.py) and a Sports and travel card on his panel. Panel colors champagne gold, leather brown and copper, from his look. No picture yet: the Good Company portrait shows his companion look, not his robot body."
     },
     {
       "id": "astro",
@@ -171,7 +174,7 @@
         "earlier": "ElevenLabs voice id mrQhZWGbb2k9qWJb5qeA, given by Dr. O. She says it does not sound like a little boy. Not heard by Claude.",
         "note": "Dr. O, 2026-11-01: neither earlier voice sounds like a child, so Teddy is the one to use. ElevenLabs costs money each time it speaks, so his fixed lines (greetings, game cheers, invitations) are to be recorded once and replayed as files. Azure is paid from credits Dr. O expects to keep renewing, but it is not child-like."
       },
-      "look": "champagne finish, teal-green eyes, a black collar, a round camera ring at the neckline, a gray ETL T-shirt, khaki shorts, a teddy bear in his hand (from Dr. O's concept picture)",
+      "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons), leather fingerless gloves, teal-green eyes, a black collar, a round camera ring at the neckline, a gray ETL T-shirt, khaki shorts, a teddy bear in his hand (from Dr. O's concept picture)",
       "picture": {
         "src": "images/astro-concept_v2.jpg",
         "max_width": "280px",
@@ -224,7 +227,7 @@
         ],
         "status": "Not built yet."
       },
-      "look": "champagne finish, green eyes, pink cheeks, a black collar with a small pink bow, a lavender dress with a white collar and ETL on the chest, bare feet, a baby doll held by the hand (from Dr. O's concept picture)",
+      "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons), green eyes, pink cheeks, a black collar with a small pink bow, a lavender dress with a white collar and ETL on the chest, bare feet, a baby doll held by the hand (from Dr. O's concept picture)",
       "picture": {
         "src": "images/astri-concept_v1.jpg",
         "max_width": "280px",
