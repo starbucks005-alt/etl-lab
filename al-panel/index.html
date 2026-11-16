@@ -827,6 +827,9 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     $('statusText').textContent = on ? 'Connected to ' + n.full : 'Not connected';
     $('talkHint').textContent = on ? 'Type a message. ' + n.full + ' answers out loud and here.' : 'Not connected. Type a message and the replies are examples.';
     $('say').placeholder = 'Say something to ' + n.short;
+    // 2026-11-15, Dr. O: Astrad's panel still said Astra-9 Lite. The heading and the name on each of his lines follow the robot this page is.
+    var th = document.querySelector('#talkCard h2'); if(th && window.ROBNAME){ th.textContent = 'Talk to ' + n.full; }
+    var nm = document.querySelector('#nameCard input'); if(nm && window.ROBNAME){ nm.value = n.full; }
   }
   window.rbPaint = function(){ paintNames(); };
   window.rbLogReset = function(){ logN = -1; };   // when the host robot is shown again, read its conversation afresh
@@ -1018,8 +1021,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
     });
     var cur = PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
     var mainP = PERSONAS.filter(function(p){ return p.id === state.main; })[0];
-    var mainName = mainP ? callName(mainP.name) : 'Astra-9 Lite';
-    $('personaNow').textContent = (cur ? 'Speaking as ' + callName(cur.name) + '.' : 'Speaking as Astra-9 Lite.') +
+    var mainName = mainP ? callName(mainP.name) : rbn().full;
+    $('personaNow').textContent = (cur ? 'Speaking as ' + callName(cur.name) + '.' : 'Speaking as ' + rbn().full + '.') +
       (live ? ' Her main personality is ' + mainName + '.' : '');
     $('personaNow').textContent = $('personaNow').textContent.replace(/\.\./g, '.');
     $('keepMain').style.display = (live && cur && state.main !== state.persona) ? '' : 'none';
@@ -1439,7 +1442,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   // ---------- chat ----------
   function speaker(){
     var cur = state.persona && PERSONAS.filter(function(p){ return p.id === state.persona; })[0];
-    if(!cur){ return 'Astra-9 Lite'; }
+    if(!cur || (window.ROBNAME && state.persona === state.main)){ return window.ROBNAME ? rbn().short : 'Astra-9 Lite'; }   // a robot's own entry is labeled with its own short name (Ted)
     var t = shortName(cur.name).replace(/"/g, '').split(/[ ,]+/);
     return /^(Dr\.|Ms\.|Mr\.|Lady|Coach|Prince)$/.test(t[0]) ? t[0] + ' ' + t[1] : t[0];
   }

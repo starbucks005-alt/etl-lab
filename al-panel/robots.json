@@ -114,8 +114,9 @@
       "last_seen_address": "192.168.0.250",
       "kind": "full body",
       "status": "body arrived, not built",
-      "hide": [],
-      "hide_selectors": ".hero,.demo",
+      "pronouns": "he",
+      "hide": ["modeCard", "voiceCard", "nameCard", "personaCard", "guardianCard", "petCard", "calCard", "houseCard"],
+      "hide_selectors": ".hero,.demo,.tab,.sub,#starters,#sistersRow",
       "theme_light": "--bg:#ece5d8;--panel:#f8f4ec;--line:#ddd2bf;--line2:#c6b79d;--ink:#1a140c;--text:#3e3426;--mute:#6b5d48;--accent:#9a4a22;--accent-bg:#f1dccb;--status:#6b3a1c;--status-bg:#eadfcb;--note:#6b3a1c;--note-bg:#eadfcb;--muted-dot:#8c7c62;--night:#14100b;--field:#ffffff;--on-status:#ffffff;--on-accent:#ffffff;",
       "theme_dark": "--bg:#14110c;--panel:#1e1a13;--line:#3a3226;--line2:#524633;--ink:#f3ebdc;--text:#d6c9b2;--mute:#a08f73;--accent:#d98b5a;--accent-bg:#3d2414;--status:#e3b98f;--status-bg:#2e2216;--note:#e3b98f;--note-bg:#2e2216;--muted-dot:#a08f73;--night:#0b0906;--field:#29231a;--on-status:#1a1008;--on-accent:#1a1008;",
       "also_called": [
