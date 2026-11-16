@@ -536,6 +536,32 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       </div></div>
     </section>
 
+    <!-- SPORTS AND TRAVEL, added 2026-11-15, Dr. O: sports and travel are Astrad's thing. Shown only on a robot whose own entry has "sports". The games
+         below are looked up live from ESPN's public scoreboard, the same facts he is given when someone asks him about a team. -->
+    <section class="card wide" id="sportsCard" style="display:none">
+      <h2>Sports and travel</h2>
+      <p class="hint">Ask him about any team and he looks up the real score, record and next game first, so he never makes one up. If the scoreboard has nothing, he says he didn't catch it. He also talks travel like a road-trip buddy, but he won't name a restaurant, hotel, price or opening hours as if it's current.</p>
+      <ul id="sportsGames" style="margin:4px 0 12px;padding-left:1.2rem;font-size:14px"></ul>
+      <p class="hint" style="margin:0">Try: "How are the Raiders doing?" "Did Ohio State win?" "Where's a good road trip from Dayton?" <button id="sportsRefresh" type="button" style="margin-left:8px">Refresh</button></p>
+    </section>
+    <script>
+    (function () {
+      var card = document.getElementById('sportsCard'), list = document.getElementById('sportsGames');
+      if (!card || location.protocol !== 'http:') { return; }
+      function load() {
+        fetch('/api/sports', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (j) {
+          if (!j || !j.on) { return; }
+          card.style.display = '';
+          list.innerHTML = '';
+          (j.teams || []).forEach(function (t) { var li = document.createElement('li'); li.textContent = t; list.appendChild(li); });
+          if (!(j.teams || []).length) { var li = document.createElement('li'); li.textContent = 'The scoreboard did not answer just now.'; list.appendChild(li); }
+        }).catch(function () {});
+      }
+      document.getElementById('sportsRefresh').addEventListener('click', load);
+      load();
+    })();
+    </script>
+
     <!-- GUARDIAN SETUP, added 2026-10-15, Dr. O: "Security is showing what the others will have and she could still greet people at the door: hi, can I assist you, where are you going, download the
          building offices and forms to get started. It will help me know what the security bots will need." (They are the ETL Guardians.) This is the form a building fills in. -->
     <section class="card wide" id="guardianCard" style="display:none">

@@ -62,6 +62,22 @@ class Astrad(unittest.TestCase):
         self.assertIn("cues.which_set(IS_ALICE)", src)
         self.assertIn("seat_for(HERE, IS_ALICE)", src)
 
+    def test_sports_only_for_him(self):
+        self.assertTrue(s.PERSONAS["astrad"].get("sports"))
+        self.assertIn("Travel is your other thing", s.PERSONAS["astrad"]["prompt"])
+        old = (s.state["persona"], s.al_sports.facts_for, s.al_sports.team_facts)
+        s.al_sports.facts_for = lambda text, here: " (Sports facts: X.)"
+        s.al_sports.team_facts = lambda lg, tid: "facts for " + tid
+        try:
+            s.state["persona"] = "astrad"
+            self.assertEqual(s.sports_note("Raiders?"), " (Sports facts: X.)")
+            self.assertTrue(s.app.test_client().get("/api/sports").get_json()["on"] in (True,))
+            s.state["persona"] = "astro"
+            self.assertEqual(s.sports_note("Raiders?"), "")
+            self.assertFalse(s.app.test_client().get("/api/sports").get_json()["on"])
+        finally:
+            s.state["persona"], s.al_sports.facts_for, s.al_sports.team_facts = old
+
     def test_can_be_his_main_character(self):
         c = s.app.test_client()
         r = c.post("/api/personality/main", json={"id": "astrad"})

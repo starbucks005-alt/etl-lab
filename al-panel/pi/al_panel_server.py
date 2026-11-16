@@ -71,6 +71,12 @@ except Exception as _e:           # pragma: no cover
     print("FIRESIDE not loaded:", str(_e)[:120], flush=True)
 
 try:
+    import al_sports  # noqa: E402  (real scores for an entry with "sports": true; if the file is missing he simply answers as before)
+except Exception as _e:           # pragma: no cover
+    al_sports = None
+    print("SPORTS not loaded:", str(_e)[:120], flush=True)
+
+try:
     import science_sources as ss  # noqa: E402  (answers from journals in science mode; if the file is missing she simply answers as before)
 except Exception as _e:           # pragma: no cover
     ss = None
@@ -3226,8 +3232,37 @@ def reply_for(text, short=True):
         r = None
     if r:
         return r
-    reply = get_reply(context_for(text), short=short)
+    reply = get_reply(context_for(text) + sports_note(text), short=short)
     return reply, reply
+
+
+@app.get("/api/sports")
+def sports_card():
+    """The panel's Sports and travel card: on only for an entry with "sports", with his teams' real last and next games."""
+    p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    if al_sports is None or not (p and p.get("sports")):
+        return jsonify(on=False)
+    teams = []
+    for _names, picks in al_sports.HOME:
+        for lg, tid in picks:
+            try:
+                teams.append(al_sports.team_facts(lg, tid))
+            except Exception as e:
+                print("SPORTS card lookup failed:", str(e)[:100], flush=True)
+    return jsonify(on=True, teams=teams)
+
+
+def sports_note(text):
+    """2026-11-15, Dr. O: sports is Astrad's thing. For an entry with "sports": true, a question that names a team gets its real last game,
+    record and next game looked up first (al_sports.py), so a score is never made up. Anything else, or a failed lookup, adds nothing."""
+    p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    if al_sports is None or not (p and p.get("sports")):
+        return ""
+    try:
+        return al_sports.facts_for(text, HERE)
+    except Exception as e:
+        print("SPORTS problem, answering as usual:", str(e)[:120], flush=True)
+        return ""
 
 
 def get_reply(ask, short=True):
