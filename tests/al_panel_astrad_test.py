@@ -29,9 +29,12 @@ class Astrad(unittest.TestCase):
 
     def test_speaks_in_the_robots_own_voice(self):
         # "ted is using Elle's voice": with his character on he must still go to Azure (Christopher), not ElevenLabs.
-        self.assertTrue(s.PERSONAS["astrad"].get("own_voice"))
+        self.assertNotIn("voice", s.PERSONAS["astrad"])
         used = []
-        old = (s.state["persona"], s.state["accent"], s.azure_cfg, s.azure_speak, s._speak_text, s.ROBOT_VOICE, s.file_voice)
+        old = (s.state["persona"], s.state["accent"], s.azure_cfg, s.azure_speak, s._speak_text, s.ROBOT_VOICE, s.file_voice, s.SELF_PERSONA)
+        s.SELF_PERSONA = "astrad"                  # what robot.txt "astrad" gives on his Pi
+        self.assertTrue(s.is_self("astrad"))
+        self.assertFalse(s.is_self("astro"))
         s.state["persona"], s.state["accent"] = "astrad", "american"
         s.azure_cfg = lambda kind: {"key": "k", "region": "r"}
         s.azure_speak = lambda part, cfg, voice: used.append(("azure", voice))
@@ -42,11 +45,22 @@ class Astrad(unittest.TestCase):
             s._speak_inner("Hey there.")
             self.assertEqual(used, [("azure", "en-US-ChristopherNeural")])
             used.clear()
-            s.state["persona"] = "astro"           # a character without own_voice is unchanged: ElevenLabs
+            s.state["persona"] = "astro"           # a guest character on his Pi is unchanged: ElevenLabs
             s._speak_inner("Hi!")
             self.assertEqual([u[0] for u in used], ["eleven"])
+            used.clear()
+            s.SELF_PERSONA, s.state["persona"] = "gc-a-l-i-c-e", "gc-a-l-i-c-e"   # A.L.I.C.E. keeps her own written voice
+            s._speak_inner("Hello.")
+            self.assertEqual(used, [("eleven", s.PERSONAS["gc-a-l-i-c-e"]["voice"])])
         finally:
-            s.state["persona"], s.state["accent"], s.azure_cfg, s.azure_speak, s._speak_text, s.ROBOT_VOICE, s.file_voice = old
+            s.state["persona"], s.state["accent"], s.azure_cfg, s.azure_speak, s._speak_text, s.ROBOT_VOICE, s.file_voice, s.SELF_PERSONA = old
+
+    def test_alice_only_rules_stay_with_alice(self):
+        self.assertFalse(s.IS_ALICE)             # no robot.txt in this test: not ALICE, so Azure is allowed
+        src = open(s.__file__, encoding="utf-8").read()
+        self.assertIn("if IS_ALICE:\n        return None", src)
+        self.assertIn("cues.which_set(IS_ALICE)", src)
+        self.assertIn("seat_for(HERE, IS_ALICE)", src)
 
     def test_can_be_his_main_character(self):
         c = s.app.test_client()

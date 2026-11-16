@@ -405,7 +405,12 @@ def _speak_text(part):
             pass
     subprocess.run(["aplay", "-q", "-D", "plughw:wm8960soundcard", "-t", "raw", "-f", "S16_LE", "-r", str(rate), "-c", "1"],
                    input=pcm, check=False)
-SELF_PERSONA = "gc-a-l-i-c-e" if ROBOT_ID == "alice" else None
+# 2026-11-15, Dr. O, about Astrad: "why is it a character and not him". A robot whose own id (robot.txt) is an entry in the list, such as
+# astrad, astro or astri, now IS that entry, the way A.L.I.C.E. is gc-a-l-i-c-e: it gets the people it has met and the voice match, and an
+# entry with no "voice" written in speaks in the robot's own voice. Rules that were only ever meant for A.L.I.C.E. (never Azure, her breath,
+# her fireside seat, her address in her own voice) now ask IS_ALICE by name, so they did not spread to the others with this change.
+IS_ALICE = ROBOT_ID == "alice"
+SELF_PERSONA = "gc-a-l-i-c-e" if IS_ALICE else (ROBOT_ID if ROBOT_ID and ROBOT_ID in PERSONAS else None)
 
 
 def is_self(pid):
@@ -1255,7 +1260,7 @@ def azure_cfg(part):
     """(key, region) when Azure is set up and `part` ("tts" or "stt") is not switched off, else None.
     Dr. O, 2026-10-28: "her voice is elevenlabs, it will never be Azure." On A.L.I.C.E.'s Pi (the one with index_alice.html) this is always None,
     for her voice and her hearing, whatever files or settings are found."""
-    if SELF_PERSONA is not None:
+    if IS_ALICE:
         return None
     key = os.environ.get("AZURE_SPEECH_KEY")
     region = os.environ.get("AZURE_SPEECH_REGION")
@@ -1483,9 +1488,9 @@ def _speak_inner(text, use_persona=True):
     try:
         persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
         # 2026-11-15, Dr. O: "ted is using Elle's voice". A character always went to ElevenLabs, so giving Astrad his own character took away
-        # the robot's own voice (Azure Christopher, the one she hears best). A character with "own_voice": true speaks in this robot's own voice,
-        # exactly as it would with no character on.
-        if persona and persona.get("own_voice"):
+        # the robot's own voice (Azure Christopher, the one she hears best). The robot's own entry (SELF_PERSONA) with no "voice" written in
+        # speaks in this robot's own voice, exactly as it would with no character on. A.L.I.C.E.'s entry has her voice written in, so she is unchanged.
+        if persona and state["persona"] == SELF_PERSONA and not persona.get("voice"):
             persona = None
         al.AL_VOICE_ID = (persona or {}).get("voice") or ROBOT_VOICE or VOICES[state["accent"]]
         last_said["text"] = text
@@ -1518,7 +1523,7 @@ def _speak_inner(text, use_persona=True):
 
         # 2026-10-30, Dr. O: small sounds around her speech. A.L.I.C.E. breathes in before she speaks; Astra 9 and Ted click before, tick between
         # sentences and give a short tone after. Astra-9 Lite has none. Nothing plays while she is idle. Set in cue_set.txt, see al_cues.py.
-        cue_set = cues.which_set(SELF_PERSONA is not None) if cues else "none"
+        cue_set = cues.which_set(IS_ALICE) if cues else "none"
         parts = [spoken]
         if cue_set == "mechanical":
             sentences = [x.strip() for x in re.split(r"(?<=[.!?])\s+", spoken) if x.strip()]
@@ -2449,7 +2454,7 @@ def say_address():
     ip = my_address()
     if not ip:
         return jsonify(error="I am not on a network right now"), 503
-    speak_async(address_words(ip), use_persona=SELF_PERSONA is not None)
+    speak_async(address_words(ip), use_persona=IS_ALICE)
     return jsonify(ok=True, address=ip, url="http://" + ip + ":8000")
 
 
@@ -3832,7 +3837,7 @@ def fireside_post(url, body):
 def start_fireside():
     if al_fireside is None:
         return
-    seat, name = al_fireside.seat_for(HERE, SELF_PERSONA is not None)
+    seat, name = al_fireside.seat_for(HERE, IS_ALICE)
     fs = al_fireside.Fireside(seat, name, fireside_post, fireside_think, speak_now, fireside_cut, on_change=fireside_changed, here=HERE,
                               log=lambda t: print(t, flush=True))
     threading.Thread(target=fs.run, daemon=True).start()
@@ -4378,7 +4383,7 @@ def my_address():
 # 2026-10-29, Dr. O: A.L.I.C.E. said the address in Astra's voice and told people to try "astra nine lite dot local".
 # On the Pi that has index_alice.html the address is now spoken in her own voice, and it names this Pi's own hostname.
 def local_name():
-    if SELF_PERSONA is None and ROBOT_ID is None:   # 2026-11-07: a Pi with robot.txt says its own hostname, not Astra Lite's
+    if not IS_ALICE and ROBOT_ID is None:   # 2026-11-07: a Pi with robot.txt says its own hostname, not Astra Lite's
         return "astra nine lite"
     import socket
     return socket.gethostname().split(".")[0].lower() or "astra nine lite"
@@ -4402,7 +4407,7 @@ def say_address_when_ready():
     for _ in range(60):
         ip = my_address()
         if ip:
-            speak_async(address_words(ip), use_persona=SELF_PERSONA is not None)
+            speak_async(address_words(ip), use_persona=IS_ALICE)
             return
         time.sleep(2)
 
