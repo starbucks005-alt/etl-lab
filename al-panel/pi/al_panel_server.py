@@ -495,6 +495,11 @@ state["welcome"]["always"] = True
 # 2026-11-16, Dr. O: at the last event Elle's motion sensor welcomed people every 15 seconds and "drove people crazy". So every robot
 # starts with 15 minutes between welcomes, whatever was saved before. The panel (card 8) can shorten it until the next start.
 state["welcome"]["wait"] = 900
+# 2026-11-16, Dr. O: "they talk over each other sooo much. this is not going to work for the fireside chat." A robot whose own entry
+# lists "wake" names (the Astra family and A.L.I.C.E.) starts every time in crowd mode: it answers only when one of its names is said,
+# and waits 8 seconds, not 30, for a follow up. The panel (card 8) can switch crowd mode off until the next start.
+if SELF_PERSONA and PERSONAS[SELF_PERSONA].get("wake"):
+    state["welcome"]["crowd"] = True
 
 
 # ---- robot A.L.I.C.E.'s own memory, added 2026-10-07, Dr. O ----
@@ -2847,6 +2852,11 @@ def wake_name_re():
             # "L", "Ella", "El" and so on, and in a talk only the exact name woke her. The same spellings that wake her outside a talk now count here.
             extra = ["ella", "ellie", "elly", "ell", "el", "l"]
         base = re.compile(r"\b(" + "|".join(re.escape(w) for w in mine + extra) + r")\b", re.I)
+    elif SELF_PERSONA and state["persona"] == SELF_PERSONA and PERSONAS[SELF_PERSONA].get("wake"):
+        # 2026-11-16, Dr. O: the family talked over each other. Every robot was also waking to Elle's names (Astra, Astro, Astrid, L, Al),
+        # so one name said in the room woke all of them. A robot that IS its entry, and whose entry lists "wake", answers only to those
+        # names and the name in its entry, never to Elle's.
+        base = re.compile(r"\b(" + "|".join(re.escape(w) for w in PERSONAS[SELF_PERSONA]["wake"]) + r")\b", re.I)
     else:
         base = NAME_RE
     if not p:
