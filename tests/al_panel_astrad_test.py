@@ -27,6 +27,27 @@ class Astrad(unittest.TestCase):
         for bad in ("—", "–", "plainly"):
             self.assertNotIn(bad, t + p["say"])
 
+    def test_speaks_in_the_robots_own_voice(self):
+        # "ted is using Elle's voice": with his character on he must still go to Azure (Christopher), not ElevenLabs.
+        self.assertTrue(s.PERSONAS["astrad"].get("own_voice"))
+        used = []
+        old = (s.state["persona"], s.state["accent"], s.azure_cfg, s.azure_speak, s._speak_text, s.ROBOT_VOICE, s.file_voice)
+        s.state["persona"], s.state["accent"] = "astrad", "american"
+        s.azure_cfg = lambda kind: {"key": "k", "region": "r"}
+        s.azure_speak = lambda part, cfg, voice: used.append(("azure", voice))
+        s._speak_text = lambda part: used.append(("eleven", s.al.AL_VOICE_ID))
+        s.ROBOT_VOICE = None
+        s.file_voice = lambda name: "en-US-ChristopherNeural" if name == "tts_voice" else None
+        try:
+            s._speak_inner("Hey there.")
+            self.assertEqual(used, [("azure", "en-US-ChristopherNeural")])
+            used.clear()
+            s.state["persona"] = "astro"           # a character without own_voice is unchanged: ElevenLabs
+            s._speak_inner("Hi!")
+            self.assertEqual([u[0] for u in used], ["eleven"])
+        finally:
+            s.state["persona"], s.state["accent"], s.azure_cfg, s.azure_speak, s._speak_text, s.ROBOT_VOICE, s.file_voice = old
+
     def test_can_be_his_main_character(self):
         c = s.app.test_client()
         r = c.post("/api/personality/main", json={"id": "astrad"})

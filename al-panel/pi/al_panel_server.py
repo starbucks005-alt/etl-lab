@@ -1482,6 +1482,11 @@ def _speak_locked(text, use_persona=True):
 def _speak_inner(text, use_persona=True):
     try:
         persona = PERSONAS.get(state["persona"]) if (use_persona and state["persona"]) else None
+        # 2026-11-15, Dr. O: "ted is using Elle's voice". A character always went to ElevenLabs, so giving Astrad his own character took away
+        # the robot's own voice (Azure Christopher, the one she hears best). A character with "own_voice": true speaks in this robot's own voice,
+        # exactly as it would with no character on.
+        if persona and persona.get("own_voice"):
+            persona = None
         al.AL_VOICE_ID = (persona or {}).get("voice") or ROBOT_VOICE or VOICES[state["accent"]]
         last_said["text"] = text
         spoken = for_the_voice(text)
