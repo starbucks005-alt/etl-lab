@@ -167,7 +167,7 @@ def play(cue_set, moment, device, stop_event=None):
 IDLE_PERIOD = 4.5
 IDLE_TROUGH = 3.375          # time % IDLE_PERIOD at which the eyes are dimmest: sin(2 pi t / 4.5) is -1 there
 IDLE_LEAD = 0.15             # seconds aplay needs to start making sound; adjust if she breathes in a little late or early
-IDLE_QUIET = 0.09            # loudest point of the idle breath. 2026-11-16, Dr. O, with it on every robot: quieter, "subtle" (was 0.18; 0.07 was too quiet for ALICE on 2026-10-30 and 0.35 too loud). A file idle_level.txt next to the server overrides it (0.002 to 0.60)
+IDLE_QUIET = 0.13            # loudest point of the idle breath. 2026-11-16, Dr. O, with it on every robot: quieter, "subtle", but still heard (0.18 was too much on one robot, 0.09 could not be heard; 0.07 was too quiet for ALICE on 2026-10-30 and 0.35 too loud). A file idle_level.txt next to the server overrides it (0.002 to 0.60)
 
 
 def _phase():
