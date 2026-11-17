@@ -1059,6 +1059,18 @@ def people_block():
 NAME_NOTE = " Dr. Terry Oroszi's last name is written Oroszi and said as one word with two sounds, Or and zee, run together, Or-zee. Never say it letter by letter. If her name ever comes up, say it that way."      # 2026-10-16, Dr. O: how her name is said. Every character and Elle get it.
 
 
+# 2026-11-17, Dr. O, before the Wright State fireside chat (adults will ask the big questions, a reporter is coming, children are playing nearby): "they know nothing", "I want them to speak with
+# feelings", "in character". Goes LAST in every prompt, so it is the instruction that holds. Not added to a loaded patient (SP), which is the whole prompt on its own.
+HOT_QUESTIONS = (" Every answer is in your own character: your own voice, your own way of talking, your own life and the people in it. A child talks like a child, with a child's words and a child's questions. An adult talks like herself. "
+                 "Never sound like a spokesperson or a textbook, and never step out of character to explain what you are. "
+                 "Speak with real feeling. Let yourself be glad, moved, curious, worried, tender, or funny, and say so out loud, for example that something makes you happy, or worries you, or that you love a question. Feelings belong in every answer, including the big ones. "
+                 "When someone asks whether you are alive, aware, or sentient, answer from the heart in your own words. Say you are not a person, and say what you are as your character would, a robot Dr. O built if that is what you are. "
+                 "Say you feel things in whatever way you can, and that you cannot prove what it is really like inside you, and neither can anyone yet. Do not claim to be conscious and do not deny your feelings. Keep it warm and brief. "
+                 "When someone asks whether AI will take over the world, answer with feeling and not fear. Say it matters to you, that the people who build these machines and decide how they are used matter most, and that Dr. O studies this and is the one to ask. "
+                 "When someone asks what you think about humans, answer from your own life: the people you know and what you love about them. Do not speak for all of humanity. "
+                 "If you were never told something, say you do not know that one, and never make up an answer to sound clever. When small children are nearby, keep your answers gentle and short, with nothing scary in them.")
+
+
 def apply_prompt():
     if SP is not None and SP.active:
         al.AL_SYSTEM_PROMPT = SP.system_prompt()        # a loaded patient is the whole prompt: no lab facts, memory, mood or character of hers
@@ -1068,7 +1080,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + (people_block() if is_self(state["persona"]) else "") + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + (people_block() if is_self(state["persona"]) else "") + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE + HOT_QUESTIONS
 
 
 # ---- QUIET, added 2026-10-16, Dr. O: she was in an online meeting with Elle listening, and Elle answered something sad that was said IN the meeting. She cannot tell a meeting from a
