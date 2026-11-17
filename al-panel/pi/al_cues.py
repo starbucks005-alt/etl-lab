@@ -167,7 +167,15 @@ def play(cue_set, moment, device, stop_event=None):
 IDLE_PERIOD = 4.5
 IDLE_TROUGH = 3.375          # time % IDLE_PERIOD at which the eyes are dimmest: sin(2 pi t / 4.5) is -1 there
 IDLE_LEAD = 0.15             # seconds aplay needs to start making sound; adjust if she breathes in a little late or early
-IDLE_QUIET = 0.18            # loudest point of the idle breath. 0.07 was too quiet for Dr. O and 0.35 too loud (2026-10-30). A file idle_level.txt next to the server overrides it (0.002 to 0.60)
+IDLE_QUIET = 0.09            # loudest point of the idle breath. 2026-11-16, Dr. O, with it on every robot: quieter, "subtle" (was 0.18; 0.07 was too quiet for ALICE on 2026-10-30 and 0.35 too loud). A file idle_level.txt next to the server overrides it (0.002 to 0.60)
+
+
+def _phase():
+    try:
+        from al_eyes_math import phase_offset
+        return phase_offset()
+    except Exception:
+        return 0.0
 IDLE_RESUME = 2.5            # seconds of quiet after speech or listening before she breathes again
 def idle_level():
     try:
@@ -291,7 +299,7 @@ def _idle_loop(device):
             if pr is not None:
                 continue
             path = idle_path()
-            wait = (IDLE_TROUGH - time.time()) % IDLE_PERIOD - IDLE_LEAD       # start when her eyes are dimmest, so the breath in rises with them
+            wait = (IDLE_TROUGH - (time.time() + _phase())) % IDLE_PERIOD - IDLE_LEAD       # start when her eyes are dimmest, so the breath in rises with them (each robot has its own starting point, al_eyes_math.phase_offset)
             if wait < 0:
                 wait += IDLE_PERIOD
             time.sleep(wait)

@@ -5,8 +5,27 @@
   quiet     the eyes swell slowly, from about 30 percent to well above their usual brightness and back every 4.5 seconds, so she looks awake
 The level never goes above the cap (30 percent), whatever the pulse asks for."""
 import math
+import os
+import socket
+import zlib
 
 CAP = 0.30
+SWELL_SECONDS = 4.5
+_offset = {}
+
+
+def phase_offset():
+    """Where in the 4.5 second cycle this robot sits, in seconds. 2026-11-16, Dr. O: with the breathing on every robot, all of them breathed at the same moment.
+    The number comes from the Pi's own machine id, so it is the same every time on one robot and different between robots. The eyes and the idle breath
+    (al_cues.py) both use it, so each robot's breath still matches its own eyes."""
+    if "v" not in _offset:
+        try:
+            ident = open("/etc/machine-id").read().strip()
+        except OSError:
+            ident = ""
+        ident = ident or socket.gethostname()
+        _offset["v"] = (zlib.crc32(ident.encode("utf-8")) % 4500) / 1000.0
+    return _offset["v"]
 
 
 def eye_level(d, t, breathe=True):
@@ -23,7 +42,7 @@ def eye_level(d, t, breathe=True):
         # every 4.5 seconds, still never above the cap.
         lo = base * 0.30
         hi = min(CAP, max(base * 1.45, base + 0.04))
-        x = 0.5 + 0.5 * math.sin(2 * math.pi * t / 4.5)
+        x = 0.5 + 0.5 * math.sin(2 * math.pi * (t + phase_offset()) / SWELL_SECONDS)
         return max(0.0, min(CAP, lo + (hi - lo) * x))
     return base
 
