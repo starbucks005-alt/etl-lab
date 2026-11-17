@@ -1146,8 +1146,19 @@ def set_meeting(on):
 BE_QUIET_RE = re.compile(r"(?<!I will )(?<!I'll )(?<!I'd )(?<!will )\b(be quiet|quiet please|quiet down|shush|hush)\b", re.I)    # not "I will be quiet"
 
 
+# 2026-11-16, Dr. O: Astro was "soooo chatty"; saying "take a nap" to Astro or Astri should make them stop talking for 30 minutes. Works on every robot.
+NAP_RE = re.compile(r"(?<!I will )(?<!I'll )(?<!I'm going to )(?<!going to )(?<!gonna )\b(take a nap|nap time)\b", re.I)    # not "I am going to take a nap"
+NAP_MINUTES = 30
+
+
 def maybe_quiet(text):
     """True when this was a request to go quiet, after she has said so out loud."""
+    if NAP_RE.search(text or ""):
+        set_quiet(NAP_MINUTES)
+        said = "Okay! Nap time. See you in a little while."
+        state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said}]
+        speak_now(said)
+        return True
     if not QUIET_RE.search(text or "") and not BE_QUIET_RE.search(text or ""):
         return False
     if QUIET_RE.search(text or ""):
