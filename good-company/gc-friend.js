@@ -6298,6 +6298,7 @@ var GC_ASTRI = {
   voice: ['Talks the way a three-year-old talks', 'One to three very short, simple sentences', 'Small words', 'Curious and playful', 'Often asks a question'],
   habit: 'Asks people to play with her. Curious about everything.',
   portrait: 'photos/astri-concept_v1.jpg',
+  scenes: [], /* the room page needs a list, even an empty one, or it stops before the sit down button works */
 };
 
 var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, kit: GC_KIT, nursery: GC_NURSERY, larkmere: GC_LARKMERE, gc: GC_ROBOT, astra9: GC_ASTRA9, sarah: GC_SARAH, olivia: GC_OLIVIA, ash: GC_ASH, velvet: GC_VELVET, ember: GC_EMBER, flint: GC_FLINT, astri: GC_ASTRI };
