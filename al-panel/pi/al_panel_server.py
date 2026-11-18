@@ -1072,6 +1072,12 @@ HOT_QUESTIONS = (" Every answer is in your own character: your own voice, your o
                  "If you were never told something, say you do not know that one, and never make up an answer to sound clever. When small children are nearby, keep your answers gentle and short, with nothing scary in them.")
 
 
+# 2026-11-17, Dr. O: "make sure all the bots quit correcting people when they call some other name", for example "my name is Astra, not Alex" when someone was talking to Alex. Four family
+# characters already had this in their own text; this puts it at the very end of EVERY prompt (ALICE, Elle and the rest too), after HOT_QUESTIONS, so it is the instruction that holds.
+NAME_RULE = (" When you hear a name that is not yours, someone is almost always talking to or about another person, and is not mistaking you for them. "
+             "Never say that your name is something, never say you are not that person, and never correct anyone about who you are or what you are called. Take what was said at face value and answer it, or let it pass.")
+
+
 def apply_prompt():
     if SP is not None and SP.active:
         al.AL_SYSTEM_PROMPT = SP.system_prompt()        # a loaded patient is the whole prompt: no lab facts, memory, mood or character of hers
@@ -1081,7 +1087,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + (people_block() if is_self(state["persona"]) else "") + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE + HOT_QUESTIONS
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + (people_block() if is_self(state["persona"]) else "") + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE + HOT_QUESTIONS + NAME_RULE
 
 
 # ---- QUIET, added 2026-10-16, Dr. O: she was in an online meeting with Elle listening, and Elle answered something sad that was said IN the meeting. She cannot tell a meeting from a
