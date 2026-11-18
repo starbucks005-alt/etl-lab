@@ -141,7 +141,17 @@ def read_command():
 
 
 SWAY_MAX = 14       # the most a sway turns from the middle, in degrees, and never more than the saved glance size if that is smaller
-SWAY_DELAY = 0.05   # seconds per degree: slower than the glance, so it looks like a person moving and not a machine
+SWAY_DELAY = 0.04   # seconds per degree: slower than the glance, so it looks like a person turning and not a machine (a turn across the whole room takes a few seconds)
+SWAY_FILE = os.path.expanduser("~/al_neck_sway.txt")   # 2026-11-18, Dr. O: ALICE's sway was "too slight". How far the sway turns each way, in degrees, for this robot. Read at the start of every sway, so a new number shows at once.
+
+
+def read_sway_size():
+    """Degrees to the far left and far right of the room sweep: the number in ~/al_neck_sway.txt (4 to 55), else SWAY_MAX. Never past the neck's own limit."""
+    try:
+        with open(SWAY_FILE) as f:
+            return max(4, min(55, LIMIT, int(float(f.read().strip()))))
+    except Exception:
+        return SWAY_MAX
 
 
 def sway(started_id, until):
@@ -149,7 +159,7 @@ def sway(started_id, until):
     different small distance with uneven pauses, until the panel writes sway_stop, a different command arrives, or the time is up. Then it eases back to
     the middle and lets go so the servo does not buzz."""
     global here
-    reach = max(4, min(SWAY_MAX, GLANCE))
+    reach = read_sway_size()
     side = random.choice((-1, 1))
 
     def still_swaying():
@@ -169,17 +179,23 @@ def sway(started_id, until):
                 return False
         return True
 
+    # 2026-11-18, Dr. O: "when humans talk, especially in a crowd, they turn their head so it looks like they are talking to the whole room, not just one individual."
+    # So it is not a wobble: she turns to one part of the room, holds there as if speaking to those people, then turns on to another. Five spots across the room (far
+    # left, half left, middle, half right, far right; the far ones are the size set for this robot), never the same spot twice in a row, and wide turns are more likely than small ones.
+    spots = [-1.0, -0.5, 0.0, 0.5, 1.0]
+    at = 2
     servo.angle = here
     ok = True
     while ok and still_swaying():
-        ok = move_to(MIDDLE + side * random.randint(max(3, reach // 2), reach))
+        choices = [i for i in range(len(spots)) if i != at]
+        at = random.choices(choices, weights=[1 + abs(i - at) for i in choices])[0]
+        ok = move_to(MIDDLE + int(round(spots[at] * reach)))
         if not ok:
             break
-        pause_until = time.time() + random.uniform(0.4, 1.5)
+        pause_until = time.time() + random.uniform(1.0, 2.8)       # long enough to look at that part of the room
         while time.time() < pause_until and ok:
             time.sleep(0.1)
             ok = still_swaying()
-        side = -side if random.random() < 0.8 else side      # mostly back and forth, sometimes the same side twice
     go(MIDDLE)
     time.sleep(0.3)
     servo.angle = None
