@@ -154,7 +154,7 @@ def read_sway_size():
         return SWAY_MAX
 
 
-def sway(started_id, until):
+def sway(started_id, until, standalone=False):
     """2026-11-18, Dr. O: they turn their head back and forth while they talk, so there is life inside them. Slow turns to one side and the other, each a
     different small distance with uneven pauses, until the panel writes sway_stop, a different command arrives, or the time is up. Then it eases back to
     the middle and lets go so the servo does not buzz."""
@@ -163,6 +163,8 @@ def sway(started_id, until):
     side = random.choice((-1, 1))
 
     def still_swaying():
+        if standalone:              # the bench test: just the clock, no panel needed
+            return time.time() < until
         d = read_command()
         return d.get("id") == started_id and d.get("cmd") == "sway" and time.time() < until
 
@@ -200,6 +202,16 @@ def sway(started_id, until):
     time.sleep(0.3)
     servo.angle = None
 
+
+if "--sweep" in sys.argv:
+    # Bench test of the room sweep itself, 20 seconds by default: python3 ~/al_panel/al_neck.py --sweep   (or --sweep 40). Stop the neck program first: sudo systemctl stop al-neck
+    try:
+        seconds = float(sys.argv[sys.argv.index("--sweep") + 1])
+    except (IndexError, ValueError):
+        seconds = 20.0
+    print("Room sweep for %d seconds, up to %d degrees each way." % (seconds, read_sway_size()))
+    sway(None, time.time() + seconds, standalone=True)
+    sys.exit(0)
 
 last = read_command().get("id")   # a command left over from before we started is ignored
 while True:
