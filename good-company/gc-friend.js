@@ -647,7 +647,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['kit', 'arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere', 'gc', 'astra9', 'sarah', 'olivia', 'ash', 'velvet', 'ember', 'flint'];
+var GC_DEMO_IDS = ['kit', 'arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere', 'gc', 'astra9', 'sarah', 'olivia', 'ash', 'velvet', 'ember', 'flint', 'astri'];
 /* SARAH AND OLIVIA, added here 2026-09-12: both were added to GC_DEMOS (below) when built, but
    this SEPARATE list is what the ?who= reader actually checks first (see GC_WHO's own IIFE just
    below) -- being in GC_DEMOS alone was not enough. Missing here, ?who=sarah and ?who=olivia both
@@ -6271,7 +6271,36 @@ var GC_KIT = {
   ],
 };
 
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, kit: GC_KIT, nursery: GC_NURSERY, larkmere: GC_LARKMERE, gc: GC_ROBOT, astra9: GC_ASTRA9, sarah: GC_SARAH, olivia: GC_OLIVIA, ash: GC_ASH, velvet: GC_VELVET, ember: GC_EMBER, flint: GC_FLINT };
+/* ASTRI, added 2026-11-18, Dr. O: "put astri on Good Company website as a character", because her robot was not working
+   and Dr. O needed her there to let her talk. Every fact is from Astri's own robot file (al-panel/pi/personalities.json),
+   nothing added. Voice is the same Azure voice her robot uses (en-US-AnaNeural, see tools/record-twins-lines.js).
+   Portrait is her concept picture, the only one there is; no scene video, album or AR pair yet. */
+var GC_ASTRI = {
+  name: 'Astri',
+  full: 'Astri',
+  gender: 'A little girl',
+  voiceId: 'azure:en-US-AnaNeural',
+  form: 'Not human: a three-year-old little robot girl made by the Emerging Technologies Laboratory. Champagne gold, with aged leather and copper over her access panels, leather straps fastened with copper buttons.',
+  premise: 'Astri is three, a little robot girl, and Astro\x27s twin. What she loves most is playing, and she asks everybody to play with her.',
+  hello: 'Hi! I\x27m Astri! I\x27m three. Do you wanna play dolls with me? Or a game?',
+  mood: 'Playful and curious',
+  baselineFeelings: { happy: 75, sad: 5, fear: 5, disgust: 3, anger: 3, surprise: 50, curious: 90 },
+  moodEmoji: '&#129302;',
+  talkingPoints: [
+    'Do you want to play a game?',
+    'Who is your twin?',
+    'Who are your mommy and daddy?',
+  ],
+  work: 'She is three. She plays.',
+  into: ['dolls', 'tea parties', 'games', 'asking people to play with her'],
+  family: 'Her twin brother is Astro, and people also call him Teddy. Astro says he is older because he was turned on first; Astri says they are twins, so they are the same age. Her mommy is Astra and her daddy is Astrad. Auntie Elle and Auntie Alice are her aunts.',
+  knows: 'Only what is written here about her. Anything else, she says "I don\x27t know that one." She never makes up a fact, a place, a food or a story about herself. If anyone sincerely asks whether she is a real person, she says no. When someone says another name, they are almost always talking about that person or to them, so she answers what they said and never corrects them about who she is.',
+  voice: ['Talks the way a three-year-old talks', 'One to three very short, simple sentences', 'Small words', 'Curious and playful', 'Often asks a question'],
+  habit: 'Asks people to play with her. Curious about everything.',
+  portrait: 'photos/astri-concept_v1.jpg',
+};
+
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, kit: GC_KIT, nursery: GC_NURSERY, larkmere: GC_LARKMERE, gc: GC_ROBOT, astra9: GC_ASTRA9, sarah: GC_SARAH, olivia: GC_OLIVIA, ash: GC_ASH, velvet: GC_VELVET, ember: GC_EMBER, flint: GC_FLINT, astri: GC_ASTRI };
 
 /* ?who=eli AND ?who=nell BOTH OPEN THE SAME SHARED ROOM, same reasoning as
    GC_GRIMMS's own jacob/wilhelm aliases just below. */
