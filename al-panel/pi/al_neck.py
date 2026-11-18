@@ -18,6 +18,7 @@ The head is limited to 60 degrees each side of the middle (90 unless a number wa
 """
 import json
 import os
+import random
 import sys
 import time
 
@@ -139,6 +140,51 @@ def read_command():
         return {}
 
 
+SWAY_MAX = 14       # the most a sway turns from the middle, in degrees, and never more than the saved glance size if that is smaller
+SWAY_DELAY = 0.05   # seconds per degree: slower than the glance, so it looks like a person moving and not a machine
+
+
+def sway(started_id, until):
+    """2026-11-18, Dr. O: they turn their head back and forth while they talk, so there is life inside them. Slow turns to one side and the other, each a
+    different small distance with uneven pauses, until the panel writes sway_stop, a different command arrives, or the time is up. Then it eases back to
+    the middle and lets go so the servo does not buzz."""
+    global here
+    reach = max(4, min(SWAY_MAX, GLANCE))
+    side = random.choice((-1, 1))
+
+    def still_swaying():
+        d = read_command()
+        return d.get("id") == started_id and d.get("cmd") == "sway" and time.time() < until
+
+    def move_to(target):
+        global here
+        target = max(max(0, MIDDLE - LIMIT), min(min(180, MIDDLE + LIMIT), target))
+        count = 0
+        while here != target:
+            here += STEP if target > here else -STEP
+            servo.angle = here
+            time.sleep(SWAY_DELAY)
+            count += 1
+            if count % 4 == 0 and not still_swaying():
+                return False
+        return True
+
+    servo.angle = here
+    ok = True
+    while ok and still_swaying():
+        ok = move_to(MIDDLE + side * random.randint(max(3, reach // 2), reach))
+        if not ok:
+            break
+        pause_until = time.time() + random.uniform(0.4, 1.5)
+        while time.time() < pause_until and ok:
+            time.sleep(0.1)
+            ok = still_swaying()
+        side = -side if random.random() < 0.8 else side      # mostly back and forth, sometimes the same side twice
+    go(MIDDLE)
+    time.sleep(0.3)
+    servo.angle = None
+
+
 last = read_command().get("id")   # a command left over from before we started is ignored
 while True:
     d = read_command()
@@ -146,4 +192,14 @@ while True:
         last = d.get("id")
         if d.get("cmd") == "glance":
             glance()
+        elif d.get("cmd") == "sway":
+            try:
+                sway(d.get("id"), float(d.get("until", 0)))
+            except Exception as e:      # a sway problem must never take the neck down
+                print("SWAY problem:", str(e)[:100], flush=True)
+                try:
+                    servo.angle = None
+                except Exception:
+                    pass
+            last = read_command().get("id")      # the command that ended the sway is used up
     time.sleep(0.2)

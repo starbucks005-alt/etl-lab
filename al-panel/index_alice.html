@@ -521,6 +521,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <div class="row" style="margin:6px 0 14px"><button id="wAllOff">Every robot: motion off</button><button id="wAllOn">Every robot: motion on</button><span class="hint" id="wAllStatus" style="margin:0">The other robots follow within about a minute.</span></div>
       <label class="wopt"><input type="checkbox" id="wGreet"> Say hello</label>
       <label class="wopt"><input type="checkbox" id="wTurn"> Turn her head</label>
+      <label class="wopt"><input type="checkbox" id="wSway"> <b>Head sway while she talks.</b> Her head turns slowly back and forth the whole time she speaks. Switch it off if her neck gets hot or noisy. It stays as you set it after a restart.</label>
       <label class="wopt"><input type="checkbox" id="wEyes"> Brighten her eyes</label>
       <label class="wopt"><input type="checkbox" id="wChat"> Keep listening after the hello, so people can just talk to her</label>
       <label class="wopt"><input type="checkbox" id="wAlways"> Always listening: she answers when she hears her name, Alice</label>
@@ -1378,6 +1379,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
                                                                 : 'Her motion sensor last noticed someone ' + ago(info.seen_ago) + '.')
           : 'Her motion sensor could not be started. Welcome now still works.';
     }
+    if(info && typeof info.sway === 'boolean'){ $('wSway').checked = info.sway; }
     if(info && typeof info.motion_on === 'boolean'){
       $('wMotion').checked = info.motion_on;
       if(!info.motion_on && info.motion === 'ready'){
@@ -1480,6 +1482,12 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   ['wGreet','wTurn','wEyes','wChat','wAlways','wCrowd','wWait'].forEach(function(id){ $(id).addEventListener('change', saveWelcome); });
   $('wNow').addEventListener('click', welcomeNow);
   $('wMotion').addEventListener('change', function(){ setMotion(this.checked); });
+  $('wSway').addEventListener('change', function(){
+    var on = this.checked, box = this;
+    if(!live){ box.checked = true; return; }
+    api('/api/sway', {on:on}).then(function(j){ box.checked = !!j.on; })
+      .catch(function(e){ box.checked = !on; addMsg('al', '(I could not switch the head sway: ' + e.message + ')'); });
+  });
   $('wAllOff').addEventListener('click', function(){ setMotionAll(false); });
   $('wAllOn').addEventListener('click', function(){ setMotionAll(true); });
   addMsg('al', 'Hello. I am A.L.I.C.E. Ask me something.');

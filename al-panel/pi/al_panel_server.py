@@ -77,6 +77,18 @@ except Exception as _e:           # pragma: no cover
     print("SPORTS not loaded:", str(_e)[:120], flush=True)
 
 try:
+    import al_news  # noqa: E402  (this week's AI headlines from free public feeds for an entry with "news": true; if the file is missing she simply answers as before)
+except Exception as _e:           # pragma: no cover
+    al_news = None
+    print("NEWS not loaded:", str(_e)[:120], flush=True)
+
+try:
+    import al_websearch  # noqa: E402  (one live web search per world question for an entry with "search": true; if the file is missing she simply answers as before)
+except Exception as _e:           # pragma: no cover
+    al_websearch = None
+    print("WEBSEARCH not loaded:", str(_e)[:120], flush=True)
+
+try:
     import science_sources as ss  # noqa: E402  (answers from journals in science mode; if the file is missing she simply answers as before)
 except Exception as _e:           # pragma: no cover
     ss = None
@@ -1192,6 +1204,40 @@ def maybe_quiet(text):
     return True
 
 
+# 2026-11-18, Dr. O: "if someone says OH, Ted says IO... or he shouts OH". The Ohio chant, from either side. For an entry with "chant": true (Astrad), a clip that is only "O H" (however it is
+# written: Oh, O-H, O. H.) gets "I-O!" back; a clip that is only "I O" gets "O-H!" back; and "start the Ohio chant" makes him shout "O-H!" first. All of it with or without his name, because
+# a crowd shouting does not say Ted first. A second one within eight seconds is swallowed, so a crowd cannot make him speak (and be paid for) over and over. Anything with more words in
+# it goes the usual way.
+CHANT_RE = re.compile(r"^\W*(?:o\W{0,2}h+|oh+)\W*$", re.I)
+CHANT_IO_RE = re.compile(r"^\W*(?:i\W{0,2}o+|eye\W{0,2}oh+)\W*$", re.I)
+CHANT_START_RE = re.compile(r"\b(?:ohio|o\W?h)\W+chant\b|\b(?:start|do|begin|lead)\b[^.?!]{0,20}\bchant\b", re.I)
+# "what team is your favorite? he says OH" (Dr. O, 2026-11-18). Only when his own name is said, since "what is your favorite team" could be asked of anyone in the room.
+CHANT_FAV_RE = re.compile(r"\bfavou?rite\b[^.?!]{0,25}\bteam\b|\bteam\b[^.?!]{0,25}\bfavou?rite\b|\bwho do you (?:root|cheer) for\b|\bwhat team (?:do you|are you)\b", re.I)
+chant_last = {"t": 0.0}
+
+
+def maybe_chant(text):
+    p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    t = (text or "").strip()
+    if not (p and p.get("chant")):
+        return False
+    if CHANT_RE.match(t):
+        said = "I-O!"
+    elif CHANT_IO_RE.match(t) or CHANT_START_RE.search(t):
+        said = "O-H!"
+    elif CHANT_FAV_RE.search(t) and wake_name_re().search(t):
+        said = "O-H!"
+    else:
+        return False
+    now = time.time()
+    if now - chant_last["t"] < 8.0:
+        return True
+    chant_last["t"] = now
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said}]
+    speak_now(said)
+    return True
+
+
 speaking = {"on": False, "quiet": False}      # 2026-10-16, Dr. O: "nothing shows she is alive" when she is with others. While she speaks her eyes pulse, and the eye program does the pulsing
 
 
@@ -1474,12 +1520,14 @@ def _quiet_breath(fn):
     """2026-10-30, Dr. O: she breathes while idle (al_cues.py, off unless idle_breath.txt says on). That breath must be stopped before anything else uses the speaker or the
     microphone, so this wraps speaking, listening and the alarm chime: stop it first, let it resume a couple of seconds after."""
     def wrapped(*a, **kw):
-        if cues and hasattr(cues, "idle_hold"):
+        # 2026-11-17, Dr. O: listening no longer stops the breath (she listens all the time). Speaking and the chime still do.
+        hold = not (fn.__name__ == "hear_one" and cues and hasattr(cues, "breathes_while_listening") and cues.breathes_while_listening())
+        if hold and cues and hasattr(cues, "idle_hold"):
             cues.idle_hold()
         try:
             return fn(*a, **kw)
         finally:
-            if cues and hasattr(cues, "idle_release"):
+            if hold and cues and hasattr(cues, "idle_release"):
                 cues.idle_release()
     wrapped.__name__ = fn.__name__
     wrapped.__doc__ = fn.__doc__
@@ -1524,8 +1572,30 @@ def speak_glance(text):
         print("NECK ERROR:", e, flush=True)
 
 
+def neck_command(cmd, **extra):
+    """Write one command for the neck (al_neck.py). A failure is only printed: a missing neck must never stop her speaking."""
+    now = time.time()
+    try:
+        tmp = NECK_FILE + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(dict({"cmd": cmd, "id": int(now * 1000)}, **extra), f)
+        os.replace(tmp, NECK_FILE)
+    except OSError as e:
+        print("NECK ERROR:", e, flush=True)
+
+
+def speak_sway(text):
+    """2026-11-18, Dr. O: "they are supposed to rotate their head back and forth when they talk, it helps them seem more human, like there is life inside them."
+    Starts a slow, gentle sway of the head for the whole reply; the neck stops it when the reply ends (or by itself after two minutes). Not for a short word
+    (under 40 characters). A file called no_glance next to this one turns it off. Returns True when it was started, so the caller stops it afterwards."""
+    if speaking["quiet"] or len(text or "") < 40 or os.path.exists(os.path.join(HERE, "no_glance")):
+        return False
+    neck_command("sway", until=time.time() + 120)
+    return True
+
+
 def _speak_locked(text, use_persona=True):
-    speak_glance(text)
+    swaying = speak_sway(text)
     speaking["on"] = True
     try:
         write_eyes()
@@ -1534,6 +1604,8 @@ def _speak_locked(text, use_persona=True):
     try:
         return _speak_inner(text, use_persona)
     finally:
+        if swaying:
+            neck_command("sway_stop")
         speaking["on"] = False
         try:
             write_eyes()
@@ -2519,7 +2591,37 @@ def say_address():
 def welcome_get():
     import time
     ago = round(time.time() - state["seen"]) if state["seen"] else None
-    return jsonify(welcome=state["welcome"], motion=state["motion"], motion_on=motion_on["on"], seen_ago=ago)
+    return jsonify(welcome=state["welcome"], motion=state["motion"], motion_on=motion_on["on"], seen_ago=ago, sway=sway_allowed())
+
+
+def sway_allowed():
+    """The head sways while she talks unless the no_glance file is there. The panel's Head sway switch makes and removes that file, so the choice survives a restart."""
+    return not os.path.exists(os.path.join(HERE, "no_glance"))
+
+
+@app.get("/api/sway")
+def sway_get():
+    return jsonify(on=sway_allowed())
+
+
+@app.post("/api/sway")
+def sway_post():
+    """2026-11-18, Dr. O: "create an OFF for the panel so I can choose" (the neck servo can get hot). Body {on: true or false}. Kept across restarts. Turning it off stops a sway in progress."""
+    d = request.get_json(silent=True) or {}
+    if not isinstance(d.get("on"), bool):
+        return jsonify(error="Say on or off"), 400
+    flag = os.path.join(HERE, "no_glance")
+    try:
+        if d["on"]:
+            if os.path.exists(flag):
+                os.remove(flag)
+        else:
+            open(flag, "w").close()
+            neck_command("sway_stop")
+    except OSError as e:
+        return jsonify(error="Could not change it: %s" % str(e)[:80]), 500
+    print("HEAD SWAY switched %s (panel)" % ("on" if d["on"] else "off"), flush=True)
+    return jsonify(ok=True, on=sway_allowed())
 
 
 def set_motion(on, why):
@@ -2896,6 +2998,9 @@ def wake_name_re():
     n = m.group(1) if m else re.split(r"[,(]", n)[0]
     n = re.sub(r"\b(dr|ms|mr|mrs|coach|lady)\b\.?", "", n.replace(".", ""), flags=re.I)
     words = [w for w in re.sub(r"[^A-Za-z0-9 ]", "", n).split() if len(w) > 1]
+    # 2026-11-18: the log showed "Alex, can you hear me?" for "Alice, can you hear me?" and "WAKE heard words but not her name", so she never answered. An entry
+    # can list "wake_also": the ways speech to text mishears its name, and those wake it too.
+    words += [str(w) for w in (p.get("wake_also") or []) if len(str(w)) > 1]
     if not words:
         return base
     return re.compile(base.pattern[:-3] + "|" + "|".join(re.escape(w) for w in words) + r")\b", re.I)
@@ -2928,6 +3033,24 @@ def level_of(buf):
     a = array.array("h")
     a.frombytes(buf[: len(buf) // 2 * 2])
     return (sum(x * x for x in a) / len(a)) ** 0.5 if a else 0.0
+
+
+def looks_like_her_breath(levels, lag=45, need=0.6):
+    """2026-11-18, Dr. O: "figure out how to make her breath without costing me anything". With the breath playing while she listens, her microphone hears it, and a clip that never
+    pauses runs to the full 12 s and was being sent to the paid listening service (about every 15 s, and the service then answered 429). Her breath repeats every 4.5 s exactly (al_cues.py),
+    and a voice never does. So: the loudness of the clip, one number per tenth of a second, is compared with itself 4.5 s later. In a test on her real breath sound, at three volumes and
+    with room noise, that matched at 0.94 to 0.98 every time (200 of 200 each); invented speech with her breath under it never reached 0.6 (0 of 300). NOT TRIED with a real voice.
+    A clip that matches is dropped here, on this Pi, and nothing is sent anywhere."""
+    if len(levels) < lag + 40:
+        return False
+    a, b = levels[:-lag], levels[lag:]
+    ma, mb = sum(a) / len(a), sum(b) / len(b)
+    va = sum((x - ma) ** 2 for x in a)
+    vb = sum((y - mb) ** 2 for y in b)
+    if va <= 0 or vb <= 0:
+        return False
+    r = sum((x - ma) * (y - mb) for x, y in zip(a, b)) / ((va * vb) ** 0.5)
+    return r > need
 
 
 try:
@@ -3038,11 +3161,13 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
         started, quiet, voiced, t0, peak, lowest = False, 0, 0, time.time(), 0.0, 1e9
         how = "loudness"
         recent = collections.deque(maxlen=3)
+        lv_hist, hit_max = [], False                    # the loudness of every tenth of a second, to tell her own breath from a voice (looks_like_her_breath)
         for k, c in enumerate(chunks()):
             if (live and speak_lock.locked()) or (abort and abort()):
                 last_clip["why"] = "abort"
                 return None
             lvl = level_of(c)
+            lv_hist.append(lvl)
             if k >= 2:                              # the first two tenths hold the pop the microphone makes when it opens
                 peak = max(peak, lvl)
                 recent.append(lvl)
@@ -3091,7 +3216,12 @@ def hear_one(wait_seconds=8.0, max_seconds=12.0, stream=None, abort=None, on_sta
                         print("LISTEN no pause in %.0f s, so that was the room, now %.0f" % (max_seconds, lowest), flush=True)
                         last_clip["why"] = "noise"
                         return None
+                    hit_max = True
                     break
+        if hit_max and cues and hasattr(cues, "breathes_while_listening") and cues.breathes_while_listening() and looks_like_her_breath(lv_hist):
+            print("LISTEN that was her own breath (the loudness repeats every 4.5 s), not sent anywhere", flush=True)
+            last_clip["why"] = "breath"
+            return None
         if not started or voiced < 3:          # a click or a cough is under a third of a second of sound
             last_clip["why"] = "spurious" if started else "quiet"
             return None
@@ -3412,7 +3542,8 @@ def reply_for(text, short=True):
         r = None
     if r:
         return r
-    reply = get_reply(context_for(text) + sports_note(text), short=short)
+    found = search_note(text)
+    reply = get_reply(context_for(text) + sports_note(text) + (found or news_note(text)), short=short)
     return reply, reply
 
 
@@ -3442,6 +3573,35 @@ def sports_note(text):
         return al_sports.facts_for(text, HERE)
     except Exception as e:
         print("SPORTS problem, answering as usual:", str(e)[:120], flush=True)
+        return ""
+
+
+def search_note(text):
+    """2026-11-18, Dr. O: "the fireside chat host asks the question, the bots search the net and respond as them." For an entry with "search": true, a question about
+    something in the world gets one live web search first (al_websearch.py, about a cent each, capped per day), so she answers from what is really out there. It costs money,
+    so it is bounded; over the cap, a failed or slow search, or a question about her or the moment adds nothing and she answers as before."""
+    p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    if al_websearch is None or not (p and p.get("search")):
+        return ""
+    try:
+        scope = p.get("search") if isinstance(p.get("search"), str) else None      # "search": "subjects she follows" limits her; true searches anything
+        return al_websearch.facts_for(text, header_value("x-api-key"), al.ANTHROPIC_WORKSPACE_ID, scope=scope)
+    except Exception as e:
+        print("WEBSEARCH problem, answering as usual:", str(e)[:160], flush=True)
+        return ""
+
+
+def news_note(text):
+    """2026-11-18, Dr. O: "you can give her the skills to look up news herself". For an entry with "news": true (Astra), a question about AI gets the newest AI headlines from free
+    public news feeds put in front of her first (al_news.py), so what she says about this week is never made up. It costs nothing, no model call and no paid service. Anything
+    else, or a failed lookup, adds nothing."""
+    p = PERSONAS.get(state["persona"]) if state["persona"] else None
+    if al_news is None or not (p and p.get("news")):
+        return ""
+    try:
+        return al_news.facts_for(text)
+    except Exception as e:
+        print("NEWS problem, answering as usual:", str(e)[:120], flush=True)
         return ""
 
 
@@ -4213,6 +4373,9 @@ def _watch_names_once():
     if text and is_quiet():
         write_eyes()
         return                                      # quiet was set while this was being heard
+    if text and maybe_chant(text):
+        write_eyes()
+        return                                      # the Ohio chant: O H, and Ted says I-O
     if text and (wake_name_re().search(text) or nameless_ok):
         try:
             if maybe_quiet(text):

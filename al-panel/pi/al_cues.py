@@ -244,6 +244,14 @@ def idle_enabled():
         return True
 
 
+def breathes_while_listening():
+    """2026-11-17, Dr. O: "can you have her breathe with always listening on?" ALICE listens all the time, so a recording was always running and the breath, which waits for every
+    recording to stop, never played. A file called breath_while_listening next to the server lets it play through listening. OFF unless that file exists (2026-11-18: with it on, her own
+    microphone took her breath for someone speaking and sent a 12 s clip to the paid listening service about every 15 s; the server now drops those locally, see
+    looks_like_her_breath in al_panel_server.py, but that was only tried on a simulation, so it is switched on one robot at a time, on purpose)."""
+    return os.path.exists(os.path.join(HERE, "breath_while_listening"))
+
+
 def _idle_stop():
     pr = _idle["proc"]
     _idle["proc"] = None
@@ -275,7 +283,7 @@ def _other_sound():
     """True if something else is recording or playing (a program that was not started by the idle breath)."""
     mine = _idle["proc"].pid if _idle["proc"] is not None else -1
     try:
-        if subprocess.run(["pgrep", "-x", "arecord"], capture_output=True, timeout=2).returncode == 0:
+        if not breathes_while_listening() and subprocess.run(["pgrep", "-x", "arecord"], capture_output=True, timeout=2).returncode == 0:
             return True
         r = subprocess.run(["pgrep", "-x", "aplay"], capture_output=True, text=True, timeout=2)
         return any(p.strip() and int(p) != mine for p in r.stdout.split())
