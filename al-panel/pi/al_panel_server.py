@@ -510,7 +510,9 @@ state["welcome"]["wait"] = 900
 # 2026-11-16, Dr. O: "they talk over each other sooo much. this is not going to work for the fireside chat." A robot whose own entry
 # lists "wake" names (the Astra family and A.L.I.C.E.) starts every time in crowd mode: it answers only when one of its names is said,
 # and waits 8 seconds, not 30, for a follow up. The panel (card 8) can switch crowd mode off until the next start.
-if SELF_PERSONA and PERSONAS[SELF_PERSONA].get("wake"):
+# 2026-11-19, Dr. O: Science Saturday at the Joe Clark Innovation Lab is a walk-up event for children, and they will not know her name.
+# A file called no_crowd beside this server means the robot starts with crowd mode off and answers whoever talks to her, without the panel.
+if SELF_PERSONA and PERSONAS[SELF_PERSONA].get("wake") and not os.path.exists(os.path.join(HERE, "no_crowd")):
     state["welcome"]["crowd"] = True
 
 

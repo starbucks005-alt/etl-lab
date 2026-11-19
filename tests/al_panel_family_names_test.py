@@ -62,7 +62,9 @@ class FamilyNames(unittest.TestCase):
 
     def test_crowd_mode_at_start(self):
         src = open(s.__file__, encoding="utf-8").read()
-        self.assertIn('if SELF_PERSONA and PERSONAS[SELF_PERSONA].get("wake"):\n    state["welcome"]["crowd"] = True', src)
+        # A robot with wake names starts in crowd mode, unless a file called no_crowd is beside the server (Dr. O, 2026-11-19, walk-up events).
+        self.assertIn('if SELF_PERSONA and PERSONAS[SELF_PERSONA].get("wake") and not os.path.exists(os.path.join(HERE, "no_crowd")):\n'
+                      '    state["welcome"]["crowd"] = True', src)
 
 
 if __name__ == "__main__":
