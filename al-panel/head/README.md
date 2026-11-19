@@ -13,6 +13,7 @@ Dr. O's design, 2026-11-19: no more eye stack and no servo board for Astri. Her 
 - Her eyes change color with what she is doing: waiting, listening, thinking, talking. The colors are at the top of `robot-head.ino` under "Dr. O's choices", and the ones there now are placeholders until she picks.
 - What she heard and what she said print in the Serial Monitor as `Heard:` and `Said:` lines, so they can be read.
 - Who she is and how she talks come from the same file her Pi uses (`al-panel/pi/personalities.json`). Her voice comes from `al-panel/robots.json`.
+- **The fireside chat:** she asks the website every 20 seconds whether a chat is on (every second while one is). During a chat she does not listen to the room. The director on the website hands her the others' words as text, and when it is her turn the website sends her answer and she plays it. She joins as "Astri" on the host page. The host's Stop cuts a Pi off mid sentence; a head finishes its two or three sentences first.
 - At most 400 turns a day for each robot. After two quiet minutes she forgets the last conversation, so the next visitor starts fresh.
 
 ## Parts (all on hand or ordered 2026-11-19)

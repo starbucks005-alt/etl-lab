@@ -14,6 +14,12 @@
    At most DAILY_TURNS turns a day for each robot, counted only after the whole chain worked.
    Every call needs the header x-sun-key, the same home access code the Companion box uses (_sun.js authorized). With no code set it answers 503.
    WHAT SHE HEARS GOES OUT: the sound goes to ElevenLabs (words) and the words to Anthropic or Amazon (her answer), and her answer to Azure or ElevenLabs (her voice).
+   THE FIRESIDE CHAT (2026-11-19, Dr. O: "add all the bots to it"): the head takes part through the same director the Pis use (fireside.js). Nobody hears anybody
+   through the air: the director hands each one the words said so far, as text.
+     POST ?robot=astri&fireside=poll -> 204 with X-On (1 while a chat is on) and X-Every (seconds until the head should ask again), or, when it is her turn,
+        200 with her answer as sound, X-Cue (the turn's id) and X-Said. Her answer is thought and spoken here, so the board only plays it.
+     POST ?robot=astri&fireside=done&cue=<id> -> 204. The board says she has finished speaking, and the director is told what she said.
+     The host's Stop cuts a Pi off mid sentence; a head finishes its answer (two or three sentences) before the floor moves on.
    NOT TRIED against the real services or from the board. The test runs with stand-ins. */
 const sun = require('./_sun.js');
 const { elevenPcm } = require('./box-line.js');
@@ -32,6 +38,17 @@ const MAX_BYTES = 320000;         // ten seconds
 const DAILY_TURNS = 400;          // a four hour walk-up event is a turn every 36 seconds
 const KEEP = 4;                   // messages kept (two turns)
 const FORGET_MS = 120000;         // two quiet minutes and the next person starts fresh
+
+/* The seat and name each robot has in the fireside chat, the same as ROBOT_SEATS in al-panel/pi/al_fireside.py and SEAT_DEFAULTS in _fireside-core.js. */
+const SEATS = { alice: ['alice', 'ALICE'], 'astra-lite': ['elle', 'Elle'], astra: ['astra', 'Astra'], astrad: ['astrad', 'Ted'], astro: ['astro', 'Astro'], astri: ['astri', 'Astri'],
+  'guardian-f': ['guardianf', 'Guardian F'], 'guardian-m': ['guardianm', 'Guardian M'], reggie: ['reggie', 'Reggie'], biscuit: ['biscuit', 'Biscuit'], mochi: ['mochi', 'Mochi'] };
+const ROOM = 'etl-fireside';
+
+async function defaultDirector(body) {
+  const r = await require('./fireside.js').handler({ httpMethod: 'POST', body: JSON.stringify(body) });
+  if (!r || r.statusCode !== 200) return null;
+  try { return JSON.parse(r.body); } catch (_) { return null; }
+}
 
 function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 
@@ -67,6 +84,51 @@ async function openStore(event) {
   return getStore('head_talk');
 }
 
+const waiting = (on, every) => ({ statusCode: 204, headers: Object.assign({ 'Cache-Control': 'no-store', 'X-On': on ? '1' : '0', 'X-Every': String(every) }, CORS), body: '' });
+
+async function fireside(event, deps, fs, robot, entry, voiceId, a, q) {
+  const seat = SEATS[robot];
+  if (!seat) return json(404, { error: 'no_seat' });
+  const director = deps.director || defaultDirector;
+  const call = (action, more) => director(Object.assign({ action, room: ROOM, seat: seat[0], name: seat[1] }, more || {}));
+  let store = deps.store;
+  try { if (!store) store = await openStore(event); } catch (_) { return json(503, { error: 'store_unavailable' }); }
+
+  if (fs === 'done') {
+    const cue = String(q.cue || '').slice(0, 60);
+    let said = '';
+    try { const k = await store.get('fs-' + cue, { type: 'json' }); said = (k && k.said) || ''; } catch (_) {}
+    await call('done', { cue, said });
+    return waiting(true, 1);
+  }
+  if (fs !== 'poll') return json(400, { error: 'unknown_fireside_step' });
+
+  const v = await call('poll');
+  if (!v || !('on' in v)) return json(502, { error: 'director_unreachable' });
+  const every = Math.max(1, Number(v.every) || (v.on ? 1 : 20));
+  const cue = v.on && v.cue && v.cue.id ? v.cue : null;
+  if (!cue) return waiting(!!v.on, every);
+  try { if (await store.get('fs-' + cue.id, { type: 'json' })) return waiting(true, 1); } catch (_) {}   // this turn was already answered
+
+  try {
+    let saved = deps.saved;
+    if (!saved) { saved = {}; try { saved = await sun.effectiveSettings(await sun.openStore(event), a.who); } catch (_) {} }
+    const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), [{ role: 'user', text: String(cue.ask || '').slice(0, 4000) }]), 400);
+    if (!said) throw new Error('empty_reply');
+    const buf = await (deps.speak || elevenPcm)(said, voiceId, deps);
+    if (!buf || !buf.length) throw new Error('empty_voice');
+    try { await store.setJSON('fs-' + cue.id, { said }); } catch (_) {}
+    await call('speaking', { cue: cue.id });
+    const r = sound(buf, '', said);
+    r.headers['X-Cue'] = cue.id; r.headers['X-On'] = '1';
+    return r;
+  } catch (e) {
+    try { await store.setJSON('fs-' + cue.id, { said: '' }); } catch (_) {}
+    await call('done', { cue: cue.id, said: '' });                 // the floor moves on instead of waiting 75 seconds for her
+    return waiting(true, 1);
+  }
+}
+
 exports.handler = async (event, deps = {}) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'post_only' });
@@ -79,6 +141,9 @@ exports.handler = async (event, deps = {}) => {
   const entry = personas[robot];
   const voiceId = voiceFor(robot, deps.robots || ROBOTS);
   if (!entry || !entry.prompt || !voiceId) return json(404, { error: 'unknown_robot' });
+
+  const fs = String(q.fireside || '');
+  if (fs) return await fireside(event, deps, fs, robot, entry, voiceId, a, q);
 
   const pcm = event.isBase64Encoded ? Buffer.from(event.body || '', 'base64') : Buffer.from(event.body || '', 'binary');
   if (pcm.length < MIN_BYTES) return json(400, { error: 'too_short' });
@@ -119,4 +184,4 @@ exports.handler = async (event, deps = {}) => {
   }
 };
 
-exports._test = { voiceFor, systemPrompt };
+exports._test = { voiceFor, systemPrompt, SEATS };

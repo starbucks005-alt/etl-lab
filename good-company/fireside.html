@@ -122,7 +122,10 @@
 (function () {
   var URL_ = '/.netlify/functions/fireside';
   var ROOM = new URLSearchParams(location.search).get('room') || 'etl-fireside';
-  var SEATS = [{ id: 'alice', name: 'ALICE' }, { id: 'elle', name: 'Elle' }, { id: 'lumvivo', name: 'Lumvivo' }];
+  // 2026-11-19, Dr. O: "add all the bots to it". The same seats and names as SEAT_DEFAULTS in _fireside-core.js.
+  var SEATS = [{ id: 'alice', name: 'ALICE' }, { id: 'elle', name: 'Elle' }, { id: 'astra', name: 'Astra' }, { id: 'astrad', name: 'Ted' },
+    { id: 'astro', name: 'Astro' }, { id: 'astri', name: 'Astri' }, { id: 'guardianf', name: 'Guardian F' }, { id: 'guardianm', name: 'Guardian M' },
+    { id: 'reggie', name: 'Reggie' }, { id: 'biscuit', name: 'Biscuit' }, { id: 'mochi', name: 'Mochi' }, { id: 'lumvivo', name: 'Lumvivo' }];
   var $ = function (id) { return document.getElementById(id); };
   var last = null, endArmed = 0;
   function code() { try { return localStorage.getItem('fireside-code') || ''; } catch (_) { return ''; } }
@@ -152,6 +155,7 @@
     var l = el('label', 'check'); var c = el('input'); c.type = 'checkbox'; c.checked = true; c.value = s.id; c.className = 'pickBox';
     l.appendChild(c); l.appendChild(document.createTextNode(s.name)); $('pick').appendChild(l);
   });
+  var pickedOnce = false;   // with every robot listed, the first news from the director ticks only the ones switched on; after that the ticks are hers
   $('code').value = code();
 
   function paint(s) {
@@ -167,6 +171,10 @@
       r.appendChild(el('span', 'q', x && x.alive ? 'connected' : 'not connected'));
       box.appendChild(r);
     });
+    if (!pickedOnce && !s.on && (s.seats || []).length) {
+      pickedOnce = true;
+      Array.prototype.forEach.call(document.querySelectorAll('.pickBox'), function (c) { c.checked = (s.seats || []).some(function (y) { return y.id === c.value && y.alive; }); });
+    }
     $('setup').classList.toggle('hide', !!s.on);
     $('live').classList.toggle('hide', !s.on);
     if (!s.on) return;

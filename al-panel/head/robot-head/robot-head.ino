@@ -7,6 +7,10 @@
    KEY2 (tap) is her quiet switch: she stops listening and her eyes go dim. Tap again and she listens again.
    What she heard and what she said are printed in the Serial Monitor as "Heard:" and "Said:" lines, so they can be read, not only heard.
 
+   THE FIRESIDE CHAT: she asks the website every 20 seconds whether a chat is on (every second while one is). While it is on she does not listen to the room:
+   the director hands her the others' words as text, and when it is her turn the website sends her answer and she plays it. Nobody has to hear anybody.
+   The host's Stop cuts a Pi off mid sentence; the head finishes its two or three sentences first.
+
    HER EYES: a piece cut from the BTF WS2812B 5V strip, with its factory plug. Light EYE_A and light EYE_B are the eyes; the lights between them stay dark.
    Wiring, from the strip's plug: green (data) to header pin 2 (GPIO7), red (5V) to header pin 18, white (ground) to header pin 16.
    The eye colors are at the top, under "Dr. O's choices", one color for each thing she is doing.
@@ -77,6 +81,8 @@ static rmt_data_t eyeData[STRIP_COUNT * 24];
 static rmt_data_t ringData[RING_COUNT * 24];
 static bool eyeReady = false, ringReady = false;
 bool quietMode = false;
+bool firesideOn = false;          // a fireside chat is on: she waits for her turn and does not listen to the room
+uint32_t nextAsk = 0;             // when to ask the director again
 long roomFloor = 200;             // the room's own level, learned while nobody is talking
 
 // ---- lights ----
@@ -268,8 +274,10 @@ size_t listenForSpeech() {
   static int16_t pre[PREROLL_SAMPLES];
   static int preAt = 0;
   int16_t chunk[256];
-  // waiting: keep the last 0.3 seconds, and learn the room's level slowly
+  uint32_t waitStart = millis();
+  // waiting: keep the last 0.3 seconds, and learn the room's level slowly. After a second with nobody talking it returns, so the fireside chat can be checked.
   while (true) {
+    if (millis() - waitStart > 1000) return 0;
     if (keysPressed() & 2) return 0;              // KEY2 is handled in loop()
     if (keysPressed() & 1) return 0;              // so is KEY1
     int n = readMono(chunk);
@@ -312,10 +320,45 @@ size_t recordHeld() {
   return have;
 }
 
+// Asks the website whether a fireside chat is on, and plays her turn when it is hers. Returns how long to wait before asking again.
+uint32_t firesideCheck() {
+  if (!joinWifi()) return 20000;
+  WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID + "&fireside=poll")) return 20000;
+  http.addHeader("x-sun-key", BOX_KEY);
+  const char *keep[] = {"X-On", "X-Every", "X-Cue", "X-Said"}; http.collectHeaders(keep, 4);
+  http.setTimeout(30000);
+  int code = http.POST((uint8_t *)"", 0);
+  if (code == 204) {
+    bool on = http.header("X-On") == "1";
+    if (on != firesideOn) Serial.println(on ? "Fireside chat started: she waits for her turn and does not listen to the room" : "Fireside chat ended: back to listening");
+    firesideOn = on;
+    uint32_t every = (uint32_t)http.header("X-Every").toInt();
+    http.end();
+    return (every ? every : (on ? 1 : 20)) * 1000;
+  }
+  if (code != 200) { http.end(); return firesideOn ? 3000 : 20000; }
+  firesideOn = true;
+  String cue = http.header("X-Cue");
+  Serial.printf("Fireside, her turn. Said: %s\n", unpercent(http.header("X-Said")).c_str());
+  playResponse(http);
+  http.end();
+  HTTPClient done;
+  WiFiClientSecure c2; c2.setInsecure();
+  if (done.begin(c2, String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID + "&fireside=done&cue=" + cue)) {
+    done.addHeader("x-sun-key", BOX_KEY);
+    done.POST((uint8_t *)"", 0);
+    done.end();
+  }
+  return 1000;
+}
+
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-19a)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-19b, with the fireside chat)\n", ROBOT_ID);
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -345,6 +388,13 @@ void loop() {
     return;
   }
   if (quietMode) { eyes(EYE_QUIET); delay(100); return; }
+  if (millis() >= nextAsk) { nextAsk = millis() + firesideCheck(); if (firesideOn) flushMic(300); }
+  if (firesideOn) {                                 // during a chat she only waits for her turn
+    float breath = (sinf(millis() / 1000.0f * 1.6f) + 1.0f) / 2.0f;
+    eyes(EYE_IDLE, 0.35f + 0.65f * breath);
+    delay(40);
+    return;
+  }
   size_t n = (keys & 1) ? recordHeld() : listenForSpeech();
   if (n >= 16000) {
     talk(n);

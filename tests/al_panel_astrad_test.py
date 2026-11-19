@@ -60,7 +60,7 @@ class Astrad(unittest.TestCase):
         src = open(s.__file__, encoding="utf-8").read()
         self.assertIn("if IS_ALICE:\n        return None", src)
         self.assertIn("cues.which_set(IS_ALICE)", src)
-        self.assertIn("seat_for(HERE, IS_ALICE)", src)
+        self.assertIn("seat_for(HERE, IS_ALICE, ROBOT_ID)", src)   # 2026-11-19: each robot joins the fireside chat under its own seat; Ted is "astrad", never Elle or ALICE
 
     def test_sports_only_for_him(self):
         self.assertTrue(s.PERSONAS["astrad"].get("sports"))

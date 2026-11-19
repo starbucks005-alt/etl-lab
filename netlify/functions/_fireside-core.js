@@ -14,9 +14,20 @@
 
    NOT TRIED with the real robots when it was written. The first run with ALICE, Elle and Lumvivo in one room is the test. */
 
+/* 2026-11-19, Dr. O: "add all the bots to it". Every robot in al-panel/robots.json has a seat, under the names people call it.
+   Elle keeps the seat "elle" (Astra-9 Lite's robot id is astra-lite). Seat ids have no dashes: guardian-f is "guardianf". */
 const SEAT_DEFAULTS = {
-  alice: { name: 'ALICE', calls: ['alice', 'a.l.i.c.e'] },
-  elle: { name: 'Elle', calls: ['elle', 'ellie', 'elie', 'astra lite', 'astra-9 lite', 'astra 9 lite'] },     // speech to text often writes Elle as Ellie
+  alice: { name: 'ALICE', calls: ['alice', 'a.l.i.c.e', 'auntie alice'] },
+  elle: { name: 'Elle', calls: ['elle', 'ellie', 'elie', 'astra lite', 'astra-9 lite', 'astra 9 lite', 'auntie elle'] },     // speech to text often writes Elle as Ellie
+  astra: { name: 'Astra', calls: ['astra', 'astra-9', 'astra 9', 'astra nine'] },
+  astrad: { name: 'Ted', calls: ['ted', 'astrad'] },
+  astro: { name: 'Astro', calls: ['astro', 'teddy'] },
+  astri: { name: 'Astri', calls: ['astri'] },
+  guardianf: { name: 'Guardian F', calls: ['guardian f'] },
+  guardianm: { name: 'Guardian M', calls: ['guardian m'] },
+  reggie: { name: 'Reggie', calls: ['reggie'] },
+  biscuit: { name: 'Biscuit', calls: ['biscuit'] },
+  mochi: { name: 'Mochi', calls: ['mochi'] },
   lumvivo: { name: 'Lumvivo', calls: ['lumvivo'] },
 };
 const ALIVE_MS = 12000;        // during a chat, a robot that has not asked for news in this long is treated as switched off
@@ -52,18 +63,24 @@ function callsFor(st, id) {
   return Array.from(out).filter(Boolean);
 }
 
-/* The one named LAST in what was just said is the one asked. Never the speaker herself. */
-function namedNext(st, text, speaker) {
-  const t = ' ' + String(text || '').toLowerCase() + ' ';
-  let best = null, bestAt = -1;
-  for (const id of st.order) {
-    if (id === speaker) continue;
+/* Every name found in the text, as {id, at, end}. A match that sits inside a longer one is dropped, so "Astra Lite" is Elle and not Astra too. */
+function nameHits(st, text, ids) {
+  const t = String(text || '').toLowerCase();
+  const hits = [];
+  for (const id of ids) {
     for (const c of callsFor(st, id)) {
-      const re = new RegExp('(^|[^a-z0-9])' + c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\./g, '\\.?') + '(?=[^a-z0-9]|$)', 'g');
+      const re = new RegExp('(^|[^a-z0-9])(' + c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\./g, '\\.?') + ')(?=[^a-z0-9]|$)', 'g');
       let m;
-      while ((m = re.exec(t))) { if (m.index > bestAt) { bestAt = m.index; best = id; } }
+      while ((m = re.exec(t))) { const at = m.index + m[1].length; hits.push({ id, at, end: at + m[2].length }); re.lastIndex = at + 1; }
     }
   }
+  return hits.filter(h => !hits.some(o => o !== h && o.at <= h.at && o.end >= h.end && (o.end - o.at) > (h.end - h.at)));
+}
+
+/* The one named LAST in what was just said is the one asked. Never the speaker herself. */
+function namedNext(st, text, speaker) {
+  let best = null, bestAt = -1;
+  for (const h of nameHits(st, ' ' + String(text || '') + ' ', st.order.filter(id => id !== speaker))) if (h.at > bestAt) { bestAt = h.at; best = h.id; }
   return best;
 }
 
@@ -71,18 +88,19 @@ function namedNext(st, text, speaker) {
    A name in the middle ("Elle, what do you think of ALICE?") is what the question is about, not who answers. Returns seats in stage order. */
 function namedIn(st, text) {
   const t = String(text || '').toLowerCase();
-  const find = seg => st.order.filter(id => callsFor(st, id).some(c => new RegExp('(^|[^a-z0-9])' + c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\./g, '\\.?') + '(?=[^a-z0-9]|$)').test(seg)));
+  const allCalls = [].concat(...st.order.map(id => callsFor(st, id))).sort((x, y) => y.length - x.length);   // longest first, so "astra lite" goes before "astra"
+  const find = seg => { const got = new Set(nameHits(st, seg, st.order).map(h => h.id)); return st.order.filter(id => got.has(id)); };
   const lead = t.match(/^\s*([^,:;?!]{1,40})[,:;]/);
   if (lead) {
     const ids = find(lead[1]);
     const rest = lead[1].replace(/\b(hey|hi|okay|ok|so|and|now|you|both|all|of|first|then|over to|to)\b/g, ' ');
-    const leftover = st.order.reduce((r, id) => callsFor(st, id).reduce((x, c) => x.split(c).join(' '), r), rest).replace(/[^a-z0-9]+/g, '');
+    const leftover = allCalls.reduce((x, c) => x.split(c).join(' '), rest).replace(/[^a-z0-9]+/g, '');
     if (ids.length && !leftover) return ids;
   }
   const tail = t.match(/[,;]\s*([^,;]{1,30})[?.!]*\s*$/);
   if (tail) {
     const ids = find(tail[1]);
-    const leftover = st.order.reduce((r, id) => callsFor(st, id).reduce((x, c) => x.split(c).join(' '), r), tail[1].replace(/\b(and|you|both|too)\b/g, ' ')).replace(/[^a-z0-9]+/g, '');
+    const leftover = allCalls.reduce((x, c) => x.split(c).join(' '), tail[1].replace(/\b(and|you|both|too)\b/g, ' ')).replace(/[^a-z0-9]+/g, '');
     if (ids.length && !leftover) return ids;
   }
   return [];

@@ -4214,7 +4214,7 @@ def fireside_post(url, body):
 def start_fireside():
     if al_fireside is None:
         return
-    seat, name = al_fireside.seat_for(HERE, IS_ALICE)
+    seat, name = al_fireside.seat_for(HERE, IS_ALICE, ROBOT_ID)
     fs = al_fireside.Fireside(seat, name, fireside_post, fireside_think, speak_now, fireside_cut, on_change=fireside_changed, here=HERE,
                               log=lambda t: print(t, flush=True))
     threading.Thread(target=fs.run, daemon=True).start()

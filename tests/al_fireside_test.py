@@ -116,5 +116,17 @@ class ThreeRobots(unittest.TestCase):
                 talking_now = None
 
 
+class Seats(unittest.TestCase):
+    """2026-11-19, Dr. O: every robot joins under its own seat, not as Elle."""
+    def test_each_robot_its_own_seat(self):
+        import tempfile
+        d = tempfile.mkdtemp()
+        self.assertEqual(al_fireside.seat_for(d, False, "astrad"), ("astrad", "Ted"))
+        self.assertEqual(al_fireside.seat_for(d, False, "astri"), ("astri", "Astri"))
+        self.assertEqual(al_fireside.seat_for(d, False, "astra-lite"), ("elle", "Elle"))
+        self.assertEqual(al_fireside.seat_for(d, True, "alice"), ("alice", "ALICE"))
+        self.assertEqual(al_fireside.seat_for(d, False, None), ("elle", "Elle"))     # no robot.txt: as before
+
+
 if __name__ == "__main__":
     unittest.main()

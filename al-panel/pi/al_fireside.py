@@ -118,9 +118,22 @@ class Fireside:
             time.sleep(wait)
 
 
-def seat_for(here, is_alice):
-    """ALICE's Pi (the one with her page) is "alice", Astra Lite's is "elle". fireside.json can say otherwise."""
-    seat, name = ("alice", "ALICE") if is_alice else ("elle", "Elle")
+# 2026-11-19, Dr. O: "add all the bots to it". Each robot joins under its own seat and name, from its robot.txt id. They match the director's
+# SEAT_DEFAULTS in netlify/functions/_fireside-core.js. Before this every robot that was not ALICE joined as Elle.
+ROBOT_SEATS = {
+    "alice": ("alice", "ALICE"), "astra-lite": ("elle", "Elle"), "astra": ("astra", "Astra"), "astrad": ("astrad", "Ted"),
+    "astro": ("astro", "Astro"), "astri": ("astri", "Astri"), "guardian-f": ("guardianf", "Guardian F"), "guardian-m": ("guardianm", "Guardian M"),
+    "reggie": ("reggie", "Reggie"), "biscuit": ("biscuit", "Biscuit"), "mochi": ("mochi", "Mochi"),
+}
+
+
+def seat_for(here, is_alice, robot_id=None):
+    """The seat and name this robot joins under: from its robot id, else ALICE's Pi is "alice" and any other is "elle", as before.
+    fireside.json beside the server can still say otherwise."""
+    if robot_id in ROBOT_SEATS:
+        seat, name = ROBOT_SEATS[robot_id]
+    else:
+        seat, name = ("alice", "ALICE") if is_alice else ("elle", "Elle")
     try:
         d = json.load(open(os.path.join(here, "fireside.json")))
         seat = str(d.get("seat") or seat)[:20]

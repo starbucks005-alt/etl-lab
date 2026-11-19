@@ -74,5 +74,38 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.strictEqual(bad.statusCode, 502);
   assert.strictEqual(store._m.get('astri-day-2026-11-21'), before);
 
+  // the fireside chat: the director gives her a turn, the website answers in her voice, and the board says when she has finished
+  const calls = [];
+  let dirState = { on: false };
+  const director = async (b) => { calls.push(b); if (b.action === 'poll') return dirState; return { on: true }; };
+  const fsEv = (step, cue) => ({ httpMethod: 'POST', headers: { 'x-sun-key': KEY }, queryStringParameters: Object.assign({ robot: 'astri', fireside: step }, cue ? { cue } : {}), body: '' });
+  const fsBase = () => Object.assign(base(), { director, store: mem() });
+  let w = await handler(fsEv('poll'), fsBase());
+  assert.strictEqual(w.statusCode, 204); assert.strictEqual(w.headers['X-On'], '0'); assert.strictEqual(w.headers['X-Every'], '20');
+  assert.deepStrictEqual([calls[0].seat, calls[0].name, calls[0].room], ['astri', 'Astri', 'etl-fireside'], 'she joins under her own seat');
+  dirState = { on: true, every: 1, cue: null };
+  w = await handler(fsEv('poll'), fsBase());
+  assert.strictEqual(w.headers['X-On'], '1'); assert.strictEqual(w.headers['X-Every'], '1');
+  dirState = { on: true, every: 1, cue: { id: 'c7-x', ask: '[Fireside chat] It is your turn.' } };
+  const s2 = fsBase();
+  const turn = await handler(fsEv('poll'), s2);
+  assert.strictEqual(turn.statusCode, 200);
+  assert.strictEqual(turn.headers['X-Cue'], 'c7-x');
+  assert.strictEqual(decodeURIComponent(turn.headers['X-Said']), 'Yes! I love dolls. Do you?');
+  assert.strictEqual(base.msgs[0].text, '[Fireside chat] It is your turn.', 'she answers the words the director handed her');
+  assert.ok(calls.some((c) => c.action === 'speaking' && c.cue === 'c7-x'));
+  const again = await handler(fsEv('poll'), s2);
+  assert.strictEqual(again.statusCode, 204, 'a turn already answered is not answered twice');
+  await handler(fsEv('done', 'c7-x'), s2);
+  const done = calls.filter((c) => c.action === 'done').pop();
+  assert.deepStrictEqual([done.cue, done.said, done.seat], ['c7-x', 'Yes! I love dolls. Do you?', 'astri'], 'the director is told what she said');
+  // if her answer fails, the floor moves on at once
+  const s3 = Object.assign(fsBase(), { ask: async () => { throw new Error('down'); } });
+  dirState = { on: true, every: 1, cue: { id: 'c8-y', ask: 'x' } };
+  assert.strictEqual((await handler(fsEv('poll'), s3)).statusCode, 204);
+  assert.ok(calls.some((c) => c.action === 'done' && c.cue === 'c8-y' && c.said === ''));
+  // every robot has a seat
+  for (const r of require('../al-panel/robots.json').robots) assert.ok(_test.SEATS[r.id], 'a seat for ' + r.id);
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });
