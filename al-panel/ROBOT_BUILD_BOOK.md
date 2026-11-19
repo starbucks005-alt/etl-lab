@@ -165,6 +165,7 @@ The twins are built the same way. **The one build difference: if female (Astri),
 - **Planned:** a toddler backpack for each twin, to carry the teddy bear or the doll, the tablet and a blanket, so Dr. O does not have to carry them. Not bought yet.
 - **Host body:** child mannequins.
 - **Eyes:** 12-bit eye stack, two WS2812 rings of 12 lights each (24 in all). On each twin's Pi, a file `eye_leds` containing `24`.
+- **Astri, decided by Dr. O, 2026-11-19: no more eye stack.** Her rings ran very hot and her 5V supply smoked twice at the green screw terminal while they were connected (Dr. O's view is that the eye stack caused it; not confirmed by a meter test). Her eyes are to be clear glass cabochons over a diffuser, lit by one light each from a cut piece of the BTF WS2812B 5V strip, on the round Waveshare board in her head. Nothing built or tried yet.
 - **Voice:** Astro, ElevenLabs. Astri, Azure (en-US-AnaNeural).
 - **Status:** eye rings wired (2026-11-07), not yet tested on a Pi. Test the rings before anything is glued into the head.
 - **Open:** neck-piece removal steps for child mannequins (waiting on photos).
