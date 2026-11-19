@@ -17,7 +17,7 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.ok(sys.startsWith(real.astri.prompt), 'her own written prompt, word for word, comes first');
   assert.ok(/say no/.test(sys) && /I don't know that one/.test(sys), 'she says she is not a person, and never makes a fact up');
   assert.ok(/young child/.test(sys));
-  assert.ok(!/[—‑]/.test(sys) && !/plainly/i.test(sys) && !/rather not make something up/i.test(sys));
+  assert.ok(!/[\u2014\u2011]/.test(sys) && !/plainly/i.test(sys) && !/rather not make something up/i.test(sys));
   assert.ok(!/David/.test(sys));
 
   const store = mem();

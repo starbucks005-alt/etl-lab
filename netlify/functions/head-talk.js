@@ -33,7 +33,7 @@ const DAILY_TURNS = 400;          // a four hour walk-up event is a turn every 3
 const KEEP = 4;                   // messages kept (two turns)
 const FORGET_MS = 120000;         // two quiet minutes and the next person starts fresh
 
-function str(v, max) { return typeof v === 'string' ? v.replace(/[–—]/g, ',').trim().slice(0, max) : ''; }
+function str(v, max) { return typeof v === 'string' ? v.replace(/[\u2013\u2014]/g, ',').trim().slice(0, max) : ''; }
 
 /* Her voice, from her entry in robots.json. */
 function voiceFor(robotId, robots = ROBOTS) {
