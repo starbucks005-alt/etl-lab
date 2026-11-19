@@ -57,3 +57,4 @@ recorded-stories/
 
 # private Wi-Fi and access codes for the box sketches
 rising-sun/**/secrets.h
+al-panel/head/**/secrets.h
