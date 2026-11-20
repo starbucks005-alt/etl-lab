@@ -33,6 +33,10 @@ The round board runs the MG996R itself, with no servo board. Servo **orange** (s
 
 While she talks, the head turns slowly to five spots across the room and holds each, the same as the Pi's room sweep, then eases back to the middle and lets go. The numbers are under "Dr. O's choices": `NECK_MIDDLE` (straight ahead, 90), `NECK_SWAY` (how far each way, 14) and `NECK_SPEED_MS` (40, higher is slower). `NECK_ON 0` turns it off for a head with no servo. NOT TRIED on a board yet.
 
+## Turning a head on and off (from Dr. O's photo, 2026-11-20)
+
+The round boards came in a case with the battery **inside**. The on/off switch is a small slide switch at the edge of the board, next to the USB-C port and the **CHG** light, marked **ON** (toward the USB port) and **OFF**. With the switch on **OFF** and no USB cable in, the board is off. The buttons along the edge are labeled **K1, K2/SET, K3, BOOT, RESET**. The 18 pins are two rows of 9, under the clear top cover, which comes off with its screws.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
