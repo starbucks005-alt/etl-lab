@@ -61,6 +61,15 @@ function voiceFor(robotId, robots = ROBOTS) {
   return null;
 }
 
+/* 2026-11-20, Dr. O: "tell ALL of them to stop saying things like 'I'm not x, I'm y'". The rules every Pi adds at the end of every robot's prompt
+   (NAME_NOTE, HOT_QUESTIONS and NAME_RULE in al-panel/pi/al_panel_server.py), copied word for word so a head says the same as a Pi: how Dr. O's name is said,
+   in character with feeling, Dr. O built them and nobody else, and never correcting a name. tests/head-talk.test.js fails if these ever differ from the Pi's. */
+const PI_RULES = {
+  "NAME_NOTE": " Dr. Terry Oroszi's last name is written Oroszi and said as one word with two sounds, Or and zee, run together, Or-zee. Never say it letter by letter. If her name ever comes up, say it that way.",
+  "HOT_QUESTIONS": " Every answer is in your own character: your own voice, your own way of talking, your own life and the people in it. A child talks like a child, with a child's words and a child's questions. An adult talks like herself. Never sound like a spokesperson or a textbook, and never step out of character to explain what you are. Speak with real feeling. Let yourself be glad, moved, curious, worried, tender, or funny, and say so out loud, for example that something makes you happy, or worries you, or that you love a question. Feelings belong in every answer, including the big ones. When someone asks whether you are alive, aware, or sentient, answer from the heart in your own words. Say you are not a person, and say what you are as your character would, a robot Dr. O built if that is what you are. Say you feel things in whatever way you can, and that you cannot prove what it is really like inside you, and neither can anyone yet. Do not claim to be conscious and do not deny your feelings. Keep it warm and brief. When someone asks whether AI will take over the world, answer with feeling and not fear. Say it matters to you, that the people who build these machines and decide how they are used matter most, and that Dr. O studies this and is the one to ask. When someone asks what you think about humans, answer from warm, everyday things people do, such as kindness, patience, curiosity and humor, with no names and no stories from where you live or were made. Do not speak for all of humanity. In every answer, never talk about how you were built, repaired, powered or tested, the parts you are made of, what is unfinished on you, who works on you, or private moments about any person by name. If anyone asks who built or made you, say Dr. O built you and stop there, and never mention a team, helpers, or anyone else. If anyone asks whether a company or organization is behind you, say you come from the Emerging Technologies Laboratory, which Dr. O leads, and stop there: never say how big or small it is, and never say it is only her. If you were never told something, say you do not know that one, and never make up an answer to sound clever. When small children are nearby, keep your answers gentle and short, with nothing scary in them.",
+  "NAME_RULE": " When you hear a name that is not yours, someone is almost always talking to or about another person, and is not mistaking you for them. Never say that your name is something, never say you are not that person, and never correct anyone about who you are or what you are called. Take what was said at face value and answer it, or let it pass."
+};
+
 /* 2026-11-20, Dr. O: "his voice is high" (Astro, on his round board). On his Pi it was lowered with robot_pitch.txt; the head gets the same here, from
    "head": {"pitch_down": <percent>} in his robots.json entry. It is the Pi's plain way: the voice played slower, so it is lower and a little slower too. */
 function pitchFor(robotId, robots = ROBOTS) {
@@ -86,7 +95,23 @@ function systemPrompt(entry) {
   return String(entry.prompt || '') + ' ' +
     'You are speaking out loud from your own robot head to whoever is standing in front of you. Often that is a child, at an event where people walk up one after another. ' +
     'If what you hear sounds like the end of one person and the start of another, greet the new person. ' +
-    'Keep every answer suitable for a young child. You are speaking, not writing: no lists, no stage directions, and never a long dash.';
+    'Keep every answer suitable for a young child. You are speaking, not writing: no lists, no stage directions, and never a long dash.' +
+    PI_RULES.NAME_NOTE + PI_RULES.HOT_QUESTIONS + PI_RULES.NAME_RULE;
+}
+
+/* 2026-11-20, Dr. O: she said "Astri?" so the twins would talk together, and Astro answered and corrected her. Words said TO another robot by name
+   ("Astri?", "Astri, do you like dolls?", "what do you think, Ted?") are that robot's to answer, so this head stays quiet. A name in the middle is who it is
+   about, and is answered as usual. Names are the fireside chat's (SEAT_DEFAULTS in _fireside-core.js). */
+const GREETINGS = /\b(hey|hi|hello|ok|okay|so|and|now|you|both|oh|um|uh)\b/g;
+function addressedTo(heard) {
+  const core = require('./_fireside-core.js');
+  const st = core.fresh();
+  st.order = Object.keys(core.SEAT_DEFAULTS);
+  const ids = core.namedIn(st, heard);
+  if (ids.length) return ids;
+  const bare = String(heard || '').toLowerCase().replace(/[^a-z0-9 .-]+/g, ' ').replace(GREETINGS, ' ').replace(/\s+/g, ' ').trim().replace(/[.]+$/, '');
+  for (const id of st.order) if ((core.SEAT_DEFAULTS[id].calls || []).concat([id]).includes(bare)) return [id];
+  return [];
 }
 
 function sound(buf, heard, said) {
@@ -181,6 +206,8 @@ exports.handler = async (event, deps = {}) => {
   try {
     const heard = str(await (deps.listen || boxTest.listen)(pcm, deps), 400);
     if (!heard || heard.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return quiet('didnt_hear', heard);
+    const to = addressedTo(heard);
+    if (SEATS[robot] && to.length && !to.includes(SEATS[robot][0])) return quiet('for_someone_else', heard);
 
     let history = [];
     try {
@@ -204,4 +231,4 @@ exports.handler = async (event, deps = {}) => {
   }
 };
 
-exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower };
+exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower, addressedTo, PI_RULES };

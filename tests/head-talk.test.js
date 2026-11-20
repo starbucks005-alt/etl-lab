@@ -115,5 +115,24 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.ok(low.length > tone.length && low.length < tone.length * 1.08, 'played slower, so lower');
   assert.strictEqual(_test.lower(tone, 0), tone);
 
+  // the Pi's rules, word for word (Dr. O, 2026-11-20: stop saying "I'm not x, I'm y")
+  const py = require('fs').readFileSync(require('path').join(__dirname, '../al-panel/pi/al_panel_server.py'), 'utf8');
+  const { execFileSync } = require('child_process');
+  const fromPi = JSON.parse(execFileSync('python3', ['-c', 'import re,ast,json,sys\nsrc=sys.stdin.read()\nout={}\nfor k in ("NAME_NOTE","HOT_QUESTIONS","NAME_RULE"):\n  m=re.search(r"^"+k+r" = (\\(.*?\\)|\\"(?:[^\\"\\\\]|\\\\.)*\\")\\s*(#.*)?$",src,re.S|re.M)\n  out[k]=ast.literal_eval(m.group(1))\nprint(json.dumps(out))'], { input: py }).toString());
+  assert.deepStrictEqual(_test.PI_RULES, fromPi, 'the head carries the same name and credit rules as every Pi');
+  const sysA = _test.systemPrompt(real.astro);
+  assert.ok(sysA.endsWith(fromPi.NAME_RULE), 'never correcting a name is the last instruction, as on the Pi');
+  assert.ok(/Dr\. O built you/.test(sysA), 'Dr. O built them, and nobody else');
+  // said to someone else by name: this head stays quiet
+  assert.deepStrictEqual(_test.addressedTo('Astri?'), ['astri']);
+  assert.deepStrictEqual(_test.addressedTo('Hey Astri.'), ['astri']);
+  assert.deepStrictEqual(_test.addressedTo('Astri, do you like dolls?'), ['astri']);
+  assert.deepStrictEqual(_test.addressedTo('do you like your sister Astri'), [], 'a name in the middle is who it is about');
+  const toHer = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), listen: async () => 'Astri?' }));
+  assert.strictEqual(toHer.statusCode, 204);
+  assert.strictEqual(toHer.headers['X-Why'], 'for_someone_else');
+  const toHim = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), listen: async () => 'Teddy, do you want to play?' }));
+  assert.strictEqual(toHim.statusCode, 200, 'his own name, he answers');
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });
