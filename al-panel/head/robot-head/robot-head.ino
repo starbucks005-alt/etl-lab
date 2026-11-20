@@ -114,7 +114,9 @@ long roomFloor = 200;             // the room's own level, learned while nobody 
 // workaround turns off USB CDC On Boot, which the Serial Monitor lines need. So the lights are sent their signal directly, by timing the pin from the
 // processor's own clock, with no light driver at all. The signal is the WS2812 one: each bit 1.25 microseconds, high 0.35 for a 0 and 0.8 for a 1.
 // Interrupts are paused for the few hundred microseconds it takes, so the timing holds; the sound keeps playing, because it is fed by the chip on its own.
-static void wsSend(uint8_t pin, const uint8_t *grb, int count) {
+// 2026-11-20: IRAM_ATTR keeps this in the chip's own fast memory. Dr. O set every color to pink and the board showed pink, then blue; one possible cause, not
+// confirmed, is a pause while reading the program from flash stretching the timing. Running from fast memory removes that pause.
+static void IRAM_ATTR wsSend(uint8_t pin, const uint8_t *grb, int count) {
   uint32_t setReg = pin < 32 ? GPIO_OUT_W1TS_REG : GPIO_OUT1_W1TS_REG;
   uint32_t clrReg = pin < 32 ? GPIO_OUT_W1TC_REG : GPIO_OUT1_W1TC_REG;
   uint32_t mask = 1UL << (pin < 32 ? pin : pin - 32);
@@ -492,7 +494,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20j, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20k, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
