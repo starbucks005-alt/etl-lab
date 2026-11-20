@@ -7,6 +7,12 @@
    KEY2 (tap) is her quiet switch: she stops listening and her eyes go dim. Tap again and she listens again.
    What she heard and what she said are printed in the Serial Monitor as "Heard:" and "Said:" lines, so they can be read, not only heard.
 
+   HER HEAD TURN (2026-11-20, Dr. O: "what do we need to operate the servo so their heads still turn?"): the round board runs the MG996R itself, no servo board.
+   While she talks, the head turns slowly to five spots across the room, holds each as if talking to those people, never the same spot twice in a row,
+   wide turns more likely than small ones, then eases back to the middle and lets go. The same as al_neck.py's sway on the Pi.
+   Wiring: servo ORANGE (signal) to header pin 6 (GPIO5). Servo BROWN to the servo's own power minus AND to the board's GND (header pin 15 or 16): the grounds
+   must be joined. Servo RED to the servo's own 5V plus. Never power the servo from the board: a servo starting to move can restart the board.
+
    THE FIRESIDE CHAT: she asks the website every 20 seconds whether a chat is on (every second while one is). While it is on she does not listen to the room:
    the director hands her the others' words as text, and when it is her turn the website sends her answer and she plays it. Nobody has to hear anybody.
    The host's Stop cuts a Pi off mid sentence; the head finishes its two or three sentences first.
@@ -46,7 +52,11 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define STRIP_COUNT 4        // how many lights are on the cut piece
 #define EYE_A 0              // the first eye, counting from the plug end, starting at 0
 #define EYE_B 3              // the second eye. A 4-light piece puts the eyes about 5 cm apart; a 5-light piece (EYE_B 4) about 6.7 cm.
-#define SPEAKER_VOLUME 85    // 0 to 100. The box used 70, Waveshare's sample 98. Raise it while watching the sound meter app; if it crackles, come down.
+#define SPEAKER_VOLUME 85
+#define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
+#define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
+#define NECK_SWAY    14     // how far she turns to the far left and far right while talking, in degrees (the Pi's default; 4 to 55)
+#define NECK_SPEED_MS 40    // milliseconds per degree: higher is slower. 40 is the Pi's room sweep, slow like a person turning.    // 0 to 100. The box used 70, Waveshare's sample 98. Raise it while watching the sound meter app; if it crackles, come down.
 // --------------------------------------------------
 
 #define I2C_SDA        11
@@ -59,6 +69,8 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define RING_PIN       38   // the board's own ring of 7 lights, hidden in the head; it copies the eyes, dimly, for the bench
 #define RING_COUNT     7
 #define EYE_PIN        7    // header pin 2
+#define NECK_PIN       5    // header pin 6
+#define NECK_LIMIT     60   // the most the head may ever turn from the middle, as on the Pi
 #define TCA_ADDR       0x20
 #define ES8311_ADDR    0x18
 #define ES7210_ADDR    0x40
@@ -114,6 +126,67 @@ void eyes(const uint8_t c[3], float level = 1.0f) {
     int n = 0;
     for (int i = 0; i < RING_COUNT; i++) n = fillBits(ringData, n, r / 4, g / 4, b / 4);
     rmtWrite(RING_PIN, ringData, n, 100);
+  }
+}
+
+// ---- her head turn ----
+// The servo is told where to be 50 times a second. The pulse runs from 750 to 2250 microseconds for 0 to 180 degrees, as the Pi's servo board did.
+bool neckReady = false, neckTalking = false, neckLoose = true;
+int neckHere = NECK_MIDDLE, neckTarget = NECK_MIDDLE, neckSpot = 2;
+uint32_t neckNextStep = 0, neckHoldUntil = 0, neckStillSince = 0;
+const float NECK_SPOTS[5] = {-1.0f, -0.5f, 0.0f, 0.5f, 1.0f};
+
+void neckWrite(int angle) {
+  if (!neckReady) return;
+  angle = max(max(0, NECK_MIDDLE - NECK_LIMIT), min(min(180, NECK_MIDDLE + NECK_LIMIT), angle));
+  uint32_t us = 750 + (uint32_t)angle * 1500 / 180;
+  ledcWrite(NECK_PIN, us * 16384 / 20000);
+  neckLoose = false;
+}
+
+void neckLetGo() { if (neckReady) ledcWrite(NECK_PIN, 0); neckLoose = true; }   // no pulses: the servo rests and does not buzz
+
+void neckStart() {
+  if (!NECK_ON) return;
+  neckReady = ledcAttach(NECK_PIN, 50, 14);
+  Serial.printf("Head turn: %s (servo signal on header pin 6)\n", neckReady ? "ok" : "FAILED");
+  neckWrite(NECK_MIDDLE);
+  delay(600);
+  neckLetGo();
+}
+
+void neckTalk(bool on) {
+  neckTalking = on;
+  neckHoldUntil = 0;
+  if (!on) neckTarget = NECK_MIDDLE;
+  else if (neckLoose) neckWrite(neckHere);
+}
+
+// Called often. Moves one degree at a time toward where she is looking, picks the next spot while she talks, and goes back to the middle when she stops.
+void neckUpdate() {
+  if (!neckReady) return;
+  uint32_t now = millis();
+  if (now < neckNextStep) return;
+  if (neckHere != neckTarget) {
+    neckHere += (neckTarget > neckHere) ? 1 : -1;
+    neckWrite(neckHere);
+    neckNextStep = now + NECK_SPEED_MS;
+    neckStillSince = now;
+    return;
+  }
+  if (neckTalking) {
+    if (!neckHoldUntil) { neckHoldUntil = now + random(1000, 2800); return; }   // long enough to look at that part of the room
+    if (now < neckHoldUntil) return;
+    int weights[5], total = 0;
+    for (int i = 0; i < 5; i++) { weights[i] = (i == neckSpot) ? 0 : 1 + abs(i - neckSpot); total += weights[i]; }
+    int r = random(total);
+    for (int i = 0; i < 5; i++) { if (r < weights[i]) { neckSpot = i; break; } r -= weights[i]; }
+    int reach = max(4, min(55, min(NECK_LIMIT, NECK_SWAY)));
+    neckTarget = NECK_MIDDLE + (int)lroundf(NECK_SPOTS[neckSpot] * reach);
+    neckHoldUntil = 0;
+  } else if (!neckLoose && now - neckStillSince > 300) {
+    neckLetGo();
+    neckSpot = 2;
   }
 }
 
@@ -210,6 +283,7 @@ bool playResponse(HTTPClient &http) {
   int16_t out[512];
   uint32_t lastData = millis(), played = 0;
   int leftover = -1;
+  neckTalk(true);
   while (http.connected() && (total > 0 || total == -1)) {
     size_t avail = stream->available();
     if (!avail) { if (millis() - lastData > 8000) break; delay(2); continue; }
@@ -228,7 +302,9 @@ bool playResponse(HTTPClient &http) {
       i2s.write((uint8_t *)out, o * sizeof(int16_t));
       played += o / 2;
     }
+    neckUpdate();
   }
+  neckTalk(false);
   Serial.printf("Played %.1f seconds of her voice\n", played / 16000.0f);
   return played > 0;
 }
@@ -278,6 +354,7 @@ size_t listenForSpeech() {
   // waiting: keep the last 0.3 seconds, and learn the room's level slowly. After a second with nobody talking it returns, so the fireside chat can be checked.
   while (true) {
     if (millis() - waitStart > 1000) return 0;
+    neckUpdate();
     if (keysPressed() & 2) return 0;              // KEY2 is handled in loop()
     if (keysPressed() & 1) return 0;              // so is KEY1
     int n = readMono(chunk);
@@ -358,7 +435,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-19b, with the fireside chat)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20c, with the fireside chat and the head turn)\n", ROBOT_ID);
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -369,6 +446,8 @@ void setup() {
   bool s = i2s.begin(I2S_MODE_STD, SAMPLE_RATE, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO, I2S_STD_SLOT_BOTH);
   bool m = micStart();
   Serial.printf("Speaker chip: %s, amplifier: %s, sound: %s, microphone chip: %s\n", c ? "ok" : "FAILED", a ? "ok" : "FAILED", s ? "ok" : "FAILED", m ? "ok" : "FAILED");
+  randomSeed(esp_random());
+  neckStart();
   // eye check: each color once, so the eyes can be seen working before anything else
   const uint8_t *all[] = {EYE_IDLE, EYE_LISTEN, EYE_THINK, EYE_SPEAK};
   for (int i = 0; i < 4; i++) { eyes(all[i]); delay(400); }
@@ -387,6 +466,7 @@ void loop() {
     flushMic(300);
     return;
   }
+  neckUpdate();
   if (quietMode) { eyes(EYE_QUIET); delay(100); return; }
   if (millis() >= nextAsk) { nextAsk = millis() + firesideCheck(); if (firesideOn) flushMic(300); }
   if (firesideOn) {                                 // during a chat she only waits for her turn

@@ -27,6 +27,12 @@ Dr. O's design, 2026-11-19: no more eye stack and no servo board for Astri. Her 
 
 From the strip's plug: **green (data) to header pin 2** (GPIO7), **red (5V) to header pin 18**, **white (ground) to header pin 16**. Check pin 18 with the meter first: it should read about 5 V to pin 16 with the board on USB.
 
+## Wiring the head turn (2026-11-20)
+
+The round board runs the MG996R itself, with no servo board. Servo **orange** (signal) to **header pin 6** (GPIO5). Servo **brown** to the servo's own power minus **and** to the board's **GND** (header pin 15 or 16): the grounds must be joined. Servo **red** to the servo's own 5V plus. The servo never takes power from the board. On a battery twin, the servo's power is a USB power bank in the backpack, through a USB lead cut down to its red and black wires (check which is plus with the meter first).
+
+While she talks, the head turns slowly to five spots across the room and holds each, the same as the Pi's room sweep, then eases back to the middle and lets go. The numbers are under "Dr. O's choices": `NECK_MIDDLE` (straight ahead, 90), `NECK_SWAY` (how far each way, 14) and `NECK_SPEED_MS` (40, higher is slower). `NECK_ON 0` turns it off for a head with no servo. NOT TRIED on a board yet.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
