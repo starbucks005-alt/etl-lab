@@ -60,7 +60,7 @@ This agrees with the Rising Sun notes (header pin 2 is IO7, pin 18 is 5V, pins 1
 
 ## Head turn, 2026-11-20 evening: it works
 
-On build 2026-11-20e on Astri's board, with the servo's own power from a wall charger (5.10 V), the board printed `Head turn: ok` and her head turned while she answered (Dr. O made her talk with K1, hold to talk). Dr. O: "her head moved, but not much", at `NECK_SWAY 14`, the Pi's starting value; raise it under "Dr. O's choices" (up to 55). The servo did not move at start up, likely because it was already at the middle. Her power cable read 0 on the power station's USB port with no device on it, so on the bench the servo runs from a wall charger, and at events from the power bank.
+On build 2026-11-20e on Astri's board, with the servo's own power from a wall charger (5.10 V), the board printed `Head turn: ok` and her head turned while she answered (Dr. O made her talk with K1, hold to talk). Dr. O: "her head moved, but not much", at `NECK_SWAY 14`, the Pi's starting value; raise it under "Dr. O's choices" (up to 55). **Astri's is 49** (Dr. O, 2026-11-20). The servo did not move at start up, likely because it was already at the middle. Her power cable read 0 on the power station's USB port with no device on it, so on the bench the servo runs from a wall charger, and at events from the power bank.
 
 ## Loading it
 

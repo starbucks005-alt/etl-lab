@@ -60,7 +60,7 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define SPEECH_OVER  40     // ...plus this much. 2026-11-20 evening, Astri's board on the bench with music playing: the room read 16 and Dr. O's voice reached 118, under the old 2x + 150 = 182.
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
 #define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
-#define NECK_SWAY    14     // how far she turns to the far left and far right while talking, in degrees (the Pi's default; 4 to 55)
+#define NECK_SWAY    49     // how far she turns to the far left and far right while talking, in degrees (4 to 55). Astri: 49, Dr. O, 2026-11-20 (14 was "not much")
 #define NECK_SPEED_MS 40    // milliseconds per degree: higher is slower. 40 is the Pi's room sweep, slow like a person turning.    // 0 to 100. The box used 70, Waveshare's sample 98. Raise it while watching the sound meter app; if it crackles, come down.
 // --------------------------------------------------
 
