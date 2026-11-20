@@ -695,6 +695,8 @@ The host code is kept on that phone. Nobody else can press anything without it. 
 
 **Every robot has a seat (Dr. O, 2026-11-19: "add all the bots to it").** The director knows all of them by name: ALICE, Elle, Astra, Ted (Astrad), Astro (also Teddy), Astri, Guardian F, Guardian M, Reggie, Biscuit, Mochi and Lumvivo. A Pi joins under its own robot's seat from its `robot.txt`; before this every robot that was not ALICE joined as Elle. When one name sits inside another ("Astra Lite" holds "Astra"), the longer one wins. The host page lists them all and, when it opens, ticks only the ones switched on. A robot head on the round Waveshare board joins through the website (`netlify/functions/head-talk.js`, see `al-panel/head/README.md`). To put it on a Pi: copy `al_fireside.py` and `al_panel_server.py` into `~/al_panel` and restart the panel. Still NOT TRIED with the real robots.
 
+**ALICE's head turn, 49 degrees (Dr. O, 2026-11-20).** The room sweep at 14 was "not enough" for ALICE, the same as for Astri on her round board, who is set to 49. On ALICE's Pi: `echo 49 > ~/al_neck_sway.txt`. It is read at the start of every answer, so no restart. Not yet seen on ALICE.
+
 ## The nine robots and what makes each one different (Dr. O, 2026-10-30)
 
 The nine: Astra-9 Lite (AL), A.L.I.C.E., **Astra 9** (the 9th of her line), **Astrad, called Ted** (her curious companion), Guardian M, Guardian F, and three dog mannequin robots, Biscuit, Reggie and Mochi, coming soon. Dr. O wants each to have something that is unique to it.
