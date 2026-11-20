@@ -138,6 +138,7 @@
     },
     {
       "id": "astro",
+      "head": {"pitch_down": 6, "_note": "Dr. O, 2026-11-20: \"his voice is high\" on his round board. Lowered 6 percent (the example value in the Pi program; the number his Pi used was not written down). Change the number to lower it more or less."},
       "setup": {"eyes": "led-ring", "mode": "children-friend", "voice": "elevenlabs", "voice_id": "kqf3165btzkiiwqxmo1q"},
       "tailscale": "astro.tailcaab0e.ts.net",
       "pronouns": "he",

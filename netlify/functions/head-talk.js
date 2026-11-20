@@ -61,6 +61,26 @@ function voiceFor(robotId, robots = ROBOTS) {
   return null;
 }
 
+/* 2026-11-20, Dr. O: "his voice is high" (Astro, on his round board). On his Pi it was lowered with robot_pitch.txt; the head gets the same here, from
+   "head": {"pitch_down": <percent>} in his robots.json entry. It is the Pi's plain way: the voice played slower, so it is lower and a little slower too. */
+function pitchFor(robotId, robots = ROBOTS) {
+  const r = robots.find((x) => x && x.id === robotId);
+  const v = Number(r && r.head && r.head.pitch_down);
+  return v > 0 ? Math.min(30, v) : 0;
+}
+
+function lower(pcm, percent) {
+  if (!percent || !pcm || pcm.length < 4) return pcm;
+  const f = 1 - percent / 100;
+  const n = Math.floor(pcm.length / 2), m = Math.floor(n / f);
+  const out = Buffer.alloc(m * 2);
+  for (let i = 0; i < m; i++) {
+    const x = i * f, a = Math.floor(x), b = Math.min(a + 1, n - 1), w = x - a;
+    out.writeInt16LE(Math.round(pcm.readInt16LE(a * 2) * (1 - w) + pcm.readInt16LE(b * 2) * w), i * 2);
+  }
+  return out;
+}
+
 /* Her written self, word for word from the file her Pi uses, and how a head speaks. */
 function systemPrompt(entry) {
   return String(entry.prompt || '') + ' ' +
@@ -115,7 +135,7 @@ async function fireside(event, deps, fs, robot, entry, voiceId, a, q) {
     if (!saved) { saved = {}; try { saved = await sun.effectiveSettings(await sun.openStore(event), a.who); } catch (_) {} }
     const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), [{ role: 'user', text: String(cue.ask || '').slice(0, 4000) }]), 400);
     if (!said) throw new Error('empty_reply');
-    const buf = await (deps.speak || elevenPcm)(said, voiceId, deps);
+    const buf = lower(await (deps.speak || elevenPcm)(said, voiceId, deps), pitchFor(robot, deps.robots || ROBOTS));
     if (!buf || !buf.length) throw new Error('empty_voice');
     try { await store.setJSON('fs-' + cue.id, { said }); } catch (_) {}
     await call('speaking', { cue: cue.id });
@@ -173,7 +193,7 @@ exports.handler = async (event, deps = {}) => {
     const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), messages), 400);
     if (!said) throw new Error('empty_reply');
 
-    const buf = await (deps.speak || elevenPcm)(said, voiceId, deps);
+    const buf = lower(await (deps.speak || elevenPcm)(said, voiceId, deps), pitchFor(robot, deps.robots || ROBOTS));
     if (!buf || !buf.length) throw new Error('empty_voice');
 
     try { await store.setJSON(robot + '-chat', { at: now.getTime(), messages: messages.concat([{ role: 'assistant', text: said }]).slice(-KEEP) }); } catch (_) {}
@@ -184,4 +204,4 @@ exports.handler = async (event, deps = {}) => {
   }
 };
 
-exports._test = { voiceFor, systemPrompt, SEATS };
+exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower };

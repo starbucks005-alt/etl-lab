@@ -107,5 +107,13 @@ const gc = require('../netlify/functions/_gc-config.js');
   // every robot has a seat
   for (const r of require('../al-panel/robots.json').robots) assert.ok(_test.SEATS[r.id], 'a seat for ' + r.id);
 
+  // Astro's voice is lowered (Dr. O, 2026-11-20: "his voice is high"); Astri's is not touched
+  assert.strictEqual(_test.pitchFor('astro'), 6);
+  assert.strictEqual(_test.pitchFor('astri'), 0);
+  const tone = Buffer.alloc(2000); for (let i = 0; i < 1000; i++) tone.writeInt16LE(Math.round(8000 * Math.sin(i / 5)), i * 2);
+  const low = _test.lower(tone, 6);
+  assert.ok(low.length > tone.length && low.length < tone.length * 1.08, 'played slower, so lower');
+  assert.strictEqual(_test.lower(tone, 0), tone);
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });
