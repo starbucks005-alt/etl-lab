@@ -58,6 +58,10 @@ This agrees with the Rising Sun notes (header pin 2 is IO7, pin 18 is 5V, pins 1
 - `MIC_GAIN_DB` under "Dr. O's choices" (30 now; 33, 34, 36 or 37) turns the microphones up, and the room's noise with them.
 - The Serial Monitor prints `Room level: ...` every 5 seconds while she waits, and `Your voice: ... times the room` each time someone speaks. A bigger "times the room" number means she hears voices more clearly over the room, so a new hole or a higher gain can be checked by the number, not by ear.
 
+## Head turn, 2026-11-20 evening: not working yet, cause not known
+
+The head turn program (build 2026-11-20d) compiled with no errors in Dr. O's Arduino IDE. Astri's servo was wired to her board (orange on the pin taken as IO5, red and brown through WAGOs, the board's GND joined), and its power cable read 5.10 V on a wall charger (it read 0 on the power station's USB port with no device on it). After the upload the Serial Monitor still showed build 2026-11-19b, so the old program was on the board; after a second try the head did not turn. Not checked: whether the new build and `Head turn: ok` showed, whether the servo moved at start up, and whether the orange is on IO5 in Row A (Row A is the row whose last pin reads 5 V) or on EX1 in Row B. Stopped at 21:14 for the next morning's event, to be picked up on the bench.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
