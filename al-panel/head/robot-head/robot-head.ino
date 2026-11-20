@@ -39,6 +39,9 @@
 #include "driver/i2c.h"
 #include "es8311.h"
 #include "es7210.h"
+#include "soc/gpio_reg.h"
+#include "soc/soc.h"
+#include "esp_cpu.h"
 #include "secrets.h"
 
 // ---------------- Dr. O's choices ----------------
@@ -49,6 +52,7 @@ const uint8_t EYE_THINK[3]  = {255, 170, 0};     // waiting for the website
 const uint8_t EYE_SPEAK[3]  = {0, 255, 120};     // she is talking
 const uint8_t EYE_QUIET[3]  = {40, 0, 60};       // KEY2: not listening
 const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read the Serial Monitor)
+#define RING_BRIGHTNESS 25  // the board's own ring of 7 lights, as a percent of the eyes. 100 = as bright as the eyes, for when the ring lights her eyes.
 #define EYE_BRIGHTNESS 70    // 0 to 255, the brightest the eyes ever get. Kept low: two lights behind a diffuser need little, and stay cool.
 #define STRIP_COUNT 4        // how many lights are on the cut piece
 #define EYE_A 0              // the first eye, counting from the plug end, starting at 0
@@ -96,8 +100,8 @@ I2SClass i2s;
 es8311_handle_t codec = NULL;
 es7210_dev_handle_t micChip = NULL;
 uint8_t *recordBuf = NULL;
-static rmt_data_t eyeData[STRIP_COUNT * 24];
-static rmt_data_t ringData[RING_COUNT * 24];
+static uint8_t eyeBytes[STRIP_COUNT * 3];
+static uint8_t ringBytes[RING_COUNT * 3];
 static bool eyeReady = false, ringReady = false, lightsTried = false;
 bool quietMode = false;
 bool firesideOn = false;          // a fireside chat is on: she waits for her turn and does not listen to the room
@@ -105,44 +109,52 @@ uint32_t nextAsk = 0;             // when to ask the director again
 long roomFloor = 200;             // the room's own level, learned while nobody is talking
 
 // ---- lights ----
-static int fillBits(rmt_data_t *d, int n, uint8_t r, uint8_t g, uint8_t b) {
-  uint8_t px[3] = {g, r, b};                      // these lights want green, red, blue
-  for (int k = 0; k < 3; k++) for (int bit = 7; bit >= 0; bit--) {
-    bool one = px[k] & (1 << bit);
-    d[n].level0 = 1; d[n].duration0 = one ? 8 : 4;
-    d[n].level1 = 0; d[n].duration1 = one ? 4 : 8;
-    n++;
+// 2026-11-20 (Friday morning): the board package's light driver, version 3.2.0, refuses to start on this board with "rmt_new_tx_channel(269): not able
+// to power down in light sleep". Others reported the same message on ESP32-S3 boards after 3.2.0 (arduino-esp32 issues 11223 and 11225); the one reported
+// workaround turns off USB CDC On Boot, which the Serial Monitor lines need. So the lights are sent their signal directly, by timing the pin from the
+// processor's own clock, with no light driver at all. The signal is the WS2812 one: each bit 1.25 microseconds, high 0.35 for a 0 and 0.8 for a 1.
+// Interrupts are paused for the few hundred microseconds it takes, so the timing holds; the sound keeps playing, because it is fed by the chip on its own.
+static void wsSend(uint8_t pin, const uint8_t *grb, int count) {
+  uint32_t setReg = pin < 32 ? GPIO_OUT_W1TS_REG : GPIO_OUT1_W1TS_REG;
+  uint32_t clrReg = pin < 32 ? GPIO_OUT_W1TC_REG : GPIO_OUT1_W1TC_REG;
+  uint32_t mask = 1UL << (pin < 32 ? pin : pin - 32);
+  uint32_t mhz = ESP.getCpuFreqMHz();
+  uint32_t t0h = mhz * 35 / 100, t1h = mhz * 80 / 100, period = mhz * 125 / 100;   // in processor clock ticks
+  portDISABLE_INTERRUPTS();
+  uint32_t start = esp_cpu_get_cycle_count();
+  for (int i = 0; i < count; i++) {
+    uint8_t v = grb[i];
+    for (int bit = 7; bit >= 0; bit--) {
+      while (esp_cpu_get_cycle_count() - start < period) {}
+      start = esp_cpu_get_cycle_count();
+      REG_WRITE(setReg, mask);
+      uint32_t high = (v & (1 << bit)) ? t1h : t0h;
+      while (esp_cpu_get_cycle_count() - start < high) {}
+      REG_WRITE(clrReg, mask);
+    }
   }
-  return n;
+  portENABLE_INTERRUPTS();
+  delayMicroseconds(80);                          // a pause this long tells the lights the colors are complete
 }
 
-// 2026-11-20 evening: on build 2026-11-20d the light driver refused to start on Dr. O's board and the program asked again 20 times a second, filling the
-// Serial Monitor with "rmt_new_tx_channel ... not able to power down in light sleep". Why it refused is not known; build 2026-11-19b did not show it.
-// So the lights are started once, first thing, and if refused she says so in one line and carries on without them.
 void lightsStart() {
   lightsTried = true;
-  eyeReady = rmtInit(EYE_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 10000000);
-  ringReady = rmtInit(RING_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 10000000);
-  Serial.printf("Lights: eyes %s, board ring %s\n", eyeReady ? "ok" : "REFUSED (she talks without them)", ringReady ? "ok" : "REFUSED");
+  pinMode(EYE_PIN, OUTPUT); digitalWrite(EYE_PIN, LOW);
+  pinMode(RING_PIN, OUTPUT); digitalWrite(RING_PIN, LOW);
+  eyeReady = ringReady = true;
+  Serial.println("Lights: sent directly (no light driver)");
 }
+
+static void putColor(uint8_t *d, int i, uint8_t r, uint8_t g, uint8_t b) { d[i * 3] = g; d[i * 3 + 1] = r; d[i * 3 + 2] = b; }   // these lights want green, red, blue
 
 // level is 0.0 to 1.0, for breathing and fades
 void eyes(const uint8_t c[3], float level = 1.0f) {
   uint8_t r = (uint8_t)(c[0] * EYE_BRIGHTNESS / 255 * level), g = (uint8_t)(c[1] * EYE_BRIGHTNESS / 255 * level), b = (uint8_t)(c[2] * EYE_BRIGHTNESS / 255 * level);
   if (!lightsTried) lightsStart();
-  if (eyeReady) {
-    int n = 0;
-    for (int i = 0; i < STRIP_COUNT; i++) {
-      bool lit = (i == EYE_A || i == EYE_B);
-      n = fillBits(eyeData, n, lit ? r : 0, lit ? g : 0, lit ? b : 0);
-    }
-    rmtWrite(EYE_PIN, eyeData, n, 100);
-  }
-  if (ringReady) {
-    int n = 0;
-    for (int i = 0; i < RING_COUNT; i++) n = fillBits(ringData, n, r / 4, g / 4, b / 4);
-    rmtWrite(RING_PIN, ringData, n, 100);
-  }
+  for (int i = 0; i < STRIP_COUNT; i++) { bool lit = (i == EYE_A || i == EYE_B); putColor(eyeBytes, i, lit ? r : 0, lit ? g : 0, lit ? b : 0); }
+  wsSend(EYE_PIN, eyeBytes, sizeof(eyeBytes));
+  for (int i = 0; i < RING_COUNT; i++) putColor(ringBytes, i, r * RING_BRIGHTNESS / 100, g * RING_BRIGHTNESS / 100, b * RING_BRIGHTNESS / 100);
+  wsSend(RING_PIN, ringBytes, sizeof(ringBytes));
 }
 
 // ---- her head turn ----
@@ -480,7 +492,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20i, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20j, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
