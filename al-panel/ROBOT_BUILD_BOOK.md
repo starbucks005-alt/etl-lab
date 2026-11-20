@@ -158,7 +158,7 @@ ALICE was too quiet to be heard if she were in her body, with the amp's knob all
 
 The twins are built the same way. **The one build difference: if female (Astri), add rosy cheeks.** Astri is also dressed as a girl.
 
-- **Who:** three years old. Their mother is Astra and their father is Astrad. Astro, called Teddy, carries a teddy bear named TB and asks people to play a game (checkers or chess) or to read a story to TB. Astri likes dolls and tea parties and holds a baby doll by the hand.
+- **Who:** three years old. Their mother is Astra and their father is Astrad. Astro, called Teddy, carries a teddy bear named TB and asks people to play a game (peekaboo, I spy, Simon says, or hide and seek with TB; Dr. O, 2026-11-20: checkers and chess are too hard for three year olds) or to read a story to TB. Astri likes dolls and tea parties and holds a baby doll by the hand.
 - **Look:** the Astra line look, champagne mist with copper accents, no hair or wig. Astri adds rosy cheeks.
 - **Dr. O's original plan for their clothes (concept pictures: `al-panel/images/astri-concept-clothes_v1.png` and `al-panel/images/astro-concept-clothes_v1.png`):** both champagne finish, green eyes, a black choker and a round sensor on the chest (the motion detector, Dr. O, 2026-11-18), standing on a metal stand base. Astri: rosy cheeks, a lavender dress with a white Peter Pan collar, a small pink bow and a maroon "ETL" on the chest, bare feet, a baby doll held by the hand. Astro: a gray T-shirt with a maroon "ETL", khaki shorts, bare feet, a teddy bear held by the paw.
 - **What Dr. O bought them (photo: `al-panel/images/twins-accessories_v1.png`, 2026-11-12):** Astro, blue striped monster pajamas and his teddy bear, TB. Astri, pink yeti pajamas and her baby doll. A tablet.
