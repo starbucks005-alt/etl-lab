@@ -114,6 +114,16 @@ function addressedTo(heard) {
   return [];
 }
 
+/* Only quiet when the robot named is switched on (it has asked the fireside director lately). Speech to text often writes Astri as Astra; with Astra
+   not there, Astri answers as she always did. If the director cannot be asked, the head answers. */
+async function anyConnected(ids, deps) {
+  try {
+    const v = await (deps.director || defaultDirector)({ action: 'state', room: ROOM });
+    const on = new Set(((v && v.seats) || []).filter((s) => s && s.alive).map((s) => s.id));
+    return ids.some((id) => on.has(id));
+  } catch (_) { return false; }
+}
+
 function sound(buf, heard, said) {
   return {
     statusCode: 200,
@@ -207,7 +217,7 @@ exports.handler = async (event, deps = {}) => {
     const heard = str(await (deps.listen || boxTest.listen)(pcm, deps), 400);
     if (!heard || heard.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return quiet('didnt_hear', heard);
     const to = addressedTo(heard);
-    if (SEATS[robot] && to.length && !to.includes(SEATS[robot][0])) return quiet('for_someone_else', heard);
+    if (SEATS[robot] && to.length && !to.includes(SEATS[robot][0]) && await anyConnected(to, deps)) return quiet('for_someone_else', heard);
 
     let history = [];
     try {

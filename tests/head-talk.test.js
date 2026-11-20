@@ -128,10 +128,13 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.deepStrictEqual(_test.addressedTo('Hey Astri.'), ['astri']);
   assert.deepStrictEqual(_test.addressedTo('Astri, do you like dolls?'), ['astri']);
   assert.deepStrictEqual(_test.addressedTo('do you like your sister Astri'), [], 'a name in the middle is who it is about');
-  const toHer = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), listen: async () => 'Astri?' }));
+  const seatsOn = (ids) => async (b) => (b.action === 'state' ? { seats: ids.map((id) => ({ id, alive: true })) } : { on: false });
+  const notThere = await handler(ev(KEY, 20000, 'astri'), Object.assign(base(), { store: mem(), director: seatsOn(['astri', 'astro']), listen: async () => 'Astra, do you like dolls?' }));
+  assert.strictEqual(notThere.statusCode, 200, 'speech to text wrote Astra; Astra is not switched on, so Astri answers');
+  const toHer = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), director: seatsOn(['astri', 'astro']), listen: async () => 'Astri?' }));
   assert.strictEqual(toHer.statusCode, 204);
   assert.strictEqual(toHer.headers['X-Why'], 'for_someone_else');
-  const toHim = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), listen: async () => 'Teddy, do you want to play?' }));
+  const toHim = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), director: seatsOn(['astri', 'astro']), listen: async () => 'Teddy, do you want to play?' }));
   assert.strictEqual(toHim.statusCode, 200, 'his own name, he answers');
 
   console.log('head-talk: all checks passed');
