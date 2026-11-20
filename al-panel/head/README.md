@@ -37,6 +37,21 @@ While she talks, the head turns slowly to five spots across the room and holds e
 
 The round boards came in a case with the battery **inside**. The on/off switch is a small slide switch at the edge of the board, next to the USB-C port and the **CHG** light, marked **ON** (toward the USB port) and **OFF**. With the switch on **OFF** and no USB cable in, the board is off. The buttons along the edge are labeled **K1, K2/SET, K3, BOOT, RESET**. The 18 pins are two rows of 9, under the clear top cover, which comes off with its screws.
 
+## The 18 pins, as printed on Dr. O's board (from her photo, 2026-11-20)
+
+Two rows of 9, read with the IO7 end on the left:
+
+| Column | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|
+| Row A | IO7 | IO6 | IO5 | IO4 | IO3 | IO20 | IO19 | GND | 5V |
+| Row B | EX3 | EX2 | EX1 | IO9 | IO8 | SDA | SCL | GND | 3V3 |
+
+This agrees with the Rising Sun notes (header pin 2 is IO7, pin 18 is 5V, pins 15 and 16 are GND). Which physical row is Row A is found with the meter, not by eye: board ON, black probe on a column 8 pin, red probe on each column 9 pin; about 5 V is Row A, about 3.3 V is Row B.
+
+- Eye strip: green (data) on IO7, red on 5V, white on GND, all Row A.
+- Servo: orange (signal) on IO5, Row A column 3. Its ground joins a GND pin through the WAGO; its red goes to its own 5V, never the board.
+- The microphones are marked MIC1 (near the right edge) and MIC2 (lower left). Inside a head, both need an opening in front of them.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
