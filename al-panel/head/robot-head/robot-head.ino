@@ -45,14 +45,14 @@
 #include "secrets.h"
 
 // ---------------- Dr. O's choices ----------------
-// Eye colors, red, green, blue, each 0 to 255. These are placeholders until she picks.
-const uint8_t EYE_IDLE[3]   = {255, 140, 200};   // waiting, breathing slowly
-const uint8_t EYE_LISTEN[3] = {0, 120, 255};     // she hears someone and is recording
-const uint8_t EYE_THINK[3]  = {255, 170, 0};     // waiting for the website
-const uint8_t EYE_SPEAK[3]  = {0, 255, 120};     // she is talking
-const uint8_t EYE_QUIET[3]  = {40, 0, 60};       // KEY2: not listening
-const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read the Serial Monitor)
-#define RING_BRIGHTNESS 25  // the board's own ring of 7 lights, as a percent of the eyes. 100 = as bright as the eyes, for when the ring lights her eyes.
+// Eye colors, red, green, blue, each 0 to 255. Astri's are all pink, chosen by Dr. O, 2026-11-20.
+const uint8_t EYE_IDLE[3]   = {255, 182, 193};   // waiting, breathing slowly
+const uint8_t EYE_LISTEN[3] = {255, 140, 200};     // she hears someone and is recording
+const uint8_t EYE_THINK[3]  = {255, 182, 193};     // waiting for the website
+const uint8_t EYE_SPEAK[3]  = {255, 20, 147};     // she is talking
+const uint8_t EYE_QUIET[3]  = {255, 182, 193};       // KEY2: not listening
+const uint8_t EYE_TROUBLE[3]= {255, 182, 193};       // something went wrong (read the Serial Monitor)
+#define RING_BRIGHTNESS 100 // the board's own ring of 7 lights, as a percent of the eyes. 100 = as bright as the eyes, for when the ring lights her eyes.
 #define EYE_BRIGHTNESS 70    // 0 to 255, the brightest the eyes ever get. Kept low: two lights behind a diffuser need little, and stay cool.
 #define STRIP_COUNT 4        // how many lights are on the cut piece
 #define EYE_A 0              // the first eye, counting from the plug end, starting at 0
