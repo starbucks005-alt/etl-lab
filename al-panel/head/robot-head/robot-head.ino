@@ -61,7 +61,7 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
 #define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
 #define NECK_SWAY    49     // how far she turns to the far left and far right while talking, in degrees (4 to 55). Astri: 49, Dr. O, 2026-11-20 (14 was "not much")
-#define NECK_SPEED_MS 20  // milliseconds per degree: higher is slower. Dr. O, 2026-11-20: 40 was "too slow"; 20 is the Pi's glance speed.
+#define NECK_SPEED_MS 10  // milliseconds per degree: lower is faster, not under 5 (the MG996R strains). Dr. O, 2026-11-20: 40 "too slow", then "faster" again.
 // --------------------------------------------------
 
 #define I2C_SDA        11
