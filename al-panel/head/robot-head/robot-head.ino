@@ -46,7 +46,8 @@
 #include "secrets.h"
 
 // ---------------- Dr. O's choices ----------------
-// Eye colors, red, green, blue, each 0 to 255. Astri's are all pink, chosen by Dr. O, 2026-11-20.
+// Eye colors, red, green, blue, each 0 to 255. Astri's are all pink, chosen by Dr. O, 2026-11-20. Keep green and blue low: pale pinks such as
+// 255,182,193 look bluish white on these lights. These deep pinks showed pink on her ring on build 2026-11-20m.
 const uint8_t EYE_IDLE[3]   = {255, 10, 60};   // waiting, breathing slowly
 const uint8_t EYE_LISTEN[3] = {255, 30, 90};     // she hears someone and is recording
 const uint8_t EYE_THINK[3]  = {255, 10, 60};     // waiting for the website
@@ -527,7 +528,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20m, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20n, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
@@ -542,15 +543,6 @@ void setup() {
   randomSeed(esp_random());
   neckStart();
   // eye check: each color once, so the eyes can be seen working before anything else
-  // 2026-11-20: pink showed as blue or blue-green on the board's ring. This shows the ring three raw colors, one number at a time, with a label, so
-  // Dr. O can say what each looks like and the order the ring reads its numbers in is known, not guessed.
-  const char *names[3] = {"FIRST number only", "SECOND number only", "THIRD number only"};
-  for (int k = 0; k < 3; k++) {
-    for (int i = 0; i < RING_COUNT; i++) { ringBytes[i * 3] = (k == 0) ? 60 : 0; ringBytes[i * 3 + 1] = (k == 1) ? 60 : 0; ringBytes[i * 3 + 2] = (k == 2) ? 60 : 0; }
-    Serial.printf("Ring test %d of 3: %s. What color is the ring?\n", k + 1, names[k]);
-    for (int r = 0; r < 30; r++) { lightSend(1, RING_PIN, ringBytes, sizeof(ringBytes)); delay(100); }
-  }
-  Serial.println("Ring test done.");
   const uint8_t *all[] = {EYE_IDLE, EYE_LISTEN, EYE_THINK, EYE_SPEAK};
   for (int i = 0; i < 4; i++) { eyes(all[i]); delay(400); }
   joinWifi();

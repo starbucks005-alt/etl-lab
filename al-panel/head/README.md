@@ -74,6 +74,10 @@ The board package's light driver (arduino-esp32 3.2.0, the version installed) re
 
 Uploading notes from the same morning: the IDE saves what is in its window over the file when Upload is pressed, so close the IDE before putting a new file in the folder; Sketch > Show Sketch Folder shows which folder the IDE uses; "exit status 2" was the Serial Monitor holding the port, fixed by closing that tab before Upload.
 
+## Astri's pink, 2026-11-20
+
+Her ring showed pink on build 2026-11-20m with deep pinks (waiting, thinking, quiet and trouble 255,10,60; listening 255,30,90; talking 255,0,40). Pale pinks (255,182,193) looked bluish white on these lights, and some of that morning's uploads were an older copy of the file, so earlier readings of blue and blue-green are not a reliable guide to the ring's color order. The program sends green, red, blue, and that is what showed pink. The IDE was using the folder Desktop\robot-head_v1\robot-head on Dr. O's computer.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
