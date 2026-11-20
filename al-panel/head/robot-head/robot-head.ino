@@ -61,6 +61,8 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
 #define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
 #define NECK_SWAY    49     // how far she turns to the far left and far right while talking, in degrees (4 to 55). Astri: 49, Dr. O, 2026-11-20 (14 was "not much")
+#define NECK_BEATS   1      // 1 = her head moves with her words: a small quick turn on each stressed beat of her voice (Dr. O, 2026-11-20: "like it is part of her talking")
+#define NECK_BEAT_DEG 10    // how big those small turns are, in degrees
 #define NECK_SPEED_MS 10  // milliseconds per degree: lower is faster, not under 5 (the MG996R strains). Dr. O, 2026-11-20: 40 "too slow", then "faster" again.
 // --------------------------------------------------
 
@@ -146,7 +148,9 @@ void eyes(const uint8_t c[3], float level = 1.0f) {
 // ---- her head turn ----
 // The servo is told where to be 50 times a second. The pulse runs from 750 to 2250 microseconds for 0 to 180 degrees, as the Pi's servo board did.
 bool neckReady = false, neckTalking = false, neckLoose = true;
-int neckHere = NECK_MIDDLE, neckTarget = NECK_MIDDLE, neckSpot = 2;
+int neckHere = NECK_MIDDLE, neckTarget = NECK_MIDDLE, neckSpot = 2, neckBase = NECK_MIDDLE;   // neckBase: the part of the room she is looking at
+bool neckBeating = false, beatSide = false;
+uint32_t lastBeat = 0;
 uint32_t neckNextStep = 0, neckHoldUntil = 0, neckStillSince = 0;
 const float NECK_SPOTS[5] = {-1.0f, -0.5f, 0.0f, 0.5f, 1.0f};
 
@@ -171,9 +175,22 @@ void neckStart() {
 
 void neckTalk(bool on) {
   neckTalking = on;
+  neckBeating = false;
   neckHoldUntil = on ? 1 : 0;        // 1 = already due: she turns the moment she starts talking, with no wait at the middle first
   if (!on) neckTarget = NECK_MIDDLE;
-  else if (neckLoose) neckWrite(neckHere);
+  else { neckBase = neckHere; if (neckLoose) neckWrite(neckHere); }
+}
+
+int neckClamp(int a) { return max(max(0, NECK_MIDDLE - NECK_LIMIT), min(min(180, NECK_MIDDLE + NECK_LIMIT), a)); }
+
+// A stressed beat in her voice: a small quick turn away from where she is looking, then back, alternating sides, never closer than 0.28 s apart.
+void neckBeat() {
+  if (!NECK_BEATS || !neckReady || !neckTalking || neckBeating || millis() - lastBeat < 280) return;
+  beatSide = !beatSide;
+  neckTarget = neckClamp(neckBase + (int)random(NECK_BEAT_DEG / 2, NECK_BEAT_DEG + 1) * (beatSide ? 1 : -1));
+  neckBeating = true;
+  lastBeat = millis();
+  neckNextStep = 0;
 }
 
 // Called often. Moves one degree at a time toward where she is looking, picks the next spot while she talks, and goes back to the middle when she stops.
@@ -189,6 +206,7 @@ void neckUpdate() {
     return;
   }
   if (neckTalking) {
+    if (neckBeating) { neckBeating = false; neckTarget = neckBase; return; }    // the beat is done: back to where she was looking
     if (!neckHoldUntil) { neckHoldUntil = now + random(700, 1800); return; }    // long enough to look at that part of the room (shorter since 2026-11-20: her answers are short)
     if (now < neckHoldUntil) return;
     int weights[5], total = 0;
@@ -196,7 +214,8 @@ void neckUpdate() {
     int r = random(total);
     for (int i = 0; i < 5; i++) { if (r < weights[i]) { neckSpot = i; break; } r -= weights[i]; }
     int reach = max(4, min(55, min(NECK_LIMIT, NECK_SWAY)));
-    neckTarget = NECK_MIDDLE + (int)lroundf(NECK_SPOTS[neckSpot] * reach);
+    neckBase = neckClamp(NECK_MIDDLE + (int)lroundf(NECK_SPOTS[neckSpot] * reach));
+    neckTarget = neckBase;
     neckHoldUntil = 0;
   } else if (!neckLoose && now - neckStillSince > 300) {
     neckLetGo();
@@ -298,6 +317,7 @@ bool playResponse(HTTPClient &http) {
   int16_t out[512];
   uint32_t lastData = millis(), played = 0;
   int leftover = -1;
+  float voiceAvg = 0;
   neckTalk(true);
   while (http.connected() && (total > 0 || total == -1)) {
     size_t avail = stream->available();
@@ -312,8 +332,11 @@ bool playResponse(HTTPClient &http) {
     if (k < n) leftover = in[k];
     if (o) {
       long e = 0; for (int i = 0; i < o; i += 2) e += abs(out[i]);
-      float lv = 0.45f + 0.55f * min(1.0f, (float)(e / (o / 2 + 1)) / 3000.0f);
+      long raw = e / (o / 2 + 1);
+      float lv = 0.45f + 0.55f * min(1.0f, (float)raw / 3000.0f);
       eyes(EYE_SPEAK, lv);
+      voiceAvg = voiceAvg * 0.9f + raw * 0.1f;
+      if (raw > voiceAvg * 1.5f && raw > 600) neckBeat();          // a stressed beat: louder than her voice has been just now
       i2s.write((uint8_t *)out, o * sizeof(int16_t));
       played += o / 2;
     }
@@ -457,7 +480,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20h, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20i, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
