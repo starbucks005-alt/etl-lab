@@ -2,7 +2,7 @@
 
 Dr. O's design, 2026-11-19: no more eye stack and no servo board for Astri. Her head carries the round Waveshare ESP32-S3 audio board, a speaker and two cabochon eyes, and the thinking is on the website. One USB cable from the EcoFlow to the board.
 
-**Status: NOT COMPILED and NOT RUN on the board.** The website side (`netlify/functions/head-talk.js`) passes its test with stand-ins (`node tests/head-talk.test.js`); it has not been called by a real board or the real services. The board program copies its sound and microphone parts from `rising-sun/box-chat`, which did run on Dr. O's board. Compiling it here was not possible, so the first compile is in the Arduino IDE.
+**Status: RUN ON THE BOARD by Dr. O, 2026-11-20.** It compiled in her Arduino IDE with no errors (1,071,638 bytes, 81% of program space, default Partition Scheme), loaded onto the round board (it showed up as COM11), and Astri talked. Dr. O: *"omg, she is sooo perfect!"* The eye strip, the cabochons, the speaker on the MX1.25 lead and the fireside chat were not part of this first run and are still to be tried. The website side (`netlify/functions/head-talk.js`) has its own test with stand-ins (`node tests/head-talk.test.js`).
 
 ## What it does
 
@@ -43,7 +43,6 @@ From the strip's plug: **green (data) to header pin 2** (GPIO7), **red (5V) to h
 
 ## Not known yet
 
-- Whether it compiles as written.
 - Whether the microphones hear people well from inside a closed head (the first test in the head).
 - How loud she is: check with the phone sound meter app where a visitor would stand, and raise `SPEAKER_VOLUME` until the number stops rising or the sound crackles.
 - How well the start and end of speech are found in a noisy room.

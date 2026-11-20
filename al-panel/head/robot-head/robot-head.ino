@@ -22,7 +22,7 @@
 
    WHAT SHE HEARS GOES OUT: the sound goes to ElevenLabs (words), the words to Anthropic or Amazon (her answer), her answer to Azure (her voice).
    TEST ONLY: it does not check the website's certificate (setInsecure). That has to be fixed before a head is sold.
-   NOT COMPILED HERE AND NOT RUN ON THE BOARD. The sound and microphone parts are copied from rising-sun/box-chat, which did run on Dr. O's board. */
+   RUN ON THE BOARD by Dr. O, 2026-11-20: compiled in her Arduino IDE (core 3.2.0), loaded, and Astri talked. The eyes, the speaker lead and the fireside chat are still to be tried. */
 #include <Arduino.h>
 #include <Wire.h>
 #include <WiFi.h>
