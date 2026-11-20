@@ -82,7 +82,7 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 
 #define SAMPLE_RATE      16000
 #define MAX_RECORD_BYTES 256000   // 8 seconds
-#define MIN_SPEECH_MS    500      // shorter than this is a cough or a bump, not words, and nothing is sent
+#define MIN_SPEECH_MS    250      // shorter than this is a cough or a bump, not words, and nothing is sent
 #define END_QUIET_MS     900      // she waits this long after the last word before answering
 #define PREROLL_SAMPLES  4800     // 0.3 seconds kept from before the speech started, so the first word is not cut
 
@@ -390,7 +390,9 @@ size_t listenForSpeech() {
   int16_t *rec = (int16_t *)recordBuf;
   for (int i = 0; i < PREROLL_SAMPLES; i++) rec[i] = pre[(preAt + i) % PREROLL_SAMPLES];
   have = PREROLL_SAMPLES * 2;
-  long threshold = roomFloor * SPEECH_TIMES + SPEECH_OVER;
+  // 2026-11-20 evening: Dr. O's voice passed the start bar but counted as speech for only 32 ms of each sentence, because only the loudest syllables
+  // get over it. Once a voice has started, she holds on to it at a lower bar: twice the room plus a little.
+  long threshold = roomFloor * 2 + SPEECH_OVER / 2;
   uint32_t loudMs = 0, quietSince = 0;
   long voicePeak = 0;
   while (have + 512 <= MAX_RECORD_BYTES) {
@@ -455,7 +457,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20g, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20h, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
