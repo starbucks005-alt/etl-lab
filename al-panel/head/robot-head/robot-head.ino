@@ -54,6 +54,8 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define EYE_A 0              // the first eye, counting from the plug end, starting at 0
 #define EYE_B 3              // the second eye. A 4-light piece puts the eyes about 5 cm apart; a 5-light piece (EYE_B 4) about 6.7 cm.
 #define SPEAKER_VOLUME 85
+#define MIC_GAIN_DB  30     // how much the microphones are turned up: 30, 33, 34, 36 or 37 (34 means 34.5 and 37 means 37.5). Higher hears quieter voices,
+                            // and the room's noise too. Raise one step at a time and compare the "Room level" and "Your voice" numbers in the Serial Monitor.
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
 #define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
 #define NECK_SWAY    14     // how far she turns to the far left and far right while talking, in degrees (the Pi's default; 4 to 55)
@@ -235,7 +237,8 @@ bool micStart() {
   cc.i2s_format = ES7210_I2S_FMT_I2S;
   cc.bit_width = ES7210_I2S_BITS_16B;
   cc.mic_bias = ES7210_MIC_BIAS_2V87;
-  cc.mic_gain = ES7210_MIC_GAIN_30DB;
+  cc.mic_gain = MIC_GAIN_DB >= 37 ? ES7210_MIC_GAIN_37_5DB : MIC_GAIN_DB >= 36 ? ES7210_MIC_GAIN_36DB : MIC_GAIN_DB >= 34 ? ES7210_MIC_GAIN_34_5DB
+              : MIC_GAIN_DB >= 33 ? ES7210_MIC_GAIN_33DB : ES7210_MIC_GAIN_30DB;
   cc.flags.tdm_enable = true;
   if (es7210_config_codec(micChip, &cc) != ESP_OK) return false;
   es7210_config_volume(micChip, 0);
@@ -364,6 +367,8 @@ size_t listenForSpeech() {
     long threshold = roomFloor * 2 + 150;
     if (e > threshold) break;
     roomFloor = (roomFloor * 63 + e) / 64;          // a crowd's hum raises it, a quiet room lowers it
+    static uint32_t lastLevel = 0;
+    if (millis() - lastLevel > 5000) { lastLevel = millis(); Serial.printf("Room level: %ld   (a voice must pass %ld)\n", roomFloor, threshold); }
     float breath = (sinf(millis() / 1000.0f * 1.6f) + 1.0f) / 2.0f;
     static uint32_t lastEye = 0;
     if (millis() - lastEye > 40) { lastEye = millis(); eyes(EYE_IDLE, 0.35f + 0.65f * breath); }
@@ -376,15 +381,18 @@ size_t listenForSpeech() {
   have = PREROLL_SAMPLES * 2;
   long threshold = roomFloor * 2 + 150;
   uint32_t loudMs = 0, quietSince = 0;
+  long voicePeak = 0;
   while (have + 512 <= MAX_RECORD_BYTES) {
     int n = readMono((int16_t *)(recordBuf + have));
     long e = levelOf((int16_t *)(recordBuf + have), n);
     have += n * 2;
     uint32_t ms = n * 1000 / SAMPLE_RATE;
+    if (e > voicePeak) voicePeak = e;
     if (e > threshold) { loudMs += ms; quietSince = 0; }
     else if (!quietSince) quietSince = millis();
     else if (millis() - quietSince > END_QUIET_MS) break;
   }
+  Serial.printf("Your voice: %ld at its loudest, %ld times the room   (room %ld, loud for %u ms)\n", voicePeak, roomFloor ? voicePeak / roomFloor : 0, roomFloor, (unsigned)loudMs);
   if (loudMs < MIN_SPEECH_MS) { Serial.printf("A sound, not words (%u ms loud). Not sent.\n", (unsigned)loudMs); return 0; }
   return have;
 }
@@ -436,7 +444,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20c, with the fireside chat and the head turn)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20d, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -454,7 +462,7 @@ void setup() {
   for (int i = 0; i < 4; i++) { eyes(all[i]); delay(400); }
   joinWifi();
   flushMic(500);
-  Serial.println("Listening. Talk to her.");
+  Serial.printf("Microphones turned up %d dB. Listening. Talk to her.\n", MIC_GAIN_DB);
 }
 
 void loop() {
