@@ -57,7 +57,7 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define MIC_GAIN_DB  36     // how much the microphones are turned up: 30, 33, 34, 36 or 37 (34 means 34.5 and 37 means 37.5). Higher hears quieter voices,
                             // and the room's noise too. Raise one step at a time and compare the "Room level" and "Your voice" numbers in the Serial Monitor.
 #define SPEECH_TIMES 3      // a voice counts when it is this many times the room's level...
-#define SPEECH_OVER  40     // ...plus this much. 2026-11-20 evening, in Astri's head: the room read 16 and Dr. O's voice reached 118, under the old 2x + 150 = 182.
+#define SPEECH_OVER  40     // ...plus this much. 2026-11-20 evening, Astri's board on the bench with music playing: the room read 16 and Dr. O's voice reached 118, under the old 2x + 150 = 182.
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
 #define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
 #define NECK_SWAY    14     // how far she turns to the far left and far right while talking, in degrees (the Pi's default; 4 to 55)
