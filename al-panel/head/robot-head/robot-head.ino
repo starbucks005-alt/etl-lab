@@ -61,7 +61,7 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
 #define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
 #define NECK_SWAY    49     // how far she turns to the far left and far right while talking, in degrees (4 to 55). Astri: 49, Dr. O, 2026-11-20 (14 was "not much")
-#define NECK_SPEED_MS 40    // milliseconds per degree: higher is slower. 40 is the Pi's room sweep, slow like a person turning.    // 0 to 100. The box used 70, Waveshare's sample 98. Raise it while watching the sound meter app; if it crackles, come down.
+#define NECK_SPEED_MS 20  // milliseconds per degree: higher is slower. Dr. O, 2026-11-20: 40 was "too slow"; 20 is the Pi's glance speed.
 // --------------------------------------------------
 
 #define I2C_SDA        11
@@ -171,7 +171,7 @@ void neckStart() {
 
 void neckTalk(bool on) {
   neckTalking = on;
-  neckHoldUntil = 0;
+  neckHoldUntil = on ? 1 : 0;        // 1 = already due: she turns the moment she starts talking, with no wait at the middle first
   if (!on) neckTarget = NECK_MIDDLE;
   else if (neckLoose) neckWrite(neckHere);
 }
@@ -189,7 +189,7 @@ void neckUpdate() {
     return;
   }
   if (neckTalking) {
-    if (!neckHoldUntil) { neckHoldUntil = now + random(1000, 2800); return; }   // long enough to look at that part of the room
+    if (!neckHoldUntil) { neckHoldUntil = now + random(700, 1800); return; }    // long enough to look at that part of the room (shorter since 2026-11-20: her answers are short)
     if (now < neckHoldUntil) return;
     int weights[5], total = 0;
     for (int i = 0; i < 5; i++) { weights[i] = (i == neckSpot) ? 0 : 1 + abs(i - neckSpot); total += weights[i]; }
@@ -455,7 +455,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20f, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20g, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
