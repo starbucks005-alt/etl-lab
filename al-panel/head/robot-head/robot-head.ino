@@ -54,8 +54,10 @@ const uint8_t EYE_TROUBLE[3]= {255, 0, 0};       // something went wrong (read t
 #define EYE_A 0              // the first eye, counting from the plug end, starting at 0
 #define EYE_B 3              // the second eye. A 4-light piece puts the eyes about 5 cm apart; a 5-light piece (EYE_B 4) about 6.7 cm.
 #define SPEAKER_VOLUME 85
-#define MIC_GAIN_DB  30     // how much the microphones are turned up: 30, 33, 34, 36 or 37 (34 means 34.5 and 37 means 37.5). Higher hears quieter voices,
+#define MIC_GAIN_DB  36     // how much the microphones are turned up: 30, 33, 34, 36 or 37 (34 means 34.5 and 37 means 37.5). Higher hears quieter voices,
                             // and the room's noise too. Raise one step at a time and compare the "Room level" and "Your voice" numbers in the Serial Monitor.
+#define SPEECH_TIMES 3      // a voice counts when it is this many times the room's level...
+#define SPEECH_OVER  40     // ...plus this much. 2026-11-20 evening, in Astri's head: the room read 16 and Dr. O's voice reached 118, under the old 2x + 150 = 182.
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
 #define NECK_MIDDLE  90     // the servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
 #define NECK_SWAY    14     // how far she turns to the far left and far right while talking, in degrees (the Pi's default; 4 to 55)
@@ -373,7 +375,7 @@ size_t listenForSpeech() {
     int n = readMono(chunk);
     for (int i = 0; i < n; i++) { pre[preAt] = chunk[i]; preAt = (preAt + 1) % PREROLL_SAMPLES; }
     long e = levelOf(chunk, n);
-    long threshold = roomFloor * 2 + 150;
+    long threshold = roomFloor * SPEECH_TIMES + SPEECH_OVER;
     if (e > threshold) break;
     roomFloor = (roomFloor * 63 + e) / 64;          // a crowd's hum raises it, a quiet room lowers it
     static uint32_t lastLevel = 0;
@@ -388,7 +390,7 @@ size_t listenForSpeech() {
   int16_t *rec = (int16_t *)recordBuf;
   for (int i = 0; i < PREROLL_SAMPLES; i++) rec[i] = pre[(preAt + i) % PREROLL_SAMPLES];
   have = PREROLL_SAMPLES * 2;
-  long threshold = roomFloor * 2 + 150;
+  long threshold = roomFloor * SPEECH_TIMES + SPEECH_OVER;
   uint32_t loudMs = 0, quietSince = 0;
   long voicePeak = 0;
   while (have + 512 <= MAX_RECORD_BYTES) {
@@ -453,7 +455,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20e, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20f, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
