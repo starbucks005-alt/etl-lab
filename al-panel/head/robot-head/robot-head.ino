@@ -94,7 +94,7 @@ es7210_dev_handle_t micChip = NULL;
 uint8_t *recordBuf = NULL;
 static rmt_data_t eyeData[STRIP_COUNT * 24];
 static rmt_data_t ringData[RING_COUNT * 24];
-static bool eyeReady = false, ringReady = false;
+static bool eyeReady = false, ringReady = false, lightsTried = false;
 bool quietMode = false;
 bool firesideOn = false;          // a fireside chat is on: she waits for her turn and does not listen to the room
 uint32_t nextAsk = 0;             // when to ask the director again
@@ -112,10 +112,20 @@ static int fillBits(rmt_data_t *d, int n, uint8_t r, uint8_t g, uint8_t b) {
   return n;
 }
 
+// 2026-11-20 evening: on build 2026-11-20d the light driver refused to start on Dr. O's board and the program asked again 20 times a second, filling the
+// Serial Monitor with "rmt_new_tx_channel ... not able to power down in light sleep". Why it refused is not known; build 2026-11-19b did not show it.
+// So the lights are started once, first thing, and if refused she says so in one line and carries on without them.
+void lightsStart() {
+  lightsTried = true;
+  eyeReady = rmtInit(EYE_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 10000000);
+  ringReady = rmtInit(RING_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 10000000);
+  Serial.printf("Lights: eyes %s, board ring %s\n", eyeReady ? "ok" : "REFUSED (she talks without them)", ringReady ? "ok" : "REFUSED");
+}
+
 // level is 0.0 to 1.0, for breathing and fades
 void eyes(const uint8_t c[3], float level = 1.0f) {
   uint8_t r = (uint8_t)(c[0] * EYE_BRIGHTNESS / 255 * level), g = (uint8_t)(c[1] * EYE_BRIGHTNESS / 255 * level), b = (uint8_t)(c[2] * EYE_BRIGHTNESS / 255 * level);
-  if (!eyeReady) eyeReady = rmtInit(EYE_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 10000000);
+  if (!lightsTried) lightsStart();
   if (eyeReady) {
     int n = 0;
     for (int i = 0; i < STRIP_COUNT; i++) {
@@ -124,7 +134,6 @@ void eyes(const uint8_t c[3], float level = 1.0f) {
     }
     rmtWrite(EYE_PIN, eyeData, n, 100);
   }
-  if (!ringReady) ringReady = rmtInit(RING_PIN, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 10000000);
   if (ringReady) {
     int n = 0;
     for (int i = 0; i < RING_COUNT; i++) n = fillBits(ringData, n, r / 4, g / 4, b / 4);
@@ -444,7 +453,8 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20d, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20e, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
   Wire.begin(I2C_SDA, I2C_SCL);
