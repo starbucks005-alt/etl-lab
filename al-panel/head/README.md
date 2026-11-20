@@ -58,9 +58,9 @@ This agrees with the Rising Sun notes (header pin 2 is IO7, pin 18 is 5V, pins 1
 - `MIC_GAIN_DB` under "Dr. O's choices" (30 now; 33, 34, 36 or 37) turns the microphones up, and the room's noise with them.
 - The Serial Monitor prints `Room level: ...` every 5 seconds while she waits, and `Your voice: ... times the room` each time someone speaks. A bigger "times the room" number means she hears voices more clearly over the room, so a new hole or a higher gain can be checked by the number, not by ear.
 
-## Head turn, 2026-11-20 evening: not yet loaded
+## Head turn, 2026-11-20 evening: it works
 
-The head turn program (build 2026-11-20d) compiled with no errors in Dr. O's Arduino IDE. Astri's servo was wired to her board (orange on the pin taken as IO5, red and brown through WAGOs, the board's GND joined), and its power cable read 5.10 V on a wall charger (it read 0 on the power station's USB port with no device on it). The uploads that evening put the earlier program (build 2026-11-19b) on her board, because the new file had not yet been downloaded into her folder, so the head turn itself had not been tried. Still to check once it is loaded: `Head turn: ok`, the servo moving once at start up, and that the orange is on IO5 in Row A (the row whose last pin reads 5 V), not EX1 in Row B.
+On build 2026-11-20e on Astri's board, with the servo's own power from a wall charger (5.10 V), the board printed `Head turn: ok` and her head turned while she answered (Dr. O made her talk with K1, hold to talk). Dr. O: "her head moved, but not much", at `NECK_SWAY 14`, the Pi's starting value; raise it under "Dr. O's choices" (up to 55). The servo did not move at start up, likely because it was already at the middle. Her power cable read 0 on the power station's USB port with no device on it, so on the bench the servo runs from a wall charger, and at events from the power bank.
 
 ## Loading it
 
