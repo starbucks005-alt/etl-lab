@@ -137,5 +137,22 @@ const gc = require('../netlify/functions/_gc-config.js');
   const toHim = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), director: seatsOn(['astri', 'astro']), listen: async () => 'Teddy, do you want to play?' }));
   assert.strictEqual(toHim.statusCode, 200, 'his own name, he answers');
 
+  // the twins know when it is the other twin talking (Dr. O, 2026-11-20: "they do not know they are talking to their twin")
+  const shared = mem();
+  t = new Date('2026-11-21T16:00:00Z');
+  const twin = (robot, heardText, reply) => handler(ev(KEY, 20000, robot), Object.assign(base(), { store: shared, director: seatsOn([]), listen: async () => heardText, ask: async (s, msgs) => { base.msgs = msgs; return reply; } }));
+  await twin('astri', 'hi astri', 'Hi! Teddy, do you wanna have a tea party with me?');
+  t = new Date('2026-11-21T16:00:08Z');
+  const fromSis = await twin('astro', 'do you wanna have a tea party with me', 'Yes Astri! Can TB come too?');
+  assert.strictEqual(fromSis.statusCode, 200);
+  assert.ok(/^\[Astri is right beside you/.test(base.msgs[base.msgs.length - 1].text), 'Astro is told it was Astri talking to him');
+  t = new Date('2026-11-21T16:00:14Z');
+  const echo = await twin('astro', 'yes astri can tb come too', 'should not be said');
+  assert.strictEqual(echo.statusCode, 204);
+  assert.strictEqual(echo.headers['X-Why'], 'own_voice', 'his own voice coming back is not answered');
+  t = new Date('2026-11-21T16:01:30Z');
+  await twin('astri', 'can tb come too', 'Of course!');
+  assert.ok(!/is right beside you/.test(base.msgs[base.msgs.length - 1].text), 'after 30 seconds it is not taken to be Astro any more');
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -124,6 +124,28 @@ async function anyConnected(ids, deps) {
   } catch (_) { return false; }
 }
 
+/* 2026-11-20, Dr. O: "they do not know they are talking to their twin". Through the air a head gets only words, with no idea who said them. The website
+   knows what each robot just said, so words that match what another robot said in the last 30 seconds were that robot, and the head is told so and answers
+   them by name. Words that match what this head said itself were her own voice coming back, and she stays quiet. */
+const HEARD_MS = 30000;
+const words = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').split(' ').filter((w) => w.length > 1);
+function overlap(heard, said) {
+  const a = words(heard), b = new Set(words(said));
+  if (a.length < 3 || !b.size) return 0;
+  return a.filter((w) => b.has(w)).length / a.length;
+}
+async function whoSaidIt(heard, robot, store, now) {
+  let best = null, bestScore = 0.6;
+  for (const id of Object.keys(SEATS)) {
+    let last = null;
+    try { last = await store.get(id + '-said', { type: 'json' }); } catch (_) {}
+    if (!last || now.getTime() - Number(last.at || 0) > HEARD_MS) continue;
+    const s = overlap(heard, last.text);
+    if (s >= bestScore) { best = id; bestScore = s; }
+  }
+  return best;
+}
+
 function sound(buf, heard, said) {
   return {
     statusCode: 200,
@@ -216,6 +238,8 @@ exports.handler = async (event, deps = {}) => {
   try {
     const heard = str(await (deps.listen || boxTest.listen)(pcm, deps), 400);
     if (!heard || heard.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return quiet('didnt_hear', heard);
+    const speaker = await whoSaidIt(heard, robot, store, now);
+    if (speaker === robot) return quiet('own_voice', heard);
     const to = addressedTo(heard);
     if (SEATS[robot] && to.length && !to.includes(SEATS[robot][0]) && await anyConnected(to, deps)) return quiet('for_someone_else', heard);
 
@@ -226,7 +250,9 @@ exports.handler = async (event, deps = {}) => {
     } catch (_) {}
     let saved = deps.saved;
     if (!saved) { saved = {}; try { saved = await sun.effectiveSettings(await sun.openStore(event), a.who); } catch (_) {} }
-    const messages = history.concat([{ role: 'user', text: heard }]).slice(-KEEP - 1);
+    const said_by = speaker && SEATS[speaker] ? SEATS[speaker][1] : '';
+    const userText = said_by ? '[' + said_by + ' is right beside you and just said this to you. Answer ' + said_by + ' by name, the way you always talk to them, and you can ask them something back.] ' + heard : heard;
+    const messages = history.concat([{ role: 'user', text: userText }]).slice(-KEEP - 1);
     const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), messages), 400);
     if (!said) throw new Error('empty_reply');
 
@@ -234,6 +260,7 @@ exports.handler = async (event, deps = {}) => {
     if (!buf || !buf.length) throw new Error('empty_voice');
 
     try { await store.setJSON(robot + '-chat', { at: now.getTime(), messages: messages.concat([{ role: 'assistant', text: said }]).slice(-KEEP) }); } catch (_) {}
+    try { await store.setJSON(robot + '-said', { at: now.getTime(), text: said }); } catch (_) {}
     try { await store.setJSON(robot + '-day-' + day, used + 1); } catch (_) {}      // counted only now, after the whole chain worked
     return sound(buf, heard, said);
   } catch (e) {
@@ -241,4 +268,4 @@ exports.handler = async (event, deps = {}) => {
   }
 };
 
-exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower, addressedTo, PI_RULES };
+exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower, addressedTo, PI_RULES, overlap };
