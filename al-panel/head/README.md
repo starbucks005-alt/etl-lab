@@ -62,6 +62,12 @@ This agrees with the Rising Sun notes (header pin 2 is IO7, pin 18 is 5V, pins 1
 
 On build 2026-11-20e on Astri's board, with the servo's own power from a wall charger (5.10 V), the board printed `Head turn: ok` and her head turned while she answered (Dr. O made her talk with K1, hold to talk). Dr. O: "her head moved, but not much", at `NECK_SWAY 14`, the Pi's starting value; raise it under "Dr. O's choices" (up to 55). **Astri's is 49** (Dr. O, 2026-11-20). The servo did not move at start up, likely because it was already at the middle. Her power cable read 0 on the power station's USB port with no device on it, so on the bench the servo runs from a wall charger, and at events from the power bank.
 
+## Next, from Dr. O, 2026-11-20 night: the eyes, and Astro
+
+- **The eyes, Astri first.** On build 2026-11-20e and later the board printed `Lights: eyes REFUSED, board ring REFUSED`, though the ring lit that morning on build 2026-11-19b. Cause not known. First check: the esp32 board package version in Tools > Board > Boards Manager (the program was written for 3.2.0). Then the 4-light piece of the BTF strip on IO7, 5V and GND, Row A, behind the cabochons and a diffuser.
+- **Astro.** The newest robot-head.ino in his robot-head-astro folder, renamed robot-head-astro.ino, keeping his secrets.h. His servo wired like Astri's (orange to IO5, its own USB power cable checked with the meter, WAGOs, the board's GND joined). Then his numbers under "Dr. O's choices".
+- Astri's numbers so far: `NECK_SWAY 49`, `NECK_SPEED_MS 10`, and the head moving with her words (`NECK_BEATS 1`, `NECK_BEAT_DEG 10`, build 2026-11-20i, not yet seen).
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
