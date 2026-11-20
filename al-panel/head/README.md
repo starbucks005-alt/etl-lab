@@ -76,7 +76,7 @@ Uploading notes from the same morning: the IDE saves what is in its window over 
 
 ## Astri's pink, 2026-11-20
 
-Her ring showed pink on build 2026-11-20m with deep pinks (waiting, thinking, quiet and trouble 255,10,60; listening 255,30,90; talking 255,0,40). Pale pinks (255,182,193) looked bluish white on these lights, and some of that morning's uploads were an older copy of the file, so earlier readings of blue and blue-green are not a reliable guide to the ring's color order. The program sends green, red, blue, and that is what showed pink. The IDE was using the folder Desktop\robot-head_v1\robot-head on Dr. O's computer.
+The board's own ring reads its first color number as **red**; the eye strip (WS2812B) reads green first. Dr. O found it: her deep pinks showed pink on the ring only with the first two numbers swapped by hand ({10, 255, 60} in the program's green-first order arrives as red 255, green 10, blue 60). From build 2026-11-20o the ring is sent red first, so the color lines read normally: waiting, thinking, quiet and trouble 255,10,60; listening 255,30,90; talking 255,0,40. Pale pinks (255,182,193) look bluish white on these lights, so keep green and blue low. (An earlier note that day said the green-first order was right; that was wrong: the build that showed pink carried her swapped numbers.) The IDE uses the folder Desktop\robot-head_v1\robot-head on Dr. O's computer.
 
 ## Loading it
 

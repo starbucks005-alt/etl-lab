@@ -47,7 +47,7 @@
 
 // ---------------- Dr. O's choices ----------------
 // Eye colors, red, green, blue, each 0 to 255. Astri's are all pink, chosen by Dr. O, 2026-11-20. Keep green and blue low: pale pinks such as
-// 255,182,193 look bluish white on these lights. These deep pinks showed pink on her ring on build 2026-11-20m.
+// 255,182,193 look bluish white on these lights. These deep pinks show pink on her ring (with the ring sent red first, build 2026-11-20o).
 const uint8_t EYE_IDLE[3]   = {255, 10, 60};   // waiting, breathing slowly
 const uint8_t EYE_LISTEN[3] = {255, 30, 90};     // she hears someone and is recording
 const uint8_t EYE_THINK[3]  = {255, 10, 60};     // waiting for the website
@@ -181,7 +181,10 @@ void lightsStart() {
   Serial.printf("Lights: eyes %s, board ring %s\n", a ? "on the chip's light part" : "sent directly", b ? "on the chip's light part" : "sent directly");
 }
 
-static void putColor(uint8_t *d, int i, uint8_t r, uint8_t g, uint8_t b) { d[i * 3] = g; d[i * 3 + 1] = r; d[i * 3 + 2] = b; }   // these lights want green, red, blue
+static void putColor(uint8_t *d, int i, uint8_t r, uint8_t g, uint8_t b) { d[i * 3] = g; d[i * 3 + 1] = r; d[i * 3 + 2] = b; }   // the eye strip (WS2812B) wants green, red, blue
+// 2026-11-20, Dr. O's test: the board's own ring reads the first number as RED. Her colors showed pink on the ring only when she swapped the first two
+// numbers by hand ({10, 255, 60} sent as green, red, blue arrives as 255, 10, 60), so the ring is sent red, green, blue and the color lines read normally.
+static void putColorRing(uint8_t *d, int i, uint8_t r, uint8_t g, uint8_t b) { d[i * 3] = r; d[i * 3 + 1] = g; d[i * 3 + 2] = b; }
 
 // level is 0.0 to 1.0, for breathing and fades
 void eyes(const uint8_t c[3], float level = 1.0f) {
@@ -189,7 +192,7 @@ void eyes(const uint8_t c[3], float level = 1.0f) {
   if (!lightsTried) lightsStart();
   for (int i = 0; i < STRIP_COUNT; i++) { bool lit = (i == EYE_A || i == EYE_B); putColor(eyeBytes, i, lit ? r : 0, lit ? g : 0, lit ? b : 0); }
   lightSend(0, EYE_PIN, eyeBytes, sizeof(eyeBytes));
-  for (int i = 0; i < RING_COUNT; i++) putColor(ringBytes, i, r * RING_BRIGHTNESS / 100, g * RING_BRIGHTNESS / 100, b * RING_BRIGHTNESS / 100);
+  for (int i = 0; i < RING_COUNT; i++) putColorRing(ringBytes, i, r * RING_BRIGHTNESS / 100, g * RING_BRIGHTNESS / 100, b * RING_BRIGHTNESS / 100);
   lightSend(1, RING_PIN, ringBytes, sizeof(ringBytes));
 }
 
@@ -528,7 +531,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20n, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20o, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
