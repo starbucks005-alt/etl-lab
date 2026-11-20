@@ -42,6 +42,7 @@
 #include "soc/gpio_reg.h"
 #include "soc/soc.h"
 #include "esp_cpu.h"
+#include "driver/rmt_tx.h"
 #include "secrets.h"
 
 // ---------------- Dr. O's choices ----------------
@@ -139,12 +140,44 @@ static void IRAM_ATTR wsSend(uint8_t pin, const uint8_t *grb, int count) {
   delayMicroseconds(80);                          // a pause this long tells the lights the colors are complete
 }
 
+// 2026-11-20, build 2026-11-20l: with Wi-Fi running, the signal timed by the program came out wrong (Dr. O: pink at start, then blue). So the chip's own
+// light-signal part (RMT) is set up here directly, every setting written, which the package's setup in 3.2.0 does not do. Its timing is the chip's own,
+// so Wi-Fi cannot disturb it. If setting it up fails, the program falls back to timing the signal itself (wsSend above).
+static rmt_channel_handle_t rmtCh[2] = {NULL, NULL};
+static rmt_encoder_handle_t rmtEnc[2] = {NULL, NULL};
+
+static bool rmtOpen(int k, uint8_t pin) {
+  rmt_tx_channel_config_t cfg = {};
+  cfg.gpio_num = (gpio_num_t)pin;
+  cfg.clk_src = RMT_CLK_SRC_DEFAULT;
+  cfg.resolution_hz = 10000000;                   // 0.1 microsecond a tick
+  cfg.mem_block_symbols = 48;
+  cfg.trans_queue_depth = 4;
+  if (rmt_new_tx_channel(&cfg, &rmtCh[k]) != ESP_OK) { rmtCh[k] = NULL; return false; }
+  rmt_bytes_encoder_config_t bc = {};
+  bc.bit0.duration0 = 4; bc.bit0.level0 = 1; bc.bit0.duration1 = 8; bc.bit0.level1 = 0;   // a 0: high 0.4, low 0.8 microseconds
+  bc.bit1.duration0 = 8; bc.bit1.level0 = 1; bc.bit1.duration1 = 4; bc.bit1.level1 = 0;   // a 1: high 0.8, low 0.4 microseconds
+  bc.flags.msb_first = 1;
+  if (rmt_new_bytes_encoder(&bc, &rmtEnc[k]) != ESP_OK) { rmt_del_channel(rmtCh[k]); rmtCh[k] = NULL; return false; }
+  if (rmt_enable(rmtCh[k]) != ESP_OK) { rmt_del_encoder(rmtEnc[k]); rmt_del_channel(rmtCh[k]); rmtCh[k] = NULL; rmtEnc[k] = NULL; return false; }
+  return true;
+}
+
+static void lightSend(int k, uint8_t pin, const uint8_t *grb, int count) {
+  if (rmtCh[k]) {
+    rmt_transmit_config_t tc = {};
+    if (rmt_transmit(rmtCh[k], rmtEnc[k], grb, count, &tc) == ESP_OK) { rmt_tx_wait_all_done(rmtCh[k], 50); delayMicroseconds(80); return; }
+  }
+  wsSend(pin, grb, count);
+}
+
 void lightsStart() {
   lightsTried = true;
-  pinMode(EYE_PIN, OUTPUT); digitalWrite(EYE_PIN, LOW);
-  pinMode(RING_PIN, OUTPUT); digitalWrite(RING_PIN, LOW);
+  bool a = rmtOpen(0, EYE_PIN), b = rmtOpen(1, RING_PIN);
+  if (!a) { pinMode(EYE_PIN, OUTPUT); digitalWrite(EYE_PIN, LOW); }
+  if (!b) { pinMode(RING_PIN, OUTPUT); digitalWrite(RING_PIN, LOW); }
   eyeReady = ringReady = true;
-  Serial.println("Lights: sent directly (no light driver)");
+  Serial.printf("Lights: eyes %s, board ring %s\n", a ? "on the chip's light part" : "sent directly", b ? "on the chip's light part" : "sent directly");
 }
 
 static void putColor(uint8_t *d, int i, uint8_t r, uint8_t g, uint8_t b) { d[i * 3] = g; d[i * 3 + 1] = r; d[i * 3 + 2] = b; }   // these lights want green, red, blue
@@ -154,9 +187,9 @@ void eyes(const uint8_t c[3], float level = 1.0f) {
   uint8_t r = (uint8_t)(c[0] * EYE_BRIGHTNESS / 255 * level), g = (uint8_t)(c[1] * EYE_BRIGHTNESS / 255 * level), b = (uint8_t)(c[2] * EYE_BRIGHTNESS / 255 * level);
   if (!lightsTried) lightsStart();
   for (int i = 0; i < STRIP_COUNT; i++) { bool lit = (i == EYE_A || i == EYE_B); putColor(eyeBytes, i, lit ? r : 0, lit ? g : 0, lit ? b : 0); }
-  wsSend(EYE_PIN, eyeBytes, sizeof(eyeBytes));
+  lightSend(0, EYE_PIN, eyeBytes, sizeof(eyeBytes));
   for (int i = 0; i < RING_COUNT; i++) putColor(ringBytes, i, r * RING_BRIGHTNESS / 100, g * RING_BRIGHTNESS / 100, b * RING_BRIGHTNESS / 100);
-  wsSend(RING_PIN, ringBytes, sizeof(ringBytes));
+  lightSend(1, RING_PIN, ringBytes, sizeof(ringBytes));
 }
 
 // ---- her head turn ----
@@ -494,7 +527,7 @@ uint32_t firesideCheck() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20k, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20l, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
