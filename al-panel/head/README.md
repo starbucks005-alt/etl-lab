@@ -68,6 +68,12 @@ On build 2026-11-20e on Astri's board, with the servo's own power from a wall ch
 - **Astro.** The newest robot-head.ino in his robot-head-astro folder, renamed robot-head-astro.ino, keeping his secrets.h. His servo wired like Astri's (orange to IO5, its own USB power cable checked with the meter, WAGOs, the board's GND joined). Then his numbers under "Dr. O's choices".
 - Astri's numbers so far: `NECK_SWAY 49`, `NECK_SPEED_MS 10`, and the head moving with her words (`NECK_BEATS 1`, `NECK_BEAT_DEG 10`, build 2026-11-20i, not yet seen).
 
+## The lights work again, 2026-11-20 (Friday)
+
+The board package's light driver (arduino-esp32 3.2.0, the version installed) refused to start on builds 2026-11-20d to 20i ("rmt_new_tx_channel(269): not able to power down in light sleep", the same message reported in arduino-esp32 issues 11223 and 11225). Build 2026-11-20j sends the light signal directly, timed from the processor's clock, with no light driver, and on Astri's board the ring lit (Dr. O, 2026-11-20). The eye strip on IO7 uses the same code and is still to be tried. Do not update the esp32 board package (the IDE offers 4.0.0) without testing first.
+
+Uploading notes from the same morning: the IDE saves what is in its window over the file when Upload is pressed, so close the IDE before putting a new file in the folder; Sketch > Show Sketch Folder shows which folder the IDE uses; "exit status 2" was the Serial Monitor holding the port, fixed by closing that tab before Upload.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
