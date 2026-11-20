@@ -12,6 +12,7 @@
    wide turns more likely than small ones, then eases back to the middle and lets go. The same as al_neck.py's sway on the Pi.
    Wiring: servo ORANGE (signal) to header pin 6 (GPIO5). Servo BROWN to the servo's own power minus AND to the board's GND (header pin 15 or 16): the grounds
    must be joined. Servo RED to the servo's own 5V plus. Never power the servo from the board: a servo starting to move can restart the board.
+   No soldering (Dr. O's rule): jumper wires onto the header pins and into the servo's plug, a USB to screw terminal adapter for its power, a WAGO for the grounds.
 
    THE FIRESIDE CHAT: she asks the website every 20 seconds whether a chat is on (every second while one is). While it is on she does not listen to the room:
    the director hands her the others' words as text, and when it is her turn the website sends her answer and she plays it. Nobody has to hear anybody.

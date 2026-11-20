@@ -35,6 +35,8 @@ The host body is what the robot is built into. There are two kinds:
 - **Mannequins.** Store display mannequins, fiberglass, opened up to take the electronics. A.L.I.C.E. is a full body posable mannequin (RoxyDisplay FFXF, from American Dress Forms on eBay). The dogs are Sunraymascota fiberglass dog mannequins. The twins and the 10-year-old are child mannequins. Panels cut with a Dremel (1/8 in kerf) are held back on with magnet tabs (Section 1.4).
 - **3D printed bases.** _Dr. O to fill in: which robots stand on a 3D printed base, and what the base is._
 
+**No soldering (Dr. O, 2026-11-20: "no soldering. THIS IS A RULE.").** Every connection is a plug, a jumper wire on a header pin, a screw terminal, a WAGO, or a heat-shrink solder seal connector closed with the heat gun.
+
 ### 1.4 What the adult and child mannequin robots share
 
 From Dr. O's build book update of 2026-11-12. The full text, with all measurements, is the "Build book update" section at the end of the bench log.

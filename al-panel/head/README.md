@@ -29,7 +29,7 @@ From the strip's plug: **green (data) to header pin 2** (GPIO7), **red (5V) to h
 
 ## Wiring the head turn (2026-11-20)
 
-The round board runs the MG996R itself, with no servo board. Servo **orange** (signal) to **header pin 6** (GPIO5). Servo **brown** to the servo's own power minus **and** to the board's **GND** (header pin 15 or 16): the grounds must be joined. Servo **red** to the servo's own 5V plus. The servo never takes power from the board. On a battery twin, the servo's power is a USB power bank in the backpack, through a USB lead cut down to its red and black wires (check which is plus with the meter first).
+The round board runs the MG996R itself, with no servo board. Servo **orange** (signal) to **header pin 6** (GPIO5). Servo **brown** to the servo's own power minus **and** to the board's **GND** (header pin 15 or 16): the grounds must be joined. Servo **red** to the servo's own 5V plus. The servo never takes power from the board. On a battery twin, the servo's power is a USB power bank in the backpack, through a USB to screw terminal adapter plugged into the power bank. No soldering anywhere (Dr. O's rule): jumper wires onto the header pins and the servo's plug, and a WAGO where the grounds join.
 
 While she talks, the head turns slowly to five spots across the room and holds each, the same as the Pi's room sweep, then eases back to the middle and lets go. The numbers are under "Dr. O's choices": `NECK_MIDDLE` (straight ahead, 90), `NECK_SWAY` (how far each way, 14) and `NECK_SPEED_MS` (40, higher is slower). `NECK_ON 0` turns it off for a head with no servo. NOT TRIED on a board yet.
 

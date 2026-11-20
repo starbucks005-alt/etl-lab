@@ -155,3 +155,12 @@ Dr. O, 2026-11-01: *"please remember I am hearing impaired"*, after a session of
 - A loud volume is not a mistake to correct. She may need it that way. If loud means distortion, the fix is in the product (a cleaner louder signal), not a lecture about the volume.
 - Anything the product says out loud should also be somewhere she can read it (the panel, the screen). When something new speaks, ask whether it can show the words too.
 - This holds for every repository she owns.
+
+## 10. NO SOLDERING. THIS IS A RULE.
+
+Dr. O, 2026-11-20: *"no soldering. THIS IS A RULE."*
+
+The eye stacks were soldered, and they cost more time than anything else in the robots. Every connection in a build is made without a soldering iron:
+plugs, jumper wires onto header pins, screw terminals, WAGO lever connectors, and the heat-shrink solder seal connectors she bought, which need only her heat
+gun. Never write a step, a parts list or a suggestion that needs a soldering iron, not even "solder it once." If a part only comes with bare pads or bare holes,
+say so and find one that plugs in.
