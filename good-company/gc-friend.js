@@ -6363,9 +6363,11 @@ var GC_TWINS = {
   scenes: [
     { key: 'home', label: 'Home', src: null, still: 'photos/astri-concept_v1.jpg',
       where: 'Astri in a lilac dress with a white collar and a pink bow, holding her doll, with her twin brother Astro beside her.' },
-    { key: 'astro', label: 'Astro', src: null, still: 'photos/astro-concept_v1.jpg', speaker: 'astro' },
+    /* No speaker on this scene (2026-11-21, Dr. O: "they have to talk equally"): a scene that names a speaker silences the other twin. */
+    { key: 'astro', label: 'Astro', src: null, still: 'photos/astro-concept_v1.jpg' },
   ],
   turnOrder: ['astri', 'astro'],
+  answerByName: true,
   companions: { astri: GC_ASTRI, astro: GC_ASTRO },
 };
 

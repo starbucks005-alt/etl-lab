@@ -3208,6 +3208,23 @@ function nextTurnSpeaker(friend) {
   return order[i % order.length];
 }
 
+/* ANSWERED BY NAME, added 2026-11-21 for the twins, Dr. O: "they have to talk equally". Only in a room that sets answerByName.
+   When a message names exactly one of the room's companions, that one answers, and the rotation moves on so the other answers
+   next. Strict turns alone meant "Astro, can we play?" got Astri's answer whenever it was her turn. */
+function namedTurnSpeaker(friend, message) {
+  if (!friend.answerByName || !message) return null;
+  var text = ' ' + String(message).toLowerCase().replace(/[^a-z0-9]+/g, ' ') + ' ';
+  var hits = friend.turnOrder.filter(function (k, i, a) {
+    if (a.indexOf(k) !== i) return false;
+    var c = friend.companions[k] || {};
+    return [k].concat(c.name ? [c.name] : []).some(function (n) { return text.indexOf(' ' + String(n).toLowerCase() + ' ') > -1; });
+  });
+  if (hits.length !== 1) return null;
+  var key = 'gc-turn-' + friend.id, at = friend.turnOrder.indexOf(hits[0]);
+  try { sessionStorage.setItem(key, String(at + 1)); } catch (e) {}
+  return hits[0];
+}
+
 function ask(payload) {
   thinking = true;
   $("sendBtn").disabled = true;
@@ -3227,7 +3244,7 @@ function ask(payload) {
      Wilhelm's, where every scene is shared and who answers rotates by
      message instead of by scene. */
   var speakerKey = (current && current.speaker) ? current.speaker
-                  : (FRIEND.companions && FRIEND.turnOrder) ? nextTurnSpeaker(FRIEND) : null;
+                  : (FRIEND.companions && FRIEND.turnOrder) ? (namedTurnSpeaker(FRIEND, payload.message) || nextTurnSpeaker(FRIEND)) : null;
   var speakerObj = (speakerKey && FRIEND.companions) ? FRIEND.companions[speakerKey] : null;
   return fetch(CHAT_URL, {
     method: "POST", headers: { "Content-Type": "application/json" },
