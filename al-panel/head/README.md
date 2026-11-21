@@ -88,6 +88,7 @@ Dr. O loaded Astro's copy (robot-head-astro.ino, build 2026-11-20o: blue eyes, t
 
 ## Open, after the event
 
+- **The tablet game (twins.html) with the round boards.** On 2026-11-20 it works as a game with the twins' lines shown as words; the twins do not speak them, because the game was built to ask each twin's Pi (POST /api/game/line on port 8000). Dr. O's design: an **SD card in each twin's board** (she has them) holding that twin's game lines in their own voice, and one twin's board serving the game page itself, as Astri's Pi did, so each move tells the right twin which line to play from its card, with no website in the middle. To build: record the lines (al-panel/twins-lines.json) once per twin onto the cards, a small web server and the game page on the board, and play from the card.
 - **K2, the quiet switch, did not work** while charging (Dr. O, 2026-11-20 night: "a minor issue"). Cause not known: the program does not watch the button while a twin is talking or waiting on the website, or the button marked K2/SET may not be the one the program reads (it reads the pin expander bits KEY1 0x02, KEY2 0x04, KEY3 0x08, copied from the Companion box). To settle it: Serial Monitor open, tap K2, look for "Quiet: not listening"; if it never shows, try K3.
 - **Quiet on their own while charging**, asked for by Dr. O: first find whether the board can tell a USB cable is in.
 - **Astri's answer "I don't know that one!"** to something that was not a question about her (2026-11-20): her line for unknown facts used where it was not needed.
