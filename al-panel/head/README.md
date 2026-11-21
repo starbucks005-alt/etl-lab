@@ -86,6 +86,12 @@ Dr. O lit both of Astri's eyes from the board's own ring, shining through the ey
 
 Dr. O loaded Astro's copy (robot-head-astro.ino, build 2026-11-20o: blue eyes, the head turn moving with his words, the hearing fixes and the lights sent directly) onto his board: "It's all good." Both twins now run on round boards with no Pi and no eye stack, the night before Science Saturday at the Joe Clark Innovation Lab.
 
+## Open, after the event
+
+- **K2, the quiet switch, did not work** while charging (Dr. O, 2026-11-20 night: "a minor issue"). Cause not known: the program does not watch the button while a twin is talking or waiting on the website, or the button marked K2/SET may not be the one the program reads (it reads the pin expander bits KEY1 0x02, KEY2 0x04, KEY3 0x08, copied from the Companion box). To settle it: Serial Monitor open, tap K2, look for "Quiet: not listening"; if it never shows, try K3.
+- **Quiet on their own while charging**, asked for by Dr. O: first find whether the board can tell a USB cable is in.
+- **Astri's answer "I don't know that one!"** to something that was not a question about her (2026-11-20): her line for unknown facts used where it was not needed.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
