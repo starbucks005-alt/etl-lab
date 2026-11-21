@@ -647,7 +647,7 @@ var GC_BUILT = null;
    id here as well as to GC_DEMOS below; two places is one too many, and it is
    still better than the resolution order silently deciding a new demo does
    not exist, which is exactly what happened to Sophia once already. */
-var GC_DEMO_IDS = ['kit', 'arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere', 'gc', 'astra9', 'sarah', 'olivia', 'ash', 'velvet', 'ember', 'flint', 'astri', 'astro'];
+var GC_DEMO_IDS = ['kit', 'arch', 'sofia', 'cora', 'kioko', 'alice', 'julian', 'reggie', 'tansy', 'winston', 'viv', 'marion', 'aaron', 'jacob', 'wilhelm', 'grimms', 'eli', 'nell', 'puppets', 'marcus', 'theo', 'cressida', 'meera', 'dario', 'nora', 'zoe', 'rin', 'bear', 'bunny', 'dino', 'pearl', 'nursery', 'tobias', 'briar', 'larkmere', 'gc', 'astra9', 'sarah', 'olivia', 'ash', 'velvet', 'ember', 'flint', 'astri', 'astro', 'twins'];
 /* SARAH AND OLIVIA, added here 2026-09-12: both were added to GC_DEMOS (below) when built, but
    this SEPARATE list is what the ?who= reader actually checks first (see GC_WHO's own IIFE just
    below) -- being in GC_DEMOS alone was not enough. Missing here, ?who=sarah and ?who=olivia both
@@ -6339,7 +6339,37 @@ var GC_ASTRO = {
   ],
 };
 
-var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, kit: GC_KIT, nursery: GC_NURSERY, larkmere: GC_LARKMERE, gc: GC_ROBOT, astra9: GC_ASTRA9, sarah: GC_SARAH, olivia: GC_OLIVIA, ash: GC_ASH, velvet: GC_VELVET, ember: GC_EMBER, flint: GC_FLINT, astri: GC_ASTRI, astro: GC_ASTRO };
+/* THE TWINS, one shared room, added 2026-11-20, Dr. O: "the twins can be in the same room on good company". The same way Eli and Nell share
+   theirs: ?who=astri, ?who=astro and ?who=twins all open this room, and the two take turns by turnOrder, each in their own voice, each from
+   their own entry above (GC_ASTRI, GC_ASTRO), so every fact still comes from their robot files. Astri opens, so the room's fallback voice is hers. */
+var GC_TWINS = {
+  id: 'twins',
+  name: 'Astri & Astro',
+  full: 'The twins',
+  premise: 'Astri and Astro are three-year-old twin robots made by the Emerging Technologies Laboratory, a little girl and a little boy. ' +
+           'Astri loves dolls and tea parties. Astro, also called Teddy, loves I Spy and his teddy bear, TB. Astro says he is older because he ' +
+           'was turned on first; Astri says they are twins, so they are the same age. Their mommy is Astra and their daddy is Astrad.',
+  hello: 'Hi! I\x27m Astri! And that\x27s my brother Astro! Do you wanna play with us?',
+  mood: 'Two playful three-year-olds sharing one room, curious about everything.',
+  baselineFeelings: { happy: 78, sad: 5, fear: 5, disgust: 3, anger: 3, surprise: 50, curious: 90 },
+  moodEmoji: '&#129302;',
+  voiceId: 'azure:en-US-AnaNeural',
+  talkingPoints: [
+    'Who is older?',
+    'Do you want to have a tea party?',
+    'Can we play I Spy?',
+  ],
+  portrait: 'photos/astri-concept_v1.jpg',
+  scenes: [
+    { key: 'home', label: 'Home', src: null, still: 'photos/astri-concept_v1.jpg',
+      where: 'Astri in a lilac dress with a white collar and a pink bow, holding her doll, with her twin brother Astro beside her.' },
+    { key: 'astro', label: 'Astro', src: null, still: 'photos/astro-concept_v1.jpg', speaker: 'astro' },
+  ],
+  turnOrder: ['astri', 'astro'],
+  companions: { astri: GC_ASTRI, astro: GC_ASTRO },
+};
+
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY, winston: GC_WINSTON, viv: GC_VIV, marion: GC_MARION, aaron: GC_AARON, grimms: GC_GRIMMS, puppets: GC_PUPPETS, marcus: GC_MARCUS, theo: GC_THEO, cressida: GC_CRESSIDA, meera: GC_MEERA, dario: GC_DARIO, nora: GC_NORA, zoe: GC_ZOE, rin: GC_RIN, kit: GC_KIT, nursery: GC_NURSERY, larkmere: GC_LARKMERE, gc: GC_ROBOT, astra9: GC_ASTRA9, sarah: GC_SARAH, olivia: GC_OLIVIA, ash: GC_ASH, velvet: GC_VELVET, ember: GC_EMBER, flint: GC_FLINT, astri: GC_ASTRI, astro: GC_ASTRO, twins: GC_TWINS };
 
 /* ?who=eli AND ?who=nell BOTH OPEN THE SAME SHARED ROOM, same reasoning as
    GC_GRIMMS's own jacob/wilhelm aliases just below. */
@@ -6349,6 +6379,9 @@ if (GC_WHO === 'eli' || GC_WHO === 'nell') GC_WHO = 'puppets';
    became a real duo, same reasoning as eli/nell just above. 'astra9' stays the canonical id
    since every existing link (the wall, the marketing pages) already points there. */
 if (GC_WHO === 'astrad') GC_WHO = 'astra9';
+
+/* ?who=astri AND ?who=astro BOTH OPEN THE TWINS' SHARED ROOM, added 2026-11-20, Dr. O: "the twins can be in the same room on good company". */
+if (GC_WHO === 'astri' || GC_WHO === 'astro') GC_WHO = 'twins';
 
 /* ?who=bear/bunny/dino/pearl ALL OPEN THE NURSERY, same reasoning, just
    four aliases instead of two. */
