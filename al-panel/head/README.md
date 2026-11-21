@@ -82,6 +82,10 @@ The board's own ring reads its first color number as **red**; the eye strip (WS2
 
 Dr. O lit both of Astri's eyes from the board's own ring, shining through the eye domes left from her eye stack: no eye strip and no wiring. Both eyes glow about evenly (her photo, 2026-11-20, 11:37). In that photo they read a little purple; lowering the blue number of her waiting color (60 to about 30) would make them pinker, her call.
 
+## Astro on his round board, 2026-11-20 (Friday night)
+
+Dr. O loaded Astro's copy (robot-head-astro.ino, build 2026-11-20o: blue eyes, the head turn moving with his words, the hearing fixes and the lights sent directly) onto his board: "It's all good." Both twins now run on round boards with no Pi and no eye stack, the night before Science Saturday at the Joe Clark Innovation Lab.
+
 ## Loading it
 
 1. Copy `secrets.h.example` to `secrets.h` in the same folder and fill in the Wi-Fi (or phone hotspot) name and password, and the home access code the Companion box uses.
