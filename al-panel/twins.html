@@ -152,11 +152,23 @@
   }
   function saved(who){ try { return localStorage.getItem('twin-' + who) || ''; } catch (e) { return ''; } }
   function keep(who, base){ try { localStorage.setItem('twin-' + who, base); } catch (e) {} }
+  // 2026-11-20 night, Dr. O: the twins run on round boards now, and Astri's board serves this page. Her board knows where Astro's board is on the
+  // Wi-Fi (each board tells the website its address), so the page asks it first: /api/peer?who=astro.
+  function peer(here, w){
+    if (!here) return Promise.resolve('');
+    var ctl = new AbortController(); var kill = setTimeout(function(){ ctl.abort(); }, 4000);
+    return fetch(here + '/api/peer?who=' + w, {signal: ctl.signal, cache: 'no-store'}).then(function(r){ clearTimeout(kill); return r.json(); })
+      .then(function(j){ return (j && j.base) || ''; }).catch(function(){ clearTimeout(kill); return ''; });
+  }
   function findTwins(){
     var here = location.protocol === 'http:' ? location.origin : '';
+    return Promise.all([peer(here, 'astro'), peer(here, 'astri')]).then(function(p){ return findWith(here, {astro: p[0], astri: p[1]}); });
+  }
+  function findWith(here, peers){
     var tries = {};
     ['astro', 'astri'].forEach(function(w){
       var t = [];
+      if (peers[w]) t.push(peers[w]);
       if (saved(w)) t.push(saved(w));
       if (here) t.push(here);
       var host = location.hostname, m = host.match(/^[a-z0-9-]+(\.[a-z0-9-]+\.ts\.net)$/);

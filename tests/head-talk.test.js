@@ -164,5 +164,24 @@ const gc = require('../netlify/functions/_gc-config.js');
   const scrubbed = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), director: async () => ({ seats: [] }), listen: async () => 'hi there', ask: async () => "I'm not Alexa, I'm Astro! Wanna play?" }));
   assert.strictEqual(decodeURIComponent(scrubbed.headers['X-Said']), 'Wanna play?', 'the correction is taken out before it is spoken');
 
+  // the tablet game: each twin's lines in their own voice, kept; and each board's address shared
+  const gstore = mem();
+  const lineEv = (robot, line) => ({ httpMethod: 'POST', headers: { 'x-sun-key': KEY }, queryStringParameters: { robot, line }, body: '' });
+  let made = 0;
+  const gBase = () => Object.assign(base(), { store: gstore, speak: async (text, voice) => { made++; base.lastVoice = voice; return Buffer.from([1, 0, 2, 0]); } });
+  const real2 = require('../al-panel/twins-lines.json');
+  const l1 = await handler(lineEv('astri', 'start'), gBase());
+  assert.strictEqual(l1.statusCode, 200);
+  assert.strictEqual(decodeURIComponent(l1.headers['X-Said']), real2.twins.astri.lines.start, 'her own line from twins-lines.json');
+  assert.strictEqual(base.lastVoice, 'azure:en-US-AnaNeural');
+  await handler(lineEv('astri', 'start'), gBase());
+  assert.strictEqual(made, 1, 'a line is made once, then kept');
+  assert.strictEqual((await handler(lineEv('astri', 'nonsense'), gBase())).statusCode, 404, 'only lines in the file');
+  const pev = (robot, ip) => ({ httpMethod: 'POST', headers: { 'x-sun-key': KEY }, queryStringParameters: { robot, fireside: 'poll', ip }, body: '' });
+  await handler(pev('astro', '192.168.0.17'), Object.assign(gBase(), { director: async () => ({ on: false }) }));
+  await handler(pev('astri', 'not-an-ip'), Object.assign(gBase(), { director: async () => ({ on: false }) }));
+  const pr = await handler({ httpMethod: 'POST', headers: { 'x-sun-key': KEY }, queryStringParameters: { robot: 'astri', peers: '1' }, body: '' }, gBase());
+  assert.deepStrictEqual(JSON.parse(pr.body), { astro: 'http://192.168.0.17:8000', astri: '' });
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });

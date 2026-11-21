@@ -27,6 +27,8 @@ const { defaultAsk, _test: boxTest } = require('./box-talk.js');
 
 let PERSONAS = {};
 try { PERSONAS = require('../../al-panel/pi/personalities.json'); } catch (_) {}
+let TWIN_LINES = {};
+try { TWIN_LINES = require('../../al-panel/twins-lines.json'); } catch (_) {}
 let ROBOTS = [];
 try { const r = require('../../al-panel/robots.json'); ROBOTS = Array.isArray(r.robots) ? r.robots : []; } catch (_) {}
 
@@ -173,6 +175,41 @@ async function openStore(event) {
 
 const waiting = (on, every) => ({ statusCode: 204, headers: Object.assign({ 'Cache-Control': 'no-store', 'X-On': on ? '1' : '0', 'X-Every': String(every) }, CORS), body: '' });
 
+/* 2026-11-20 night, Dr. O: the tablet game with the twins speaking from their own bodies, their lines kept on the SD card in each board.
+   POST ?robot=astri&line=c4 -> that twin's game line from al-panel/twins-lines.json, as raw 16 kHz sound in the twin's own voice, made once and kept.
+   The board fetches each line once and keeps it on its card, so a game needs no website. Only lines in that file can be asked for. */
+async function gameLine(event, deps, robot, voiceId, key) {
+  const lines = (deps.twinLines || TWIN_LINES).twins || {};
+  const text = lines[robot] && lines[robot].lines && lines[robot].lines[key];
+  if (!text) return json(404, { error: 'unknown_line' });
+  let store = deps.store;
+  try { if (!store) store = await openStore(event); } catch (_) { return json(503, { error: 'store_unavailable' }); }
+  const id = 'line-' + require('crypto').createHash('sha256').update([robot, voiceId, pitchFor(robot, deps.robots || ROBOTS), text].join('|')).digest('hex').slice(0, 40);
+  try { const kept = await store.get(id, { type: 'arrayBuffer' }); if (kept && kept.byteLength) return sound(Buffer.from(kept), '', text); } catch (_) {}
+  try {
+    const buf = lower(await (deps.speak || elevenPcm)(text, voiceId, deps), pitchFor(robot, deps.robots || ROBOTS));
+    if (!buf || !buf.length) throw new Error('empty_voice');
+    try { await store.set(id, buf); } catch (_) {}
+    return sound(buf, '', text);
+  } catch (e) {
+    return json(502, { error: 'voice_failed', detail: String((e && e.message) || e).slice(0, 80) });
+  }
+}
+
+/* Each board tells the website its address on the Wi-Fi when it checks in (fireside poll, &ip=), so Astri's board, which serves the game page, can
+   tell the tablet where Astro is. Addresses older than ten minutes are not given out. */
+async function peers(event, deps) {
+  let store = deps.store;
+  try { if (!store) store = await openStore(event); } catch (_) { return json(503, { error: 'store_unavailable' }); }
+  const now = deps.now ? deps.now() : new Date();
+  const out = {};
+  for (const id of ['astro', 'astri']) {
+    out[id] = '';
+    try { const v = await store.get(id + '-ip', { type: 'json' }); if (v && v.ip && now.getTime() - Number(v.at || 0) < 600000) out[id] = 'http://' + v.ip + ':8000'; } catch (_) {}
+  }
+  return json(200, out);
+}
+
 async function fireside(event, deps, fs, robot, entry, voiceId, a, q) {
   const seat = SEATS[robot];
   if (!seat) return json(404, { error: 'no_seat' });
@@ -189,6 +226,8 @@ async function fireside(event, deps, fs, robot, entry, voiceId, a, q) {
     return waiting(true, 1);
   }
   if (fs !== 'poll') return json(400, { error: 'unknown_fireside_step' });
+  const ip = String(q.ip || '');
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) { try { await store.setJSON(robot + '-ip', { ip, at: (deps.now ? deps.now() : new Date()).getTime() }); } catch (_) {} }
 
   const v = await call('poll');
   if (!v || !('on' in v)) return json(502, { error: 'director_unreachable' });
@@ -229,6 +268,8 @@ exports.handler = async (event, deps = {}) => {
   const voiceId = voiceFor(robot, deps.robots || ROBOTS);
   if (!entry || !entry.prompt || !voiceId) return json(404, { error: 'unknown_robot' });
 
+  if (q.line) return await gameLine(event, deps, robot, voiceId, String(q.line));
+  if (q.peers) return await peers(event, deps);
   const fs = String(q.fireside || '');
   if (fs) return await fireside(event, deps, fs, robot, entry, voiceId, a, q);
 

@@ -14,6 +14,11 @@
    must be joined. Servo RED to the servo's own 5V plus. Never power the servo from the board: a servo starting to move can restart the board.
    No soldering (Dr. O's rule): jumper wires onto the header pins and into the servo's plug, a USB to screw terminal adapter for its power, a WAGO for the grounds.
 
+   THE TABLET GAME (2026-11-20 night, Dr. O's design): an SD card in each twin's board holds that twin's game lines in their own voice, fetched once
+   from the website. Each board answers the tablet on the Wi-Fi at port 8000, as the Pis did: /api/robot (who it is), /api/game/line (say a line from
+   the card, answer when said), and Astri's board serves the game page itself at http://<her address>:8000/ and tells the tablet where Astro is
+   (/api/peer, from the address each board reports to the website). For a minute after a game line she does not listen to the room.
+
    THE FIRESIDE CHAT: she asks the website every 20 seconds whether a chat is on (every second while one is). While it is on she does not listen to the room:
    the director hands her the others' words as text, and when it is her turn the website sends her answer and she plays it. Nobody has to hear anybody.
    The host's Stop cuts a Pi off mid sentence; the head finishes its two or three sentences first.
@@ -43,6 +48,10 @@
 #include "soc/soc.h"
 #include "esp_cpu.h"
 #include "driver/rmt_tx.h"
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include "FS.h"
+#include "SD_MMC.h"
 #include "secrets.h"
 
 // ---------------- Dr. O's choices ----------------
@@ -106,7 +115,10 @@ static uint8_t eyeBytes[STRIP_COUNT * 3];
 static uint8_t ringBytes[RING_COUNT * 3];
 static bool eyeReady = false, ringReady = false, lightsTried = false;
 bool quietMode = false;
-bool firesideOn = false;          // a fireside chat is on: she waits for her turn and does not listen to the room
+bool firesideOn = false;
+uint32_t gameUntil = 0;           // the tablet game: until then, she plays game lines and does not listen to the room
+bool cardOk = false;
+WebServer web(8000);          // a fireside chat is on: she waits for her turn and does not listen to the room
 uint32_t nextAsk = 0;             // when to ask the director again
 long roomFloor = 200;             // the room's own level, learned while nobody is talking
 
@@ -444,6 +456,8 @@ size_t listenForSpeech() {
   while (true) {
     if (millis() - waitStart > 1000) return 0;
     neckUpdate();
+    web.handleClient();
+    if (millis() < gameUntil) return 0;              // a game line was just asked for: the game has her now
     if (keysPressed() & 2) return 0;              // KEY2 is handled in loop()
     if (keysPressed() & 1) return 0;              // so is KEY1
     int n = readMono(chunk);
@@ -499,7 +513,7 @@ uint32_t firesideCheck() {
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID + "&fireside=poll")) return 20000;
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID + "&fireside=poll&ip=" + WiFi.localIP().toString())) return 20000;
   http.addHeader("x-sun-key", BOX_KEY);
   const char *keep[] = {"X-On", "X-Every", "X-Cue", "X-Said"}; http.collectHeaders(keep, 4);
   http.setTimeout(30000);
@@ -528,10 +542,185 @@ uint32_t firesideCheck() {
   return 1000;
 }
 
+// ---- the tablet game ----
+const char *GAME_LINES[] = {"start", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "win", "cheer", "tie"};
+const int GAME_LINE_COUNT = 13;
+
+bool cardStart() {
+  SD_MMC.setPins(40, 42, 41);                        // clock, command, data, as the Rising Sun notes read from Waveshare's diagram
+  cardOk = SD_MMC.begin("/sdcard", true);            // one data wire
+  if (cardOk && !SD_MMC.exists("/game")) SD_MMC.mkdir("/game");
+  Serial.printf("SD card: %s\n", cardOk ? "ok" : "NOT FOUND (the game lines need it)");
+  return cardOk;
+}
+
+// Fetches a web address onto the card. The old copy is kept unless the new one arrived whole.
+size_t fetchToCard(const String &url, const String &path, bool keyed) {
+  WiFiClientSecure client; client.setInsecure();     // TEST ONLY
+  HTTPClient http;
+  http.useHTTP10(true);
+  http.setTimeout(30000);
+  if (!http.begin(client, url)) return 0;
+  int code;
+  if (keyed) { http.addHeader("x-sun-key", BOX_KEY); code = http.POST((uint8_t *)"", 0); } else code = http.GET();
+  if (code != 200) { Serial.printf("  %s: website answered %d\n", path.c_str(), code); http.end(); return 0; }
+  String tmp = path + ".part";
+  File f = SD_MMC.open(tmp, FILE_WRITE);
+  if (!f) { http.end(); return 0; }
+  WiFiClient *s = http.getStreamPtr();
+  uint8_t buf[1024];
+  size_t total = 0;
+  int left = http.getSize();
+  uint32_t last = millis();
+  while (http.connected() && (left > 0 || left == -1)) {
+    size_t a = s->available();
+    if (!a) { if (millis() - last > 8000) break; delay(2); continue; }
+    last = millis();
+    int n = s->readBytes(buf, min(a, sizeof(buf)));
+    if (n <= 0) break;
+    f.write(buf, n);
+    total += n;
+    if (left > 0) left -= n;
+  }
+  f.close();
+  http.end();
+  if (total < 100) { SD_MMC.remove(tmp); return 0; }
+  SD_MMC.remove(path);
+  SD_MMC.rename(tmp, path);
+  return total;
+}
+
+bool onCard(const String &path, size_t least) {
+  File f = SD_MMC.open(path);
+  bool ok = f && f.size() >= least;
+  if (f) f.close();
+  return ok;
+}
+
+// The game page and the lines file every start (small), and her game lines only when they are not on the card yet.
+void gameFiles() {
+  if (!cardOk || !joinWifi()) return;
+  fetchToCard("https://emerging-tech-lab.com/al-panel/twins.html", "/game/twins.html", false);
+  fetchToCard("https://emerging-tech-lab.com/al-panel/twins-lines.json", "/game/twins-lines.json", false);
+  int have = 0;
+  for (int i = 0; i < GAME_LINE_COUNT; i++) {
+    String path = String("/game/") + GAME_LINES[i] + ".pcm";
+    if (onCard(path, 1000)) { have++; continue; }
+    Serial.printf("  fetching game line %s...\n", GAME_LINES[i]);
+    if (fetchToCard(String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID + "&line=" + GAME_LINES[i], path, true)) have++;
+  }
+  Serial.printf("Game lines on the card: %d of %d. Game page: %s\n", have, GAME_LINE_COUNT, onCard("/game/twins.html", 1000) ? "on the card" : "NOT on the card");
+}
+
+// Plays a line from the card: 16 bit mono at 16000 a second, written twice for left and right, with her eyes and head moving as when she talks.
+bool playFile(const String &path) {
+  File f = SD_MMC.open(path);
+  if (!f) return false;
+  uint8_t in[512];
+  int16_t out[512];
+  float voiceAvg = 0;
+  neckTalk(true);
+  while (f.available()) {
+    int n = f.read(in, sizeof(in));
+    if (n < 2) break;
+    int o = 0;
+    for (int k = 0; k + 1 < n; k += 2) { int16_t s = (int16_t)(in[k] | (in[k + 1] << 8)); out[o++] = s; out[o++] = s; }
+    long e = 0; for (int i = 0; i < o; i += 2) e += abs(out[i]);
+    long raw = e / (o / 2 + 1);
+    eyes(EYE_SPEAK, 0.45f + 0.55f * min(1.0f, (float)raw / 3000.0f));
+    voiceAvg = voiceAvg * 0.9f + raw * 0.1f;
+    if (raw > voiceAvg * 1.5f && raw > 600) neckBeat();
+    i2s.write((uint8_t *)out, o * sizeof(int16_t));
+    neckUpdate();
+  }
+  f.close();
+  neckTalk(false);
+  return true;
+}
+
+void cors() {
+  web.sendHeader("Access-Control-Allow-Origin", "*");
+  web.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  web.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  web.sendHeader("Access-Control-Allow-Private-Network", "true");
+}
+
+void sendFile(const char *path, const char *type) {
+  cors();
+  File f = SD_MMC.open(path);
+  if (!f) { web.send(404, "text/plain", "Not on the card yet. Restart her with the Wi-Fi on."); return; }
+  web.streamFile(f, type);
+  f.close();
+}
+
+// Where the other twin is, from the address each board reports to the website. Asked at most every 30 seconds.
+String peerBase(const String &who) {
+  static String cached = "";
+  static uint32_t at = 0;
+  if (!cached.length() || millis() - at > 30000) {
+    WiFiClientSecure client; client.setInsecure();   // TEST ONLY
+    HTTPClient http;
+    if (http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID + "&peers=1")) {
+      http.addHeader("x-sun-key", BOX_KEY);
+      if (http.POST((uint8_t *)"", 0) == 200) { cached = http.getString(); at = millis(); }
+      http.end();
+    }
+  }
+  int i = cached.indexOf("\"" + who + "\":\"");
+  if (i < 0) return "";
+  i += who.length() + 4;
+  int j = cached.indexOf("\"", i);
+  return j > i ? cached.substring(i, j) : String("");
+}
+
+void onPeer() {
+  String who = web.arg("who");
+  String base = (who == ROBOT_ID) ? ("http://" + WiFi.localIP().toString() + ":8000") : peerBase(who);
+  cors();
+  web.send(200, "application/json", "{\"base\":\"" + base + "\"}");
+}
+
+void onLine() {
+  String body = web.arg("plain");
+  int i = body.indexOf("\"line\"");
+  int a = i < 0 ? -1 : body.indexOf("\"", body.indexOf(":", i) + 1);
+  int b = a < 0 ? -1 : body.indexOf("\"", a + 1);
+  String key = (a >= 0 && b > a) ? body.substring(a + 1, b) : String("");
+  bool known = false;
+  for (int k = 0; k < GAME_LINE_COUNT; k++) if (key == GAME_LINES[k]) known = true;
+  String path = String("/game/") + key + ".pcm";
+  if (!known || !cardOk || !onCard(path, 1000)) { cors(); web.send(404, "application/json", "{\"error\":\"This twin has no game line called that on her card.\"}"); return; }
+  gameUntil = millis() + 60000;
+  Serial.printf("Game line: %s\n", key.c_str());
+  bool ok = playFile(path);
+  cors();
+  web.send(ok ? 200 : 502, "application/json", ok ? "{\"ok\":true}" : "{\"error\":\"could not play it\"}");
+}
+
+void onMissing() {
+  if (web.method() == HTTP_OPTIONS) { cors(); web.send(204); return; }
+  String u = web.uri();
+  web.sendHeader("Location", (u.startsWith("/images/") ? String("https://emerging-tech-lab.com/al-panel") : String("https://emerging-tech-lab.com")) + u);
+  web.send(302);
+}
+
+void webStart() {
+  web.on("/", HTTP_GET, []() { sendFile("/game/twins.html", "text/html"); });
+  web.on("/twins.html", HTTP_GET, []() { sendFile("/game/twins.html", "text/html"); });
+  web.on("/twins-lines.json", HTTP_GET, []() { sendFile("/game/twins-lines.json", "application/json"); });
+  web.on("/api/robot", HTTP_GET, []() { cors(); web.send(200, "application/json", String("{\"ok\":true,\"id\":\"") + ROBOT_ID + "\"}"); });
+  web.on("/api/peer", HTTP_GET, onPeer);
+  web.on("/api/game/line", HTTP_POST, onLine);
+  web.onNotFound(onMissing);
+  web.begin();
+  MDNS.begin(ROBOT_ID);
+  Serial.printf("Game: open http://%s:8000/ on the tablet (the page is served by %s's board)\n", WiFi.localIP().toString().c_str(), ROBOT_ID);
+}
+
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20o, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-20p, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
@@ -549,12 +738,24 @@ void setup() {
   const uint8_t *all[] = {EYE_IDLE, EYE_LISTEN, EYE_THINK, EYE_SPEAK};
   for (int i = 0; i < 4; i++) { eyes(all[i]); delay(400); }
   joinWifi();
+  cardStart();
+  gameFiles();
+  webStart();
   flushMic(500);
   Serial.printf("Microphones turned up %d dB. Listening. Talk to her.\n", MIC_GAIN_DB);
 }
 
 void loop() {
   if (!recordBuf) { eyes(EYE_TROUBLE); delay(1000); return; }
+  web.handleClient();
+  if (millis() < gameUntil) {                         // during the tablet game she plays her lines and does not listen to the room
+    float breath = (sinf(millis() / 1000.0f * 1.6f) + 1.0f) / 2.0f;
+    eyes(EYE_IDLE, 0.35f + 0.65f * breath);
+    neckUpdate();
+    delay(20);
+    if (millis() >= gameUntil) flushMic(300);
+    return;
+  }
   uint8_t keys = keysPressed();
   if (keys & 2) {                                   // KEY2: quiet on or off
     quietMode = !quietMode;
