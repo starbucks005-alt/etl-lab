@@ -154,5 +154,15 @@ const gc = require('../netlify/functions/_gc-config.js');
   await twin('astri', 'can tb come too', 'Of course!');
   assert.ok(!/is right beside you/.test(base.msgs[base.msgs.length - 1].text), 'after 30 seconds it is not taken to be Astro any more');
 
+  // never correcting a name (Dr. O, 2026-11-20 night: Astro said "I'm not Alexa, I'm ...")
+  assert.strictEqual(_test.scrubNames("I'm not Alexa, I'm Astro! Do you want to play I Spy?"), 'Do you want to play I Spy?');
+  assert.strictEqual(_test.scrubNames("My name isn't Teddy. Wanna play?"), 'Wanna play?');
+  assert.strictEqual(_test.scrubNames("I'm not sure! Let's read a book."), "I'm not sure! Let's read a book.", 'ordinary sentences stay');
+  const alexa = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), director: async () => ({ seats: [] }), listen: async () => 'Alexa, what time is it' }));
+  assert.strictEqual(alexa.statusCode, 204);
+  assert.strictEqual(alexa.headers['X-Why'], 'for_someone_else', 'words for a voice assistant are left for it');
+  const scrubbed = await handler(ev(KEY, 20000, 'astro'), Object.assign(base(), { store: mem(), director: async () => ({ seats: [] }), listen: async () => 'hi there', ask: async () => "I'm not Alexa, I'm Astro! Wanna play?" }));
+  assert.strictEqual(decodeURIComponent(scrubbed.headers['X-Said']), 'Wanna play?', 'the correction is taken out before it is spoken');
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });

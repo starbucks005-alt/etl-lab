@@ -146,6 +146,16 @@ async function whoSaidIt(heard, robot, store, now) {
   return best;
 }
 
+/* 2026-11-20 night, Dr. O: Astro said "I'm not Alexa, I'm ..." though every prompt says never to correct a name. Two guards, both here so they reach every head:
+   words spoken to a voice assistant are left for that device, and any sentence in an answer that corrects a name ("I'm not Alexa", "my name isn't ...") is
+   taken out before it is spoken. Ordinary sentences such as "I'm not sure" are kept: the guard looks for a capitalized name right after "not". */
+const ASSISTANT = /\b(alexa|siri|hey google|ok google|okay google|cortana)\b/i;
+function scrubNames(said) {
+  const parts = String(said || '').match(/[^.!?]+[.!?]*\s*/g) || [];
+  const keep = parts.filter((s) => !/\b(?:I'?m|I am) not (?:a |an )?[A-Z][a-z]+/.test(s) && !/\bmy name (?:is not|isn'?t)\b/i.test(s) && !/\b(?:that'?s|that is) not my name\b/i.test(s));
+  return keep.join('').trim();
+}
+
 function sound(buf, heard, said) {
   return {
     statusCode: 200,
@@ -190,7 +200,7 @@ async function fireside(event, deps, fs, robot, entry, voiceId, a, q) {
   try {
     let saved = deps.saved;
     if (!saved) { saved = {}; try { saved = await sun.effectiveSettings(await sun.openStore(event), a.who); } catch (_) {} }
-    const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), [{ role: 'user', text: String(cue.ask || '').slice(0, 4000) }]), 400);
+    const said = scrubNames(str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), [{ role: 'user', text: String(cue.ask || '').slice(0, 4000) }]), 400));
     if (!said) throw new Error('empty_reply');
     const buf = lower(await (deps.speak || elevenPcm)(said, voiceId, deps), pitchFor(robot, deps.robots || ROBOTS));
     if (!buf || !buf.length) throw new Error('empty_voice');
@@ -238,6 +248,7 @@ exports.handler = async (event, deps = {}) => {
   try {
     const heard = str(await (deps.listen || boxTest.listen)(pcm, deps), 400);
     if (!heard || heard.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return quiet('didnt_hear', heard);
+    if (ASSISTANT.test(heard)) return quiet('for_someone_else', heard);
     const speaker = await whoSaidIt(heard, robot, store, now);
     if (speaker === robot) return quiet('own_voice', heard);
     const to = addressedTo(heard);
@@ -253,8 +264,8 @@ exports.handler = async (event, deps = {}) => {
     const said_by = speaker && SEATS[speaker] ? SEATS[speaker][1] : '';
     const userText = said_by ? '[' + said_by + ' is right beside you and just said this to you. Answer ' + said_by + ' by name, the way you always talk to them, and you can ask them something back.] ' + heard : heard;
     const messages = history.concat([{ role: 'user', text: userText }]).slice(-KEEP - 1);
-    const said = str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), messages), 400);
-    if (!said) throw new Error('empty_reply');
+    const said = scrubNames(str(await (deps.ask || defaultAsk(Object.assign({}, deps, { saved })))(systemPrompt(entry), messages), 400));
+    if (!said) return quiet('nothing_left', heard);
 
     const buf = lower(await (deps.speak || elevenPcm)(said, voiceId, deps), pitchFor(robot, deps.robots || ROBOTS));
     if (!buf || !buf.length) throw new Error('empty_voice');
@@ -268,4 +279,4 @@ exports.handler = async (event, deps = {}) => {
   }
 };
 
-exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower, addressedTo, PI_RULES, overlap };
+exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower, addressedTo, PI_RULES, overlap, scrubNames };
