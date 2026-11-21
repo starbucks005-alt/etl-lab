@@ -64,7 +64,7 @@ const uint8_t EYE_SPEAK[3]  = {255, 0, 40};     // she is talking
 const uint8_t EYE_QUIET[3]  = {255, 10, 60};       // KEY2: not listening
 const uint8_t EYE_TROUBLE[3]= {255, 10, 60};       // something went wrong (read the Serial Monitor)
 #define RING_BRIGHTNESS 100 // the board's own ring of 7 lights, as a percent of the eyes. 100 = as bright as the eyes, for when the ring lights her eyes.
-#define EYE_BRIGHTNESS 70    // 0 to 255, the brightest the eyes ever get. Kept low: two lights behind a diffuser need little, and stay cool.
+#define EYE_BRIGHTNESS 255   // 0 to 255, the brightest the eyes ever get. Kept low: two lights behind a diffuser need little, and stay cool.
 #define STRIP_COUNT 4        // how many lights are on the cut piece
 #define EYE_A 0              // the first eye, counting from the plug end, starting at 0
 #define EYE_B 3              // the second eye. A 4-light piece puts the eyes about 5 cm apart; a 5-light piece (EYE_B 4) about 6.7 cm.
