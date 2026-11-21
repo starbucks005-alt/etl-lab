@@ -5,6 +5,9 @@
    No wake word and no name needed: she answers whoever talks to her. While she speaks she does not listen, so she cannot answer herself.
    KEY1 (hold) is the backup: hold it, speak, let go.
    KEY2 (tap) is her quiet switch: she stops listening and her eyes go dim. Tap again and she listens again.
+   KEY3 is her volume (2026-11-21, Dr. O: "K3 to volume up and down in increments"): TAP for one step louder, HOLD for one step quieter
+   (and another step every second it is held). Seven steps; the board's ring lights one light per step for a moment, and the Serial Monitor
+   prints "Volume: 5 of 7". The board remembers it when switched off. It works between turns, not while she is talking.
    What she heard and what she said are printed in the Serial Monitor as "Heard:" and "Said:" lines, so they can be read, not only heard.
 
    HER HEAD TURN (2026-11-20, Dr. O: "what do we need to operate the servo so their heads still turn?"): the round board runs the MG996R itself, no servo board.
@@ -53,6 +56,7 @@
 #include "FS.h"
 #include "SD_MMC.h"
 #include "secrets.h"
+#include <Preferences.h>
 
 // ---------------- Dr. O's choices ----------------
 // Eye colors, red, green, blue, each 0 to 255. Astri's are all pink, chosen by Dr. O, 2026-11-20. Keep green and blue low: pale pinks such as
@@ -115,6 +119,10 @@ static uint8_t eyeBytes[STRIP_COUNT * 3];
 static uint8_t ringBytes[RING_COUNT * 3];
 static bool eyeReady = false, ringReady = false, lightsTried = false;
 bool quietMode = false;
+// KEY3 volume steps, quietest to loudest. Step 5 (85) is SPEAKER_VOLUME, where she started.
+const uint8_t VOLUME_STEPS[7] = {45, 55, 65, 75, 85, 93, 100};
+int volumeStep = 4;
+Preferences volumeMemory;
 bool firesideOn = false;
 uint32_t gameUntil = 0;           // the tablet game: until then, she plays game lines and does not listen to the room
 bool cardOk = false;
@@ -306,6 +314,24 @@ uint8_t keysPressed() {
   return out;
 }
 
+void volumeSet(int step) {
+  volumeStep = max(0, min(6, step));
+  if (codec) es8311_voice_volume_set(codec, VOLUME_STEPS[volumeStep], NULL);
+  volumeMemory.putUChar("vol", (uint8_t)volumeStep);
+  Serial.printf("Volume: %d of 7 (%d)\n", volumeStep + 1, VOLUME_STEPS[volumeStep]);
+  for (int i = 0; i < RING_COUNT; i++) putColorRing(ringBytes, i, i <= volumeStep ? 255 : 0, i <= volumeStep ? 255 : 0, i <= volumeStep ? 255 : 0);
+  lightSend(1, RING_PIN, ringBytes, sizeof(ringBytes));
+  delay(600);
+}
+
+// KEY3: tap for louder, hold for quieter.
+void volumeKey() {
+  uint32_t down = millis();
+  while ((keysPressed() & 4) && millis() - down < 700) delay(20);
+  if (!(keysPressed() & 4)) { volumeSet(volumeStep + 1); return; }
+  while (keysPressed() & 4) { volumeSet(volumeStep - 1); uint32_t t = millis(); while ((keysPressed() & 4) && millis() - t < 1000) delay(20); }
+}
+
 bool codecStart() {
   codec = es8311_create(I2C_NUM_0, ES8311_ADDR);
   if (!codec) return false;
@@ -460,6 +486,7 @@ size_t listenForSpeech() {
     if (millis() < gameUntil) return 0;              // a game line was just asked for: the game has her now
     if (keysPressed() & 2) return 0;              // KEY2 is handled in loop()
     if (keysPressed() & 1) return 0;              // so is KEY1
+    if (keysPressed() & 4) return 0;              // and KEY3, the volume
     int n = readMono(chunk);
     for (int i = 0; i < n; i++) { pre[preAt] = chunk[i]; preAt = (preAt + 1) % PREROLL_SAMPLES; }
     long e = levelOf(chunk, n);
@@ -720,12 +747,17 @@ void webStart() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-20p, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-21a, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
   Wire.begin(I2C_SDA, I2C_SCL);
   bool c = codecStart();
+  volumeMemory.begin("head", false);
+  volumeStep = volumeMemory.getUChar("vol", 4);
+  if (volumeStep > 6) volumeStep = 4;
+  if (codec) es8311_voice_volume_set(codec, VOLUME_STEPS[volumeStep], NULL);
+  Serial.printf("Volume: %d of 7 (tap KEY3 for louder, hold it for quieter)\n", volumeStep + 1);
   bool a = speakerOn(true);
   i2s.setPins(I2S_BCLK, I2S_LRCK, I2S_DOUT, I2S_DIN, I2S_MCLK);
   i2s.setTimeout(1000);
@@ -748,6 +780,7 @@ void setup() {
 void loop() {
   if (!recordBuf) { eyes(EYE_TROUBLE); delay(1000); return; }
   web.handleClient();
+  if (keysPressed() & 4) { volumeKey(); flushMic(300); return; }   // KEY3: volume
   if (millis() < gameUntil) {                         // during the tablet game she plays her lines and does not listen to the room
     float breath = (sinf(millis() / 1000.0f * 1.6f) + 1.0f) / 2.0f;
     eyes(EYE_IDLE, 0.35f + 0.65f * breath);
