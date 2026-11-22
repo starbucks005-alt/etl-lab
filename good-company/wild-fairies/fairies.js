@@ -175,8 +175,8 @@ var WF_FAIRIES = [
     }
   },
   {
-    id: 'ember',
-    name: 'Ember',
+    id: 'wick',
+    name: 'Wick',
     role: 'The Lamplighter',
     type: 'still',
     face: 'A deep hood, head raised toward the light.',
@@ -186,7 +186,7 @@ var WF_FAIRIES = [
     portrait: null, room: null,
     voiceId: null,
     friend: {
-      name: 'Ember', full: 'Ember, who keeps the light', gender: 'A fairy',
+      name: 'Wick', full: 'Wick, who keeps the light', gender: 'A fairy',
       form: 'Small and still, in a deep hood with her head raised toward her candle. She sits easy among her books.',
       work: 'keeps a candle burning through the night and reads by it',
       knows: 'She knows how a candle burns, how to trim a wick, how long a night lasts in each season, and which of her small books she has read twice.',
