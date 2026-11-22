@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Fairies</title>
+<meta name="description" content="Wild fairies live in the wild until someone asks one home. Choose her, choose her home, and talk to her.">
+<style>
+  :root {
+    --bg: #14110e;
+    --panel: #1d1813;
+    --panel-2: #26201a;
+    --line: #3a3027;
+    --ink: #f1e8da;
+    --ink-soft: #b9ab97;
+    --amber: #e8b04a;
+    --amber-deep: #a9741f;
+    --moss: #6f8a4e;
+    --danger: #d9776b;
+    --radius: 14px;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 var(--sans);
+    background-image: radial-gradient(ellipse at 50% -10%, #2a2118 0%, transparent 60%);
+    min-height: 100vh;
+  }
+  header { padding: 28px 16px 8px; text-align: center; }
+  header h1 { margin: 0; font: 400 clamp(28px, 4vw, 40px)/1.1 var(--serif); letter-spacing: .02em; color: var(--amber); }
+  header p { margin: 8px auto 0; max-width: 56ch; color: var(--ink-soft); }
+
+  .wrap {
+    display: grid; gap: 16px; padding: 16px;
+    grid-template-columns: minmax(260px, 1fr) minmax(280px, 1.2fr) minmax(300px, 1fr);
+    max-width: 1400px; margin: 0 auto; align-items: start;
+  }
+  @media (max-width: 960px) { .wrap { grid-template-columns: 1fr; } }
+
+  .col { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .col h2 { margin: 0 0 4px; font: 400 20px/1.2 var(--serif); color: var(--amber); }
+  .col .sub { margin: 0 0 12px; color: var(--ink-soft); font-size: 14px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .chip {
+    background: var(--panel-2); color: var(--ink-soft); border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px;
+  }
+  .chip[aria-pressed="true"] { color: var(--bg); background: var(--amber); border-color: var(--amber); }
+
+  .fairies { display: grid; gap: 10px; }
+  .fairy {
+    text-align: left; width: 100%; cursor: pointer; font: inherit; color: inherit;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+    display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center;
+  }
+  .fairy:hover { border-color: var(--amber-deep); }
+  .fairy[aria-pressed="true"] { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
+  .portrait {
+    width: 64px; height: 80px; border-radius: 10px; border: 1px dashed var(--line);
+    display: grid; place-items: center; text-align: center; padding: 4px;
+    font-size: 10px; line-height: 1.2; color: var(--ink-soft); background: #100d0a; overflow: hidden;
+  }
+  .portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .fairy b { display: block; font: 400 18px/1.2 var(--serif); }
+  .fairy .role { color: var(--amber); font-size: 13px; }
+  .fairy .how { color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+
+  .detail { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .detail[hidden] { display: none; }
+  .detail h3 { margin: 0 0 6px; font: 400 18px/1.2 var(--serif); }
+  .detail p { margin: 0 0 10px; color: var(--ink-soft); }
+  .detail h4 { margin: 12px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .detail ul { margin: 0; padding-left: 18px; }
+  .btn {
+    font: inherit; cursor: pointer; border-radius: 999px; padding: 10px 18px; border: 1px solid var(--amber);
+    background: var(--amber); color: #1a1208; font-weight: 600;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; color: var(--amber); }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; filter: none; }
+  .btn:focus-visible, .chip:focus-visible, .fairy:focus-visible, .opt:focus-within, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--amber); outline-offset: 2px;
+  }
+  .home-opts { margin-top: 12px; display: grid; gap: 14px; }
+  .home-opts[hidden] { display: none; }
+  .group-title { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .opts { display: grid; gap: 6px; }
+  .opt {
+    display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: start; cursor: pointer;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px;
+  }
+  .opt input { margin-top: 4px; accent-color: var(--amber); }
+  .opt span small { display: block; color: var(--ink-soft); }
+  .missing-note { font-size: 12px; color: var(--ink-soft); }
+
+  /* The stack */
+  .cabinet { display: grid; gap: 10px; }
+  .empty { border: 1px dashed var(--line); border-radius: 12px; padding: 28px 16px; text-align: center; color: var(--ink-soft); }
+  .room {
+    position: relative; border-radius: 10px; padding: 14px 14px 14px 14px; min-height: 120px;
+    border: 3px solid; display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; align-items: center;
+    background-clip: padding-box;
+  }
+  .room.size-double { min-height: 120px; grid-template-columns: 70px 1fr 70px auto; }
+  .room.size-tall { min-height: 200px; }
+  .room.natural   { border-color: #7a5a35; background: linear-gradient(180deg, #2b2a1b, #1c2013); }
+  .room.steampunk { border-color: #b08a3c; background: linear-gradient(180deg, #33271a, #1e1710); }
+  .room.goth      { border-color: #4a4a52; background: linear-gradient(180deg, #1b1b20, #0e0e11); }
+  @media (max-width: 560px) {
+    .room, .room.size-double { grid-template-columns: 56px minmax(0, 1fr); }
+    .room .gone { grid-column: 1 / -1; justify-self: start; }
+    .room.size-double .portrait:nth-of-type(2) { display: none; }
+    .wrap { padding: 12px 16px; }
+  }
+  .room .horn {
+    position: absolute; top: -9px; right: 18px; width: 34px; height: 14px;
+    background: linear-gradient(90deg, #8a6a2a, #d9b25a); border-radius: 3px 14px 14px 3px;
+    transform: rotate(-12deg); box-shadow: 0 1px 4px #0008;
+  }
+  .room .who b { display: block; font: 400 17px/1.2 var(--serif); }
+  .room .who span { color: var(--ink-soft); font-size: 13px; display: block; }
+  .room .tags { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-soft); }
+  .room .gone { background: transparent; border: 1px solid var(--line); color: var(--ink-soft); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+  .room .gone:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .reserve { margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .reserve .missing-note { flex: 1 1 200px; }
+
+  .concepts { margin-top: 16px; }
+  .concepts h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); font-weight: 600; }
+  .concepts .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .concepts img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); display: block; }
+
+  /* Chat */
+  .chat { display: flex; flex-direction: column; min-height: 460px; }
+  .chat header { padding: 0 0 10px; text-align: left; }
+  .chat .who-line { font: 400 18px/1.2 var(--serif); }
+  .chat .who-line small { display: block; color: var(--ink-soft); font: 14px/1.3 var(--sans); }
+  .log {
+    flex: 1; overflow-y: auto; min-height: 240px; max-height: 52vh; display: grid; gap: 8px; align-content: start;
+    padding: 4px 2px 8px;
+  }
+  .msg { max-width: 88%; padding: 8px 12px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.her { background: var(--panel-2); border: 1px solid var(--line); justify-self: start; }
+  .msg.me { background: #3a2d12; border: 1px solid var(--amber-deep); justify-self: end; }
+  .msg.sys { justify-self: center; color: var(--ink-soft); font-size: 13px; background: transparent; }
+  .composer { display: grid; gap: 8px; margin-top: 8px; }
+  .composer textarea {
+    width: 100%; resize: vertical; min-height: 46px; max-height: 140px; font: inherit; color: var(--ink);
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+  }
+  .row { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .toggle { display: inline-flex; gap: 8px; align-items: center; color: var(--ink-soft); font-size: 14px; }
+  .toggle input { accent-color: var(--amber); width: 18px; height: 18px; }
+  .status { min-height: 1.3em; font-size: 13px; color: var(--ink-soft); }
+  .status.err { color: var(--danger); }
+  .placeholder { color: var(--ink-soft); text-align: center; padding: 40px 12px; }
+  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 18px 16px 32px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Wild Fairies</h1>
+  <p>They live wild until somebody asks. Pick the one who catches your eye, ask her home, and choose where she lives.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. THE WILD -->
+  <section class="col" aria-labelledby="wild-h">
+    <h2 id="wild-h">In the wild</h2>
+    <p class="sub">Each one has her own work and her own way of doing it.</p>
+    <div class="chips" id="filters" role="group" aria-label="Filter fairies by kind of home"></div>
+    <div class="fairies" id="fairies"></div>
+
+    <div class="detail" id="detail" hidden>
+      <h3 id="d-name"></h3>
+      <p id="d-blurb"></p>
+      <h4>How she lives</h4>
+      <p id="d-how"></p>
+      <h4>Comes home with her</h4>
+      <ul id="d-extras"></ul>
+      <p style="margin-top:12px"><button class="btn" id="ask-home" type="button">Ask her home</button></p>
+
+      <div class="home-opts" id="home-opts" hidden>
+        <div>
+          <p class="group-title">Choose her home</p>
+          <div class="opts" id="style-opts"></div>
+        </div>
+        <div>
+          <p class="group-title">Choose its size</p>
+          <div class="opts" id="size-opts"></div>
+        </div>
+        <button class="btn" id="add" type="button">Add her home to my stack</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. THE STACK -->
+  <section class="col" aria-labelledby="stack-h">
+    <h2 id="stack-h">Your stack</h2>
+    <p class="sub">A home can stand alone, or sit in a stack with neighbors.</p>
+    <div class="cabinet" id="cabinet" aria-live="polite"></div>
+    <div class="reserve">
+      <button class="btn" type="button" disabled>Reserve my stack</button>
+      <span class="missing-note">Checkout is not connected yet.</span>
+    </div>
+
+    <div class="concepts">
+      <h3>Concept photos</h3>
+      <div class="pair">
+        <img src="images/concept-1.webp" alt="Concept: a stack of six dark cabinet rooms with fairies, brass horns on top, and framed windows in the middle row." loading="lazy">
+        <img src="images/concept-2.webp" alt="Concept: a second stack with open doors and brass horns, fairies working at gears, books and tea." loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TALK -->
+  <section class="col chat" aria-labelledby="chat-h">
+    <header>
+      <h2 id="chat-h" style="margin:0">Talk to her</h2>
+      <div class="who-line" id="who-line"><small>Choose a fairy to start.</small></div>
+    </header>
+    <div class="log" id="log" role="log" aria-live="polite"></div>
+    <form class="composer" id="composer" autocomplete="off">
+      <textarea id="said" rows="2" placeholder="Say something" aria-label="Say something to her" disabled></textarea>
+      <div class="row">
+        <label class="toggle"><input type="checkbox" id="voice-on"> Hear her voice</label>
+        <button class="btn" id="send" type="submit" disabled>Send</button>
+      </div>
+      <div class="status" id="status" aria-live="polite"></div>
+    </form>
+  </section>
+
+</main>
+
+<footer>Talking is free for a little each day. Her voice counts toward that daily allowance too.</footer>
+
+<script src="fairies.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---- same browser keys Good Company already uses, so the owner key and the
+          daily allowance behave exactly as they do everywhere else ---- */
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (e) { return null; }
+  }
+  function ownerKey() { try { return localStorage.getItem('etl_owner_key') || ''; } catch (e) { return ''; } }
+
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, props, kids) {
+    var n = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (k) {
+      if (k === 'text') n.textContent = props[k];
+      else if (k === 'class') n.className = props[k];
+      else n.setAttribute(k, props[k]);
+    });
+    (kids || []).forEach(function (c) { n.appendChild(c); });
+    return n;
+  }
+
+  var state = {
+    filter: 'all',
+    selected: null,
+    style: WF_STYLES[0].id,
+    size: WF_SIZES[0].id,
+    stack: [],
+    history: {},      // fairy id -> [{ mine, who, text }]
+    busy: false,
+    audio: null
+  };
+
+  function byId(id) { return WF_FAIRIES.filter(function (f) { return f.id === id; })[0] || null; }
+
+  /* ---------- left: the wild ---------- */
+  function renderFilters() {
+    var box = $('filters'); box.textContent = '';
+    var kinds = [{ id: 'all', label: 'All' }].concat(Object.keys(WF_TYPES).map(function (k) { return { id: k, label: WF_TYPES[k].label }; }));
+    kinds.forEach(function (k) {
+      var b = el('button', { class: 'chip', type: 'button', 'aria-pressed': String(state.filter === k.id), text: k.label });
+      b.addEventListener('click', function () { state.filter = k.id; renderFilters(); renderFairies(); });
+      box.appendChild(b);
+    });
+  }
+
+  function portraitNode(f) {
+    var p = el('div', { class: 'portrait' });
+    if (f.portrait) p.appendChild(el('img', { src: f.portrait, alt: f.name + ', ' + f.role }));
+    else p.textContent = 'Portrait missing';
+    return p;
+  }
+
+  function renderFairies() {
+    var box = $('fairies'); box.textContent = '';
+    WF_FAIRIES.filter(function (f) { return state.filter === 'all' || f.type === state.filter; }).forEach(function (f) {
+      var b = el('button', { class: 'fairy', type: 'button', 'aria-pressed': String(state.selected === f.id) }, [
+        portraitNode(f),
+        el('div', {}, [
+          el('b', { text: f.name }),
+          el('span', { class: 'role', text: f.role }),
+          el('div', { class: 'how', text: WF_TYPES[f.type].label })
+        ])
+      ]);
+      b.addEventListener('click', function () { select(f.id); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderDetail() {
+    var f = byId(state.selected), d = $('detail');
+    if (!f) { d.hidden = true; return; }
+    d.hidden = false;
+    $('d-name').textContent = f.name + ', ' + f.role.toLowerCase();
+    $('d-blurb').textContent = f.blurb;
+    $('d-how').textContent = WF_TYPES[f.type].how + ' ' + f.face;
+    var ul = $('d-extras'); ul.textContent = '';
+    f.extras.forEach(function (x) { ul.appendChild(el('li', { text: x })); });
+  }
+
+  function renderOpts(boxId, list, name, current, onPick) {
+    var box = $(boxId); box.textContent = '';
+    list.forEach(function (o) {
+      var input = el('input', { type: 'radio', name: name, value: o.id });
+      if (o.id === current) input.checked = true;
+      input.addEventListener('change', function () { onPick(o.id); });
+      box.appendChild(el('label', { class: 'opt' }, [input, el('span', {}, [document.createTextNode(o.name), el('small', { text: o.note })])]));
+    });
+  }
+
+  /* ---------- middle: the stack ---------- */
+  function renderStack() {
+    var box = $('cabinet'); box.textContent = '';
+    if (!state.stack.length) {
+      box.appendChild(el('div', { class: 'empty', text: 'Nothing here yet. Ask a fairy home and her room appears.' }));
+      return;
+    }
+    state.stack.forEach(function (r, i) {
+      var f = byId(r.fairy);
+      if (!f) return;
+      var style = WF_STYLES.filter(function (s) { return s.id === r.style; })[0];
+      var size = WF_SIZES.filter(function (s) { return s.id === r.size; })[0];
+      var gone = el('button', { class: 'gone', type: 'button', 'aria-label': 'Remove ' + f.name + ' from my stack', text: 'Remove' });
+      gone.addEventListener('click', function () { state.stack.splice(i, 1); renderStack(); });
+      var kids = [
+        portraitNode(f),
+        el('div', { class: 'who' }, [
+          el('b', { text: f.name }),
+          el('span', { text: f.role }),
+          el('div', { class: 'tags' }, [
+            el('span', { class: 'tag', text: style.name }),
+            el('span', { class: 'tag', text: size.name }),
+            el('span', { class: 'tag', text: WF_TYPES[f.type].label })
+          ])
+        ])
+      ];
+      if (r.size === 'double') kids.push(el('div', { class: 'portrait', text: 'Neighbor room, add another fairy' }));
+      kids.push(gone);
+      var room = el('div', { class: 'room ' + r.style + ' size-' + r.size }, [el('div', { class: 'horn', 'aria-hidden': 'true' })].concat(kids));
+      box.appendChild(room);
+    });
+  }
+
+  /* ---------- right: talk ---------- */
+  function say(kind, text) {
+    var log = $('log');
+    log.appendChild(el('div', { class: 'msg ' + kind, text: text }));
+    log.scrollTop = log.scrollHeight;
+  }
+  function setStatus(text, isErr) {
+    var s = $('status'); s.textContent = text || ''; s.className = 'status' + (isErr ? ' err' : '');
+  }
+
+  function renderChat() {
+    var f = byId(state.selected), log = $('log');
+    log.textContent = '';
+    var on = !!f;
+    $('said').disabled = !on; $('send').disabled = !on;
+    if (!f) {
+      $('who-line').textContent = '';
+      $('who-line').appendChild(el('small', { text: 'Choose a fairy to start.' }));
+      log.appendChild(el('div', { class: 'placeholder', text: 'Pick a fairy on the left. She will say hello.' }));
+      return;
+    }
+    $('who-line').textContent = f.name;
+    $('who-line').appendChild(el('small', { text: f.role }));
+    var h = state.history[f.id];
+    if (!h) { h = state.history[f.id] = [{ mine: false, who: f.name, text: f.friend.hello }]; }
+    h.forEach(function (m) { say(m.mine ? 'me' : 'her', m.text); });
+    if (!f.voiceId) setStatus(f.name + ' has no voice yet, so she answers in text.', false);
+    else setStatus('', false);
+    $('said').focus({ preventScroll: true });
+  }
+
+  function select(id) {
+    state.selected = id;
+    state.style = WF_STYLES[0].id; state.size = WF_SIZES[0].id;
+    $('home-opts').hidden = true;
+    renderFairies(); renderDetail(); renderChat();
+  }
+
+  function speak(f, text) {
+    if (!$('voice-on').checked) return;
+    if (!f.voiceId) { setStatus(f.name + ' has no voice yet, so she answers in text.', false); return; }
+    fetch('/.netlify/functions/gc-voice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, voice_id: f.voiceId, owner_key: ownerKey(), is_demo: true, visitor_id: visitorId() })
+    }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (o) {
+        if (o.j && o.j.audio) {
+          if (state.audio) { try { state.audio.pause(); } catch (e) {} }
+          state.audio = new Audio('data:audio/mpeg;base64,' + o.j.audio);
+          state.audio.play().catch(function () { setStatus('Tap Send again to let your browser play her voice.', true); });
+        } else if (o.j && (o.j.daily_capped || o.j.credits_exhausted)) {
+          setStatus('That is all the voice for today. She can still answer in text while the allowance lasts.', true);
+        } else {
+          setStatus('Her voice is not available right now. Her words are above.', true);
+        }
+      })
+      .catch(function () { setStatus('Her voice is not available right now. Her words are above.', true); });
+  }
+
+  function send(text) {
+    var f = byId(state.selected);
+    if (!f || state.busy || !text.trim()) return;
+    state.busy = true; $('send').disabled = true; setStatus('', false);
+    var h = state.history[f.id];
+    h.push({ mine: true, who: 'You', text: text });
+    say('me', text);
+    var friend = Object.assign({}, f.friend, { voiceId: f.voiceId || null });
+
+    fetch('/.netlify/functions/gc-chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        friend: friend, you: {}, message: text,
+        messages: h.map(function (m) { return { mine: m.mine, who: m.who, text: m.text }; }),
+        is_demo: true, visitor_id: visitorId(), owner_key: ownerKey()
+      })
+    }).then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.reply) {
+          h.push({ mine: false, who: f.name, text: j.reply });
+          say('her', j.reply);
+          speak(f, j.reply);
+        } else if (j && j.daily_capped) {
+          say('sys', 'That is all the talking for today. Come back tomorrow.');
+        } else if (j && j.credits_exhausted) {
+          say('sys', 'That is all the free talking for now.');
+        } else if (j && j.quiet) {
+          say('sys', f.name + ' says nothing, and goes on with her work.');
+        } else {
+          setStatus('She could not be reached just now. Try again in a moment.', true);
+        }
+      })
+      .catch(function () { setStatus('She could not be reached just now. Try again in a moment.', true); })
+      .then(function () { state.busy = false; $('send').disabled = !state.selected; });
+  }
+
+  /* ---------- wiring ---------- */
+  $('ask-home').addEventListener('click', function () {
+    var box = $('home-opts'); box.hidden = false;
+    renderOpts('style-opts', WF_STYLES, 'style', state.style, function (v) { state.style = v; });
+    renderOpts('size-opts', WF_SIZES, 'size', state.size, function (v) { state.size = v; });
+    box.scrollIntoView({ block: 'nearest' });
+  });
+  $('add').addEventListener('click', function () {
+    if (!state.selected) return;
+    state.stack.push({ fairy: state.selected, style: state.style, size: state.size });
+    renderStack();
+  });
+  $('composer').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var t = $('said').value; $('said').value = '';
+    send(t);
+  });
+  $('said').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); }
+  });
+
+  renderFilters(); renderFairies(); renderDetail(); renderStack(); renderChat();
+})();
+</script>
+</body>
+</html>
