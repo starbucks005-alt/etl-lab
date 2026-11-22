@@ -113,7 +113,7 @@
   @media (max-width: 560px) {
     .room, .room.size-double { grid-template-columns: 56px minmax(0, 1fr); }
     .room .gone { grid-column: 1 / -1; justify-self: start; }
-    .room.size-double .portrait:nth-of-type(2) { display: none; }
+    .room .neighbor { display: none; }
     .wrap { padding: 12px 16px; }
   }
   .room .horn {
@@ -175,19 +175,22 @@
   <section class="col" aria-labelledby="wild-h">
     <h2 id="wild-h">In the wild</h2>
     <p class="sub">Each one has her own work and her own way of doing it.</p>
-    <div class="chips" id="filters" role="group" aria-label="Filter fairies by kind of home"></div>
     <div class="fairies" id="fairies"></div>
 
     <div class="detail" id="detail" hidden>
       <h3 id="d-name"></h3>
       <p id="d-blurb"></p>
       <h4>How she lives</h4>
-      <p id="d-how"></p>
+      <p id="d-how" aria-live="polite"></p>
       <h4>Comes home with her</h4>
       <ul id="d-extras"></ul>
       <p style="margin-top:12px"><button class="btn" id="ask-home" type="button">Ask her home</button></p>
 
       <div class="home-opts" id="home-opts" hidden>
+        <div>
+          <p class="group-title">Choose how she lives</p>
+          <div class="opts" id="mode-opts"></div>
+        </div>
         <div>
           <p class="group-title">Choose her home</p>
           <div class="opts" id="style-opts"></div>
@@ -270,8 +273,8 @@
   }
 
   var state = {
-    filter: 'all',
     selected: null,
+    mode: WF_MODES[0].id,
     style: WF_STYLES[0].id,
     size: WF_SIZES[0].id,
     stack: [],
@@ -282,16 +285,22 @@
 
   function byId(id) { return WF_FAIRIES.filter(function (f) { return f.id === id; })[0] || null; }
 
-  /* ---------- left: the wild ---------- */
-  function renderFilters() {
-    var box = $('filters'); box.textContent = '';
-    var kinds = [{ id: 'all', label: 'All' }].concat(Object.keys(WF_TYPES).map(function (k) { return { id: k, label: WF_TYPES[k].label }; }));
-    kinds.forEach(function (k) {
-      var b = el('button', { class: 'chip', type: 'button', 'aria-pressed': String(state.filter === k.id), text: k.label });
-      b.addEventListener('click', function () { state.filter = k.id; renderFilters(); renderFairies(); });
-      box.appendChild(b);
-    });
+  /* ---------- how she lives ---------- */
+  function modeById(id) { return WF_MODES.filter(function (m) { return m.id === id; })[0]; }
+  /* This fairy's own line for each way of living. */
+  function modesFor(f) {
+    return WF_MODES.map(function (m) { return { id: m.id, name: m.name, note: f.modes[m.id] }; });
   }
+  function faceLine(f, mode) { return mode === 'video' ? WF_VIDEO_FACE : f.face; }
+  function updateHow() {
+    var f = byId(state.selected); if (!f) return;
+    var chosen = !$('home-opts').hidden;
+    $('d-how').textContent = chosen
+      ? f.modes[state.mode] + ' ' + faceLine(f, state.mode)
+      : 'Ask her home to choose how she lives: posed, floating, or a moving picture.';
+  }
+
+  /* ---------- left: the wild ---------- */
 
   function portraitNode(f) {
     var p = el('div', { class: 'portrait' });
@@ -302,13 +311,13 @@
 
   function renderFairies() {
     var box = $('fairies'); box.textContent = '';
-    WF_FAIRIES.filter(function (f) { return state.filter === 'all' || f.type === state.filter; }).forEach(function (f) {
+    WF_FAIRIES.forEach(function (f) {
       var b = el('button', { class: 'fairy', type: 'button', 'aria-pressed': String(state.selected === f.id) }, [
         portraitNode(f),
         el('div', {}, [
           el('b', { text: f.name }),
           el('span', { class: 'role', text: f.role }),
-          el('div', { class: 'how', text: WF_TYPES[f.type].label })
+          el('div', { class: 'how', text: f.blurb })
         ])
       ]);
       b.addEventListener('click', function () { select(f.id); });
@@ -322,7 +331,7 @@
     d.hidden = false;
     $('d-name').textContent = f.name + ', ' + f.role.toLowerCase();
     $('d-blurb').textContent = f.blurb;
-    $('d-how').textContent = WF_TYPES[f.type].how + ' ' + f.face;
+    updateHow();
     var ul = $('d-extras'); ul.textContent = '';
     f.extras.forEach(function (x) { ul.appendChild(el('li', { text: x })); });
   }
@@ -349,6 +358,13 @@
       if (!f) return;
       var style = WF_STYLES.filter(function (s) { return s.id === r.style; })[0];
       var size = WF_SIZES.filter(function (s) { return s.id === r.size; })[0];
+      var mode = modeById(r.mode);
+      var tags = [
+        el('span', { class: 'tag', text: mode.name }),
+        el('span', { class: 'tag', text: style.name }),
+        el('span', { class: 'tag', text: size.name })
+      ];
+      if (r.mode === 'levitating') tags.push(el('span', { class: 'tag', text: 'Floats: ' + f.floats.toLowerCase() }));
       var gone = el('button', { class: 'gone', type: 'button', 'aria-label': 'Remove ' + f.name + ' from my stack', text: 'Remove' });
       gone.addEventListener('click', function () { state.stack.splice(i, 1); renderStack(); });
       var kids = [
@@ -356,14 +372,10 @@
         el('div', { class: 'who' }, [
           el('b', { text: f.name }),
           el('span', { text: f.role }),
-          el('div', { class: 'tags' }, [
-            el('span', { class: 'tag', text: style.name }),
-            el('span', { class: 'tag', text: size.name }),
-            el('span', { class: 'tag', text: WF_TYPES[f.type].label })
-          ])
+          el('div', { class: 'tags' }, tags)
         ])
       ];
-      if (r.size === 'double') kids.push(el('div', { class: 'portrait', text: 'Neighbor room, add another fairy' }));
+      if (r.size === 'double') kids.push(el('div', { class: 'portrait neighbor', text: 'Neighbor room, add another fairy' }));
       kids.push(gone);
       var room = el('div', { class: 'room ' + r.style + ' size-' + r.size }, [el('div', { class: 'horn', 'aria-hidden': 'true' })].concat(kids));
       box.appendChild(room);
@@ -403,7 +415,7 @@
 
   function select(id) {
     state.selected = id;
-    state.style = WF_STYLES[0].id; state.size = WF_SIZES[0].id;
+    state.mode = WF_MODES[0].id; state.style = WF_STYLES[0].id; state.size = WF_SIZES[0].id;
     $('home-opts').hidden = true;
     renderFairies(); renderDetail(); renderChat();
   }
@@ -467,14 +479,17 @@
 
   /* ---------- wiring ---------- */
   $('ask-home').addEventListener('click', function () {
+    var f = byId(state.selected); if (!f) return;
     var box = $('home-opts'); box.hidden = false;
+    renderOpts('mode-opts', modesFor(f), 'mode', state.mode, function (v) { state.mode = v; updateHow(); });
+    updateHow();
     renderOpts('style-opts', WF_STYLES, 'style', state.style, function (v) { state.style = v; });
     renderOpts('size-opts', WF_SIZES, 'size', state.size, function (v) { state.size = v; });
     box.scrollIntoView({ block: 'nearest' });
   });
   $('add').addEventListener('click', function () {
     if (!state.selected) return;
-    state.stack.push({ fairy: state.selected, style: state.style, size: state.size });
+    state.stack.push({ fairy: state.selected, mode: state.mode, style: state.style, size: state.size });
     renderStack();
   });
   $('composer').addEventListener('submit', function (e) {
@@ -486,7 +501,7 @@
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); }
   });
 
-  renderFilters(); renderFairies(); renderDetail(); renderStack(); renderChat();
+  renderFairies(); renderDetail(); renderStack(); renderChat();
 })();
 </script>
 </body>
