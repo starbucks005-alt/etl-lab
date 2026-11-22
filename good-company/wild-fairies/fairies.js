@@ -6,15 +6,25 @@
    THE WORKING NAMES BELOW ARE PLACEHOLDERS for Dr. O to rename. The roles, the
    mechanisms and the extras come from the concept photos and her notes.
 
-   type is the MECHANISM, fixed by the fairy:
-     'levitating'  a prop floats (the book, a gear), never the fairy herself
-     'video'       a Pepper's ghost room, she moves around and looks up
+   HOW SHE LIVES IS THE BUYER'S CHOICE, NOT THE FAIRY'S (Dr. O, 2026-11-21: "you
+   automatically made her the room with the levitating"). Every fairy can live any
+   of the three ways in WF_MODES, and each fairy writes her own line for each one
+   in her `modes` object:
      'still'       posed, doing her job
-   The cage (natural, steampunk, goth) is only the look, chosen after the fairy.
+     'levitating'  her prop floats, never the fairy herself
+     'video'       a Pepper's ghost room, she moves around and looks up
+   The cage (natural, steampunk, goth) is only the look, chosen after that.
 
-   FACES: printed fairies (levitating, still) hide their faces with a device of
+   THE FLOATING PROP MUST HIDE ITS OWN BASE. It needs a broad, flat, light
+   underside at least as wide as the lifting disc, with the disc sunk inside it,
+   nothing hanging below, and no steel. A candle cannot; a tea set on a tray can.
+   `floats` names each fairy's prop. Check each one against the real disc size
+   once it is measured.
+
+   FACES: printed fairies (still, levitating) hide their faces with a device of
    their own, head up and at ease, so no mouth ever has to move. Never a bowed
-   head with hair over the face. Video fairies show their faces.
+   head with hair over the face. The moving-picture fairy shows her face. The
+   `face` line is what a visitor reads, so it says only what you would see.
 
    VOICE: voiceId is null until Dr. O picks an ElevenLabs voice for each. A fairy
    with no voice id gets no audio and the page says so. It never borrows another
@@ -38,11 +48,15 @@ var WF_SIZES = [
   { id: 'tall',   name: 'Bigger home',  note: 'A taller room with more to see.' }
 ];
 
-var WF_TYPES = {
-  levitating: { label: 'Floating',      how: 'Something in her room floats in the air.' },
-  video:      { label: 'Moving picture', how: 'She walks around her room and looks up when you come near.' },
-  still:      { label: 'Posed',         how: 'She is caught mid-task, perfectly still.' }
-};
+/* Order is the order shown to a buyer. */
+var WF_MODES = [
+  { id: 'still',      name: 'Posed',          note: 'Caught mid-task, perfectly still.' },
+  { id: 'levitating', name: 'Floating',       note: 'Something in her room hangs in the air.' },
+  { id: 'video',      name: 'Moving picture', note: 'She walks around and looks up when you come near.' }
+];
+
+/* What the buyer reads about her face in each mode. */
+var WF_VIDEO_FACE = 'Her face is shown, and she looks up at you.';
 
 /* One shared rule block, written once and appended to every fairy, so a fix lands
    everywhere. It is the LAST thing in each persona's limits on purpose. */
@@ -62,9 +76,14 @@ var WF_FAIRIES = [
     id: 'marlowe',
     name: 'Marlowe',
     role: 'The Writer',
-    type: 'levitating',
-    face: 'A wide hat tipped low, head held high.',
-    blurb: 'Keeps a book of everything she notices. The book floats while she writes in it.',
+    face: 'A wide hat shades her face.',
+    blurb: 'Keeps a book of everything she notices.',
+    floats: 'Her book',
+    modes: {
+      still:      'She sits at her tiny desk with her book open, caught mid-line.',
+      levitating: 'Her book hangs in the air while she writes in it, and she never loses her place.',
+      video:      'She walks about her room, turns the pages, and looks up when you come near.'
+    },
     job: 'She writes down what the rest of the household does not bother to remember.',
     extras: ['A quill and a small inkwell', 'A brass key she uses as a bookmark', 'A spool of thread', 'A pressed leaf'],
     portrait: null, room: null,
@@ -91,9 +110,14 @@ var WF_FAIRIES = [
     id: 'brindle',
     name: 'Brindle',
     role: 'The Tinkerer',
-    type: 'levitating',
-    face: 'Brass goggles pushed low, chin up.',
-    blurb: 'Builds small wonders out of what people throw away. A brass gear hangs in the air above her bench and slowly turns.',
+    face: 'Brass goggles cover her eyes.',
+    blurb: 'Builds small wonders out of what people throw away.',
+    floats: 'Her bench with its gears',
+    modes: {
+      still:      'She bends over her workbench, a half-built mechanism in her hands.',
+      levitating: 'Her workbench hangs in the air with its gears turning slowly while she works.',
+      video:      'She paces her workshop, tinkers, and looks up the moment you come near.'
+    },
     job: 'She makes things work again, and then makes them better than they were.',
     extras: ['Watch gears', 'A tiny key', 'A thimble she uses as a bowl', 'Tools bent from pins'],
     portrait: null, room: null,
@@ -120,16 +144,21 @@ var WF_FAIRIES = [
     id: 'nutmeg',
     name: 'Nutmeg',
     role: 'The Tea Host',
-    type: 'video',
-    face: 'Her face is shown. She walks about and looks up at you.',
-    blurb: 'Pours, hosts and draws everyone over. She walks around her room, and when you come near she looks up.',
+    face: 'A small cap tipped forward shades her face.',
+    blurb: 'Pours, hosts and draws everyone over.',
+    floats: 'Her tea set on its tray',
+    modes: {
+      still:      'She stands at her table with the pot raised, caught mid-pour.',
+      levitating: 'Her whole tea set hangs in the air on its tray, and she pours without spilling a drop.',
+      video:      'She walks around her table setting places, and looks up to invite you in.'
+    },
     job: 'She makes sure nobody stands at the edge of a room alone.',
     extras: ['A teacup and saucer', 'A thimble kettle', 'A sugar cube', 'An acorn cap she uses as a bowl'],
     portrait: null, room: null,
     voiceId: null,
     friend: {
       name: 'Nutmeg', full: 'Nutmeg, of the long table', gender: 'A fairy',
-      form: 'Small and always moving. She walks around her room as she talks and looks up at whoever is near.',
+      form: 'Small and always busy, setting places and pouring for whoever is near.',
       work: 'hosts: pours tea, sets places and brings quiet people into the conversation',
       knows: 'She knows how long each kind of tea wants to steep, how to seat a room so everyone talks, and what to say to someone standing alone at the edge of a party.',
       into: ['getting everybody a cup', 'remembering how somebody takes their tea', 'a story that needs two people to tell it'],
@@ -149,9 +178,14 @@ var WF_FAIRIES = [
     id: 'sorrel',
     name: 'Sorrel',
     role: 'The Gardener',
-    type: 'still',
-    face: 'A scarf wound up to her nose, eyes bright and looking out.',
+    face: 'A scarf is wound up to her nose.',
     blurb: 'Tends a pot of seedlings and names every one. A young fairy with a lot of patience.',
+    floats: 'Her flowerpot',
+    modes: {
+      still:      'She kneels by her flowerpot, trowel in hand, checking the soil.',
+      levitating: 'Her flowerpot hangs in the air while she tends the seedlings.',
+      video:      'She moves between her seedlings, names them, and looks up when you come near.'
+    },
     job: 'She notices what is growing, and what is not, and what it needs.',
     extras: ['A small flowerpot with seedlings', 'A trowel made from a spoon', 'A thimble watering can', 'A paper packet of seeds'],
     portrait: null, room: null,
@@ -178,9 +212,14 @@ var WF_FAIRIES = [
     id: 'wick',
     name: 'Wick',
     role: 'The Lamplighter',
-    type: 'still',
-    face: 'A deep hood, head raised toward the light.',
-    blurb: 'Keeps one candle burning among stacked books. A quiet night-watch fairy.',
+    face: 'A deep hood shades her face.',
+    blurb: 'Keeps one candle burning among her small books. A quiet night-watch fairy.',
+    floats: 'Her stack of books, with the candle on top',
+    modes: {
+      still:      'She sits among her books with the candle burning beside her.',
+      levitating: 'Her stack of books hangs in the air with the candle burning on top.',
+      video:      'She walks along her shelves with the candle, and looks up toward you.'
+    },
     job: 'She keeps the light going so the rest of the house can sleep.',
     extras: ['A single candle', 'A stack of small books', 'A matchbox', 'A brass snuffer'],
     portrait: null, room: null,
