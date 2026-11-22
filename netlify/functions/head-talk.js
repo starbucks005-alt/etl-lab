@@ -35,6 +35,27 @@ try { const r = require('../../al-panel/robots.json'); ROBOTS = Array.isArray(r.
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type, x-sun-key', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
 const json = (statusCode, o) => ({ statusCode, headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, CORS), body: JSON.stringify(o) });
 const quiet = (why, heard) => ({ statusCode: 204, headers: Object.assign({ 'Cache-Control': 'no-store', 'X-Why': why, 'X-Heard': encodeURIComponent(heard || '') }, CORS), body: '' });
+const doIt = (what, heard) => ({ statusCode: 204, headers: Object.assign({ 'Cache-Control': 'no-store', 'X-Why': 'command', 'X-Do': what, 'X-Heard': encodeURIComponent(heard || '') }, CORS), body: '' });
+
+/* 2026-11-22, Dr. O: "Astri, quieter", "Teddy, louder", "Astri, nap time", "Teddy, wake up". The board cannot listen for a name by itself (its built in wake word is only
+   "Hi ESP"), but it already sends everything it hears here, so the name is found in the words. Astro takes commands by "Teddy" and never by "Astro", which sounds too much like
+   Astri. A command needs this robot's own name and not the other twin's, so a name said to the other twin never changes this one. Each command is one step, so a word heard
+   wrong can never jump the volume. A command makes no voice and is not counted as a turn. */
+const COMMAND_NAMES = { astro: /\bteddy\b/i, astri: /\bastri\b|\bastrid\b|\bastry\b/i };
+const OTHER_TWIN = { astro: /\bastri\b|\bastrid\b|\bastry\b/i, astri: /\bteddy\b/i };
+const COMMANDS = [
+  ['wake', /\bwake up\b|\bwakey wakey\b/i],
+  ['sleep', /\bnap time\b|\btake a nap\b|\bgo to sleep\b|\btime for (?:a )?nap\b/i],
+  ['volume_up', /\blouder\b|\bvolume up\b|\bturn (?:it |the volume )?up\b|\bspeak up\b/i],
+  ['volume_down', /\bquieter\b|\bsofter\b|\bvolume down\b|\bturn (?:it |the volume )?down\b|\bquiet down\b/i],
+];
+const voiceCommand = (heard, robot) => {
+  const mine = COMMAND_NAMES[robot];
+  const text = String(heard || '');
+  if (!mine || !mine.test(text) || OTHER_TWIN[robot].test(text)) return '';
+  for (const [what, re] of COMMANDS) if (re.test(text)) return what;
+  return '';
+};
 const MIN_BYTES = 16000;          // half a second
 const MAX_BYTES = 320000;         // ten seconds
 const DAILY_TURNS = 400;          // a four hour walk-up event is a turn every 36 seconds
@@ -289,6 +310,10 @@ exports.handler = async (event, deps = {}) => {
   try {
     const heard = str(await (deps.listen || boxTest.listen)(pcm, deps), 400);
     if (!heard || heard.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return quiet('didnt_hear', heard);
+    // voice commands (2026-11-22). While the board is asleep by voice (&asleep=1) the only thing it listens for is "wake up".
+    const command = voiceCommand(heard, robot);
+    if (String(q.asleep || '') === '1') return command === 'wake' ? doIt('wake', heard) : quiet('asleep', heard);
+    if (command) return doIt(command, heard);
     if (ASSISTANT.test(heard)) return quiet('for_someone_else', heard);
     const speaker = await whoSaidIt(heard, robot, store, now);
     if (speaker === robot) return quiet('own_voice', heard);
@@ -320,4 +345,4 @@ exports.handler = async (event, deps = {}) => {
   }
 };
 
-exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower, addressedTo, PI_RULES, overlap, scrubNames };
+exports._test = { voiceFor, systemPrompt, SEATS, pitchFor, lower, addressedTo, PI_RULES, overlap, scrubNames, voiceCommand };

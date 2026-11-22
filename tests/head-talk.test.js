@@ -183,5 +183,34 @@ const gc = require('../netlify/functions/_gc-config.js');
   const pr = await handler({ httpMethod: 'POST', headers: { 'x-sun-key': KEY }, queryStringParameters: { robot: 'astri', peers: '1' }, body: '' }, gBase());
   assert.deepStrictEqual(JSON.parse(pr.body), { astro: 'http://192.168.0.17:8000', astri: '' });
 
+  // voice commands (Dr. O, 2026-11-22): the name, then louder or quieter, nap time and wake up
+  assert.strictEqual(_test.voiceCommand('Teddy, louder', 'astro'), 'volume_up');
+  assert.strictEqual(_test.voiceCommand('teddy can you be quieter please', 'astro'), 'volume_down');
+  assert.strictEqual(_test.voiceCommand('Astri, nap time', 'astri'), 'sleep');
+  assert.strictEqual(_test.voiceCommand('Astrid wake up', 'astri'), 'wake');
+  assert.strictEqual(_test.voiceCommand('Astro, louder', 'astro'), '', 'Astro does not take commands by "Astro"');
+  assert.strictEqual(_test.voiceCommand('louder', 'astro'), '', 'no name, no command');
+  assert.strictEqual(_test.voiceCommand('Astri, Teddy says louder', 'astri'), '', 'a name for the other twin is not a command for this one');
+  assert.strictEqual(_test.voiceCommand('Teddy, louder', 'astri'), '', 'Teddy\'s command does nothing to Astri');
+  assert.strictEqual(_test.voiceCommand('Teddy, tell me a story', 'astro'), '', 'an ordinary sentence is not a command');
+  const cstore = mem();
+  const cmd = (robot, heard, asleep) => handler(Object.assign(ev(KEY, 20000, robot), { queryStringParameters: Object.assign({ robot }, asleep ? { asleep: '1' } : {}) }),
+    Object.assign(base(), { store: cstore, director: async () => ({ seats: [] }), listen: async () => heard }));
+  const spokenBefore = spoken.length;
+  const c1 = await cmd('astro', 'Teddy, louder', false);
+  assert.strictEqual(c1.statusCode, 204);
+  assert.strictEqual(c1.headers['X-Do'], 'volume_up');
+  assert.strictEqual(c1.headers['X-Why'], 'command');
+  assert.strictEqual(spoken.length, spokenBefore, 'a command makes no voice');
+  assert.ok(![...cstore._m.keys()].some((k) => /-day-/.test(k)), 'a command is not counted as a turn');
+  assert.strictEqual((await cmd('astri', 'Astri, nap time', false)).headers['X-Do'], 'sleep');
+  const asleepTalk = await cmd('astri', 'hello there my friend', true);
+  assert.strictEqual(asleepTalk.statusCode, 204);
+  assert.strictEqual(asleepTalk.headers['X-Why'], 'asleep');
+  assert.ok(!asleepTalk.headers['X-Do'], 'while asleep, ordinary talk does nothing at all');
+  assert.strictEqual((await cmd('astri', 'Astri, louder', true)).headers['X-Why'], 'asleep', 'asleep, only "wake up" is heard');
+  assert.strictEqual((await cmd('astri', 'Astri, wake up', true)).headers['X-Do'], 'wake');
+  assert.strictEqual(spoken.length, spokenBefore, 'none of that spent a voice');
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -119,6 +119,8 @@ static uint8_t eyeBytes[STRIP_COUNT * 3];
 static uint8_t ringBytes[RING_COUNT * 3];
 static bool eyeReady = false, ringReady = false, lightsTried = false;
 bool quietMode = false;
+bool asleepByVoice = false;                         // 2026-11-22, Dr. O: "Teddy, nap time" / "Astri, nap time": the eyes dim and only "wake up" is listened for
+const size_t ASLEEP_MAX_BYTES = 16000 * 2 * 3;      // asleep, only a clip of three seconds or less is sent, which is all "wake up" needs, so the room's talk is not sent
 // KEY3 volume steps, quietest to loudest. Step 5 (85) is SPEAKER_VOLUME, where she started.
 const uint8_t VOLUME_STEPS[7] = {45, 55, 65, 75, 85, 93, 100};
 int volumeStep = 4;
@@ -445,22 +447,32 @@ void explain(int code) {
   if (code == 502) Serial.println("  502: a step on the website failed (speech to text, her answer or her voice).");
 }
 
-// Sends what was recorded and plays her answer. Returns true when she spoke.
-bool talk(size_t bytes) {
+// What the website asked for with a spoken command (2026-11-22): "Teddy, louder", "Astri, quieter", "nap time", "wake up". One step at a time.
+void voiceDo(const String &what) {
+  if (what == "volume_up") volumeSet(volumeStep + 1);
+  else if (what == "volume_down") volumeSet(volumeStep - 1);
+  else if (what == "sleep") { asleepByVoice = true; Serial.println("Asleep by voice: only wake up is listened for"); eyes(EYE_QUIET); }
+  else if (what == "wake") { asleepByVoice = false; Serial.println("Awake"); eyes(EYE_IDLE); }
+}
+
+// Sends what was recorded and plays her answer. Returns true when she spoke. asleep: the board is asleep by voice, so the website answers only "wake up".
+bool talkWith(size_t bytes, bool asleep) {
   if (!joinWifi()) return false;
-  eyes(EYE_THINK);
+  if (!asleep) eyes(EYE_THINK);
   WiFiClientSecure client; client.setInsecure();   // TEST ONLY
   HTTPClient http;
   http.useHTTP10(true);
-  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID)) return false;
+  if (!http.begin(client, String("https://emerging-tech-lab.com/.netlify/functions/head-talk?robot=") + ROBOT_ID + (asleep ? "&asleep=1" : ""))) return false;
   http.addHeader("x-sun-key", BOX_KEY);
   http.addHeader("Content-Type", "application/octet-stream");
-  const char *keep[] = {"X-Heard", "X-Said", "X-Why"}; http.collectHeaders(keep, 3);
+  const char *keep[] = {"X-Heard", "X-Said", "X-Why", "X-Do"}; http.collectHeaders(keep, 4);
   http.setTimeout(30000);
   int code = http.POST(recordBuf, bytes);
   if (code == 204) {
+    String doIt = http.header("X-Do");
     Serial.printf("Heard: %s   (nothing to say: %s)\n", unpercent(http.header("X-Heard")).c_str(), http.header("X-Why").c_str());
     http.end();
+    if (doIt.length()) voiceDo(doIt);
     return false;
   }
   if (code != 200) { Serial.printf("Website answered %d\n", code); explain(code); http.end(); eyes(EYE_TROUBLE); delay(1200); return false; }
@@ -470,6 +482,7 @@ bool talk(size_t bytes) {
   http.end();
   return ok;
 }
+bool talk(size_t bytes) { return talkWith(bytes, false); }
 
 // ---- listening ----
 // Waits for someone to speak, then records until they stop. Returns the bytes recorded, or 0 if it was not speech.
@@ -497,10 +510,10 @@ size_t listenForSpeech() {
     if (millis() - lastLevel > 5000) { lastLevel = millis(); Serial.printf("Room level: %ld   (a voice must pass %ld)\n", roomFloor, threshold); }
     float breath = (sinf(millis() / 1000.0f * 1.6f) + 1.0f) / 2.0f;
     static uint32_t lastEye = 0;
-    if (millis() - lastEye > 40) { lastEye = millis(); eyes(EYE_IDLE, 0.35f + 0.65f * breath); }
+    if (!asleepByVoice && millis() - lastEye > 40) { lastEye = millis(); eyes(EYE_IDLE, 0.35f + 0.65f * breath); }
   }
   // someone is talking: the 0.3 seconds before, then until a quiet stretch
-  eyes(EYE_LISTEN);
+  if (!asleepByVoice) eyes(EYE_LISTEN);
   size_t have = 0;
   int16_t *rec = (int16_t *)recordBuf;
   for (int i = 0; i < PREROLL_SAMPLES; i++) rec[i] = pre[(preAt + i) % PREROLL_SAMPLES];
@@ -747,7 +760,7 @@ void webStart() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-21a, with the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-22a, with voice volume and nap, the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");
@@ -799,6 +812,12 @@ void loop() {
   }
   neckUpdate();
   if (quietMode) { eyes(EYE_QUIET); delay(100); return; }
+  if (asleepByVoice) {                              // 2026-11-22: asleep by voice. Only a short clip is sent, and the website answers only "wake up".
+    eyes(EYE_QUIET);
+    size_t m = listenForSpeech();
+    if (m >= 16000 && m <= ASLEEP_MAX_BYTES) { talkWith(m, true); flushMic(400); }
+    return;
+  }
   if (millis() >= nextAsk) { nextAsk = millis() + firesideCheck(); if (firesideOn) flushMic(300); }
   if (firesideOn) {                                 // during a chat she only waits for her turn
     float breath = (sinf(millis() / 1000.0f * 1.6f) + 1.0f) / 2.0f;
