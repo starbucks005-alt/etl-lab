@@ -448,11 +448,19 @@ void explain(int code) {
 }
 
 // What the website asked for with a spoken command (2026-11-22): "Teddy, louder", "Astri, quieter", "nap time", "wake up". One step at a time.
+// 2026-11-22, Dr. O: each twin answers a command with a short line of its own, made once in its own voice, kept on the SD card and played from there, free and at once.
+// If the card or the line is not there, the command is simply silent.
+void cmdLine(const char *key) {
+  if (!cardOk) return;
+  String path = String("/game/") + key + ".pcm";
+  if (onCard(path, 1000)) playFile(path);
+}
+
 void voiceDo(const String &what) {
-  if (what == "volume_up") volumeSet(volumeStep + 1);
-  else if (what == "volume_down") volumeSet(volumeStep - 1);
-  else if (what == "sleep") { asleepByVoice = true; Serial.println("Asleep by voice: only wake up is listened for"); eyes(EYE_QUIET); }
-  else if (what == "wake") { asleepByVoice = false; Serial.println("Awake"); eyes(EYE_IDLE); }
+  if (what == "volume_up") { volumeSet(volumeStep + 1); cmdLine("cmd_up"); }
+  else if (what == "volume_down") { volumeSet(volumeStep - 1); cmdLine("cmd_down"); }
+  else if (what == "sleep") { cmdLine("cmd_sleep"); asleepByVoice = true; Serial.println("Asleep by voice: only wake up is listened for"); eyes(EYE_QUIET); }
+  else if (what == "wake") { asleepByVoice = false; Serial.println("Awake"); eyes(EYE_IDLE); cmdLine("cmd_wake"); }
 }
 
 // Sends what was recorded and plays her answer. Returns true when she spoke. asleep: the board is asleep by voice, so the website answers only "wake up".
@@ -583,8 +591,9 @@ uint32_t firesideCheck() {
 }
 
 // ---- the tablet game ----
-const char *GAME_LINES[] = {"start", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "win", "cheer", "tie"};
-const int GAME_LINE_COUNT = 13;
+// the last four are the answers to a spoken command (2026-11-22): louder, quieter, nap time, wake up
+const char *GAME_LINES[] = {"start", "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "win", "cheer", "tie", "cmd_up", "cmd_down", "cmd_sleep", "cmd_wake"};
+const int GAME_LINE_COUNT = 17;
 
 bool cardStart() {
   SD_MMC.setPins(40, 42, 41);                        // clock, command, data, as the Rising Sun notes read from Waveshare's diagram
@@ -760,7 +769,7 @@ void webStart() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.printf("\nRobot head: %s (build 2026-11-22a, with voice volume and nap, the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
+  Serial.printf("\nRobot head: %s (build 2026-11-22b, with voice volume and nap, answered aloud from the card, the fireside chat, the head turn and the hearing numbers)\n", ROBOT_ID);
   lightsStart();                                   // the lights first, before anything else is set up
   recordBuf = (uint8_t *)ps_malloc(MAX_RECORD_BYTES);
   Serial.printf("Recording memory: %s\n", recordBuf ? "ok" : "FAILED (PSRAM must be OPI PSRAM in the Tools menu)");

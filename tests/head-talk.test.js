@@ -212,5 +212,21 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.strictEqual((await cmd('astri', 'Astri, wake up', true)).headers['X-Do'], 'wake');
   assert.strictEqual(spoken.length, spokenBefore, 'none of that spent a voice');
 
+  // the spoken answers to commands (2026-11-22): a line for each in the lines file, the same list on each board so it fetches them to its card, and the website makes them
+  const nodeFs = require('fs'), nodePath = require('path');
+  for (const [who, file] of [['astro', 'al-panel/head/astro/robot-head-astro.ino'], ['astri', 'al-panel/head/robot-head/robot-head.ino']]) {
+    const ino = nodeFs.readFileSync(nodePath.join(__dirname, '..', file), 'utf8');
+    const listed = ino.match(/GAME_LINES\[\] = \{([^}]*)\}/)[1].split(',').map((x) => x.trim().replace(/"/g, ''));
+    assert.deepStrictEqual(listed.slice().sort(), Object.keys(real2.twins[who].lines).sort(), file + ' lists exactly the lines in twins-lines.json');
+    assert.strictEqual(Number(ino.match(/GAME_LINE_COUNT = (\d+)/)[1]), listed.length, file + ' counts them right');
+    for (const k of ['cmd_up', 'cmd_down', 'cmd_sleep', 'cmd_wake']) {
+      assert.ok(real2.twins[who].lines[k], who + ' has a line for ' + k);
+      assert.ok(!/[—‑]/.test(real2.twins[who].lines[k]) && !/plainly/i.test(real2.twins[who].lines[k]));
+      const made = await handler(lineEv(who, k), gBase());
+      assert.strictEqual(made.statusCode, 200, who + ' ' + k + ' is made by the website');
+      assert.strictEqual(decodeURIComponent(made.headers['X-Said']), real2.twins[who].lines[k]);
+    }
+  }
+
   console.log('head-talk: all checks passed');
 })().catch((e) => { console.error(e); process.exit(1); });

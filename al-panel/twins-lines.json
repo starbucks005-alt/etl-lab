@@ -21,7 +21,11 @@
         "c8": "Down here, on the right!",
         "win": "Three! I got three! Yay!",
         "cheer": "Good one, Astri!",
-        "tie": "We both won!"
+        "tie": "We both won!",
+        "cmd_up": "Okay! Louder!",
+        "cmd_down": "Okay. Quiet voice.",
+        "cmd_sleep": "Night night!",
+        "cmd_wake": "I'm awake!"
       }
     },
     "astri": {
@@ -43,7 +47,11 @@
         "c8": "I pick the bottom corner, on the right.",
         "win": "Three in a row! Hooray!",
         "cheer": "Good one, Astro!",
-        "tie": "We both won! Hooray!"
+        "tie": "We both won! Hooray!",
+        "cmd_up": "Okay, louder!",
+        "cmd_down": "Okay. My quiet voice.",
+        "cmd_sleep": "Night night.",
+        "cmd_wake": "Good morning!"
       }
     }
   }
