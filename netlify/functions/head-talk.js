@@ -44,6 +44,8 @@ const doIt = (what, heard) => ({ statusCode: 204, headers: Object.assign({ 'Cach
 const COMMAND_NAMES = { astro: /\bteddy\b/i, astri: /\bastri\b|\bastrid\b|\bastry\b/i };
 const OTHER_TWIN = { astro: /\bastri\b|\bastrid\b|\bastry\b/i, astri: /\bteddy\b/i };
 const COMMANDS = [
+  ['hello_off', /\bno hello\b|\bhello off\b|\bstop (?:saying )?hello\b|\bdon'?t say hello\b/i],
+  ['hello_on', /\bhello on\b|\bsay hello again\b|\bhello again\b/i],
   ['wake', /\bwake up\b|\bwakey wakey\b/i],
   ['sleep', /\bnap time\b|\btake a nap\b|\bgo to sleep\b|\btime for (?:a )?nap\b/i],
   ['volume_up', /\blouder\b|\bvolume up\b|\bturn (?:it |the volume )?up\b|\bspeak up\b/i],

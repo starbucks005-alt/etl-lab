@@ -25,7 +25,10 @@
         "cmd_up": "Okay! Louder!",
         "cmd_down": "Okay. Quiet voice.",
         "cmd_sleep": "Night night!",
-        "cmd_wake": "I'm awake!"
+        "cmd_wake": "I'm awake!",
+        "hello": "Hi! I'm Astro, but you can call me Teddy. Astri is my twin!",
+        "cmd_hello_off": "Okay. No more hello.",
+        "cmd_hello_on": "Okay! I'll say hello."
       }
     },
     "astri": {
@@ -51,7 +54,10 @@
         "cmd_up": "Okay, louder!",
         "cmd_down": "Okay. My quiet voice.",
         "cmd_sleep": "Night night.",
-        "cmd_wake": "Good morning!"
+        "cmd_wake": "Good morning!",
+        "hello": "Hello! I'm Astri. Teddy is my twin!",
+        "cmd_hello_off": "Okay. No more hello.",
+        "cmd_hello_on": "Okay, I'll say hello."
       }
     }
   }

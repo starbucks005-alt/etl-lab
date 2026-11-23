@@ -188,6 +188,12 @@ const gc = require('../netlify/functions/_gc-config.js');
   assert.strictEqual(_test.voiceCommand('teddy can you be quieter please', 'astro'), 'volume_down');
   assert.strictEqual(_test.voiceCommand('Astri, nap time', 'astri'), 'sleep');
   assert.strictEqual(_test.voiceCommand('Astrid wake up', 'astri'), 'wake');
+  assert.strictEqual(_test.voiceCommand('Teddy, no hello', 'astro'), 'hello_off');
+  assert.strictEqual(_test.voiceCommand('Astri, hello off', 'astri'), 'hello_off');
+  assert.strictEqual(_test.voiceCommand('Teddy, hello on', 'astro'), 'hello_on');
+  assert.strictEqual(_test.voiceCommand('Teddy, say hello again', 'astro'), 'hello_on');
+  assert.strictEqual(_test.voiceCommand('Teddy, hello', 'astro'), '', 'a plain hello is a chat, not a command');
+  assert.strictEqual(_test.voiceCommand('Astri, no hello', 'astro'), '', 'a command for the other twin changes nothing');
   assert.strictEqual(_test.voiceCommand('Astro, louder', 'astro'), '', 'Astro does not take commands by "Astro"');
   assert.strictEqual(_test.voiceCommand('louder', 'astro'), '', 'no name, no command');
   assert.strictEqual(_test.voiceCommand('Astri, Teddy says louder', 'astri'), '', 'a name for the other twin is not a command for this one');
@@ -219,7 +225,7 @@ const gc = require('../netlify/functions/_gc-config.js');
     const listed = ino.match(/GAME_LINES\[\] = \{([^}]*)\}/)[1].split(',').map((x) => x.trim().replace(/"/g, ''));
     assert.deepStrictEqual(listed.slice().sort(), Object.keys(real2.twins[who].lines).sort(), file + ' lists exactly the lines in twins-lines.json');
     assert.strictEqual(Number(ino.match(/GAME_LINE_COUNT = (\d+)/)[1]), listed.length, file + ' counts them right');
-    for (const k of ['cmd_up', 'cmd_down', 'cmd_sleep', 'cmd_wake']) {
+    for (const k of ['cmd_up', 'cmd_down', 'cmd_sleep', 'cmd_wake', 'hello', 'cmd_hello_off', 'cmd_hello_on']) {
       assert.ok(real2.twins[who].lines[k], who + ' has a line for ' + k);
       assert.ok(!/[—‑]/.test(real2.twins[who].lines[k]) && !/plainly/i.test(real2.twins[who].lines[k]));
       const made = await handler(lineEv(who, k), gBase());
