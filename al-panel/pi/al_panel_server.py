@@ -58,6 +58,30 @@ except Exception:
     house = None
 
 try:
+    import al_sentry as sentry  # noqa: E402  (Sentry mode, Phase 1 of the Guardian's skills: armed, she takes an announced photo when her motion sensor sees someone; if the file is missing there is no Sentry mode)
+except Exception:
+    sentry = None
+
+try:
+    import al_photo as gcam  # noqa: E402  (the Guardian's camera: she says out loud that she is taking a photo before every picture; if the file is missing the robot has no photo feature)
+except Exception:
+    gcam = None
+
+try:
+    import al_place as gplace  # noqa: E402  (where the Guardian stands: nearest police and fire, county disaster risks; the street address is never kept)
+    import al_netwatch as gnet  # noqa: E402  (watches the Wi-Fi she is on and flags devices the owner has not approved)
+    import al_assets as gassets  # noqa: E402  (watches the equipment the owner boxes on a reference photo)
+    import al_latchkey as glatch  # noqa: E402  (a child's arrival, reminders and "not home yet" notice for a home Guardian)
+except Exception as _e:
+    print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
+    gplace = gnet = gassets = glatch = None
+
+try:
+    import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
+except Exception:
+    glookup = None
+
+try:
     import sp_mode  # noqa: E402  (standardized patient mode: "Patient 12" loads a patient from the case library; if the file is missing she simply answers as before)
     SP = sp_mode.SPMode()
 except Exception as _e:           # pragma: no cover
@@ -1344,6 +1368,15 @@ def stt_language():
         return "en-US"
 
 
+def _azure_url(where, kind):
+    """The Azure speech address. `where` is a region such as eastus, or (2026-11-24, for a resource whose screen shows only an endpoint) the full https address of the resource."""
+    if str(where).startswith("https://"):
+        return where.rstrip("/") + ("/tts/cognitiveservices/v1" if kind == "tts" else "/stt/speech/recognition/conversation/cognitiveservices/v1")
+    if kind == "tts":
+        return "https://%s.tts.speech.microsoft.com/cognitiveservices/v1" % where
+    return "https://%s.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1" % where
+
+
 def file_voice(name):
     """An optional per-robot voice from azure_speech.json: "tts_voice" (an Azure voice name, such as
     en-US-Olivia:MAI-Voice-2-Flash) or "backup_voice" (an ElevenLabs voice id). Added 2026-11-07, Dr. O, for Guardian F.
@@ -1354,6 +1387,17 @@ def file_voice(name):
     except (OSError, ValueError, AttributeError):
         return None
     return v if re.fullmatch(r"[A-Za-z0-9:_.-]{3,80}", v) else None
+
+
+
+def _azure_robot_voice():
+    """This robot's own Azure voice, "tts_voice" in azure_speech.json (2026-11-24: the Guardian is en-US-AriaNeural). None means the accent's usual voice."""
+    try:
+        with open(AZURE_FILE) as f:
+            v = str(json.load(f).get("tts_voice") or "")
+        return v if re.fullmatch(r"[a-z]{2}-[A-Z]{2}-[A-Za-z0-9]+Neural", v) else None
+    except (OSError, ValueError, AttributeError):
+        return None
 
 
 def azure_cfg(part):
@@ -1376,6 +1420,9 @@ def azure_cfg(part):
     region = region or file_cfg.get("region")
     if key and region:
         return key.strip(), region.strip()
+    endpoint = str(file_cfg.get("endpoint") or "").strip()
+    if key and endpoint.startswith("https://"):
+        return key.strip(), endpoint.rstrip("/")      # no region needed: the resource's own address
     return None
 
 
@@ -1397,7 +1444,7 @@ def azure_wav(text, cfg, voice=None):
     inner = ("<lang xml:lang='en-US'>%s</lang>" % escape(text)) if ":" in voice else escape(text)
     ssml = "<speak version='1.0' xml:lang='%s'><voice name='%s'>%s</voice></speak>" % (lang, voice, inner)
     r = requests.post(
-        (region.rstrip("/") + "/tts/cognitiveservices/v1") if region.startswith("https://") else "https://%s.tts.speech.microsoft.com/cognitiveservices/v1" % region,   # 2026-11-07: a Foundry resource has its own address
+        _azure_url(region, "tts"),
         headers={"Ocp-Apim-Subscription-Key": key, "Content-Type": "application/ssml+xml",
                  "X-Microsoft-OutputFormat": "riff-16khz-16bit-mono-pcm", "User-Agent": "al-panel"},
         data=ssml.encode("utf-8"), timeout=30)
@@ -1426,7 +1473,7 @@ def azure_transcribe(path, cfg, language=None):
         o.writeframes(frames)
     with open(tmp, "rb") as f:
         r = requests.post(
-            "https://%s.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1" % region,
+            _azure_url(region, "stt"),
             params={"language": language or stt_language(), "format": "simple"},
             headers={"Ocp-Apim-Subscription-Key": key,
                      "Content-Type": "audio/wav; codecs=audio/pcm; samplerate=%d" % rate, "Accept": "application/json"},
@@ -1636,7 +1683,7 @@ def _speak_inner(text, use_persona=True):
             """Speak one piece of text. Returns False if she was told to stop."""
             if cfg:
                 try:
-                    az_voice = file_voice("tts_voice") or AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
+                    az_voice = _azure_robot_voice() or AZURE_VOICES.get(state["accent"], AZURE_TTS_VOICE)
                     print("SPEAK via Azure", az_voice, flush=True)
                     azure_speak(part, cfg, az_voice)
                 except Exception as e:     # Azure failed: say it in ElevenLabs rather than go quiet
@@ -1850,6 +1897,12 @@ def watch_motion():
             return
         state["seen"] = time.time()          # kept while the sensor is off too, so the panel can still show the wiring works
         if not motion_on["on"]:
+            return
+        if sentry is not None and gcam is not None and sentry.is_armed():
+            threading.Thread(target=_sentry_motion, daemon=True).start()      # armed: an announced photo, not a greeting
+            return
+        if glatch is not None and gcam is not None and glatch.due():
+            threading.Thread(target=_latch_motion, daemon=True).start()       # latchkey: the day's first arrival in the after-school window
             return
         threading.Thread(target=welcome, daemon=True).start()
 
@@ -2220,6 +2273,233 @@ def meeting_post():
     d = request.get_json(silent=True) or {}
     set_meeting(bool(d.get("on")))
     return meeting_get()
+
+
+@app.post("/api/take-photo")
+def photo_take():
+    """The panel's Take a photo button. She says it out loud first; if she cannot, no photo is taken and the answer says why."""
+    if gcam is None:
+        return jsonify(ok=False, why="this robot has no photo feature"), 404
+    r = gcam.take_photo()
+    return jsonify(r), (200 if r.get("ok") else 409)
+
+
+@app.get("/api/photos")
+def photos_list():
+    return jsonify(photos=gcam.list_photos() if gcam else [])
+
+
+@app.get("/photos/<name>")
+def photo_file(name):
+    p = gcam.safe_path(name) if gcam else None
+    if not p:
+        return jsonify(error="no such photo"), 404
+    r = send_from_directory(gcam.PHOTO_DIR, name, mimetype="image/jpeg")
+    r.headers["Cache-Control"] = "no-store"
+    return r
+
+
+@app.get("/photos")
+def photos_page():
+    return (gcam.page_html() if gcam else "<p>This robot has no photo feature.</p>"), 200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store"}
+
+
+def _sentry_view():
+    s = sentry.load_state()
+    kept = set(gcam.list_photos()) if gcam else set()
+    items = []
+    for a in sentry.alerts()[:30]:
+        a = dict(a)
+        a["photo_kept"] = bool(a.get("photo") and a["photo"] in kept)
+        items.append(a)
+    left = max(0, int(s["live_at"] - time.time())) if s["armed"] else 0
+    return dict(armed=s["armed"], since=s["since"], alarm=s["alarm"], exit_delay_left=left, sensor=str(state.get("motion") or "unknown"), alerts=items)
+
+
+@app.get("/api/sentry")
+def sentry_get():
+    if sentry is None or gcam is None:
+        return jsonify(error="this robot has no Sentry mode"), 404
+    return jsonify(_sentry_view())
+
+
+@app.post("/api/sentry")
+def sentry_set():
+    if sentry is None or gcam is None:
+        return jsonify(error="this robot has no Sentry mode"), 404
+    d = request.get_json(silent=True) or {}
+    if "armed" in d:
+        sentry.set_armed(bool(d["armed"]))
+    if "alarm" in d:
+        sentry.set_alarm(bool(d["alarm"]))
+    return jsonify(_sentry_view())
+
+
+@app.get("/sentry")
+def sentry_page():
+    return (sentry.page_html() if sentry else "<p>This robot has no Sentry mode.</p>"), 200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store"}
+
+
+# ---- the Guardian's skills panel: lookup switch, place, network watch, asset watch, latchkey (added 2026-11-24, Dr. O) ----
+def _missing(what):
+    return jsonify(error="this robot has no %s" % what), 404
+
+
+def _latch_motion():
+    r = glatch.on_motion(lambda: gcam.take_photo(), notify=notify_front_office)
+    if r:
+        print("LATCHKEY:", r, flush=True)
+
+
+def _unknown_device_spoken(fresh):
+    n = len(fresh)
+    speak_async(("An unknown device just joined the network." if n == 1 else "%d unknown devices just joined the network." % n) + " It is flagged on the panel.", use_persona=False)
+    notify_front_office("Network watch: %d unknown device(s) joined: %s" % (n, ", ".join((f.get("name") or f["ip"]) for f in fresh)))
+
+
+def _asset_changed(names, photo):
+    speak_async("Check the room. " + ", ".join(names) + (" has" if len(names) == 1 else " have") + " changed.", use_persona=False)
+    notify_front_office("Asset watch: changed: " + ", ".join(names))
+
+
+def _asset_check():
+    return gassets.check(lambda: gcam.take_photo(), gcam.PHOTO_DIR, on_change=_asset_changed)
+
+
+@app.get("/api/lookup")
+def lookup_get():
+    return jsonify(available=glookup is not None, on=bool(glookup) and not glookup.is_off())
+
+
+@app.post("/api/lookup")
+def lookup_set():
+    if glookup is None:
+        return _missing("lookup")
+    on = bool((request.get_json(silent=True) or {}).get("on"))
+    if on:
+        try:
+            os.remove(glookup.OFF_FILE)
+        except OSError:
+            pass
+    else:
+        open(glookup.OFF_FILE, "w").close()
+    return lookup_get()
+
+
+@app.get("/api/place")
+def place_get():
+    if gplace is None:
+        return _missing("place feature")
+    card = gplace.owner_view()
+    return jsonify(card=card, threats=gplace.threats_line(card) if card else "")
+
+
+@app.get("/api/place/alerts")
+def place_alerts():
+    if gplace is None:
+        return _missing("place feature")
+    return jsonify(alerts=gplace.live_alerts(gplace.owner_view()))
+
+
+@app.post("/api/place")
+def place_set():
+    if gplace is None:
+        return _missing("place feature")
+    d = request.get_json(silent=True) or {}
+    if d.get("clear"):
+        gplace.clear()
+        return place_get()
+    try:
+        gplace.build(str(d.get("address", ""))[:200], str(d.get("kind", "")))
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return place_get()
+
+
+@app.get("/api/netwatch")
+def netwatch_get():
+    if gnet is None:
+        return _missing("network watch")
+    return jsonify(gnet.view())
+
+
+@app.post("/api/netwatch")
+def netwatch_set():
+    if gnet is None:
+        return _missing("network watch")
+    d = request.get_json(silent=True) or {}
+    mac = str(d.get("mac", "")).lower()
+    if "on" in d:
+        gnet.set_on(bool(d["on"]))
+    if d.get("action") == "scan":
+        gnet.scan_now(_unknown_device_spoken)
+    elif d.get("action") == "learn":
+        sub, _me = gnet.my_subnet()
+        if sub:
+            gnet.learn(gnet.sweep(sub))
+    elif d.get("action") in ("approve", "forget") and gnet.MAC_RE.fullmatch(mac):
+        if d["action"] == "approve":
+            gnet.approve(mac, str(d.get("name", ""))[:60])
+        else:
+            gnet.forget(mac)
+    return jsonify(gnet.view())
+
+
+@app.get("/api/assets")
+def assets_get():
+    if gassets is None:
+        return _missing("asset watch")
+    return jsonify(gassets.view())
+
+
+@app.post("/api/assets")
+def assets_set():
+    if gassets is None or gcam is None:
+        return _missing("asset watch")
+    d = request.get_json(silent=True) or {}
+    try:
+        if "items" in d:
+            gassets.set_items(d["items"])
+        if "interval" in d:
+            gassets.set_interval(d["interval"])
+        if d.get("action") == "reference":
+            r = gassets.take_reference(lambda: gcam.take_photo(), photo_dir=gcam.PHOTO_DIR)
+            if not r.get("ok"):
+                return jsonify(error=r.get("why")), 409
+        elif d.get("action") == "check":
+            r = _asset_check()
+            if not r.get("ok"):
+                return jsonify(error=r.get("why")), 409
+    except (ValueError, TypeError) as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(gassets.view())
+
+
+@app.get("/assets/reference.jpg")
+def assets_reference():
+    if gassets is None or not os.path.exists(gassets.REF_FILE):
+        return jsonify(error="no reference photo yet"), 404
+    r = send_from_directory(os.path.dirname(gassets.REF_FILE), os.path.basename(gassets.REF_FILE), mimetype="image/jpeg")
+    r.headers["Cache-Control"] = "no-store"
+    return r
+
+
+@app.get("/api/latchkey")
+def latchkey_get():
+    if glatch is None:
+        return _missing("latchkey mode")
+    return jsonify(glatch.view())
+
+
+@app.post("/api/latchkey")
+def latchkey_set():
+    if glatch is None:
+        return _missing("latchkey mode")
+    try:
+        glatch.configure(request.get_json(silent=True) or {})
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(glatch.view())
 
 
 @app.get("/api/quiet")
@@ -2972,6 +3252,24 @@ MIN_LEVEL = 600           # the quietest sound that counts as speech (16 bit uni
 NAME_RE = re.compile(r"\b(elle|ella|ellie|elly|ell|el|l|astra|astro|astrid|astronomy|(?:nine|9)[ -]?(?:light|lite)|strong nine|al|8l)\b", re.I)
 
 
+def _roster_wake():
+    """2026-11-24, Dr. O: the Guardian does not answer to Elle or Astra. If this robot's row in robots.json has a "wake" list, those words (and only those) wake her
+    in place of the built-in Astra names. A space in a name also matches no space, so "g f" hears "gf". No row, or no list, changes nothing for any other robot."""
+    try:
+        data = json.load(open(os.path.join(HERE, "robots.json"), encoding="utf-8"))
+        for r in (data.get("robots", data) if isinstance(data, dict) else data):
+            if isinstance(r, dict) and ROBOT_ID and r.get("id") == ROBOT_ID:
+                w = [str(x).strip() for x in (r.get("wake") or []) if str(x).strip()]
+                if w:
+                    return re.compile(r"\b(" + "|".join(re.escape(x).replace(r"\ ", r"\s?") for x in w) + r")\b", re.I)
+    except (OSError, ValueError, AttributeError):
+        pass
+    return None
+
+
+ROSTER_WAKE = _roster_wake()
+
+
 def wake_name_re():
     """Her own names, plus the name of the character she has taken on. 2026-10-07: with the A.L.I.C.E. character loaded,
     "Hello, Alice" was heard three times in a row and ignored, because only the Astra names woke her."""
@@ -2992,7 +3290,7 @@ def wake_name_re():
         # names and the name in its entry, never to Elle's.
         base = re.compile(r"\b(" + "|".join(re.escape(w) for w in PERSONAS[SELF_PERSONA]["wake"]) + r")\b", re.I)
     else:
-        base = NAME_RE
+        base = ROSTER_WAKE or NAME_RE
     if not p:
         return base
     n = p.get("name", "")
@@ -3533,7 +3831,16 @@ def reply_for(text, short=True):
     """(spoken, shown). The same reply as before, unless science mode answers from journals."""
     r = None
     try:
-        r = skills_reply(text)
+        # Live lookup first (weather, new exploited vulnerabilities, a short fact). It answers only from a real source and says so when it cannot reach it.
+        # A question it does not recognise returns None and goes on as before.
+        if glookup is not None and is_self(state["persona"]):
+            r = glookup.lookup_reply(text)
+    except Exception as e:
+        print("LOOKUP problem, answering as usual:", str(e)[:120], flush=True)
+        r = None
+    try:
+        if not r:
+            r = skills_reply(text)
     except Exception as e:
         print("SKILLS problem, answering as usual:", str(e)[:120], flush=True)
     try:
@@ -4142,6 +4449,62 @@ def sp_command(text, speak=None):
     return said
 
 
+# ---- PHOTOS, added 2026-11-24, Dr. O: the Guardian decides when she needs a photo herself, or takes one from the panel, or when asked out loud ("take a photo, Guardian").
+# Every way goes through gcam.take_photo(), which plays her recorded line first and takes NO picture if she cannot say it. She asks for one herself by ending her reply with [[photo]],
+# a marker that is always removed before anything is said or shown, and that is ignored unless this robot has the camera code. She may do that only once in a while (gcam.OWN_GAP_SECONDS).
+PHOTO_ASK = re.compile(r"\b(?:take|snap|grab)\b[^.?!]{0,25}\b(?:photo|picture|pic|snapshot)\b", re.I)
+PHOTO_MARK = re.compile(r"\s*\[\[\s*photo\s*\]\]\s*", re.I)
+
+
+def photo_command(text):
+    """When someone asks for a photo out loud: take it (she announces it first) and put the result in the chat. Returns the note, or None when this was not that request."""
+    if gcam is None or not PHOTO_ASK.search(text or ""):
+        return None
+    r = gcam.take_photo()
+    note = "I took a photo. It is on my panel." if r.get("ok") else r.get("why", "I could not take a photo.")
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": note}]
+    if not r.get("ok") and "camera" in r.get("why", ""):
+        speak_now("I could not take the photo.")
+    return note
+
+
+SENTRY_ON = re.compile(r"\b(?:arm|activate|start|turn on|switch on)\b[^.?!]{0,20}\bsentry\b|^\W*(?:guardian\W+)?sentry mode\W+(?:on|please)\b|\barm yourself\b", re.I)
+SENTRY_OFF = re.compile(r"\b(?:disarm|deactivate|stop|turn off|switch off|cancel)\b[^.?!]{0,20}\bsentry\b|^\W*(?:guardian\W+)?sentry mode\W+off\b|\bstand down\b", re.I)
+
+
+def _sentry_motion():
+    """The motion sensor saw someone while she is armed. The photo is the gated one, so she says it first; the sentry's own line, if made, says "Motion detected" too."""
+    line = sentry.SENTRY_LINE if os.path.isfile(sentry.SENTRY_LINE) else None
+    r = sentry.on_motion(lambda: gcam.take_photo(line_file=line), alarm_fn=sentry.play_alarm)
+    if r and "skipped" not in r:
+        print("SENTRY:", {k: v for k, v in r.items() if k != "time"}, flush=True)
+
+
+def sentry_command(text):
+    """"Arm sentry mode" / "Disarm sentry mode" out loud. Returns what she says back, or None when this was not that request."""
+    if sentry is None or gcam is None:
+        return None
+    if SENTRY_OFF.search(text or ""):
+        sentry.set_armed(False)
+        said = "Sentry mode is off."
+    elif SENTRY_ON.search(text or ""):
+        sentry.set_armed(True)
+        said = "Sentry mode is on. I will start watching in a moment."
+    else:
+        return None
+    state["log"] += [{"who": "you", "text": text}, {"who": "al", "text": said}]
+    speak_now(said)
+    return said
+
+
+def photo_by_herself():
+    """She asked for a photo in her own reply. Same gate as every other photo, plus a pause between her own."""
+    if gcam is None:
+        return
+    r = gcam.take_photo_herself()
+    state["log"] += [{"who": "al", "text": "I took a photo. It is on my panel." if r.get("ok") else r.get("why", "I could not take a photo.")}]
+
+
 def answer_and_say(text):
     """Work out a reply to what was heard, keep it in the chat, and say it, returning when she has finished."""
     if fireside["on"]:
@@ -4151,6 +4514,12 @@ def answer_and_say(text):
     said_sp = sp_command(text)
     if said_sp is not None:
         return said_sp
+    said_photo = photo_command(text)
+    if said_photo is not None:
+        return said_photo
+    said_sentry = sentry_command(text)
+    if said_sentry is not None:
+        return said_sentry
     said_clock = clock_reply(text)
     if said_clock:
         state["history"].append('They said "%s" and you said "%s".' % (text, said_clock))
@@ -4165,6 +4534,8 @@ def answer_and_say(text):
         speak_now(spoken)
         return reply
     reply, shown = reply_for(text)
+    wants_photo = bool(PHOTO_MARK.search(reply or "") or PHOTO_MARK.search(shown or ""))
+    reply, shown = PHOTO_MARK.sub(" ", reply or "").strip(), PHOTO_MARK.sub(" ", shown or "").strip()
     # 2026-10-17, Dr. O: "plainly" is a tell she hears every time ("Elle just said plainly"). Dropped from anything she says, whatever the model wrote.
     reply = no_plainly(reply)
     t1 = time.time()
@@ -4173,6 +4544,8 @@ def answer_and_say(text):
     remember_exchange(text, reply)
     speak_now(reply)
     print("TIMING reply %.1f s, voice made and spoken %.1f s" % (t1 - t0, time.time() - t1), flush=True)
+    if wants_photo:
+        photo_by_herself()
     return reply
 
 
@@ -5108,4 +5481,10 @@ if __name__ == "__main__":
     threading.Thread(target=routine_watcher, daemon=True).start()   # reminders, medicine questions, the daily check-in
     threading.Thread(target=pet_watcher, daemon=True).start()       # gentle words for a pet left alone, and the owner's daily note
     start_fireside()                                                # waits for a fireside chat from the director on the website
+    if gnet is not None:
+        threading.Thread(target=gnet.watcher, args=(_unknown_device_spoken,), daemon=True).start()          # network watch, only while switched on
+    if gassets is not None and gcam is not None:
+        threading.Thread(target=gassets.watcher, args=(_asset_check,), daemon=True).start()                 # asset checks, only when an interval is set
+    if glatch is not None:
+        threading.Thread(target=glatch.watcher, args=(lambda t: speak_async(t, use_persona=False), notify_front_office), daemon=True).start()   # latchkey reminders and the not-home notice
     app.run(host="0.0.0.0", port=8000, threaded=True)

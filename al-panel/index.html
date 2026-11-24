@@ -228,6 +228,81 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
 
     <!-- MODE, added 2026-10-15, Dr. O: companion, science, children's friend, event and front desk, bench and workshop. A mode is a set of rules, what she keeps, how she
          listens and her eye color. Children's friend mode offers only the characters and skills chosen for everyone under 13, and keeps notes a parent can read. -->
+    <!-- HER SKILLS, added 2026-11-24, Dr. O: "we need her panel to reflect her skills". Only on a Guardian. Each card says what she does and has its own controls. -->
+    <section class="card wide" id="herSkills" style="display:none">
+      <style>
+        #herSkills .sk{border:1px solid var(--line);border-radius:12px;padding:16px;margin:0 0 14px;background:var(--panel)}
+        #herSkills .sk h3{margin:0 0 4px;font-size:17px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+        #herSkills .pill{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;border:1px solid var(--line)}
+        #herSkills .pill.on{background:var(--status);color:var(--on-status);border-color:var(--status)}
+        #herSkills .sk p.hint{margin:0 0 10px}
+        #herSkills .lst{font-size:14px;margin:6px 0;padding-left:1.2rem}
+        #herSkills .msg{font-size:14px;min-height:1.2em}
+        #herSkills .thumbs img{height:84px;border-radius:8px;margin:0 6px 6px 0;border:1px solid var(--line)}
+        #herSkills .stage{position:relative;display:inline-block;max-width:100%;touch-action:none;user-select:none}
+        #herSkills .stage img{display:block;max-width:100%;border-radius:8px}
+        #herSkills .box{position:absolute;border:2px solid #e5534b;background:rgba(229,83,75,.18);border-radius:3px;font-size:12px;color:#fff;text-shadow:0 0 3px #000;pointer-events:none}
+        #herSkills input[type=text],#herSkills select,#herSkills textarea{max-width:100%}
+        #herSkills table{border-collapse:collapse;font-size:14px;margin:6px 0}
+        #herSkills td,#herSkills th{border-bottom:1px solid var(--line);padding:4px 10px 4px 0;text-align:left}
+      </style>
+      <h2>Her skills</h2>
+      <p class="hint">What she does, ready to use. Each card has its own switch or button.</p>
+      <div class="twocol">
+        <div>
+          <div class="sk" id="skPhoto"><h3>Photo <span class="pill" id="phStatus">Ready</span></h3>
+            <p class="hint">She tells you out loud, then takes the picture. Say "take a photo, Guardian" or press the button.</p>
+            <div class="row"><button class="primary" id="phTake" type="button">Take a photo</button><a href="/photos">All photos</a></div>
+            <div class="msg" id="phMsg"></div><div class="thumbs" id="phThumbs"></div></div>
+
+          <div class="sk" id="skSentry"><h3>Sentry <span class="pill" id="snStatus">...</span></h3>
+            <p class="hint">Arm her and she watches the room. When she sees someone she photographs them and logs the time. Say "arm sentry mode" or use the buttons.</p>
+            <div class="row"><button class="primary" id="snArm" type="button">Arm</button><button id="snDisarm" type="button">Disarm</button><a href="/sentry">Alerts and photos</a></div>
+            <div class="msg" id="snMsg"></div></div>
+
+          <div class="sk" id="skLookup"><h3>Live lookup <span class="pill" id="luStatus">...</span></h3>
+            <p class="hint">Ask her for the weather and alerts for a city, today's newly exploited vulnerabilities, or a quick fact. She answers from live public sources and says which one.</p>
+            <label class="wopt"><input type="checkbox" id="luOn"> On</label>
+            <div class="msg" id="luMsg"></div></div>
+
+          <div class="sk" id="skPlace"><h3>Her place <span class="pill" id="plStatus">Not set</span></h3>
+            <p class="hint">Give her the address of the home or workplace she guards. She builds your local safety card: nearest police and fire stations, the county's disaster risks, and live weather alerts. Only a map pin is kept. The street address is used once and never stored, and she never says it out loud.</p>
+            <label for="plAddr">Address, city and state, or ZIP</label><input type="text" id="plAddr" placeholder="123 Main St, Dayton, OH   or   45431">
+            <div class="row" style="margin-top:8px"><label class="wopt"><input type="radio" name="plKind" value="home" checked> Home</label><label class="wopt"><input type="radio" name="plKind" value="work"> Work</label>
+              <button class="primary" id="plSave" type="button">Build the safety card</button><button id="plClear" type="button">Forget this place</button></div>
+            <div class="msg" id="plMsg"></div><div id="plCard"></div></div>
+        </div>
+        <div>
+          <div class="sk" id="skNet"><h3>Network watch <span class="pill" id="nwStatus">Off</span></h3>
+            <p class="hint">She learns the Wi-Fi she is on, then watches it. A device she does not know is flagged here and announced out loud, and you approve it by name. Every event goes in a log that shows if anyone alters it.</p>
+            <div class="row"><label class="wopt"><input type="checkbox" id="nwOn"> Watching</label><button id="nwScan" type="button">Scan now</button><button id="nwLearn" type="button">Learn this network</button></div>
+            <div class="msg" id="nwMsg"></div><div id="nwFlag"></div><div id="nwKnown"></div><div class="msg" id="nwLog"></div></div>
+
+          <div class="sk" id="skAssets"><h3>Asset watch <span class="pill" id="asStatus">Set up</span></h3>
+            <p class="hint">Take a reference photo of the room, then drag a box around each item you care about and name it. She checks the room for you on request or on a schedule. When an item changes she names it, photographs it and logs it.</p>
+            <div class="row"><button class="primary" id="asRef" type="button">Take the reference photo</button><button id="asCheck" type="button">Check the room now</button>
+              <label class="wopt">Check every <select id="asInt"></select></label></div>
+            <div class="msg" id="asMsg"></div><div id="asStage"></div><div id="asItems"></div><div id="asResults"></div><div class="msg" id="asLog"></div></div>
+
+          <div class="sk" id="skDesk"><h3>Concierge desk <span class="pill on">Ready</span></h3>
+            <p class="hint">At the front desk she greets visitors, checks them against today's appointments, gives directions from your directory, logs every arrival and tells the front office.</p>
+            <div class="row"><button class="primary" id="dkOpen" type="button">Open front desk setup</button></div></div>
+
+          <div class="sk" id="skLatch"><h3>Home latchkey <span class="pill" id="lkStatus">Off</span></h3>
+            <p class="hint">She notes when your child gets home, photographs the door, tells you, says the reminders you set, and lets you know if they are not home by the time you expect them. Notices go to the address in the front desk setup.</p>
+            <label class="wopt"><input type="checkbox" id="lkOn"> On</label>
+            <div class="twocol" style="gap:10px"><div><label for="lkChild">Child's first name</label><input type="text" id="lkChild"></div>
+              <div><label for="lkExp">Expected home by</label><input type="text" id="lkExp" placeholder="15:45" style="max-width:100px"></div></div>
+            <div class="row"><label class="wopt">After school from <input type="text" id="lkStart" placeholder="15:00" style="max-width:80px"></label><label class="wopt">until <input type="text" id="lkEnd" placeholder="18:30" style="max-width:80px"></label>
+              <label class="wopt"><input type="checkbox" id="lkDays"> School days only</label></div>
+            <label for="lkRem">Reminders, one per line as  Time | What she says</label>
+            <textarea id="lkRem" rows="3" placeholder="16:30 | Time to start your homework.&#10;17:30 | Please feed the dog."></textarea>
+            <div class="row" style="margin-top:8px"><button class="primary" id="lkSave" type="button">Save</button></div>
+            <div class="msg" id="lkMsg"></div><div class="msg" id="lkLog"></div></div>
+        </div>
+      </div>
+    </section>
+
     <section class="card wide" id="modeCard">
       <h2>Mode: how should she act?</h2>
       <p class="hint">A mode sets her rules, what she remembers, how she listens and her eye color. Pick one, and you can still change anything after.</p>
@@ -572,6 +647,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         <label for="gGreeting">What she says when someone walks up (leave empty for the usual hello)</label><input type="text" id="gGreeting" placeholder="Hello, welcome. Can I assist you? Where are you going today?">
         <label for="gDirectory">Directory: one place per line as  Name | Where | Details | other names</label>
         <textarea id="gDirectory" rows="6" placeholder="Dean's office | third floor, room 310, take the elevator on your left | Open until 5 | dean&#10;Restrooms | down the hall on your right"></textarea>
+        <label for="gAppts">Today's appointments: one per line as  Time | Visitor name | Who they are seeing</label>
+        <textarea id="gAppts" rows="3" placeholder="2:30 PM | Jordan Lee | Dr. Patel&#10;3:00 PM | Sam Rivera | Ms. Ortiz"></textarea>
         <label for="gForms">Forms to get started: one per line as  Name | web address or where to get it</label>
         <textarea id="gForms" rows="3" placeholder="Visitor registration | https://example.edu/visitor&#10;Vendor intake | ask at the front desk"></textarea>
       </div><div>
@@ -1138,10 +1215,10 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
 
   // ---------- the Guardian setup ----------
   var gNotifySet = false, gLoadedOnce = false;
-  var G_FIELDS = {building:'gBuilding', greeting:'gGreeting', directory:'gDirectory', forms:'gForms', hours:'gHours', afterhours_start:'gAfterStart', afterhours_end:'gAfterEnd', afterhours_line:'gAfterLine', emergency:'gEmergency'};
+  var G_FIELDS = {building:'gBuilding', greeting:'gGreeting', directory:'gDirectory', forms:'gForms', hours:'gHours', afterhours_start:'gAfterStart', afterhours_end:'gAfterEnd', afterhours_line:'gAfterLine', emergency:'gEmergency', appointments:'gAppts'};
   function refreshGuardian(){
     var card = $('guardianCard');
-    var wants = state.mode === 'guardian' || state.skills.indexOf('desk') !== -1;
+    var wants = state.mode === 'guardian' || state.skills.indexOf('desk') !== -1 || window.IS_GUARDIAN === true;
     if(!live || !wants){ card.style.display = 'none'; return; }
     card.style.display = '';
     fetch('/api/guardian').then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
@@ -2110,6 +2187,180 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
         setTimeout(function () { busy = false; walk(document.body); }, 150);
       }).observe(document.body, { childList: true, subtree: true, characterData: true });
     });
+  }).catch(function () {});
+})();
+</script>
+<script>
+/* 2026-11-24, Dr. O: the Guardian's skills cards. Runs only when this robot's id starts with "guardian". */
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]; }); }
+  function jget(u) { return fetch(u, {cache: "no-store"}).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("error " + r.status)); return j; }); }); }
+  function jpost(u, b) { return fetch(u, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(b || {})}).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("error " + r.status)); return j; }); }); }
+  function msg(id, t, bad) { var e = $(id); if (e) { e.textContent = t || ""; e.style.color = bad ? "#e5534b" : ""; } }
+  function pill(id, text, on) { var e = $(id); if (e) { e.textContent = text; e.className = "pill" + (on ? " on" : ""); } }
+  function ago(t) { if (!t) return "never"; var s = Math.max(0, Math.round(Date.now() / 1000 - t)); return s < 90 ? s + " seconds ago" : s < 5400 ? Math.round(s / 60) + " minutes ago" : new Date(t * 1000).toLocaleString(); }
+  function logLine(id, v) { msg(id, v.log_count ? ("Log: " + v.log_count + " entries, " + (v.log_ok ? "verified unchanged." : "CHECK FAILED, an entry was altered.")) : "", !v.log_ok); }
+
+  // ---- photo
+  function loadPhotos() {
+    jget("/api/photos").then(function (j) {
+      var names = (j.photos || []).slice().sort().reverse().slice(0, 4);
+      $("phThumbs").innerHTML = names.map(function (n) { return '<a href="/photos/' + esc(n) + '"><img src="/photos/' + esc(n) + '" alt="photo"></a>'; }).join("");
+    }).catch(function () {});
+  }
+  $("phTake").addEventListener("click", function () {
+    pill("phStatus", "Taking...", true); msg("phMsg", "");
+    jpost("/api/take-photo").then(function () { pill("phStatus", "Ready"); msg("phMsg", "Photo taken."); loadPhotos(); })
+      .catch(function (e) { pill("phStatus", "Ready"); msg("phMsg", e.message, true); });
+  });
+
+  // ---- sentry
+  function loadSentry() {
+    jget("/api/sentry").then(function (d) {
+      pill("snStatus", d.armed ? (d.exit_delay_left > 0 ? "Armed, live in " + d.exit_delay_left + "s" : "Armed") : "Not armed", d.armed);
+      msg("snMsg", "Motion sensor: " + d.sensor + ". Alerts logged: " + d.alerts.length + ".");
+    }).catch(function (e) { msg("snMsg", e.message, true); });
+  }
+  $("snArm").addEventListener("click", function () { jpost("/api/sentry", {armed: true}).then(loadSentry); });
+  $("snDisarm").addEventListener("click", function () { jpost("/api/sentry", {armed: false}).then(loadSentry); });
+
+  // ---- lookup
+  function loadLookup() { jget("/api/lookup").then(function (d) { $("luOn").checked = !!d.on; pill("luStatus", d.on ? "On" : "Off", d.on); }).catch(function () {}); }
+  $("luOn").addEventListener("change", function () { jpost("/api/lookup", {on: $("luOn").checked}).then(loadLookup); });
+
+  // ---- place
+  var RK = {"Very High": 5, "Relatively High": 4, "Relatively Moderate": 3, "Relatively Low": 2, "Very Low": 1};
+  function renderPlace(j) {
+    var c = j.card;
+    if (!c) { pill("plStatus", "Not set"); $("plCard").innerHTML = ""; return; }
+    pill("plStatus", (c.kind === "work" ? "Work" : "Home") + " place set", true);
+    function stations(list) { return list.length ? list.map(function (s) { return "<li>" + esc(s.name) + ", " + s.km + " km away, phone " + (s.phone ? esc(s.phone) : "not listed") + "</li>"; }).join("") : "<li>None found nearby on the map.</li>"; }
+    var rows = (c.risks || []).filter(function (r) { return RK[r.rating] >= 3; }).map(function (r) { return "<tr><td>" + esc(r.hazard) + "</td><td>" + esc(r.rating) + "</td></tr>"; }).join("");
+    $("plCard").innerHTML = "<b>Nearest police</b><ul class='lst'>" + stations(c.police) + "</ul><b>Nearest fire</b><ul class='lst'>" + stations(c.fire) + "</ul>" +
+      "<b>Disaster risks" + (c.county ? " for " + esc(c.county.county) + " County, " + esc(c.county.state) : "") + (c.county ? " (overall " + esc(c.county.overall) + ")" : "") + "</b>" +
+      (rows ? "<table>" + rows + "</table>" : "<div class='msg'>No hazard is rated moderate or higher.</div>") +
+      "<div id='plAlerts' class='msg'>Checking live weather alerts...</div><div class='msg'>Sources: OpenStreetMap, FEMA National Risk Index, National Weather Service. Call 911 in an emergency.</div>";
+    jget("/api/place/alerts").then(function (a) {
+      $("plAlerts").textContent = a.alerts.length ? "Live alerts now: " + a.alerts.map(function (x) { return x.event; }).join(", ") + "." : "No active weather alerts for this spot right now.";
+    }).catch(function () { $("plAlerts").textContent = ""; });
+  }
+  function loadPlace() { jget("/api/place").then(renderPlace).catch(function () {}); }
+  $("plSave").addEventListener("click", function () {
+    var kind = document.querySelector("input[name=plKind]:checked").value;
+    msg("plMsg", "Building the card. This takes about fifteen seconds."); $("plSave").disabled = true;
+    jpost("/api/place", {address: $("plAddr").value, kind: kind}).then(function (j) { $("plAddr").value = ""; msg("plMsg", "Done. The address was not kept."); renderPlace(j); })
+      .catch(function (e) { msg("plMsg", e.message, true); }).then(function () { $("plSave").disabled = false; });
+  });
+  $("plClear").addEventListener("click", function () { jpost("/api/place", {clear: true}).then(function (j) { msg("plMsg", "Forgotten."); renderPlace(j); }); });
+
+  // ---- network watch
+  function loadNet() {
+    jget("/api/netwatch").then(function (v) {
+      $("nwOn").checked = v.on; pill("nwStatus", v.on ? "Watching" : "Off", v.on);
+      msg("nwMsg", "Last sweep " + ago(v.last_scan) + ". Devices answering now: " + v.present + ". Approved: " + v.known.length + ".");
+      $("nwFlag").innerHTML = v.flagged.length ? "<b>Flagged: not on your approved list</b>" + v.flagged.map(function (f) {
+        return "<div class='row' style='margin:6px 0'><span>" + esc(f.name || f.ip) + " (" + esc(f.ip) + ", " + esc(f.mac) + ")" + (f.private_mac ? " private address" : "") + "</span>" +
+          "<input type='text' placeholder='Name it' data-mac='" + esc(f.mac) + "' class='nwName' style='max-width:160px'><button data-ap='" + esc(f.mac) + "' type='button'>Approve</button></div>"; }).join("") : "";
+      $("nwKnown").innerHTML = v.known.length ? "<b>Approved devices</b><ul class='lst'>" + v.known.map(function (k) { return "<li>" + esc(k.name) + " (" + esc(k.ip || "") + ") " + (k.here ? "here now" : "not seen this sweep") + "</li>"; }).join("") + "</ul>" : "";
+      logLine("nwLog", v);
+    }).catch(function (e) { msg("nwMsg", e.message, true); });
+  }
+  $("skNet").addEventListener("click", function (ev) {
+    var mac = ev.target && ev.target.getAttribute && ev.target.getAttribute("data-ap"); if (!mac) return;
+    var inp = document.querySelector("input.nwName[data-mac='" + mac + "']");
+    jpost("/api/netwatch", {action: "approve", mac: mac, name: inp ? inp.value : ""}).then(loadNet);
+  });
+  $("nwOn").addEventListener("change", function () { jpost("/api/netwatch", {on: $("nwOn").checked}).then(loadNet); });
+  $("nwScan").addEventListener("click", function () { msg("nwMsg", "Sweeping the network..."); jpost("/api/netwatch", {action: "scan"}).then(loadNet).catch(function (e) { msg("nwMsg", e.message, true); }); });
+  $("nwLearn").addEventListener("click", function () { msg("nwMsg", "Learning the network..."); jpost("/api/netwatch", {action: "learn"}).then(loadNet).catch(function (e) { msg("nwMsg", e.message, true); }); });
+
+  // ---- asset watch
+  var items = [], drawing = null;
+  function paintBoxes() {
+    var st = $("asStage").querySelector(".stage"); if (!st) return;
+    Array.prototype.slice.call(st.querySelectorAll(".box")).forEach(function (b) { b.remove(); });
+    items.forEach(function (it) {
+      var d = document.createElement("div"); d.className = "box"; d.textContent = it.name;
+      d.style.left = it.x * 100 + "%"; d.style.top = it.y * 100 + "%"; d.style.width = it.w * 100 + "%"; d.style.height = it.h * 100 + "%"; st.appendChild(d);
+    });
+    $("asItems").innerHTML = items.length ? "<b>Watching</b><ul class='lst'>" + items.map(function (it, i) { return "<li>" + esc(it.name) + " <a href='#' data-rm='" + i + "'>remove</a></li>"; }).join("") + "</ul>" : "";
+  }
+  function saveItems() { return jpost("/api/assets", {items: items}).then(function (v) { items = v.items; paintBoxes(); }); }
+  $("skAssets").addEventListener("click", function (ev) {
+    var i = ev.target && ev.target.getAttribute && ev.target.getAttribute("data-rm");
+    if (i !== null && i !== undefined) { ev.preventDefault(); items.splice(+i, 1); saveItems(); }
+  });
+  function wireStage(st) {
+    st.addEventListener("pointerdown", function (e) {
+      var r = st.getBoundingClientRect(); drawing = {x0: (e.clientX - r.left) / r.width, y0: (e.clientY - r.top) / r.height, el: document.createElement("div")};
+      drawing.el.className = "box"; st.appendChild(drawing.el); st.setPointerCapture(e.pointerId);
+    });
+    st.addEventListener("pointermove", function (e) {
+      if (!drawing) return; var r = st.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      drawing.x = Math.min(drawing.x0, x); drawing.y = Math.min(drawing.y0, y); drawing.w = Math.abs(x - drawing.x0); drawing.h = Math.abs(y - drawing.y0);
+      drawing.el.style.left = drawing.x * 100 + "%"; drawing.el.style.top = drawing.y * 100 + "%"; drawing.el.style.width = drawing.w * 100 + "%"; drawing.el.style.height = drawing.h * 100 + "%";
+    });
+    st.addEventListener("pointerup", function () {
+      if (!drawing) return; var d = drawing; drawing = null; d.el.remove();
+      if (d.w > 0.02 && d.h > 0.02) { var n = window.prompt("What is this item called?", ""); if (n && n.trim()) { items.push({name: n.trim(), x: d.x, y: d.y, w: d.w, h: d.h}); saveItems(); } }
+    });
+  }
+  function loadAssets() {
+    jget("/api/assets").then(function (v) {
+      items = v.items;
+      $("asInt").innerHTML = v.intervals.map(function (m) { return "<option value='" + m + "'" + (m === v.interval ? " selected" : "") + ">" + (m ? m + " minutes" : "only when I ask") + "</option>"; }).join("");
+      pill("asStatus", v.has_reference ? (items.length ? "Watching " + items.length + (items.length === 1 ? " item" : " items") : "Draw boxes") : "Set up", v.has_reference && items.length > 0);
+      if (v.has_reference) {
+        if (!$("asStage").querySelector(".stage")) {
+          $("asStage").innerHTML = "<div class='stage'><img alt='reference photo' src='/assets/reference.jpg?" + Date.now() + "'></div><div class='msg'>Drag on the photo to draw a box around an item.</div>";
+          wireStage($("asStage").querySelector(".stage"));
+        }
+      }
+      paintBoxes();
+      $("asResults").innerHTML = (v.last && v.last.length) ? "<b>Last check, " + ago(v.last_check) + "</b><ul class='lst'>" + v.last.map(function (r) { return "<li>" + esc(r.name) + ": " + (r.changed ? "<b>it changed</b>" : "looks the same") + "</li>"; }).join("") + "</ul>" : "";
+      logLine("asLog", v);
+    }).catch(function (e) { msg("asMsg", e.message, true); });
+  }
+  $("asRef").addEventListener("click", function () {
+    msg("asMsg", "Taking the reference photo..."); jpost("/api/assets", {action: "reference"}).then(function () { $("asStage").innerHTML = ""; msg("asMsg", "Reference saved. Now drag boxes around your items."); loadAssets(); })
+      .catch(function (e) { msg("asMsg", e.message, true); });
+  });
+  $("asCheck").addEventListener("click", function () {
+    msg("asMsg", "Checking the room..."); jpost("/api/assets", {action: "check"}).then(function (v) { msg("asMsg", "Checked."); loadAssets(); }).catch(function (e) { msg("asMsg", e.message, true); });
+  });
+  $("asInt").addEventListener("change", function () { jpost("/api/assets", {interval: +$("asInt").value}).then(loadAssets).catch(function (e) { msg("asMsg", e.message, true); }); });
+
+  // ---- concierge
+  $("dkOpen").addEventListener("click", function () { var c = $("guardianCard"); c.style.display = ""; c.scrollIntoView({behavior: "smooth", block: "start"}); });
+
+  // ---- latchkey
+  function loadLatch() {
+    jget("/api/latchkey").then(function (v) {
+      if (!window._lkFilled) {
+        window._lkFilled = true;
+        $("lkChild").value = v.child; $("lkExp").value = v.expected; $("lkStart").value = v.start; $("lkEnd").value = v.end; $("lkDays").checked = v.school_days;
+        $("lkRem").value = v.reminders.map(function (r) { return r.time + " | " + r.text; }).join("\n");
+      }
+      $("lkOn").checked = v.on; pill("lkStatus", v.on ? (v.arrived_today ? "Home today" : "On") : "Off", v.on);
+      var last = (v.log || []).filter(function (e) { return e.event === "arrival"; })[0];
+      msg("lkLog", last ? "Last arrival: " + (last.data.time || "") + " (" + ago(last.t) + ")" + (last.data.photo ? ". Photo of the door: " : ".") : "");
+      if (last && last.data.photo) { var a = document.createElement("a"); a.href = "/photos/" + last.data.photo; a.textContent = "open"; $("lkLog").appendChild(a); }
+    }).catch(function (e) { msg("lkMsg", e.message, true); });
+  }
+  function latchBody() {
+    return {on: $("lkOn").checked, child: $("lkChild").value, expected: $("lkExp").value, start: $("lkStart").value, end: $("lkEnd").value, school_days: $("lkDays").checked,
+      reminders: $("lkRem").value.split("\n").map(function (l) { var p = l.split("|"); return {time: (p[0] || "").trim(), text: (p.slice(1).join("|") || "").trim()}; }).filter(function (r) { return r.time && r.text; })};
+  }
+  $("lkSave").addEventListener("click", function () { jpost("/api/latchkey", latchBody()).then(function () { msg("lkMsg", "Saved."); loadLatch(); }).catch(function (e) { msg("lkMsg", e.message, true); }); });
+  $("lkOn").addEventListener("change", function () { jpost("/api/latchkey", latchBody()).then(loadLatch).catch(function (e) { msg("lkMsg", e.message, true); }); });
+
+  function all() { loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); }
+  fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
+    if (!me || !/^guardian/.test(me.id || "")) return;
+    window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();
+    var oldHero = document.querySelector("figure.hero"); if (oldHero) oldHero.style.display = "none";      // the Astra bust photos are not hers; her own picture comes from robots.json
+    setInterval(function () { if (!document.hidden) { loadSentry(); loadNet(); } }, 8000);
   }).catch(function () {});
 })();
 </script>

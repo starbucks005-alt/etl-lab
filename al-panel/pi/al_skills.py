@@ -362,7 +362,7 @@ def briefing_reply(text, clock_items=None, now=None, calendar_today=None):
 GUARDIAN_FILE = os.path.join(HERE, "guardian.json")
 VISITS_FILE = os.path.join(HERE, "visitors.json")
 UNMET_FILE = os.path.join(HERE, "unmet_questions.json")
-GUARDIAN_FIELDS = ("building", "greeting", "directory", "forms", "hours", "afterhours_start", "afterhours_end", "afterhours_line", "emergency", "notify_url")
+GUARDIAN_FIELDS = ("building", "greeting", "directory", "forms", "hours", "afterhours_start", "afterhours_end", "afterhours_line", "emergency", "notify_url", "appointments")
 EMERGENCY_RE = re.compile(r"\b(emergency|fire|on fire|smoke|someone (?:is |has )?(?:hurt|injured|collapsed|unconscious|bleeding)|call (?:911|the police|an ambulance|security)|need help now|bomb|gun|weapon|shooter|attack)\b", re.I)
 
 
@@ -468,6 +468,25 @@ def unmet():
     return _load(UNMET_FILE, {})
 
 
+def parse_appointments(text):
+    """Lines of  Time | Visitor name | Host  (for example 2:30 PM | Jordan Lee | Dr. Patel). Time is free text and optional in practice."""
+    out = []
+    for line in (text or "").splitlines():
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 3 and parts[1] and parts[2]:
+            out.append({"time": parts[0], "name": parts[1], "host": parts[2]})
+    return out
+
+
+def appointment_for(name, appointments):
+    """The appointment whose visitor name matches what the visitor said (first and last name, or a unique first name)."""
+    w = _words(name)
+    if not w:
+        return None
+    hits = [a for a in appointments if _words(a["name"]) and (w >= _words(a["name"]) or _words(a["name"]) >= w)]
+    return hits[0] if len(hits) == 1 else None
+
+
 def guardian_reply(text, notify=None, now=None):
     """(spoken, shown) when this is something the Guardian handles, else None. notify(text) tells the front office, when a notice address is set."""
     t = _clean(text)
@@ -488,6 +507,15 @@ def guardian_reply(text, notify=None, now=None):
     mn = re.search(r"\b(?:my name is|i am|i'm|this is|it's|it is)\s+([a-z][a-z .'-]{1,40}?)(?=,| and | here| for| to see| i| i'm|$)", low)
     if mn and mn.group(1).split()[0] not in ("looking", "here", "going", "trying", "a", "an", "the", "from", "with", "lost", "new", "not", "sorry", "just"):
         name = " ".join(w.capitalize() for w in mn.group(1).split())
+    appt = appointment_for(name, parse_appointments(cfg.get("appointments", ""))) if name else None
+    if appt and not m:
+        msg = "Welcome, %s. I have you down for %s with %s. I will let %s know you are here." % (name, appt["time"] or "today", appt["host"], appt["host"])
+        found = directory_find(appt["host"], parse_directory(cfg["directory"]))
+        if found:
+            msg += " Directions: %s." % found[0]["where"].rstrip(".")
+        log_visit(name, appt["host"], "expected, " + (appt["time"] or "appointment"))
+        note("%s has arrived for %s." % (name, appt["time"] or "an appointment") + " Here to see %s." % appt["host"])
+        return msg, msg
     if m and (name or re.search(r"\b(here to see|here for|visiting|meeting with|appointment|here to meet)\b", low)):
         host = _clean(t[m.start(1):]).strip(" .")
         found = directory_find(host, parse_directory(cfg["directory"]))
