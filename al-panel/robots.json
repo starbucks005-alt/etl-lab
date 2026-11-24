@@ -177,10 +177,10 @@
       },
       "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons), leather fingerless gloves, teal-green eyes, a black collar, a round camera ring at the neckline, a gray ETL T-shirt, khaki shorts, a teddy bear in his hand (from Dr. O's concept picture)",
       "picture": {
-        "src": "images/astro-concept_v2.jpg",
-        "max_width": "280px",
-        "alt": "Concept picture of Astro, a little champagne robot boy with teal-green eyes, a black collar, a gray ETL T-shirt and khaki shorts, holding a teddy bear.",
-        "caption": "Concept Art - Astro"
+        "src": "images/astro-pajamas_v3.webp",
+        "max_width": "300px",
+        "alt": "Astro, a little robot boy with a gold face and glowing blue eyes, in blue striped pajamas with an owl on the front, brown gloves and brown slippers, sitting on a wooden floor holding a teddy bear.",
+        "caption": "Astro"
       },
       "bio": {
         "text": "Hi! I'm Astro. Some people call me Teddy. I'm three years old, and I'm a robot boy. My mommy is Astra and my daddy is Ted. I have a twin sister named Astri. Elle is my aunt, and Alice is my aunt too. I have a teddy bear named TB. Do you wanna play a game with me? Or will you tell me and TB a story, we would really REALLY like that?",
@@ -230,10 +230,10 @@
       },
       "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons), green eyes, pink cheeks, a black collar with a small pink bow, a lavender dress with a white collar and ETL on the chest, bare feet, a baby doll held by the hand (from Dr. O's concept picture)",
       "picture": {
-        "src": "images/astri-concept_v1.jpg",
-        "max_width": "280px",
-        "alt": "Concept picture of Astri, a little champagne robot girl with green eyes, pink cheeks, a black collar with a pink bow and a lavender dress with ETL on the chest, holding a baby doll by the hand.",
-        "caption": "Concept Art - Astri"
+        "src": "images/astri-pajamas_v3.webp",
+        "max_width": "300px",
+        "alt": "Astri, a little robot girl with a gold face, softly glowing pink eyes and a pink bow on her head, in pink pajamas with lambs on them and pink rainbow slippers, sitting on the floor holding a baby doll.",
+        "caption": "Astri"
       },
       "character": {
         "good_company_id": null,
