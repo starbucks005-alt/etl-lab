@@ -105,7 +105,13 @@
         "name": "hu-HU-Lilla:MAI-Voice-2-Flash (Dr. O, 2026-11-07). A Hungarian voice; not yet tested speaking English. Not heard by Claude. Not yet tried on a Pi, where the server tags the text as hu-HU from the voice name, so that may need a change. On the Pi, azure_speech.json holds tts_voice with this name."
       },
       "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons). Wright State fireside chat: black dress, black shoes",
-      "special": "neck servos on a lazy Susan bearing, head moves when she talks, eyes pulse, a collar. Camera, no HuskyLens."
+      "special": "neck servos on a lazy Susan bearing, head moves when she talks, eyes pulse, a collar. Camera, no HuskyLens.",
+      "picture": {
+        "src": "images/astra-black-top_v1.png",
+        "max_width": "280px",
+        "alt": "Astra-9, a tall robot woman with a gold face, copper lines over the access panels, a leather collar with a camera at the neck, and a black short-sleeved top.",
+        "caption": "Astra"
+      }
     },
     {
       "id": "astrad",
@@ -134,7 +140,13 @@
         "name": "en-US-ChristopherNeural (Dr. O, 2026-10-30). Confirmed in good-company/gc-friend.js (the American option, set 2026-10-16, 'the plain one, not Multilingual'). The older note in _azure-tts.js that says Multilingual is a header comment only."
       },
       "look": "champagne gold, with aged leather and copper over the access panels (leather straps fastened with copper buttons), leather fingerless gloves. Wright State fireside chat: black polo, tan pants, black shoes",
-      "special": "neck servos on a lazy Susan bearing, head moves when he talks, eyes pulse, a collar. Camera, no HuskyLens. His own thing (Dr. O, 2026-11-15): sports and travel, with real scores from ESPN's public scoreboard (pi/al_sports.py) and a Sports and travel card on his panel. Panel colors champagne gold, leather brown and copper, from his look. No picture yet: the Good Company portrait shows his companion look, not his robot body."
+      "special": "neck servos on a lazy Susan bearing, head moves when he talks, eyes pulse, a collar. Camera, no HuskyLens. His own thing (Dr. O, 2026-11-15): sports and travel, with real scores from ESPN's public scoreboard (pi/al_sports.py) and a Sports and travel card on his panel. Panel colors champagne gold, leather brown and copper, from his look.",
+      "picture": {
+        "src": "images/astrad-polo_v1.png",
+        "max_width": "280px",
+        "alt": "Astrad, a tall robot man with a gold face, copper lines over the access panels, a leather collar with a camera at the neck, and a black polo shirt.",
+        "caption": "Astrad"
+      }
     },
     {
       "id": "astro",
