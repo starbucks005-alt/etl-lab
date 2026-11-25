@@ -73,11 +73,13 @@ try:
     import al_assets as gassets  # noqa: E402  (watches the equipment the owner boxes on a reference photo)
     import al_latchkey as glatch  # noqa: E402  (a child's arrival, reminders and "not home yet" notice for a home Guardian)
     import al_lock as glock  # noqa: E402  (the panel passcode: off until the owner sets one)
+    import al_audit as gaudit  # noqa: E402  (security check and self diagnostics: reads her own state, changes nothing)
+    import al_sectors as gsectors  # noqa: E402  (the critical infrastructure sectors, for the InfraGard demo)
     import al_alert as galert  # noqa: E402  (alert tiers: panel banner, slow pulse, flash; silent unless the owner switches voice on)
     import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = groom = galert = None
+    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2650,6 +2652,42 @@ def _latch_notice(text):
         galert.raise_alert("Latchkey", text, 2)
 
 
+@app.get("/api/audit")
+def audit_get():
+    if gaudit is None:
+        return _missing("security check")
+    return jsonify(gaudit.view())
+
+
+@app.post("/api/audit")
+def audit_run():
+    if gaudit is None:
+        return _missing("security check")
+    res = gaudit.run()
+    gaudit.save(res)
+    if galert is not None:
+        for r in res["checks"]:
+            if r["status"] == "attention":
+                galert.raise_alert("Security check", "%s: %s" % (r["name"], r["detail"]), 1)
+    return jsonify(gaudit.view())
+
+
+@app.get("/api/sectors")
+def sectors_get():
+    if gsectors is None:
+        return _missing("infrastructure sectors")
+    return jsonify(gsectors.view())
+
+
+@app.get("/api/sectors/<key>")
+def sector_get(key):
+    if gsectors is None:
+        return _missing("infrastructure sectors")
+    if key not in gsectors.BY_KEY:
+        return jsonify(error="no such sector"), 404
+    return jsonify(gsectors.card(key))
+
+
 @app.get("/api/alerts")
 def alerts_get():
     if galert is None:
@@ -4019,7 +4057,11 @@ def reply_for(text, short=True):
     try:
         # Live lookup first (weather, new exploited vulnerabilities, a short fact). It answers only from a real source and says so when it cannot reach it.
         # A question it does not recognise returns None and goes on as before.
-        if groom is not None and is_self(state["persona"]):
+        if gaudit is not None and is_self(state["persona"]):
+            r = gaudit.reply(text, raise_notice=(lambda src, t: galert.raise_alert(src, t, 1)) if galert is not None else None)     # "run a security check", "run your diagnostics"
+        if not r and gsectors is not None and is_self(state["persona"]):
+            r = gsectors.sector_reply(text)     # the critical infrastructure sectors, from her own reference
+        if not r and groom is not None and is_self(state["persona"]):
             r = groom.room_reply(text)          # the room sensor beside her first: "what is the temperature" means in here
         if not r and glookup is not None and is_self(state["persona"]):
             r = glookup.lookup_reply(text)
