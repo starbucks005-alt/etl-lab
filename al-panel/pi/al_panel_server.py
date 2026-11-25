@@ -75,11 +75,12 @@ try:
     import al_lock as glock  # noqa: E402  (the panel passcode: off until the owner sets one)
     import al_audit as gaudit  # noqa: E402  (security check and self diagnostics: reads her own state, changes nothing)
     import al_sectors as gsectors  # noqa: E402  (the critical infrastructure sectors, for the InfraGard demo)
+    import al_gobag as ggobag  # noqa: E402  (go bag and hazard plans from the place card, severe wind first; says she is a helper, not 911)
     import al_alert as galert  # noqa: E402  (alert tiers: panel banner, slow pulse, flash; silent unless the owner switches voice on)
     import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = None
+    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2688,6 +2689,13 @@ def sector_get(key):
     return jsonify(gsectors.card(key))
 
 
+@app.get("/api/gobag")
+def gobag_get():
+    if ggobag is None:
+        return _missing("go bag")
+    return jsonify(ggobag.view(gplace.owner_view() if gplace is not None else None))
+
+
 @app.get("/api/alerts")
 def alerts_get():
     if galert is None:
@@ -4061,6 +4069,13 @@ def reply_for(text, short=True):
             r = gaudit.reply(text, raise_notice=(lambda src, t: galert.raise_alert(src, t, 1)) if galert is not None else None)     # "run a security check", "run your diagnostics"
         if not r and gsectors is not None and is_self(state["persona"]):
             r = gsectors.sector_reply(text)     # the critical infrastructure sectors, from her own reference
+        if not r and ggobag is not None and is_self(state["persona"]) and (ggobag.ASK_BAG.search(text or "") or (ggobag.hazard_from(text) and ggobag.ASK_DO.search(text or ""))):
+            _gc = gplace.owner_view() if gplace is not None else None     # the card is used for the hazards only; no address or county is ever spoken
+            try:
+                _ga = len(gplace.live_alerts(_gc)) if _gc else 0
+            except Exception:
+                _ga = 0
+            r = ggobag.reply(text, _gc, _ga)    # the go bag and what to do in a hazard
         if not r and groom is not None and is_self(state["persona"]):
             r = groom.room_reply(text)          # the room sensor beside her first: "what is the temperature" means in here
         if not r and glookup is not None and is_self(state["persona"]):

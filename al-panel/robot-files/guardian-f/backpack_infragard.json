@@ -144,6 +144,16 @@
         "sideEffects": "read"
       },
       {
+        "id": "go_bag_and_hazard_plans",
+        "name": "Go Bag and Hazard Plans",
+        "kind": "in_framework",
+        "description": "What to keep in a go bag, and what to do for the hazards that rate high where she stands, severe wind first. She says she is a helper and does not replace 911 or the official alerts.",
+        "input": {"type": "object", "required": ["question"], "properties": {"question": {"type": "string"}}},
+        "output": {"type": "object", "properties": {"spoken": {"type": "string"}, "shown": {"type": "string"}}},
+        "binding": {"handler": "guardian/al-gobag"},
+        "sideEffects": "read"
+      },
+      {
         "id": "room_air",
         "name": "Room Air",
         "kind": "in_framework",

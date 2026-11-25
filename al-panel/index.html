@@ -313,6 +313,11 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
             <div class="row"><select id="scPick"></select></div>
             <div class="msg" id="scBody" style="white-space:pre-wrap"></div></div>
 
+          <div class="sk" id="skGobag"><h3>Go bag and hazard plans <span class="pill on">Ready</span></h3>
+            <p class="hint">What to keep in a go bag, and what to do for the hazards that rate high where she stands, severe wind first. Ask her out loud, "what should be in my go bag" or "what do I do in a tornado." She is a helper and does not replace 911 or the official alerts.</p>
+            <div class="row"><select id="gbPick"></select></div>
+            <div class="msg" id="gbBody" style="white-space:pre-wrap"></div></div>
+
           <div class="sk" id="skAlerts"><h3>Alerts <span class="pill" id="alStatus">All clear</span></h3>
             <p class="hint">When something needs you, she puts it at the top of this page. A watch makes her mouth light breathe slowly. An urgent alert flashes it, never faster than twice a second. She stays quiet unless you switch her voice on, and every alert and every clear is written in a log that shows if anyone changes it.</p>
             <label class="wopt"><input type="checkbox" id="alSpeak"> Speak alerts aloud</label>
@@ -2471,6 +2476,30 @@ Source: " + c.source);
     }).catch(function (e) { msg("scBody", e.message, true); });
   });
 
+  // ---- go bag and hazard plans
+  var gbData = null;
+  function gbShow(key) {
+    var NL = String.fromCharCode(10), k = gbData && gbData.kit;
+    if (!gbData) { return; }
+    if (!key) { msg("gbBody", ""); return; }
+    if (key === "kit") {
+      msg("gbBody", "Basics:" + NL + "- " + k.basics.join(NL + "- ") + NL + NL + "If they apply:" + NL + "- " + k.extras.join(NL + "- ") + NL + NL + k.where + NL + "Source: " + k.source + NL + gbData.limits);
+      return;
+    }
+    var all = gbData.hazards.concat(gbData.wind), p = all.filter(function (h) { return h && h.hazard === key; })[0];
+    if (!p || p.none) { msg("gbBody", "I do not have a plan for that one. Ready.gov has it."); return; }
+    msg("gbBody", p.hazard + ": " + p.headline + NL + "- " + p.steps.join(NL + "- ") + (p.bag ? NL + NL + p.bag : "") + NL + NL + (p.read ? "From Ready.gov." : "General guidance. Ready.gov has the whole page.") + NL + gbData.limits);
+  }
+  function loadGobag() {
+    jget("/api/gobag").then(function (v) {
+      gbData = v;
+      var names = v.hazards.map(function (h) { return h.hazard; });
+      v.wind.forEach(function (w) { if (w && names.indexOf(w.hazard) < 0) { names.push(w.hazard); } });
+      $("gbPick").innerHTML = '<option value="">Choose</option><option value="kit">The go bag</option>' + names.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + "</option>"; }).join("");
+    }).catch(function () {});
+  }
+  $("gbPick").addEventListener("change", function () { gbShow($("gbPick").value); });
+
   // ---- alerts
   function loadAlerts() {
     jget("/api/alerts").then(function (v) {
@@ -2491,7 +2520,7 @@ Source: " + c.source);
   $("alTest2").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 2, text: "Test of the pulse. Clear it when you have seen it."}).then(function () { msg("alMsg", "The pulse runs for a few minutes or until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
   $("alTest3").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 3, text: "Test of the flash. Clear it when you have seen it."}).then(function () { msg("alMsg", "The flash runs until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
 
-  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadAlerts(); setInterval(loadAlerts, 5000); }
+  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadGobag(); loadAlerts(); setInterval(loadAlerts, 5000); }
   fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
     if (!me || !/^guardian/.test(me.id || "")) return;
     window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();
