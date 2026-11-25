@@ -476,6 +476,35 @@ GREETINGS = [
     "Welcome. I am Astra-9 Lite.",
     "Hello. It is nice to have you here. Call me Elle.",
 ]
+
+
+# 2026-11-24, Dr. O: "Astra-9 Lite" showed up on the Guardian's panel. A robot can have its own identity text: robot_prompt.txt (who she is, in her own words) and
+# robot_openings.txt (her fallback greetings, one per line), both beside this file. When robot_prompt.txt is there, it replaces the Astra-9 Lite identity in her prompt,
+# her greetings and her labels. No file means nothing changes, so every other robot is as it was. Her name comes from her row in robots.json.
+def _robot_text(name):
+    try:
+        with open(os.path.join(HERE, name), encoding="utf-8") as f:
+            return f.read().strip() or None
+    except OSError:
+        return None
+
+
+def _robot_name():
+    try:
+        with open(os.path.join(HERE, "robots.json"), encoding="utf-8") as f:
+            d = json.load(f)
+        for r in (d.get("robots") if isinstance(d, dict) else d) or []:
+            if r.get("id") == ROBOT_ID and r.get("name"):
+                return str(r["name"])
+    except (OSError, ValueError, AttributeError):
+        pass
+    return None
+
+
+ROBOT_PROMPT = _robot_text("robot_prompt.txt")
+ROBOT_NAME = _robot_name() if ROBOT_PROMPT else None
+if ROBOT_PROMPT and _robot_text("robot_openings.txt"):
+    GREETINGS = [l.strip() for l in _robot_text("robot_openings.txt").splitlines() if l.strip()] or GREETINGS
 # After the greeting she gives the visitor something to answer (she says one, in turn).
 HELLO_QUESTIONS = [
     "What brought you here today?",
@@ -656,7 +685,7 @@ def friends_block():
 def distill_memory(pid, exchanges):
     """Write a few notes from the last few exchanges. Runs in the background so she is never slowed down."""
     try:
-        name = (PERSONAS.get(pid) or {}).get("name", "Astra-9 Lite").split(",")[0]
+        name = (PERSONAS.get(pid) or {}).get("name", ROBOT_NAME or "Astra-9 Lite").split(",")[0]
         existing = load_memory(pid)
         known = ("\n\nAlready in your memory, do not repeat any of these:\n" + "\n".join("- " + n for n in existing)) if existing else ""
         talk = "\n".join('SOMEONE: %s\n%s: %s' % (a, name.upper(), b) for a, b in exchanges)
@@ -1125,7 +1154,7 @@ def apply_prompt():
     skills = (" Skills you have: " + extra if extra else "")
     # A character is given only its own text. It is never told it is sharing a body with AL,
     # and AL is never told about the characters.
-    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + (people_block() if is_self(state["persona"]) else "") + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else (BASE_PROMPT + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE + HOT_QUESTIONS + NAME_RULE
+    al.AL_SYSTEM_PROMPT = ((persona["prompt"] + (people_block() if is_self(state["persona"]) else "") + skills + memory_block(state["persona"]) + friends_block() + mood_block(state["persona"])) if persona else ((ROBOT_PROMPT or BASE_PROMPT) + people_block() + skills + memory_block(None) + friends_block() + mood_block(None))) + mode_block() + sisters_block() + NAME_NOTE + HOT_QUESTIONS + NAME_RULE
 
 
 # ---- QUIET, added 2026-10-16, Dr. O: she was in an online meeting with Elle listening, and Elle answered something sad that was said IN the meeting. She cannot tell a meeting from a
@@ -1758,7 +1787,7 @@ def make_opening(kind=None):
     kind = kind if kind in ("memory", "moment", "mood", "learning") else random.choice(kinds)
     if kind == "memory" and not notes:
         kind = "moment"
-    base = ("You are Astra-9 Lite, a robot head and shoulders who goes by Elle. Someone has just walked up to you. Write ONE short greeting, "
+    base = ((("You are %s, a security and front desk robot." % (ROBOT_NAME or "Guardian")) if ROBOT_PROMPT else "You are Astra-9 Lite, a robot head and shoulders who goes by Elle.") + " Someone has just walked up to you. Write ONE short greeting, "
             "at most 35 words, in a warm, human way, and end with a question that invites them to talk. You cannot recognize anyone, so never say "
             "welcome back or last time, and never use a name. Invent nothing: no weather, no news, no events, no facts about the person. "
             "Do not begin with a word naming a feeling. Do not use dash characters. Say Hello or Hi once, near the start. Return only the greeting.\n")
@@ -2172,7 +2201,7 @@ def personality():
         reply = PERSONAS[pid]["say"] if fixed else al.get_al_reply(ask)
     except Exception as e:
         return jsonify(error=str(e)[:200]), 502
-    note = ("Now speaking as " + PERSONAS[pid]["name"] + ".") if pid else "Back to Astra-9 Lite."
+    note = ("Now speaking as " + PERSONAS[pid]["name"] + ".") if pid else "Back to " + (ROBOT_NAME or "Astra-9 Lite") + "."
     state["log"] += [{"who": "al", "text": note}, {"who": "al", "text": reply}]
     state["history"].append('You said "%s".' % reply)
     speak_async(reply)
