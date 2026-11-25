@@ -250,6 +250,14 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       <p class="hint">What she does, ready to use. Each card has its own switch or button.</p>
       <div class="twocol">
         <div>
+          <div class="sk" id="skLock"><h3>Panel lock <span class="pill" id="lcStatus">...</span></h3>
+            <p class="hint">A passcode keeps this panel and its photos private, on your home network and on your phone. It stays signed in on your browser for a week.</p>
+            <div class="msg" id="lcHint"></div>
+            <label for="lcNew">New passcode (at least 6 characters)</label><input type="password" id="lcNew" autocomplete="new-password">
+            <div id="lcCurRow"><label for="lcCur">Current passcode</label><input type="password" id="lcCur" autocomplete="current-password"></div>
+            <div class="row" style="margin-top:8px"><button class="primary" id="lcSave" type="button">Set passcode</button><button id="lcRemove" type="button">Remove the lock</button><button id="lcOut" type="button">Sign out</button></div>
+            <div class="msg" id="lcMsg"></div></div>
+
           <div class="sk" id="skPhoto"><h3>Photo <span class="pill" id="phStatus">Ready</span></h3>
             <p class="hint">She tells you out loud, then takes the picture. Say "take a photo, Guardian" or press the button.</p>
             <div class="row"><button class="primary" id="phTake" type="button">Take a photo</button><a href="/photos">All photos</a></div>
@@ -2194,6 +2202,14 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
 /* 2026-11-24, Dr. O: the Guardian's skills cards. Runs only when this robot's id starts with "guardian". */
 (function () {
   var $ = function (i) { return document.getElementById(i); };
+  // when the passcode lock says "sign in again" (a week passed, or the passcode changed), show the sign in page instead of a broken panel
+  var _fetch = window.fetch;
+  window.fetch = function () {
+    return _fetch.apply(this, arguments).then(function (r) {
+      if (r.status === 401) { r.clone().json().then(function (j) { if (j && j.locked) location.reload(); }).catch(function () {}); }
+      return r;
+    });
+  };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]; }); }
   function jget(u) { return fetch(u, {cache: "no-store"}).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("error " + r.status)); return j; }); }); }
   function jpost(u, b) { return fetch(u, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(b || {})}).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("error " + r.status)); return j; }); }); }
@@ -2355,7 +2371,26 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   $("lkSave").addEventListener("click", function () { jpost("/api/latchkey", latchBody()).then(function () { msg("lkMsg", "Saved."); loadLatch(); }).catch(function (e) { msg("lkMsg", e.message, true); }); });
   $("lkOn").addEventListener("change", function () { jpost("/api/latchkey", latchBody()).then(loadLatch).catch(function (e) { msg("lkMsg", e.message, true); }); });
 
-  function all() { loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); }
+  // ---- panel lock
+  function loadLock() {
+    jget("/api/lock/status").then(function (v) {
+      pill("lcStatus", v.set ? "Locked" : "Not locked", v.set);
+      $("lcCurRow").style.display = v.set ? "" : "none"; $("lcRemove").style.display = v.set ? "" : "none"; $("lcOut").style.display = v.set ? "" : "none";
+      $("lcSave").textContent = v.set ? "Change passcode" : "Set passcode";
+      msg("lcHint", v.set ? "" : "Until you set a passcode, anyone who can reach this panel can use it.");
+    }).catch(function () {});
+  }
+  $("lcSave").addEventListener("click", function () {
+    jpost("/api/lock/set", {new: $("lcNew").value, current: $("lcCur").value}).then(function () { $("lcNew").value = ""; $("lcCur").value = ""; msg("lcMsg", "Saved. You are signed in."); loadLock(); })
+      .catch(function (e) { msg("lcMsg", e.message, true); });
+  });
+  $("lcRemove").addEventListener("click", function () {
+    jpost("/api/lock/clear", {current: $("lcCur").value}).then(function () { $("lcCur").value = ""; msg("lcMsg", "The lock is removed."); loadLock(); })
+      .catch(function (e) { msg("lcMsg", e.message, true); });
+  });
+  $("lcOut").addEventListener("click", function () { jpost("/api/lock/logout").then(function () { location.reload(); }); });
+
+  function all() { loadLock(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); }
   fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
     if (!me || !/^guardian/.test(me.id || "")) return;
     window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();

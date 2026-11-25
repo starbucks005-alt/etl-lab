@@ -72,9 +72,10 @@ try:
     import al_netwatch as gnet  # noqa: E402  (watches the Wi-Fi she is on and flags devices the owner has not approved)
     import al_assets as gassets  # noqa: E402  (watches the equipment the owner boxes on a reference photo)
     import al_latchkey as glatch  # noqa: E402  (a child's arrival, reminders and "not home yet" notice for a home Guardian)
+    import al_lock as glock  # noqa: E402  (the panel passcode: off until the owner sets one)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = None
+    gplace = gnet = gassets = glatch = glock = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2367,6 +2368,87 @@ def sentry_set():
 @app.get("/sentry")
 def sentry_page():
     return (sentry.page_html() if sentry else "<p>This robot has no Sentry mode.</p>"), 200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store"}
+
+
+# ---- the panel passcode (added 2026-11-24, Dr. O: remote arming from the phone needs a lock). Off until the owner sets a passcode; see al_lock.py ----
+@app.before_request
+def _panel_lock_guard():
+    if glock is None:
+        return None
+    verdict = glock.decide(request.path, request.cookies.get("al_session", ""))
+    if verdict == "api":
+        return jsonify(error="This panel is locked. Sign in again.", locked=True), 401
+    if verdict == "page":
+        return glock.login_page(), 401, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store"}
+    return None
+
+
+def _signed_in():
+    return glock is None or not glock.is_set() or glock.token_ok(request.cookies.get("al_session", ""), glock.secret_key())
+
+
+def _lock_view():
+    return dict(set=bool(glock and glock.is_set()), signed_in=_signed_in(), wait=glock.wait_left() if glock else 0)
+
+
+def _session_reply(payload):
+    resp = jsonify(payload)
+    resp.set_cookie("al_session", glock.make_token(glock.secret_key()), max_age=glock.SESSION_DAYS * 86400, httponly=True, samesite="Lax",
+                    secure=bool(request.is_secure or request.headers.get("X-Forwarded-Proto", "") == "https"))
+    return resp
+
+
+@app.get("/api/lock/status")
+def lock_status():
+    if glock is None:
+        return _missing("panel lock")
+    return jsonify(_lock_view())
+
+
+@app.post("/api/lock/login")
+def lock_login():
+    if glock is None:
+        return _missing("panel lock")
+    ok, why = glock.verify((request.get_json(silent=True) or {}).get("passcode", ""))
+    if not ok:
+        return jsonify(error=why or "That did not work."), 401
+    return _session_reply(dict(_lock_view(), signed_in=True))
+
+
+@app.post("/api/lock/logout")
+def lock_logout():
+    resp = jsonify(ok=True)
+    resp.delete_cookie("al_session")
+    return resp
+
+
+@app.post("/api/lock/set")
+def lock_set():
+    if glock is None:
+        return _missing("panel lock")
+    if not _signed_in():
+        return jsonify(error="Sign in first.", locked=True), 401
+    d = request.get_json(silent=True) or {}
+    try:
+        glock.set_passcode(d.get("new", ""), d.get("current", ""))
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return _session_reply(dict(_lock_view(), set=True, signed_in=True))
+
+
+@app.post("/api/lock/clear")
+def lock_clear():
+    if glock is None:
+        return _missing("panel lock")
+    if not _signed_in():
+        return jsonify(error="Sign in first.", locked=True), 401
+    try:
+        glock.clear((request.get_json(silent=True) or {}).get("current", ""))
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    resp = jsonify(dict(_lock_view(), set=False, signed_in=True))
+    resp.delete_cookie("al_session")
+    return resp
 
 
 # ---- the Guardian's skills panel: lookup switch, place, network watch, asset watch, latchkey (added 2026-11-24, Dr. O) ----
