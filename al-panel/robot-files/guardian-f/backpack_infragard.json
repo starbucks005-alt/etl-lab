@@ -154,6 +154,16 @@
         "sideEffects": "read"
       },
       {
+        "id": "briefing",
+        "name": "Briefing",
+        "kind": "in_framework",
+        "description": "Weather alerts for her place, the newest CISA exploited vulnerabilities, her own last check and alerts, the room, and one reminder the owner wrote. Each part is named, and a part she cannot reach is said so, never filled in.",
+        "input": {"type": "object", "properties": {}},
+        "output": {"type": "object", "properties": {"spoken": {"type": "string"}, "shown": {"type": "string"}}},
+        "binding": {"handler": "guardian/al-briefing"},
+        "sideEffects": "read"
+      },
+      {
         "id": "room_air",
         "name": "Room Air",
         "kind": "in_framework",

@@ -318,6 +318,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
             <div class="row"><select id="gbPick"></select></div>
             <div class="msg" id="gbBody" style="white-space:pre-wrap"></div></div>
 
+          <div class="sk" id="skBrief"><h3>Briefing <span class="pill on">Ready</span></h3>
+            <p class="hint">She briefs you from real sources only, each one named: weather alerts for her place, the newest CISA exploited vulnerabilities, her own last check and alerts, and the room. Say "brief me." Below, you can write short reminders of your own, one per line, and she gives you one a day. She writes none herself.</p>
+            <div class="row"><button id="brRun">Brief me now</button></div>
+            <div class="msg" id="brBody" style="white-space:pre-wrap"></div>
+            <textarea id="brLines" rows="4" placeholder="Your reminders, one per line"></textarea>
+            <div class="row"><button id="brSave">Save my reminders</button></div><div class="msg" id="brMsg"></div></div>
+
           <div class="sk" id="skAlerts"><h3>Alerts <span class="pill" id="alStatus">All clear</span></h3>
             <p class="hint">When something needs you, she puts it at the top of this page. A watch makes her mouth light breathe slowly. An urgent alert flashes it, never faster than twice a second. She stays quiet unless you switch her voice on, and every alert and every clear is written in a log that shows if anyone changes it.</p>
             <label class="wopt"><input type="checkbox" id="alSpeak"> Speak alerts aloud</label>
@@ -2500,6 +2507,16 @@ Source: " + c.source);
   }
   $("gbPick").addEventListener("change", function () { gbShow($("gbPick").value); });
 
+  // ---- briefing
+  function loadBrief() {
+    jget("/api/briefing").then(function (v) {
+      if (v.last) { msg("brBody", v.last.shown + String.fromCharCode(10) + String.fromCharCode(10) + "Built " + ago(v.last.t)); }
+      if (document.activeElement !== $("brLines")) { $("brLines").value = v.refreshers.join(String.fromCharCode(10)); }
+    }).catch(function () {});
+  }
+  $("brRun").addEventListener("click", function () { msg("brBody", "Looking..."); jpost("/api/briefing", {}).then(loadBrief).catch(function (e) { msg("brBody", e.message, true); }); });
+  $("brSave").addEventListener("click", function () { jpost("/api/briefing/refreshers", { lines: $("brLines").value.split(String.fromCharCode(10)) }).then(function () { msg("brMsg", "Saved."); loadBrief(); }).catch(function (e) { msg("brMsg", e.message, true); }); });
+
   // ---- alerts
   function loadAlerts() {
     jget("/api/alerts").then(function (v) {
@@ -2520,7 +2537,7 @@ Source: " + c.source);
   $("alTest2").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 2, text: "Test of the pulse. Clear it when you have seen it."}).then(function () { msg("alMsg", "The pulse runs for a few minutes or until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
   $("alTest3").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 3, text: "Test of the flash. Clear it when you have seen it."}).then(function () { msg("alMsg", "The flash runs until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
 
-  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadGobag(); loadAlerts(); setInterval(loadAlerts, 5000); }
+  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadGobag(); loadBrief(); loadAlerts(); setInterval(loadAlerts, 5000); }
   fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
     if (!me || !/^guardian/.test(me.id || "")) return;
     window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();
