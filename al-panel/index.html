@@ -201,6 +201,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
 </head>
 <body>
 <div class="wrap">
+  <div id="alertBar" style="display:none;position:sticky;top:0;z-index:60;padding:10px 14px;margin:0 0 12px;border-radius:8px;font-weight:600"></div>
   <header>
     <svg style="color:var(--ink)" width="38" height="38" viewBox="0 0 64 64" role="img" aria-label="ETL mark"><rect x="6" y="42" width="36" height="11" fill="currentColor"/><rect x="14" y="26" width="36" height="11" fill="currentColor"/><rect x="22" y="10" width="36" height="11" fill="#28527a"/></svg>
     <span class="mark">ETL</span>
@@ -301,6 +302,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           <div class="sk" id="skDesk"><h3>Concierge desk <span class="pill on">Ready</span></h3>
             <p class="hint">At the front desk she greets visitors, checks them against today's appointments, gives directions from your directory, logs every arrival and tells the front office.</p>
             <div class="row"><button class="primary" id="dkOpen" type="button">Open front desk setup</button></div></div>
+
+          <div class="sk" id="skAlerts"><h3>Alerts <span class="pill" id="alStatus">All clear</span></h3>
+            <p class="hint">When something needs you, she puts it at the top of this page. A watch makes her mouth light breathe slowly. An urgent alert flashes it, never faster than twice a second. She stays quiet unless you switch her voice on, and every alert and every clear is written in a log that shows if anyone changes it.</p>
+            <label class="wopt"><input type="checkbox" id="alSpeak"> Speak alerts aloud</label>
+            <div id="alList"></div>
+            <div class="row" style="margin-top:8px"><button id="alTest2" type="button">Test the pulse</button><button id="alTest3" type="button">Test the flash</button><button id="alClear" type="button">Clear all</button></div>
+            <div class="msg" id="alMsg"></div><div class="msg" id="alLog"></div></div>
 
           <div class="sk" id="skLatch"><h3>Home latchkey <span class="pill" id="lkStatus">Off</span></h3>
             <p class="hint">She notes when your child gets home, photographs the door, tells you, says the reminders you set, and lets you know if they are not home by the time you expect them. Notices go to the address in the front desk setup.</p>
@@ -2419,7 +2427,27 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   });
   $("rmForget").addEventListener("click", function () { jpost("/api/room", {mac: ""}).then(function () { msg("rmMsg", "Forgotten."); loadRoom(); }); });
 
-  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); }
+  // ---- alerts
+  function loadAlerts() {
+    jget("/api/alerts").then(function (v) {
+      var bar = $("alertBar"), shown = v.active.filter(function (a) { return a.tier >= 2; });
+      $("alSpeak").checked = v.speak;
+      pill("alStatus", v.active.length ? (v.tier === 3 ? "Urgent" : v.tier === 2 ? "Watch" : "Notice") : "All clear", v.active.length > 0);
+      $("alList").innerHTML = v.active.map(function (a) { return '<div class="msg" style="margin:6px 0">' + esc(a.name) + ": " + esc(a.source) + ", " + esc(a.text) + (a.n > 1 ? " (x" + a.n + ")" : "") + " (" + ago(a.t) + ") " + '<button type="button" data-id="' + esc(a.id) + '" class="alOne">Clear</button></div>'; }).join("");
+      var last = (v.log || [])[0]; msg("alLog", last ? "Last log entry: " + last.event + ", " + ago(last.t) : "");
+      if (!shown.length) { bar.style.display = "none"; return; }
+      bar.style.display = ""; bar.style.background = v.tier === 3 ? "#c0392b" : "#f5b942"; bar.style.color = v.tier === 3 ? "#fff" : "#1a1a1a";
+      bar.innerHTML = shown.map(function (a) { return (a.tier === 3 ? "URGENT: " : "Watch: ") + esc(a.source) + ", " + esc(a.text); }).join("<br>") + ' <button type="button" id="alBarClear" style="margin-left:10px">Clear</button>';
+      $("alBarClear").onclick = function () { jpost("/api/alerts", {action: "clear_all"}).then(loadAlerts); };
+    }).catch(function () {});
+  }
+  document.addEventListener("click", function (e) { if (e.target && e.target.className === "alOne") jpost("/api/alerts", {action: "clear", id: e.target.getAttribute("data-id")}).then(loadAlerts); });
+  $("alClear").addEventListener("click", function () { jpost("/api/alerts", {action: "clear_all"}).then(loadAlerts); });
+  $("alSpeak").addEventListener("change", function () { jpost("/api/alerts", {action: "speak", on: $("alSpeak").checked}).then(loadAlerts); });
+  $("alTest2").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 2, text: "Test of the pulse. Clear it when you have seen it."}).then(function () { msg("alMsg", "The pulse runs for a few minutes or until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
+  $("alTest3").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 3, text: "Test of the flash. Clear it when you have seen it."}).then(function () { msg("alMsg", "The flash runs until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
+
+  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAlerts(); setInterval(loadAlerts, 5000); }
   fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
     if (!me || !/^guardian/.test(me.id || "")) return;
     window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();

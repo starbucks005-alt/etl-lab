@@ -11,6 +11,11 @@ import time
 
 from al_eyes_math import eye_level, strip_frame
 
+try:
+    from al_alert import alert_frame        # the alert tiers: the mouth strip breathes for a watch and flashes for urgent
+except ImportError:
+    alert_frame = None
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -88,14 +93,25 @@ while True:
         d = DEFAULT
     now_t = time.time()
     lvl = round(eye_level(d, now_t, BREATHE), 3)
+    try:
+        with open("/tmp/al_alert.json") as f:
+            tier = int(json.load(f).get("tier", 0))
+    except Exception:
+        tier = 0
     frame = [round(v, 2) for v in strip_frame(STRIP, now_t, bool(d.get("speaking")))] if STRIP else []
+    alerting = bool(STRIP and alert_frame and (tier == 3 or (tier == 2 and not d.get("speaking"))))
+    if alerting:
+        frame = [round(v, 2) for v in alert_frame(STRIP, now_t, tier)]       # red, and a flash goes over her speaking sweep
     if lvl != last_lvl or d != last or frame != last_frame or now_t - last_sent > REFRESH_SECONDS:
         c = Color(int(d["r"] * lvl), int(d["g"] * lvl), int(d["b"] * lvl))
         for i in range(EYE_LEDS):
             strip.setPixelColor(i, c)
         slvl = max(0.0, min(0.30, float(d.get("level", 0.12)) * 1.6))        # the strip is capped like the eyes, a little brighter so it reads from across a room
         for j, v in enumerate(frame):
-            strip.setPixelColor(EYE_LEDS + j, Color(int(d["r"] * slvl * v), int(d["g"] * slvl * v), int(d["b"] * slvl * v)))
+            if alerting:
+                strip.setPixelColor(EYE_LEDS + j, Color(int(255 * 0.45 * v), 0, 0))
+            else:
+                strip.setPixelColor(EYE_LEDS + j, Color(int(d["r"] * slvl * v), int(d["g"] * slvl * v), int(d["b"] * slvl * v)))
         strip.show()
         last_frame = frame
         last = d

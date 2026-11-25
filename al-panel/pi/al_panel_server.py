@@ -73,10 +73,11 @@ try:
     import al_assets as gassets  # noqa: E402  (watches the equipment the owner boxes on a reference photo)
     import al_latchkey as glatch  # noqa: E402  (a child's arrival, reminders and "not home yet" notice for a home Guardian)
     import al_lock as glock  # noqa: E402  (the panel passcode: off until the owner sets one)
+    import al_alert as galert  # noqa: E402  (alert tiers: panel banner, slow pulse, flash; silent unless the owner switches voice on)
     import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = groom = None
+    gplace = gnet = gassets = glatch = glock = groom = galert = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2463,14 +2464,24 @@ def _latch_motion():
         print("LATCHKEY:", r, flush=True)
 
 
+def _alert(source, text, tier, spoken):
+    """One place every watcher raises its alert: banner and light always, voice only when the owner switched it on."""
+    if galert is None:
+        speak_async(spoken, use_persona=False)
+        return
+    galert.raise_alert(source, text, tier, speak=lambda t: speak_async(spoken, use_persona=False))
+
+
 def _unknown_device_spoken(fresh):
     n = len(fresh)
-    speak_async(("An unknown device just joined the network." if n == 1 else "%d unknown devices just joined the network." % n) + " It is flagged on the panel.", use_persona=False)
-    notify_front_office("Network watch: %d unknown device(s) joined: %s" % (n, ", ".join((f.get("name") or f["ip"]) for f in fresh)))
+    names = ", ".join((f.get("name") or f["ip"]) for f in fresh)
+    _alert("Network watch", ("An unknown device joined the network: " if n == 1 else "%d unknown devices joined the network: " % n) + names, 2,
+           ("An unknown device just joined the network." if n == 1 else "%d unknown devices just joined the network." % n) + " It is flagged on the panel.")
+    notify_front_office("Network watch: %d unknown device(s) joined: %s" % (n, names))
 
 
 def _asset_changed(names, photo):
-    speak_async("Check the room. " + ", ".join(names) + (" has" if len(names) == 1 else " have") + " changed.", use_persona=False)
+    _alert("Asset watch", "Changed: " + ", ".join(names), 2, "Check the room. " + ", ".join(names) + (" has" if len(names) == 1 else " have") + " changed.")
     notify_front_office("Asset watch: changed: " + ", ".join(names))
 
 
@@ -2630,6 +2641,40 @@ def latchkey_get():
     if glatch is None:
         return _missing("latchkey mode")
     return jsonify(glatch.view())
+
+
+def _latch_notice(text):
+    """The not-home notice: to the front office as before, and on the panel as a watch."""
+    notify_front_office(text)
+    if galert is not None:
+        galert.raise_alert("Latchkey", text, 2)
+
+
+@app.get("/api/alerts")
+def alerts_get():
+    if galert is None:
+        return _missing("alert tiers")
+    return jsonify(galert.view())
+
+
+@app.post("/api/alerts")
+def alerts_set():
+    if galert is None:
+        return _missing("alert tiers")
+    d = request.get_json(silent=True) or {}
+    a = d.get("action")
+    if a == "clear":
+        galert.clear(d.get("id"), who="owner")
+    elif a == "clear_all":
+        galert.clear(None, who="owner")
+    elif a == "speak":
+        galert.set_speak(bool(d.get("on")))
+    elif a == "raise":
+        tier = 3 if int(d.get("tier") or 2) >= 3 else 2
+        galert.raise_alert("Owner", str(d.get("text") or "Raised from the panel")[:120], tier)
+    else:
+        return jsonify(error="unknown action"), 400
+    return jsonify(galert.view())
 
 
 @app.post("/api/latchkey")
@@ -5634,7 +5679,9 @@ if __name__ == "__main__":
     if gassets is not None and gcam is not None:
         threading.Thread(target=gassets.watcher, args=(_asset_check,), daemon=True).start()                 # asset checks, only when an interval is set
     if glatch is not None:
-        threading.Thread(target=glatch.watcher, args=(lambda t: speak_async(t, use_persona=False), notify_front_office), daemon=True).start()   # latchkey reminders and the not-home notice
+        threading.Thread(target=glatch.watcher, args=(lambda t: speak_async(t, use_persona=False), _latch_notice), daemon=True).start()   # latchkey reminders and the not-home notice
     if groom is not None:
         threading.Thread(target=groom.poller, daemon=True).start()                                           # listens for the room sensor once one is chosen
+    if galert is not None:
+        galert.write_light()                                                                                  # alerts left uncleared light the strip again after a restart
     app.run(host="0.0.0.0", port=8000, threaded=True)
