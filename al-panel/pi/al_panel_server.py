@@ -73,9 +73,10 @@ try:
     import al_assets as gassets  # noqa: E402  (watches the equipment the owner boxes on a reference photo)
     import al_latchkey as glatch  # noqa: E402  (a child's arrival, reminders and "not home yet" notice for a home Guardian)
     import al_lock as glock  # noqa: E402  (the panel passcode: off until the owner sets one)
+    import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = None
+    gplace = gnet = gassets = glatch = glock = groom = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2477,6 +2478,35 @@ def _asset_check():
     return gassets.check(lambda: gcam.take_photo(), gcam.PHOTO_DIR, on_change=_asset_changed)
 
 
+@app.get("/api/room")
+def room_get():
+    if groom is None:
+        return _missing("room sensor")
+    return jsonify(groom.view())
+
+
+@app.post("/api/room")
+def room_set():
+    if groom is None:
+        return _missing("room sensor")
+    d = request.get_json(silent=True) or {}
+    try:
+        if d.get("scan"):
+            try:
+                found = groom.scan()
+            except ImportError:
+                return jsonify(error="Bluetooth listening is not installed on this robot yet."), 409
+            except Exception as e:
+                return jsonify(error="Bluetooth problem: " + str(e)[:80]), 409
+            return jsonify(found=[{"mac": m, "name": r.get("name", ""), "temp_f": r["temp_f"], "co2": r["co2"], "rssi": r.get("rssi")} for m, r in sorted(found.items())])
+        if "mac" in d:
+            groom.set_mac(d["mac"])
+            threading.Thread(target=groom.poll_once, daemon=True).start()
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(groom.view())
+
+
 @app.get("/api/lookup")
 def lookup_get():
     return jsonify(available=glookup is not None, on=bool(glookup) and not glookup.is_off())
@@ -3944,7 +3974,9 @@ def reply_for(text, short=True):
     try:
         # Live lookup first (weather, new exploited vulnerabilities, a short fact). It answers only from a real source and says so when it cannot reach it.
         # A question it does not recognise returns None and goes on as before.
-        if glookup is not None and is_self(state["persona"]):
+        if groom is not None and is_self(state["persona"]):
+            r = groom.room_reply(text)          # the room sensor beside her first: "what is the temperature" means in here
+        if not r and glookup is not None and is_self(state["persona"]):
             r = glookup.lookup_reply(text)
     except Exception as e:
         print("LOOKUP problem, answering as usual:", str(e)[:120], flush=True)
@@ -5578,6 +5610,11 @@ if __name__ == "__main__":
     restore_volume()
     restore_persona()
     write_eyes()
+    # 2026-11-24, Dr. O: "Elle can do outlets, we can give that to GF too." A robot can list skills to switch on at every start in robot_skills.txt
+    # (one id per line, such as house), beside this file. A skill that does not exist is ignored. No file means nothing changes.
+    for _sk in (_robot_text("robot_skills.txt") or "").split():
+        if _sk in SKILL_TEXT and _sk not in state["skills"]:
+            state["skills"].append(_sk)
     apply_prompt()
     threading.Thread(target=say_address_when_ready, daemon=True).start()
     threading.Thread(target=watch_motion, daemon=True).start()
@@ -5598,4 +5635,6 @@ if __name__ == "__main__":
         threading.Thread(target=gassets.watcher, args=(_asset_check,), daemon=True).start()                 # asset checks, only when an interval is set
     if glatch is not None:
         threading.Thread(target=glatch.watcher, args=(lambda t: speak_async(t, use_persona=False), notify_front_office), daemon=True).start()   # latchkey reminders and the not-home notice
+    if groom is not None:
+        threading.Thread(target=groom.poller, daemon=True).start()                                           # listens for the room sensor once one is chosen
     app.run(host="0.0.0.0", port=8000, threaded=True)

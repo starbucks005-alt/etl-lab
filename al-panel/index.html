@@ -281,6 +281,12 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
             <div class="msg" id="plMsg"></div><div id="plCard"></div></div>
         </div>
         <div>
+          <div class="sk" id="skRoom"><h3>Room air <span class="pill" id="rmStatus">Not set</span></h3>
+            <p class="hint">A SwitchBot Meter Pro CO2 beside her tells her the temperature, humidity and CO2. Ask "what is the temperature" or "how is the air". She listens over Bluetooth, so there is no wiring.</p>
+            <div class="msg" id="rmNow"></div>
+            <div class="row"><button class="primary" id="rmFind" type="button">Find the sensor</button><button id="rmForget" type="button">Forget it</button></div>
+            <div id="rmList"></div><div class="msg" id="rmMsg"></div></div>
+
           <div class="sk" id="skNet"><h3>Network watch <span class="pill" id="nwStatus">Off</span></h3>
             <p class="hint">She learns the Wi-Fi she is on, then watches it. A device she does not know is flagged here and announced out loud, and you approve it by name. Every event goes in a log that shows if anyone alters it.</p>
             <div class="row"><label class="wopt"><input type="checkbox" id="nwOn"> Watching</label><button id="nwScan" type="button">Scan now</button><button id="nwLearn" type="button">Learn this network</button></div>
@@ -2390,7 +2396,30 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   });
   $("lcOut").addEventListener("click", function () { jpost("/api/lock/logout").then(function () { location.reload(); }); });
 
-  function all() { loadLock(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); }
+  // ---- room air
+  function loadRoom() {
+    jget("/api/room").then(function (v) {
+      pill("rmStatus", v.configured ? (v.reading ? "Listening" : "Waiting") : "Not set", !!v.reading);
+      var r = v.reading, t = "";
+      if (r) { t = Math.round(r.temp_f) + " degrees, " + r.humidity + "% humidity" + (r.co2 != null ? ", CO2 " + r.co2 + " ppm" : "") + ". Updated " + ago(Date.now() / 1000 - v.age) + (v.stale ? " (old)" : "") + "."; }
+      else if (v.configured) { t = v.error || "Waiting to hear the sensor."; }
+      msg("rmNow", t, !r && !!v.error);
+    }).catch(function () {});
+  }
+  $("rmFind").addEventListener("click", function () {
+    msg("rmMsg", "Listening for sensors. This takes about eight seconds."); $("rmList").innerHTML = "";
+    jpost("/api/room", {scan: true}).then(function (j) {
+      msg("rmMsg", j.found.length ? "Pick yours:" : "I did not hear any SwitchBot sensor. Put it beside her and try again.");
+      $("rmList").innerHTML = j.found.map(function (f) { return "<div class='row' style='margin:6px 0'><span>" + esc(f.name || f.mac) + " (" + esc(f.mac) + ") " + Math.round(f.temp_f) + " degrees</span><button data-mac='" + esc(f.mac) + "' type='button'>Use this one</button></div>"; }).join("");
+    }).catch(function (e) { msg("rmMsg", e.message, true); });
+  });
+  $("skRoom").addEventListener("click", function (ev) {
+    var mac = ev.target && ev.target.getAttribute && ev.target.getAttribute("data-mac"); if (!mac) return;
+    jpost("/api/room", {mac: mac}).then(function () { msg("rmMsg", "Saved. She will start listening to it now."); $("rmList").innerHTML = ""; loadRoom(); }).catch(function (e) { msg("rmMsg", e.message, true); });
+  });
+  $("rmForget").addEventListener("click", function () { jpost("/api/room", {mac: ""}).then(function () { msg("rmMsg", "Forgotten."); loadRoom(); }); });
+
+  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); }
   fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
     if (!me || !/^guardian/.test(me.id || "")) return;
     window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();
@@ -2410,7 +2439,7 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
       } else if (tries > 40) { clearInterval(mover); }
     }, 250);
     var oldHero = document.querySelector("figure.hero"); if (oldHero) oldHero.style.display = "none";      // the Astra bust photos are not hers; her own picture comes from robots.json
-    setInterval(function () { if (!document.hidden) { loadSentry(); loadNet(); } }, 8000);
+    setInterval(function () { if (!document.hidden) { loadSentry(); loadNet(); loadRoom(); } }, 8000);
   }).catch(function () {});
 })();
 </script>
