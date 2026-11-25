@@ -325,6 +325,15 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
             <textarea id="brLines" rows="4" placeholder="Your reminders, one per line"></textarea>
             <div class="row"><button id="brSave">Save my reminders</button></div><div class="msg" id="brMsg"></div></div>
 
+          <div class="sk" id="skFeeds"><h3>Advisories and your notes <span class="pill on">Ready</span></h3>
+            <p class="hint">She can read the newest CISA industrial control advisories and alerts, titles and dates only: say "any new ICS advisories." InfraGard shares with its members only and has no public feed, so she does not see it. What you type here is kept as your note. A note is owner only by default and she never reads it out. Tick "she may say this" only for a note that is fine to say in the room. She says it is a note you gave her.</p>
+            <div class="row"><button id="fdIcs">Show ICS advisories</button> <button id="fdAlerts">Show CISA alerts</button></div>
+            <div class="msg" id="fdBody" style="white-space:pre-wrap"></div>
+            <div class="row"><input id="nbTitle" placeholder="Title" maxlength="120"> <input id="nbMark" placeholder="Mark, such as TLP:AMBER" maxlength="20"> <input id="nbSource" placeholder="Where it came from" maxlength="40"></div>
+            <textarea id="nbText" rows="3" maxlength="1500" placeholder="The note, word for word"></textarea>
+            <div class="row"><label><input type="checkbox" id="nbShare"> she may say this out loud</label> <button id="nbAdd">Keep this note</button></div>
+            <div class="msg" id="nbMsg"></div><div id="nbList"></div></div>
+
           <div class="sk" id="skAlerts"><h3>Alerts <span class="pill" id="alStatus">All clear</span></h3>
             <p class="hint">When something needs you, she puts it at the top of this page. A watch makes her mouth light breathe slowly. An urgent alert flashes it, never faster than twice a second. She stays quiet unless you switch her voice on, and every alert and every clear is written in a log that shows if anyone changes it.</p>
             <label class="wopt"><input type="checkbox" id="alSpeak"> Speak alerts aloud</label>
@@ -2517,6 +2526,36 @@ Source: " + c.source);
   $("brRun").addEventListener("click", function () { msg("brBody", "Looking..."); jpost("/api/briefing", {}).then(loadBrief).catch(function (e) { msg("brBody", e.message, true); }); });
   $("brSave").addEventListener("click", function () { jpost("/api/briefing/refreshers", { lines: $("brLines").value.split(String.fromCharCode(10)) }).then(function () { msg("brMsg", "Saved."); loadBrief(); }).catch(function (e) { msg("brMsg", e.message, true); }); });
 
+  // ---- advisories and the owner's notes
+  function showFeed(key) {
+    msg("fdBody", "Looking...");
+    jget("/api/feeds/" + key).then(function (f) {
+      if (!f.ok) { msg("fdBody", "I could not reach " + f.name + " just now, and I have no older copy.", true); return; }
+      msg("fdBody", f.name + (f.stale ? " (from my last look " + ago(f.fetched) + ")" : "") + String.fromCharCode(10) + f.items.map(function (i) { return "- " + i.title + " (" + i.date + ")"; }).join(String.fromCharCode(10)) + String.fromCharCode(10) + "Source: CISA. Titles and dates only.");
+    }).catch(function (e) { msg("fdBody", e.message, true); });
+  }
+  function loadNotes() {
+    jget("/api/inbox").then(function (v) {
+      $("nbList").innerHTML = v.notes.map(function (n) {
+        return '<div class="msg" style="margin:4px 0"><b>' + esc(n.title) + "</b>" + (n.mark ? " [" + esc(n.mark) + "]" : "") + (n.source ? " (" + esc(n.source) + ")" : "") + " " + (n.share === "room" ? "she may say this" : "owner only") +
+          '<br><span style="white-space:pre-wrap">' + esc(n.text) + '</span><br><button data-nb="share" data-id="' + esc(n.id) + '" data-to="' + (n.share === "room" ? "owner" : "room") + '">' + (n.share === "room" ? "Make owner only" : "She may say this") + '</button> <button data-nb="del" data-id="' + esc(n.id) + '">Remove</button></div>';
+      }).join("") || '<div class="msg">No notes yet.</div>';
+    }).catch(function () {});
+  }
+  $("fdIcs").addEventListener("click", function () { showFeed("ics"); });
+  $("fdAlerts").addEventListener("click", function () { showFeed("alerts"); });
+  $("nbAdd").addEventListener("click", function () {
+    jpost("/api/inbox", { title: $("nbTitle").value, text: $("nbText").value, mark: $("nbMark").value, source: $("nbSource").value, share: $("nbShare").checked ? "room" : "owner" }).then(function () {
+      $("nbTitle").value = ""; $("nbText").value = ""; $("nbMark").value = ""; $("nbSource").value = ""; $("nbShare").checked = false; msg("nbMsg", "Kept."); loadNotes();
+    }).catch(function (e) { msg("nbMsg", e.message, true); });
+  });
+  $("nbList").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-nb]");
+    if (!b) { return; }
+    if (b.getAttribute("data-nb") === "del") { fetch("/api/inbox/" + b.getAttribute("data-id"), { method: "DELETE" }).then(loadNotes); }
+    else { jpost("/api/inbox/" + b.getAttribute("data-id") + "/share", { share: b.getAttribute("data-to") }).then(loadNotes); }
+  });
+
   // ---- alerts
   function loadAlerts() {
     jget("/api/alerts").then(function (v) {
@@ -2537,7 +2576,7 @@ Source: " + c.source);
   $("alTest2").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 2, text: "Test of the pulse. Clear it when you have seen it."}).then(function () { msg("alMsg", "The pulse runs for a few minutes or until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
   $("alTest3").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 3, text: "Test of the flash. Clear it when you have seen it."}).then(function () { msg("alMsg", "The flash runs until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
 
-  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadGobag(); loadBrief(); loadAlerts(); setInterval(loadAlerts, 5000); }
+  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadGobag(); loadBrief(); loadNotes(); loadAlerts(); setInterval(loadAlerts, 5000); }
   fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
     if (!me || !/^guardian/.test(me.id || "")) return;
     window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();

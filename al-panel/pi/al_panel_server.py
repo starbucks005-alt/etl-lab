@@ -77,11 +77,13 @@ try:
     import al_sectors as gsectors  # noqa: E402  (the critical infrastructure sectors, for the InfraGard demo)
     import al_gobag as ggobag  # noqa: E402  (go bag and hazard plans from the place card, severe wind first; says she is a helper, not 911)
     import al_briefing as gbrief  # noqa: E402  (the briefing: weather, CISA exploited list, her own state, the owner's reminders; every part named, nothing invented)
+    import al_feeds as gfeeds  # noqa: E402  (CISA ICS advisories and alerts, titles and dates, cached half an hour)
+    import al_inbox as ginbox  # noqa: E402  (the owner's notes, owner only unless marked; she never says they came from InfraGard on her own)
     import al_alert as galert  # noqa: E402  (alert tiers: panel banner, slow pulse, flash; silent unless the owner switches voice on)
     import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = None
+    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = gfeeds = ginbox = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2725,6 +2727,54 @@ def briefing_refreshers():
     return jsonify(gbrief.view())
 
 
+@app.get("/api/inbox")
+def inbox_get():
+    if ginbox is None:
+        return _missing("notes")
+    return jsonify(ginbox.view())
+
+
+@app.post("/api/inbox")
+def inbox_add():
+    if ginbox is None:
+        return _missing("notes")
+    d = request.get_json(silent=True) or {}
+    try:
+        ginbox.add(d.get("title", ""), d.get("text", ""), d.get("source", ""), d.get("mark", ""), d.get("share", "owner"), d.get("received", ""))
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(ginbox.view())
+
+
+@app.post("/api/inbox/<nid>/share")
+def inbox_share(nid):
+    if ginbox is None:
+        return _missing("notes")
+    d = request.get_json(silent=True) or {}
+    try:
+        ok = ginbox.set_share(nid, d.get("share", ""))
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return (jsonify(ginbox.view()) if ok else (jsonify(error="no such note"), 404))
+
+
+@app.delete("/api/inbox/<nid>")
+def inbox_remove(nid):
+    if ginbox is None:
+        return _missing("notes")
+    return (jsonify(ginbox.view()) if ginbox.remove(nid) else (jsonify(error="no such note"), 404))
+
+
+@app.get("/api/feeds/<key>")
+def feeds_get(key):
+    if gfeeds is None:
+        return _missing("advisory feeds")
+    if key not in gfeeds.FEEDS:
+        return jsonify(error="no such feed"), 404
+    f = gfeeds.get_feed(key)
+    return jsonify(name=gfeeds.FEEDS[key]["name"], ok=f["ok"], stale=f["stale"], fetched=f["fetched"], items=f["items"][:10])
+
+
 @app.get("/api/alerts")
 def alerts_get():
     if galert is None:
@@ -4096,6 +4146,10 @@ def reply_for(text, short=True):
         # A question it does not recognise returns None and goes on as before.
         if gbrief is not None and is_self(state["persona"]):
             r = gbrief.reply(text)     # "brief me": real sources only, each named, and she says when one cannot be reached
+        if not r and ginbox is not None and is_self(state["persona"]):
+            r = ginbox.reply(text)     # "any InfraGard alerts": only notes the owner gave her, owner only ones are never read out
+        if not r and gfeeds is not None and is_self(state["persona"]):
+            r = gfeeds.reply(text)     # "any new ICS advisories": CISA titles and dates, says when it cannot reach them
         if not r and gaudit is not None and is_self(state["persona"]):
             r = gaudit.reply(text, raise_notice=(lambda src, t: galert.raise_alert(src, t, 1)) if galert is not None else None)     # "run a security check", "run your diagnostics"
         if not r and gsectors is not None and is_self(state["persona"]):

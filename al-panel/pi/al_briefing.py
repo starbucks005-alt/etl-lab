@@ -110,6 +110,27 @@ def _kev(get):
     return {"id": "kev", "ok": True, "spoken": sp, "lines": lines, "source": "CISA Known Exploited Vulnerabilities"}
 
 
+def _feed(get, path, now):
+    try:
+        import al_feeds
+    except ImportError:
+        return {"id": "ics", "ok": None, "spoken": "I do not have the advisory feeds on this robot.", "lines": []}
+    feed = al_feeds.get_feed("ics", get, now, path)
+    if not feed["ok"]:
+        return {"id": "ics", "ok": False, "spoken": "I could not reach the CISA industrial control advisories just now.", "lines": []}
+    sp, _ = al_feeds.say("ics", feed, now, count=2)
+    return {"id": "ics", "ok": True, "spoken": sp, "lines": ["- %s (%s)" % (i["title"], al_feeds.day_of(i["date"]) or "no date") for i in feed["items"][:5]], "source": al_feeds.FEEDS["ics"]["name"]}
+
+
+def _notes(path):
+    try:
+        import al_inbox
+        line = al_inbox.briefing_line(path)
+    except Exception:
+        return None
+    return {"id": "notes", "ok": True, "spoken": line, "lines": [], "source": "notes you gave me"} if line else None
+
+
 def _call(modname, fn):
     try:
         return getattr(__import__(modname), fn)()
@@ -146,7 +167,7 @@ def _room(room_view):
     return {"id": "room", "ok": True, "spoken": s, "lines": [], "source": "the room sensor"}
 
 
-def build(now=None, get=None, place_path=None, refresh_path=None, audit_last=None, alerts_view=None, room_view=None):
+def build(now=None, get=None, place_path=None, refresh_path=None, audit_last=None, alerts_view=None, room_view=None, feed_path=None, inbox_path=None):
     """The whole briefing: {t, parts, spoken, shown}. Parts that cannot be had say so."""
     now = time.time() if now is None else now
     if get is None:
@@ -162,6 +183,10 @@ def build(now=None, get=None, place_path=None, refresh_path=None, audit_last=Non
     rm = _room(room_view)
     if rm:
         parts.append(rm)
+    parts.append(_feed(get, feed_path, now))
+    nt = _notes(inbox_path)
+    if nt:
+        parts.append(nt)
     rf = todays_refresher(now, refresh_path)
     if rf:
         parts.append({"id": "refresher", "ok": True, "spoken": "Today's reminder: " + rf, "lines": [], "source": "your own list"})

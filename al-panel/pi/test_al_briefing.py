@@ -8,9 +8,13 @@ import al_briefing as bf
 PLACE = None
 
 
+ICS_XML = "<rss><channel><item><title>Acme PLC</title><link>https://x/1</link><pubDate>Tue, 24 Nov 26 12:00:00 +0000</pubDate></item><item><title>Beta Pump</title><link>https://x/2</link><pubDate>Mon, 23 Nov 26 12:00:00 +0000</pubDate></item></channel></rss>"
+
+
 class Resp:
     def __init__(self, data, code=200):
         self.data, self.status_code = data, code
+        self.text = data if isinstance(data, str) else ""
 
     def json(self):
         return self.data
@@ -18,6 +22,10 @@ class Resp:
 
 def fake_get(alerts=True, kev=True, weather=True):
     def get(url, params=None, headers=None, timeout=None):
+        if url.endswith(".xml"):
+            if not kev:
+                raise OSError("down")
+            return Resp(ICS_XML)
         if "cisa.gov" in url:
             if not kev:
                 raise OSError("down")
@@ -44,7 +52,8 @@ class Briefing(unittest.TestCase):
         self.place = os.path.join(self.d, "place.json")
         json.dump({"lat": 39.7, "lon": -84.2, "name": "Somewhere"}, open(self.place, "w"))
         self.rf = os.path.join(self.d, "refreshers.json")
-        self.kw = dict(place_path=self.place, refresh_path=self.rf, audit_last=lambda: None, alerts_view=lambda: {"active": []}, room_view=lambda: None)
+        self.kw = dict(place_path=self.place, refresh_path=self.rf, audit_last=lambda: None, alerts_view=lambda: {"active": []}, room_view=lambda: None,
+                       feed_path=os.path.join(self.d, "feeds.json"), inbox_path=os.path.join(self.d, "inbox.json"))
 
     def test_a_full_briefing_names_each_source(self):
         r = bf.build(now=1000, get=fake_get(), **self.kw)
@@ -123,6 +132,23 @@ class Briefing(unittest.TestCase):
         bf.save(r, os.path.join(self.d, "b.json"), os.path.join(self.d, "b.jsonl"))
         self.assertEqual(bf.last(os.path.join(self.d, "b.json"))["t"], 1000)
         self.assertTrue(os.path.exists(os.path.join(self.d, "b.jsonl")))
+
+    def test_ics_advisories_are_in_the_briefing_with_their_source(self):
+        r = bf.build(now=1000, get=fake_get(), **self.kw)
+        self.assertIn("Acme PLC", r["spoken"])
+        self.assertIn("Source: CISA industrial control system advisories", r["shown"])
+        down = bf.build(now=1000, get=fake_get(kev=False), **dict(self.kw, feed_path=os.path.join(self.d, "other_feeds.json")))
+        self.assertIn("could not reach the CISA industrial control advisories", down["spoken"])
+
+    def test_notes_are_counted_and_only_room_titles_are_said(self):
+        import al_inbox
+        lg = os.path.join(self.d, "i.jsonl")
+        al_inbox.add("Secret one", "words", mark="TLP:AMBER", path=self.kw["inbox_path"], log=lg)
+        al_inbox.add("Fine to say", "words", share="room", path=self.kw["inbox_path"], log=lg)
+        r = bf.build(now=1000, get=fake_get(), **self.kw)
+        self.assertIn("You gave me 2 notes", r["spoken"])
+        self.assertIn("Fine to say", r["spoken"])
+        self.assertNotIn("Secret one", r["spoken"] + r["shown"])
 
     def test_no_em_dashes_and_no_invented_intelligence(self):
         src = open(bf.__file__, encoding="utf-8").read()

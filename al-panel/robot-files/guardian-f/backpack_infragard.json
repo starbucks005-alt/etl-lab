@@ -48,7 +48,7 @@
         "id": "owner_infragard_notes",
         "name": "Owner Supplied InfraGard Notes",
         "type": "history",
-        "description": "InfraGard shares alerts with vetted members and publishes no public feed. Anything from InfraGard reaches her only because her owner gives it to her. NOT BUILT YET: an inbox for it.",
+        "description": "InfraGard shares alerts with vetted members and publishes no public feed. Anything from InfraGard reaches her only because her owner gives it to her. She keeps them in an owner only inbox and reads out only a note the owner marked as fine to say.",
         "source": "her owner",
         "format": "text",
         "refresh": "manual"
@@ -161,6 +161,26 @@
         "input": {"type": "object", "properties": {}},
         "output": {"type": "object", "properties": {"spoken": {"type": "string"}, "shown": {"type": "string"}}},
         "binding": {"handler": "guardian/al-briefing"},
+        "sideEffects": "read"
+      },
+      {
+        "id": "advisory_feeds",
+        "name": "Advisory Feeds",
+        "kind": "in_framework",
+        "description": "The newest CISA industrial control system advisories and CISA alerts, titles and dates only, kept for half an hour. She says when CISA cannot be reached and how old her copy is.",
+        "input": {"type": "object", "properties": {"question": {"type": "string"}}},
+        "output": {"type": "object", "properties": {"spoken": {"type": "string"}, "shown": {"type": "string"}}},
+        "binding": {"handler": "guardian/al-feeds"},
+        "sideEffects": "read"
+      },
+      {
+        "id": "owner_notes",
+        "name": "Owner Notes",
+        "kind": "in_framework",
+        "description": "Notes the owner typed in, such as something shared with them by InfraGard. Owner only by default and never read out; a note the owner marks as fine to say is read word for word, as a note they gave her.",
+        "input": {"type": "object", "properties": {"question": {"type": "string"}}},
+        "output": {"type": "object", "properties": {"spoken": {"type": "string"}, "shown": {"type": "string"}}},
+        "binding": {"handler": "guardian/al-inbox"},
         "sideEffects": "read"
       },
       {
