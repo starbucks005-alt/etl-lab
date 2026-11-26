@@ -79,11 +79,12 @@ try:
     import al_briefing as gbrief  # noqa: E402  (the briefing: weather, CISA exploited list, her own state, the owner's reminders; every part named, nothing invented)
     import al_feeds as gfeeds  # noqa: E402  (CISA ICS advisories and alerts, titles and dates, cached half an hour)
     import al_inbox as ginbox  # noqa: E402  (the owner's notes, owner only unless marked; she never says they came from InfraGard on her own)
+    import al_record as grec  # noqa: E402  (conversation recording: off until the owner switches it on and ticks the box; local only; says the truth if asked)
     import al_alert as galert  # noqa: E402  (alert tiers: panel banner, slow pulse, flash; silent unless the owner switches voice on)
     import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = gfeeds = ginbox = None
+    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = gfeeds = ginbox = grec = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2351,7 +2352,7 @@ def _sentry_view():
         a["photo_kept"] = bool(a.get("photo") and a["photo"] in kept)
         items.append(a)
     left = max(0, int(s["live_at"] - time.time())) if s["armed"] else 0
-    return dict(armed=s["armed"], since=s["since"], alarm=s["alarm"], exit_delay_left=left, sensor=str(state.get("motion") or "unknown"), alerts=items)
+    return dict(armed=s["armed"], since=s["since"], alarm=s["alarm"], silent=s["silent"], silent_ack_t=s["silent_ack_t"], exit_delay_left=left, sensor=str(state.get("motion") or "unknown"), alerts=items)
 
 
 @app.get("/api/sentry")
@@ -2370,6 +2371,13 @@ def sentry_set():
         sentry.set_armed(bool(d["armed"]))
     if "alarm" in d:
         sentry.set_alarm(bool(d["alarm"]))
+    if "silent" in d:
+        try:
+            sentry.set_silent(bool(d["silent"]), ack=bool(d.get("ack")))
+        except ValueError as e:
+            return jsonify(error=str(e)), 400
+        if galert is not None and d["silent"]:
+            galert.raise_alert("Sentry", "Silent photos are on while armed. Every other photo is still announced.", 1)
     return jsonify(_sentry_view())
 
 
@@ -2773,6 +2781,88 @@ def feeds_get(key):
         return jsonify(error="no such feed"), 404
     f = gfeeds.get_feed(key)
     return jsonify(name=gfeeds.FEEDS[key]["name"], ok=f["ok"], stale=f["stale"], fetched=f["fetched"], items=f["items"][:10])
+
+
+@app.get("/api/record")
+def record_get():
+    if grec is None:
+        return _missing("recording")
+    return jsonify(grec.view())
+
+
+@app.post("/api/record/allowed")
+def record_allowed():
+    if grec is None:
+        return _missing("recording")
+    d = request.get_json(silent=True) or {}
+    try:
+        grec.set_allowed(bool(d.get("on")), ack=bool(d.get("ack")), days=d.get("days"))
+    except (ValueError, TypeError) as e:
+        return jsonify(error=str(e)), 400
+    if galert is not None and d.get("on"):
+        galert.raise_alert("Recording", "Recording is switched on. Nothing is saved until a recording period starts.", 1)
+    return jsonify(grec.view())
+
+
+@app.post("/api/record/days")
+def record_days():
+    if grec is None:
+        return _missing("recording")
+    d = request.get_json(silent=True) or {}
+    try:
+        grec.set_days(d.get("days", grec.DEFAULT_DAYS))
+    except (ValueError, TypeError) as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(grec.view())
+
+
+@app.post("/api/record/start")
+def record_start():
+    if grec is None:
+        return _missing("recording")
+    d = request.get_json(silent=True) or {}
+    try:
+        ok = grec.start("panel", int(d.get("minutes", 10)))
+    except (ValueError, TypeError):
+        return jsonify(error="minutes must be a number"), 400
+    if not ok:
+        return jsonify(error="Switch recording on first, and tick the box."), 400
+    return jsonify(grec.view())
+
+
+@app.post("/api/record/stop")
+def record_stop():
+    if grec is None:
+        return _missing("recording")
+    grec.stop()
+    return jsonify(grec.view())
+
+
+@app.get("/api/record/<cid>/audio")
+def record_audio(cid):
+    if grec is None:
+        return _missing("recording")
+    p = grec.audio_path(cid)
+    if not p:
+        return jsonify(error="no such recording"), 404
+    resp = send_from_directory(os.path.dirname(p), os.path.basename(p), mimetype="audio/wav")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@app.delete("/api/record/<cid>")
+def record_delete(cid):
+    if grec is None:
+        return _missing("recording")
+    return (jsonify(grec.view()) if grec.delete(cid) else (jsonify(error="no such recording"), 404))
+
+
+@app.post("/api/record/delete_all")
+def record_delete_all():
+    if grec is None:
+        return _missing("recording")
+    grec.delete_all()
+    return jsonify(grec.view())
 
 
 @app.get("/api/alerts")
@@ -4146,6 +4236,8 @@ def reply_for(text, short=True):
         # A question it does not recognise returns None and goes on as before.
         if gbrief is not None and is_self(state["persona"]):
             r = gbrief.reply(text)     # "brief me": real sources only, each named, and she says when one cannot be reached
+        if not r and grec is not None and is_self(state["persona"]):
+            r = grec.reply(text)       # "are you recording": the truth from her own state, never from the model
         if not r and ginbox is not None and is_self(state["persona"]):
             r = ginbox.reply(text)     # "any InfraGard alerts": only notes the owner gave her, owner only ones are never read out
         if not r and gfeeds is not None and is_self(state["persona"]):
@@ -4805,9 +4897,12 @@ SENTRY_OFF = re.compile(r"\b(?:disarm|deactivate|stop|turn off|switch off|cancel
 def _sentry_motion():
     """The motion sensor saw someone while she is armed. The photo is the gated one, so she says it first; the sentry's own line, if made, says "Motion detected" too."""
     line = sentry.SENTRY_LINE if os.path.isfile(sentry.SENTRY_LINE) else None
-    r = sentry.on_motion(lambda: gcam.take_photo(line_file=line), alarm_fn=sentry.play_alarm)
+    r = sentry.on_motion(lambda: gcam.take_photo(line_file=line), alarm_fn=sentry.play_alarm,
+                         silent_fn=lambda: gcam.take_photo(silent=True))     # silent only if the owner switched it on and ticked the box (al_sentry.set_silent)
     if r and "skipped" not in r:
         print("SENTRY:", {k: v for k, v in r.items() if k != "time"}, flush=True)
+        if grec is not None and grec.start("armed motion", grec.SENTRY_MINUTES) and galert is not None:
+            galert.raise_alert("Recording", "Recording started because armed Sentry saw motion.", 1)
 
 
 def sentry_command(text):
@@ -5201,7 +5296,12 @@ def _transcribe_words(path=None):
 
 def transcribe(path=None):
     """The words, as before. If registered voices are switched on and somebody is registered, the same clip is compared with them
-    while the words are being found, so it adds no waiting. The clip is never kept by this."""
+    while the words are being found, so it adds no waiting. The clip is not kept by this, except while the owner's recording period is running (al_record.py)."""
+    if grec is not None:
+        try:
+            grec.keep(path or LISTEN_FILE)
+        except Exception as e:
+            print("RECORD problem, carrying on:", str(e)[:100], flush=True)
     if vc is None or not vc.is_on():
         return _transcribe_words(path)
     box = {}
@@ -5824,6 +5924,15 @@ if __name__ == "__main__":
         threading.Thread(target=glatch.watcher, args=(lambda t: speak_async(t, use_persona=False), _latch_notice), daemon=True).start()   # latchkey reminders and the not-home notice
     if groom is not None:
         threading.Thread(target=groom.poller, daemon=True).start()                                           # listens for the room sensor once one is chosen
+    if grec is not None:
+        def _record_janitor():
+            while True:
+                try:
+                    grec.purge()
+                except Exception as e:
+                    print("RECORD purge problem:", str(e)[:100], flush=True)
+                time.sleep(3600)
+        threading.Thread(target=_record_janitor, daemon=True).start()                                    # recordings older than the owner's chosen days are deleted
     if galert is not None:
         galert.write_light()                                                                                  # alerts left uncleared light the strip again after a restart
     app.run(host="0.0.0.0", port=8000, threaded=True)

@@ -77,9 +77,13 @@ def safe_path(name, folder=None):
     return p if os.path.isfile(p) else None
 
 
-def take_photo(play=None, capture_fn=None, sleep=None, pause=None, folder=None, line_file=None, now=None):
+def take_photo(play=None, capture_fn=None, sleep=None, pause=None, folder=None, line_file=None, now=None, silent=False):
     """Say it, wait, then take the picture. Returns {"ok": True, "name": ...} or {"ok": False, "why": ...}.
-    The arguments are only here so the tests can stand in for the speaker and the camera."""
+    The arguments are only here so the tests can stand in for the speaker and the camera.
+
+    silent=True skips the spoken line and the pause (2026-11-26, Dr. O's decision of 2026-11-24: announcing a photo to an intruder can get people hurt).
+    Only the armed Sentry path ever passes it, and only after the OWNER has switched silent photos on and ticked that they are responsible (al_sentry.set_silent).
+    Everything else, the panel button, a spoken request, a photo she decides on herself, keeps the rule: she says it first, or no photo."""
     line_file = line_file or LINE_FILE
     folder = folder or PHOTO_DIR
     play = play or (lambda: play_line(line_file))
@@ -89,13 +93,14 @@ def take_photo(play=None, capture_fn=None, sleep=None, pause=None, folder=None, 
     if not _lock.acquire(blocking=False):
         return {"ok": False, "why": "she is already taking a photo"}
     try:
-        if not os.path.isfile(line_file):
-            return {"ok": False, "why": "no photo: her spoken line is missing (run make_photo_line.py)"}
-        try:
-            play()
-        except Exception:
-            return {"ok": False, "why": "no photo: she could not say it out loud (the speaker was busy or is not working)"}
-        sleep(pause)
+        if not silent:
+            if not os.path.isfile(line_file):
+                return {"ok": False, "why": "no photo: her spoken line is missing (run make_photo_line.py)"}
+            try:
+                play()
+            except Exception:
+                return {"ok": False, "why": "no photo: she could not say it out loud (the speaker was busy or is not working)"}
+            sleep(pause)
         try:
             os.makedirs(folder, exist_ok=True)
         except OSError:

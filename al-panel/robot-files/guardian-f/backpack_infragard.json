@@ -184,6 +184,16 @@
         "sideEffects": "read"
       },
       {
+        "id": "conversation_recording",
+        "name": "Conversation Recording",
+        "kind": "in_framework",
+        "description": "Off until the owner switches it on and takes responsibility for it. While a recording period runs she keeps a copy of the speech she hears, on herself only, deleted after the days the owner chose. She tells the truth if asked whether she is recording.",
+        "input": {"type": "object", "properties": {"question": {"type": "string"}}},
+        "output": {"type": "object", "properties": {"spoken": {"type": "string"}, "shown": {"type": "string"}}},
+        "binding": {"handler": "guardian/al-record"},
+        "sideEffects": "write"
+      },
+      {
         "id": "room_air",
         "name": "Room Air",
         "kind": "in_framework",

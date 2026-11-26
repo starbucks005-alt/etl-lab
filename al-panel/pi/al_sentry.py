@@ -2,8 +2,10 @@
 """The Guardian's Sentry mode (written 2026-11-24, Phase 1 of her skills).
 
 Armed from her panel, the phone, or by voice, she watches her motion sensor. When it sees someone while she is armed she takes a photo, and the photo
-goes through the one gate in al_photo.py: she says it out loud first (Dr. O's rule), and if she cannot say it, NO photo is taken. A secret photo is not a
-thing this robot does. Each time is written to a list of alerts that her panel shows, with the time and the photo.
+goes through the one gate in al_photo.py: she says it out loud first (Dr. O's rule), and if she cannot say it, NO photo is taken.
+ONE exception, Dr. O's decision of 2026-11-24, built 2026-11-26: announcing a photo to an intruder can get people hurt, so the OWNER may switch on silent
+photos for armed Sentry (set_silent). It is off by default, it needs the owner's tick that they are responsible, and it is the only place a photo skips
+the spoken line. Silent also means no alarm sound. Each time is written to a list of alerts that her panel shows, with the time, the photo, and whether it was silent.
 
 Safe defaults I added so it behaves (each one is a constant below):
   EXIT_DELAY_SECONDS  after arming she ignores motion for a while, so the person who armed her can walk away;
@@ -53,7 +55,8 @@ def _write(path, data):
 
 def load_state(path=None):
     d = _read(path or STATE_FILE, {})
-    return {"armed": bool(d.get("armed")), "since": float(d.get("since") or 0), "live_at": float(d.get("live_at") or 0), "alarm": bool(d.get("alarm"))}
+    return {"armed": bool(d.get("armed")), "since": float(d.get("since") or 0), "live_at": float(d.get("live_at") or 0), "alarm": bool(d.get("alarm")),
+            "silent": bool(d.get("silent")) and bool(d.get("silent_ack_t")), "silent_ack_t": d.get("silent_ack_t")}
 
 
 def is_armed(path=None):
@@ -74,6 +77,22 @@ def set_armed(armed, now=None, path=None):
 def set_alarm(on, path=None):
     s = load_state(path)
     s["alarm"] = bool(on)
+    _write(path or STATE_FILE, s)
+    return s
+
+
+def set_silent(on, ack=False, now=None, path=None):
+    """Dr. O's decision of 2026-11-24: while armed, her photos are SILENT, because announcing a photo to an intruder can get people hurt.
+    Off by default. Turning it on needs the owner's tick that they are responsible for it. Turning it off needs nothing.
+    Silent also means no alarm sound. Every other photo she takes is still announced."""
+    now = time.time() if now is None else now
+    s = load_state(path)
+    if on:
+        if not ack:
+            raise ValueError("Tick the box to say you are responsible for silent photos.")
+        s["silent"], s["silent_ack_t"] = True, int(now)
+    else:
+        s["silent"] = False
     _write(path or STATE_FILE, s)
     return s
 
@@ -114,9 +133,10 @@ def play_alarm():
     subprocess.run(["aplay", "-q", "-D", PLAY_DEVICE, make_alarm_file()], check=True, timeout=30)
 
 
-def on_motion(photo_fn, alarm_fn=None, clock=None, state_path=None, alerts_path=None):
+def on_motion(photo_fn, alarm_fn=None, clock=None, state_path=None, alerts_path=None, silent_fn=None):
     """The sensor saw someone. Returns None when nothing was due, else what happened.
-    photo_fn() must be the gated photo (it says the line, then shoots) and return {"ok": ..., "name"/"why": ...}."""
+    photo_fn() must be the gated photo (it says the line, then shoots) and return {"ok": ..., "name"/"why": ...}.
+    When the owner has switched silent photos on (set_silent) and silent_fn is given, silent_fn() takes the photo instead, with no spoken line and no alarm."""
     clock = clock or time.time
     now = clock()
     s = load_state(state_path)
@@ -130,10 +150,11 @@ def on_motion(photo_fn, alarm_fn=None, clock=None, state_path=None, alerts_path=
         return {"skipped": "busy"}
     try:
         _last_alert[0] = now
-        r = photo_fn() or {}
-        item = {"time": now, "ok": bool(r.get("ok")), "photo": r.get("name") if r.get("ok") else None, "why": None if r.get("ok") else r.get("why", "no photo")}
+        quiet = bool(s["silent"] and silent_fn)
+        r = (silent_fn() if quiet else photo_fn()) or {}
+        item = {"time": now, "ok": bool(r.get("ok")), "photo": r.get("name") if r.get("ok") else None, "why": None if r.get("ok") else r.get("why", "no photo"), "silent": quiet}
         _add_alert(item, alerts_path)
-        if r.get("ok") and s["alarm"] and alarm_fn:
+        if r.get("ok") and s["alarm"] and alarm_fn and not quiet:
             try:
                 alarm_fn()
             except Exception:
@@ -173,7 +194,7 @@ async function load(){
   const d=await (await fetch('/api/sentry')).json(); st=d;
   $('status').innerHTML=d.armed?'<span class="on">Armed</span>'+(d.exit_delay_left>0?' (live in '+d.exit_delay_left+' seconds)':''):'<span class="off">Not armed</span>';
   $('alarm').textContent='Alarm sound: '+(d.alarm?'on':'off');
-  $('note').textContent='Motion sensor: '+d.sensor+'. Every photo is announced out loud first, and no photo is taken if she cannot say it.';
+  $('note').textContent='Motion sensor: '+d.sensor+'. '+(d.silent?'While she is armed her photos are silent, as you chose, and the alarm sound stays off. Every other photo is announced out loud first.':'Every photo is announced out loud first, and no photo is taken if she cannot say it.');
   const L=$('list'); L.innerHTML='';
   if(!d.alerts.length){L.textContent='No alerts yet.';return;}
   d.alerts.forEach(a=>{const e=document.createElement('div');e.className='alert';

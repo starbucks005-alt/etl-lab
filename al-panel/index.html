@@ -267,6 +267,8 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
           <div class="sk" id="skSentry"><h3>Sentry <span class="pill" id="snStatus">...</span></h3>
             <p class="hint">Arm her and she watches the room. When she sees someone she photographs them and logs the time. Say "arm sentry mode" or use the buttons.</p>
             <div class="row"><button class="primary" id="snArm" type="button">Arm</button><button id="snDisarm" type="button">Disarm</button><a href="/sentry">Alerts and photos</a></div>
+            <div class="row"><label><input type="checkbox" id="snAck"> I am responsible for silent photos</label></div>
+            <div class="row"><button id="snSilentOn" type="button">Silent photos while armed</button><button id="snSilentOff" type="button">Announce photos again</button></div>
             <div class="msg" id="snMsg"></div></div>
 
           <div class="sk" id="skLookup"><h3>Live lookup <span class="pill" id="luStatus">...</span></h3>
@@ -333,6 +335,15 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
             <textarea id="nbText" rows="3" maxlength="1500" placeholder="The note, word for word"></textarea>
             <div class="row"><label><input type="checkbox" id="nbShare"> she may say this out loud</label> <button id="nbAdd">Keep this note</button></div>
             <div class="msg" id="nbMsg"></div><div id="nbList"></div></div>
+
+          <div class="sk" id="skRecord"><h3>Recording <span class="pill" id="rcStatus">Off</span></h3>
+            <p class="hint">Off until you switch it on and tick the box. While a recording period is running she keeps a copy of the speech she hears, on herself only. It is never sent anywhere from her and she never reads it. A period runs for the minutes you choose, or starts for a few minutes when armed Sentry sees motion. Clips delete themselves after the days you choose. If anyone asks "are you recording," she tells the truth. Whether to post a notice, and what the law allows where you are, is yours to decide.</p>
+            <div class="row"><label><input type="checkbox" id="rcAck"> I am responsible for how recording is used</label></div>
+            <div class="row"><button id="rcAllow">Switch recording on</button> <button id="rcDisallow">Switch recording off</button></div>
+            <div class="row"><label>Keep clips for <select id="rcDays"></select> days</label></div>
+            <div class="row"><button id="rcStart">Record for 10 minutes</button> <button id="rcStop">Stop now</button></div>
+            <div class="msg" id="rcMsg"></div><div id="rcList"></div>
+            <div class="row"><button id="rcDeleteAll">Delete all recordings</button></div></div>
 
           <div class="sk" id="skAlerts"><h3>Alerts <span class="pill" id="alStatus">All clear</span></h3>
             <p class="hint">When something needs you, she puts it at the top of this page. A watch makes her mouth light breathe slowly. An urgent alert flashes it, never faster than twice a second. She stays quiet unless you switch her voice on, and every alert and every clear is written in a log that shows if anyone changes it.</p>
@@ -2280,11 +2291,13 @@ html:root[data-skin="ember"]{color-scheme:dark;--bg:#29110F;--panel:#3D1814;--li
   function loadSentry() {
     jget("/api/sentry").then(function (d) {
       pill("snStatus", d.armed ? (d.exit_delay_left > 0 ? "Armed, live in " + d.exit_delay_left + "s" : "Armed") : "Not armed", d.armed);
-      msg("snMsg", "Motion sensor: " + d.sensor + ". Alerts logged: " + d.alerts.length + ".");
+      msg("snMsg", "Motion sensor: " + d.sensor + ". Alerts logged: " + d.alerts.length + ". Armed photos are " + (d.silent ? "silent (no spoken line, no alarm sound)." : "announced out loud first.") + " Every other photo is always announced.");
     }).catch(function (e) { msg("snMsg", e.message, true); });
   }
   $("snArm").addEventListener("click", function () { jpost("/api/sentry", {armed: true}).then(loadSentry); });
   $("snDisarm").addEventListener("click", function () { jpost("/api/sentry", {armed: false}).then(loadSentry); });
+  $("snSilentOn").addEventListener("click", function () { jpost("/api/sentry", {silent: true, ack: $("snAck").checked}).then(function () { loadSentry(); loadAlerts(); }).catch(function (e) { msg("snMsg", e.message, true); }); });
+  $("snSilentOff").addEventListener("click", function () { jpost("/api/sentry", {silent: false}).then(function () { $("snAck").checked = false; loadSentry(); }).catch(function (e) { msg("snMsg", e.message, true); }); });
 
   // ---- lookup
   function loadLookup() { jget("/api/lookup").then(function (d) { $("luOn").checked = !!d.on; pill("luStatus", d.on ? "On" : "Off", d.on); }).catch(function () {}); }
@@ -2556,6 +2569,29 @@ Source: " + c.source);
     else { jpost("/api/inbox/" + b.getAttribute("data-id") + "/share", { share: b.getAttribute("data-to") }).then(loadNotes); }
   });
 
+  // ---- recording
+  function loadRecord() {
+    jget("/api/record").then(function (v) {
+      pill("rcStatus", v.recording ? "Recording" : (v.allowed ? "On, waiting" : "Off"), v.recording);
+      if (!$("rcDays").options.length) { for (var d = 1; d <= v.max_days; d++) { var o = document.createElement("option"); o.value = d; o.textContent = d; $("rcDays").appendChild(o); } }
+      $("rcDays").value = v.days;
+      msg("rcMsg", v.recording ? "Recording for another " + Math.ceil(v.left / 60) + " minutes (" + v.reason + ")." : (v.allowed ? "Switched on. Nothing is saved until a period starts." : "Off. Nothing is saved."));
+      $("rcList").innerHTML = v.clips.map(function (c) {
+        return '<div class="msg" style="margin:4px 0">' + new Date(c.t * 1000).toLocaleString() + ", " + c.seconds + " seconds, " + esc(c.reason || "") + '<br><audio controls preload="none" src="/api/record/' + esc(c.id) + '/audio"></audio> <button data-rc="del" data-id="' + esc(c.id) + '">Delete</button></div>';
+      }).join("") || '<div class="msg">No recordings kept.</div>';
+    }).catch(function () {});
+  }
+  $("rcAllow").addEventListener("click", function () { jpost("/api/record/allowed", { on: true, ack: $("rcAck").checked, days: Number($("rcDays").value) || 7 }).then(function () { loadRecord(); loadAlerts(); }).catch(function (e) { msg("rcMsg", e.message, true); }); });
+  $("rcDisallow").addEventListener("click", function () { jpost("/api/record/allowed", { on: false }).then(function () { $("rcAck").checked = false; loadRecord(); }).catch(function (e) { msg("rcMsg", e.message, true); }); });
+  $("rcDays").addEventListener("change", function () { jpost("/api/record/days", { days: Number($("rcDays").value) }).then(loadRecord).catch(function (e) { msg("rcMsg", e.message, true); }); });
+  $("rcStart").addEventListener("click", function () { jpost("/api/record/start", { minutes: 10 }).then(loadRecord).catch(function (e) { msg("rcMsg", e.message, true); }); });
+  $("rcStop").addEventListener("click", function () { jpost("/api/record/stop", {}).then(loadRecord).catch(function (e) { msg("rcMsg", e.message, true); }); });
+  $("rcDeleteAll").addEventListener("click", function () { if (window.confirm("Delete every recording? This cannot be undone.")) { jpost("/api/record/delete_all", {}).then(loadRecord); } });
+  $("rcList").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-rc]");
+    if (b && window.confirm("Delete this recording? This cannot be undone.")) { fetch("/api/record/" + b.getAttribute("data-id"), { method: "DELETE" }).then(loadRecord); }
+  });
+
   // ---- alerts
   function loadAlerts() {
     jget("/api/alerts").then(function (v) {
@@ -2576,7 +2612,7 @@ Source: " + c.source);
   $("alTest2").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 2, text: "Test of the pulse. Clear it when you have seen it."}).then(function () { msg("alMsg", "The pulse runs for a few minutes or until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
   $("alTest3").addEventListener("click", function () { jpost("/api/alerts", {action: "raise", tier: 3, text: "Test of the flash. Clear it when you have seen it."}).then(function () { msg("alMsg", "The flash runs until you clear it."); loadAlerts(); }).catch(function (e) { msg("alMsg", e.message, true); }); });
 
-  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadGobag(); loadBrief(); loadNotes(); loadAlerts(); setInterval(loadAlerts, 5000); }
+  function all() { loadLock(); loadRoom(); loadPhotos(); loadSentry(); loadLookup(); loadPlace(); loadNet(); loadAssets(); loadLatch(); loadAudit(); loadSectors(); loadGobag(); loadBrief(); loadNotes(); loadRecord(); setInterval(loadRecord, 15000); loadAlerts(); setInterval(loadAlerts, 5000); }
   fetch("/api/robot", {cache: "no-store"}).then(function (r) { return r.ok ? r.json() : {}; }).then(function (me) {
     if (!me || !/^guardian/.test(me.id || "")) return;
     window.IS_GUARDIAN = true; $("herSkills").style.display = ""; all();
