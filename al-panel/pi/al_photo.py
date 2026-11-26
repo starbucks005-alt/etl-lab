@@ -77,7 +77,7 @@ def safe_path(name, folder=None):
     return p if os.path.isfile(p) else None
 
 
-def take_photo(play=None, capture_fn=None, sleep=None, pause=None, folder=None, line_file=None, now=None, silent=False):
+def take_photo(play=None, capture_fn=None, sleep=None, pause=None, folder=None, line_file=None, now=None, silent=False, keep=None):
     """Say it, wait, then take the picture. Returns {"ok": True, "name": ...} or {"ok": False, "why": ...}.
     The arguments are only here so the tests can stand in for the speaker and the camera.
 
@@ -119,7 +119,7 @@ def take_photo(play=None, capture_fn=None, sleep=None, pause=None, folder=None, 
             except OSError:
                 pass
             return {"ok": False, "why": "the camera did not make a picture"}
-        prune(folder)
+        prune(folder, keep)
         return {"ok": True, "name": name}
     finally:
         _lock.release()

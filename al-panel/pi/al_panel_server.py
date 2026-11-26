@@ -80,11 +80,14 @@ try:
     import al_feeds as gfeeds  # noqa: E402  (CISA ICS advisories and alerts, titles and dates, cached half an hour)
     import al_inbox as ginbox  # noqa: E402  (the owner's notes, owner only unless marked; she never says they came from InfraGard on her own)
     import al_record as grec  # noqa: E402  (conversation recording: off until the owner switches it on and ticks the box; local only; says the truth if asked)
+    import al_distress as gdistress  # noqa: E402  (words and loud sound that may mean someone needs help: a SILENT panel alert, never a judgment of a person)
+    import al_devcheck as gdev  # noqa: E402  (the owner presses Check on a flagged device: maker and common open ports, nothing more)
+    import al_checkin as gcheckin  # noqa: E402  (front desk check-in photos: announced like every ordinary photo, off until the owner switches it on)
     import al_alert as galert  # noqa: E402  (alert tiers: panel banner, slow pulse, flash; silent unless the owner switches voice on)
     import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = gfeeds = ginbox = grec = None
+    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = gfeeds = ginbox = grec = gdistress = gdev = gcheckin = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2865,6 +2868,81 @@ def record_delete_all():
     return jsonify(grec.view())
 
 
+@app.get("/api/distress")
+def distress_get():
+    if gdistress is None:
+        return _missing("help words")
+    return jsonify(gdistress.view())
+
+
+@app.post("/api/distress")
+def distress_set():
+    if gdistress is None:
+        return _missing("help words")
+    d = request.get_json(silent=True) or {}
+    try:
+        gdistress.set_on(bool(d.get("on")), ack=bool(d.get("ack")))
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(gdistress.view())
+
+
+@app.post("/api/net/check")
+def net_check():
+    if gdev is None or gnet is None:
+        return _missing("device check")
+    d = request.get_json(silent=True) or {}
+    st = gnet.state()
+    devices = dict(st["known"])
+    devices.update(st["flagged"])
+    try:
+        res = gdev.check(str(d.get("mac", "")), devices)
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(result=res, said=gdev.say(res))
+
+
+@app.get("/api/checkin")
+def checkin_get():
+    if gcheckin is None:
+        return _missing("check-in photos")
+    return jsonify(gcheckin.view())
+
+
+@app.post("/api/checkin")
+def checkin_set():
+    if gcheckin is None:
+        return _missing("check-in photos")
+    d = request.get_json(silent=True) or {}
+    try:
+        gcheckin.set_on(bool(d.get("on")), ack=bool(d.get("ack")), days=d.get("days"))
+    except (ValueError, TypeError) as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(gcheckin.view())
+
+
+@app.get("/api/checkin/photo/<name>")
+def checkin_photo(name):
+    if gcheckin is None or gcam is None:
+        return _missing("check-in photos")
+    p = gcam.safe_path(name, gcheckin.DIR)
+    if not p:
+        return jsonify(error="no such photo"), 404
+    resp = send_from_directory(os.path.dirname(p), os.path.basename(p), mimetype="image/jpeg")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@app.delete("/api/checkin/<name>")
+def checkin_delete(name):
+    if gcheckin is None or gcam is None:
+        return _missing("check-in photos")
+    if not gcam.safe_path(name, gcheckin.DIR):
+        return jsonify(error="no such photo"), 404
+    gcheckin.delete(name)
+    return jsonify(gcheckin.view())
+
+
 @app.get("/api/alerts")
 def alerts_get():
     if galert is None:
@@ -4117,13 +4195,29 @@ def notify_front_office(text):
     threading.Thread(target=go, daemon=True).start()
 
 
+def _checkin_photo(name, host):
+    """A visitor checked in. If the owner switched check-in photos on, the ordinary ANNOUNCED photo is taken once she has finished her welcome."""
+    if gcheckin is None or gcam is None or not gcheckin.state()["on"]:
+        return
+
+    def run():
+        try:
+            with speak_lock:                   # after her welcome, never over it
+                gcheckin.take_for_visit(name, host, lambda folder: gcam.take_photo(folder=folder, keep=gcheckin.MAX_KEPT))
+        except Exception as e:
+            print("CHECK-IN photo problem:", str(e)[:100], flush=True)
+    t = threading.Timer(gcheckin.DELAY_SECONDS, run)
+    t.daemon = True
+    t.start()
+
+
 def skills_reply(text):
     """(spoken, shown) when an installed skill handles this, else None. Commands first, then the shelf."""
     if sk is None or not (text or "").strip():
         return None
     have = state["skills"]
     if "desk" in have:
-        r = sk.guardian_reply(text, notify=notify_front_office)
+        r = sk.guardian_reply(text, notify=notify_front_office, on_visit=_checkin_photo)
         if r:
             return r
     if "briefing" in have:
@@ -5295,6 +5389,20 @@ def _transcribe_words(path=None):
 
 
 def transcribe(path=None):
+    """The words, as before, and then (only if the owner switched it on) a quiet check of the clip and the words for plain words that may mean someone needs help."""
+    words = _transcribe_core(path)
+    if gdistress is not None:
+        try:
+            res = gdistress.check(path or LISTEN_FILE, words, floor=room_memory.get("floor"))
+            if res:
+                gdistress.act(res, raise_alert=(lambda src, t, tier: galert.raise_alert(src, t, tier)) if galert is not None else None,
+                              start_recording=(lambda why, mins: grec.start(why, mins)) if grec is not None else None)
+        except Exception as e:
+            print("DISTRESS check problem, carrying on:", str(e)[:100], flush=True)
+    return words
+
+
+def _transcribe_core(path=None):
     """The words, as before. If registered voices are switched on and somebody is registered, the same clip is compared with them
     while the words are being found, so it adds no waiting. The clip is not kept by this, except while the owner's recording period is running (al_record.py)."""
     if grec is not None:
@@ -5929,6 +6037,8 @@ if __name__ == "__main__":
             while True:
                 try:
                     grec.purge()
+                    if gcheckin is not None:
+                        gcheckin.purge()
                 except Exception as e:
                     print("RECORD purge problem:", str(e)[:100], flush=True)
                 time.sleep(3600)

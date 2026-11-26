@@ -487,7 +487,7 @@ def appointment_for(name, appointments):
     return hits[0] if len(hits) == 1 else None
 
 
-def guardian_reply(text, notify=None, now=None):
+def guardian_reply(text, notify=None, now=None, on_visit=None):
     """(spoken, shown) when this is something the Guardian handles, else None. notify(text) tells the front office, when a notice address is set."""
     t = _clean(text)
     low = t.lower()
@@ -514,6 +514,8 @@ def guardian_reply(text, notify=None, now=None):
         if found:
             msg += " Directions: %s." % found[0]["where"].rstrip(".")
         log_visit(name, appt["host"], "expected, " + (appt["time"] or "appointment"))
+        if on_visit:
+            on_visit(name, appt["host"])        # the check-in photo, if the owner switched it on (al_checkin.py)
         note("%s has arrived for %s." % (name, appt["time"] or "an appointment") + " Here to see %s." % appt["host"])
         return msg, msg
     if m and (name or re.search(r"\b(here to see|here for|visiting|meeting with|appointment|here to meet)\b", low)):
@@ -524,6 +526,8 @@ def guardian_reply(text, notify=None, now=None):
         if found:
             msg += " Directions: %s." % found[0]["where"].rstrip(".")
         log_visit(name or "", host)
+        if on_visit:
+            on_visit(name or "", host)
         note("%s is here to see %s." % (name or "A visitor", host))
         return msg, msg
     m2 = re.search(r"\b(?:where(?:'s| is| are)|where can i find|how do i get to|how can i get to|which way (?:is|to)|directions to|take me to|i(?:'m| am) looking for|i need to find|i'm trying to find|i am trying to find)\s+(?:the |a |an )?(.+?)(?: please)?$", low)

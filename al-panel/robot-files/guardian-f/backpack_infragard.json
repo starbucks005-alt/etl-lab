@@ -194,6 +194,36 @@
         "sideEffects": "write"
       },
       {
+        "id": "help_words",
+        "name": "Help Words",
+        "kind": "in_framework",
+        "description": "When the owner switches it on, she notices plain words that may mean someone needs help, and a long stretch of very loud sound, and puts a silent alert on the owner's panel saying exactly what she heard. She never judges a person.",
+        "input": {"type": "object", "properties": {}},
+        "output": {"type": "object", "properties": {"tier": {"type": "number"}, "phrase": {"type": "string"}}},
+        "binding": {"handler": "guardian/al-distress"},
+        "sideEffects": "dispatch"
+      },
+      {
+        "id": "device_check",
+        "name": "Device Check",
+        "kind": "in_framework",
+        "description": "On the owner's button press, she names the maker of a device Network watch flagged and tries about twenty common ports on that one device. She reports facts and does not say a device is malicious.",
+        "input": {"type": "object", "required": ["mac"], "properties": {"mac": {"type": "string"}}},
+        "output": {"type": "object", "properties": {"maker": {"type": "string"}, "open": {"type": "array"}}},
+        "binding": {"handler": "guardian/al-devcheck"},
+        "sideEffects": "read"
+      },
+      {
+        "id": "checkin_photo",
+        "name": "Check-in Photo",
+        "kind": "in_framework",
+        "description": "When the owner switches it on, she announces and takes a photo of a visitor who checks in, and keeps it with that visit for the days the owner chose.",
+        "input": {"type": "object", "properties": {"name": {"type": "string"}, "host": {"type": "string"}}},
+        "output": {"type": "object", "properties": {"photo": {"type": "string"}}},
+        "binding": {"handler": "guardian/al-checkin"},
+        "sideEffects": "write"
+      },
+      {
         "id": "room_air",
         "name": "Room Air",
         "kind": "in_framework",
