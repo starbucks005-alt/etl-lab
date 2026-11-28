@@ -78,7 +78,7 @@ const uint8_t EYE_TROUBLE[3]= {0, 60, 255};       // something went wrong (read 
 #define SPEECH_TIMES 3      // a voice counts when it is this many times the room's level...
 #define SPEECH_OVER  40     // ...plus this much. 2026-11-20 evening, Astri's board on the bench with music playing: the room read 16 and Dr. O's voice reached 118, under the old 2x + 150 = 182.
 #define NECK_ON      1      // 1 = her head turns while she talks, 0 = no servo on this head
-#define NECK_MIDDLE  40     // ASTRO: 40, the last number Dr. O tried on 2026-11-20 (90 had him looking over his left shoulder). The servo angle that faces straight ahead. If her head looks off to one side at rest, change this a few degrees at a time.
+#define NECK_MIDDLE  90     // ASTRO: 90, perfect for him, Dr. O, 2026-11-28. The servo angle that faces straight ahead. If his head looks off to one side at rest, change this a few degrees at a time.
 #define NECK_SWAY    49     // how far she turns to the far left and far right while talking, in degrees (4 to 55). Astri: 49, Dr. O, 2026-11-20 (14 was "not much")
 #define NECK_BEATS   1      // 1 = her head moves with her words: a small quick turn on each stressed beat of her voice (Dr. O, 2026-11-20: "like it is part of her talking")
 #define NECK_BEAT_DEG 10    // how big those small turns are, in degrees
