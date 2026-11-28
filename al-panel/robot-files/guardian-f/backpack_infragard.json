@@ -68,6 +68,7 @@
           "asset watch has a reference and a recent check",
           "room sensor heard from",
           "alerts left uncleared",
+          "clock confirmed with an internet time server",
           "internet reachable",
           "heat, storage and memory"
         ],

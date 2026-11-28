@@ -12,6 +12,7 @@ The checks, all things she can really see from inside:
   Asset watch           a reference photo exists, and the last check is not stale
   Room sensor           chosen and heard from recently
   Alerts                nothing left uncleared
+  Clock                 her time is confirmed with an internet time server, and not before the day her own files were put on her
   Internet              she can reach out (the weather, CISA and place lookups need it)
   Heat, disk, memory    the Pi's own health
 It is not a scan of anything else on the network, and it does not claim to find intruders. It tells the owner the state of this robot.
@@ -96,6 +97,15 @@ def _disk_free_fraction(path="/"):
         u = shutil.disk_usage(path)
         return u.free / u.total
     except OSError:
+        return None
+
+
+def _clock():
+    try:
+        import al_clock
+        st = al_clock.status()
+        return st if st.get("known") else None
+    except Exception:
         return None
 
 
@@ -191,6 +201,14 @@ def run(now=None, base=None, probes=None):
     else:
         n = len([a for a in al.get("active", []) if a.get("source") != "Security check" and a.get("tier", 0) >= 2])
         rows.append(_row("alerts", "Alerts", n == 0, "Nothing waiting." if n == 0 else "%d alert(s) are still on the panel." % n, "Look at them and clear the ones you have dealt with."))
+
+    clk = get("clock", _clock)
+    if clk is None:
+        rows.append(_row("clock", "Clock", None, "I could not read my clock's state."))
+    else:
+        import al_clock
+        c_ok, c_words, c_fix = al_clock.detail(clk)
+        rows.append(_row("clock", "Clock", c_ok, c_words, c_fix))
 
     net_ok = get("internet", _internet)
     rows.append(_row("internet", "Internet", net_ok, "I can reach the internet." if net_ok else "I cannot reach the internet, so weather, CISA and place lookups will fail.", "Check the Wi-Fi."))

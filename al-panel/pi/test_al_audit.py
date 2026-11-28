@@ -6,7 +6,8 @@ import al_audit as au
 import al_chain
 
 GOOD = {"lock": lambda: True, "ports": lambda: {22, 8000}, "logs": lambda: (True, []), "net": lambda: {"on": True, "known": [1, 2], "flagged": []},
-        "assets": lambda: None, "room": lambda: None, "alerts": lambda: {"active": []}, "internet": lambda: True, "temp": lambda: 45.0, "disk": lambda: 0.8, "mem": lambda: 0.6}
+        "assets": lambda: None, "room": lambda: None, "alerts": lambda: {"active": []}, "internet": lambda: True, "temp": lambda: 45.0, "disk": lambda: 0.8, "mem": lambda: 0.6,
+        "clock": lambda: {"known": True, "synced": True, "rtc": True, "tz": "x", "now": 1, "behind": False, "ok": True}}
 
 
 def probes(**over):
@@ -24,6 +25,17 @@ class Checks(unittest.TestCase):
         r = au.run(now=1000, probes=probes())
         self.assertEqual(r["attention"], 0)
         self.assertIn("all in good order", au.spoken(r))
+
+    def test_a_clock_not_confirmed_needs_attention_and_says_so(self):
+        r = au.run(now=1000, probes=probes(clock=lambda: {"known": True, "synced": False, "rtc": True, "tz": "x", "now": 1, "behind": False, "ok": False}))
+        c = by_id(r, "clock")
+        self.assertEqual(c["status"], "attention")
+        self.assertIn("may be off", c["detail"])
+        self.assertIn("battery", c["fix"])
+
+    def test_an_unreadable_clock_is_unknown_not_a_problem(self):
+        c = by_id(au.run(now=1000, probes=probes(clock=lambda: None)), "clock")
+        self.assertEqual(c["status"], "unknown")
 
     def test_no_passcode_needs_attention(self):
         r = au.run(probes=probes(lock=lambda: False))

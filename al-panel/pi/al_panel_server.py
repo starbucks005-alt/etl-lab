@@ -83,11 +83,12 @@ try:
     import al_distress as gdistress  # noqa: E402  (words and loud sound that may mean someone needs help: a SILENT panel alert, never a judgment of a person)
     import al_devcheck as gdev  # noqa: E402  (the owner presses Check on a flagged device: maker and common open ports, nothing more)
     import al_checkin as gcheckin  # noqa: E402  (front desk check-in photos: announced like every ordinary photo, off until the owner switches it on)
+    import al_clock as gclock  # noqa: E402  (whether her own clock can be trusted: confirmed with an internet time server, not earlier than her own files)
     import al_alert as galert  # noqa: E402  (alert tiers: panel banner, slow pulse, flash; silent unless the owner switches voice on)
     import al_room as groom  # noqa: E402  (reads the SwitchBot room sensor over Bluetooth and says the temperature, humidity and CO2)
 except Exception as _e:
     print("GUARDIAN SKILLS partly missing:", str(_e)[:100], flush=True)
-    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = gfeeds = ginbox = grec = gdistress = gdev = gcheckin = None
+    gplace = gnet = gassets = glatch = glock = groom = galert = gaudit = gsectors = ggobag = gbrief = gfeeds = ginbox = grec = gdistress = gdev = gcheckin = gclock = None
 
 try:
     import al_lookup as glookup  # noqa: E402  (the Guardian's live lookup: weather and alerts from the National Weather Service, new exploited vulnerabilities from CISA, short facts from Wikipedia; she names the source, and says so when she cannot reach it. Missing file means no lookup)
@@ -2941,6 +2942,13 @@ def checkin_delete(name):
         return jsonify(error="no such photo"), 404
     gcheckin.delete(name)
     return jsonify(gcheckin.view())
+
+
+@app.get("/api/timecheck")
+def timecheck_get():
+    if gclock is None:
+        return _missing("clock check")
+    return jsonify(gclock.view())
 
 
 @app.get("/api/alerts")
